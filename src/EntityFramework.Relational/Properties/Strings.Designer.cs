@@ -292,6 +292,30 @@ namespace Microsoft.Data.Entity.Relational
             get { return GetString("InvalidMaxBatchSize"); }
         }
 
+        /// <summary>
+        /// Unable to materialize entity of type '{entityType}'. No discriminators were matched.
+        /// </summary>
+        public static string UnableToDiscriminate([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToDiscriminate", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// A discriminator property cannot be set for the entity type '{entityType}' because it is not the root of an inheritance hierarchy.
+        /// </summary>
+        public static string DiscriminatorPropertyMustBeOnRoot([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DiscriminatorPropertyMustBeOnRoot", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.
+        /// </summary>
+        public static string DiscriminatorPropertyNotFound([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DiscriminatorPropertyNotFound", "property", "entityType"), property, entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

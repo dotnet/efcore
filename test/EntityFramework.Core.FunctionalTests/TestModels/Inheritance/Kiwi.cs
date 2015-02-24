@@ -5,5 +5,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Inheritance
 {
     public class Kiwi : Bird
     {
+        public Island FoundOn { get; set; }
+    }
+
+    public enum Island : byte
+    {
+        North,
+        South
     }
 }

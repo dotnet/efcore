@@ -6,11 +6,10 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
-    public class DefaultQueryExpressionTreeVisitor : ExpressionTreeVisitor
+    public class DefaultQueryExpressionTreeVisitor : ExpressionTreeVisitorBase
     {
         private readonly EntityQueryModelVisitor _entityQueryModelVisitor;
 

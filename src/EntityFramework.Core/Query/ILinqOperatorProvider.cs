@@ -39,10 +39,9 @@ namespace Microsoft.Data.Entity.Query
         MethodInfo AsQueryable { get; }
         MethodInfo TrackEntities { get; }
         MethodInfo InterceptExceptions { get; }
+        MethodInfo OfType { get; }
 
-        MethodInfo GetAggregateMethod(
-            [NotNull] string methodName, [NotNull] Type elementType);
-
+        MethodInfo GetAggregateMethod([NotNull] string methodName, [NotNull] Type elementType);
         Expression AdjustSequenceType([NotNull] Expression expression);
     }
 }

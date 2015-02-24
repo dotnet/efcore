@@ -11,6 +11,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
     {
         protected const string RelationalTableAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.TableName;
         protected const string RelationalSchemaAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.Schema;
+        protected const string DiscriminatorPropertyAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.DiscriminatorProperty;
+        protected const string DiscriminatorValueAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.DiscriminatorValue;
 
         private readonly IEntityType _entityType;
 
@@ -21,19 +23,19 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             _entityType = entityType;
         }
 
-        public virtual string Table
-        {
-            get { return _entityType[RelationalTableAnnotation] ?? _entityType.SimpleName; }
-        }
+        public virtual string Table => _entityType.RootType[RelationalTableAnnotation] ?? _entityType.RootType.SimpleName;
 
-        public virtual string Schema
-        {
-            get { return _entityType[RelationalSchemaAnnotation]; }
-        }
+        public virtual string Schema => _entityType.RootType[RelationalSchemaAnnotation];
 
-        protected virtual IEntityType EntityType
-        {
-            get { return _entityType; }
-        }
+        public virtual IProperty DiscriminatorProperty
+            => _entityType.RootType
+                .GetProperty(
+                    _entityType.RootType
+                        .GetAnnotation(DiscriminatorPropertyAnnotation).Value);
+
+        public virtual string DiscriminatorValue 
+            => _entityType[DiscriminatorValueAnnotation] ?? _entityType.SimpleName;
+
+        protected virtual IEntityType EntityType => _entityType;
     }
 }

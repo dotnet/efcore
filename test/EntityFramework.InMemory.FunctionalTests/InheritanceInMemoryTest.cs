@@ -5,9 +5,9 @@ using Microsoft.Data.Entity.FunctionalTests;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
-    public class InheritanceMemoryTest : InheritanceTestBase<InheritanceInMemoryFixture>
+    public class InheritanceInMemoryTest : InheritanceTestBase<InheritanceInMemoryFixture>
     {
-        public InheritanceMemoryTest(InheritanceInMemoryFixture fixture)
+        public InheritanceInMemoryTest(InheritanceInMemoryFixture fixture)
             : base(fixture)
         {
         }

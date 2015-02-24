@@ -8,11 +8,10 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
-    public class RequiresMaterializationExpressionTreeVisitor : ExpressionTreeVisitor
+    public class RequiresMaterializationExpressionTreeVisitor : ExpressionTreeVisitorBase
     {
         private readonly EntityQueryModelVisitor _queryModelVisitor;
         private readonly Dictionary<IQuerySource, int> _querySources = new Dictionary<IQuerySource, int>();

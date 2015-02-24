@@ -30,6 +30,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var materializerMock = new Mock<IEntityMaterializer>();
             var typeMock = materializerMock.As<IEntityType>();
+            typeMock.SetupGet(et => et.Type).Returns(typeof(string));
+            typeMock.SetupGet(et => et.HasClrType).Returns(true);
 
             var reader = Mock.Of<IValueReader>();
             new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(typeMock.Object)(reader);

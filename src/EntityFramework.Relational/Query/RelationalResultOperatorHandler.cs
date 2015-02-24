@@ -12,7 +12,9 @@ using Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
+using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
@@ -44,19 +46,11 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             public RelationalQueryModelVisitor QueryModelVisitor { get; }
 
-            public Expression EvalOnServer
-            {
-                get { return QueryModelVisitor.Expression; }
-            }
+            public Expression EvalOnServer => QueryModelVisitor.Expression;
 
             public Expression EvalOnClient
-            {
-                get
-                {
-                    return _resultOperatorHandler
-                        .HandleResultOperator(QueryModelVisitor, ResultOperator, QueryModel);
-                }
-            }
+                => _resultOperatorHandler
+                    .HandleResultOperator(QueryModelVisitor, ResultOperator, QueryModel);
         }
 
         private static readonly Dictionary<Type, Func<HandlerContext, Expression>>
@@ -70,6 +64,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     { typeof(LastResultOperator), HandleLast },
                     { typeof(MaxResultOperator), HandleMax },
                     { typeof(MinResultOperator), HandleMin },
+                    { typeof(OfTypeResultOperator), HandleOfType },
                     { typeof(SingleResultOperator), HandleSingle },
                     { typeof(SkipResultOperator), HandleSkip },
                     { typeof(SumResultOperator), HandleSum },
@@ -247,6 +242,80 @@ namespace Microsoft.Data.Entity.Relational.Query
             return handlerContext.EvalOnClient;
         }
 
+        private static Expression HandleOfType(HandlerContext handlerContext)
+        {
+            var ofTypeResultOperator
+                = (OfTypeResultOperator)handlerContext.ResultOperator;
+
+            var entityType
+                = handlerContext.QueryModelVisitor.QueryCompilationContext.Model
+                    .TryGetEntityType(ofTypeResultOperator.SearchedItemType);
+
+            if (entityType == null)
+            {
+                return handlerContext.EvalOnClient;
+            }
+
+            var concreteEntityTypes
+                = entityType.GetConcreteTypesInHierarchy().ToArray();
+
+            if (concreteEntityTypes.Length != 1
+                || concreteEntityTypes[0].RootType != concreteEntityTypes[0])
+            {
+                var discriminatorProperty
+                    = concreteEntityTypes[0].Relational().DiscriminatorProperty;
+
+                var discriminatorColumn
+                    = handlerContext.SelectExpression.Projection
+                        .Single(c => c.Property == discriminatorProperty);
+
+                var discriminatorPredicate
+                    = concreteEntityTypes
+                        .Select(concreteEntityType =>
+                            Expression.Equal(
+                                discriminatorColumn,
+                                Expression.Constant(concreteEntityType.Relational().DiscriminatorValue)))
+                        .Aggregate((current, next) => Expression.OrElse(next, current));
+
+                handlerContext.SelectExpression.Predicate
+                    = new DiscriminatorReplacingExpressionTreeVisitor(
+                        discriminatorPredicate,
+                        handlerContext.QueryModel.MainFromClause)
+                        .VisitExpression(handlerContext.SelectExpression.Predicate);
+            }
+
+            return Expression.Call(
+                handlerContext.QueryModelVisitor.LinqOperatorProvider.Cast
+                    .MakeGenericMethod(ofTypeResultOperator.SearchedItemType),
+                handlerContext.QueryModelVisitor.Expression);
+        }
+
+        private class DiscriminatorReplacingExpressionTreeVisitor : ExpressionTreeVisitor
+        {
+            private readonly Expression _discriminatorPredicate;
+            private readonly IQuerySource _querySource;
+
+            public DiscriminatorReplacingExpressionTreeVisitor(
+                Expression discriminatorPredicate, IQuerySource querySource)
+            {
+                _discriminatorPredicate = discriminatorPredicate;
+                _querySource = querySource;
+            }
+
+            protected override Expression VisitExtensionExpression(ExtensionExpression expression)
+            {
+                var discriminatorExpression = expression as DiscriminatorPredicateExpression;
+
+                if (discriminatorExpression != null
+                    && discriminatorExpression.QuerySource == _querySource)
+                {
+                    return new DiscriminatorPredicateExpression(_discriminatorPredicate, _querySource);
+                }
+
+                return expression;
+            }
+        }
+
         private static Expression HandleSingle(HandlerContext handlerContext)
         {
             handlerContext.SelectExpression.Limit = 2;
@@ -286,12 +355,16 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static Expression TransformClientExpression<TResult>(HandlerContext handlerContext)
         {
-            var querySource = handlerContext.QueryModel.BodyClauses.OfType<IQuerySource>().LastOrDefault() ??
-                              handlerContext.QueryModel.MainFromClause;
+            var querySource
+                = handlerContext.QueryModel.BodyClauses
+                    .OfType<IQuerySource>()
+                    .LastOrDefault()
+                  ?? handlerContext.QueryModel.MainFromClause;
 
-            var visitor = new ResultTransformingExpressionTreeVisitor<TResult>(
-                querySource,
-                handlerContext.QueryModelVisitor.QueryCompilationContext);
+            var visitor
+                = new ResultTransformingExpressionTreeVisitor<TResult>(
+                    querySource,
+                    handlerContext.QueryModelVisitor.QueryCompilationContext);
 
             return visitor.VisitExpression(handlerContext.QueryModelVisitor.Expression);
         }

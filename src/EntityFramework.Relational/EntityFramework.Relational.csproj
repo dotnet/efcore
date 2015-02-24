@@ -141,6 +141,7 @@
     <Compile Include="Query\CommandBuilder.cs" />
     <Compile Include="Query\CommandParameter.cs" />
     <Compile Include="Query\Expressions\ColumnAggregateExpression.cs" />
+    <Compile Include="Query\Expressions\DiscriminatorPredicateExpression.cs" />
     <Compile Include="Query\Expressions\JoinExpressionBase.cs" />
     <Compile Include="Query\Expressions\LeftOuterJoinExpression.cs" />
     <Compile Include="Query\Expressions\MaxExpression.cs" />
@@ -150,6 +151,7 @@
     <Compile Include="Query\ExpressionTreeVisitors\FilteringExpressionTreeVisitor.cs" />
     <Compile Include="Query\AsyncIncludeCollectionIterator.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\IncludeExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\MaterializerFactory.cs" />
     <Compile Include="Query\IAsyncIncludeRelatedValuesStrategy.cs" />
     <Compile Include="Query\IIncludeRelatedValuesStrategy.cs" />
     <Compile Include="Query\IncludeCollectionIterator.cs" />

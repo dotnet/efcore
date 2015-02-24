@@ -11,13 +11,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Cache.Memory;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.StreamedData;
-using Remotion.Linq.Parsing;
 using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
 using Remotion.Linq.Parsing.ExpressionTreeVisitors.TreeEvaluation;
 using Remotion.Linq.Parsing.Structure;
@@ -144,7 +144,8 @@ namespace Microsoft.Data.Entity.Query
             var cacheKey
                 = dataStore.Model.GetHashCode().ToString()
                   + isAsync
-                  + query;
+                  + new ExpressionStringBuilder()
+                      .Build(query);
 
             var compiledQuery
                 = _memoryCache.GetOrSet(
@@ -160,7 +161,7 @@ namespace Microsoft.Data.Entity.Query
             return compiledQuery;
         }
 
-        private class ParameterExtractingExpressionTreeVisitor : ExpressionTreeVisitor
+        private class ParameterExtractingExpressionTreeVisitor : ExpressionTreeVisitorBase
         {
             public static Expression ExtractParameters(Expression expressionTree, QueryContext queryContext)
             {

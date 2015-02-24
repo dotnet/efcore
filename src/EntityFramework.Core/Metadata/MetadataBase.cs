@@ -53,8 +53,10 @@ namespace Microsoft.Data.Entity.Metadata
                 : null;
         }
 
-        public virtual Annotation GetAnnotation([NotNull] string annotationName)
+        public virtual Annotation GetAnnotation(string annotationName)
         {
+            Check.NotEmpty(annotationName, nameof(annotationName));
+
             var annotation = TryGetAnnotation(annotationName);
             if (annotation == null)
             {
@@ -83,11 +85,7 @@ namespace Microsoft.Data.Entity.Metadata
         // ReSharper disable once AnnotationRedundanceInHierarchy
         public virtual string this[[NotNull] string annotationName]
         {
-            get
-            {
-                var annotation = TryGetAnnotation(annotationName);
-                return annotation == null ? null : annotation.Value;
-            }
+            get { return TryGetAnnotation(annotationName)?.Value; }
             [param: CanBeNull]
             set
             {
@@ -103,14 +101,9 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual IEnumerable<Annotation> Annotations
-        {
-            get
-            {
-                return _annotations.HasValue
-                    ? (IEnumerable<Annotation>)_annotations.Value
-                    : ImmutableList<Annotation>.Empty;
-            }
-        }
+            => _annotations.HasValue
+                ? (IEnumerable<Annotation>)_annotations.Value
+                : ImmutableList<Annotation>.Empty;
 
         private class AnnotationComparer : IComparer<IAnnotation>
         {
@@ -120,9 +113,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        IEnumerable<IAnnotation> IMetadata.Annotations
-        {
-            get { return Annotations; }
-        }
+        IEnumerable<IAnnotation> IMetadata.Annotations => Annotations;
     }
 }

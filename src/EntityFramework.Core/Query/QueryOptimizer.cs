@@ -68,7 +68,8 @@ namespace Microsoft.Data.Entity.Query
 
             VisitQueryModel(subQueryModel);
 
-            if (subQueryModel.ResultOperators.Any()
+            if (subQueryModel.ResultOperators
+                .Any(ro => !(ro is OfTypeResultOperator))
                 || subQueryModel.BodyClauses.Any(bc => bc is OrderByClause))
             {
                 return;
@@ -96,6 +97,11 @@ namespace Microsoft.Data.Entity.Query
 
             queryModel.TransformExpressions(ex =>
                 ReferenceReplacingExpressionTreeVisitor.ReplaceClauseReferences(ex, innerBodyClauseMapping, false));
+
+            foreach (var resultOperator in subQueryModel.ResultOperators.Reverse())
+            {
+                queryModel.ResultOperators.Insert(0, resultOperator);
+            }
 
             foreach (var queryAnnotation 
                 in _queryAnnotations

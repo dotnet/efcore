@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Query
             protected set
             {
                 Check.NotNull(value, nameof(value));
-
+                
                 _expression = value;
             }
         }

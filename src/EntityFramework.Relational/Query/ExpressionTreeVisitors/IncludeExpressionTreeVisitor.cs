@@ -10,14 +10,14 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
-    public class IncludeExpressionTreeVisitor : ExpressionTreeVisitor
+    public class IncludeExpressionTreeVisitor : ExpressionTreeVisitorBase
     {
         private readonly IQuerySource _querySource;
         private readonly IReadOnlyList<INavigation> _navigationPath;
@@ -91,14 +91,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 = selectExpression.FindTableForQuerySource(querySource);
 
             var readerIndex = 0;
-
             var canProduceInnerJoin = true;
+
             foreach (var navigation in navigationPath)
             {
                 var targetEntityType = navigation.GetTargetType();
                 var targetTableName = _queryCompilationContext.GetTableName(targetEntityType);
                 var targetTableAlias = targetTableName.First().ToString().ToLower();
-                var materializer = _queryCompilationContext.EntityMaterializerSource.GetMaterializer(targetEntityType);
 
                 if (!navigation.IsCollection())
                 {
@@ -111,23 +110,31 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     var readerOffset = selectExpression.Projection.Count;
 
-                    var columnExpressions
-                        = targetEntityType.Properties
-                            .Select(p => new ColumnExpression(
-                                _queryCompilationContext.GetColumnName(p),
-                                p,
-                                joinedTableExpression));
-
                     canProduceInnerJoin
                         = canProduceInnerJoin
                           && (navigation.ForeignKey.IsRequired
                               && navigation.PointsToPrincipal);
 
-                    var joinExpression = canProduceInnerJoin
-                        ? selectExpression
-                            .AddInnerJoin(joinedTableExpression, columnExpressions)
-                        : selectExpression
-                            .AddOuterJoin(joinedTableExpression, columnExpressions);
+                    var joinExpression
+                        = canProduceInnerJoin
+                            ? selectExpression
+                                .AddInnerJoin(joinedTableExpression)
+                            : selectExpression
+                                .AddOuterJoin(joinedTableExpression);
+
+                    var materializer
+                        = new MaterializerFactory(
+                            _queryCompilationContext.EntityMaterializerSource)
+                            .CreateMaterializer(
+                                targetEntityType,
+                                selectExpression,
+                                projectionAdder:
+                                    (p, se) => se.AddToProjection(
+                                        new ColumnExpression(
+                                            _queryCompilationContext.GetColumnName(p),
+                                            p,
+                                            joinedTableExpression)) - readerOffset,
+                                querySource: null);
 
                     joinExpression.Predicate
                         = BuildJoinEqualityExpression(
@@ -149,7 +156,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 Expression.Convert(EntityQueryModelVisitor.QueryContextParameter, typeof(RelationalQueryContext)),
                                 Expression.Constant(readerIndex),
                                 Expression.Constant(readerOffset),
-                                Expression.Constant(materializer)));
+                                materializer));
                 }
                 else
                 {
@@ -177,14 +184,17 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     targetSelectExpression.AddTable(targetTableExpression);
 
-                    foreach (var property in targetEntityType.Properties)
-                    {
-                        targetSelectExpression
-                            .AddToProjection(
-                                _queryCompilationContext.GetColumnName(property),
-                                property,
-                                querySource);
-                    }
+                    var materializer
+                        = new MaterializerFactory(
+                            _queryCompilationContext.EntityMaterializerSource)
+                            .CreateMaterializer(
+                                targetEntityType,
+                                targetSelectExpression,
+                                (p, se) => se.AddToProjection(
+                                    _queryCompilationContext.GetColumnName(p),
+                                    p,
+                                    querySource),
+                                querySource: null);
 
                     var innerJoinSelectExpression
                         = selectExpression.Clone(
@@ -249,7 +259,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                             readerParameter,
                                             Expression.Constant(targetEntityType)),
                                         readerParameter)),
-                                Expression.Constant(materializer)));
+                                materializer));
                 }
             }
         }

@@ -28,6 +28,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             var kiwi = model.AddEntityType(typeof(Kiwi));
             kiwi.BaseType = bird;
+            kiwi.AddProperty("FoundOn", typeof(Island));
 
             var eagle = model.AddEntityType(typeof(Eagle));
             eagle.BaseType = bird;
@@ -47,7 +48,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     Species = "Apteryx owenii",
                     Name = "Great spotted kiwi",
-                    IsFlightless = true
+                    IsFlightless = true,
+                    FoundOn = Island.South
                 };
 
             var eagle = new Eagle

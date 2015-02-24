@@ -5,11 +5,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
-    public class TaskBlockingExpressionTreeVisitor : ExpressionTreeVisitor
+    public class TaskBlockingExpressionTreeVisitor : ExpressionTreeVisitorBase
     {
         public override Expression VisitExpression([CanBeNull] Expression expression)
         {

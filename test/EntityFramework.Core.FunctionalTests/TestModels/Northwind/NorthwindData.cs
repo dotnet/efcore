@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
@@ -123,7 +124,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
             }
         }
 
-        private class ShadowStateAccessRewriter : ExpressionTreeVisitor
+        private class ShadowStateAccessRewriter : ExpressionTreeVisitorBase
         {
             private static readonly MethodInfo _propertyMethodInfo
                 = typeof(QueryExtensions).GetTypeInfo().GetDeclaredMethod("Property");

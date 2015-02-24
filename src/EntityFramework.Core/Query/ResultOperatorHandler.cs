@@ -38,6 +38,7 @@ namespace Microsoft.Data.Entity.Query
                     { typeof(LongCountResultOperator), (v, _, __) => HandleLongCount(v) },
                     { typeof(MinResultOperator), (v, _, __) => HandleMin(v) },
                     { typeof(MaxResultOperator), (v, _, __) => HandleMax(v) },
+                    { typeof(OfTypeResultOperator), (v, r, q) => HandleOfType(v, (OfTypeResultOperator)r) },
                     { typeof(SingleResultOperator), (v, r, __) => HandleSingle(v, (ChoiceResultOperatorBase)r) },
                     { typeof(SkipResultOperator), (v, r, __) => HandleSkip(v, (SkipResultOperator)r) },
                     { typeof(SumResultOperator), (v, _, __) => HandleSum(v) },
@@ -236,6 +237,16 @@ namespace Microsoft.Data.Entity.Query
         private static Expression HandleMax(EntityQueryModelVisitor entityQueryModelVisitor)
         {
             return HandleAggregate(entityQueryModelVisitor, "Max");
+        }
+
+        private static Expression HandleOfType(
+           EntityQueryModelVisitor entityQueryModelVisitor,
+           OfTypeResultOperator ofTypeResultOperator)
+        {
+            return Expression.Call(
+                entityQueryModelVisitor.LinqOperatorProvider.OfType
+                    .MakeGenericMethod(ofTypeResultOperator.SearchedItemType),
+                entityQueryModelVisitor.Expression);
         }
 
         private static Expression HandleSingle(

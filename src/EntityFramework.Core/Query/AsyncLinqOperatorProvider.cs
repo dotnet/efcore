@@ -337,6 +337,7 @@ namespace Microsoft.Data.Entity.Query
         private static readonly MethodInfo _last = GetMethod("Last");
         private static readonly MethodInfo _lastOrDefault = GetMethod("LastOrDefault");
         private static readonly MethodInfo _longCount = GetMethod("LongCount");
+        private static readonly MethodInfo _ofType = GetMethod("OfType");
         private static readonly MethodInfo _single = GetMethod("Single");
         private static readonly MethodInfo _singleOrDefault = GetMethod("SingleOrDefault");
         private static readonly MethodInfo _skip = GetMethod("Skip", 1);
@@ -345,6 +346,7 @@ namespace Microsoft.Data.Entity.Query
         public virtual MethodInfo Last => _last;
         public virtual MethodInfo LastOrDefault => _lastOrDefault;
         public virtual MethodInfo LongCount => _longCount;
+        public virtual MethodInfo OfType => _ofType;
         public virtual MethodInfo Single => _single;
         public virtual MethodInfo SingleOrDefault => _singleOrDefault;
         public virtual MethodInfo Skip => _skip;

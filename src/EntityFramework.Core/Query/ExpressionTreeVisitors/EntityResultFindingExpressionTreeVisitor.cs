@@ -7,11 +7,10 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
-    public class EntityResultFindingExpressionTreeVisitor : ExpressionTreeVisitor
+    public class EntityResultFindingExpressionTreeVisitor : ExpressionTreeVisitorBase
     {
         private readonly IModel _model;
 

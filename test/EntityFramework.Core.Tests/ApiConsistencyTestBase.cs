@@ -33,8 +33,9 @@ namespace Microsoft.Data.Entity
                     from method in type.GetMethods(PublicInstance)
                     where method.DeclaringType == type
                           && !(method.IsVirtual && !method.IsFinal)
-                          && !method.GetCustomAttributes(typeof(CompilerGeneratedAttribute)).Any()
-                    select type.FullName + "." + method.Name)
+                          && !method.Name.StartsWith("add_")
+                          && !method.Name.StartsWith("remove_")
+                   select type.FullName + "." + method.Name)
                     .ToList();
 
             Assert.False(

@@ -101,16 +101,24 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
             {
-                foreach (var property in entityType.Properties)
-                {
-                    selectExpression.AddToProjection(
-                        QueryModelVisitor.QueryCompilationContext
-                            .GetColumnName(property),
-                        property,
-                        _querySource);
-                }
+                var materializer
+                    = new MaterializerFactory(
+                        QueryModelVisitor
+                            .QueryCompilationContext
+                            .EntityMaterializerSource)
+                        .CreateMaterializer(
+                            entityType,
+                            selectExpression,
+                            (p, se) =>
+                                se.AddToProjection(
+                                    QueryModelVisitor.QueryCompilationContext.GetColumnName(p),
+                                    p,
+                                    _querySource),
+                            _querySource);
 
-                queryMethodInfo = RelationalQueryModelVisitor.CreateEntityMethodInfo.MakeGenericMethod(elementType);
+                queryMethodInfo
+                    = RelationalQueryModelVisitor.CreateEntityMethodInfo
+                        .MakeGenericMethod(elementType);
 
                 var keyProperties
                     = entityType.GetPrimaryKey().Properties;
@@ -119,19 +127,15 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     = QueryModelVisitor.QueryCompilationContext.EntityKeyFactorySource
                         .GetKeyFactory(keyProperties);
 
-                var materializer
-                    = QueryModelVisitor.QueryCompilationContext.EntityMaterializerSource
-                        .GetMaterializer(entityType);
-
                 queryMethodArguments.AddRange(
-                    new Expression[]
+                    new[]
                         {
                             Expression.Constant(0),
                             Expression.Constant(entityType),
                             Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
                             Expression.Constant(keyFactory),
                             Expression.Constant(keyProperties),
-                            Expression.Constant(materializer)
+                            materializer
                         });
             }
 

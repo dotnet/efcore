@@ -16,6 +16,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public class SelectExpression : TableExpressionBase
     {
+#if DEBUG
+        internal string DebugView => ToString();
+#endif
+
         private readonly List<ColumnExpression> _projection = new List<ColumnExpression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<Ordering> _orderBy = new List<Ordering>();
@@ -225,7 +229,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual Expression ProjectionExpression => _projectionExpression;
 
-        public virtual void AddToProjection(
+        public virtual int AddToProjection(
             [NotNull] string column,
             [NotNull] IProperty property,
             [NotNull] IQuerySource querySource)
@@ -234,21 +238,30 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotNull(property, nameof(property));
             Check.NotNull(querySource, nameof(querySource));
 
-            if (GetProjectionIndex(property, querySource) == -1)
+            var projectionIndex = GetProjectionIndex(property, querySource);
+
+            if (projectionIndex == -1)
             {
+                projectionIndex = _projection.Count;
+
                 _projection.Add(
                     new ColumnExpression(column, property, FindTableForQuerySource(querySource)));
             }
+
+            return projectionIndex;
         }
 
-        public virtual void AddToProjection([NotNull] ColumnExpression columnExpression)
+        public virtual int AddToProjection([NotNull] ColumnExpression columnExpression)
         {
             Check.NotNull(columnExpression, nameof(columnExpression));
 
-            if (_projection
-                .FindIndex(ce =>
-                    ce.Property == columnExpression.Property
-                    && ce.TableAlias == columnExpression.TableAlias) == -1)
+            var projectionIndex
+                = _projection
+                    .FindIndex(ce =>
+                        ce.Property == columnExpression.Property
+                        && ce.TableAlias == columnExpression.TableAlias);
+
+            if (projectionIndex == -1)
             {
                 if (Alias != null)
                 {
@@ -261,8 +274,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                     }
                 }
 
+                projectionIndex = _projection.Count;
+
                 _projection.Add(columnExpression);
             }
+
+            return projectionIndex;
         }
 
         public virtual void SetProjectionCaseExpression([NotNull] CaseExpression caseExpression)
@@ -392,25 +409,22 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
 
             var innerJoinExpression = new InnerJoinExpression(tableExpression);
+
             _tables.Add(innerJoinExpression);
             _projection.AddRange(projection);
 
             return innerJoinExpression;
         }
 
-        public virtual JoinExpressionBase AddOuterJoin(
-            [NotNull] TableExpressionBase tableExpression,
-            [NotNull] IEnumerable<ColumnExpression> projection)
+        public virtual JoinExpressionBase AddOuterJoin([NotNull] TableExpressionBase tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
-            Check.NotNull(projection, nameof(projection));
 
             tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
 
             var outerJoinExpression = new LeftOuterJoinExpression(tableExpression);
 
             _tables.Add(outerJoinExpression);
-            _projection.AddRange(projection);
 
             return outerJoinExpression;
         }

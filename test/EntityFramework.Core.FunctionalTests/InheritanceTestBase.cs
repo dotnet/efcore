@@ -11,6 +11,44 @@ namespace Microsoft.Data.Entity.FunctionalTests
         where TFixture : InheritanceFixtureBase, new()
     {
         [Fact]
+        public virtual void Can_use_of_type_animal()
+        {
+            using (var context = CreateContext())
+            {
+                var animals = context.Set<Animal>().OfType<Animal>().OrderBy(a => a.Species).ToList();
+
+                Assert.Equal(2, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+                Assert.IsType<Eagle>(animals[1]);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_use_of_type_bird()
+        {
+            using (var context = CreateContext())
+            {
+                var animals = context.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species).ToList();
+
+                Assert.Equal(2, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+                Assert.IsType<Eagle>(animals[1]);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_use_of_type_kiwi()
+        {
+            using (var context = CreateContext())
+            {
+                var animals = context.Set<Animal>().OfType<Kiwi>().ToList();
+
+                Assert.Equal(1, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+            }
+        }
+
+        [Fact]
         public virtual void Can_query_all_animals()
         {
             using (var context = CreateContext())

@@ -13,5 +13,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         public string this[string annotationName] => null;
 
         public virtual string StorageName => null;
+
+        public Annotation GetAnnotation(string annotationName) => null;
     }
 }

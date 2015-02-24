@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <root>
-    <!-- 
+  <!-- 
     Microsoft ResX Schema 
     
     Version 2.0
@@ -60,173 +59,176 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-        <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-        <xsd:element name="root" msdata:IsDataSet="true">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
             <xsd:complexType>
-                <xsd:choice maxOccurs="unbounded">
-                    <xsd:element name="metadata">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-                            </xsd:sequence>
-                            <xsd:attribute name="name" use="required" type="xsd:string" />
-                            <xsd:attribute name="type" type="xsd:string" />
-                            <xsd:attribute name="mimetype" type="xsd:string" />
-                            <xsd:attribute ref="xml:space" />
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="assembly">
-                        <xsd:complexType>
-                            <xsd:attribute name="alias" type="xsd:string" />
-                            <xsd:attribute name="name" type="xsd:string" />
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="data">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-                            </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-                            <xsd:attribute ref="xml:space" />
-                        </xsd:complexType>
-                    </xsd:element>
-                    <xsd:element name="resheader">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                            </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" use="required" />
-                        </xsd:complexType>
-                    </xsd:element>
-                </xsd:choice>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
-        </xsd:element>
-    </xsd:schema>
-    <resheader name="resmimetype">
-        <value>text/microsoft-resx</value>
-    </resheader>
-    <resheader name="version">
-        <value>2.0</value>
-    </resheader>
-    <resheader name="reader">
-        <value>
-            System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral,
-            PublicKeyToken=b77a5c561934e089
-        </value>
-    </resheader>
-    <resheader name="writer">
-        <value>
-            System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral,
-            PublicKeyToken=b77a5c561934e089
-        </value>
-    </resheader>
-    <data name="InvalidEnumValue" xml:space="preserve">
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
   </data>
   <data name="ModificationFunctionInvalidEntityState" xml:space="preserve">
     <value>Can not create a ModificationFunction for an entity in state '{entityState}'.</value>
   </data>
-    <data name="UpdateConcurrencyException" xml:space="preserve">
+  <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Update failed. Expected {expectedRows} row(s) but {actualRows} row(s) returned.</value>
   </data>
-    <data name="MultipleDataStoresConfigured" xml:space="preserve">
+  <data name="MultipleDataStoresConfigured" xml:space="preserve">
     <value>Multiple relational data store configurations found. A context can only be configured to use a single data store.</value>
   </data>
-    <data name="NoDataStoreConfigured" xml:space="preserve">
+  <data name="NoDataStoreConfigured" xml:space="preserve">
     <value>No relational data stores are configured. Configure a data store using OnConfiguring or by creating an ImmutableDbContextOptions with a data store configured and passing it to the context.</value>
   </data>
-    <data name="ConnectionAndConnectionString" xml:space="preserve">
+  <data name="ConnectionAndConnectionString" xml:space="preserve">
     <value>Both an existing DbConnection and a connection string have been configured. When an existing DbConnection is used the connection string must be set on that connection.</value>
   </data>
-    <data name="NoConnectionOrConnectionString" xml:space="preserve">
+  <data name="NoConnectionOrConnectionString" xml:space="preserve">
     <value>A relational store has been configured without specifying either the DbConnection or connection string to use.</value>
   </data>
-    <data name="UnsupportedType" xml:space="preserve">
+  <data name="UnsupportedType" xml:space="preserve">
     <value>The property '{propertyName}' cannot be mapped because it is of type '{propertyType}' which is currently not supported.</value>
   </data>
-    <data name="RelationalNotInUse" xml:space="preserve">
+  <data name="RelationalNotInUse" xml:space="preserve">
     <value>Relational-specific methods can only be used when the context is using a relational data store.</value>
   </data>
-    <data name="UpdateStoreException" xml:space="preserve">
+  <data name="UpdateStoreException" xml:space="preserve">
     <value>An error occurred while updating the entries. See the inner exception for details.</value>
   </data>
-    <data name="TransactionAlreadyStarted" xml:space="preserve">
+  <data name="TransactionAlreadyStarted" xml:space="preserve">
     <value>The connection is already in a transaction and cannot participate in another transaction.</value>
   </data>
-    <data name="TransactionAssociatedWithDifferentConnection" xml:space="preserve">
+  <data name="TransactionAssociatedWithDifferentConnection" xml:space="preserve">
     <value>The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.</value>
   </data>
-    <data name="SkipNeedsOrderBy" xml:space="preserve">
+  <data name="SkipNeedsOrderBy" xml:space="preserve">
     <value>A query containing the Skip operator must include at least one OrderBy operation.</value>
   </data>
-    <data name="SequenceDefinitionMismatch" xml:space="preserve">
+  <data name="SequenceDefinitionMismatch" xml:space="preserve">
     <value>The SQL Server sequence '{sequenceName}' was already specified with a different definition.</value>
   </data>
-    <data name="RelationalLoggerCreatingDatabase" xml:space="preserve">
+  <data name="RelationalLoggerCreatingDatabase" xml:space="preserve">
     <value>Creating database '{databaseName}'.</value>
   </data>
-    <data name="RelationalLoggerOpeningConnection" xml:space="preserve">
+  <data name="RelationalLoggerOpeningConnection" xml:space="preserve">
     <value>Opening connection '{connectionString}'.</value>
   </data>
-    <data name="RelationalLoggerClosingConnection" xml:space="preserve">
+  <data name="RelationalLoggerClosingConnection" xml:space="preserve">
     <value>Closing connection '{connectionString}'.</value>
   </data>
-    <data name="RelationalLoggerBeginningTransaction" xml:space="preserve">
+  <data name="RelationalLoggerBeginningTransaction" xml:space="preserve">
     <value>Beginning transaction with isolation level '{isolationLevel}'.</value>
   </data>
-    <data name="RelationalLoggerCommittingTransaction" xml:space="preserve">
+  <data name="RelationalLoggerCommittingTransaction" xml:space="preserve">
     <value>Committing transaction.</value>
   </data>
-    <data name="RelationalLoggerRollingbackTransaction" xml:space="preserve">
+  <data name="RelationalLoggerRollingbackTransaction" xml:space="preserve">
     <value>Rolling back transaction.</value>
   </data>
-    <data name="BadSequenceType" xml:space="preserve">
+  <data name="BadSequenceType" xml:space="preserve">
     <value>Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', and 'Byte'.</value>
   </data>
-    <data name="BadSequenceString" xml:space="preserve">
+  <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize sequence from model metadata. See inner exception for details.</value>
   </data>
-    <data name="InvalidMigrationId" xml:space="preserve">
+  <data name="InvalidMigrationId" xml:space="preserve">
     <value>'{migrationId}' is not a valid migration identifier.</value>
   </data>
-    <data name="LocalMigrationNotFound" xml:space="preserve">
+  <data name="LocalMigrationNotFound" xml:space="preserve">
     <value>The history repository includes a migration with the identifier '{migrationId}' but the migration assembly does not contain the corresponding migration class.</value>
   </data>
-    <data name="MigrationsNotInUse" xml:space="preserve">
+  <data name="MigrationsNotInUse" xml:space="preserve">
     <value>Migrations-specific methods can only be used when the context is using a migrations-enabled data store.</value>
   </data>
-    <data name="MigratorLoggerApplyingMigration" xml:space="preserve">
+  <data name="MigratorLoggerApplyingMigration" xml:space="preserve">
     <value>Applying migration '{migrationId}'.</value>
   </data>
-    <data name="MigratorLoggerCreatingHistoryTable" xml:space="preserve">
+  <data name="MigratorLoggerCreatingHistoryTable" xml:space="preserve">
     <value>Creating migration history table.</value>
   </data>
-    <data name="MigratorLoggerDroppingHistoryTable" xml:space="preserve">
+  <data name="MigratorLoggerDroppingHistoryTable" xml:space="preserve">
     <value>Dropping migration history table.</value>
   </data>
-    <data name="MigratorLoggerRevertingMigration" xml:space="preserve">
+  <data name="MigratorLoggerRevertingMigration" xml:space="preserve">
     <value>Reverting migration '{migrationId}'.</value>
   </data>
-    <data name="MigratorLoggerUpToDate" xml:space="preserve">
+  <data name="MigratorLoggerUpToDate" xml:space="preserve">
     <value>The database is up to date.</value>
   </data>
-    <data name="MissingMigrationMetadata" xml:space="preserve">
+  <data name="MissingMigrationMetadata" xml:space="preserve">
     <value>'{migrationType}' does not implement IMigrationMetadata.</value>
   </data>
-    <data name="TargetMigrationNotFound" xml:space="preserve">
+  <data name="TargetMigrationNotFound" xml:space="preserve">
     <value>The target migration '{targetMigrationName}' was not found.</value>
   </data>
-    <data name="UnknownOperation" xml:space="preserve">
+  <data name="UnknownOperation" xml:space="preserve">
     <value>The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.</value>
   </data>
-    <data name="InvalidCommandTimeout" xml:space="preserve">
+  <data name="InvalidCommandTimeout" xml:space="preserve">
     <value>The specified CommandTimeout value is not valid. It must be a positive number.</value>
   </data>
-    <data name="InvalidMaxBatchSize" xml:space="preserve">
+  <data name="InvalidMaxBatchSize" xml:space="preserve">
     <value>The specified MaxBatchSize value is not valid. It must be a positive number.</value>
+  </data>
+  <data name="UnableToDiscriminate" xml:space="preserve">
+    <value>Unable to materialize entity of type '{entityType}'. No discriminators were matched.</value>
+  </data>
+  <data name="DiscriminatorPropertyMustBeOnRoot" xml:space="preserve">
+    <value>A discriminator property cannot be set for the entity type '{entityType}' because it is not the root of an inheritance hierarchy.</value>
+  </data>
+  <data name="DiscriminatorPropertyNotFound" xml:space="preserve">
+    <value>Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.</value>
   </data>
 </root>

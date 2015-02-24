@@ -6,13 +6,13 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
-    public class ResultTransformingExpressionTreeVisitor<TResult> : ExpressionTreeVisitor
+    public class ResultTransformingExpressionTreeVisitor<TResult> : ExpressionTreeVisitorBase
     {
         private readonly IQuerySource _outerQuerySource;
         private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;

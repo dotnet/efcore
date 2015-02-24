@@ -48,23 +48,17 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var materializer = entityType as IEntityMaterializer;
-            if (materializer != null)
-            {
-                return materializer.CreateEntity;
-            }
-
             if (!entityType.HasClrType)
             {
                 throw new InvalidOperationException(Strings.NoClrType(entityType.Name));
             }
 
-            if (entityType.IsAbstract)
-            {
-                throw new InvalidOperationException(Strings.CannotMaterializeAbstractType(entityType));
-            }
-
-            return _cache.GetOrAdd(entityType.Type, k => BuildDelegate(entityType));
+            return _cache.GetOrAdd(
+                entityType.Type, k =>
+                    Expression.Lambda<Func<IValueReader, object>>(
+                        CreateMaterializeExpression(entityType, _readerParameter),
+                        _readerParameter)
+                        .Compile());
         }
 
         public virtual Expression CreateReadValueExpression(
@@ -74,9 +68,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(type, nameof(type));
 
             var unwrappedTargetMemberType = type.UnwrapNullableType();
-
             var underlyingTargetMemberType = unwrappedTargetMemberType.UnwrapEnumType();
-
             var indexExpression = Expression.Constant(index);
 
             Expression readValueExpression
@@ -103,8 +95,34 @@ namespace Microsoft.Data.Entity.Metadata
             return readValueExpression;
         }
 
-        private Func<IValueReader, object> BuildDelegate(IEntityType entityType)
+        public virtual Expression CreateMaterializeExpression(
+            [NotNull] IEntityType entityType,
+            [NotNull] Expression valueReaderExpression,
+            [CanBeNull] int[] indexMap = null)
         {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(valueReaderExpression, nameof(valueReaderExpression));
+
+            var materializer = entityType as IEntityMaterializer;
+
+            if (materializer != null)
+            {
+                return Expression.Call(
+                    Expression.Constant(materializer),
+                    ((Func<IValueReader, object>)materializer.CreateEntity).GetMethodInfo(),
+                    valueReaderExpression);
+            }
+
+            if (!entityType.HasClrType)
+            {
+                throw new InvalidOperationException(Strings.NoClrType(entityType.Name));
+            }
+
+            if (entityType.IsAbstract)
+            {
+                throw new InvalidOperationException(Strings.CannotMaterializeAbstractType(entityType));
+            }
+
             var instanceVariable = Expression.Variable(entityType.Type, "instance");
 
             var blockExpressions
@@ -122,17 +140,17 @@ namespace Microsoft.Data.Entity.Metadata
                     = propertyInfo != null
                         ? Expression.Property(instanceVariable, propertyInfo)
                         : Expression.Field(instanceVariable, (FieldInfo)mapping.Item2)
-                select Expression.Assign(
-                    targetMember,
-                    CreateReadValueExpression(
-                        _readerParameter, targetMember.Type, mapping.Item1.Index)));
+                select
+                    Expression.Assign(
+                        targetMember,
+                        CreateReadValueExpression(
+                            valueReaderExpression,
+                            targetMember.Type,
+                            indexMap?[mapping.Item1.Index] ?? mapping.Item1.Index)));
 
             blockExpressions.Add(instanceVariable);
 
-            return Expression.Lambda<Func<IValueReader, object>>(
-                Expression.Block(new[] { instanceVariable }, blockExpressions),
-                _readerParameter)
-                .Compile();
+            return Expression.Block(new[] { instanceVariable }, blockExpressions);
         }
     }
 }

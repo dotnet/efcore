@@ -1349,7 +1349,7 @@ FROM [Customers] AS [c]",
 
             Assert.Equal(
                 @"SELECT DISTINCT [c].[City]
-FROM [Customers] AS [c]",
+FROM [Customers] AS [c]", // Ordering not preserved by distinct
                 Sql);
         }
 

@@ -18,5 +18,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         protected abstract IAnnotation[] LoadAnnotations();
 
         protected static IEnumerable<IAnnotation> ZipAnnotations(string[] names, string[] values) => names.Zip(values, (n, v) => new Annotation(n, v)).ToArray();
+
+        public Annotation GetAnnotation(string annotationName) => null;
     }
 }
