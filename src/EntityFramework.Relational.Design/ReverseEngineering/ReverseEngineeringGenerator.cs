@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
@@ -65,8 +66,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             if (dbContextCodeGenerator == null)
             {
                 throw new InvalidOperationException(
-                    "Provider " + provider.GetType().FullName
-                    + " did not provide a ContextModelCodeGenerator");
+                    Strings.NoContextModelCodeGenerator(provider.GetType().FullName));
             }
 
             CheckOutputFiles(configuration.OutputPath, dbContextCodeGenerator.ClassName, metadataModel);
@@ -98,8 +98,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 if (entityTypeCodeGenerator == null)
                 {
                     throw new InvalidOperationException(
-                        "Provider " + provider.GetType().FullName
-                        + " did not provide a EntityTypeModelCodeGenerator");
+                        Strings.NoEntityTypeModelCodeGenerator(provider.GetType().FullName));
                 }
 
                 var entityTypeStringBuilder = new IndentedStringBuilder();
@@ -124,9 +123,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             if (type == null)
             {
                 throw new InvalidOperationException(
-                    "Assembly " + providerAssembly.FullName
-                    + " does not contain a type which extends "
-                    + typeof(IDatabaseMetadataModelProvider).FullName);
+                    Strings.AssemblyDoesNotContainMetadataModelProvider(
+                        providerAssembly.FullName,
+                        typeof(IDatabaseMetadataModelProvider).FullName));
             }
 
             return (IDatabaseMetadataModelProvider)Activator.CreateInstance(type, _serviceProvider);
@@ -143,8 +142,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 .GenerateMetadataModel(configuration.ConnectionString);
             if (metadataModel == null)
             {
-                throw new InvalidOperationException("Model returned is null. Provider class " + provider.GetType()
-                    + ", connection string: " + configuration.ConnectionString);
+                throw new InvalidOperationException(
+                    Strings.ProviderReturnedNullModel(
+                        provider.GetType().FullName,
+                        configuration.ConnectionString));
             }
 
             return metadataModel;
@@ -187,9 +188,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             if (readOnlyFiles.Count > 0)
             {
-                throw new InvalidOperationException("No files generated in directory " + outputDirectoryName
-                    + ". The following file(s) already exist and must be made writeable to continue: "
-                    + string.Join(", ", readOnlyFiles));
+                throw new InvalidOperationException(
+                    Strings.ReadOnlyFiles(
+                        outputDirectoryName, string.Join(", ", readOnlyFiles)));
             }
         }
 
@@ -208,22 +209,22 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             if (configuration.ProviderAssembly == null)
             {
-                throw new ArgumentException("ProviderAssembly is required to generate code.");
+                throw new ArgumentException(Strings.ProviderAssemblyRequired);
             }
 
             if (string.IsNullOrEmpty(configuration.ConnectionString))
             {
-                throw new ArgumentException("ConnectionString is required to generate code.");
+                throw new ArgumentException(Strings.ConnectionStringRequired);
             }
 
             if (string.IsNullOrEmpty(configuration.OutputPath))
             {
-                throw new ArgumentException("OutputPath is required to generate code.");
+                throw new ArgumentException(Strings.OutputPathRequired);
             }
 
             if (string.IsNullOrEmpty(configuration.Namespace))
             {
-                throw new ArgumentException("Namespace is required to generate code.");
+                throw new ArgumentException(Strings.NamespaceRequired);
             }
         }
     }

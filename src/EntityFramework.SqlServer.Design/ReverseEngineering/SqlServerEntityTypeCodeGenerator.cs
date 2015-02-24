@@ -35,9 +35,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             {
                 GenerateCommentHeader(sb);
                 Generator.CSharpCodeGeneratorHelper.SingleLineComment(errorMessageAnnotation, sb);
-                Generator.Logger.WriteWarning("The SQL Server EntityType CodeGenerator"
-                    + " is unable to generate EntityType " + EntityType.Name
-                    + ". Error message: " + errorMessageAnnotation);
+                Generator.Logger.WriteWarning(
+                    Strings.CannotGenerateEntityType(EntityType.Name, errorMessageAnnotation));
 
                 return;
             }
