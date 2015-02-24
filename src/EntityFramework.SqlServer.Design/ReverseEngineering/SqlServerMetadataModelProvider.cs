@@ -236,8 +236,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 var entityType = relationalModel.TryGetEntityType(tc.TableId);
                 if (entityType == null)
                 {
-                    _logger.WriteWarning("For columnId " + tc.Id
-                        + "Could not find table with TableId " + tc.TableId + ". Skipping column.");
+                    _logger.WriteWarning(
+                        Strings.CannotFindTableForColumn(tc.Id, tc.TableId));
                     continue;
                 }
 
@@ -247,8 +247,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 Type clrPropertyType;
                 if (!SqlServerTypeMapping._sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
                 {
-                    _logger.WriteWarning("For columnId: " + tc.Id
-                        + " Could not find type mapping for SQL Server type " + tc.DataType + ". Skipping column.");
+                    _logger.WriteWarning(
+                        Strings.CannotFindTypeMappingForColumn(tc.Id, tc.DataType));
                     continue;
                 }
 
@@ -449,22 +449,24 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             if (!_foreignKeyColumnMappings.TryGetValue(
                 foreignKeyConstraintId + fromColumnId, out foreignKeyColumnMapping))
             {
-                _logger.WriteWarning("Could not find foreignKeyMapping for ConstraintId " + foreignKeyConstraintId
-                    + " FromColumn " + fromColumnId);
+                _logger.WriteWarning(
+                    Strings.CannotFindForeignKeyMappingForConstraintId(foreignKeyConstraintId, fromColumnId));
                 return null;
             }
 
             TableColumn toColumn;
             if (!_tableColumns.TryGetValue(foreignKeyColumnMapping.ToColumnId, out toColumn))
             {
-                _logger.WriteWarning("Could not find toColumn with ColumnId " + foreignKeyColumnMapping.ToColumnId);
+                _logger.WriteWarning(
+                    Strings.CannotFindToColumnForConstraintId(foreignKeyConstraintId, foreignKeyColumnMapping.ToColumnId));
                 return null;
             }
 
             Property toColumnRelationalProperty;
             if (!_relationalColumnIdToRelationalPropertyMap.TryGetValue(toColumn.Id, out toColumnRelationalProperty))
             {
-                _logger.WriteWarning("Could not find relational property for toColumn with ColumnId " + toColumn.Id);
+                _logger.WriteWarning(
+                    Strings.CannotFindRelationalPropertyForColumnId(foreignKeyConstraintId, toColumn.Id));
                 return null;
             }
 
@@ -541,9 +543,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             {
                 if (typeof(byte) == SqlServerTypeMapping._sqlTypeToClrTypeMap[tableColumn.DataType])
                 {
-                    _logger.WriteWarning("For columnId: " + tableColumn.Id + ". The SQL Server data type is " + tableColumn.DataType
-                        + ". This will be mapped to CLR type byte which does not allow ValueGenerationStrategy Identity. "
-                        + "Generating a matching Property but ignoring the Identity setting.");
+                    _logger.WriteWarning(
+                        Strings.DataTypeDoesNotAllowIdentityStrategy(tableColumn.Id, tableColumn.DataType));
                 }
                 else
                 {
