@@ -566,19 +566,26 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
             if (tableColumn.DefaultValue != null)
             {
-                var defaultValue =
+                var defaultExpressionOrValue =
                     _sqlServerLiteralUtilities
                         .ConvertSqlServerDefaultValue(
                             property.PropertyType, tableColumn.DefaultValue);
-                if (defaultValue == null)
+                if (defaultExpressionOrValue != null
+                    && defaultExpressionOrValue.DefaultExpression != null)
                 {
-                    _logger.WriteWarning(
-                        Strings.UnableToConvertDefaultValue(
-                            tableColumn.Id, tableColumn.DefaultValue, property.PropertyType, property.Name, property.EntityType.Name));
+                    property.Relational().DefaultExpression = defaultExpressionOrValue.DefaultExpression;
+                }
+                else if (defaultExpressionOrValue != null
+                         && defaultExpressionOrValue.DefaultValue != null)
+                {
+                    property.Relational().DefaultValue = defaultExpressionOrValue.DefaultValue;
                 }
                 else
                 {
-                    property.Relational().DefaultValue = defaultValue;
+                    _logger.WriteWarning(
+                        Strings.UnableToConvertDefaultValue(
+                            tableColumn.Id, tableColumn.DefaultValue,
+                            property.PropertyType, property.Name, property.EntityType.Name));
                 }
             }
         }
