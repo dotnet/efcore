@@ -14,7 +14,8 @@
         "aspnet50": { },
         "aspnetcore50": {
             "dependencies": {
-                "System.Data.SqlClient": "4.0.0-beta-*"
+                "System.Data.SqlClient": "4.0.0-beta-*",
+                "System.Runtime.Extensions": "4.0.10-beta-*"
             }
         }
     }

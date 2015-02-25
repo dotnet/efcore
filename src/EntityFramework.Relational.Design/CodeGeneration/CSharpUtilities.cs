@@ -157,6 +157,11 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             return value.ToString(CultureInfo.InvariantCulture) + "f";
         }
 
+        public virtual string GenerateLiteral(double value)
+        {
+            return value.ToString(CultureInfo.InvariantCulture) + "D";
+        }
+
         public virtual string GenerateLiteral(TimeSpan value)
         {
             return "new TimeSpan(" + value.Ticks + ")";

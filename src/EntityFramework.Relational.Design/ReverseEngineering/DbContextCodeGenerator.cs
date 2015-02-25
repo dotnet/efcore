@@ -397,6 +397,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 facetsConfig.Add(columnTypeFacetConfig);
             }
 
+            var defaultValueFacetConfig = GenerateDefaultValueFacetConfiguration(property);
+            if (defaultValueFacetConfig != null)
+            {
+                facetsConfig.Add(defaultValueFacetConfig);
+            }
+
             return facetsConfig;
         }
 
@@ -460,6 +466,21 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 return string.Format(CultureInfo.InvariantCulture,
                     ".ColumnType({0})",
                     CSharpUtilities.Instance.DelimitString(property.Relational().ColumnType));
+            }
+
+            return null;
+        }
+
+        public virtual string GenerateDefaultValueFacetConfiguration([NotNull] IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            if (property.Relational().DefaultValue != null)
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    ".DefaultValue({0})",
+                    CSharpUtilities.Instance.GenerateLiteral(
+                        (dynamic)property.Relational().DefaultValue));
             }
 
             return null;

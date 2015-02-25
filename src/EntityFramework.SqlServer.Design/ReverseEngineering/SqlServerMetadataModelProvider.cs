@@ -32,6 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public const string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";
 
         private ILogger _logger;
+        private SqlServerLiteralUtilities _sqlServerLiteralUtilities;
 
         // data loaded directly from database
         private Dictionary<string, Table> _tables;
@@ -57,6 +58,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             Check.NotNull(serviceProvider, nameof(serviceProvider));
 
             _logger = serviceProvider.GetRequiredService<ILogger>();
+            _sqlServerLiteralUtilities = new SqlServerLiteralUtilities(_logger);
         }
 
         public virtual IModel GenerateMetadataModel([NotNull] string connectionString)
@@ -564,7 +566,20 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
             if (tableColumn.DefaultValue != null)
             {
-                property.Relational().DefaultValue = tableColumn.DefaultValue;
+                var defaultValue =
+                    _sqlServerLiteralUtilities
+                        .ConvertSqlServerDefaultValue(
+                            property.PropertyType, tableColumn.DefaultValue);
+                if (defaultValue == null)
+                {
+                    _logger.WriteWarning(
+                        Strings.UnableToConvertDefaultValue(
+                            tableColumn.Id, tableColumn.DefaultValue, property.PropertyType, property.Name, property.EntityType.Name));
+                }
+                else
+                {
+                    property.Relational().DefaultValue = defaultValue;
+                }
             }
         }
     }
