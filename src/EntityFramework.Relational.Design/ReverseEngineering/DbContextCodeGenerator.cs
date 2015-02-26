@@ -403,6 +403,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 facetsConfig.Add(defaultValueFacetConfig);
             }
 
+            var defaultExpressionFacetConfig = GenerateDefaultExpressionFacetConfiguration(property);
+            if (defaultExpressionFacetConfig != null)
+            {
+                facetsConfig.Add(defaultExpressionFacetConfig);
+            }
+
             return facetsConfig;
         }
 
@@ -482,6 +488,21 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     ".DefaultValue({0})",
                     CSharpUtilities.Instance.GenerateLiteralForUnknownType(
                         property.Relational().DefaultValue));
+            }
+
+            return null;
+        }
+
+        public virtual string GenerateDefaultExpressionFacetConfiguration([NotNull] IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            if (property.Relational().DefaultExpression != null)
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    ".DefaultExpression({0})",
+                    CSharpUtilities.Instance.DelimitString(
+                        property.Relational().DefaultExpression));
             }
 
             return null;
