@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
@@ -12,6 +12,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
 {
     public class SqlServerLiteralUtilities
     {
+        public static readonly Regex _defaultValueIsExpression =
+            new Regex(@"^[@\$\w]+\(.*\)$", RegexOptions.Compiled);
+
         public SqlServerLiteralUtilities([NotNull] ILogger logger)
         {
             Check.NotNull(logger, nameof(logger));
@@ -80,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
             return null;
         }
 
-        public virtual object ConvertSqlServerDefaultValue(
+        public virtual DefaultExpressionOrValue ConvertSqlServerDefaultValue(
             [NotNull] Type propertyType , [NotNull] string sqlServerDefaultValue)
         {
             Check.NotNull(propertyType, nameof(propertyType));
@@ -102,18 +105,32 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
                 return null;
             }
 
+            if (_defaultValueIsExpression.IsMatch(sqlServerDefaultValue))
+            {
+                return new DefaultExpressionOrValue()
+                {
+                    DefaultExpression = sqlServerDefaultValue
+                };
+            }
+
             propertyType = propertyType.IsNullableType()
                 ? Nullable.GetUnderlyingType(propertyType)
                 : propertyType;
 
             if (typeof(string) == propertyType)
             {
-                return ConvertSqlServerStringLiteral(sqlServerDefaultValue);
+                return new DefaultExpressionOrValue()
+                {
+                    DefaultValue = ConvertSqlServerStringLiteral(sqlServerDefaultValue)
+                };
             }
 
             if (typeof(bool) == propertyType)
             {
-                return ConvertSqlServerBitLiteral(sqlServerDefaultValue);
+                return new DefaultExpressionOrValue()
+                {
+                    DefaultValue = ConvertSqlServerBitLiteral(sqlServerDefaultValue)
+                };
             }
 
             //TODO: decide what to do about byte[] default values and the values
@@ -126,7 +143,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
             {
                 try
                 {
-                    return parseMethodInfo.Invoke(null, new object[] { sqlServerDefaultValue });
+                    return new DefaultExpressionOrValue()
+                    {
+                        DefaultValue = parseMethodInfo.Invoke(null, new object[] { sqlServerDefaultValue })
+                    };
                 }
                 catch (Exception)
                 {
@@ -136,5 +156,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
 
             return null;
         }
+    }
+
+    public class DefaultExpressionOrValue
+    {
+        public virtual string DefaultExpression { get; [param: NotNull] set; }
+        public virtual object DefaultValue { get;[param: NotNull] set; }
     }
 }
