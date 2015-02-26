@@ -125,6 +125,9 @@
     <Compile Include="Infrastructure\EntityFrameworkServicesBuilder.cs" />
     <Compile Include="Infrastructure\ModelValidatorBase.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
+    <Compile Include="Metadata\ModelConventions\IForeignKeyRemovedConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\IKeyConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\KeyConvention.cs" />
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />
     <Compile Include="Infrastructure\DbContextService.cs" />
@@ -263,7 +266,7 @@
     <Compile Include="Metadata\ObjectArrayValueReader.cs" />
     <Compile Include="Metadata\Property.cs" />
     <Compile Include="Metadata\ModelConventions\IEntityTypeConvention.cs" />
-    <Compile Include="Metadata\ModelConventions\KeyConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\KeyDiscoveryConvention.cs" />
     <Compile Include="Metadata\ModelConventions\PropertiesConvention.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
