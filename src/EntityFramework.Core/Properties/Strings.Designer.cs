@@ -797,14 +797,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The principal entity type '{entityType}' requires a key to be defined.
-        /// </summary>
-        public static string PrincipalEntityTypeRequiresKey([CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PrincipalEntityTypeRequiresKey", "entityType"), entityType);
-        }
-
-        /// <summary>
         /// The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.
         /// </summary>
         public static string InvalidEntityType([CanBeNull] object type, [CanBeNull] object argumentName)

@@ -52,27 +52,72 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            var keyToReplace = Metadata.TryGetPrimaryKey();
-            var existingKey = Metadata.TryGetKey(properties);
-
-            if (keyToReplace != null
-                && keyToReplace != existingKey
-                && !RemoveKey(keyToReplace, configurationSource).HasValue)
+            var oldPrimaryKey = Metadata.TryGetPrimaryKey();
+            var newPrimaryKey = Metadata.TryGetKey(properties);
+            if (oldPrimaryKey != null
+                && oldPrimaryKey != newPrimaryKey)
             {
-                return null;
+                if (!configurationSource.Overrides(_keyBuilders.GetConfigurationSource(oldPrimaryKey)))
+                {
+                    return null;
+                }
+
+                if (newPrimaryKey == null)
+                {
+                    newPrimaryKey = Key(properties, ConfigurationSource.Convention).Metadata;
+                }
+
+                UpdateReferencingForeignKeys(oldPrimaryKey, newPrimaryKey, configurationSource);
             }
 
-            if (existingKey != null)
+            if (newPrimaryKey != null)
             {
                 Metadata.SetPrimaryKey(properties);
             }
 
-            return _keyBuilders.GetOrAdd(
-                () => existingKey,
+            var keyBuilder = _keyBuilders.GetOrAdd(
+                () => newPrimaryKey,
                 () => Metadata.SetPrimaryKey(properties),
                 key => new InternalKeyBuilder(key, ModelBuilder),
                 onNewKeyAdded: ModelBuilder.ConventionDispatcher.OnKeyAdded,
                 configurationSource: configurationSource);
+
+            ReplaceConventionShadowKeys(keyBuilder.Metadata);
+
+            return keyBuilder;
+        }
+
+        private void UpdateReferencingForeignKeys(Key keyToReplace, Key newKey, ConfigurationSource configurationSource)
+        {
+            var newProperties = newKey.Properties;
+
+            var allForeignKeysReplaced = true;
+            foreach (var referencingForeignKey in ModelBuilder.Metadata.GetReferencingForeignKeys(keyToReplace))
+            {
+                allForeignKeysReplaced &= Relationship(
+                    referencingForeignKey,
+                    existingForeignKey: true,
+                    configurationSource: ConfigurationSource.Convention)
+                    .UpdateReferencedKey(newProperties, configurationSource) != null;
+            }
+
+            if (allForeignKeysReplaced)
+            {
+                RemoveKey(keyToReplace, ConfigurationSource.Convention);
+            }
+        }
+
+        private void ReplaceConventionShadowKeys(Key newKey)
+        {
+            foreach (var key in Metadata.Keys.ToList())
+            {
+                if (key != newKey
+                    && _keyBuilders.GetConfigurationSource(key) == ConfigurationSource.Convention
+                    && key.Properties.All(p => p.IsShadowProperty))
+                {
+                    UpdateReferencingForeignKeys(key, newKey, ConfigurationSource.Convention);
+                }
+            }
         }
 
         public virtual InternalKeyBuilder Key([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
@@ -196,6 +241,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     }
                     throw new InvalidOperationException(Strings.PropertyIgnoredExplicitly(propertyName, Metadata.Name));
                 }
+
+                _ignoredProperties.Value.Remove(propertyName);
             }
 
             return true;
@@ -319,8 +366,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource ignoredConfigurationSource;
             if (_ignoredProperties.Value.TryGetValue(propertyName, out ignoredConfigurationSource))
             {
-                if (!configurationSource.Overrides(ignoredConfigurationSource)
-                    || configurationSource == ignoredConfigurationSource)
+                if (ignoredConfigurationSource.Overrides(configurationSource))
                 {
                     return true;
                 }
@@ -928,24 +974,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (foreignKeyProperties != null
                 && referencedProperties != null)
             {
-                if (referencedProperties.Count != foreignKeyProperties.Count)
-                {
-                    throw new InvalidOperationException(
-                        Strings.ForeignKeyCountMismatch(
-                            Entity.Metadata.Property.Format(foreignKeyProperties),
-                            foreignKeyProperties[0].EntityType.Name,
-                            Entity.Metadata.Property.Format(referencedProperties),
-                            principalType.Name));
-                }
-
-                if (!referencedProperties.Select(p => p.UnderlyingType)
-                    .SequenceEqual(foreignKeyProperties.Select(p => p.UnderlyingType)))
-                {
-                    throw new InvalidOperationException(
-                        Strings.ForeignKeyTypeMismatch(
-                            Entity.Metadata.Property.Format(foreignKeyProperties),
-                            foreignKeyProperties[0].EntityType.Name, principalType.Name));
-                }
+                Entity.Metadata.Property.EnsureCompatible(referencedProperties, foreignKeyProperties);
             }
 
             Key principalKey;
@@ -961,22 +990,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             else
             {
                 principalKey = principalType.TryGetPrimaryKey();
-                if (principalKey == null)
-                {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(Strings.PrincipalEntityTypeRequiresKey(principalType.Name));
-                    }
-
-                    return null;
-                }
             }
 
             if (foreignKeyProperties != null)
             {
-                if (principalKey.Properties.Count != foreignKeyProperties.Count
-                    || !principalKey.Properties.Select(p => p.UnderlyingType)
-                        .SequenceEqual(foreignKeyProperties.Select(p => p.UnderlyingType)))
+                if (principalKey == null
+                    || !Entity.Metadata.Property.AreCompatible(principalKey.Properties, foreignKeyProperties))
                 {
                     var principalKeyProperties = new Property[foreignKeyProperties.Count];
                     for (var i = 0; i < foreignKeyProperties.Count; i++)
@@ -997,6 +1016,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             else
             {
                 var baseName = (string.IsNullOrEmpty(navigationToPrincipal) ? principalType.SimpleName : navigationToPrincipal);
+
+                if (principalKey == null)
+                {
+                    var principalKeyProperty = CreateUniqueProperty(
+                        "Id",
+                        typeof(int),
+                        principalEntityTypeBuilder,
+                        isRequired);
+
+                    principalKey = principalEntityTypeBuilder.Key(new[] { principalKeyProperty }, ConfigurationSource.Convention).Metadata;
+                }
 
                 var fkProperties = new Property[principalKey.Properties.Count];
                 for (var i = 0; i < principalKey.Properties.Count; i++)
@@ -1108,9 +1138,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return list;
         }
 
-        public virtual IReadOnlyList<Property> GetOrCreateProperties([NotNull] IEnumerable<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
+        public virtual IReadOnlyList<Property> GetOrCreateProperties([CanBeNull] IEnumerable<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
         {
-            Check.NotNull(clrProperties, nameof(clrProperties));
+            if (clrProperties == null)
+            {
+                return null;
+            }
 
             var list = new List<Property>();
             foreach (var propertyInfo in clrProperties)

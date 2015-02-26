@@ -107,8 +107,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource ignoredConfigurationSource;
             if (_ignoredEntityTypeNames.Value.TryGetValue(name, out ignoredConfigurationSource))
             {
-                if (!configurationSource.Overrides(ignoredConfigurationSource)
-                    || configurationSource == ignoredConfigurationSource)
+                if (ignoredConfigurationSource.Overrides(configurationSource))
                 {
                     return true;
                 }

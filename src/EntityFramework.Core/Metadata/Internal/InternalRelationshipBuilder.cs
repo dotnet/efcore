@@ -342,6 +342,30 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return ReplaceForeignKey(configurationSource, principalProperties: properties);
         }
 
+        public virtual InternalRelationshipBuilder UpdateReferencedKey([NotNull] IReadOnlyList<Property> properties,
+            ConfigurationSource configurationSource)
+        {
+            if (Metadata.ReferencedProperties.SequenceEqual(properties))
+            {
+                return this;
+            }
+
+            if (_referencedKeyConfigurationSource != null
+                && _referencedKeyConfigurationSource.Value.Overrides(configurationSource))
+            {
+                return null;
+            }
+
+            if (_foreignKeyPropertiesConfigurationSource.HasValue
+                && _foreignKeyPropertiesConfigurationSource.Value.Overrides(configurationSource)
+                && !Property.AreCompatible(properties, Metadata.Properties))
+            {
+                return null;
+            }
+
+            return ReplaceForeignKey(configurationSource, principalProperties: properties);
+        }
+
         public virtual InternalRelationshipBuilder ReferencedKey(
             [NotNull] Type specifiedPrincipalType,
             [NotNull] IReadOnlyList<PropertyInfo> properties,

@@ -17,16 +17,7 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly Key _referencedKey;
 
         private bool _isRequiredSet;
-
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected ForeignKey()
-        {
-        }
-
+        
         public ForeignKey(
             [NotNull] IReadOnlyList<Property> dependentProperties,
             [NotNull] Key referencedKey,
@@ -41,24 +32,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             var principalProperties = referencedKey.Properties;
 
-            if (principalProperties.Count != dependentProperties.Count)
-            {
-                throw new ArgumentException(
-                    Strings.ForeignKeyCountMismatch(
-                        Property.Format(dependentProperties),
-                        dependentProperties[0].EntityType.Name,
-                        Property.Format(principalProperties),
-                        referencedKey.EntityType.Name));
-            }
-
-            if (!principalProperties.Select(p => p.UnderlyingType)
-                .SequenceEqual(dependentProperties.Select(p => p.UnderlyingType)))
-            {
-                throw new ArgumentException(
-                    Strings.ForeignKeyTypeMismatch(
-                        Property.Format(dependentProperties),
-                        dependentProperties[0].EntityType.Name, referencedKey.EntityType.Name));
-            }
+            Property.EnsureCompatible(principalProperties, dependentProperties);
 
             if (referencedEntityType?.Keys.Contains(referencedKey) == false)
             {

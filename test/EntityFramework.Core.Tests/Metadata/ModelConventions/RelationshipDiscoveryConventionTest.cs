@@ -21,16 +21,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
-            Assert.Empty(entityBuilder.Metadata.Properties);
-            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
-            Assert.Empty(entityBuilder.Metadata.Navigations);
-            // TODO: remove discovered entity types if no relationship discovered
-            Assert.Equal(2, entityBuilder.Metadata.Model.EntityTypes.Count);
-
-            var principalEntityType = entityBuilder.Metadata.Model.EntityTypes.Single(e => e.Type == typeof(OneToManyPrincipal));
-            Assert.Empty(principalEntityType.Properties);
-            Assert.Empty(principalEntityType.ForeignKeys);
-            Assert.Empty(principalEntityType.Navigations);
+            VerifyOneToManyDependent(entityBuilder, unidirectional: true, dependentHasPK: false);
         }
 
         [Fact]
@@ -40,16 +31,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
-            Assert.Empty(entityBuilder.Metadata.Properties);
-            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
-            Assert.Empty(entityBuilder.Metadata.Navigations);
-            // TODO: remove discovered entity types if no relationship discovered
-            Assert.Equal(2, entityBuilder.Metadata.Model.EntityTypes.Count);
-
-            var principalEntityType = entityBuilder.Metadata.Model.EntityTypes.Single(e => e.Type == typeof(OneToManyPrincipal));
-            Assert.Empty(principalEntityType.Properties);
-            Assert.Empty(principalEntityType.ForeignKeys);
-            Assert.Empty(principalEntityType.Navigations);
+            VerifyOneToManyPrincipal(entityBuilder, unidirectional: true, dependentHasPK: false);
         }
 
         [Fact]

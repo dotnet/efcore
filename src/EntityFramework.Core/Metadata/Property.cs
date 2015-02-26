@@ -210,6 +210,46 @@ namespace Microsoft.Data.Entity.Metadata
 
         internal static string Format(IEnumerable<IProperty> properties) => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
 
+        public static bool AreCompatible([NotNull] IReadOnlyList<Property> principalProperties,
+            [NotNull] IReadOnlyList<Property> dependentProperties)
+        {
+            return ArePropertyCountsEqual(principalProperties, dependentProperties)
+                   && ArePropertyTypesCompatible(principalProperties, dependentProperties);
+        }
+
+        public static void EnsureCompatible([NotNull] IReadOnlyList<Property> principalProperties,
+            [NotNull] IReadOnlyList<Property> dependentProperties)
+        {
+            if (!ArePropertyCountsEqual(principalProperties, dependentProperties))
+            {
+                throw new InvalidOperationException(
+                    Strings.ForeignKeyCountMismatch(
+                        Format(dependentProperties),
+                        dependentProperties[0].EntityType.Name,
+                        Format(principalProperties),
+                        principalProperties[0].EntityType.Name));
+            }
+
+            if (!ArePropertyTypesCompatible(principalProperties, dependentProperties))
+            {
+                throw new InvalidOperationException(
+                    Strings.ForeignKeyTypeMismatch(
+                        Format(dependentProperties),
+                        dependentProperties[0].EntityType.Name,
+                        principalProperties[0].EntityType.Name));
+            }
+        }
+
+        private static bool ArePropertyCountsEqual(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties)
+        {
+            return principalProperties.Count == dependentProperties.Count;
+        }
+
+        private static bool ArePropertyTypesCompatible(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties)
+        {
+            return principalProperties.Select(p => p.UnderlyingType).SequenceEqual(dependentProperties.Select(p => p.UnderlyingType));
+        }
+
         bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;
 
         bool IProperty.UseStoreDefault => UseStoreDefault ?? DefaultUseStoreDefault;

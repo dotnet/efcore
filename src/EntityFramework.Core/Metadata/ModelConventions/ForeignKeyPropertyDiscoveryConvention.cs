@@ -57,8 +57,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             {
                 var dependentPkProperties = foreignKey.EntityType.TryGetPrimaryKey()?.Properties;
                 if (dependentPkProperties != null
-                    && dependentPkProperties.Select(p => p.UnderlyingType)
-                        .SequenceEqual(foreignKey.ReferencedKey.Properties.Select(p => p.UnderlyingType)))
+                    && Property.AreCompatible(foreignKey.ReferencedKey.Properties, dependentPkProperties))
                 {
                     return dependentPkProperties;
                 }

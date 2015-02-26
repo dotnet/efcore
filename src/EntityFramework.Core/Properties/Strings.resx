@@ -411,9 +411,6 @@
   <data name="NavigationAddedExplicitly" xml:space="preserve">
     <value>The navigation property '{navigation}' on entity type '{entityType}' could not be ignored because it has been explicitly added.</value>
   </data>
-  <data name="PrincipalEntityTypeRequiresKey" xml:space="preserve">
-    <value>The principal entity type '{entityType}' requires a key to be defined.</value>
-  </data>
   <data name="InvalidEntityType" xml:space="preserve">
     <value>The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.</value>
   </data>

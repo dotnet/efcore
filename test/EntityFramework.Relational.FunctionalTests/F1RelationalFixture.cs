@@ -16,14 +16,12 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             modelBuilder
                 .Entity<Chassis>(b =>
                     {
-                        b.Key(c => c.TeamId);
                         b.ForRelational().Table("Chassis");
                     });
 
             modelBuilder
                 .Entity<Team>(b =>
                     {
-                        b.Key(c => c.Id);
 
                         b.ForRelational().Table("Teams");
                     });
@@ -31,42 +29,36 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             modelBuilder
                 .Entity<Driver>(b =>
                     {
-                        b.Key(c => c.Id);
                         b.ForRelational().Table("Drivers");
                     });
 
             modelBuilder
                 .Entity<Engine>(b =>
                     {
-                        b.Key(c => c.Id);
                         b.ForRelational().Table("Engines");
                     });
 
             modelBuilder
                 .Entity<EngineSupplier>(b =>
                     {
-                        b.Key(c => c.Id);
                         b.ForRelational().Table("EngineSuppliers");
                     });
 
             modelBuilder
                 .Entity<Gearbox>(b =>
                     {
-                        b.Key(c => c.Id);
                         b.ForRelational().Table("Gearboxes");
                     });
 
             modelBuilder
                 .Entity<Sponsor>(b =>
                     {
-                        b.Key(c => c.Id);
                         b.ForRelational().Table("Sponsors");
                     });
 
             modelBuilder
                 .Entity<TestDriver>(b =>
                     {
-                        b.Key(c => c.Id);
                         b.ForRelational().Table("TestDrivers");
                     });
 
@@ -74,9 +66,6 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 .Entity<TitleSponsor>()
                 .ForRelational()
                 .Table("TitleSponsors");
-
-            modelBuilder
-                .Entity<Team>().HasOne(e => e.Chassis).WithOne(e => e.Team);
         }
     }
 }

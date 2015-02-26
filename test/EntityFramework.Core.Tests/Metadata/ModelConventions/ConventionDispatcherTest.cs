@@ -144,9 +144,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var builder = new InternalModelBuilder(new Model(), conventions);
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-            var foreignKeyMock = new Mock<ForeignKey>();
+            var foreignKey = new ForeignKey(
+                new[] { entityBuilder.Property(typeof(int), "FK", ConfigurationSource.Convention).Metadata },
+                entityBuilder.Key(new[] { entityBuilder.Property(typeof(int), "OrderId", ConfigurationSource.Convention).Metadata }, ConfigurationSource.Convention).Metadata);
             var conventionDispatcher = new ConventionDispatcher(conventions);
-            conventionDispatcher.OnForeignKeyRemoved(entityBuilder, foreignKeyMock.Object);
+            conventionDispatcher.OnForeignKeyRemoved(entityBuilder, foreignKey);
 
             Assert.True(foreignKeyRemoved);
         }

@@ -50,16 +50,63 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Relationship_returns_null_if_entity_type_ignored()
+        public void Can_add_relationship_if_principal_type_ignored_at_same_or_equal_source()
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation);
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            Assert.Null(entityBuilder.Relationship(
+            Assert.NotNull(entityBuilder.Relationship(
                 typeof(Customer),
                 typeof(Order),
                 null,
+                null,
+                ConfigurationSource.DataAnnotation));
+        }
+
+        [Fact]
+        public void Can_add_relationship_if_dependent_type_ignored_at_same_or_equal_source()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Ignore(typeof(Order), ConfigurationSource.DataAnnotation);
+            var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+
+            Assert.NotNull(entityBuilder.Relationship(
+                typeof(Customer),
+                typeof(Order),
+                null,
+                null,
+                ConfigurationSource.DataAnnotation));
+        }
+
+        [Fact]
+        public void Can_add_relationship_if_navigation_to_dependent_ignored_at_same_or_equal_source()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            Assert.True(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.DataAnnotation));
+
+            Assert.NotNull(dependentEntityBuilder.Relationship(
+                typeof(Customer),
+                typeof(Order),
+                null,
+                Customer.OrdersProperty.Name,
+                ConfigurationSource.DataAnnotation));
+        }
+
+        [Fact]
+        public void Can_add_relationship_if_navigation_to_principal_ignored_at_same_or_equal_source()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            Assert.True(dependentEntityBuilder.Ignore(Order.CustomerProperty.Name, ConfigurationSource.DataAnnotation));
+
+            Assert.NotNull(principalEntityBuilder.Relationship(
+                typeof(Customer),
+                typeof(Order),
+                Order.CustomerProperty.Name,
                 null,
                 ConfigurationSource.DataAnnotation));
         }
@@ -1096,82 +1143,82 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Can_ignore_same_or_lower_source_dependent_entity_type()
+        public void Can_ignore_lower_source_dependent_entity_type()
         {
             var modelBuilder = CreateModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
-            Assert.NotNull(principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, true, true));
+            Assert.NotNull(principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, true));
 
             Assert.True(modelBuilder.Ignore(typeof(Order), ConfigurationSource.Explicit));
 
             Assert.Equal(typeof(Customer).FullName, modelBuilder.Metadata.EntityTypes.Single().Name);
             Assert.True(modelBuilder.Ignore(typeof(Order), ConfigurationSource.Convention));
-            Assert.Null(principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, true, true));
+            Assert.Null(principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, true));
             Assert.Equal(Strings.EntityIgnoredExplicitly(typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() =>
-                    principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Explicit, true, true)).Message);
+                    principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Explicit, true)).Message);
         }
 
         [Fact]
-        public void Can_ignore_same_or_lower_source_principal_entity_type()
+        public void Can_ignore_lower_source_principal_entity_type()
         {
             var modelBuilder = CreateModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
             principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Convention);
             modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            Assert.NotNull(principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, true, true));
+            Assert.NotNull(principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, true));
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
             Assert.Equal(typeof(Order).FullName, modelBuilder.Metadata.EntityTypes.Single().Name);
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Convention));
-            Assert.Null(principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, true, true));
+            Assert.Null(principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, true));
             Assert.Equal(Strings.EntityIgnoredExplicitly(typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() =>
-                    principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Explicit, true, true)).Message);
+                    principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Explicit, true)).Message);
         }
 
         [Fact]
-        public void Can_ignore_same_or_lower_source_navigation_to_dependent()
+        public void Can_ignore_lower_source_navigation_to_dependent()
         {
             var modelBuilder = CreateModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            Assert.NotNull(dependentEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, Customer.OrdersProperty.Name, ConfigurationSource.Convention, false, true));
+            Assert.NotNull(dependentEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, Customer.OrdersProperty.Name, ConfigurationSource.Convention, false));
 
             Assert.True(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.Explicit));
 
             Assert.Empty(dependentEntityBuilder.Metadata.ForeignKeys);
             Assert.Empty(principalEntityBuilder.Metadata.ForeignKeys);
             Assert.True(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.Convention));
-            Assert.Null(dependentEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, Customer.OrdersProperty.Name, ConfigurationSource.Convention, false, true));
+            Assert.Null(dependentEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, Customer.OrdersProperty.Name, ConfigurationSource.Convention, false));
             Assert.Equal(Strings.NavigationIgnoredExplicitly(Customer.OrdersProperty.Name, typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() =>
-                    dependentEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, Customer.OrdersProperty.Name, ConfigurationSource.Explicit, false, true)).Message);
+                    dependentEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, Customer.OrdersProperty.Name, ConfigurationSource.Explicit, false)).Message);
         }
 
         [Fact]
-        public void Can_ignore_same_or_lower_source_navigation_to_principal()
+        public void Can_ignore_lower_source_navigation_to_principal()
         {
             var modelBuilder = CreateModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            Assert.NotNull(dependentEntityBuilder.Relationship(typeof(Customer), typeof(Order), Order.CustomerProperty.Name, null, ConfigurationSource.Convention, false, true));
+            Assert.NotNull(dependentEntityBuilder.Relationship(typeof(Customer), typeof(Order), Order.CustomerProperty.Name, null, ConfigurationSource.Convention, false));
 
             Assert.True(dependentEntityBuilder.Ignore(Order.CustomerProperty.Name, ConfigurationSource.Explicit));
 
             Assert.Empty(dependentEntityBuilder.Metadata.ForeignKeys);
             Assert.Empty(principalEntityBuilder.Metadata.ForeignKeys);
             Assert.True(dependentEntityBuilder.Ignore(Order.CustomerProperty.Name, ConfigurationSource.Convention));
-            Assert.Null(dependentEntityBuilder.Relationship(typeof(Customer), typeof(Order), Order.CustomerProperty.Name, null, ConfigurationSource.Convention, false, true));
+            Assert.Null(dependentEntityBuilder.Relationship(typeof(Customer), typeof(Order), Order.CustomerProperty.Name, null, ConfigurationSource.Convention, false));
             Assert.Equal(Strings.NavigationIgnoredExplicitly(Order.CustomerProperty.Name, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() =>
-                    dependentEntityBuilder.Relationship(typeof(Customer), typeof(Order), Order.CustomerProperty.Name, null, ConfigurationSource.Explicit, false, true)).Message);
+                    dependentEntityBuilder.Relationship(typeof(Customer), typeof(Order), Order.CustomerProperty.Name, null, ConfigurationSource.Explicit, false)).Message);
         }
 
         [Fact]

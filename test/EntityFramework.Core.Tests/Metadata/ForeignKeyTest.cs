@@ -17,8 +17,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
 
             var referencedEntityType = model.AddEntityType("R");
-            var pk = referencedEntityType.AddProperty("Pk", typeof(int), shadowProperty: true);
-            
             var dependentEntityType = model.AddEntityType("D");
             var fk = dependentEntityType.AddProperty("Fk", typeof(int), shadowProperty: true);
 
@@ -62,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(
                 Strings.ForeignKeyCountMismatch("{'P1', 'P2'}", "D", "{'Id'}", "P"),
-                Assert.Throws<ArgumentException>(
+                Assert.Throws<InvalidOperationException>(
                     () => new ForeignKey(new[] { dependentProperty1, dependentProperty2 }, principalType.GetPrimaryKey())).Message);
         }
 
@@ -86,7 +84,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(
                 Strings.ForeignKeyTypeMismatch("{'P1', 'P2'}", "D", "P"),
-                Assert.Throws<ArgumentException>(
+                Assert.Throws<InvalidOperationException>(
                     () => new ForeignKey(new[] { dependentProperty1, dependentProperty2 }, principalType.GetPrimaryKey())).Message);
         }
 
