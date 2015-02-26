@@ -372,6 +372,9 @@ namespace Microsoft.Data.Entity.Query
                 = MethodInfoBasedNodeTypeRegistry.CreateFromTypes(searchedTypes);
 
             methodInfoBasedNodeTypeRegistry
+                .Register(AnnotateQueryExpressionNode.SupportedMethods, typeof(AnnotateQueryExpressionNode));
+
+            methodInfoBasedNodeTypeRegistry
                 .Register(AsNoTrackingExpressionNode.SupportedMethods, typeof(AsNoTrackingExpressionNode));
 
             methodInfoBasedNodeTypeRegistry

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -11,6 +12,8 @@ namespace Microsoft.Data.Entity.Query
 {
     public abstract class QueryCompilationContext
     {
+        private ICollection<QueryAnnotation> _queryAnnotations;
+
         protected QueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
@@ -45,6 +48,21 @@ namespace Microsoft.Data.Entity.Query
         public virtual IEntityMaterializerSource EntityMaterializerSource { get; }
 
         public virtual IEntityKeyFactorySource EntityKeyFactorySource { get; }
+
+        public virtual ICollection<QueryAnnotation> QueryAnnotations
+        {
+            get
+            {
+                return _queryAnnotations;
+            }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, nameof(value));
+
+                _queryAnnotations = value;
+            }
+        }
 
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor() => CreateQueryModelVisitor(null);
 

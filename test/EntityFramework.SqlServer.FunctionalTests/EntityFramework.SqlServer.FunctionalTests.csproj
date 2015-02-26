@@ -80,8 +80,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncFromSqlQuerySqlServerTest.cs" />
     <Compile Include="CommandConfigurationTests.cs" />
     <Compile Include="ComputedColumnTest.cs" />
+    <Compile Include="FromSqlQuerySqlServerTest.cs" />
     <Compile Include="NavigationTest.cs" />
     <Compile Include="InheritanceSqlServerFixture.cs" />
     <Compile Include="InheritanceSqlServerTest.cs" />

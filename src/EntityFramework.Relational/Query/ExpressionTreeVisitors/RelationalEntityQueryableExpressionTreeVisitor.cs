@@ -7,8 +7,11 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
+using Microsoft.Data.Entity.Query.ResultOperators;
+using Microsoft.Data.Entity.Relational.Query.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
@@ -68,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return base.VisitMethodCallExpression(methodCallExpression);
         }
 
-        protected override Expression VisitEntityQueryable(Type elementType)
+        protected override Expression VisitEntityQueryable([NotNull] Type elementType)
         {
             Check.NotNull(elementType, nameof(elementType));
 
@@ -78,14 +81,22 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var selectExpression = new SelectExpression();
             var tableName = QueryModelVisitor.QueryCompilationContext.GetTableName(entityType);
 
-            selectExpression
-                .AddTable(
-                    new TableExpression(
+            var alias = _querySource.ItemName.StartsWith("<generated>_")
+                ? tableName.First().ToString().ToLower()
+                : _querySource.ItemName;
+
+            var fromSqlAnnotation = GetAnnotations<FromSqlAnnotation>(_querySource).SingleOrDefault();
+
+            selectExpression.AddTable(
+                (fromSqlAnnotation != null)
+                    ? (TableExpressionBase)new RawSqlDerivedTableExpression(
+                        fromSqlAnnotation.Sql,
+                        alias,
+                        _querySource)
+                    : new TableExpression(
                         tableName,
                         QueryModelVisitor.QueryCompilationContext.GetSchema(entityType),
-                        _querySource.ItemName.StartsWith("<generated>_")
-                            ? tableName.First().ToString().ToLower()
-                            : _querySource.ItemName,
+                        alias,
                         _querySource));
 
             QueryModelVisitor.AddQuery(_querySource, selectExpression);

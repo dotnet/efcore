@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual Annotation AddAnnotation([NotNull] string annotationName, [NotNull] string value)
         {
-            Check.NotNull(annotationName, nameof(annotationName));
+            Check.NotEmpty(annotationName, nameof(annotationName));
             Check.NotNull(value, nameof(value));
 
             var annotation = new Annotation(annotationName, value);

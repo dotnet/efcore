@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -1703,7 +1704,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                return TestHelpers.AssertResults(
                     new[] { await query(NorthwindData.Set<TItem>()) },
                     new[] { await query(context.Set<TItem>()) },
                     assertOrder);
@@ -1717,7 +1718,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                return TestHelpers.AssertResults(
                     new[] { await query(NorthwindData.Set<TItem>()) },
                     new[] { await query(context.Set<TItem>()) },
                     assertOrder);
@@ -1731,7 +1732,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                return TestHelpers.AssertResults(
                     new[] { await query(NorthwindData.Set<TItem>()) },
                     new[] { await query(context.Set<TItem>()) },
                     assertOrder);
@@ -1746,7 +1747,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                return TestHelpers.AssertResults(
                     new[] { await query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()) },
                     new[] { await query(context.Set<TItem1>(), context.Set<TItem2>()) },
                     assertOrder);
@@ -1761,7 +1762,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                return TestHelpers.AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     await query(context.Set<TItem>()).ToArrayAsync(),
                     assertOrder,
@@ -1777,7 +1778,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                return TestHelpers.AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     await query(context.Set<TItem>()).ToArrayAsync(),
                     assertOrder,
@@ -1794,7 +1795,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                return TestHelpers.AssertResults(
                     query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()).ToArray(),
                     await query(context.Set<TItem1>(), context.Set<TItem2>()).ToArrayAsync(),
                     assertOrder,
@@ -1811,7 +1812,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                return TestHelpers.AssertResults(
                     query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>(), NorthwindData.Set<TItem3>()).ToArray(),
                     await query(context.Set<TItem1>(), context.Set<TItem2>(), context.Set<TItem3>()).ToArrayAsync(),
                     assertOrder);
@@ -1824,7 +1825,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                return TestHelpers.AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     await query(context.Set<TItem>()).ToArrayAsync(),
                     assertOrder);
@@ -1837,7 +1838,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                return TestHelpers.AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     await query(context.Set<TItem>()).ToArrayAsync(),
                     assertOrder);
@@ -1850,49 +1851,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                return AssertResults(
+                return TestHelpers.AssertResults(
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     await query(context.Set<TItem>()).ToArrayAsync(),
                     assertOrder);
             }
-        }
-
-        private static int AssertResults<T>(
-            IList<T> l2oItems,
-            IList<T> efItems,
-            bool assertOrder,
-            Action<IList<T>, IList<T>> asserter = null)
-        {
-            Assert.Equal(l2oItems.Count, efItems.Count);
-
-            if (asserter != null)
-            {
-                asserter(l2oItems, efItems);
-            }
-            else
-            {
-                if (assertOrder)
-                {
-                    Assert.Equal(l2oItems, efItems);
-                }
-                else
-                {
-                    foreach (var l2oItem in l2oItems)
-                    {
-                        if (!efItems.Contains(l2oItem))
-                        {
-                            Assert.True(
-                                false,
-                                string.Format(
-                                    "\r\nL2o item: [{0}] not found in EF results:\r\n{1}",
-                                    l2oItem,
-                                    string.Join("\r\n", efItems)));
-                        }
-                    }
-                }
-            }
-
-            return l2oItems.Count;
         }
     }
 }

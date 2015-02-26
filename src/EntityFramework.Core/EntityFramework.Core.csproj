@@ -127,6 +127,7 @@
     <Compile Include="DbContext.cs" />
     <Compile Include="DbContextOptionsBuilder.cs" />
     <Compile Include="DbContextOptionsBuilder`.cs" />
+    <Compile Include="Query\AnnotateQueryExtensions.cs" />
     <Compile Include="Infrastructure\CoreOptionsExtension.cs" />
     <Compile Include="Infrastructure\DbContextOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptions`.cs" />
@@ -134,6 +135,7 @@
     <Compile Include="Infrastructure\IBoxedValueReaderSource.cs" />
     <Compile Include="Infrastructure\IDatabaseFactory.cs" />
     <Compile Include="Infrastructure\IDbContextOptions.cs" />
+    <Compile Include="Infrastructure\IAnnotatableQueryable`.cs" />
     <Compile Include="Infrastructure\IOptionsBuilderExtender.cs" />
     <Compile Include="Infrastructure\EntityFrameworkServicesBuilder.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
@@ -230,6 +232,8 @@
     <Compile Include="Query\ResultOperators\AsNoTrackingExpressionNode.cs" />
     <Compile Include="Query\ResultOperators\AsNoTrackingResultOperator.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\TaskBlockingExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ResultOperators\AnnotateQueryExpressionNode.cs" />
+    <Compile Include="Query\ResultOperators\AnnotateQueryResultOperator.cs" />
     <Compile Include="Query\ResultOperators\ThenIncludeExpressionNode.cs" />
     <Compile Include="Storage\DataStoreErrorLogState.cs" />
     <Compile Include="Storage\DataStoreException.cs" />

@@ -178,6 +178,23 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
         }
 
+        public virtual Expression VisitRawSqlDerivedTableExpression([NotNull] RawSqlDerivedTableExpression rawSqlDerivedTableExpression)
+        {
+            Check.NotNull(rawSqlDerivedTableExpression, nameof(rawSqlDerivedTableExpression));
+
+            _sql.AppendLine("(");
+
+            using (_sql.Indent())
+            {
+                _sql.AppendLines(rawSqlDerivedTableExpression.Sql);
+            }
+
+            _sql.Append(") AS ")
+                .Append(DelimitIdentifier(rawSqlDerivedTableExpression.Alias));
+
+            return rawSqlDerivedTableExpression;
+        }
+
         public virtual Expression VisitTableExpression(TableExpression tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));

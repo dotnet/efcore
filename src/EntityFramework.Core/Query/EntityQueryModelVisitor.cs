@@ -38,7 +38,6 @@ namespace Microsoft.Data.Entity.Query
         private StreamedSequenceInfo _streamedSequenceInfo;
 
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
-        private ICollection<QueryAnnotation> _queryAnnotations;
 
         // TODO: Can these be non-blocking?
         private bool _blockTaskExpressions = true;
@@ -91,7 +90,7 @@ namespace Microsoft.Data.Entity.Query
 
                 _blockTaskExpressions = false;
 
-                _queryAnnotations = ExtractQueryAnnotations(queryModel);
+                QueryCompilationContext.QueryAnnotations = ExtractQueryAnnotations(queryModel);
 
                 OptimizeQueryModel(queryModel);
 
@@ -119,7 +118,7 @@ namespace Microsoft.Data.Entity.Query
 
                 _blockTaskExpressions = false;
 
-                _queryAnnotations = ExtractQueryAnnotations(queryModel);
+                QueryCompilationContext.QueryAnnotations = ExtractQueryAnnotations(queryModel);
 
                 OptimizeQueryModel(queryModel);
 
@@ -161,7 +160,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            new QueryOptimizer(_queryAnnotations).VisitQueryModel(queryModel);
+            new QueryOptimizer(QueryCompilationContext.QueryAnnotations).VisitQueryModel(queryModel);
 
             QueryCompilationContext.Logger
                 .LogInformation(queryModel, Strings.LogOptimizedQueryModel);
@@ -221,8 +220,8 @@ namespace Microsoft.Data.Entity.Query
                 = new QuerySourceTracingExpressionTreeVisitor();
 
             foreach (var include
-                in from queryAnnotation in _queryAnnotations
-                    let includeResultOperator = queryAnnotation.ResultOperator as IncludeResultOperator
+                in from queryAnnotation in QueryCompilationContext.QueryAnnotations
+                   let includeResultOperator = queryAnnotation.ResultOperator as IncludeResultOperator
                     where includeResultOperator != null
                     let navigationPath
                         = BindNavigationPathMemberExpression(
@@ -328,7 +327,7 @@ namespace Microsoft.Data.Entity.Query
             var querySourceReferenceExpressionsToTrack
                 = new EntityResultFindingExpressionTreeVisitor(QueryCompilationContext.Model)
                     .FindEntitiesInResult(queryModel.SelectClause.Selector)
-                    .Where(qsre => !_queryAnnotations
+                    .Where(qsre => !QueryCompilationContext.QueryAnnotations
                         .Any(qa => qa.ResultOperator is AsNoTrackingResultOperator
                                    && qa.QuerySource == qsre.ReferencedQuerySource))
                     .ToList();
@@ -409,12 +408,12 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            if (_queryAnnotations == null)
+            if (QueryCompilationContext.QueryAnnotations == null)
             {
                 return true;
             }
 
-            return _queryAnnotations.Where(en => en.ResultOperator is AsNoTrackingResultOperator)
+            return QueryCompilationContext.QueryAnnotations.Where(en => en.ResultOperator is AsNoTrackingResultOperator)
                 .All(qa => qa.QuerySource != querySource);
         }
 

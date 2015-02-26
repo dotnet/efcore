@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 
@@ -57,6 +58,23 @@ namespace Microsoft.Data.Entity.Utilities
 
             return this;
         }
+
+        public virtual IndentedStringBuilder AppendLines([NotNull] object o)
+        {
+            Check.NotNull(o, nameof(o));
+
+            using (var reader = new StringReader(o.ToString()))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    AppendLine(line);
+                }
+            }
+
+            return this;
+        }
+
 
         public virtual IndentedStringBuilder IncrementIndent()
         {

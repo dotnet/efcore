@@ -10,26 +10,22 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class TableExpression : TableExpressionBase
+    public class RawSqlDerivedTableExpression : TableExpressionBase
     {
-        public TableExpression(
-            [NotNull] string table,
-            [CanBeNull] string schema,
+        public RawSqlDerivedTableExpression(
+            [NotNull] string sql,
             [NotNull] string alias,
             [NotNull] IQuerySource querySource)
             : base(
-                Check.NotNull(querySource, nameof(querySource)),
-                Check.NotEmpty(alias, nameof(alias)))
+                  Check.NotNull(querySource, nameof(querySource)),
+                  Check.NotEmpty(alias, nameof(alias)))
         {
-            Check.NotEmpty(table, nameof(table));
+            Check.NotEmpty(sql, nameof(sql));
 
-            Table = table;
-            Schema = schema;
+            Sql = sql;
         }
 
-        public virtual string Table { get; }
-
-        public virtual string Schema { get; }
+        public virtual string Sql { get; }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
@@ -38,13 +34,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                ? specificVisitor.VisitTableExpression(this)
+                ? specificVisitor.VisitRawSqlDerivedTableExpression(this)
                 : base.Accept(visitor);
         }
 
         public override string ToString()
         {
-            return Table + " " + Alias;
+            return Sql + " " + Alias;
         }
     }
 }
