@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Customer>(e => { e.Ignore(c => c.IsLondon); });
+            modelBuilder.Entity<Customer>();
 
             modelBuilder.Entity<Employee>(e =>
                 {

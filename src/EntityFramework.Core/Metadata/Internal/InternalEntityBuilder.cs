@@ -372,6 +372,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
+            _ignoredProperties.Value[propertyName] = configurationSource;
+
             var property = Metadata.TryGetProperty(propertyName);
             if (property != null)
             {
@@ -382,6 +384,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         throw new InvalidOperationException(Strings.PropertyAddedExplicitly(property.Name, Metadata.Name));
                     }
 
+                    _ignoredProperties.Value.Remove(propertyName);
                     return false;
                 }
             }
@@ -396,14 +399,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         throw new InvalidOperationException(Strings.NavigationAddedExplicitly(navigation.Name, Metadata.Name));
                     }
 
+                    _ignoredProperties.Value.Remove(propertyName);
                     return false;
                 }
 
                 RemoveForeignKeyIfUnused(navigation.ForeignKey, configurationSource);
                 ModelBuilder.RemoveEntityTypesUnreachableByNavigations(configurationSource);
             }
-
-            _ignoredProperties.Value[propertyName] = configurationSource;
 
             return true;
         }
@@ -421,15 +423,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 Debug.Assert(removed.HasValue);
             }
 
+            var detachedRelationships = new List<RelationshipSnapshot>();
             foreach (var foreignKey in Metadata.ForeignKeys.Where(i => i.Properties.Contains(property)).ToList())
             {
-                var relationship = Relationship(foreignKey, true, ConfigurationSource.Convention)
-                    .ForeignKey(new Property[0], configurationSource);
-                Debug.Assert(relationship != null);
+                detachedRelationships.Add(DetachRelationship(foreignKey, configurationSource));
             }
 
             foreach (var key in Metadata.Keys.Where(i => i.Properties.Contains(property)).ToList())
             {
+                foreach (var foreignKey in ModelBuilder.Metadata.GetReferencingForeignKeys(key))
+                {
+                    detachedRelationships.Add(DetachRelationship(foreignKey, configurationSource));
+                }
                 var removed = RemoveKey(key, configurationSource);
                 Debug.Assert(removed.HasValue);
             }
@@ -437,6 +442,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (Metadata.Properties.Contains(property))
             {
                 Metadata.RemoveProperty(property);
+            }
+
+            foreach (var removedRelationship in detachedRelationships)
+            {
+                removedRelationship.Attach();
             }
 
             return true;
@@ -479,6 +489,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 ? null
                 : Relationship(principalType, Metadata, null, null, configurationSource, false)
                     ?.ForeignKey(dependentProperties, configurationSource);
+        }
+
+        private RelationshipSnapshot DetachRelationship([NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
+        {
+            var navigationToPrincipalName = foreignKey.GetNavigationToPrincipal()?.Name;
+            var navigationToDependentName = foreignKey.GetNavigationToDependent()?.Name;
+            var relationship = Relationship(foreignKey, true, ConfigurationSource.Convention);
+            var relationshipConfigurationSource = RemoveRelationship(foreignKey, configurationSource);
+
+            if (relationshipConfigurationSource == null)
+            {
+                return null;
+            }
+
+            return new RelationshipSnapshot(relationship, navigationToPrincipalName, navigationToDependentName, relationshipConfigurationSource.Value);
         }
 
         private bool RemoveRelationships(ConfigurationSource configurationSource, params ForeignKey[] foreignKeys)
@@ -1101,9 +1126,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return relationship;
         }
 
-        public virtual IReadOnlyList<Property> GetOrCreateProperties([NotNull] IEnumerable<string> propertyNames, ConfigurationSource configurationSource)
+        public virtual IReadOnlyList<Property> GetOrCreateProperties([CanBeNull] IEnumerable<string> propertyNames, ConfigurationSource configurationSource)
         {
-            Check.NotNull(propertyNames, nameof(propertyNames));
+            if (propertyNames == null)
+            {
+                return null;
+            }
 
             var list = new List<Property>();
             foreach (var propertyName in propertyNames)
@@ -1157,6 +1185,42 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 list.Add(propertyBuilder.Metadata);
             }
             return list;
+        }
+
+        private class RelationshipSnapshot
+        {
+            public RelationshipSnapshot(
+                InternalRelationshipBuilder relationship,
+                string navigationToPrincipalName,
+                string navigationToDependentName,
+                ConfigurationSource relationshipConfigurationSource)
+            {
+                Relationship = relationship;
+                RelationshipConfigurationSource = relationshipConfigurationSource;
+                NavigationToPrincipalName = navigationToPrincipalName;
+                NavigationToDependentName = navigationToDependentName;
+            }
+
+            private InternalRelationshipBuilder Relationship { get; }
+            private ConfigurationSource RelationshipConfigurationSource { get; }
+            private string NavigationToPrincipalName { get; }
+            private string NavigationToDependentName { get; }
+
+            public InternalRelationshipBuilder Attach()
+            {
+                var newRelationship = Relationship.Attach(RelationshipConfigurationSource);
+                if (NavigationToPrincipalName != null)
+                {
+                    newRelationship = newRelationship.NavigationToPrincipal(NavigationToPrincipalName, RelationshipConfigurationSource);
+                }
+
+                if (NavigationToDependentName != null)
+                {
+                    newRelationship = newRelationship.NavigationToDependent(NavigationToDependentName, RelationshipConfigurationSource);
+                }
+
+                return newRelationship;
+            }
         }
     }
 }

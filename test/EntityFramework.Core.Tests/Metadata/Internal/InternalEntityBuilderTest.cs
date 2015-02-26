@@ -796,27 +796,29 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var key = principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            var relationship = dependentEntityBuilder.Relationship(
+            var fk = dependentEntityBuilder.Relationship(
                 principalEntityBuilder,
                 dependentEntityBuilder,
-                null,
-                null,
+                Order.CustomerProperty.Name,
+                Customer.OrdersProperty.Name,
                 new[]
                     {
                         dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
                         dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
                     },
                 key.Metadata.Properties,
-                ConfigurationSource.Convention);
+                ConfigurationSource.Convention).Metadata;
 
             Assert.True(dependentEntityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation));
 
             Assert.Empty(dependentEntityBuilder.Metadata.Properties.Where(p => p.Name == Order.CustomerIdProperty.Name));
             var newFk = dependentEntityBuilder.Metadata.ForeignKeys.Single();
-            Assert.Equal(relationship.Metadata.EntityType, newFk.EntityType);
-            Assert.Equal(relationship.Metadata.ReferencedEntityType, newFk.ReferencedEntityType);
-            Assert.NotEqual(relationship.Metadata.Properties, newFk.EntityType.Properties);
-            Assert.Equal(relationship.Metadata.ReferencedKey, newFk.ReferencedKey);
+            Assert.Same(fk.EntityType, newFk.EntityType);
+            Assert.Same(fk.ReferencedEntityType, newFk.ReferencedEntityType);
+            Assert.NotEqual(fk.Properties, newFk.EntityType.Properties);
+            Assert.Same(fk.ReferencedKey, newFk.ReferencedKey);
+            Assert.Equal(Order.CustomerProperty.Name, newFk.GetNavigationToPrincipal().Name);
+            Assert.Equal(Customer.OrdersProperty.Name, newFk.GetNavigationToDependent().Name);
         }
 
         [Fact]
@@ -887,6 +889,39 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Empty(entityBuilder.Metadata.Properties.Where(p => p.Name == Order.CustomerIdProperty.Name));
             Assert.Empty(entityBuilder.Metadata.Keys);
+        }
+
+        [Fact]
+        public void Can_ignore_property_that_is_part_of_lower_source_principal_key_preserving_the_relationship()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var key = principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Convention);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var fk = dependentEntityBuilder.Relationship(
+                principalEntityBuilder,
+                dependentEntityBuilder,
+                Order.CustomerProperty.Name,
+                Customer.OrdersProperty.Name,
+                new[]
+                    {
+                        dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                        dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                    },
+                key.Metadata.Properties,
+                ConfigurationSource.Convention).Metadata;
+
+            Assert.True(principalEntityBuilder.Ignore(Customer.UniqueProperty.Name, ConfigurationSource.DataAnnotation));
+
+            Assert.Empty(principalEntityBuilder.Metadata.Properties.Where(p => p.Name == Customer.UniqueProperty.Name));
+            var newFk = dependentEntityBuilder.Metadata.ForeignKeys.Single();
+            Assert.Same(fk.EntityType, newFk.EntityType);
+            Assert.Same(fk.ReferencedEntityType, newFk.ReferencedEntityType);
+            Assert.Equal(fk.Properties, newFk.EntityType.Properties);
+            Assert.NotSame(fk.ReferencedKey, newFk.ReferencedKey);
+            Assert.Equal(Order.CustomerProperty.Name, newFk.GetNavigationToPrincipal().Name);
+            Assert.Equal(Customer.OrdersProperty.Name, newFk.GetNavigationToDependent().Name);
         }
 
         [Fact]
