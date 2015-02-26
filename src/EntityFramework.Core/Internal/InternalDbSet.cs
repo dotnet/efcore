@@ -15,7 +15,8 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Internal
 {
-    public class InternalDbSet<TEntity> : DbSet<TEntity>, IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>
+    public class InternalDbSet<TEntity>
+        : DbSet<TEntity>, IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>, IAccessor<EntityQueryable<TEntity>>
         where TEntity : class
     {
         private readonly DbContext _context;
@@ -131,6 +132,10 @@ namespace Microsoft.Data.Entity.Internal
 
         IQueryProvider IQueryable.Provider => _entityQueryable.Value.Provider;
 
+        public override DbContext Context => _context;
+
         IServiceProvider IAccessor<IServiceProvider>.Service => ((IAccessor<IServiceProvider>)_context).Service;
+
+        EntityQueryable<TEntity> IAccessor<EntityQueryable<TEntity>>.Service => _entityQueryable.Value;
     }
 }

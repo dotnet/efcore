@@ -31,7 +31,8 @@ namespace Microsoft.Data.Entity
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity"> The type of entity being operated on by this set. </typeparam>
-    public abstract class DbSet<TEntity> : IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>
+    public abstract class DbSet<TEntity>
+        : IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>, IAccessor<EntityQueryable<TEntity>>
         where TEntity : class
     {
         /// <summary>
@@ -264,6 +265,16 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     <para>
+        ///         Gets the <see cref="DbContext" /> instance.
+        ///     </para>
+        /// </summary>
+        public virtual DbContext Context
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
+        ///     <para>
         ///         Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
         ///     </para>
         ///     <para>
@@ -272,6 +283,19 @@ namespace Microsoft.Data.Entity
         ///     </para>
         /// </summary>
         IServiceProvider IAccessor<IServiceProvider>.Service
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the <see cref="EntityQueryable{TResult}" /> instance.
+        ///     </para>
+        ///     <para>
+        ///         This property is intended for use by extension methods to clone and add query annotations.
+        ///     </para>
+        /// </summary>
+        EntityQueryable<TEntity> IAccessor<EntityQueryable<TEntity>>.Service
         {
             get { throw new NotImplementedException(); }
         }

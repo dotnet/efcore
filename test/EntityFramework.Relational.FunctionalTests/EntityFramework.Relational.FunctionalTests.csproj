@@ -74,6 +74,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncFromSqlQueryTestBase.cs" />
     <Compile Include="MappingQueryTestBase.cs" />
     <Compile Include="MappingQueryFixtureBase.cs" />
     <Compile Include="PropertyEntryTestBase.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="F1RelationalFixture.cs" />
     <Compile Include="GearsOfWarQueryRelationalFixture.cs" />
     <Compile Include="NorthwindQueryRelationalFixture.cs" />
+    <Compile Include="FromSqlQueryTestBase.cs" />
     <Compile Include="RelationalTestStore.cs" />
     <Compile Include="TestSqlLoggerFactory.cs" />
     <Compile Include="TransactionFixtureBase.cs" />
@@ -102,6 +104,10 @@
     <ProjectReference Include="..\EntityFramework.Core.FunctionalTests\EntityFramework.Core.FunctionalTests.csproj">
       <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
       <Name>EntityFramework.Core.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Core.Tests\EntityFramework.Core.Tests.csproj">
+      <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
+      <Name>EntityFramework.Core.Tests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

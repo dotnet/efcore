@@ -146,6 +146,7 @@
     <Compile Include="Query\CommandParameter.cs" />
     <Compile Include="Query\EqualityPredicateOptimizer.cs" />
     <Compile Include="Query\Expressions\AggregateExpression.cs" />
+    <Compile Include="Query\Expressions\RawSqlDerivedTableExpression.cs" />
     <Compile Include="Query\Expressions\DiscriminatorPredicateExpression.cs" />
     <Compile Include="Query\Expressions\InExpression.cs" />
     <Compile Include="Query\Expressions\JoinExpressionBase.cs" />
@@ -202,6 +203,7 @@
     <Compile Include="RelationalDataStoreServiceFactories.cs" />
     <Compile Include="IRelationalDataStoreServices.cs" />
     <Compile Include="RelationalDbContextOptions.cs" />
+    <Compile Include="RelationalDbSetExtensions.cs" />
     <Compile Include="RelationalMetadataExtensions.cs" />
     <Compile Include="RelationalOptionsExtension.cs" />
     <Compile Include="RelationalConnection.cs" />
