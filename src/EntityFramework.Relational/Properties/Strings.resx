@@ -124,7 +124,7 @@
     <value>Can not create a ModificationFunction for an entity in state '{entityState}'.</value>
   </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
-    <value>Update failed. Expected {expectedRows} row(s) but {actualRows} row(s) returned.</value>
+    <value>Database operation expected to affect {expectedRows} row(s) but actually affected {actualRows} row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.</value>
   </data>
   <data name="MultipleDataStoresConfigured" xml:space="preserve">
     <value>Multiple relational data store configurations found. A context can only be configured to use a single data store.</value>
