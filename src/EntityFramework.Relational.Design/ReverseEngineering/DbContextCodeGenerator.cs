@@ -8,6 +8,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
@@ -25,7 +26,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 {
                     new Tuple<string, string>("ModelBuilder", "modelBuilder")
                 };
-
+        private static readonly KeyConvention _keyConvention = new KeyConvention();
 
         private List<string> _usedNamespaces = new List<string>()
                 {
@@ -202,7 +203,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             using (sb.Indent())
             {
-                sb.AppendLine("{");
+                sb.Append("{");
                 using (sb.Indent())
                 {
                     var key = entityType.TryGetPrimaryKey();
@@ -226,10 +227,27 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Check.NotNull(key, nameof(key));
             Check.NotNull(sb, nameof(sb));
 
-            sb.Append("entity.Key(e => ");
-            sb.Append(ModelUtilities.Instance
-                .GenerateLambdaToKey(key.Properties, "e"));
-            sb.Append(");");
+            IReadOnlyList<Property> conventionKeyProperties = null;
+            try
+            {
+                conventionKeyProperties = _keyConvention.DiscoverKeyProperties((EntityType)key.EntityType);
+            }
+            catch(InvalidOperationException)
+            {
+                // could not find key properties
+            }
+
+            if (conventionKeyProperties == null
+                || !Enumerable.SequenceEqual(
+                        key.Properties.OrderBy(p => p.Name),
+                        conventionKeyProperties.OrderBy(p => p.Name)))
+            {
+                sb.AppendLine();
+                sb.Append("entity.Key(e => ");
+                sb.Append(ModelUtilities.Instance
+                    .GenerateLambdaToKey(key.Properties, "e"));
+                sb.Append(");");
+            }
         }
 
         public virtual void GenerateEntityFacetsConfiguration(
