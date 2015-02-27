@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
             var convention = new Mock<KeyConvention> { CallBase = true };
-            convention.Protected().Setup<IEnumerable<Property>>("DiscoverKeyProperties", ItExpr.IsAny<EntityType>())
+            convention.Setup(c => c.DiscoverKeyProperties(It.IsAny<EntityType>()))
                 .Returns<EntityType>(t => t.Properties.ToList());
 
             Assert.Same(entityBuilder, convention.Object.Apply(entityBuilder));
@@ -110,16 +110,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         }
 
         [Fact]
-        public void DiscoverKeyProperties_throws_when_multiple_ids()
+        public void DiscoverKeyProperties_does_not_discover_key_when_multiple_ids()
         {
-            var entityType = CreateInternalEntityBuilder<EntityWithMultipleIds>();
-            var convention = new KeyConvention();
+            var entityBuilder = CreateInternalEntityBuilder<EntityWithMultipleIds>();
 
-            var ex = Assert.Throws<InvalidOperationException>(() => convention.Apply(entityType));
+            Assert.Same(entityBuilder, new KeyConvention().Apply(entityBuilder));
 
-            Assert.Equal(
-                Strings.MultiplePropertiesMatchedAsKeys("ID", typeof(EntityWithMultipleIds).FullName),
-                ex.Message);
+            var key = entityBuilder.Metadata.TryGetPrimaryKey();
+            Assert.Null(key);
         }
 
         private class EntityWithGenericKey<T>

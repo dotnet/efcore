@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             return entityBuilder;
         }
 
-        protected virtual IReadOnlyList<Property> DiscoverKeyProperties([NotNull] EntityType entityType)
+        public virtual IReadOnlyList<Property> DiscoverKeyProperties([NotNull] EntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -52,8 +52,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
             if (keyProperties.Count > 1)
             {
-                throw new InvalidOperationException(
-                    Strings.MultiplePropertiesMatchedAsKeys(keyProperties.First().Name, entityType.Name));
+                //TODO - add in logging using resource Strings.MultiplePropertiesMatchedAsKeys()
+                return Enumerable.Empty<Property>().ToList();
             }
 
             return keyProperties;
