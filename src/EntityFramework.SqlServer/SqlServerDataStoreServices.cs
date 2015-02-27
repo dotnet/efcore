@@ -19,7 +19,7 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerDataStoreServices : RelationalDataStoreServices
+    public class SqlServerDataStoreServices : ISqlServerDataStoreServices
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -30,26 +30,28 @@ namespace Microsoft.Data.Entity.SqlServer
             _serviceProvider = serviceProvider;
         }
 
-        public override DataStore Store => _serviceProvider.GetRequiredService<SqlServerDataStore>();
+        public virtual IDataStore Store => _serviceProvider.GetRequiredService<ISqlServerDataStore>();
 
-        public override QueryContextFactory QueryContextFactory => _serviceProvider.GetRequiredService<SqlServerQueryContextFactory>();
+        public virtual IQueryContextFactory QueryContextFactory => _serviceProvider.GetRequiredService<ISqlServerQueryContextFactory>();
 
-        public override DataStoreCreator Creator => _serviceProvider.GetRequiredService<SqlServerDataStoreCreator>();
+        public virtual IDataStoreCreator Creator => _serviceProvider.GetRequiredService<ISqlServerDataStoreCreator>();
 
-        public override DataStoreConnection Connection => _serviceProvider.GetRequiredService<SqlServerConnection>();
+        public virtual IDataStoreConnection Connection => _serviceProvider.GetRequiredService<ISqlServerConnection>();
 
-        public override IValueGeneratorSelector ValueGeneratorSelector => _serviceProvider.GetRequiredService<SqlServerValueGeneratorSelector>();
+        public virtual IRelationalConnection RelationalConnection => _serviceProvider.GetRequiredService<ISqlServerConnection>();
 
-        public override Database Database => _serviceProvider.GetRequiredService<SqlServerDatabase>();
+        public virtual IValueGeneratorSelector ValueGeneratorSelector => _serviceProvider.GetRequiredService<ISqlServerValueGeneratorSelector>();
 
-        public override ModelBuilderFactory ModelBuilderFactory => _serviceProvider.GetRequiredService<SqlServerModelBuilderFactory>();
+        public virtual Database Database => _serviceProvider.GetRequiredService<SqlServerDatabase>();
 
-        public override ModelDiffer ModelDiffer => _serviceProvider.GetRequiredService<SqlServerModelDiffer>();
+        public virtual IModelBuilderFactory ModelBuilderFactory => _serviceProvider.GetRequiredService<ISqlServerModelBuilderFactory>();
 
-        public override IHistoryRepository HistoryRepository => _serviceProvider.GetRequiredService<SqlServerHistoryRepository>();
+        public virtual IModelDiffer ModelDiffer => _serviceProvider.GetRequiredService<ISqlServerModelDiffer>();
 
-        public override MigrationSqlGenerator MigrationSqlGenerator => _serviceProvider.GetRequiredService<SqlServerMigrationSqlGenerator>();
+        public virtual IHistoryRepository HistoryRepository => _serviceProvider.GetRequiredService<ISqlServerHistoryRepository>();
 
-        public override ModelSource ModelSource => _serviceProvider.GetRequiredService<SqlServerModelSource>();
+        public virtual IMigrationSqlGenerator MigrationSqlGenerator => _serviceProvider.GetRequiredService<ISqlServerMigrationSqlGenerator>();
+
+        public virtual IModelSource ModelSource => _serviceProvider.GetRequiredService<ISqlServerModelSource>();
     }
 }

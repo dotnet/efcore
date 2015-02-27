@@ -12,16 +12,16 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public abstract class Database : IAccessor<DataStoreCreator>, IAccessor<ILogger>, IAccessor<IModel>, IAccessor<IServiceProvider>
+    public abstract class Database : IAccessor<IDataStoreCreator>, IAccessor<ILogger>, IAccessor<IModel>, IAccessor<IServiceProvider>
     {
         private readonly DbContext _context;
-        private readonly DataStoreCreator _dataStoreCreator;
+        private readonly IDataStoreCreator _dataStoreCreator;
         private readonly LazyRef<ILogger> _logger;
 
         protected Database(
             [NotNull] DbContext context,
-            [NotNull] DataStoreCreator dataStoreCreator,
-            [NotNull] DataStoreConnection connection,
+            [NotNull] IDataStoreCreator dataStoreCreator,
+            [NotNull] IDataStoreConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(context, nameof(context));
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             _logger = new LazyRef<ILogger>(loggerFactory.Create<Database>);
         }
 
-        public virtual DataStoreConnection Connection { get; }
+        public virtual IDataStoreConnection Connection { get; }
 
         // TODO: Make sure API docs say that return value indicates whether or not the database or tables were created
         public virtual bool EnsureCreated() => _dataStoreCreator.EnsureCreated(_context.Model);
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
             => _dataStoreCreator.EnsureDeletedAsync(_context.Model, cancellationToken);
 
-        DataStoreCreator IAccessor<DataStoreCreator>.Service => _dataStoreCreator;
+        IDataStoreCreator IAccessor<IDataStoreCreator>.Service => _dataStoreCreator;
 
         ILogger IAccessor<ILogger>.Service => _logger.Value;
 

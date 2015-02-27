@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryDataStoreSource : DataStoreSource<InMemoryDataStoreServices, InMemoryOptionsExtension>
+    public class InMemoryDataStoreSource : DataStoreSource<IInMemoryDataStoreServices, InMemoryOptionsExtension>
     {
         public InMemoryDataStoreSource([NotNull] DbContextServices services, [NotNull] IDbContextOptions options)
             : base(services, options)

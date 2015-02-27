@@ -67,6 +67,9 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>LoggingExtensions.cs</Link>
     </Compile>
+    <Compile Include="IRelationalConnection.cs" />
+    <Compile Include="IRelationalDataStore.cs" />
+    <Compile Include="IRelationalDataStoreCreator.cs" />
     <Compile Include="Migrations\Builders\ColumnBuilder.cs" />
     <Compile Include="Migrations\Builders\MigrationBuilder.cs" />
     <Compile Include="Migrations\Builders\TableBuilder.cs" />
@@ -75,6 +78,7 @@
     <Compile Include="Migrations\Infrastructure\ContextTypeAttribute.cs" />
     <Compile Include="Migrations\History\IHistoryRepository.cs" />
     <Compile Include="Migrations\History\IHistoryRow.cs" />
+    <Compile Include="Migrations\Infrastructure\IModelDiffer.cs" />
     <Compile Include="Migrations\Infrastructure\MigrationAssembly.cs" />
     <Compile Include="Migrations\Infrastructure\MigrationIdGenerator.cs" />
     <Compile Include="Migrations\Migrator.cs" />
@@ -108,6 +112,7 @@
     <Compile Include="Metadata\RelationalSequenceBuilder.cs" />
     <Compile Include="Metadata\Sequence.cs" />
     <Compile Include="Migrations\Migration.cs" />
+    <Compile Include="Migrations\Sql\IMigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Sql\MigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Infrastructure\ModelDiffer.cs" />
     <Compile Include="Migrations\Operations\AddColumnOperation.cs" />
@@ -160,6 +165,7 @@
     <Compile Include="Query\IIncludeRelatedValuesStrategy.cs" />
     <Compile Include="Query\IncludeCollectionIterator.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\QueryFlatteningExpressionTreeVisitor.cs" />
+    <Compile Include="Query\IRelationalQueryContextFactory.cs" />
     <Compile Include="Query\Methods\ContainsTranslator.cs" />
     <Compile Include="Query\OffsetValueReaderDecorator.cs" />
     <Compile Include="Query\QueryingEnumerable.cs" />
@@ -197,7 +203,8 @@
     <Compile Include="RelationalDatabase.cs" />
     <Compile Include="RelationalDatabaseExtensions.cs" />
     <Compile Include="RelationalDataStoreCreator.cs" />
-    <Compile Include="RelationalDataStoreServices.cs" />
+    <Compile Include="RelationalDataStoreServiceFactories.cs" />
+    <Compile Include="IRelationalDataStoreServices.cs" />
     <Compile Include="RelationalDbContextOptions.cs" />
     <Compile Include="RelationalMetadataExtensions.cs" />
     <Compile Include="RelationalOptionsExtension.cs" />

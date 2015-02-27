@@ -19,12 +19,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             _testModelSource = new TestModelSource(onModelCreating, setFinder);
         }
 
-        public override IModel GetModel(DbContext context, ModelBuilderFactory modelBuilderFactory)
+        public override IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
         {
             return _testModelSource.GetModel(context, modelBuilderFactory);
         }
         
-        public static Func<IServiceProvider, InMemoryModelSource> GetFactory(Action<ModelBuilder> onModelCreating)
+        public static Func<IServiceProvider, IInMemoryModelSource> GetFactory(Action<ModelBuilder> onModelCreating)
         {
             return p => new TestInMemoryModelSource(onModelCreating, p.GetRequiredService<DbSetFinder>(), p.GetRequiredService<ModelValidator>());
         }

@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .AddInMemoryStore()
                 .AddDbContext<JustSomeContext>()
                 .ServiceCollection()
-                .AddSingleton<InMemoryModelSource, MyModelSource>()
+                .AddSingleton<IInMemoryModelSource, MyModelSource>()
                 .BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<JustSomeContext>())
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
             }
 
-            protected override IModel CreateModel(DbContext context, ModelBuilderFactory modelBuilderFactory)
+            protected override IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
             {
                 var model = base.CreateModel(context, modelBuilderFactory) as Model;
 

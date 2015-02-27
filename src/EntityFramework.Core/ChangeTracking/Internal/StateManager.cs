@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private readonly InternalEntityEntryFactory _factory;
         private readonly InternalEntityEntrySubscriber _subscriber;
         private readonly IModel _model;
-        private readonly DataStore _dataStore;
+        private readonly IDataStore _dataStore;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] InternalEntityEntryNotifier notifier,
             [NotNull] ValueGenerationManager valueGeneration,
             [NotNull] IModel model,
-            [NotNull] DataStore dataStore)
+            [NotNull] IDataStore dataStore)
         {
             _keyFactorySource = entityKeyFactorySource;
             _factory = factory;

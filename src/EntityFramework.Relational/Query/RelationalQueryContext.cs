@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         public RelationalQueryContext(
             [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer,
-            [NotNull] RelationalConnection connection,
+            [NotNull] IRelationalConnection connection,
             [NotNull] RelationalValueReaderFactory valueReaderFactory)
             : base(
                 Check.NotNull(logger, nameof(logger)),
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         // TODO: Move this to compilation context
         public virtual RelationalValueReaderFactory ValueReaderFactory { get; }
 
-        public virtual RelationalConnection Connection { get; }
+        public virtual IRelationalConnection Connection { get; }
 
         public virtual void RegisterDataReader([NotNull] DbDataReader dataReader)
         {
@@ -45,15 +45,10 @@ namespace Microsoft.Data.Entity.Relational.Query
             _activeDataReaders.Add(dataReader);
         }
 
-        public virtual IValueReader CreateValueReader(int readerIndex)
-        {
-            return ValueReaderFactory.Create(_activeDataReaders[_activeReaderOffset + readerIndex]);
-        }
+        public virtual IValueReader CreateValueReader(int readerIndex) 
+            => ValueReaderFactory.Create(_activeDataReaders[_activeReaderOffset + readerIndex]);
 
-        public virtual void BeginIncludeScope()
-        {
-            _activeReaderOffset = _activeDataReaders.Count;
-        }
+        public virtual void BeginIncludeScope() => _activeReaderOffset = _activeDataReaders.Count;
 
         public virtual void EndIncludeScope()
         {

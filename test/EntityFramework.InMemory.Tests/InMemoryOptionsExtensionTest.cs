@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             _applyServices.Invoke(new InMemoryOptionsExtension(), new object[] { builder });
 
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(InMemoryDataStore)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(IInMemoryDataStore)));
         }
     }
 }

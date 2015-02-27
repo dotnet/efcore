@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerModelBuilderFactory : ModelBuilderFactory
+    public class SqlServerModelBuilderFactory : ModelBuilderFactory, ISqlServerModelBuilderFactory
     {
     }
 }

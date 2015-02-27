@@ -9,13 +9,13 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
+    public class InMemoryValueGeneratorSelector : ValueGeneratorSelector, IInMemoryValueGeneratorSelector
     {
-        private readonly InMemoryValueGeneratorCache _cache;
+        private readonly IInMemoryValueGeneratorCache _cache;
         private readonly InMemoryIntegerValueGeneratorFactory _inMemoryFactory;
 
         public InMemoryValueGeneratorSelector(
-            [NotNull] InMemoryValueGeneratorCache cache,
+            [NotNull] IInMemoryValueGeneratorCache cache,
             [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory,
             [NotNull] InMemoryIntegerValueGeneratorFactory inMemoryFactory,
             [NotNull] TemporaryIntegerValueGeneratorFactory integerFactory,

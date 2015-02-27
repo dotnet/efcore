@@ -5,33 +5,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public class DataStoreSelector
+    public class DataStoreSelector : IDataStoreSelector
     {
-        private readonly DataStoreSource[] _sources;
+        private readonly IDataStoreSource[] _sources;
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected DataStoreSelector()
+        public DataStoreSelector([CanBeNull] IEnumerable<IDataStoreSource> sources)
         {
+            _sources = sources == null ? new IDataStoreSource[0] : sources.ToArray();
         }
 
-        public DataStoreSelector([CanBeNull] IEnumerable<DataStoreSource> sources)
+        public virtual IDataStoreServices SelectDataStore(DbContextServices.ServiceProviderSource providerSource)
         {
-            _sources = sources == null ? new DataStoreSource[0] : sources.ToArray();
-        }
-
-        public virtual DataStoreServices SelectDataStore(DbContextServices.ServiceProviderSource providerSource)
-        {
-            Check.IsDefined(providerSource, "providerSource");
+            Check.IsDefined(providerSource, nameof(providerSource));
 
             var configured = _sources.Where(f => f.IsConfigured).ToArray();
 
@@ -69,9 +59,7 @@ namespace Microsoft.Data.Entity.Storage
             return _sources[0].StoreServices;
         }
 
-        private static string BuildStoreNamesString(IEnumerable<DataStoreSource> available)
-        {
-            return available.Select(e => e.Name).Aggregate("", (n, c) => n + "'" + c + "' ");
-        }
+        private static string BuildStoreNamesString(IEnumerable<IDataStoreSource> available) 
+            => available.Select(e => e.Name).Aggregate("", (n, c) => n + "'" + c + "' ");
     }
 }

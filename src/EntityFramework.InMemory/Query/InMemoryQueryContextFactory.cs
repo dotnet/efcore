@@ -10,16 +10,16 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.InMemory.Query
 {
-    public class InMemoryQueryContextFactory : QueryContextFactory
+    public class InMemoryQueryContextFactory : QueryContextFactory, IInMemoryQueryContextFactory
     {
-        private readonly InMemoryDataStore _dataStore;
+        private readonly IInMemoryDataStore _dataStore;
 
         public InMemoryQueryContextFactory(
             [NotNull] StateManager stateManager,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] ClrPropertySetterSource propertySetterSource,
-            [NotNull] InMemoryDataStore dataStore,
+            [NotNull] IInMemoryDataStore dataStore,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, loggerFactory)
         {

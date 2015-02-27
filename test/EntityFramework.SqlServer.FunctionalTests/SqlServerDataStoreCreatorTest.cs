@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                    var creator = (RelationalDataStoreCreator)contextServices.GetRequiredService<DataStoreCreator>();
+                    var creator = (RelationalDataStoreCreator)contextServices.GetRequiredService<IDataStoreCreator>();
 
                     if (async)
                     {
@@ -383,9 +383,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .Service;
         }
 
-        private static SqlServerDataStoreCreator GetDataStoreCreator(SqlServerTestStore testStore)
+        private static ISqlServerDataStoreCreator GetDataStoreCreator(SqlServerTestStore testStore)
         {
-            return CreateContextServices(testStore).GetRequiredService<SqlServerDataStoreCreator>();
+            return CreateContextServices(testStore).GetRequiredService<ISqlServerDataStoreCreator>();
         }
 
         private class BloggingContext : DbContext

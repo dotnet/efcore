@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryModelBuilderFactory : ModelBuilderFactory
+    public class InMemoryModelBuilderFactory : ModelBuilderFactory, IInMemoryModelBuilderFactory
     {
     }
 }

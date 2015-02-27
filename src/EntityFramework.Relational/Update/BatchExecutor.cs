@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public virtual int Execute(
             [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
-            [NotNull] RelationalConnection connection)
+            [NotNull] IRelationalConnection connection)
         {
             Check.NotNull(commandBatches, nameof(commandBatches));
             Check.NotNull(connection, nameof(connection));
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public virtual async Task<int> ExecuteAsync(
             [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
-            [NotNull] RelationalConnection connection,
+            [NotNull] IRelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(commandBatches, nameof(commandBatches));

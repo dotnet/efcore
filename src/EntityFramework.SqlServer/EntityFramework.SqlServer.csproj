@@ -66,6 +66,14 @@
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
     <Compile Include="Extensions\SqlServerDbContextOptions.cs" />
+    <Compile Include="ISqlServerConnection.cs" />
+    <Compile Include="ISqlServerDataStore.cs" />
+    <Compile Include="ISqlServerDataStoreCreator.cs" />
+    <Compile Include="ISqlServerDataStoreServices.cs" />
+    <Compile Include="ISqlServerModelBuilderFactory.cs" />
+    <Compile Include="ISqlServerModelSource.cs" />
+    <Compile Include="ISqlServerValueGeneratorCache.cs" />
+    <Compile Include="ISqlServerValueGeneratorSelector.cs" />
     <Compile Include="Metadata\ISqlServerEntityTypeExtensions.cs" />
     <Compile Include="Metadata\ISqlServerForeignKeyExtensions.cs" />
     <Compile Include="Metadata\ISqlServerIndexExtensions.cs" />
@@ -95,7 +103,11 @@
     <Compile Include="Metadata\SqlServerValueGenerationStrategy.cs" />
     <Compile Include="Migrations\CreateDatabaseOperation.cs" />
     <Compile Include="Migrations\DropDatabaseOperation.cs" />
+    <Compile Include="Migrations\ISqlServerHistoryRepository.cs" />
+    <Compile Include="Migrations\ISqlServerMigrationSqlGenerator.cs" />
+    <Compile Include="Migrations\ISqlServerModelDiffer.cs" />
     <Compile Include="Migrations\SqlServerHistoryRepository.cs" />
+    <Compile Include="Query\ISqlServerQueryContextFactory.cs" />
     <Compile Include="Query\SqlServerQueryCompilationContext.cs" />
     <Compile Include="Query\SqlServerQueryContextFactory.cs" />
     <Compile Include="Query\SqlServerQueryGenerator.cs" />

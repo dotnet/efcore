@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddEntityFramework()
                     .AddSqlServer();
 
-                serviceCollection.AddScoped<SqlServerQueryContextFactory, TestSqlServerQueryContextFactory>();
+                serviceCollection.AddScoped<ISqlServerQueryContextFactory, TestSqlServerQueryContextFactory>();
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 using (var db = new NorthwindContext(serviceProvider))
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 EntityKeyFactorySource entityKeyFactorySource,
                 ClrCollectionAccessorSource collectionAccessorSource,
                 ClrPropertySetterSource propertySetterSource,
-                SqlServerConnection connection,
+                ISqlServerConnection connection,
                 ILoggerFactory loggerFactory)
                 : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, connection, loggerFactory)
             {

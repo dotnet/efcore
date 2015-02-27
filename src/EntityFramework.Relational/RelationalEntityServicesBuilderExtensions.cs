@@ -28,9 +28,10 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<MigrationIdGenerator>()
                 .AddScoped<Migrator>()
                 .AddScoped<MigrationAssembly>()
-                .AddScoped(RelationalDataStoreServices.ModelDifferFactory)
-                .AddScoped(RelationalDataStoreServices.HistoryRepositoryFactory)
-                .AddScoped(RelationalDataStoreServices.MigrationSqlGeneratorFactory));
+                .AddScoped(RelationalDataStoreServiceFactories.ModelDifferFactory)
+                .AddScoped(RelationalDataStoreServiceFactories.HistoryRepositoryFactory)
+                .AddScoped(RelationalDataStoreServiceFactories.MigrationSqlGeneratorFactory)
+                .AddScoped(RelationalDataStoreServiceFactories.RelationalConnectionFactory));
 
             return builder;
         }

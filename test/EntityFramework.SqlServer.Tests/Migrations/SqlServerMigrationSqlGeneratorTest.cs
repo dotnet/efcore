@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
 {
     public class SqlServerMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        protected override MigrationSqlGenerator SqlGenerator => new SqlServerMigrationSqlGenerator();
+        protected override IMigrationSqlGenerator SqlGenerator => new SqlServerMigrationSqlGenerator();
 
         [Fact]
         public virtual void AddColumnOperation_with_computedSql()

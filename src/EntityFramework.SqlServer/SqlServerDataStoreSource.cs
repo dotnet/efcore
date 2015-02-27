@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerDataStoreSource : DataStoreSource<SqlServerDataStoreServices, SqlServerOptionsExtension>
+    public class SqlServerDataStoreSource : DataStoreSource<ISqlServerDataStoreServices, SqlServerOptionsExtension>
     {
         public SqlServerDataStoreSource([NotNull] DbContextServices services, [NotNull] IDbContextOptions options)
             : base(services, options)

@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<ILoggerFactory>();
             VerifySingleton<ITypeActivator>();
 
-            VerifyCached<ModelBuilderFactory>();
+            VerifyCached<IModelBuilderFactory>();
             VerifyCached<IModel>();
 
             VerifyScoped<KeyPropagator>();
@@ -66,12 +66,12 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<DbContextServices>();
             VerifyScoped<DbContext>();
             VerifyScoped<IDbContextOptions>();
-            VerifyScoped<DataStoreSelector>();
-            VerifyScoped<DataStore>();
-            VerifyScoped<DataStoreConnection>();
+            VerifyScoped<IDataStoreSelector>();
+            VerifyScoped<IDataStore>();
+            VerifyScoped<IDataStoreConnection>();
             VerifyScoped<Database>();
             VerifyScoped<IValueGeneratorSelector>();
-            VerifyScoped<DataStoreCreator>();
+            VerifyScoped<IDataStoreCreator>();
 
             VerifyScoped<IEntityStateListener>(isExistingReplaced: true);
             VerifyScoped<IForeignKeyListener>(isExistingReplaced: true);
@@ -82,16 +82,16 @@ namespace Microsoft.Data.Entity.Tests
 
         protected void VerifyCommonDataStoreServices()
         {
-            VerifyScoped<DataStoreSource>(isExistingReplaced: true);
+            VerifyScoped<IDataStoreSource>(isExistingReplaced: true);
             Assert.NotNull(VerifyCached<IModel>());
             Assert.NotNull(VerifyScoped<DbContext>());
             Assert.NotNull(VerifyScoped<IDbContextOptions>());
-            Assert.NotNull(VerifyScoped<DataStore>());
-            Assert.NotNull(VerifyScoped<DataStoreConnection>());
+            Assert.NotNull(VerifyScoped<IDataStore>());
+            Assert.NotNull(VerifyScoped<IDataStoreConnection>());
             Assert.NotNull(VerifyScoped<Database>());
             Assert.NotNull(VerifyScoped<IValueGeneratorSelector>());
-            Assert.NotNull(VerifyScoped<DataStoreCreator>());
-            Assert.NotNull(VerifySingleton<ModelBuilderFactory>());
+            Assert.NotNull(VerifyScoped<IDataStoreCreator>());
+            Assert.NotNull(VerifySingleton<IModelBuilderFactory>());
         }
 
         private readonly IServiceProvider _serviceProvider;

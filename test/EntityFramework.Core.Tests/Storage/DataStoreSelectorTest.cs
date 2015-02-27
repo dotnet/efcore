@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
         [Fact]
         public void Selects_single_configured_store()
         {
-            var services = Mock.Of<DataStoreServices>();
+            var services = Mock.Of<IDataStoreServices>();
             var source = CreateSource("DataStore1", configured: true, available: false, services: services);
 
             var selector = new DataStoreSelector(new[] { source });
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
         [Fact]
         public void Selects_single_available_store()
         {
-            var services = Mock.Of<DataStoreServices>();
+            var services = Mock.Of<IDataStoreServices>();
             var source = CreateSource("DataStore1", configured: false, available: true, services: services);
 
             var selector = new DataStoreSelector(new[] { source });
@@ -95,9 +95,9 @@ namespace Microsoft.Data.Entity.Tests.Storage
             Assert.Same(services, selector.SelectDataStore(DbContextServices.ServiceProviderSource.Explicit));
         }
 
-        private static DataStoreSource CreateSource(string name, bool configured, bool available, DataStoreServices services = null)
+        private static IDataStoreSource CreateSource(string name, bool configured, bool available, IDataStoreServices services = null)
         {
-            var sourceMock = new Mock<DataStoreSource>();
+            var sourceMock = new Mock<IDataStoreSource>();
             sourceMock.Setup(m => m.IsConfigured).Returns(configured);
             sourceMock.Setup(m => m.IsAvailable).Returns(available);
             sourceMock.Setup(m => m.StoreServices).Returns(services);

@@ -10,16 +10,16 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
-    public class RelationalQueryContextFactory : QueryContextFactory
+    public class RelationalQueryContextFactory : QueryContextFactory, IRelationalQueryContextFactory
     {
-        private readonly RelationalConnection _connection;
+        private readonly IRelationalConnection _connection;
 
         public RelationalQueryContextFactory(
             [NotNull] StateManager stateManager,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] ClrPropertySetterSource propertySetterSource,
-            [NotNull] RelationalConnection connection,
+            [NotNull] IRelationalConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, loggerFactory)
         {

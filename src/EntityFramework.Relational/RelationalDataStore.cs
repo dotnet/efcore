@@ -20,27 +20,18 @@ using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract class RelationalDataStore : DataStore
+    public abstract class RelationalDataStore : DataStore, IRelationalDataStore
     {
         private readonly CommandBatchPreparer _batchPreparer;
         private readonly BatchExecutor _batchExecutor;
-        private readonly RelationalConnection _connection;
+        private readonly IRelationalConnection _connection;
         private readonly IDbContextOptions _options;
-
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected RelationalDataStore()
-        {
-        }
 
         protected RelationalDataStore(
             [NotNull] IModel model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
-            [NotNull] RelationalConnection connection,
+            [NotNull] IRelationalConnection connection,
             [NotNull] CommandBatchPreparer batchPreparer,
             [NotNull] BatchExecutor batchExecutor,
             [NotNull] IDbContextOptions options,

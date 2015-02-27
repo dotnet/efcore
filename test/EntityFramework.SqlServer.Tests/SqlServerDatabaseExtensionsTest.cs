@@ -19,8 +19,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var database = new SqlServerDatabase(
                 TestHelpers.Instance.CreateContext(),
-                Mock.Of<SqlServerDataStoreCreator>(),
-                Mock.Of<SqlServerConnection>(),
+                Mock.Of<ISqlServerDataStoreCreator>(),
+                Mock.Of<ISqlServerConnection>(),
                 Mock.Of<Migrator>(),
                 new LoggerFactory());
 
@@ -32,8 +32,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var database = new ConcreteDatabase(
                 TestHelpers.Instance.CreateContext(),
-                Mock.Of<DataStoreCreator>(),
-                Mock.Of<DataStoreConnection>(),
+                Mock.Of<IDataStoreCreator>(),
+                Mock.Of<IDataStoreConnection>(),
                 new LoggerFactory());
 
             Assert.Equal(
@@ -45,8 +45,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             public ConcreteDatabase(
                 DbContext context,
-                DataStoreCreator dataStoreCreator,
-                DataStoreConnection connection,
+                IDataStoreCreator dataStoreCreator,
+                IDataStoreConnection connection,
                 ILoggerFactory loggerFactory)
                 : base(context, dataStoreCreator, connection, loggerFactory)
             {

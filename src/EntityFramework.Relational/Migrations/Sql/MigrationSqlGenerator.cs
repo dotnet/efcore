@@ -15,14 +15,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
 {
     // TODO: Review for SQL Server specific code
     // TODO: Move Literal, DelimitIdentifier, etc.
-    public abstract class MigrationSqlGenerator
+    public abstract class MigrationSqlGenerator: IMigrationSqlGenerator
     {
         private const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         private const string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ss.fffzzz";
 
         public virtual IReadOnlyList<SqlBatch> Generate(
-            [NotNull] IReadOnlyList<MigrationOperation> operations,
-            [CanBeNull] IModel model = null)
+            IReadOnlyList<MigrationOperation> operations,
+            IModel model = null)
         {
             Check.NotNull(operations, nameof(operations));
 

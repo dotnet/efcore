@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
     // TODO: Move constraint naming
     // TODO: Handle transitive renames
     // TODO: Match similar items
-    public class ModelDiffer
+    public class ModelDiffer : IModelDiffer
     {
         private static readonly Type[] _dropOperationTypes =
             {
@@ -62,13 +62,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual RelationalTypeMapper TypeMapper { get; }
 
-        public virtual bool HasDifferences([CanBeNull] IModel source, [CanBeNull] IModel target) =>
-            Diff(source, target).Any();
+        public virtual bool HasDifferences(IModel source, [CanBeNull] IModel target) => Diff(source, target).Any();
 
-        public virtual IReadOnlyList<MigrationOperation> GetDifferences(
-            [CanBeNull] IModel source,
-            [CanBeNull] IModel target) =>
-                Sort(Diff(source, target));
+        public virtual IReadOnlyList<MigrationOperation> GetDifferences(IModel source, IModel target) => Sort(Diff(source, target));
 
         protected virtual IReadOnlyList<MigrationOperation> Sort([NotNull] IEnumerable<MigrationOperation> operations)
         {
@@ -144,14 +140,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             }
             var sortedCreatetableOperations = createTableGraph.TopologicalSort(
                 (principalTable, key, foreignKeyOperations) =>
-                {
-                    foreach (var foreignKeyOperation in foreignKeyOperations)
                     {
-                        createTableOperations[key].ForeignKeys.Remove(foreignKeyOperation);
-                        alterOperations.Add(foreignKeyOperation);
-                    }
-                    return true;
-                })
+                        foreach (var foreignKeyOperation in foreignKeyOperations)
+                        {
+                            createTableOperations[key].ForeignKeys.Remove(foreignKeyOperation);
+                            alterOperations.Add(foreignKeyOperation);
+                        }
+                        return true;
+                    })
                 .Select(k => createTableOperations[k]);
 
             return dropOperations

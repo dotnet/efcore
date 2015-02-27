@@ -47,60 +47,60 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider();
 
-            DataStore store;
-            DataStoreCreator creator;
-            DataStoreConnection connection;
+            IDataStore store;
+            IDataStoreCreator creator;
+            IDataStoreConnection connection;
 
             using (var context = new DbContext(serviceProvider))
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                store = contextServices.GetRequiredService<DataStore>();
-                creator = contextServices.GetRequiredService<DataStoreCreator>();
-                connection = contextServices.GetRequiredService<DataStoreConnection>();
+                store = contextServices.GetRequiredService<IDataStore>();
+                creator = contextServices.GetRequiredService<IDataStoreCreator>();
+                connection = contextServices.GetRequiredService<IDataStoreConnection>();
 
-                Assert.Same(store, contextServices.GetRequiredService<DataStore>());
-                Assert.Same(creator, contextServices.GetRequiredService<DataStoreCreator>());
-                Assert.Same(connection, contextServices.GetRequiredService<DataStoreConnection>());
+                Assert.Same(store, contextServices.GetRequiredService<IDataStore>());
+                Assert.Same(creator, contextServices.GetRequiredService<IDataStoreCreator>());
+                Assert.Same(connection, contextServices.GetRequiredService<IDataStoreConnection>());
             }
 
             using (var context = new DbContext(serviceProvider))
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.NotSame(store, contextServices.GetRequiredService<DataStore>());
-                Assert.NotSame(creator, contextServices.GetRequiredService<DataStoreCreator>());
-                Assert.NotSame(connection, contextServices.GetRequiredService<DataStoreConnection>());
+                Assert.NotSame(store, contextServices.GetRequiredService<IDataStore>());
+                Assert.NotSame(creator, contextServices.GetRequiredService<IDataStoreCreator>());
+                Assert.NotSame(connection, contextServices.GetRequiredService<IDataStoreConnection>());
             }
         }
 
         [Fact]
         public void Scoped_data_store_services_can_be_obtained_from_configuration_with_implicit_service_provider()
         {
-            DataStore store;
-            DataStoreCreator creator;
-            DataStoreConnection connection;
+            IDataStore store;
+            IDataStoreCreator creator;
+            IDataStoreConnection connection;
 
             using (var context = new GiddyupContext())
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                store = contextServices.GetRequiredService<DataStore>();
-                creator = contextServices.GetRequiredService<DataStoreCreator>();
-                connection = contextServices.GetRequiredService<DataStoreConnection>();
+                store = contextServices.GetRequiredService<IDataStore>();
+                creator = contextServices.GetRequiredService<IDataStoreCreator>();
+                connection = contextServices.GetRequiredService<IDataStoreConnection>();
 
-                Assert.Same(store, contextServices.GetRequiredService<DataStore>());
-                Assert.Same(creator, contextServices.GetRequiredService<DataStoreCreator>());
-                Assert.Same(connection, contextServices.GetRequiredService<DataStoreConnection>());
+                Assert.Same(store, contextServices.GetRequiredService<IDataStore>());
+                Assert.Same(creator, contextServices.GetRequiredService<IDataStoreCreator>());
+                Assert.Same(connection, contextServices.GetRequiredService<IDataStoreConnection>());
             }
 
             using (var context = new GiddyupContext())
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.NotSame(store, contextServices.GetRequiredService<DataStore>());
-                Assert.NotSame(creator, contextServices.GetRequiredService<DataStoreCreator>());
-                Assert.NotSame(connection, contextServices.GetRequiredService<DataStoreConnection>());
+                Assert.NotSame(store, contextServices.GetRequiredService<IDataStore>());
+                Assert.NotSame(creator, contextServices.GetRequiredService<IDataStoreCreator>());
+                Assert.NotSame(connection, contextServices.GetRequiredService<IDataStoreConnection>());
             }
         }
 

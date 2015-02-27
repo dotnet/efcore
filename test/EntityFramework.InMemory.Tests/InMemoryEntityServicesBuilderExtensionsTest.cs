@@ -17,20 +17,20 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             base.Services_wire_up_correctly();
 
             // In memory dingletones
-            VerifySingleton<InMemoryModelBuilderFactory>();
-            VerifySingleton<InMemoryValueGeneratorCache>();
+            VerifySingleton<IInMemoryModelBuilderFactory>();
+            VerifySingleton<IInMemoryValueGeneratorCache>();
             VerifySingleton<InMemoryIntegerValueGeneratorFactory>();
             VerifySingleton<InMemoryDatabase>();
-            VerifySingleton<InMemoryModelSource>();
+            VerifySingleton<IInMemoryModelSource>();
 
             // In memory scoped
-            VerifyScoped<InMemoryQueryContextFactory>();
-            VerifyScoped<InMemoryValueGeneratorSelector>();
-            VerifyScoped<InMemoryDataStoreServices>();
+            VerifyScoped<IInMemoryQueryContextFactory>();
+            VerifyScoped<IInMemoryValueGeneratorSelector>();
+            VerifyScoped<IInMemoryDataStoreServices>();
             VerifyScoped<InMemoryDatabaseFacade>();
-            VerifyScoped<InMemoryDataStore>();
-            VerifyScoped<InMemoryConnection>();
-            VerifyScoped<InMemoryDataStoreCreator>();
+            VerifyScoped<IInMemoryDataStore>();
+            VerifyScoped<IInMemoryConnection>();
+            VerifyScoped<IInMemoryDataStoreCreator>();
 
             VerifyCommonDataStoreServices();
         }

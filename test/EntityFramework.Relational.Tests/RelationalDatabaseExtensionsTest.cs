@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             var database = new ConcreteRelationalDatabase(
                 TestHelpers.Instance.CreateContext(),
-                Mock.Of<RelationalDataStoreCreator>(),
-                Mock.Of<RelationalConnection>(),
+                Mock.Of<IRelationalDataStoreCreator>(),
+                Mock.Of<IRelationalConnection>(),
                 Mock.Of<Migrator>(),
                 new LoggerFactory());
 
@@ -31,8 +31,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             var database = new ConcreteDatabase(
                 TestHelpers.Instance.CreateContext(),
-                Mock.Of<RelationalDataStoreCreator>(),
-                Mock.Of<RelationalConnection>(),
+                Mock.Of<IRelationalDataStoreCreator>(),
+                Mock.Of<IRelationalConnection>(),
                 new LoggerFactory());
 
             Assert.Equal(
@@ -44,8 +44,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             public ConcreteDatabase(
                 DbContext context,
-                RelationalDataStoreCreator dataStoreCreator,
-                RelationalConnection connection,
+                IRelationalDataStoreCreator dataStoreCreator,
+                IRelationalConnection connection,
                 ILoggerFactory loggerFactory)
                 : base(context, dataStoreCreator, connection, loggerFactory)
             {
@@ -56,8 +56,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             public ConcreteRelationalDatabase(
                 DbContext context,
-                RelationalDataStoreCreator dataStoreCreator,
-                RelationalConnection connection,
+                IRelationalDataStoreCreator dataStoreCreator,
+                IRelationalConnection connection,
                 Migrator migrator,
                 ILoggerFactory loggerFactory)
                 : base(context, dataStoreCreator, connection, migrator, loggerFactory)

@@ -19,19 +19,10 @@ using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryDataStore : DataStore
+    public class InMemoryDataStore : DataStore, IInMemoryDataStore
     {
         private readonly bool _persist;
         private readonly ThreadSafeLazyRef<InMemoryDatabase> _database;
-
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected InMemoryDataStore()
-        {
-        }
 
         public InMemoryDataStore(
             [NotNull] IModel model,
@@ -100,7 +91,7 @@ namespace Microsoft.Data.Entity.InMemory
             return qc => syncQueryExecutor(qc).ToAsyncEnumerable();
         }
 
-        public virtual bool EnsureDatabaseCreated([NotNull] IModel model)
+        public virtual bool EnsureDatabaseCreated(IModel model)
         {
             Check.NotNull(model, nameof(model));
 

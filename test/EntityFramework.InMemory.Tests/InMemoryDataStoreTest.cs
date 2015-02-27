@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
 
-            var store1 = InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, CreateModel()).GetRequiredService<InMemoryDataStore>();
-            var store2 = InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, CreateModel()).GetRequiredService<InMemoryDataStore>();
+            var store1 = InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, CreateModel()).GetRequiredService<IInMemoryDataStore>();
+            var store2 = InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, CreateModel()).GetRequiredService<IInMemoryDataStore>();
 
             Assert.Same(store1.Database, store2.Database);
         }
@@ -81,12 +81,12 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             Assert.False(store.EnsureDatabaseCreated(model));
         }
 
-        private static InMemoryDataStore CreateStore(IServiceProvider serviceProvider, bool persist)
+        private static IInMemoryDataStore CreateStore(IServiceProvider serviceProvider, bool persist)
         {
             var options = new DbContextOptions();
             options.UseInMemoryStore(persist: persist);
 
-            return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, options).GetRequiredService<InMemoryDataStore>();
+            return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, options).GetRequiredService<IInMemoryDataStore>();
         }
 
         [Fact]
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
-            var inMemoryDataStore = serviceProvider.GetRequiredService<InMemoryDataStore>();
+            var inMemoryDataStore = serviceProvider.GetRequiredService<IInMemoryDataStore>();
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
-            var inMemoryDataStore = serviceProvider.GetRequiredService<InMemoryDataStore>();
+            var inMemoryDataStore = serviceProvider.GetRequiredService<IInMemoryDataStore>();
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
-            var inMemoryDataStore = serviceProvider.GetRequiredService<InMemoryDataStore>();
+            var inMemoryDataStore = serviceProvider.GetRequiredService<IInMemoryDataStore>();
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -169,7 +169,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var entityEntry = scopedServices.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
-            var inMemoryDataStore = scopedServices.GetRequiredService<InMemoryDataStore>();
+            var inMemoryDataStore = scopedServices.GetRequiredService<IInMemoryDataStore>();
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 

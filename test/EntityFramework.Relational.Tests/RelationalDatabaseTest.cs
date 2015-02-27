@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             creatorMock.Setup(m => m.EnsureCreated(model)).Returns(true);
             creatorMock.Setup(m => m.EnsureDeleted(model)).Returns(true);
 
-            var connectionMock = new Mock<RelationalConnection>();
+            var connectionMock = new Mock<IRelationalConnection>();
             var dbConnectionMock = new Mock<DbConnection>();
             connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             creatorMock.Setup(m => m.EnsureCreatedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
             creatorMock.Setup(m => m.EnsureDeletedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
 
-            var connectionMock = new Mock<RelationalConnection>();
+            var connectionMock = new Mock<IRelationalConnection>();
             var dbConnectionMock = new Mock<DbConnection>();
             connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             public ConcreteRelationalDatabase(
                 DbContext context,
                 RelationalDataStoreCreator dataStoreCreator,
-                RelationalConnection connection,
+                IRelationalConnection connection,
                 Migrator migrator,
                 ILoggerFactory loggerFactory)
                 : base(context, dataStoreCreator, connection, migrator, loggerFactory)

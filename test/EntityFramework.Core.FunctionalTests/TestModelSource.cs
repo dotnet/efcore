@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
-    public class TestModelSource : ModelSourceBase
+    public class TestModelSource : ModelSource
     {
         private readonly Action<ModelBuilder> _onModelCreating;
 
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             _onModelCreating = onModelCreating;
         }
 
-        protected override IModel CreateModel(DbContext context, ModelBuilderFactory modelBuilderFactory)
+        protected override IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
         {
             var model = new Model();
             var modelBuilder = modelBuilderFactory.CreateConventionBuilder(model);

@@ -22,11 +22,11 @@ namespace Microsoft.Data.Entity.Tests
             var context = TestHelpers.Instance.CreateContext();
             var model = context.Model;
 
-            var creatorMock = new Mock<DataStoreCreator>();
+            var creatorMock = new Mock<IDataStoreCreator>();
             creatorMock.Setup(m => m.EnsureCreated(model)).Returns(true);
             creatorMock.Setup(m => m.EnsureDeleted(model)).Returns(true);
 
-            var connection = Mock.Of<DataStoreConnection>();
+            var connection = Mock.Of<IDataStoreConnection>();
 
             var database = new ConcreteDatabase(
                 context,
@@ -50,14 +50,14 @@ namespace Microsoft.Data.Entity.Tests
             var model = context.Model;
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var creatorMock = new Mock<DataStoreCreator>();
+            var creatorMock = new Mock<IDataStoreCreator>();
             creatorMock.Setup(m => m.EnsureCreatedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
             creatorMock.Setup(m => m.EnsureDeletedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
 
             var database = new ConcreteDatabase(
                 context,
                 creatorMock.Object,
-                Mock.Of<DataStoreConnection>(),
+                Mock.Of<IDataStoreConnection>(),
                 new LoggerFactory());
 
             Assert.True(await database.EnsureCreatedAsync(cancellationToken));
@@ -84,8 +84,8 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = TestHelpers.Instance.CreateContext())
             {
                 Assert.Same(
-                    ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<DataStoreCreator>(),
-                    ((IAccessor<DataStoreCreator>)context.Database).Service);
+                    ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IDataStoreCreator>(),
+                    ((IAccessor<IDataStoreCreator>)context.Database).Service);
             }
         }
 
@@ -113,8 +113,8 @@ namespace Microsoft.Data.Entity.Tests
         {
             public ConcreteDatabase(
                 DbContext context,
-                DataStoreCreator dataStoreCreator,
-                DataStoreConnection connection,
+                IDataStoreCreator dataStoreCreator,
+                IDataStoreConnection connection,
                 ILoggerFactory loggerFactory)
                 : base(context, dataStoreCreator, connection, loggerFactory)
             {

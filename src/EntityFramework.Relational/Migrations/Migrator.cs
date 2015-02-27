@@ -23,11 +23,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations
 
         private readonly MigrationAssembly _migrationAssembly;
         private readonly IHistoryRepository _historyRepository;
-        private readonly RelationalDataStoreCreator _dataStoreCreator;
-        private readonly MigrationSqlGenerator _sqlGenerator;
+        private readonly IRelationalDataStoreCreator _dataStoreCreator;
+        private readonly IMigrationSqlGenerator _sqlGenerator;
         private readonly SqlStatementExecutor _executor;
-        private readonly RelationalConnection _connection;
-        private readonly ModelDiffer _modelDiffer;
+        private readonly IRelationalConnection _connection;
+        private readonly IModelDiffer _modelDiffer;
         private readonly IModel _model;
         private readonly MigrationIdGenerator _idGenerator;
 
@@ -43,11 +43,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         public Migrator(
             [NotNull] MigrationAssembly migrationAssembly,
             [NotNull] IHistoryRepository historyRepository,
-            [NotNull] DataStoreCreator dataStoreCreator,
-            [NotNull] MigrationSqlGenerator sqlGenerator,
+            [NotNull] IDataStoreCreator dataStoreCreator,
+            [NotNull] IMigrationSqlGenerator sqlGenerator,
             [NotNull] SqlStatementExecutor executor,
-            [NotNull] DataStoreConnection connection,
-            [NotNull] ModelDiffer modelDiffer,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] IModelDiffer modelDiffer,
             [NotNull] IModel model,
             [NotNull] MigrationIdGenerator idGenerator)
         {
@@ -63,10 +63,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations
 
             _migrationAssembly = migrationAssembly;
             _historyRepository = historyRepository;
-            _dataStoreCreator = (RelationalDataStoreCreator)dataStoreCreator;
+            _dataStoreCreator = (IRelationalDataStoreCreator)dataStoreCreator;
             _sqlGenerator = sqlGenerator;
             _executor = executor;
-            _connection = (RelationalConnection)connection;
+            _connection = connection;
             _modelDiffer = modelDiffer;
             _model = model;
             _idGenerator = idGenerator;

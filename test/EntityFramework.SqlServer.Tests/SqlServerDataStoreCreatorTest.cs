@@ -59,17 +59,17 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         private async Task Create_checks_for_existence_and_retries_until_it_passes(int errorNumber, bool async)
         {
             var customServices = new ServiceCollection()
-                .AddScoped<SqlServerConnection, FakeSqlServerConnection>()
+                .AddScoped<ISqlServerConnection, FakeSqlServerConnection>()
                 .AddScoped<SqlStatementExecutor, FakeSqlStatementExecutor>();
 
             var contextServices = SqlServerTestHelpers.Instance.CreateContextServices(customServices);
 
-            var connection = (FakeSqlServerConnection)contextServices.GetRequiredService<SqlServerConnection>();
+            var connection = (FakeSqlServerConnection)contextServices.GetRequiredService<ISqlServerConnection>();
 
             connection.ErrorNumber = errorNumber;
             connection.FailAfter = 5;
 
-            var creator = contextServices.GetRequiredService<SqlServerDataStoreCreator>();
+            var creator = contextServices.GetRequiredService<ISqlServerDataStoreCreator>();
 
             if (async)
             {
@@ -98,17 +98,17 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         private async Task Create_checks_for_existence_and_ultimately_gives_up_waiting_test(bool async)
         {
             var customServices = new ServiceCollection()
-                .AddScoped<SqlServerConnection, FakeSqlServerConnection>()
+                .AddScoped<ISqlServerConnection, FakeSqlServerConnection>()
                 .AddScoped<SqlStatementExecutor, FakeSqlStatementExecutor>();
 
             var contextServices = SqlServerTestHelpers.Instance.CreateContextServices(customServices);
 
-            var connection = (FakeSqlServerConnection)contextServices.GetRequiredService<SqlServerConnection>();
+            var connection = (FakeSqlServerConnection)contextServices.GetRequiredService<ISqlServerConnection>();
 
             connection.ErrorNumber = 233;
             connection.FailAfter = 100;
 
-            var creator = contextServices.GetRequiredService<SqlServerDataStoreCreator>();
+            var creator = contextServices.GetRequiredService<ISqlServerDataStoreCreator>();
 
             if (async)
             {
@@ -157,11 +157,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             {
             }
 
-            public override void ExecuteNonQuery(RelationalConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> sqlBatches)
+            public override void ExecuteNonQuery(IRelationalConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> sqlBatches)
             {
             }
 
-            public override Task ExecuteNonQueryAsync(RelationalConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> sqlBatches, CancellationToken cancellationToken = new CancellationToken())
+            public override Task ExecuteNonQueryAsync(IRelationalConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> sqlBatches, CancellationToken cancellationToken = new CancellationToken())
             {
                 return Task.FromResult(0);
             }

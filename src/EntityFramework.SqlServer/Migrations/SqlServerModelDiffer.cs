@@ -14,7 +14,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Migrations
 {
-    public class SqlServerModelDiffer : ModelDiffer
+    public class SqlServerModelDiffer : ModelDiffer, ISqlServerModelDiffer
     {
         public SqlServerModelDiffer([NotNull] SqlServerTypeMapper typeMapper)
             : base(typeMapper)

@@ -8,11 +8,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -1425,15 +1425,15 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void SaveChanges_doesnt_call_DataStore_when_nothing_is_dirty()
         {
-            var store = new Mock<DataStore>();
+            var store = new Mock<IDataStore>();
 
-            var servicesMock = new Mock<DataStoreServices>();
+            var servicesMock = new Mock<IDataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSourceBase>(new DbSetFinder(), Mock.Of<ModelValidator>())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), Mock.Of<ModelValidator>())
                 { CallBase = true }.Object);
 
-            var sourceMock = new Mock<DataStoreSource>();
+            var sourceMock = new Mock<IDataStoreSource>();
             sourceMock.Setup(m => m.IsAvailable).Returns(true);
             sourceMock.Setup(m => m.IsConfigured).Returns(true);
             sourceMock.Setup(m => m.StoreServices).Returns(servicesMock.Object);
@@ -1464,7 +1464,7 @@ namespace Microsoft.Data.Entity.Tests
         public void SaveChanges_only_passes_dirty_entries_to_DataStore()
         {
             var passedEntries = new List<InternalEntityEntry>();
-            var store = new Mock<DataStore>();
+            var store = new Mock<IDataStore>();
             store.Setup(s => s.SaveChanges(It.IsAny<IReadOnlyList<InternalEntityEntry>>()))
                 .Callback<IEnumerable<InternalEntityEntry>>(passedEntries.AddRange)
                 .Returns(3);
@@ -1472,14 +1472,14 @@ namespace Microsoft.Data.Entity.Tests
             var valueGenMock = new Mock<IValueGeneratorSelector>();
             valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>())).Returns(Mock.Of<ValueGenerator>());
 
-            var servicesMock = new Mock<DataStoreServices>();
+            var servicesMock = new Mock<IDataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSourceBase>(new DbSetFinder(), Mock.Of<ModelValidator>())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), Mock.Of<ModelValidator>())
                 { CallBase = true }.Object);
 
-            var sourceMock = new Mock<DataStoreSource>();
+            var sourceMock = new Mock<IDataStoreSource>();
             sourceMock.Setup(m => m.IsAvailable).Returns(true);
             sourceMock.Setup(m => m.IsConfigured).Returns(true);
             sourceMock.Setup(m => m.StoreServices).Returns(servicesMock.Object);
@@ -1514,7 +1514,7 @@ namespace Microsoft.Data.Entity.Tests
         public async Task SaveChangesAsync_only_passes_dirty_entries_to_DataStore()
         {
             var passedEntries = new List<InternalEntityEntry>();
-            var store = new Mock<DataStore>();
+            var store = new Mock<IDataStore>();
             store.Setup(s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<InternalEntityEntry>>(), It.IsAny<CancellationToken>()))
                 .Callback<IEnumerable<InternalEntityEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
                 .Returns(Task.FromResult(3));
@@ -1522,14 +1522,14 @@ namespace Microsoft.Data.Entity.Tests
             var valueGenMock = new Mock<IValueGeneratorSelector>();
             valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>())).Returns(Mock.Of<ValueGenerator>());
 
-            var servicesMock = new Mock<DataStoreServices>();
+            var servicesMock = new Mock<IDataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSourceBase>(new DbSetFinder(), Mock.Of<ModelValidator>())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), Mock.Of<ModelValidator>())
                 { CallBase = true }.Object);
 
-            var sourceMock = new Mock<DataStoreSource>();
+            var sourceMock = new Mock<IDataStoreSource>();
             sourceMock.Setup(m => m.IsAvailable).Returns(true);
             sourceMock.Setup(m => m.IsConfigured).Returns(true);
             sourceMock.Setup(m => m.StoreServices).Returns(servicesMock.Object);
@@ -1699,7 +1699,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_set_known_singleton_services_using_instance_sugar()
         {
-            var modelSource = Mock.Of<ModelSource>();
+            var modelSource = Mock.Of<IModelSource>();
 
             var services = new ServiceCollection()
                 .AddInstance(modelSource);
@@ -1710,7 +1710,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.Same(modelSource, contextServices.GetRequiredService<ModelSource>());
+                Assert.Same(modelSource, contextServices.GetRequiredService<IModelSource>());
             }
         }
 
@@ -1718,7 +1718,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_set_known_singleton_services_using_type_activation()
         {
             var services = new ServiceCollection()
-                .AddSingleton<ModelSource, FakeModelSource>();
+                .AddSingleton<IModelSource, FakeModelSource>();
 
             var provider = TestHelpers.Instance.CreateServiceProvider(services);
 
@@ -1726,7 +1726,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.IsType<FakeModelSource>(contextServices.GetRequiredService<ModelSource>());
+                Assert.IsType<FakeModelSource>(contextServices.GetRequiredService<IModelSource>());
             }
         }
 
@@ -1753,7 +1753,7 @@ namespace Microsoft.Data.Entity.Tests
             services
                 .AddEntityFramework()
                 .ServiceCollection()
-                .AddSingleton<ModelSource, FakeModelSource>()
+                .AddSingleton<IModelSource, FakeModelSource>()
                 .AddScoped<StateManager, FakeStateManager>();
 
             var provider = services.BuildServiceProvider();
@@ -1761,7 +1761,7 @@ namespace Microsoft.Data.Entity.Tests
             var context = new EarlyLearningCenter(provider);
             var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-            var modelSource = contextServices.GetRequiredService<ModelSource>();
+            var modelSource = contextServices.GetRequiredService<IModelSource>();
 
             context.Dispose();
 
@@ -1772,7 +1772,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Same(stateManager, contextServices.GetRequiredService<StateManager>());
 
-            Assert.Same(modelSource, contextServices.GetRequiredService<ModelSource>());
+            Assert.Same(modelSource, contextServices.GetRequiredService<IModelSource>());
 
             context.Dispose();
 
@@ -1781,7 +1781,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.NotSame(stateManager, contextServices.GetRequiredService<StateManager>());
 
-            Assert.Same(modelSource, contextServices.GetRequiredService<ModelSource>());
+            Assert.Same(modelSource, contextServices.GetRequiredService<IModelSource>());
 
             context.Dispose();
         }
@@ -1877,9 +1877,9 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
-        private class FakeModelSource : ModelSource
+        private class FakeModelSource : IModelSource
         {
-            public override IModel GetModel(DbContext context, ModelBuilderFactory modelBuilder = null)
+            public virtual IModel GetModel(DbContext context, IModelBuilderFactory modelBuilder = null)
             {
                 return null;
             }

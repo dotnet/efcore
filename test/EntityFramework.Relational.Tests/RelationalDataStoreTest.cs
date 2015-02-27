@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public async Task SaveChangesAsync_delegates()
         {
-            var relationalConnectionMock = new Mock<RelationalConnection>();
+            var relationalConnectionMock = new Mock<IRelationalConnection>();
             var commandBatchPreparerMock = new Mock<CommandBatchPreparer>();
             var batchExecutorMock = new Mock<BatchExecutor>();
 
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void SaveChanges_delegates()
         {
-            var relationalConnectionMock = new Mock<RelationalConnection>();
+            var relationalConnectionMock = new Mock<IRelationalConnection>();
             var commandBatchPreparerMock = new Mock<CommandBatchPreparer>();
             var batchExecutorMock = new Mock<BatchExecutor>();
 
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 IModel model,
                 EntityKeyFactorySource entityKeyFactorySource,
                 EntityMaterializerSource entityMaterializerSource,
-                RelationalConnection connection,
+                IRelationalConnection connection,
                 CommandBatchPreparer batchPreparer,
                 BatchExecutor batchExecutor,
                 IDbContextOptions options,

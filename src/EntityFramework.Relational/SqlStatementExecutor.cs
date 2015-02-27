@@ -24,13 +24,10 @@ namespace Microsoft.Data.Entity.Relational
             _logger = new LazyRef<ILogger>(loggerFactory.Create<SqlStatementExecutor>);
         }
 
-        protected virtual ILogger Logger
-        {
-            get { return _logger.Value; }
-        }
+        protected virtual ILogger Logger => _logger.Value;
 
         public virtual Task ExecuteNonQueryAsync(
-            [NotNull] RelationalConnection connection,
+            [NotNull] IRelationalConnection connection,
             [CanBeNull] DbTransaction transaction,
             [NotNull] IEnumerable<SqlBatch> sqlBatches,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -55,7 +52,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual Task<object> ExecuteScalarAsync(
-            [NotNull] RelationalConnection connection,
+            [NotNull] IRelationalConnection connection,
             [CanBeNull] DbTransaction transaction,
             [NotNull] string sql,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -75,7 +72,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual async Task<object> ExecuteAsync(
-            [NotNull] RelationalConnection connection,
+            [NotNull] IRelationalConnection connection,
             [NotNull] Func<Task<object>> action,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -107,7 +104,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual void ExecuteNonQuery(
-            [NotNull] RelationalConnection connection,
+            [NotNull] IRelationalConnection connection,
             [CanBeNull] DbTransaction transaction,
             [NotNull] IEnumerable<SqlBatch> sqlBatches)
         {
@@ -129,7 +126,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual object ExecuteScalar(
-            [NotNull] RelationalConnection connection,
+            [NotNull] IRelationalConnection connection,
             [CanBeNull] DbTransaction transaction,
             [NotNull] string sql)
         {
@@ -147,7 +144,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual object Execute(
-            [NotNull] RelationalConnection connection,
+            [NotNull] IRelationalConnection connection,
             [NotNull] Func<object> action)
         {
             Check.NotNull(connection, nameof(connection));
@@ -178,7 +175,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         protected virtual DbCommand CreateCommand(
-            RelationalConnection connection,
+            IRelationalConnection connection,
             DbTransaction transaction,
             string sql)
         {

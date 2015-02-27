@@ -170,11 +170,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.False(generator.GeneratesTemporaryValues);
         }
 
-        private SqlServerConnection CreateConnection(IServiceProvider serviceProvider = null)
+        private ISqlServerConnection CreateConnection(IServiceProvider serviceProvider = null)
         {
             serviceProvider = serviceProvider ?? SqlServerTestHelpers.Instance.CreateServiceProvider();
 
-            return SqlServerTestHelpers.Instance.CreateContextServices(serviceProvider).GetRequiredService<SqlServerConnection>();
+            return SqlServerTestHelpers.Instance.CreateContextServices(serviceProvider).GetRequiredService<ISqlServerConnection>();
         }
 
         private class FakeSqlStatementExecutor : SqlStatementExecutor
@@ -189,13 +189,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 _current = -blockSize + 1;
             }
 
-            public override object ExecuteScalar(RelationalConnection connection, DbTransaction transaction, string sql)
+            public override object ExecuteScalar(IRelationalConnection connection, DbTransaction transaction, string sql)
             {
                 return Interlocked.Add(ref _current, _blockSize);
             }
 
             public override Task<object> ExecuteScalarAsync(
-                RelationalConnection connection, DbTransaction transaction, string sql, CancellationToken cancellationToken = new CancellationToken())
+                IRelationalConnection connection, DbTransaction transaction, string sql, CancellationToken cancellationToken = new CancellationToken())
             {
                 return Task.FromResult<object>(Interlocked.Add(ref _current, _blockSize));
             }

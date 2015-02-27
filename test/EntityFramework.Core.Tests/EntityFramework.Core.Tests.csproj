@@ -139,7 +139,7 @@
     <Compile Include="Metadata\StringRelationshipBuilderTest.cs" />
     <Compile Include="Metadata\TypedAnnotationTest.cs" />
     <Compile Include="ModelBuilderTest.cs" />
-    <Compile Include="ModelSourceBaseTest.cs" />
+    <Compile Include="ModelSourceTest.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
     <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
     <Compile Include="ChangeTracking\EntityEntryTest.cs" />

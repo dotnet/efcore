@@ -7,9 +7,6 @@ namespace Microsoft.Data.Entity.Relational.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        protected override Assembly TargetAssembly
-        {
-            get { return typeof(RelationalDataStore).Assembly; }
-        }
+        protected override Assembly TargetAssembly => typeof(RelationalDataStore).Assembly;
     }
 }

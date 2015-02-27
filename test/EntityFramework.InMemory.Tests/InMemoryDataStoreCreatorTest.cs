@@ -81,12 +81,12 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             Assert.False(await creator.EnsureCreatedAsync(model));
         }
 
-        private static InMemoryDataStore CreateStore(IServiceProvider serviceProvider, bool persist)
+        private static IInMemoryDataStore CreateStore(IServiceProvider serviceProvider, bool persist)
         {
             var options = new DbContextOptions();
             options.UseInMemoryStore(persist: persist);
 
-            return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, options).GetRequiredService<InMemoryDataStore>();
+            return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, options).GetRequiredService<IInMemoryDataStore>();
         }
 
         [Fact]

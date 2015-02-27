@@ -12,14 +12,14 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         public SqlServerDatabase(
             [NotNull] DbContext context,
-            [NotNull] SqlServerDataStoreCreator dataStoreCreator,
-            [NotNull] SqlServerConnection connection,
+            [NotNull] ISqlServerDataStoreCreator dataStoreCreator,
+            [NotNull] ISqlServerConnection connection,
             [NotNull] Migrator migrator,
             [NotNull] ILoggerFactory loggerFactory)
             : base(context, dataStoreCreator, connection, migrator, loggerFactory)
         {
         }
 
-        public new virtual SqlServerConnection Connection => (SqlServerConnection)base.Connection;
+        public new virtual ISqlServerConnection Connection => (ISqlServerConnection)base.Connection;
     }
 }

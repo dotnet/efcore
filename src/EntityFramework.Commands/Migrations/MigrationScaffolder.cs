@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         private readonly Type _contextType;
         private readonly IModel _model;
         private readonly MigrationAssembly _migrationAssembly;
-        private readonly ModelDiffer _modelDiffer;
+        private readonly IModelDiffer _modelDiffer;
         private readonly MigrationIdGenerator _idGenerator;
         private readonly MigrationCodeGenerator _migrationCodeGenerator;
         private readonly IHistoryRepository _historyRepository;
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             [NotNull] DbContext context,
             [NotNull] IModel model,
             [NotNull] MigrationAssembly migrationAssembly,
-            [NotNull] ModelDiffer modelDiffer,
+            [NotNull] IModelDiffer modelDiffer,
             [NotNull] MigrationIdGenerator idGenerator,
             [NotNull] MigrationCodeGenerator migrationCodeGenerator,
             [NotNull] IHistoryRepository historyRepository,

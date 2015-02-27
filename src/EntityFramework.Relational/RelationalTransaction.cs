@@ -25,7 +25,11 @@ namespace Microsoft.Data.Entity.Relational
         {
         }
 
-        public RelationalTransaction([NotNull] RelationalConnection connection, [NotNull] DbTransaction dbTransaction, bool transactionOwned, [NotNull] ILogger logger)
+        public RelationalTransaction(
+            [NotNull] IRelationalConnection connection, 
+            [NotNull] DbTransaction dbTransaction, 
+            bool transactionOwned, 
+            [NotNull] ILogger logger)
             : base(logger)
         {
             Check.NotNull(connection, nameof(connection));
@@ -44,7 +48,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual DbTransaction DbTransaction { get; }
 
-        public virtual RelationalConnection Connection { get; }
+        public virtual IRelationalConnection Connection { get; }
 
         public override void Commit()
         {

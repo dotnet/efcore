@@ -1,13 +1,57 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public abstract class ModelSource
+    public class ModelSource : IModelSource
     {
-        public abstract IModel GetModel([NotNull] DbContext context, [NotNull] ModelBuilderFactory builder);
+        private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
+        
+        public ModelSource([NotNull] DbSetFinder setFinder, [NotNull] ModelValidator modelValidator)
+        {
+            Check.NotNull(setFinder, nameof(setFinder));
+            Check.NotNull(modelValidator, nameof(modelValidator));
+
+            SetFinder = setFinder;
+            Validator = modelValidator;
+        }
+
+        protected DbSetFinder SetFinder { get; }
+        protected ModelValidator Validator { get; }
+
+        public virtual IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
+        {
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(modelBuilderFactory, nameof(modelBuilderFactory));
+
+            return _models.GetOrAdd(context.GetType(), k => CreateModel(context, modelBuilderFactory));
+        }
+
+        protected virtual IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
+        {
+            var model = new Model();
+            var modelBuilder = modelBuilderFactory.CreateConventionBuilder(model);
+
+            FindSets(modelBuilder, context);
+
+            ModelSourceHelpers.OnModelCreating(context, modelBuilder);
+
+            Validator.Validate(model);
+
+            return model;
+        }
+
+        protected virtual void FindSets(ModelBuilder modelBuilder, DbContext context)
+        {
+            foreach (var setInfo in SetFinder.FindSets(context))
+            {
+                modelBuilder.Entity(setInfo.EntityType);
+            }
+        }
     }
 }

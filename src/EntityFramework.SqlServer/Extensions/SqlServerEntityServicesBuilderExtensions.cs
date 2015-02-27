@@ -22,28 +22,28 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, nameof(builder));
 
             ((IAccessor<IServiceCollection>)builder.AddRelational()).Service
-                .AddScoped<DataStoreSource, SqlServerDataStoreSource>()
+                .AddScoped<IDataStoreSource, SqlServerDataStoreSource>()
                 .TryAdd(new ServiceCollection()
-                    .AddSingleton<SqlServerModelBuilderFactory>()
-                    .AddSingleton<SqlServerValueGeneratorCache>()
+                    .AddSingleton<ISqlServerModelBuilderFactory, SqlServerModelBuilderFactory>()
+                    .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                     .AddSingleton<SqlServerSequenceValueGeneratorFactory>()
                     .AddSingleton<SqlServerSqlGenerator>()
                     .AddSingleton<SqlStatementExecutor>()
                     .AddSingleton<SqlServerTypeMapper>()
                     .AddSingleton<SqlServerModificationCommandBatchFactory>()
                     .AddSingleton<SqlServerCommandBatchPreparer>()
-                    .AddSingleton<SqlServerModelSource>()
-                    .AddScoped<SqlServerQueryContextFactory>()
-                    .AddScoped<SqlServerValueGeneratorSelector>()
+                    .AddSingleton<ISqlServerModelSource, SqlServerModelSource>()
+                    .AddScoped<ISqlServerQueryContextFactory, SqlServerQueryContextFactory>()
+                    .AddScoped<ISqlServerValueGeneratorSelector, SqlServerValueGeneratorSelector>()
                     .AddScoped<SqlServerBatchExecutor>()
-                    .AddScoped<SqlServerDataStoreServices>()
-                    .AddScoped<SqlServerDataStore>()
-                    .AddScoped<SqlServerConnection>()
-                    .AddScoped<SqlServerModelDiffer>()
+                    .AddScoped<ISqlServerDataStoreServices, SqlServerDataStoreServices>()
+                    .AddScoped<ISqlServerDataStore, SqlServerDataStore>()
+                    .AddScoped<ISqlServerConnection, SqlServerConnection>()
+                    .AddScoped<ISqlServerModelDiffer, SqlServerModelDiffer>()
                     .AddScoped<SqlServerDatabase>()
-                    .AddScoped<SqlServerMigrationSqlGenerator>()
-                    .AddScoped<SqlServerDataStoreCreator>()
-                    .AddScoped<SqlServerHistoryRepository>());
+                    .AddScoped<ISqlServerMigrationSqlGenerator, SqlServerMigrationSqlGenerator>()
+                    .AddScoped<ISqlServerDataStoreCreator, SqlServerDataStoreCreator>()
+                    .AddScoped<ISqlServerHistoryRepository, SqlServerHistoryRepository>());
 
             return builder;
         }

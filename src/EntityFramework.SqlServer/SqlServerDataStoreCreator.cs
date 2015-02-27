@@ -14,26 +14,17 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerDataStoreCreator : RelationalDataStoreCreator
+    public class SqlServerDataStoreCreator : RelationalDataStoreCreator, ISqlServerDataStoreCreator
     {
-        private readonly SqlServerConnection _connection;
-        private readonly SqlServerModelDiffer _modelDiffer;
-        private readonly SqlServerMigrationSqlGenerator _sqlGenerator;
+        private readonly ISqlServerConnection _connection;
+        private readonly ISqlServerModelDiffer _modelDiffer;
+        private readonly ISqlServerMigrationSqlGenerator _sqlGenerator;
         private readonly SqlStatementExecutor _statementExecutor;
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected SqlServerDataStoreCreator()
-        {
-        }
-
         public SqlServerDataStoreCreator(
-            [NotNull] SqlServerConnection connection,
-            [NotNull] SqlServerModelDiffer modelDiffer,
-            [NotNull] SqlServerMigrationSqlGenerator sqlGenerator,
+            [NotNull] ISqlServerConnection connection,
+            [NotNull] ISqlServerModelDiffer modelDiffer,
+            [NotNull] ISqlServerMigrationSqlGenerator sqlGenerator,
             [NotNull] SqlStatementExecutor statementExecutor)
         {
             Check.NotNull(connection, nameof(connection));
@@ -88,38 +79,24 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         public override bool HasTables()
-        {
-            return (int)_statementExecutor.ExecuteScalar(_connection, _connection.DbTransaction, CreateHasTablesCommand()) != 0;
-        }
+            => (int)_statementExecutor.ExecuteScalar(_connection, _connection.DbTransaction, CreateHasTablesCommand()) != 0;
 
         public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return (int)(await _statementExecutor
+            => (int)(await _statementExecutor
                 .ExecuteScalarAsync(_connection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)
                 .WithCurrentCulture()) != 0;
-        }
 
         private IEnumerable<SqlBatch> CreateSchemaCommands(IModel model)
-        {
-            return _sqlGenerator.Generate(_modelDiffer.GetDifferences(null, model), model);
-        }
+            => _sqlGenerator.Generate(_modelDiffer.GetDifferences(null, model), model);
 
         private string CreateHasTablesCommand()
-        {
-            return "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES) SELECT 1 ELSE SELECT 0";
-        }
+            => "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES) SELECT 1 ELSE SELECT 0";
 
         private IEnumerable<SqlBatch> CreateCreateOperations()
-        {
-            var databaseName = _connection.DbConnection.Database;
-
-            return _sqlGenerator.Generate(new[] { new CreateDatabaseOperation(databaseName) });
-        }
+            => _sqlGenerator.Generate(new[] { new CreateDatabaseOperation(_connection.DbConnection.Database) });
 
         public override bool Exists()
-        {
-            return Exists(retryOnNotExists: false);
-        }
+            => Exists(retryOnNotExists: false);
 
         private bool Exists(bool retryOnNotExists)
         {
@@ -149,9 +126,7 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         public override Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
-        }
+            => ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
 
         private async Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
         {
@@ -180,11 +155,8 @@ namespace Microsoft.Data.Entity.SqlServer
             }
         }
 
-        private static bool IsDoesNotExist(SqlException exception)
-        {
-            // Login failed is thrown when database does not exist (See Issue #776)
-            return exception.Number == 4060;
-        }
+        // Login failed is thrown when database does not exist (See Issue #776)
+        private static bool IsDoesNotExist(SqlException exception) => exception.Number == 4060;
 
         // See Issue #985
         private bool RetryOnExistsFailure(SqlException exception, ref int retryCount)
@@ -248,17 +220,11 @@ namespace Microsoft.Data.Entity.SqlServer
             return masterCommands;
         }
 
-        private static void ClearAllPools()
-        {
-            // Clear connection pools in case there are active connections that are pooled
-            SqlConnection.ClearAllPools();
-        }
+        // Clear connection pools in case there are active connections that are pooled
+        private static void ClearAllPools() => SqlConnection.ClearAllPools();
 
-        private void ClearPool()
-        {
-            // Clear connection pool for the database connection since after the 'create database' call, a previously
-            // invalid connection may now be valid.
-            SqlConnection.ClearPool((SqlConnection)_connection.DbConnection);
-        }
+        // Clear connection pool for the database connection since after the 'create database' call, a previously
+        // invalid connection may now be valid.
+        private void ClearPool() => SqlConnection.ClearPool((SqlConnection)_connection.DbConnection);
     }
 }

@@ -12,15 +12,15 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.SqlServer.Migrations
 {
     // TODO: Log
-    public class SqlServerHistoryRepository : IHistoryRepository
+    public class SqlServerHistoryRepository : ISqlServerHistoryRepository
     {
-        private readonly SqlServerConnection _connection;
-        private readonly SqlServerDataStoreCreator _creator;
+        private readonly ISqlServerConnection _connection;
+        private readonly ISqlServerDataStoreCreator _creator;
         private readonly Type _contextType;
 
         public SqlServerHistoryRepository(
-            [NotNull] SqlServerConnection connection,
-            [NotNull] SqlServerDataStoreCreator creator,
+            [NotNull] ISqlServerConnection connection,
+            [NotNull] ISqlServerDataStoreCreator creator,
             [NotNull] DbContext context)
         {
             Check.NotNull(connection, nameof(connection));

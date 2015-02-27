@@ -19,20 +19,20 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, nameof(builder));
 
             ((IAccessor<IServiceCollection>)builder).Service
-                .AddScoped<DataStoreSource, InMemoryDataStoreSource>()
+                .AddScoped<IDataStoreSource, InMemoryDataStoreSource>()
                 .TryAdd(new ServiceCollection()
-                    .AddSingleton<InMemoryModelBuilderFactory>()
-                    .AddSingleton<InMemoryValueGeneratorCache>()
+                    .AddSingleton<IInMemoryModelBuilderFactory, InMemoryModelBuilderFactory>()
+                    .AddSingleton<IInMemoryValueGeneratorCache, InMemoryValueGeneratorCache>()
                     .AddSingleton<InMemoryIntegerValueGeneratorFactory>()
                     .AddSingleton<InMemoryDatabase>()
-                    .AddSingleton<InMemoryModelSource>()
-                    .AddScoped<InMemoryQueryContextFactory>()
-                    .AddScoped<InMemoryValueGeneratorSelector>()
-                    .AddScoped<InMemoryDataStoreServices>()
+                    .AddSingleton<IInMemoryModelSource, InMemoryModelSource>()
+                    .AddScoped<IInMemoryQueryContextFactory, InMemoryQueryContextFactory>()
+                    .AddScoped<IInMemoryValueGeneratorSelector, InMemoryValueGeneratorSelector>()
+                    .AddScoped<IInMemoryDataStoreServices, InMemoryDataStoreServices>()
                     .AddScoped<InMemoryDatabaseFacade>()
-                    .AddScoped<InMemoryDataStore>()
-                    .AddScoped<InMemoryConnection>()
-                    .AddScoped<InMemoryDataStoreCreator>());
+                    .AddScoped<IInMemoryDataStore, InMemoryDataStore>()
+                    .AddScoped<IInMemoryConnection, InMemoryConnection>()
+                    .AddScoped<IInMemoryDataStoreCreator, InMemoryDataStoreCreator>());
 
             return builder;
         }

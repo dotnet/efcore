@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.Cache.Memory;
@@ -121,14 +122,14 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped(DbContextServices.ModelFactory)
                 .AddScoped(DbContextServices.ContextFactory)
                 .AddScoped(DbContextServices.ContextOptionsFactory)
-                .AddScoped<DataStoreSelector>()
-                .AddScoped(DataStoreServices.DataStoreFactory)
-                .AddScoped(DataStoreServices.QueryContextFactoryFactory)
-                .AddScoped(DataStoreServices.ConnectionFactory)
-                .AddScoped(DataStoreServices.DatabaseFactory)
-                .AddScoped(DataStoreServices.ValueGeneratorSelectorFactory)
-                .AddScoped(DataStoreServices.DataStoreCreatorFactory)
-                .AddScoped(DataStoreServices.ModelBuilderFactoryFactory)
+                .AddScoped<IDataStoreSelector, DataStoreSelector>()
+                .AddScoped(DataStoreServiceFactories.DataStoreFactory)
+                .AddScoped(DataStoreServiceFactories.QueryContextFactoryFactory)
+                .AddScoped(DataStoreServiceFactories.ConnectionFactory)
+                .AddScoped(DataStoreServiceFactories.DatabaseFactory)
+                .AddScoped(DataStoreServiceFactories.ValueGeneratorSelectorFactory)
+                .AddScoped(DataStoreServiceFactories.DataStoreCreatorFactory)
+                .AddScoped(DataStoreServiceFactories.ModelBuilderFactoryFactory)
                 .AddTransient<IMemoryCache, MemoryCache>()
                 .AddOptions());
 

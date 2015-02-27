@@ -3,14 +3,12 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract class RelationalDataStoreCreator : DataStoreCreator
+    public abstract class RelationalDataStoreCreator : IRelationalDataStoreCreator
     {
         public abstract bool Exists();
 
@@ -24,17 +22,18 @@ namespace Microsoft.Data.Entity.Relational
 
         public abstract Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        public abstract void CreateTables([NotNull] IModel model);
+        public abstract void CreateTables(IModel model);
 
-        public abstract Task CreateTablesAsync(
-            [NotNull] IModel model, CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task CreateTablesAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken));
 
         public abstract bool HasTables();
 
         public abstract Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        public override bool EnsureDeleted(IModel model)
+        public virtual bool EnsureDeleted(IModel model)
         {
+            Check.NotNull(model, nameof(model));
+
             if (Exists())
             {
                 Delete();
@@ -43,8 +42,10 @@ namespace Microsoft.Data.Entity.Relational
             return false;
         }
 
-        public override async Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Check.NotNull(model, nameof(model));
+
             if (await ExistsAsync(cancellationToken).WithCurrentCulture())
             {
                 await DeleteAsync(cancellationToken).WithCurrentCulture();
@@ -54,7 +55,7 @@ namespace Microsoft.Data.Entity.Relational
             return false;
         }
 
-        public override bool EnsureCreated(IModel model)
+        public virtual bool EnsureCreated(IModel model)
         {
             Check.NotNull(model, nameof(model));
 
@@ -74,7 +75,7 @@ namespace Microsoft.Data.Entity.Relational
             return false;
         }
 
-        public override async Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(model, nameof(model));
 

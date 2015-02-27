@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Internal
         private DbContextOptions _contextOptions;
         private DbContext _context;
         private LazyRef<IModel> _modelFromSource;
-        private LazyRef<DataStoreServices> _dataStoreServices;
+        private LazyRef<IDataStoreServices> _dataStoreServices;
         private bool _inOnModelCreating;
 
         public virtual DbContextServices Initialize(
@@ -41,8 +41,8 @@ namespace Microsoft.Data.Entity.Internal
             _contextOptions = contextOptions;
             _context = context;
 
-            _dataStoreServices = new LazyRef<DataStoreServices>(() =>
-                _provider.GetRequiredServiceChecked<DataStoreSelector>().SelectDataStore(serviceProviderSource));
+            _dataStoreServices = new LazyRef<IDataStoreServices>(() =>
+                _provider.GetRequiredServiceChecked<IDataStoreSelector>().SelectDataStore(serviceProviderSource));
 
             _modelFromSource = new LazyRef<IModel>(CreateModel);
 
@@ -59,8 +59,7 @@ namespace Microsoft.Data.Entity.Internal
             try
             {
                 _inOnModelCreating = true;
-                return _dataStoreServices.Value.ModelSource
-                    .GetModel(_context, _dataStoreServices.Value.ModelBuilderFactory);
+                return _dataStoreServices.Value.ModelSource.GetModel(_context, _dataStoreServices.Value.ModelBuilderFactory);
             }
             finally
             {
@@ -74,7 +73,7 @@ namespace Microsoft.Data.Entity.Internal
 
         public virtual IDbContextOptions ContextOptions => _contextOptions;
 
-        public virtual DataStoreServices DataStoreServices => _dataStoreServices.Value;
+        public virtual IDataStoreServices DataStoreServices => _dataStoreServices.Value;
 
         public static Func<IServiceProvider, DbContext> ContextFactory => p => p.GetRequiredServiceChecked<DbContextServices>().Context;
 

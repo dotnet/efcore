@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorSelector>();
+            var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IInMemoryValueGeneratorSelector>();
 
             Assert.IsType<InMemoryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("Id")));
             Assert.IsType<InMemoryIntegerValueGenerator<long>>(selector.Select(entityType.GetProperty("Long")));
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorSelector>();
+            var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IInMemoryValueGeneratorSelector>();
 
             Assert.Equal(
                 CoreStrings.NoValueGenerator("Float", "AnEntity", typeof(float).Name),

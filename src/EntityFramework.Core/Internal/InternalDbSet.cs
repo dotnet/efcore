@@ -63,56 +63,56 @@ namespace Microsoft.Data.Entity.Internal
             return _context.Update(entity);
         }
 
-        public override void AddRange([NotNull] params TEntity[] entities)
+        public override void AddRange(params TEntity[] entities)
         {
             Check.NotNull(entities, nameof(entities));
 
             _context.AddRange(entities);
         }
 
-        public override void AttachRange([NotNull] params TEntity[] entities)
+        public override void AttachRange(params TEntity[] entities)
         {
             Check.NotNull(entities, nameof(entities));
 
             _context.AttachRange(entities);
         }
 
-        public override void RemoveRange([NotNull] params TEntity[] entities)
+        public override void RemoveRange(params TEntity[] entities)
         {
             Check.NotNull(entities, nameof(entities));
 
             _context.RemoveRange(entities);
         }
 
-        public override void UpdateRange([NotNull] params TEntity[] entities)
+        public override void UpdateRange(params TEntity[] entities)
         {
             Check.NotNull(entities, nameof(entities));
 
             _context.UpdateRange(entities);
         }
 
-        public override void AddRange([NotNull] IEnumerable<TEntity> entities)
+        public override void AddRange(IEnumerable<TEntity> entities)
         {
             Check.NotNull(entities, nameof(entities));
 
             _context.AddRange(entities);
         }
 
-        public override void AttachRange([NotNull] IEnumerable<TEntity> entities)
+        public override void AttachRange(IEnumerable<TEntity> entities)
         {
             Check.NotNull(entities, nameof(entities));
 
             _context.AttachRange(entities);
         }
 
-        public override void RemoveRange([NotNull] IEnumerable<TEntity> entities)
+        public override void RemoveRange(IEnumerable<TEntity> entities)
         {
             Check.NotNull(entities, nameof(entities));
 
             _context.RemoveRange(entities);
         }
 
-        public override void UpdateRange([NotNull] IEnumerable<TEntity> entities)
+        public override void UpdateRange(IEnumerable<TEntity> entities)
         {
             Check.NotNull(entities, nameof(entities));
 

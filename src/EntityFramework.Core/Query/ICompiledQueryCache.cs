@@ -14,17 +14,17 @@ namespace Microsoft.Data.Entity.Query
     {
         TResult Execute<TResult>(
             [NotNull] Expression query,
-            [NotNull] DataStore dataStore,
+            [NotNull] IDataStore dataStore,
             [NotNull] QueryContext queryContext);
 
         IAsyncEnumerable<TResult> ExecuteAsync<TResult>(
             [NotNull] Expression query,
-            [NotNull] DataStore dataStore,
+            [NotNull] IDataStore dataStore,
             [NotNull] QueryContext queryContext);
 
         Task<TResult> ExecuteAsync<TResult>(
             [NotNull] Expression query,
-            [NotNull] DataStore dataStore,
+            [NotNull] IDataStore dataStore,
             [NotNull] QueryContext queryContext,
             CancellationToken cancellationToken);
     }

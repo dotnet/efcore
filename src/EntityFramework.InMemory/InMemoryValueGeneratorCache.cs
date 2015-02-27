@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryValueGeneratorCache : ValueGeneratorCache
+    public class InMemoryValueGeneratorCache : ValueGeneratorCache, IInMemoryValueGeneratorCache
     {
     }
 }

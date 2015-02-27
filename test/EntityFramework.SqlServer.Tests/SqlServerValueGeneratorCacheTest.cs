@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var model = CreateModel();
             var property1 = GetProperty1(model);
             var property2 = GetProperty2(model);
-            var cache = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorCache>();
+            var cache = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorCache>();
 
             var generator1 = cache.GetOrAdd(property1, p => new TemporaryIntegerValueGenerator<int>());
             Assert.NotNull(generator1);
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var property1 = GetProperty1(model);
             var property2 = GetProperty2(model);
             var property3 = GetProperty3(model);
-            var cache = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorCache>();
+            var cache = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorCache>();
 
             var generator1 = cache.GetOrAddSequenceState(property1);
             Assert.NotNull(generator1);

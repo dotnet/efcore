@@ -19,8 +19,8 @@ namespace Microsoft.Data.Entity.Relational
 
         protected RelationalDatabase(
             [NotNull] DbContext context,
-            [NotNull] RelationalDataStoreCreator dataStoreCreator,
-            [NotNull] RelationalConnection connection,
+            [NotNull] IRelationalDataStoreCreator dataStoreCreator,
+            [NotNull] IRelationalConnection connection,
             [NotNull] Migrator migrator,
             [NotNull] ILoggerFactory loggerFactory)
             : base(context, dataStoreCreator, connection, loggerFactory)
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational
 
         Migrator IAccessor<Migrator>.Service => _migrator;
 
-        public new virtual RelationalConnection Connection => (RelationalConnection)base.Connection;
+        public new virtual IRelationalConnection Connection => (IRelationalConnection)base.Connection;
 
         public virtual void Create()
         {
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational
         public virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken)) 
             => RelationalDataStoreCreator.HasTablesAsync(cancellationToken);
 
-        private RelationalDataStoreCreator RelationalDataStoreCreator => (RelationalDataStoreCreator)((IAccessor<DataStoreCreator>)this).Service;
+        private IRelationalDataStoreCreator RelationalDataStoreCreator => (IRelationalDataStoreCreator)((IAccessor<IDataStoreCreator>)this).Service;
 
         private ILogger Logger => ((IAccessor<ILogger>)this).Service;
 

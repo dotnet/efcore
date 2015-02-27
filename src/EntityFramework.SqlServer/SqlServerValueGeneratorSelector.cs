@@ -10,22 +10,22 @@ using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerValueGeneratorSelector : ValueGeneratorSelector
+    public class SqlServerValueGeneratorSelector : ValueGeneratorSelector, ISqlServerValueGeneratorSelector
     {
-        private readonly SqlServerValueGeneratorCache _cache;
+        private readonly ISqlServerValueGeneratorCache _cache;
         private readonly SqlServerSequenceValueGeneratorFactory _sequenceFactory;
         private readonly ValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory;
-        private readonly SqlServerConnection _connection;
+        private readonly ISqlServerConnection _connection;
 
         public SqlServerValueGeneratorSelector(
-            [NotNull] SqlServerValueGeneratorCache cache,
+            [NotNull] ISqlServerValueGeneratorCache cache,
             [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory,
             [NotNull] TemporaryIntegerValueGeneratorFactory integerFactory,
             [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
             [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory,
             [NotNull] SqlServerSequenceValueGeneratorFactory sequenceFactory,
             [NotNull] ValueGeneratorFactory<SequentialGuidValueGenerator> sequentialGuidFactory,
-            [NotNull] SqlServerConnection connection)
+            [NotNull] ISqlServerConnection connection)
             : base(guidFactory, integerFactory, stringFactory, binaryFactory)
         {
             Check.NotNull(cache, nameof(cache));

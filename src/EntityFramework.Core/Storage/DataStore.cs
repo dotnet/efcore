@@ -16,18 +16,9 @@ using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public abstract class DataStore
+    public abstract class DataStore : IDataStore
     {
         private readonly LazyRef<ILogger> _logger;
-
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected DataStore()
-        {
-        }
 
         protected DataStore(
             [NotNull] IModel model,
@@ -56,22 +47,21 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual EntityMaterializerSource EntityMaterializerSource { get; }
 
-        public abstract int SaveChanges(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entries);
+        public abstract int SaveChanges(IReadOnlyList<InternalEntityEntry> entries);
 
         public abstract Task<int> SaveChangesAsync(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entries,
+            IReadOnlyList<InternalEntityEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken));
 
         public static readonly MethodInfo CompileQueryMethod
-            = typeof(DataStore).GetTypeInfo().GetDeclaredMethod("CompileQuery");
+            = typeof(IDataStore).GetTypeInfo().GetDeclaredMethod("CompileQuery");
 
-        public abstract Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>([NotNull] QueryModel queryModel);
+        public abstract Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel);
 
         public static readonly MethodInfo CompileAsyncQueryMethod
-            = typeof(DataStore).GetTypeInfo().GetDeclaredMethod("CompileAsyncQuery");
+            = typeof(IDataStore).GetTypeInfo().GetDeclaredMethod("CompileAsyncQuery");
 
-        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>([NotNull] QueryModel queryModel)
+        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
         {
             throw new NotImplementedException();
         }

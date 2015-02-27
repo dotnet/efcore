@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
     {
         protected static string EOL => Environment.NewLine;
 
-        protected abstract MigrationSqlGenerator SqlGenerator { get; }
+        protected abstract IMigrationSqlGenerator SqlGenerator { get; }
 
         protected virtual string Sql { get; set; }
 

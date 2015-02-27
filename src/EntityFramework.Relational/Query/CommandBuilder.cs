@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         public virtual DbCommand Build(
-            [NotNull] RelationalConnection connection,
+            [NotNull] IRelationalConnection connection,
             [NotNull] IDictionary<string, object> parameterValues)
         {
             Check.NotNull(connection, nameof(connection));

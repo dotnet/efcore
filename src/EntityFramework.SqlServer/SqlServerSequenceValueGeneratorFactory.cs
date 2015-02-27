@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer
         public virtual ValueGenerator Create(
             [NotNull] IProperty property, 
             [NotNull] SqlServerSequenceValueGeneratorState generatorState, 
-            [NotNull] SqlServerConnection connection)
+            [NotNull] ISqlServerConnection connection)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(generatorState, nameof(generatorState));

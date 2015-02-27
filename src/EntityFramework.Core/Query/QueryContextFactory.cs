@@ -9,7 +9,7 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public abstract class QueryContextFactory
+    public abstract class QueryContextFactory : IQueryContextFactory
     {
         private readonly LazyRef<ILogger> _logger;
         private readonly StateManager _stateManager;

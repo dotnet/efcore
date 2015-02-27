@@ -10,14 +10,14 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.Query
 {
-    public class SqlServerQueryContextFactory : RelationalQueryContextFactory
+    public class SqlServerQueryContextFactory : RelationalQueryContextFactory, ISqlServerQueryContextFactory
     {
         public SqlServerQueryContextFactory(
             [NotNull] StateManager stateManager,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] ClrPropertySetterSource propertySetterSource,
-            [NotNull] SqlServerConnection connection,
+            [NotNull] ISqlServerConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, connection, loggerFactory)
         {

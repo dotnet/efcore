@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerMigrationSqlGenerator : MigrationSqlGenerator
+    public class SqlServerMigrationSqlGenerator : MigrationSqlGenerator, ISqlServerMigrationSqlGenerator
     {
         public virtual void Generate(
             [NotNull] CreateDatabaseOperation operation,

@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class ModelSourceBaseTest
+    public class ModelSourceTest
     {
         [Fact]
         public void Adds_all_entities_based_on_all_distinct_entity_types_found()
@@ -60,9 +60,9 @@ namespace Microsoft.Data.Entity.Tests
         {
         }
 
-        private ModelSourceBase CreateDefaultModelSource(DbSetFinder setFinder)
+        private IModelSource CreateDefaultModelSource(DbSetFinder setFinder)
         {
-            return new ModelSourceBase(setFinder, Mock.Of<ModelValidator>());
+            return new ModelSource(setFinder, Mock.Of<ModelValidator>());
         }
     }
 }

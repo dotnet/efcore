@@ -31,28 +31,28 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifySingleton<ModificationCommandComparer>();
 
             // SQL Server dingletones
-            VerifySingleton<SqlServerModelBuilderFactory>();
-            VerifySingleton<SqlServerValueGeneratorCache>();
+            VerifySingleton<ISqlServerModelBuilderFactory>();
+            VerifySingleton<ISqlServerValueGeneratorCache>();
             VerifySingleton<SqlServerSequenceValueGeneratorFactory>();
             VerifySingleton<SqlServerSqlGenerator>();
             VerifySingleton<SqlStatementExecutor>();
             VerifySingleton<SqlServerTypeMapper>();
             VerifySingleton<SqlServerModificationCommandBatchFactory>();
             VerifySingleton<SqlServerCommandBatchPreparer>();
-            VerifySingleton<SqlServerModelSource>();
+            VerifySingleton<ISqlServerModelSource>();
 
             // SQL Server scoped
-            VerifyScoped<SqlServerQueryContextFactory>();
-            VerifyScoped<SqlServerValueGeneratorSelector>();
+            VerifyScoped<ISqlServerQueryContextFactory>();
+            VerifyScoped<ISqlServerValueGeneratorSelector>();
             VerifyScoped<SqlServerBatchExecutor>();
-            VerifyScoped<SqlServerDataStoreServices>();
-            VerifyScoped<SqlServerDataStore>();
-            VerifyScoped<SqlServerConnection>();
-            VerifyScoped<SqlServerModelDiffer>();
+            VerifyScoped<ISqlServerDataStoreServices>();
+            VerifyScoped<ISqlServerDataStore>();
+            VerifyScoped<ISqlServerConnection>();
+            VerifyScoped<ISqlServerModelDiffer>();
             VerifyScoped<SqlServerDatabase>();
-            VerifyScoped<SqlServerMigrationSqlGenerator>();
-            VerifyScoped<SqlServerDataStoreCreator>();
-            VerifyScoped<SqlServerHistoryRepository>();
+            VerifyScoped<ISqlServerMigrationSqlGenerator>();
+            VerifyScoped<ISqlServerDataStoreCreator>();
+            VerifyScoped<ISqlServerHistoryRepository>();
 
             VerifyCommonDataStoreServices();
 
@@ -61,8 +61,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifyScoped<IHistoryRepository>();
             VerifyScoped<Migrator>();
             VerifySingleton<MigrationIdGenerator>();
-            VerifyScoped<ModelDiffer>();
-            VerifyScoped<MigrationSqlGenerator>();
+            VerifyScoped<IModelDiffer>();
+            VerifyScoped<IMigrationSqlGenerator>();
         }
 
         protected override IServiceCollection GetServices(IServiceCollection services = null)

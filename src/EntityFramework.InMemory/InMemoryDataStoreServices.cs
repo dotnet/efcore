@@ -14,7 +14,7 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryDataStoreServices : DataStoreServices
+    public class InMemoryDataStoreServices : IInMemoryDataStoreServices
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -25,20 +25,20 @@ namespace Microsoft.Data.Entity.InMemory
             _serviceProvider = serviceProvider;
         }
 
-        public override DataStore Store => _serviceProvider.GetRequiredService<InMemoryDataStore>();
+        public virtual IDataStore Store => _serviceProvider.GetRequiredService<IInMemoryDataStore>();
 
-        public override QueryContextFactory QueryContextFactory => _serviceProvider.GetRequiredService<InMemoryQueryContextFactory>();
+        public virtual IQueryContextFactory QueryContextFactory => _serviceProvider.GetRequiredService<IInMemoryQueryContextFactory>();
 
-        public override DataStoreCreator Creator => _serviceProvider.GetRequiredService<InMemoryDataStoreCreator>();
+        public virtual IDataStoreCreator Creator => _serviceProvider.GetRequiredService<IInMemoryDataStoreCreator>();
 
-        public override DataStoreConnection Connection => _serviceProvider.GetRequiredService<InMemoryConnection>();
+        public virtual IDataStoreConnection Connection => _serviceProvider.GetRequiredService<IInMemoryConnection>();
 
-        public override IValueGeneratorSelector ValueGeneratorSelector => _serviceProvider.GetRequiredService<InMemoryValueGeneratorSelector>();
+        public virtual IValueGeneratorSelector ValueGeneratorSelector => _serviceProvider.GetRequiredService<IInMemoryValueGeneratorSelector>();
 
-        public override Database Database => _serviceProvider.GetRequiredService<InMemoryDatabaseFacade>();
+        public virtual Database Database => _serviceProvider.GetRequiredService<InMemoryDatabaseFacade>();
 
-        public override ModelBuilderFactory ModelBuilderFactory => _serviceProvider.GetRequiredService<InMemoryModelBuilderFactory>();
+        public virtual IModelBuilderFactory ModelBuilderFactory => _serviceProvider.GetRequiredService<IInMemoryModelBuilderFactory>();
 
-        public override ModelSource ModelSource => _serviceProvider.GetRequiredService<InMemoryModelSource>();
+        public virtual IModelSource ModelSource => _serviceProvider.GetRequiredService<IInMemoryModelSource>();
     }
 }

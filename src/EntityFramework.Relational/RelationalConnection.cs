@@ -8,39 +8,29 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract class RelationalConnection : DataStoreConnection, IDisposable
+    public abstract class RelationalConnection : IRelationalConnection
     {
         private readonly string _connectionString;
         private readonly LazyRef<DbConnection> _connection;
         private readonly bool _connectionOwned;
         private int _openedCount;
         private int? _commandTimeout;
-
-        protected ILoggerFactory LoggerFactory;
-
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected RelationalConnection()
-        {
-        }
+        private readonly LazyRef<ILogger> _logger;
 
         protected RelationalConnection([NotNull] IDbContextOptions options, [NotNull] ILoggerFactory loggerFactory)
-            : base(loggerFactory)
         {
             Check.NotNull(options, nameof(options));
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
+
+            _logger = new LazyRef<ILogger>(loggerFactory.Create<RelationalConnection>);
 
             var storeConfig = RelationalOptionsExtension.Extract(options);
 
-            LoggerFactory = loggerFactory;
             _commandTimeout = storeConfig.CommandTimeout;
 
             if (storeConfig.Connection != null)
@@ -128,9 +118,9 @@ namespace Microsoft.Data.Entity.Relational
 
         private RelationalTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
         {
-            Logger.BeginningTransaction(isolationLevel);
+            _logger.Value.BeginningTransaction(isolationLevel);
 
-            Transaction = new RelationalTransaction(this, DbConnection.BeginTransaction(isolationLevel), /*transactionOwned*/ true, Logger);
+            Transaction = new RelationalTransaction(this, DbConnection.BeginTransaction(isolationLevel), /*transactionOwned*/ true, _logger.Value);
 
             return Transaction;
         }
@@ -155,7 +145,7 @@ namespace Microsoft.Data.Entity.Relational
 
                 Open();
 
-                Transaction = new RelationalTransaction(this, transaction, /*transactionOwned*/ false, Logger);
+                Transaction = new RelationalTransaction(this, transaction, /*transactionOwned*/ false, _logger.Value);
             }
 
             return Transaction;

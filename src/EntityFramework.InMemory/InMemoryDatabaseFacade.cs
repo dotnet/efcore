@@ -11,13 +11,13 @@ namespace Microsoft.Data.Entity.InMemory
     {
         public InMemoryDatabaseFacade(
             [NotNull] DbContext context,
-            [NotNull] InMemoryDataStoreCreator dataStoreCreator,
-            [NotNull] InMemoryConnection connection,
+            [NotNull] IInMemoryDataStoreCreator dataStoreCreator,
+            [NotNull] IInMemoryConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
             : base(context, dataStoreCreator, connection, loggerFactory)
         {
         }
 
-        public new virtual InMemoryConnection Connection => (InMemoryConnection)base.Connection;
+        public new virtual IInMemoryConnection Connection => (IInMemoryConnection)base.Connection;
     }
 }

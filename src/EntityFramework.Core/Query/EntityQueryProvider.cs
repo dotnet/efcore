@@ -16,15 +16,15 @@ namespace Microsoft.Data.Entity.Query
     public class EntityQueryProvider : IAsyncQueryProvider
     {
         private readonly DbContext _context;
-        private readonly DataStore _dataStore;
+        private readonly IDataStore _dataStore;
         private readonly ICompiledQueryCache _compiledQueryCache;
-        private readonly QueryContextFactory _queryContextFactory;
+        private readonly IQueryContextFactory _queryContextFactory;
 
         public EntityQueryProvider(
             [NotNull] DbContext context,
-            [NotNull] DataStore dataStore,
+            [NotNull] IDataStore dataStore,
             [NotNull] ICompiledQueryCache compiledQueryCache,
-            [NotNull] QueryContextFactory queryContextFactory)
+            [NotNull] IQueryContextFactory queryContextFactory)
         {
             Check.NotNull(context, nameof(context));
             Check.NotNull(dataStore, nameof(dataStore));

@@ -126,6 +126,7 @@
     <Compile Include="Infrastructure\ModelValidatorBase.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
     <Compile Include="Internal\DbContextServices.cs" />
+    <Compile Include="Metadata\IModelBuilderFactory.cs" />
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="Query\EntityLoadInfo.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ExpressionStringBuilder.cs" />
@@ -182,6 +183,7 @@
     <Compile Include="Query\ExpressionTreeVisitors\PropertyAccessBindingExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ProjectionExpressionTreeVisitor.cs" />
     <Compile Include="Query\ICompiledQueryCache.cs" />
+    <Compile Include="Query\IQueryContextFactory.cs" />
     <Compile Include="Query\QueryAnnotation.cs" />
     <Compile Include="Query\QueryAnnotationExtractor.cs" />
     <Compile Include="Query\CompiledQueryCache.cs" />
@@ -201,6 +203,10 @@
     <Compile Include="Storage\DataStoreErrorLogState.cs" />
     <Compile Include="Storage\DataStoreException.cs" />
     <Compile Include="Infrastructure\IDbContextOptions.cs" />
+    <Compile Include="Storage\IDataStore.cs" />
+    <Compile Include="Storage\IDataStoreConnection.cs" />
+    <Compile Include="Storage\IDataStoreSelector.cs" />
+    <Compile Include="Storage\Internal\DataStoreServiceFactories.cs" />
     <Compile Include="Utilities\INotifyPropertyChanging.cs" />
     <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />
@@ -226,9 +232,9 @@
     <Compile Include="Infrastructure\DbSetFinder.cs" />
     <Compile Include="Infrastructure\DbSetInitializer.cs" />
     <Compile Include="Infrastructure\DbSetSource.cs" />
-    <Compile Include="Infrastructure\ModelSourceBase.cs" />
-    <Compile Include="Infrastructure\DbContextOptionsExtension.cs" />
     <Compile Include="Infrastructure\ModelSource.cs" />
+    <Compile Include="Infrastructure\DbContextOptionsExtension.cs" />
+    <Compile Include="Infrastructure\IModelSource.cs" />
     <Compile Include="Metadata\Annotation.cs" />
     <Compile Include="Metadata\ClrAccessorSource.cs" />
     <Compile Include="Metadata\ClrCollectionAccessorSource.cs" />
@@ -284,11 +290,10 @@
     <Compile Include="Query\QuerySourceScope.cs" />
     <Compile Include="Query\TaskResultAsyncEnumerable.cs" />
     <Compile Include="Storage\DataStore.cs" />
-    <Compile Include="Storage\DataStoreConnection.cs" />
-    <Compile Include="Storage\DataStoreCreator.cs" />
+    <Compile Include="Storage\IDataStoreCreator.cs" />
     <Compile Include="Storage\DataStoreSelector.cs" />
     <Compile Include="Storage\DataStoreServices.cs" />
-    <Compile Include="Storage\DataStoreSource.cs" />
+    <Compile Include="Storage\IDataStoreSource.cs" />
     <Compile Include="Storage\DataStoreSource`.cs" />
     <Compile Include="Storage\DataStoreTransaction.cs" />
     <Compile Include="Update\DbUpdateConcurrencyException.cs" />
@@ -322,6 +327,7 @@
     <Compile Include="ValueGeneration\GuidValueGenerator.cs" />
     <Compile Include="ValueGeneration\HiLoValueGeneratorState.cs" />
     <Compile Include="ValueGeneration\HiLoValueGenerator.cs" />
+    <Compile Include="ValueGeneration\IValueGeneratorCache.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorCache.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorFactory`.cs" />
     <Compile Include="ValueGeneration\ValueGenerator.cs" />

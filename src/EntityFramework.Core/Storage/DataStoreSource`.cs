@@ -10,8 +10,8 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public abstract class DataStoreSource<TStoreServices, TOptionsExtension> : DataStoreSource
-        where TStoreServices : DataStoreServices
+    public abstract class DataStoreSource<TStoreServices, TOptionsExtension> : IDataStoreSource
+        where TStoreServices : class, IDataStoreServices
         where TOptionsExtension : DbContextOptionsExtension
     {
         private readonly DbContextServices _services;
@@ -26,29 +26,18 @@ namespace Microsoft.Data.Entity.Storage
             _options = options;
         }
 
-        public override DataStoreServices StoreServices
-        {
-            get
-            {
-                // Using service locator here so that all services for every provider are not always
-                // eagerly loaded during the provider selection process.
-                return _services.ServiceProvider.GetRequiredServiceChecked<TStoreServices>();
-            }
-        }
+        public virtual IDataStoreServices StoreServices => _services.ServiceProvider.GetRequiredServiceChecked<TStoreServices>();
 
-        public override bool IsConfigured
-        {
-            get { return _options.Extensions.OfType<TOptionsExtension>().Any(); }
-        }
+        public virtual bool IsConfigured => _options.Extensions.OfType<TOptionsExtension>().Any();
 
-        public override bool IsAvailable
-        {
-            get { return IsConfigured; }
-        }
+        public abstract string Name { get; }
 
-        public override DbContextOptions ContextOptions
+        public virtual bool IsAvailable => IsConfigured;
+
+        public virtual DbContextOptions ContextOptions => (DbContextOptions)_services.ContextOptions;
+
+        public virtual void AutoConfigure()
         {
-            get { return (DbContextOptions)_services.ContextOptions; }
         }
     }
 }

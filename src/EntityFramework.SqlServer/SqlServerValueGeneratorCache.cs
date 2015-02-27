@@ -9,12 +9,12 @@ using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerValueGeneratorCache : ValueGeneratorCache
+    public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValueGeneratorCache
     {
         private readonly ThreadSafeDictionaryCache<string, SqlServerSequenceValueGeneratorState> _sequenceGeneratorCache
             = new ThreadSafeDictionaryCache<string, SqlServerSequenceValueGeneratorState>();
 
-        public virtual SqlServerSequenceValueGeneratorState GetOrAddSequenceState([NotNull] IProperty property)
+        public virtual SqlServerSequenceValueGeneratorState GetOrAddSequenceState(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 

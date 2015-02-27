@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public virtual TResult Execute<TResult>(
-            Expression query, DataStore dataStore, QueryContext queryContext)
+            Expression query, IDataStore dataStore, QueryContext queryContext)
         {
             Check.NotNull(query, nameof(query));
             Check.NotNull(dataStore, nameof(dataStore));
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>(
-            Expression query, DataStore dataStore, QueryContext queryContext)
+            Expression query, IDataStore dataStore, QueryContext queryContext)
         {
             Check.NotNull(query, nameof(query));
             Check.NotNull(dataStore, nameof(dataStore));
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public virtual Task<TResult> ExecuteAsync<TResult>(
-            Expression query, DataStore dataStore, QueryContext queryContext, CancellationToken cancellationToken)
+            Expression query, IDataStore dataStore, QueryContext queryContext, CancellationToken cancellationToken)
         {
             Check.NotNull(query, nameof(query));
             Check.NotNull(dataStore, nameof(dataStore));
@@ -133,9 +133,9 @@ namespace Microsoft.Data.Entity.Query
         private CompiledQuery GetOrAdd(
             Expression query,
             QueryContext queryContext,
-            DataStore dataStore,
+            IDataStore dataStore,
             bool isAsync,
-            Func<Expression, DataStore, CompiledQuery> compiler)
+            Func<Expression, IDataStore, CompiledQuery> compiler)
         {
             var parameterizedQuery
                 = ParameterExtractingExpressionTreeVisitor
@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.Query
                     Tuple.Create(parameterizedQuery, dataStore),
                     c =>
                         {
-                            var tuple = (Tuple<Expression, DataStore>)c.State;
+                            var tuple = (Tuple<Expression, IDataStore>)c.State;
 
                             return compiler(tuple.Item1, tuple.Item2);
                         });
@@ -330,7 +330,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static Delegate CompileQuery(
-            DataStore dataStore, MethodInfo compileMethodInfo, Type resultItemType, QueryModel queryModel)
+            IDataStore dataStore, MethodInfo compileMethodInfo, Type resultItemType, QueryModel queryModel)
         {
             try
             {
