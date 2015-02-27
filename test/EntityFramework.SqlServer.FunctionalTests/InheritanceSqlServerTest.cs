@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             Assert.Equal(
                 @"SELECT [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
-WHERE ([a].[Discriminator] = 'Kiwi' OR [a].[Discriminator] = 'Eagle')
+WHERE [a].[Discriminator] IN ('Kiwi', 'Eagle')
 ORDER BY [a].[Species]",
                 Sql);
         }
@@ -28,7 +28,7 @@ ORDER BY [a].[Species]",
             Assert.Equal(
                 @"SELECT [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
-WHERE ([a].[Discriminator] = 'Kiwi' OR [a].[Discriminator] = 'Eagle')
+WHERE [a].[Discriminator] IN ('Kiwi', 'Eagle')
 ORDER BY [a].[Species]",
                 Sql);
         }
@@ -51,7 +51,7 @@ WHERE [a].[Discriminator] = 'Kiwi'",
             Assert.Equal(
                 @"SELECT [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
-WHERE ([a].[Discriminator] = 'Kiwi' OR [a].[Discriminator] = 'Eagle')
+WHERE [a].[Discriminator] IN ('Kiwi', 'Eagle')
 ORDER BY [a].[Species]",
                 Sql);
         }
@@ -63,7 +63,7 @@ ORDER BY [a].[Species]",
             Assert.Equal(
                 @"SELECT [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
-WHERE (([a].[Discriminator] = 'Kiwi' OR [a].[Discriminator] = 'Eagle') AND [a].[Name] = 'Great spotted kiwi')
+WHERE ([a].[Discriminator] IN ('Kiwi', 'Eagle') AND [a].[Name] = 'Great spotted kiwi')
 ORDER BY [a].[Species]",
                 Sql);
         }
@@ -75,7 +75,7 @@ ORDER BY [a].[Species]",
             Assert.Equal(
                 @"SELECT [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
-WHERE ([a].[Discriminator] = 'Kiwi' OR [a].[Discriminator] = 'Eagle')
+WHERE [a].[Discriminator] IN ('Kiwi', 'Eagle')
 ORDER BY [a].[Species]",
                 Sql);
         }

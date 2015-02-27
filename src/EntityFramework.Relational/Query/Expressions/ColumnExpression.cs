@@ -30,22 +30,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _tableExpression = tableExpression;
         }
 
-        public virtual TableExpressionBase Table
-        {
-            get { return _tableExpression; }
-        }
+        public virtual TableExpressionBase Table => _tableExpression;
 
-        public virtual string TableAlias
-        {
-            get { return _tableExpression.Alias; }
-        }
+        public virtual string TableAlias => _tableExpression.Alias;
 
 #pragma warning disable 108
-        public virtual IProperty Property
+        public virtual IProperty Property => _property;
 #pragma warning restore 108
-        {
-            get { return _property; }
-        }
 
         public virtual string Name { get; }
 

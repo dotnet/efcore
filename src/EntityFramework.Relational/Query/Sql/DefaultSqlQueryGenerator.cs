@@ -239,6 +239,32 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return maxExpression;
         }
 
+        public virtual Expression VisitInExpression(InExpression inExpression)
+        {
+            VisitExpression(inExpression.Column);
+
+            _sql.Append(" IN (");
+
+            VisitJoin(inExpression.Values);
+            
+            _sql.Append(")");
+
+            return inExpression;
+        }
+
+        public virtual Expression VisitNotInExpression(NotInExpression inExpression)
+        {
+            VisitExpression(inExpression.Column);
+
+            _sql.Append(" NOT IN (");
+
+            VisitJoin(inExpression.Values);
+
+            _sql.Append(")");
+
+            return inExpression;
+        }
+
         public virtual Expression VisitInnerJoinExpression(InnerJoinExpression innerJoinExpression)
         {
             Check.NotNull(innerJoinExpression, nameof(innerJoinExpression));

@@ -86,6 +86,19 @@ namespace Microsoft.Data.Entity.Relational.Query
             return new RelationalOrderingExpressionTreeVisitor(this, ordering);
         }
 
+        public override void VisitQueryModel(QueryModel queryModel)
+        {
+            base.VisitQueryModel(queryModel);
+
+            var predicateOptimizer = new EqualityPredicateOptimizer();
+
+            foreach (var selectExpression in _queriesBySource.Values.Where(se => se.Predicate != null))
+            {
+                selectExpression.Predicate
+                    = predicateOptimizer.VisitExpression(selectExpression.Predicate);
+            }
+        }
+
         protected override void IncludeNavigations(
             IQuerySource querySource,
             Type resultType,

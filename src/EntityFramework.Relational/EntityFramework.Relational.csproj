@@ -140,8 +140,12 @@
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\CommandBuilder.cs" />
     <Compile Include="Query\CommandParameter.cs" />
+    <Compile Include="Query\EqualityPredicateOptimizer.cs" />
     <Compile Include="Query\Expressions\ColumnAggregateExpression.cs" />
     <Compile Include="Query\Expressions\DiscriminatorPredicateExpression.cs" />
+    <Compile Include="Query\Expressions\InExpressionBase.cs" />
+    <Compile Include="Query\Expressions\NotInExpression.cs" />
+    <Compile Include="Query\Expressions\InExpression.cs" />
     <Compile Include="Query\Expressions\JoinExpressionBase.cs" />
     <Compile Include="Query\Expressions\LeftOuterJoinExpression.cs" />
     <Compile Include="Query\Expressions\MaxExpression.cs" />

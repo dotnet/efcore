@@ -993,7 +993,79 @@ WHERE ([c].[City] = 'London' OR [e].[City] = 'London')",
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE ([c].[City] = 'London' OR [c].[City] = 'Berlin')",
+WHERE [c].[City] IN ('London', 'Berlin')",
+                Sql);
+        }
+
+        public override void Where_select_many_or3()
+        {
+            base.Where_select_many_or3();
+
+            Assert.StartsWith(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Customers] AS [c]
+CROSS JOIN [Employees] AS [e]
+WHERE [c].[City] IN ('London', 'Berlin', 'Seattle')",
+                Sql);
+        }
+
+        public override void Where_select_many_or4()
+        {
+            base.Where_select_many_or4();
+
+            Assert.StartsWith(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Customers] AS [c]
+CROSS JOIN [Employees] AS [e]
+WHERE [c].[City] IN ('London', 'Berlin', 'Seattle', 'Lisboa')",
+                Sql);
+        }
+
+        public override void Where_not_in_optimization1()
+        {
+            base.Where_not_in_optimization1();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Customers] AS [c]
+CROSS JOIN [Employees] AS [e]
+WHERE ([c].[City] <> 'London' AND [e].[City] <> 'London')",
+                Sql);
+        }
+
+        public override void Where_not_in_optimization2()
+        {
+            base.Where_not_in_optimization2();
+
+            Assert.StartsWith(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Customers] AS [c]
+CROSS JOIN [Employees] AS [e]
+WHERE [c].[City] NOT IN ('London', 'Berlin')",
+                Sql);
+        }
+
+        public override void Where_not_in_optimization3()
+        {
+            base.Where_not_in_optimization3();
+
+            Assert.StartsWith(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Customers] AS [c]
+CROSS JOIN [Employees] AS [e]
+WHERE [c].[City] NOT IN ('London', 'Berlin', 'Seattle')",
+                Sql);
+        }
+
+        public override void Where_not_in_optimization4()
+        {
+            base.Where_not_in_optimization4();
+
+            Assert.StartsWith(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Customers] AS [c]
+CROSS JOIN [Employees] AS [e]
+WHERE [c].[City] NOT IN ('London', 'Berlin', 'Seattle', 'Lisboa')",
                 Sql);
         }
 

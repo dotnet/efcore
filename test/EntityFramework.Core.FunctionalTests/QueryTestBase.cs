@@ -697,6 +697,78 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_select_many_or3()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City == "London"
+                      || c.City == "Berlin"
+                      || c.City == "Seattle"
+                select new { c, e });
+        }
+        
+        [Fact]
+        public virtual void Where_select_many_or4()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City == "London"
+                      || c.City == "Berlin"
+                      || c.City == "Seattle"
+                      || c.City == "Lisboa"
+                select new { c, e });
+        }
+
+        [Fact]
+        public virtual void Where_not_in_optimization1()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City != "London"
+                      && e.City != "London"
+                select new { c, e });
+        }
+
+        [Fact]
+        public virtual void Where_not_in_optimization2()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City != "London"
+                      && c.City != "Berlin"
+                select new { c, e });
+        }
+
+        [Fact]
+        public virtual void Where_not_in_optimization3()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City != "London"
+                      && c.City != "Berlin"
+                      && c.City != "Seattle"
+                select new { c, e });
+        }
+
+        [Fact]
+        public virtual void Where_not_in_optimization4()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City != "London"
+                      && c.City != "Berlin"
+                      && c.City != "Seattle"
+                      && c.City != "Lisboa"
+                select new { c, e });
+        }
+
+        [Fact]
         public virtual void Where_select_many_and()
         {
             AssertQuery<Customer, Employee>((cs, es) =>

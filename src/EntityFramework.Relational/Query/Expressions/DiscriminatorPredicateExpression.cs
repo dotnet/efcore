@@ -41,7 +41,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {
-            return this;
+            var newPredicate = visitor.VisitExpression(_predicate);
+
+            return _predicate != newPredicate
+                ? new DiscriminatorPredicateExpression(newPredicate, QuerySource)
+                : this;
         }
     }
 }
