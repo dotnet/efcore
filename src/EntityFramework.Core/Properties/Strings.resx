@@ -459,4 +459,7 @@
   <data name="ForeignKeyReferencedEntityKeyMismatch" xml:space="preserve">
     <value>The provided referenced entity key '{referencedKey}' is not a key on the entity type '{referencedEntityType}'.</value>
   </data>
+  <data name="NavigationToSelfDuplicate" xml:space="preserve">
+    <value>The navigation property '{navigation}' cannot be used for both ends of the relationship. Either specify it on the principal side or the dependent side.</value>
+  </data>
 </root>

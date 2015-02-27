@@ -188,8 +188,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .ForeignKey(e => e.Fk);
 
                 modelBuilder.Entity<WithStringFk>()
-                    .HasOne(e => e.Self)
-                    .WithOne()
+                    .HasOne<WithStringFk>()
+                    .WithOne(e => e.Self)
                     .ForeignKey<WithStringFk>(e => e.SelfFk);
 
                 modelBuilder.Entity<WithIntKey>()

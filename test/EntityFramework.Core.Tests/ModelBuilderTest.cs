@@ -6190,7 +6190,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Self_referencing_one_to_one_does_not_flip_implicitly()
+        public void OneToOne_self_referencing_principal_and_dependent_can_be_flipped()
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder
@@ -6217,9 +6217,75 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(fk.Properties, newFk.Properties);
             Assert.Equal(fk.ReferencedKey, newFk.ReferencedKey);
-            Assert.Equal(navigationToDependent.Name, newFk.GetNavigationToDependent().Name);
-            Assert.Equal(navigationToPrincipal.Name, newFk.GetNavigationToPrincipal().Name);
+            Assert.Equal(navigationToPrincipal.Name, newFk.GetNavigationToDependent().Name);
+            Assert.Equal(navigationToDependent.Name, newFk.GetNavigationToPrincipal().Name);
             Assert.True(((IForeignKey)newFk).IsRequired);
+        }
+
+        [Fact]
+        public void OneToOne_self_referencing_can_create_unidirectional_nav_to_principal()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<SelfRef>(eb =>
+                {
+                    eb.Key(e => e.Id);
+                    eb.Property(e => e.SelfRefId);
+                });
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(SelfRef));
+            var expectedProperties = entityType.Properties.ToList();
+
+            modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne();
+
+            var fk = entityType.ForeignKeys.Single();
+            var navigationToPrincipal = fk.GetNavigationToPrincipal();
+            var navigationToDependent = fk.GetNavigationToDependent();
+            
+            Assert.NotEqual(fk.Properties, entityType.GetPrimaryKey().Properties);
+            Assert.Equal(fk.ReferencedKey, entityType.GetPrimaryKey());
+            Assert.Equal(null, navigationToDependent?.Name);
+            Assert.Equal("SelfRef1", navigationToPrincipal?.Name);
+            Assert.Same(navigationToPrincipal, entityType.Navigations.Single());
+            AssertEqual(expectedProperties, entityType.Properties);
+            Assert.True(((IForeignKey)fk).IsRequired);
+        }
+
+        [Fact]
+        public void OneToOne_self_referencing_can_create_unidirectional_nav_to_dependent()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<SelfRef>(eb =>
+            {
+                eb.Key(e => e.Id);
+                eb.Property(e => e.SelfRefId);
+            });
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(SelfRef));
+            var expectedProperties = entityType.Properties.ToList();
+
+            modelBuilder.Entity<SelfRef>().HasOne<SelfRef>().WithOne(e => e.SelfRef1);
+
+            var fk = entityType.ForeignKeys.Single();
+            var navigationToPrincipal = fk.GetNavigationToPrincipal();
+            var navigationToDependent = fk.GetNavigationToDependent();
+
+            Assert.NotEqual(fk.Properties, entityType.GetPrimaryKey().Properties);
+            Assert.Equal(fk.ReferencedKey, entityType.GetPrimaryKey());
+            Assert.Equal("SelfRef1", navigationToDependent?.Name);
+            Assert.Equal(null, navigationToPrincipal?.Name);
+            Assert.Same(navigationToDependent, entityType.Navigations.Single());
+            AssertEqual(expectedProperties, entityType.Properties);
+            Assert.True(((IForeignKey)fk).IsRequired);
+        }
+
+        [Fact]
+        public void OneToOne_self_referencing_throws_on_duplicate_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(Strings.NavigationToSelfDuplicate("SelfRef1"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef1)).Message);
         }
 
         private class SelfRef

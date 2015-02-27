@@ -924,6 +924,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyReferencedEntityKeyMismatch", "referencedKey", "referencedEntityType"), referencedKey, referencedEntityType);
         }
 
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be used for both ends of the relationship. Either specify it on the principal side or the dependent side.
+        /// </summary>
+        public static string NavigationToSelfDuplicate([CanBeNull] object navigation)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationToSelfDuplicate", "navigation"), navigation);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

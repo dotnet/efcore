@@ -70,6 +70,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var hasChanged = navigationToPrincipalName != null &&
                              Metadata.GetNavigationToPrincipal()?.Name != navigationToPrincipalName;
 
+            if (Metadata.EntityType == Metadata.ReferencedEntityType
+                && navigationToPrincipalName != null
+                && navigationToPrincipalName == Metadata.GetNavigationToDependent()?.Name)
+            {
+                throw new InvalidOperationException(Strings.NavigationToSelfDuplicate(navigationToPrincipalName));
+            }
+
             return dependentEntityType
                 .Navigation(navigationToPrincipalName, Metadata, pointsToPrincipal: true, configurationSource: configurationSource)
                 ? hasChanged ? ReplaceForeignKey(configurationSource) : this
@@ -111,6 +118,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var hasChanged = navigationToDependentName != null &&
                              Metadata.GetNavigationToDependent()?.Name != navigationToDependentName;
+
+            if (Metadata.EntityType == Metadata.ReferencedEntityType
+                && navigationToDependentName != null
+                && navigationToDependentName == Metadata.GetNavigationToPrincipal()?.Name)
+            {
+                throw new InvalidOperationException(Strings.NavigationToSelfDuplicate(navigationToDependentName));
+            }
 
             return principalEntityType
                 .Navigation(navigationToDependentName, Metadata, pointsToPrincipal: false, configurationSource: configurationSource)

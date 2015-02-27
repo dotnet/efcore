@@ -44,7 +44,11 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
                     if (navigationPairCandidates.ContainsKey(targetEntityTypeBuilder))
                     {
-                        navigationPairCandidates[targetEntityTypeBuilder].Item1.Add(navigationPropertyInfo);
+                        if (entityType != targetEntityTypeBuilder.Metadata
+                            || !navigationPairCandidates[targetEntityTypeBuilder].Item2.Contains(navigationPropertyInfo))
+                        {
+                            navigationPairCandidates[targetEntityTypeBuilder].Item1.Add(navigationPropertyInfo);
+                        }
                         continue;
                     }
 
@@ -58,7 +62,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                         Type reverseEntityClrType;
                         if (!reversePropertyInfo.IsCandidateNavigationProperty(out reverseEntityClrType)
                             || !targetEntityTypeBuilder.CanAddNavigation(reversePropertyInfo.Name, ConfigurationSource.Convention)
-                            || entityType.Type != reverseEntityClrType)
+                            || entityType.Type != reverseEntityClrType
+                            || navigationPropertyInfo == reversePropertyInfo)
                         {
                             continue;
                         }
