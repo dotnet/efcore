@@ -32,8 +32,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public string H { get; set; }
         }
 
-        private class C : A { }
-        private class D : C { }
+        private class C : A
+        {
+        }
+
+        private class D : C
+        {
+        }
 
         [Fact]
         public void Circular_inheritance_should_throw()
@@ -60,8 +65,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 Assert.Throws<InvalidOperationException>(() => a.BaseType = b).Message);
 
             Assert.Equal(
-               Strings.CircularInheritance(a, d),
-               Assert.Throws<InvalidOperationException>(() => a.BaseType = d).Message);
+                Strings.CircularInheritance(a, d),
+                Assert.Throws<InvalidOperationException>(() => a.BaseType = d).Message);
         }
 
         [Fact]
@@ -132,17 +137,19 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.NotNull(key2);
             Assert.Same(key2, entityType.GetPrimaryKey());
             Assert.Same(key2, entityType.TryGetPrimaryKey());
-            Assert.Same(key2, entityType.Keys.Single());
+            Assert.Equal(2, entityType.Keys.Count);
+            Assert.Same(key1, entityType.GetKey(key1.Properties));
+            Assert.Same(key2, entityType.GetKey(key2.Properties));
 
             Assert.Null(entityType.SetPrimaryKey((Property)null));
 
             Assert.Null(entityType.TryGetPrimaryKey());
-            Assert.Empty(entityType.Keys);
+            Assert.Equal(2, entityType.Keys.Count);
 
             Assert.Null(entityType.SetPrimaryKey(new Property[0]));
 
             Assert.Null(entityType.TryGetPrimaryKey());
-            Assert.Empty(entityType.Keys);
+            Assert.Equal(2, entityType.Keys.Count);
 
             Assert.Equal(
                 Strings.EntityRequiresKey(typeof(Customer).FullName),
@@ -183,17 +190,19 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(key2, entityType.GetOrSetPrimaryKey(idProperty));
             Assert.Same(key2, entityType.GetPrimaryKey());
             Assert.Same(key2, entityType.TryGetPrimaryKey());
-            Assert.Same(key2, entityType.Keys.Single());
+            Assert.Equal(2, entityType.Keys.Count);
+            Assert.Same(key1, entityType.GetKey(key1.Properties));
+            Assert.Same(key2, entityType.GetKey(key2.Properties));
 
             Assert.Null(entityType.GetOrSetPrimaryKey((Property)null));
 
             Assert.Null(entityType.TryGetPrimaryKey());
-            Assert.Empty(entityType.Keys);
+            Assert.Equal(2, entityType.Keys.Count);
 
             Assert.Null(entityType.GetOrSetPrimaryKey(new Property[0]));
 
             Assert.Null(entityType.TryGetPrimaryKey());
-            Assert.Empty(entityType.Keys);
+            Assert.Equal(2, entityType.Keys.Count);
 
             Assert.Equal(
                 Strings.EntityRequiresKey(typeof(Customer).FullName),
@@ -201,37 +210,41 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Clearing_the_primary_throws_if_it_referenced_from_a_foreign_key_in_the_model()
+        public void Can_clear_the_primary_key_if_it_is_referenced_from_a_foreign_key()
         {
             var model = new Model();
-            var customerType = model.AddEntityType(typeof(Customer));
-            var customerPk = customerType.GetOrSetPrimaryKey(customerType.AddProperty(Customer.IdProperty));
+            var entityType = model.AddEntityType(typeof(Customer));
+            var idProperty = entityType.AddProperty(Customer.IdProperty);
+            var customerPk = entityType.GetOrSetPrimaryKey(idProperty);
 
             var orderType = model.AddEntityType(typeof(Order));
-            var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            orderType.GetOrAddForeignKey(customerFk, customerPk);
+            var fk = orderType.GetOrAddForeignKey(orderType.GetOrAddProperty(Order.CustomerIdProperty), customerPk);
 
-            Assert.Equal(
-                Strings.KeyInUse("{'" + Customer.IdProperty.Name + "'}", typeof(Customer).FullName, typeof(Order).FullName),
-                Assert.Throws<InvalidOperationException>(() => customerType.SetPrimaryKey((Property)null)).Message);
+            entityType.SetPrimaryKey((Property)null);
+
+            Assert.Equal(1, entityType.Keys.Count);
+            Assert.Same(customerPk, entityType.TryGetKey(idProperty));
+            Assert.Null(entityType.TryGetPrimaryKey());
+            Assert.Same(customerPk, fk.ReferencedKey);
         }
 
         [Fact]
-        public void Changing_the_primary_key_throws_if_it_referenced_from_a_foreign_key_in_the_model()
+        public void Can_change_the_primary_key_if_it_is_referenced_from_a_foreign_key()
         {
             var model = new Model();
-
-            var customerType = model.AddEntityType(typeof(Customer));
-            var customerPk = customerType.GetOrSetPrimaryKey(customerType.AddProperty(Customer.IdProperty));
+            var entityType = model.AddEntityType(typeof(Customer));
+            var idProperty = entityType.AddProperty(Customer.IdProperty);
+            var customerPk = entityType.GetOrSetPrimaryKey(idProperty);
 
             var orderType = model.AddEntityType(typeof(Order));
-            var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            orderType.GetOrAddForeignKey(customerFk, customerPk);
+            var fk = orderType.GetOrAddForeignKey(orderType.GetOrAddProperty(Order.CustomerIdProperty), customerPk);
 
-            Assert.Equal(
-                Strings.KeyInUse("{'" + Customer.IdProperty.Name + "'}", typeof(Customer).FullName, typeof(Order).FullName),
-                Assert.Throws<InvalidOperationException>(
-                    () => customerType.SetPrimaryKey(customerType.GetOrAddProperty(Customer.NameProperty))).Message);
+            entityType.SetPrimaryKey(entityType.GetOrAddProperty(Customer.NameProperty));
+
+            Assert.Equal(2, entityType.Keys.Count);
+            Assert.Same(customerPk, entityType.TryGetKey(idProperty));
+            Assert.NotSame(customerPk, entityType.GetPrimaryKey());
+            Assert.Same(customerPk, fk.ReferencedKey);
         }
 
         [Fact]
@@ -309,7 +322,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var key1 = entityType.GetOrSetPrimaryKey(new[] { idProperty, nameProperty });
             var key2 = entityType.GetOrAddKey(idProperty);
 
-            Assert.Equal(new[] { key1, key2 }, entityType.Keys.ToArray());
+            Assert.Equal(new[] { key2, key1 }, entityType.Keys.ToArray());
 
             Assert.Same(key1, entityType.RemoveKey(key1));
             Assert.Null(entityType.RemoveKey(key1));

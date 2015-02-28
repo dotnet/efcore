@@ -253,27 +253,7 @@ namespace Microsoft.Data.Entity.Metadata
             if (properties != null
                 && properties.Count != 0)
             {
-                key = TryGetKey(properties);
-
-                if (key != null)
-                {
-                    _keys.Value.Remove(properties);
-                }
-                else
-                {
-                    key = new Key(properties);
-                    if (key.EntityType != this)
-                    {
-                        throw new ArgumentException(
-                            Strings.KeyPropertiesWrongEntity(Property.Format(key.Properties), Name));
-                    }
-                }
-            }
-
-            if (_primaryKey != null
-                && _primaryKey != key)
-            {
-                CheckKeyNotInUse(_primaryKey);
+                key = GetOrAddKey(properties);
             }
 
             _primaryKey = key;
@@ -424,20 +404,17 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(key, nameof(key));
             ThrowIfDerivedEntity();
-
-            var primaryKey = TryGetPrimaryKey(key.Properties);
-            if (primaryKey != null)
-            {
-                SetPrimaryKey((IReadOnlyList<Property>)null);
-                return primaryKey;
-            }
-
+            
             Key removedKey;
             if (_keys.HasValue
                 && _keys.Value.TryGetValue(key.Properties, out removedKey))
             {
                 CheckKeyNotInUse(removedKey);
 
+                if (_primaryKey == removedKey)
+                {
+                    SetPrimaryKey((IReadOnlyList<Property>)null);
+                }
                 _keys.Value.Remove(key.Properties);
                 return removedKey;
             }
@@ -464,14 +441,7 @@ namespace Microsoft.Data.Entity.Metadata
                     return BaseType.Keys;
                 }
 
-                var keys = _primaryKey != null ? new List<Key> { _primaryKey } : new List<Key>();
-
-                if (_keys.HasValue)
-                {
-                    keys.AddRange(_keys.Value.Values);
-                }
-
-                return keys;
+                return _keys.Value.Values.ToList();
             }
         }
 
