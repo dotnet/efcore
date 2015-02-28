@@ -210,8 +210,8 @@
   <data name="MissingMigrationMetadata" xml:space="preserve">
     <value>'{migrationType}' does not implement IMigrationMetadata.</value>
   </data>
-  <data name="TargetMigrationNotFound" xml:space="preserve">
-    <value>The target migration '{targetMigrationName}' was not found.</value>
+  <data name="MigrationNotFound" xml:space="preserve">
+    <value>The migration '{migrationName}' was not found.</value>
   </data>
   <data name="UnknownOperation" xml:space="preserve">
     <value>The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.</value>

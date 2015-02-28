@@ -123,20 +123,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             }
             else
             {
-                if (!_idGenerator.IsValidId(targetMigration))
-                {
-                    var candidate = migrations.Where(m => _idGenerator.GetName(m.Id) == targetMigration)
-                        .Concat(migrations.Where(m => string.Equals(_idGenerator.GetName(m.Id), targetMigration, StringComparison.OrdinalIgnoreCase)))
-                        .Select(m => m.Id)
-                        .FirstOrDefault();
-                    if (candidate == null)
-                    {
-                        throw new InvalidOperationException(Strings.TargetMigrationNotFound(targetMigration));
-                    }
-
-                    targetMigration = candidate;
-                }
-
+                targetMigration = _idGenerator.ResolveId(targetMigration, migrations);
                 migrationsToApply = unappliedMigrations
                     .Where(m => string.Compare(m.Id, targetMigration, StringComparison.OrdinalIgnoreCase) <= 0);
                 migrationsToRevert = appliedMigrations
@@ -144,17 +131,26 @@ namespace Microsoft.Data.Entity.Relational.Migrations
                     .OrderByDescending(m => m.Id);
             }
 
+            bool first;
             var checkFirst = true;
             foreach (var migration in migrationsToApply)
             {
-                var first = false;
+                var batches = ApplyMigration(migration).ToList();
+
+                first = false;
                 if (checkFirst)
                 {
                     first = migration == migrations[0];
+                    if (first && !_historyRepository.Exists())
+                    {
+                        // TODO: Consider removing check above and always using "if not exists"
+                        batches.Insert(0, new SqlBatch(_historyRepository.Create(ifNotExists: false)));
+                    }
+
                     checkFirst = false;
                 }
 
-                Execute(ApplyMigration(migration, first), first);
+                Execute(batches, first);
             }
 
             foreach (var migration in migrationsToRevert)
@@ -166,22 +162,122 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         public virtual string ScriptMigrations(
             [CanBeNull] string fromMigrationName,
             [CanBeNull] string toMigrationName,
-            bool idempotent = false) =>
-                "-- TODO: Generate a script ;)";
+            bool idempotent = false)
+        {
+            var migrations = _migrationAssembly.Migrations;
 
-        protected virtual IReadOnlyList<SqlBatch> ApplyMigration([NotNull] Migration migration, bool first)
+            if (string.IsNullOrEmpty(fromMigrationName))
+            {
+                fromMigrationName = InitialDatabase;
+            }
+            else if (fromMigrationName != InitialDatabase)
+            {
+                fromMigrationName = _idGenerator.ResolveId(fromMigrationName, migrations);
+            }
+
+            if (string.IsNullOrEmpty(toMigrationName))
+            {
+                toMigrationName = migrations.Last().Id;
+            }
+            else if (toMigrationName != InitialDatabase)
+            {
+                toMigrationName = _idGenerator.ResolveId(toMigrationName, migrations);
+            }
+
+            var builder = new IndentedStringBuilder();
+
+            // If going up...
+            if (string.Compare(fromMigrationName, toMigrationName, StringComparison.OrdinalIgnoreCase) <= 0)
+            {
+                var migrationsToApply = migrations.Where(
+                    m => string.Compare(m.Id, fromMigrationName, StringComparison.OrdinalIgnoreCase) > 0
+                        && string.Compare(m.Id, toMigrationName, StringComparison.OrdinalIgnoreCase) <= 0);
+                var checkFirst = true;
+                foreach (var migration in migrationsToApply)
+                {
+                    if (checkFirst)
+                    {
+                        if (migration == migrations[0])
+                        {
+                            builder.AppendLine(_historyRepository.Create(ifNotExists: true));
+                            builder.AppendLine(_sqlGenerator.BatchSeparator);
+                            builder.AppendLine();
+                        }
+
+                        checkFirst = false;
+                    }
+
+                    foreach (var batch in ApplyMigration(migration))
+                    {
+                        if (idempotent)
+                        {
+                            builder.AppendLine(_historyRepository.BeginIfNotExists(migration.Id));
+                            using (builder.Indent())
+                            {
+                                var lines = batch.Sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                                foreach (var line in lines)
+                                {
+                                    builder.AppendLine(line);
+                                }
+                            }
+                            builder.AppendLine(_historyRepository.EndIf());
+                        }
+                        else
+                        {
+                            builder.Append(batch.Sql);
+                        }
+
+                        builder.AppendLine(_sqlGenerator.BatchSeparator);
+                        builder.AppendLine();
+                    }
+                }
+            }
+            else // If going down...
+            {
+                var migrationsToRevert = migrations
+                    .Where(
+                        m => string.Compare(m.Id, toMigrationName, StringComparison.OrdinalIgnoreCase) > 0
+                            && string.Compare(m.Id, fromMigrationName, StringComparison.OrdinalIgnoreCase) <= 0)
+                    .OrderByDescending(m => m.Id);
+                foreach (var migration in migrationsToRevert)
+                {
+                    foreach (var batch in RevertMigration(migration))
+                    {
+                        if (idempotent)
+                        {
+                            builder.AppendLine(_historyRepository.BeginIfExists(migration.Id));
+                            using (builder.Indent())
+                            {
+                                var lines = batch.Sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                                foreach (var line in lines)
+                                {
+                                    builder.AppendLine(line);
+                                }
+                            }
+                            builder.AppendLine(_historyRepository.EndIf());
+                        }
+                        else
+                        {
+                            builder.Append(batch.Sql);
+                        }
+
+                        builder.AppendLine(_sqlGenerator.BatchSeparator);
+                        builder.AppendLine();
+                    }
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        protected virtual IReadOnlyList<SqlBatch> ApplyMigration([NotNull] Migration migration)
         {
             Check.NotNull(migration, nameof(migration));
 
             var migrationBuilder = new MigrationBuilder();
             migration.Up(migrationBuilder);
+
             var operations = migrationBuilder.Operations.ToList();
-
-            if (first && !_historyRepository.Exists())
-            {
-                operations.Add(_historyRepository.GetCreateOperation());
-            }
-
             operations.Add(_historyRepository.GetInsertOperation(new HistoryRow(migration.Id, ProductVersion)));
 
             return _sqlGenerator.Generate(operations, migration.Target);
@@ -201,11 +297,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             return _sqlGenerator.Generate(operations);
         }
 
-        protected virtual void Execute([NotNull] IEnumerable<SqlBatch> sqlBatches, bool first = false)
+        protected virtual void Execute([NotNull] IEnumerable<SqlBatch> sqlBatches, bool ensureDatabase = false)
         {
             Check.NotNull(sqlBatches, nameof(sqlBatches));
 
-            if (first && !_dataStoreCreator.Exists())
+            if (ensureDatabase && !_dataStoreCreator.Exists())
             {
                 _dataStoreCreator.Create();
             }

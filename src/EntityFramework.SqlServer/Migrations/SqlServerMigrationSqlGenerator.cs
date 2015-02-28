@@ -141,6 +141,8 @@ namespace Microsoft.Data.Entity.SqlServer
         protected override string DelimitIdentifier(string identifier) => "[" + EscapeIdentifier(identifier) + "]";
         protected override string EscapeIdentifier(string identifier) => identifier.Replace("]", "]]");
 
+        public override string BatchSeparator => "GO";
+
         protected override void GenerateColumnTraits(ColumnModel column, SqlBatchBuilder builder)
         {
             Check.NotNull(column, nameof(column));

@@ -84,6 +84,7 @@
     <Compile Include="Migrations\Infrastructure\ContextTypeAttributeTest.cs" />
     <Compile Include="Metadata\RelationalMetadataExtensionsTest.cs" />
     <Compile Include="Metadata\SequenceTest.cs" />
+    <Compile Include="Migrations\Infrastructure\MigrationIdGeneratorTest.cs" />
     <Compile Include="Migrations\Infrastructure\ModelDifferTest.cs" />
     <Compile Include="Migrations\Sql\MigrationSqlGeneratorTest.cs" />
     <Compile Include="Migrations\Sql\MigrationSqlGeneratorTestBase.cs" />

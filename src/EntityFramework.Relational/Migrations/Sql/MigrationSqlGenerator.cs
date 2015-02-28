@@ -14,8 +14,8 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Relational.Migrations.Sql
 {
     // TODO: Review for SQL Server specific code
-    // TODO: Move Literal, DelimitIdentifier, etc.
-    public abstract class MigrationSqlGenerator: IMigrationSqlGenerator
+    // TODO: Move Literal, DelimitIdentifier, BatchSeparator, etc. #1559
+    public abstract class MigrationSqlGenerator : IMigrationSqlGenerator
     {
         private const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         private const string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ss.fffzzz";
@@ -502,6 +502,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             "\"" + EscapeIdentifier(identifier) + "\"";
 
         protected virtual string EscapeIdentifier([NotNull] string identifier) => identifier.Replace("\"", "\"\"");
+
+        public virtual string BatchSeparator => string.Empty;
 
         protected virtual void GenerateColumns(
             [NotNull] IReadOnlyList<ColumnModel> columns,

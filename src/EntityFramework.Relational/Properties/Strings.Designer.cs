@@ -261,11 +261,11 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The target migration '{targetMigrationName}' was not found.
+        /// The migration '{migrationName}' was not found.
         /// </summary>
-        public static string TargetMigrationNotFound([CanBeNull] object targetMigrationName)
+        public static string MigrationNotFound([CanBeNull] object migrationName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("TargetMigrationNotFound", "targetMigrationName"), targetMigrationName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("MigrationNotFound", "migrationName"), migrationName);
         }
 
         /// <summary>
