@@ -1244,8 +1244,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 os.GroupBy(o => o.CustomerID).Select(g => g.LongCount()));
         }
 
-        // TODO: #592
-        //[Fact]
+        [Fact]
         public virtual async Task GroupBy_Sum_Min_Max_Avg()
         {
             await AssertQuery<Order>(os =>
@@ -1259,8 +1258,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         }));
         }
 
-        // TODO: #592
-        //[Fact]
+        [Fact]
         public virtual async Task GroupBy_with_result_selector()
         {
             await AssertQuery<Order>(os =>
