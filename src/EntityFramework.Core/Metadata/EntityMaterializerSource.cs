@@ -20,12 +20,6 @@ namespace Microsoft.Data.Entity.Metadata
         private static readonly MethodInfo _isNull
             = typeof(IValueReader).GetTypeInfo().GetDeclaredMethods("IsNull").Single();
 
-        private readonly ThreadSafeDictionaryCache<Type, Func<IValueReader, object>> _cache
-            = new ThreadSafeDictionaryCache<Type, Func<IValueReader, object>>();
-
-        private static readonly ParameterExpression _readerParameter
-            = Expression.Parameter(typeof(IValueReader), "valueReader");
-
         private readonly MemberMapper _memberMapper;
 
         /// <summary>
@@ -42,23 +36,6 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(memberMapper, nameof(memberMapper));
 
             _memberMapper = memberMapper;
-        }
-
-        public virtual Func<IValueReader, object> GetMaterializer([NotNull] IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            if (!entityType.HasClrType)
-            {
-                throw new InvalidOperationException(Strings.NoClrType(entityType.Name));
-            }
-
-            return _cache.GetOrAdd(
-                entityType.Type, k =>
-                    Expression.Lambda<Func<IValueReader, object>>(
-                        CreateMaterializeExpression(entityType, _readerParameter),
-                        _readerParameter)
-                        .Compile());
         }
 
         public virtual Expression CreateReadValueExpression(

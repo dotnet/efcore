@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Internal;
+using System.Linq.Expressions;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -15,17 +15,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
     public class EntityMaterializerSourceTest
     {
         [Fact]
-        public void Throws_for_shadow_entity_type()
-        {
-            var entityType = new Model().AddEntityType("SomeEntity");
-
-            Assert.Equal(
-                Strings.NoClrType("SomeEntity"),
-                Assert.Throws<InvalidOperationException>(
-                    () => new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType)).Message);
-        }
-
-        [Fact]
         public void Delegate_from_entity_type_is_returned_if_it_implements_IEntityMaterializer()
         {
             var materializerMock = new Mock<IEntityMaterializer>();
@@ -34,7 +23,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             typeMock.SetupGet(et => et.HasClrType).Returns(true);
 
             var reader = Mock.Of<IValueReader>();
-            new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(typeMock.Object)(reader);
+            GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), typeMock.Object)(reader);
 
             materializerMock.Verify(m => m.CreateEntity(reader));
         }
@@ -49,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.GetOrAddProperty("Id", typeof(int));
             entityType.GetOrAddProperty("MaybeEnum", typeof(SomeEnum?));
 
-            var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntity)factory(new ObjectArrayValueReader(new object[] { 0, "Fu", gu, 77, 0 }));
@@ -71,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.GetOrAddProperty("Id", typeof(int));
             entityType.GetOrAddProperty("MaybeEnum", typeof(SomeEnum?));
 
-            var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntityWithFields)factory(new ObjectArrayValueReader(new object[] { 0, "Fu", gu, 77, null }));
@@ -99,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.GetOrAddProperty("Foo", typeof(string));
             entityType.GetOrAddProperty("Goo", typeof(Guid?));
 
-            var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
 
             var entity = (SomeEntity)factory(valueReaderMock.Object);
 
@@ -119,7 +108,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.GetOrAddProperty("Goo", typeof(Guid?));
             entityType.GetOrAddProperty("GooShadow", typeof(Guid), shadowProperty: true);
 
-            var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
+            var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
 
             var gu = Guid.NewGuid();
             var entity = (SomeEntity)factory(new ObjectArrayValueReader(new object[] { "Fu", "FuS", gu, Guid.NewGuid(), 77, 777 }));
@@ -127,6 +116,17 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
             Assert.Equal(gu, entity.Goo);
+        }
+
+        private static readonly ParameterExpression _readerParameter
+            = Expression.Parameter(typeof(IValueReader), "valueReader");
+
+        public virtual Func<IValueReader, object> GetMaterializer(EntityMaterializerSource source, IEntityType entityType)
+        {
+            return Expression.Lambda<Func<IValueReader, object>>(
+                source.CreateMaterializeExpression(entityType, _readerParameter),
+                _readerParameter)
+                .Compile();
         }
 
         private class SomeEntity

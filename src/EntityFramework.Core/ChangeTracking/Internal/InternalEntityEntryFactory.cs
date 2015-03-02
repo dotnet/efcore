@@ -39,12 +39,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual InternalEntityEntry Create(
             [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
-            [NotNull] IValueReader valueReader)
-            => NewInternalEntityEntry(stateManager, entityType, valueReader);
-
-        public virtual InternalEntityEntry Create(
-            [NotNull] StateManager stateManager,
-            [NotNull] IEntityType entityType,
             [NotNull] object entity,
             [NotNull] IValueReader valueReader)
             => NewInternalEntityEntry(stateManager, entityType, entity, valueReader);
@@ -60,20 +54,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             return entityType.ShadowPropertyCount > 0
                 ? (InternalEntityEntry)new InternalMixedEntityEntry(stateManager, entityType, _metadataServices, entity)
-                : new InternalClrEntityEntry(stateManager, entityType, _metadataServices, entity);
-        }
-
-        private InternalEntityEntry NewInternalEntityEntry(StateManager stateManager, IEntityType entityType, IValueReader valueReader)
-        {
-            if (!entityType.HasClrType)
-            {
-                return new InternalShadowEntityEntry(stateManager, entityType, _metadataServices, valueReader);
-            }
-
-            var entity = _materializerSource.GetMaterializer(entityType)(valueReader);
-
-            return entityType.ShadowPropertyCount > 0
-                ? (InternalEntityEntry)new InternalMixedEntityEntry(stateManager, entityType, _metadataServices, entity, valueReader)
                 : new InternalClrEntityEntry(stateManager, entityType, _metadataServices, entity);
         }
 

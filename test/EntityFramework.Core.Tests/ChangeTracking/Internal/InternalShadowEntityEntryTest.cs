@@ -16,7 +16,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
-            var entry = CreateInternalEntry(configuration, model.GetEntityType(typeof(SomeEntity).FullName), (object)null);
+            var entry = CreateInternalEntry(
+                 configuration,
+                 model.GetEntityType(typeof(SomeEntity).FullName),
+                 null,
+                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
             Assert.Null(entry.Entity);
         }
