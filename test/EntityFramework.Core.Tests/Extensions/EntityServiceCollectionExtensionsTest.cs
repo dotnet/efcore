@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<IDataStoreSelector>();
             VerifyScoped<IDataStore>();
             VerifyScoped<IDataStoreConnection>();
-            VerifyScoped<Database>();
+            VerifyScoped<IDatabaseFactory>();
             VerifyScoped<IValueGeneratorSelector>();
             VerifyScoped<IDataStoreCreator>();
 
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.NotNull(VerifyScoped<IDbContextOptions>());
             Assert.NotNull(VerifyScoped<IDataStore>());
             Assert.NotNull(VerifyScoped<IDataStoreConnection>());
-            Assert.NotNull(VerifyScoped<Database>());
+            Assert.NotNull(VerifyScoped<IDatabaseFactory>());
             Assert.NotNull(VerifyScoped<IValueGeneratorSelector>());
             Assert.NotNull(VerifyScoped<IDataStoreCreator>());
             Assert.NotNull(VerifySingleton<IModelBuilderFactory>());

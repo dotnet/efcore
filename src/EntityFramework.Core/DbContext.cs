@@ -49,6 +49,7 @@ namespace Microsoft.Data.Entity
         private LazyRef<DbContextServices> _contextServices;
         private LazyRef<ILogger> _logger;
         private LazyRef<DbSetInitializer> _setInitializer;
+        private LazyRef<Database> _database;
 
         private bool _initializing;
 
@@ -144,6 +145,7 @@ namespace Microsoft.Data.Entity
             _contextServices = new LazyRef<DbContextServices>(() => InitializeServices(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
             _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
+            _database = new LazyRef<Database>(GetDatabase);
         }
 
         private DbContextOptions GetOptions(IServiceProvider serviceProvider)
@@ -190,6 +192,8 @@ namespace Microsoft.Data.Entity
         private ChangeDetector GetChangeDetector() => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<ChangeDetector>();
 
         private StateManager GetStateManager() => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<StateManager>();
+
+        private Database GetDatabase() => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<IDatabaseFactory>().CreateDatabase();
 
         private DbContextServices InitializeServices(IServiceProvider serviceProvider, DbContextOptions options)
         {
@@ -778,7 +782,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     Provides access to database related information and operations for this context.
         /// </summary>
-        public virtual Database Database => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<Database>();
+        public virtual Database Database => _database.Value;
 
         /// <summary>
         ///     Provides access to information and operations for entity instances this context is tracking.

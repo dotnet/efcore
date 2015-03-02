@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Storage
         IDataStoreCreator Creator { get; }
         IDataStoreConnection Connection { get; }
         IValueGeneratorSelector ValueGeneratorSelector { get; }
-        Database Database { get; }
+        IDatabaseFactory DatabaseFactory { get; }
         IModelBuilderFactory ModelBuilderFactory { get; }
         IModelSource ModelSource { get; }
         IQueryContextFactory QueryContextFactory { get; }

@@ -40,7 +40,7 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddScoped<ISqlServerDataStore, SqlServerDataStore>()
                     .AddScoped<ISqlServerConnection, SqlServerConnection>()
                     .AddScoped<ISqlServerModelDiffer, SqlServerModelDiffer>()
-                    .AddScoped<SqlServerDatabase>()
+                    .AddScoped<ISqlServerDatabaseFactory, SqlServerDatabaseFactory>()
                     .AddScoped<ISqlServerMigrationSqlGenerator, SqlServerMigrationSqlGenerator>()
                     .AddScoped<ISqlServerDataStoreCreator, SqlServerDataStoreCreator>()
                     .AddScoped<ISqlServerHistoryRepository, SqlServerHistoryRepository>());

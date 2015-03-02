@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifyScoped<ISqlServerDataStore>();
             VerifyScoped<ISqlServerConnection>();
             VerifyScoped<ISqlServerModelDiffer>();
-            VerifyScoped<SqlServerDatabase>();
+            VerifyScoped<ISqlServerDatabaseFactory>();
             VerifyScoped<ISqlServerMigrationSqlGenerator>();
             VerifyScoped<ISqlServerDataStoreCreator>();
             VerifyScoped<ISqlServerHistoryRepository>();

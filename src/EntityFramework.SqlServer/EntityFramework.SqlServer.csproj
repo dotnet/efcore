@@ -67,6 +67,7 @@
     </Compile>
     <Compile Include="Extensions\SqlServerDbContextOptions.cs" />
     <Compile Include="ISqlServerConnection.cs" />
+    <Compile Include="ISqlServerDatabaseFactory.cs" />
     <Compile Include="ISqlServerDataStore.cs" />
     <Compile Include="ISqlServerDataStoreCreator.cs" />
     <Compile Include="ISqlServerDataStoreServices.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="SqlServerBuilderExtensions.cs" />
     <Compile Include="SqlServerDatabase.cs" />
     <Compile Include="SqlServerDatabaseExtensions.cs" />
+    <Compile Include="SqlServerDatabaseFactory.cs" />
     <Compile Include="SqlServerMetadataExtensions.cs" />
     <Compile Include="SqlServerModelBuilderFactory.cs" />
     <Compile Include="Migrations\SqlServerModelDiffer.cs" />

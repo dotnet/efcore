@@ -126,7 +126,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped(DataStoreServiceFactories.DataStoreFactory)
                 .AddScoped(DataStoreServiceFactories.QueryContextFactoryFactory)
                 .AddScoped(DataStoreServiceFactories.ConnectionFactory)
-                .AddScoped(DataStoreServiceFactories.DatabaseFactory)
+                .AddScoped(DataStoreServiceFactories.DatabaseFactoryFactory)
                 .AddScoped(DataStoreServiceFactories.ValueGeneratorSelectorFactory)
                 .AddScoped(DataStoreServiceFactories.DataStoreCreatorFactory)
                 .AddScoped(DataStoreServiceFactories.ModelBuilderFactoryFactory)

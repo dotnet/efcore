@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         public static Func<IServiceProvider, IQueryContextFactory> QueryContextFactoryFactory => p => GetStoreServices(p).QueryContextFactory;
 
-        public static Func<IServiceProvider, Database> DatabaseFactory => p => GetStoreServices(p).Database;
+        public static Func<IServiceProvider, IDatabaseFactory> DatabaseFactoryFactory => p => GetStoreServices(p).DatabaseFactory;
 
         public static Func<IServiceProvider, IDataStoreCreator> DataStoreCreatorFactory => p => GetStoreServices(p).Creator;
 

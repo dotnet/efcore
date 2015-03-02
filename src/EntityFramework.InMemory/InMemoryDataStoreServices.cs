@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.InMemory
 
         public virtual IValueGeneratorSelector ValueGeneratorSelector => _serviceProvider.GetRequiredService<IInMemoryValueGeneratorSelector>();
 
-        public virtual Database Database => _serviceProvider.GetRequiredService<InMemoryDatabaseFacade>();
+        public virtual IDatabaseFactory DatabaseFactory => _serviceProvider.GetRequiredService<IInMemoryDatabaseFactory>();
 
         public virtual IModelBuilderFactory ModelBuilderFactory => _serviceProvider.GetRequiredService<IInMemoryModelBuilderFactory>();
 

@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public virtual IValueGeneratorSelector ValueGeneratorSelector => _serviceProvider.GetRequiredService<ISqlServerValueGeneratorSelector>();
 
-        public virtual Database Database => _serviceProvider.GetRequiredService<SqlServerDatabase>();
+        public virtual IDatabaseFactory DatabaseFactory => _serviceProvider.GetRequiredService<ISqlServerDatabaseFactory>();
 
         public virtual IModelBuilderFactory ModelBuilderFactory => _serviceProvider.GetRequiredService<ISqlServerModelBuilderFactory>();
 

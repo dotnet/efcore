@@ -29,7 +29,7 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddScoped<IInMemoryQueryContextFactory, InMemoryQueryContextFactory>()
                     .AddScoped<IInMemoryValueGeneratorSelector, InMemoryValueGeneratorSelector>()
                     .AddScoped<IInMemoryDataStoreServices, InMemoryDataStoreServices>()
-                    .AddScoped<InMemoryDatabaseFacade>()
+                    .AddScoped<IInMemoryDatabaseFactory, InMemoryDatabaseFactory>()
                     .AddScoped<IInMemoryDataStore, InMemoryDataStore>()
                     .AddScoped<IInMemoryConnection, InMemoryConnection>()
                     .AddScoped<IInMemoryDataStoreCreator, InMemoryDataStoreCreator>());
