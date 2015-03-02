@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Storage
             _options = options;
         }
 
-        public virtual IDataStoreServices StoreServices => _services.ServiceProvider.GetRequiredServiceChecked<TStoreServices>();
+        public virtual IDataStoreServices StoreServices => _services.ServiceProvider.GetRequiredService<TStoreServices>();
 
         public virtual bool IsConfigured => _options.Extensions.OfType<TOptionsExtension>().Any();
 

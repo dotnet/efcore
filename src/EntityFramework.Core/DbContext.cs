@@ -157,26 +157,26 @@ namespace Microsoft.Data.Entity
 
             var genericOptions = _optionsTypes.GetOrAdd(GetType(), t => typeof(DbContextOptions<>).MakeGenericType(t));
 
-            var optionsAccessor = (IOptions<DbContextOptions>)serviceProvider.TryGetService(
+            var optionsAccessor = (IOptions<DbContextOptions>)serviceProvider.GetService(
                 typeof(IOptions<>).MakeGenericType(genericOptions));
             if (optionsAccessor != null)
             {
                 return optionsAccessor.Options;
             }
 
-            optionsAccessor = serviceProvider.TryGetService<IOptions<DbContextOptions>>();
+            optionsAccessor = serviceProvider.GetService<IOptions<DbContextOptions>>();
             if (optionsAccessor != null)
             {
                 return optionsAccessor.Options;
             }
 
-            var options = (DbContextOptions)serviceProvider.TryGetService(genericOptions);
+            var options = (DbContextOptions)serviceProvider.GetService(genericOptions);
             if (options != null)
             {
                 return options;
             }
 
-            options = serviceProvider.TryGetService<DbContextOptions>();
+            options = serviceProvider.GetService<DbContextOptions>();
             if (options != null)
             {
                 return options;
@@ -185,15 +185,15 @@ namespace Microsoft.Data.Entity
             return new DbContextOptions();
         }
 
-        private ILogger CreateLogger() => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<ILoggerFactory>().Create<DbContext>();
+        private ILogger CreateLogger() => _contextServices.Value.ServiceProvider.GetRequiredService<ILoggerFactory>().Create<DbContext>();
 
-        private DbSetInitializer GetSetInitializer() => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<DbSetInitializer>();
+        private DbSetInitializer GetSetInitializer() => _contextServices.Value.ServiceProvider.GetRequiredService<DbSetInitializer>();
 
-        private ChangeDetector GetChangeDetector() => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<ChangeDetector>();
+        private ChangeDetector GetChangeDetector() => _contextServices.Value.ServiceProvider.GetRequiredService<ChangeDetector>();
 
-        private StateManager GetStateManager() => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<StateManager>();
+        private StateManager GetStateManager() => _contextServices.Value.ServiceProvider.GetRequiredService<StateManager>();
 
-        private Database GetDatabase() => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<IDatabaseFactory>().CreateDatabase();
+        private Database GetDatabase() => _contextServices.Value.ServiceProvider.GetRequiredService<IDatabaseFactory>().CreateDatabase();
 
         private DbContextServices InitializeServices(IServiceProvider serviceProvider, DbContextOptions options)
         {
@@ -217,12 +217,12 @@ namespace Microsoft.Data.Entity
                 serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
                 var scopedServiceProvider = serviceProvider
-                    .GetRequiredServiceChecked<IServiceScopeFactory>()
+                    .GetRequiredService<IServiceScopeFactory>()
                     .CreateScope()
                     .ServiceProvider;
 
                 return scopedServiceProvider
-                    .GetRequiredServiceChecked<DbContextServices>()
+                    .GetRequiredService<DbContextServices>()
                     .Initialize(scopedServiceProvider, options, this, providerSource);
             }
             finally
@@ -235,7 +235,7 @@ namespace Microsoft.Data.Entity
         {
             serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
-            serviceProvider.GetRequiredServiceChecked<DbSetInitializer>().InitializeSets(this);
+            serviceProvider.GetRequiredService<DbSetInitializer>().InitializeSets(this);
         }
 
         /// <summary>
@@ -788,12 +788,12 @@ namespace Microsoft.Data.Entity
         ///     Provides access to information and operations for entity instances this context is tracking.
         /// </summary>
         public virtual ChangeTracker ChangeTracker
-            => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<ChangeTracker>();
+            => _contextServices.Value.ServiceProvider.GetRequiredService<ChangeTracker>();
 
         /// <summary>
         ///     The metadata about the shape of entities and relationships between them.
         /// </summary>
-        public virtual IModel Model => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<IModel>();
+        public virtual IModel Model => _contextServices.Value.ServiceProvider.GetRequiredService<IModel>();
 
         /// <summary>
         ///     Creates a set to perform operations for a given entity type in the model. LINQ queries against

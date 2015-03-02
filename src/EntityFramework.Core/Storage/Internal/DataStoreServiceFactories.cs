@@ -28,6 +28,6 @@ namespace Microsoft.Data.Entity.Storage.Internal
         public static Func<IServiceProvider, IModelBuilderFactory> ModelBuilderFactoryFactory => p => GetStoreServices(p).ModelBuilderFactory;
 
         private static IDataStoreServices GetStoreServices(IServiceProvider serviceProvider)
-            => serviceProvider.GetRequiredServiceChecked<DbContextServices>().DataStoreServices;
+            => serviceProvider.GetRequiredService<DbContextServices>().DataStoreServices;
     }
 }

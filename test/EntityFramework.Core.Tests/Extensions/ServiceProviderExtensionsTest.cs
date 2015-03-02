@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests
             var serviceProvider = new ServiceCollection().BuildServiceProvider();
 
             Assert.Throws<InvalidOperationException>(
-                () => serviceProvider.GetRequiredServiceChecked<IPilkington>());
+                () => serviceProvider.GetRequiredService<IPilkington>());
         }
 
         [Fact]
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Tests
             var serviceProvider = new ServiceCollection().BuildServiceProvider();
 
             Assert.Throws<InvalidOperationException>(
-                () => serviceProvider.GetRequiredServiceChecked(typeof(IPilkington)));
+                () => serviceProvider.GetRequiredService(typeof(IPilkington)));
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 KarlQuote,
                 Assert.Throws<NotSupportedException>(
-                    () => serviceProvider.GetRequiredServiceChecked<IPilkington>()).Message);
+                    () => serviceProvider.GetRequiredService<IPilkington>()).Message);
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 KarlQuote,
                 Assert.Throws<NotSupportedException>(
-                    () => serviceProvider.GetRequiredServiceChecked(typeof(IPilkington))).Message);
+                    () => serviceProvider.GetRequiredService(typeof(IPilkington))).Message);
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceProvider = new ServiceCollection().BuildServiceProvider();
 
-            Assert.Null(serviceProvider.TryGetService<IPilkington>());
+            Assert.Null(serviceProvider.GetService<IPilkington>());
         }
 
         [Fact]
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceProvider = new ServiceCollection().BuildServiceProvider();
 
-            Assert.Null(serviceProvider.TryGetService(typeof(IPilkington)));
+            Assert.Null(serviceProvider.GetService(typeof(IPilkington)));
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 KarlQuote,
                 Assert.Throws<NotSupportedException>(
-                    () => serviceProvider.TryGetService<IPilkington>()).Message);
+                    () => serviceProvider.GetService<IPilkington>()).Message);
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 KarlQuote,
                 Assert.Throws<NotSupportedException>(
-                    () => serviceProvider.TryGetService(typeof(IPilkington))).Message);
+                    () => serviceProvider.GetService(typeof(IPilkington))).Message);
         }
 
         private const string KarlQuote = "You can only talk rubbish if you're aware of knowledge.";

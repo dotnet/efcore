@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             Check.NotNull(serviceProvider, nameof(serviceProvider));
 
-            var typeActivator = serviceProvider.GetRequiredServiceChecked<ITypeActivator>();
+            var typeActivator = serviceProvider.GetRequiredService<ITypeActivator>();
 
             try
             {

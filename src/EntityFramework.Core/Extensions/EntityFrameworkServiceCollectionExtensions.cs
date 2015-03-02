@@ -180,7 +180,7 @@ namespace Microsoft.Framework.DependencyInjection
             var serviceCollection = ((IAccessor<IServiceCollection>)builder).Service;
 
             serviceCollection.AddSingleton(
-                sp => sp.GetRequiredServiceChecked<IOptions<DbContextOptions<TContext>>>().Options);
+                sp => sp.GetRequiredService<IOptions<DbContextOptions<TContext>>>().Options);
 
             var configuration = ((IAccessor<IConfiguration>)builder).Service;
             if (configuration != null)

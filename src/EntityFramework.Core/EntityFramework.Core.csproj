@@ -312,7 +312,6 @@
     <Compile Include="Utilities\Multigraph.cs" />
     <Compile Include="Utilities\PropertyInfoExtensions.cs" />
     <Compile Include="Utilities\ReferenceEqualityComparer.cs" />
-    <Compile Include="Utilities\ServiceProviderExtensions.cs" />
     <Compile Include="Utilities\ThreadSafeDictionaryCache.cs" />
     <Compile Include="Utilities\ThreadSafeLazyRef.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />
