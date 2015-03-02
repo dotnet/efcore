@@ -74,6 +74,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var discriminatorProperty
                 = animal.AddProperty("Discriminator", typeof(string), shadowProperty: true);
 
+            discriminatorProperty.IsReadOnly = true;
+
             animal.Relational().DiscriminatorProperty = discriminatorProperty;
         }
     }

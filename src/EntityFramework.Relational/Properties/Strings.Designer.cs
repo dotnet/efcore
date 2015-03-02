@@ -316,6 +316,14 @@ namespace Microsoft.Data.Entity.Relational
             return string.Format(CultureInfo.CurrentCulture, GetString("DiscriminatorPropertyNotFound", "property", "entityType"), property, entityType);
         }
 
+        /// <summary>
+        /// Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not marked read only.
+        /// </summary>
+        public static string DiscriminatorNotReadOnly([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DiscriminatorNotReadOnly", "property", "entityType"), property, entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

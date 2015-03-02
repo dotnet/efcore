@@ -231,4 +231,7 @@
   <data name="DiscriminatorPropertyNotFound" xml:space="preserve">
     <value>Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.</value>
   </data>
+  <data name="DiscriminatorNotReadOnly" xml:space="preserve">
+    <value>Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not marked read only.</value>
+  </data>
 </root>
