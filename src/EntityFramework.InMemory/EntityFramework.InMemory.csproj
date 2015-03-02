@@ -104,6 +104,7 @@
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
+    <Compile Include="Query\MaterializerFactory.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.InMemory.Strings.resources</LogicalName>
       <SubType>Designer</SubType>
