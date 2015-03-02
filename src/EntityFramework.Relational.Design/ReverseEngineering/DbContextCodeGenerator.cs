@@ -397,6 +397,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 facetsConfig.Add(columnTypeFacetConfig);
             }
 
+            var defaultValueFacetConfig = GenerateDefaultValueFacetConfiguration(property);
+            if (defaultValueFacetConfig != null)
+            {
+                facetsConfig.Add(defaultValueFacetConfig);
+            }
+
             return facetsConfig;
         }
 
@@ -460,6 +466,22 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 return string.Format(CultureInfo.InvariantCulture,
                     ".ColumnType({0})",
                     CSharpUtilities.Instance.DelimitString(property.Relational().ColumnType));
+            }
+
+            return null;
+        }
+
+        public virtual string GenerateDefaultValueFacetConfiguration([NotNull] IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            // output columnType if decimal or datetime2 to define precision and scale
+            if (property.Relational().DefaultValue != null)
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    ".DefaultValue({0})",
+                    CSharpUtilities.Instance.GenerateLiteralForUnknownType(
+                        property.Relational().DefaultValue));
             }
 
             return null;

@@ -157,6 +157,11 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             return value.ToString(CultureInfo.InvariantCulture) + "f";
         }
 
+        public virtual string GenerateLiteral(double value)
+        {
+            return value.ToString(CultureInfo.InvariantCulture) + "D";
+        }
+
         public virtual string GenerateLiteral(TimeSpan value)
         {
             return "new TimeSpan(" + value.Ticks + ")";
@@ -193,13 +198,21 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             return "@\"" + EscapeVerbatimString(value) + "\"";
         }
 
-        public virtual string GenerateLiteral([NotNull] object value)
+        public virtual string GenerateLiteralForUnknownType([NotNull] object value)
         {
             Check.NotNull(value, nameof(value));
 
             if (value.GetType().GetTypeInfo().IsEnum)
             {
                 return Enum.Format(value.GetType(), value, "D");
+            }
+
+            var generateLiteralMethodInfo =
+                typeof(CSharpUtilities)
+                    .GetRuntimeMethod("GenerateLiteral", new Type[] { value.GetType() });
+            if (generateLiteralMethodInfo != null)
+            {
+                return (string)generateLiteralMethodInfo.Invoke(this, new object[] { value });
             }
 
             return string.Format(CultureInfo.InvariantCulture, "{0}", value);
