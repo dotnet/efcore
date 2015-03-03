@@ -162,13 +162,21 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            var operand = VisitExpression(methodCallExpression.Object);
+            bool isBooleanEquals = methodCallExpression.Method.Name == "Equals" 
+                && methodCallExpression.Object.Type == typeof(bool);
+
+            var operand = isBooleanEquals 
+                ? VisitBooleanEqualsArgument(methodCallExpression.Object) 
+                : VisitExpression(methodCallExpression.Object);
 
             if (operand != null)
             {
-                var arguments
-                    = methodCallExpression.Arguments
-                        .Select(VisitExpression)
+                var argumentVisitMethod = isBooleanEquals 
+                    ? (Func<Expression, Expression>)VisitBooleanEqualsArgument 
+                    : VisitExpression;
+
+                var arguments = methodCallExpression.Arguments
+                        .Select(argumentVisitMethod)
                         .Where(e => e != null)
                         .ToArray();
 
@@ -217,10 +225,45 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return null;
         }
 
+        private Expression VisitBooleanEqualsArgument([NotNull] Expression expression)
+        {
+            var memberExpression = expression as MemberExpression;
+            if (memberExpression != null)
+            {
+                var columnExpression = BindMemberExpression(memberExpression);
+                if (columnExpression != null)
+                {
+                    return columnExpression;
+                }
+
+                _requiresClientEval = true;
+
+                return null;
+            }
+
+            return VisitExpression(expression);
+        }
+
         protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
 
+            var columnExpression = BindMemberExpression(memberExpression);
+            if (columnExpression != null)
+            {
+                return !_inBinaryEqualityExpression
+                       && columnExpression.Type == typeof(bool)
+                    ? Expression.Equal(columnExpression, Expression.Constant(true))
+                    : columnExpression;
+            }
+
+            _requiresClientEval = true;
+
+            return null;
+        }
+
+        private Expression BindMemberExpression(MemberExpression memberExpression)
+        {
             var columnExpression
                 = _queryModelVisitor
                     .BindMemberExpression(
@@ -232,17 +275,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 property,
                                 selectExpression.FindTableForQuerySource(querySource)));
 
-            if (columnExpression != null)
-            {
-                return !_inBinaryEqualityExpression
-                       && columnExpression.Type == typeof(bool)
-                    ? (Expression)Expression.Equal(columnExpression, Expression.Constant(true))
-                    : columnExpression;
-            }
-
-            _requiresClientEval = true;
-
-            return null;
+            return columnExpression;
         }
 
         protected override Expression VisitUnaryExpression([NotNull] UnaryExpression expression)

@@ -120,5 +120,45 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(2, result.Single().CityOfBirth.StationedGears.Count);
             }
         }
+
+        [Fact]
+        public virtual void Where_Equals_method_property_constant()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Cities.Where(c => c.IsCapital.Equals(true));
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+                Assert.Equal("Ephyra", result.Single().Name);
+            }
+        }
+
+        [Fact]
+        public virtual void Where_not_Equals_method_parameter_property()
+        {
+            using (var context = CreateContext())
+            {
+                var prm = true;
+                var query = context.Cities.Where(c => !prm.Equals(c.IsCapital));
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+                Assert.False(result.Select(c => c.Name).Contains("Ephyra"));
+            }
+        }
+
+        [Fact]
+        public virtual void Where_Equals_method_property_property()
+        {
+            using (var context = CreateContext())
+            {
+                var prm = true;
+                var query = context.Cities.Where(c => c.IsCapital.Equals(c.IsCapital));
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+            }
+        }
     }
 }
