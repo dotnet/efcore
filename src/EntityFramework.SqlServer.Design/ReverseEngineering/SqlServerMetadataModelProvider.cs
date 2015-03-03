@@ -493,34 +493,18 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 property.Relational().Column = tableColumn.ColumnName;
             }
 
-            string columnType = tableColumn.DataType;
-            if (tableColumn.MaxLength.HasValue && !DataTypesForMaxLengthNotAllowed.Contains(tableColumn.DataType))
-            {
-                if (tableColumn.MaxLength > 0)
-                {
-                    property.MaxLength = tableColumn.MaxLength;
-                }
-
-                if (DataTypesForMax.Contains(columnType) && tableColumn.MaxLength == -1)
-                {
-                    columnType += "(max)";
-                }
-                else
-                {
-                    columnType += "(" + tableColumn.MaxLength + ")";
-                }
-            }
-            else if (DataTypesForNumericPrecisionAndScale.Contains(tableColumn.DataType))
+            string columnType = null;
+            if (DataTypesForNumericPrecisionAndScale.Contains(tableColumn.DataType))
             {
                 if (tableColumn.NumericPrecision.HasValue)
                 {
                     if (tableColumn.Scale.HasValue)
                     {
-                        columnType += "(" + tableColumn.NumericPrecision.Value + ", " + tableColumn.Scale.Value + ")";
+                        columnType = tableColumn.DataType + "(" + tableColumn.NumericPrecision.Value + ", " + tableColumn.Scale.Value + ")";
                     }
                     else
                     {
-                        columnType += "(" + tableColumn.NumericPrecision.Value + ")";
+                        columnType = tableColumn.DataType + "(" + tableColumn.NumericPrecision.Value + ")";
                     }
                 }
             }
@@ -530,16 +514,19 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 {
                     if (tableColumn.Scale.HasValue)
                     {
-                        columnType += "(" + tableColumn.DateTimePrecision.Value + ", " + tableColumn.Scale.Value + ")";
+                        columnType = tableColumn.DataType + "(" + tableColumn.DateTimePrecision.Value + ", " + tableColumn.Scale.Value + ")";
                     }
                     else
                     {
-                        columnType += "(" + tableColumn.DateTimePrecision.Value + ")";
+                        columnType = tableColumn.DataType + "(" + tableColumn.DateTimePrecision.Value + ")";
                     }
                 }
             }
 
-            property.Relational().ColumnType = columnType;
+            if (columnType != null)
+            {
+                property.Relational().ColumnType = columnType;
+            }
 
             if (tableColumn.IsIdentity)
             {
