@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             return entityBuilder;
         }
 
-        protected virtual IReadOnlyList<Property> DiscoverKeyProperties([NotNull] EntityType entityType)
+        public virtual IReadOnlyList<Property> DiscoverKeyProperties([NotNull] EntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
