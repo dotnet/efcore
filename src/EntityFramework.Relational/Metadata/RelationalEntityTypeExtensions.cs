@@ -50,13 +50,19 @@ namespace Microsoft.Data.Entity.Relational.Metadata
                     if (EntityType != EntityType.RootType)
                     {
                         throw new InvalidOperationException(
-                            Strings.DiscriminatorPropertyMustBeOnRoot(EntityType));
+                            Strings.DiscriminatorPropertyMustBeOnRoot(EntityType.SimpleName));
                     }
 
                     if (value.EntityType != EntityType)
                     {
                         throw new InvalidOperationException(
-                            Strings.DiscriminatorPropertyNotFound(value, EntityType));
+                            Strings.DiscriminatorPropertyNotFound(value.Name, EntityType.SimpleName));
+                    }
+
+                    if (!value.IsReadOnly)
+                    {
+                        throw new InvalidOperationException(
+                            Strings.DiscriminatorNotReadOnly(value.Name, EntityType.SimpleName));
                     }
 
                     EntityType[DiscriminatorPropertyAnnotation] = value.Name;
