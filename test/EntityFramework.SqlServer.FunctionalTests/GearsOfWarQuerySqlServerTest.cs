@@ -133,6 +133,39 @@ ORDER BY [c].[Name]",
                 Sql);
         }
 
+        public override void Where_Equals_method_property_constant()
+        {
+            base.Where_Equals_method_property_constant();
+
+            Assert.Equal(
+@"SELECT [c].[IsCapital], [c].[Location], [c].[Name]
+FROM [City] AS [c]
+WHERE [c].[IsCapital] = 1", 
+                Sql);
+        }
+
+        public override void Where_not_Equals_method_parameter_property()
+        {
+            base.Where_not_Equals_method_parameter_property();
+
+            Assert.Equal(
+@"SELECT [c].[IsCapital], [c].[Location], [c].[Name]
+FROM [City] AS [c]
+WHERE NOT @__prm_0 = [c].[IsCapital]",
+                Sql);
+        }
+
+        public override void Where_Equals_method_property_property()
+        {
+            base.Where_Equals_method_property_property();
+
+            Assert.Equal(
+@"SELECT [c].[IsCapital], [c].[Location], [c].[Name]
+FROM [City] AS [c]
+WHERE [c].[IsCapital] = [c].[IsCapital]",
+                Sql);
+        }
+
         private static string Sql
         {
             get { return TestSqlLoggerFactory.Sql; }
