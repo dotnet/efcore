@@ -14,28 +14,23 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private readonly ISqlServerValueGeneratorCache _cache;
         private readonly SqlServerSequenceValueGeneratorFactory _sequenceFactory;
-        private readonly ValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory;
+
+        private readonly ValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory 
+            = new ValueGeneratorFactory<SequentialGuidValueGenerator>();
+
         private readonly ISqlServerConnection _connection;
 
         public SqlServerValueGeneratorSelector(
             [NotNull] ISqlServerValueGeneratorCache cache,
-            [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory,
-            [NotNull] TemporaryIntegerValueGeneratorFactory integerFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory,
             [NotNull] SqlServerSequenceValueGeneratorFactory sequenceFactory,
-            [NotNull] ValueGeneratorFactory<SequentialGuidValueGenerator> sequentialGuidFactory,
             [NotNull] ISqlServerConnection connection)
-            : base(guidFactory, integerFactory, stringFactory, binaryFactory)
         {
             Check.NotNull(cache, nameof(cache));
             Check.NotNull(sequenceFactory, nameof(sequenceFactory));
-            Check.NotNull(sequentialGuidFactory, nameof(sequentialGuidFactory));
             Check.NotNull(connection, nameof(connection));
 
             _cache = cache;
             _sequenceFactory = sequenceFactory;
-            _sequentialGuidFactory = sequentialGuidFactory;
             _connection = connection;
         }
 

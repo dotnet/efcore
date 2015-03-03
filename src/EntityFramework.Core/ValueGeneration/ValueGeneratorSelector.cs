@@ -11,27 +11,17 @@ namespace Microsoft.Data.Entity.ValueGeneration
 {
     public abstract class ValueGeneratorSelector : IValueGeneratorSelector
     {
-        private readonly ValueGeneratorFactory<GuidValueGenerator> _guidFactory;
-        private readonly TemporaryIntegerValueGeneratorFactory _integerFactory;
-        private readonly ValueGeneratorFactory<TemporaryStringValueGenerator> _stringFactory;
-        private readonly ValueGeneratorFactory<TemporaryBinaryValueGenerator> _binaryFactory;
+        private readonly ValueGeneratorFactory<GuidValueGenerator> _guidFactory
+            = new ValueGeneratorFactory<GuidValueGenerator>();
 
-        protected ValueGeneratorSelector(
-            [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory, 
-            [NotNull] TemporaryIntegerValueGeneratorFactory integerFactory, 
-            [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory, 
-            [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
-        {
-            Check.NotNull(guidFactory, nameof(guidFactory));
-            Check.NotNull(integerFactory, nameof(integerFactory));
-            Check.NotNull(stringFactory, nameof(stringFactory));
-            Check.NotNull(binaryFactory, nameof(binaryFactory));
+        private readonly TemporaryIntegerValueGeneratorFactory _integerFactory
+            = new TemporaryIntegerValueGeneratorFactory();
 
-            _guidFactory = guidFactory;
-            _integerFactory = integerFactory;
-            _stringFactory = stringFactory;
-            _binaryFactory = binaryFactory;
-        }
+        private readonly ValueGeneratorFactory<TemporaryStringValueGenerator> _stringFactory
+            = new ValueGeneratorFactory<TemporaryStringValueGenerator>();
+
+        private readonly ValueGeneratorFactory<TemporaryBinaryValueGenerator> _binaryFactory
+            = new ValueGeneratorFactory<TemporaryBinaryValueGenerator>();
 
         public abstract ValueGenerator Select(IProperty property);
 

@@ -19,7 +19,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             // In memory dingletones
             VerifySingleton<IInMemoryModelBuilderFactory>();
             VerifySingleton<IInMemoryValueGeneratorCache>();
-            VerifySingleton<InMemoryIntegerValueGeneratorFactory>();
             VerifySingleton<InMemoryDatabase>();
             VerifySingleton<IInMemoryModelSource>();
 

@@ -24,11 +24,6 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Services_wire_up_correctly()
         {
-            VerifySingleton<TemporaryIntegerValueGeneratorFactory>();
-            VerifySingleton<ValueGeneratorFactory<TemporaryStringValueGenerator>>();
-            VerifySingleton<ValueGeneratorFactory<TemporaryBinaryValueGenerator>>();
-            VerifySingleton<ValueGeneratorFactory<GuidValueGenerator>>();
-            VerifySingleton<ValueGeneratorFactory<SequentialGuidValueGenerator>>();
             VerifySingleton<DbSetFinder>();
             VerifySingleton<DbSetInitializer>();
             VerifySingleton<DbSetSource>();

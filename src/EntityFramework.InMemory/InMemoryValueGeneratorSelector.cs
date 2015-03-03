@@ -3,31 +3,22 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryValueGeneratorSelector : ValueGeneratorSelector, IInMemoryValueGeneratorSelector
     {
         private readonly IInMemoryValueGeneratorCache _cache;
-        private readonly InMemoryIntegerValueGeneratorFactory _inMemoryFactory;
+        private readonly InMemoryIntegerValueGeneratorFactory _inMemoryFactory = new InMemoryIntegerValueGeneratorFactory();
 
-        public InMemoryValueGeneratorSelector(
-            [NotNull] IInMemoryValueGeneratorCache cache,
-            [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory,
-            [NotNull] InMemoryIntegerValueGeneratorFactory inMemoryFactory,
-            [NotNull] TemporaryIntegerValueGeneratorFactory integerFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
-            : base(guidFactory, integerFactory, stringFactory, binaryFactory)
+        public InMemoryValueGeneratorSelector([NotNull] IInMemoryValueGeneratorCache cache)
         {
             Check.NotNull(cache, nameof(cache));
-            Check.NotNull(inMemoryFactory, nameof(inMemoryFactory));
 
             _cache = cache;
-            _inMemoryFactory = inMemoryFactory;
         }
 
         public override ValueGenerator Select(IProperty property)

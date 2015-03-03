@@ -83,11 +83,6 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<IPropertyListener>(p => p.GetService<ChangeDetector>());
 
             serviceCollection.TryAdd(new ServiceCollection()
-                .AddSingleton<TemporaryIntegerValueGeneratorFactory>()
-                .AddSingleton<ValueGeneratorFactory<TemporaryStringValueGenerator>>()
-                .AddSingleton<ValueGeneratorFactory<TemporaryBinaryValueGenerator>>()
-                .AddSingleton<ValueGeneratorFactory<GuidValueGenerator>>()
-                .AddSingleton<ValueGeneratorFactory<SequentialGuidValueGenerator>>()
                 .AddSingleton<DbSetFinder>()
                 .AddSingleton<DbSetInitializer>()
                 .AddSingleton<DbSetSource>()

@@ -95,15 +95,6 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
 
         private class ConcreteValueGeneratorSelector : ValueGeneratorSelector
         {
-            public ConcreteValueGeneratorSelector(
-                ValueGeneratorFactory<GuidValueGenerator> guidFactory, 
-                TemporaryIntegerValueGeneratorFactory integerFactory, 
-                ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory, 
-                ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
-                : base(guidFactory, integerFactory, stringFactory, binaryFactory)
-            {
-            }
-
             public override ValueGenerator Select(IProperty property)
             {
                 return Create(property);

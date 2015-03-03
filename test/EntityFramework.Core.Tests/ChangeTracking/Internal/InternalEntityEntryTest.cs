@@ -1236,7 +1236,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
 
             var customServices = new ServiceCollection()
-                .AddSingleton<InMemoryIntegerValueGeneratorFactory, InMemoryTemporaryValueGeneratorFactory>();
+                .AddSingleton<IInMemoryValueGeneratorSelector, TestInMemoryValueGeneratorSelector>();
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(customServices, model),
@@ -1322,7 +1322,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SecondDependent));
 
             var customServices = new ServiceCollection()
-                .AddSingleton<InMemoryIntegerValueGeneratorFactory, InMemoryTemporaryValueGeneratorFactory>();
+                .AddSingleton<IInMemoryValueGeneratorSelector, TestInMemoryValueGeneratorSelector>();
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(customServices, model),
@@ -1380,11 +1380,20 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             return modelBuilder.Model;
         }
 
-        private class InMemoryTemporaryValueGeneratorFactory : InMemoryIntegerValueGeneratorFactory
+        public class TestInMemoryValueGeneratorSelector : InMemoryValueGeneratorSelector
         {
+            private readonly TemporaryIntegerValueGeneratorFactory _inMemoryFactory = new TemporaryIntegerValueGeneratorFactory();
+
+            public TestInMemoryValueGeneratorSelector(IInMemoryValueGeneratorCache cache)
+                : base(cache)
+            {
+            }
+
             public override ValueGenerator Create(IProperty property)
             {
-                return new TemporaryIntegerValueGeneratorFactory().Create(property);
+                return property.PropertyType == typeof(int)
+                    ? _inMemoryFactory.Create(property)
+                    : base.Create(property);
             }
         }
 
