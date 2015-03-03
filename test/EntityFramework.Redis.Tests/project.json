@@ -1,0 +1,14 @@
+{
+    "dependencies": {
+        "EntityFramework.Redis": "",
+        "Moq": "4.2.1402.2112",
+        "xunit.runner.kre": "1.0.0-*"
+    },
+    "commands": {
+        "test": "xunit.runner.kre"
+    },
+    "code": [ "**\\*.cs", "..\\Shared\\ApiConsistencyTestBase.cs", "..\\Shared\\TestHelpers.cs" ],
+    "frameworks": {
+        "aspnet50": { }
+    }
+}

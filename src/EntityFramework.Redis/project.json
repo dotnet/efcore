@@ -1,0 +1,29 @@
+{
+    "version": "7.0.0-beta3",
+    "description":  "Redis data store for Entity Framework. fix for mono 3.10",
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+    "configurations": {
+        "Debug": {
+            "compilationOptions": {
+                "define": [ "DEBUG", "TRACE" ]
+            }
+        },
+        "Release": {
+            "compilationOptions": {
+                "define": [ "RELEASE", "TRACE" ],
+                "optimize": true
+            }
+        }
+    },
+    "dependencies": {
+        "EntityFramework": "7.0.0-beta3",
+        "StackExchange.Redis": "1.0.394"
+    },
+    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "frameworks": {
+        "aspnet50": {            
+        }
+    }
+}
