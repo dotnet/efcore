@@ -302,7 +302,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            if ("dbo" != entityType.Relational().Schema)
+            if (entityType.Relational().Schema != null
+                && entityType.Relational().Schema != "dbo")
             {
                 return string.Format(CultureInfo.InvariantCulture, ".Table({0}, {1})",
                     CSharpUtilities.Instance.DelimitString(entityType.Relational().Table),
@@ -310,7 +311,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
 
             if (entityType.Relational().Table != null
-                && entityType.Relational().Table != entityType.Name)
+                && entityType.Relational().Table != entityType.SimpleName)
             {
                 return string.Format(CultureInfo.InvariantCulture, ".Table({0})",
                     CSharpUtilities.Instance.DelimitString(entityType.Relational().Table));
