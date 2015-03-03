@@ -10,6 +10,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
         // non-integer key with not conventional name
         public string Name { get; set; }
         public string Location { get; set; }
+        public bool IsCapital { get; set; }
 
         public List<Gear> BornGears { get; set; }
         public List<Gear> StationedGears { get; set; }
