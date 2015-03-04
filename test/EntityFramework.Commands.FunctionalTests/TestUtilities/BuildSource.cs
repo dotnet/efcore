@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -47,12 +49,49 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                 var result = compilation.Emit(stream);
                 if (!result.Success)
                 {
-                    // TODO: Show diagnostics
-                    throw new InvalidOperationException("Build failed.");
+                    throw new InvalidOperationException(
+                        string.Format("Build failed. Diagnostics: {0}", string.Join("\r\n", result.Diagnostics)));
                 }
             }
 
             return new BuildFileResult(targetPath);
+        }
+
+        public Assembly BuildInMemory()
+        {
+            var projectName = Path.GetRandomFileName();
+            var references = new List<MetadataReference>();
+
+            foreach (var reference in References)
+            {
+                if (reference.CopyLocal)
+                {
+                    throw new InvalidOperationException("Assemblies cannot be copied locally for in-memory builds.");
+                }
+
+                references.Add(reference.Reference);
+            }
+
+            var compilation = CSharpCompilation.Create(
+                projectName,
+                new[] { SyntaxFactory.ParseSyntaxTree(Source) },
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+            Assembly assembly;
+            using (var stream = new MemoryStream())
+            {
+                var result = compilation.Emit(stream);
+                if (!result.Success)
+                {
+                    throw new InvalidOperationException(
+                        string.Format("Build failed. Diagnostics: {0}", string.Join("\r\n", result.Diagnostics)));
+                }
+
+                assembly = Assembly.Load(stream.ToArray());
+            }
+
+            return assembly;
         }
     }
 }

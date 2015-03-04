@@ -320,9 +320,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [NotNull] string table,
             [NotNull] string column,
             [CanBeNull] string schema = null,
-            bool clustered = false,
+            bool unique = false,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                CreateIndex(name, table, new[] { column }, schema, clustered, annotations);
+                CreateIndex(name, table, new[] { column }, schema, unique, annotations);
 
         // TODO: Is name really required?
         public virtual void CreateIndex(

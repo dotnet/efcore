@@ -74,8 +74,25 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
         public virtual TableBuilder<TColumns> ForeignKey(
             [NotNull] Expression<Func<TColumns, object>> dependentKeyExpression,
             [NotNull] string principalTable,
+            [NotNull] string principalColumn,
             [CanBeNull] string principalSchema = null,
+            bool cascadeDelete = false,
+            [CanBeNull] string name = null,
+            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
+            ForeignKey(
+                dependentKeyExpression,
+                principalTable,
+                new[] { principalColumn },
+                principalSchema,
+                cascadeDelete,
+                name,
+                annotations);
+
+        public virtual TableBuilder<TColumns> ForeignKey(
+            [NotNull] Expression<Func<TColumns, object>> dependentKeyExpression,
+            [NotNull] string principalTable,
             [CanBeNull] IReadOnlyList<string> principalColumns = null,
+            [CanBeNull] string principalSchema = null,
             bool cascadeDelete = false,
             [CanBeNull] string name = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null)

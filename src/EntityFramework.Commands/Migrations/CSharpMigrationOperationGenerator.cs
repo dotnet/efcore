@@ -103,9 +103,16 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
             if (operation.PrincipalColumns.Any())
             {
-                builder
-                    .Append(", principalColumns: ")
-                    .Append(_code.Literal(operation.PrincipalColumns));
+                if (operation.PrincipalColumns.Count == 1)
+                {
+                    builder.Append(", principalColumn: ");
+                }
+                else
+                {
+                    builder.Append(", principalColumns: ");
+                }
+
+                builder.Append(_code.Literal(operation.PrincipalColumns));
             }
 
             if (operation.CascadeDelete)
@@ -454,8 +461,10 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
                         if (i != operation.Columns.Count - 1)
                         {
-                            builder.AppendLine(",");
+                            builder.Append(",");
                         }
+
+                        builder.AppendLine();
                     }
                 }
 
@@ -535,15 +544,22 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     if (foreignKey.PrincipalSchema != null)
                     {
                         builder
-                            .Append(", ")
+                            .Append(", principalSchema: ")
                             .Append(_code.Literal(foreignKey.PrincipalSchema));
                     }
 
                     if (foreignKey.PrincipalColumns.Any())
                     {
-                        builder
-                            .Append(", ")
-                            .Append(_code.Literal(foreignKey.PrincipalColumns));
+                        if (foreignKey.PrincipalColumns.Count == 1)
+                        {
+                            builder.Append(", principalColumn: ");
+                        }
+                        else
+                        {
+                            builder.Append(", principalColumns: ");
+                        }
+
+                        builder.Append(_code.Literal(foreignKey.PrincipalColumns));
                     }
 
                     if (foreignKey.CascadeDelete)

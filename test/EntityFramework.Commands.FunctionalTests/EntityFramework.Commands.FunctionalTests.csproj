@@ -95,6 +95,7 @@
       <Link>Handlers.cs</Link>
     </Compile>
     <Compile Include="ExecutorTest.cs" />
+    <Compile Include="Migrations\OperationCompilationTest.cs" />
     <Compile Include="TestUtilities\BuildReference.cs" />
     <Compile Include="TestUtilities\BuildFileResult.cs" />
     <Compile Include="TestUtilities\BuildSource.cs" />
@@ -108,6 +109,14 @@
     <ProjectReference Include="..\..\src\EntityFramework.Commands\EntityFramework.Commands.csproj">
       <Project>{10ca97eb-e724-4f08-86af-f301f2b0bfff}</Project>
       <Name>EntityFramework.Commands</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>EntityFramework.Relational</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
       <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>
