@@ -11,8 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -31,11 +31,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             _serviceProvider = serviceProvider;
             Logger = serviceProvider.GetRequiredService<ILogger>();
             CSharpCodeGeneratorHelper = serviceProvider.GetRequiredService<CSharpCodeGeneratorHelper>();
+            ModelUtilities = serviceProvider.GetRequiredService<ModelUtilities>();
         }
 
         public virtual string FileExtension { get; [param: NotNull] set; } = DefaultFileExtension;
 
         public virtual CSharpCodeGeneratorHelper CSharpCodeGeneratorHelper { get; [param: NotNull] set; }
+
+        public virtual ModelUtilities ModelUtilities { get; [param: NotNull] set; }
 
         public virtual ILogger Logger { get; }
 

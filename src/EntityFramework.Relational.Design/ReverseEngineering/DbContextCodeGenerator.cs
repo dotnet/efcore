@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Utilities;
@@ -236,7 +237,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             {
                 sb.AppendLine();
                 sb.Append("entity.Key(e => ");
-                sb.Append(ModelUtilities.Instance
+                sb.Append(Generator.ModelUtilities
                     .GenerateLambdaToKey(key.Properties, "e"));
                 sb.Append(");");
             }
@@ -525,7 +526,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return ModelUtilities.Instance.OrderedProperties(entityType);
+            return Generator.ModelUtilities.OrderedProperties(entityType);
         }
     }
 }

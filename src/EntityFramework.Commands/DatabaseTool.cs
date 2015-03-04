@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -28,6 +29,7 @@ namespace Microsoft.Data.Entity.Commands
             var logger = new LazyRef<ILogger>(() => loggerFactory.CreateLogger<DatabaseTool>());
             _serviceProvider.AddService(typeof(ILogger), logger.Value);
             _serviceProvider.AddService(typeof(CSharpCodeGeneratorHelper), new CSharpCodeGeneratorHelper());
+            _serviceProvider.AddService(typeof(ModelUtilities), new ModelUtilities());
         }
 
         public virtual void ReverseEngineer(

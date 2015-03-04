@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -134,7 +135,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual IEnumerable<IProperty> OrderedEntityProperties()
         {
-            return ModelUtilities.Instance.OrderedProperties(EntityType);
+            return Generator.ModelUtilities.OrderedProperties(EntityType);
         }
     }
 }

@@ -84,9 +84,9 @@
     <Compile Include="ReverseEngineering\EntityTypeCodeGenerator.cs" />
     <Compile Include="ReverseEngineering\EntityTypeGeneratorModel.cs" />
     <Compile Include="ReverseEngineering\IDatabaseMetadataModelProvider.cs" />
-    <Compile Include="ReverseEngineering\ModelUtilities.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />
+    <Compile Include="Utilities\ModelUtilities.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Relational.Design.Strings.resources</LogicalName>
       <SubType>Designer</SubType>
