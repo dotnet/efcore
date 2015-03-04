@@ -1,11 +1,11 @@
 {
     "dependencies": {
         "EntityFramework.Redis": "",
-        "EntityFramework.FunctionalTests": "",
+        "EntityFramework.Core.FunctionalTests": "1.0.0",
         "Redis-64": "2.8.9"
     },
     "commands": {
-        "test": "Xunit.KRunner"
+        "test": "xunit.runner.kre"
     },
     "frameworks": {
         "aspnet50": { }

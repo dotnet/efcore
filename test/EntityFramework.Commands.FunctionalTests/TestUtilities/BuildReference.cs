@@ -4,6 +4,7 @@
 using System;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.Framework.Runtime.Roslyn;
 
 #if ASPNET50
 using System.Linq;

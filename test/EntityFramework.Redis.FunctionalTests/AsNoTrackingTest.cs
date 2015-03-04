@@ -6,13 +6,8 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
-    public class AsNoTrackingTest : AsNoTrackingTestBase, IClassFixture<NorthwindQueryFixture>
+    public class AsNoTrackingTest : IClassFixture<NorthwindQueryFixture>
     {
-        public override void Entity_not_added_to_state_manager()
-        {
-            base.Entity_not_added_to_state_manager();
-        }
-
         private readonly NorthwindQueryFixture _fixture;
 
         public AsNoTrackingTest(NorthwindQueryFixture fixture)
@@ -20,7 +15,7 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             _fixture = fixture;
         }
 
-        protected override DbContext CreateContext()
+        protected DbContext CreateContext()
         {
             return _fixture.CreateContext();
         }

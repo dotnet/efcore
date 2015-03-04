@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
-    public class NorthwindAsyncQueryTest : NorthwindAsyncQueryTestBase, IClassFixture<NorthwindQueryFixture>
+    public class NorthwindAsyncQueryTest : IClassFixture<NorthwindQueryFixture>
     {
         private readonly NorthwindQueryFixture _fixture;
 
@@ -16,17 +16,9 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             _fixture = fixture;
         }
 
-        protected override DbContext CreateContext()
+        protected DbContext CreateContext()
         {
             return _fixture.CreateContext();
-        }
-
-        [Fact]
-        public override Task GroupBy_Distinct()
-        {
-            // TODO: there is a bug in the base test which we don't see
-            // with the other providers - raised issue #784 to get that working
-            return Task.FromResult(0);
         }
     }
 }

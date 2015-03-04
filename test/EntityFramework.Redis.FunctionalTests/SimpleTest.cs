@@ -25,11 +25,11 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
                 var changes = context.SaveChanges();
                 Assert.Equal(1, changes);
 
-                simplePoco.Name = "Updated Name";
+                simplePoco.Entity.Name = "Updated Name";
                 changes = context.SaveChanges();
                 Assert.Equal(1, changes);
 
-                context.Set<SimplePoco>().Remove(simplePoco);
+                context.Set<SimplePoco>().Remove(simplePoco.Entity);
                 changes = context.SaveChanges();
                 Assert.Equal(1, changes);
             }
@@ -49,11 +49,11 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
                 var changes = await context.SaveChangesAsync();
                 Assert.Equal(1, changes);
 
-                simplePoco.Name = "Updated Name";
+                simplePoco.Entity.Name = "Updated Name";
                 changes = await context.SaveChangesAsync();
                 Assert.Equal(1, changes);
 
-                context.Set<SimplePoco>().Remove(simplePoco);
+                context.Set<SimplePoco>().Remove(simplePoco.Entity);
                 changes = await context.SaveChangesAsync();
                 Assert.Equal(1, changes);
             }
@@ -85,9 +85,9 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
                             PocoKey = 102,
                             Name = "C. Name",
                         });
-                simplePoco.Name = "Updated Name";
+                simplePoco.Entity.Name = "Updated Name";
 
-                context.Set<SimplePoco>().Remove(simplePoco2);
+                context.Set<SimplePoco>().Remove(simplePoco2.Entity);
                 changes = context.SaveChanges();
                 Assert.Equal(3, changes);
             }
@@ -119,9 +119,9 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
                             PocoKey = 102,
                             Name = "C. Name",
                         });
-                simplePoco.Name = "Updated Name";
+                simplePoco.Entity.Name = "Updated Name";
 
-                context.Set<SimplePoco>().Remove(simplePoco2);
+                context.Set<SimplePoco>().Remove(simplePoco2.Entity);
                 changes = await context.SaveChangesAsync();
                 Assert.Equal(3, changes);
             }

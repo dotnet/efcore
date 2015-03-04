@@ -3,13 +3,12 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests;
-using Northwind;
 using Xunit;
+using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 
 namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
-    public class NorthwindQueryTest : NorthwindQueryTestBase, IClassFixture<NorthwindQueryFixture>
+    public class NorthwindQueryTest : IClassFixture<NorthwindQueryFixture>
     {
         [Fact]
         public virtual void Include_throws_not_implemented()
@@ -31,7 +30,7 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             _fixture = fixture;
         }
 
-        protected override DbContext CreateContext()
+        protected DbContext CreateContext()
         {
             return _fixture.CreateContext();
         }
