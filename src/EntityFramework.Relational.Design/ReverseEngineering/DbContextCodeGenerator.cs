@@ -475,10 +475,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(property, nameof(property));
 
-            // output columnType if decimal or datetime2 to define precision and scale
-            var columnType = property.Relational().ColumnType;
-            if (columnType != null
-                && (columnType.StartsWith("decimal") || columnType.StartsWith("datetime2")))
+            if (property.Relational().ColumnType != null)
             {
                 return string.Format(CultureInfo.InvariantCulture,
                     ".ColumnType({0})",
