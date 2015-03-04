@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public async void Can_specify_dereferenced_connection_string_in_config()
         {
             var configuration = new Configuration
-                {
+                (
                     new MemoryConfigurationSource
                         {
                             {
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                                 "EntityFramework:" + typeof(StringInConfigContext).Name + ":ConnectionString", "Name=Data:DefaultConnection:ConnectionString"
                             }
                         }
-                };
+                );
 
             var serviceCollection = new ServiceCollection();
             serviceCollection
@@ -146,14 +146,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public async void Can_specify_connection_string_in_config()
         {
             var configuration = new Configuration
-                {
+                (
                     new MemoryConfigurationSource
                         {
                             {
                                 "EntityFramework:" + typeof(StringInConfigContext).Name + ":ConnectionString", SqlServerNorthwindContext.ConnectionString
                             }
                         }
-                };
+                );
 
             var serviceCollection = new ServiceCollection();
             serviceCollection
@@ -176,9 +176,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public void Throws_if_no_connection_found_in_config()
         {
             var configuration = new Configuration
-                {
+                (
                     new MemoryConfigurationSource()
-                };
+                );
 
             var serviceCollection = new ServiceCollection();
             serviceCollection
@@ -238,7 +238,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public async void Can_specify_dereferenced_connection_string_in_config_without_UseSqlServer()
         {
             var configuration = new Configuration
-                {
+                (
                     new MemoryConfigurationSource
                         {
                             {
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                                 "EntityFramework:" + typeof(NoUseSqlServerContext).Name + ":ConnectionString", "Name=Data:DefaultConnection:ConnectionString"
                             }
                         }
-                };
+                );
 
             var serviceCollection = new ServiceCollection();
             serviceCollection
@@ -271,14 +271,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public async void Can_specify_connection_string_in_config_without_UseSqlServer()
         {
             var configuration = new Configuration
-                {
+                (
                     new MemoryConfigurationSource
                         {
                             {
                                 "EntityFramework:" + typeof(NoUseSqlServerContext).Name + ":ConnectionString", SqlServerNorthwindContext.ConnectionString
                             }
                         }
-                };
+                );
 
             var serviceCollection = new ServiceCollection();
             serviceCollection
@@ -301,9 +301,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public void Throws_if_no_connection_found_in_config_without_UseSqlServer()
         {
             var configuration = new Configuration
-                {
+                (
                     new MemoryConfigurationSource()
-                };
+                );
 
             var serviceCollection = new ServiceCollection();
             serviceCollection
