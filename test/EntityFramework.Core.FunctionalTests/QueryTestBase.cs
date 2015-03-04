@@ -812,6 +812,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_bool_member_equals_constant()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => p.Discontinued.Equals(true)), entryCount: 8);
+        }
+
+        [Fact]
+        public virtual void Where_bool_member_in_complex_predicate()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => p.ProductID > 100 && p.Discontinued || (p.Discontinued == true)), entryCount: 8);
+        }
+
+        [Fact]
         public virtual void Where_short_member_comparison()
         {
             AssertQuery<Product>(ps => ps.Where(p => p.UnitsInStock > 10), entryCount: 63);

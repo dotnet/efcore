@@ -21,6 +21,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         private Expression _binaryExpression;
         private List<string> _parameters;
         private IDictionary<string, object> _parameterValues;
+        private Stack<bool> _insideFilter = new Stack<bool>();
 
         public virtual string GenerateSql(
             SelectExpression selectExpression, IDictionary<string, object> parameterValues)
@@ -50,6 +51,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             Check.NotNull(selectExpression, nameof(selectExpression));
 
             IDisposable subQueryIndent = null;
+
+            _insideFilter.Push(false);
 
             if (selectExpression.Alias != null)
             {
@@ -98,7 +101,16 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 _sql.AppendLine()
                     .Append("WHERE ");
 
+                _insideFilter.Push(true);
+
                 VisitExpression(selectExpression.Predicate);
+
+                if (selectExpression.Predicate is ColumnExpression)
+                {
+                    _sql.Append(" = 1");
+                }
+
+                _insideFilter.Pop();
             }
 
             if (selectExpression.OrderBy.Any())
@@ -137,6 +149,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     .Append(") AS ")
                     .Append(DelimitIdentifier(selectExpression.Alias));
             }
+
+            _insideFilter.Pop();
 
             return selectExpression;
         }
@@ -386,6 +400,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
                 VisitExpression(binaryExpression.Left);
 
+                if (binaryExpression.IsLogicalOperation() 
+                    && binaryExpression.Left is ColumnExpression 
+                    && _insideFilter.Peek())
+                {
+                    _sql.Append(" = 1");
+                }
+
                 string op;
 
                 switch (binaryExpression.NodeType)
@@ -424,6 +445,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 _sql.Append(op);
 
                 VisitExpression(binaryExpression.Right);
+
+                if (binaryExpression.IsLogicalOperation()
+                    && binaryExpression.Right is ColumnExpression
+                    && _insideFilter.Peek())
+                {
+                    _sql.Append(" = 1");
+                }
 
                 if (binaryExpression.IsLogicalOperation())
                 {
