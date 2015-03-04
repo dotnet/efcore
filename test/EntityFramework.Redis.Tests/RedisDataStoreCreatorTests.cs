@@ -8,6 +8,9 @@ using Moq;
 using Xunit;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Framework.Logging;
+using System.Threading.Tasks;
 
 namespace Microsoft.Data.Entity.Redis.Tests
 {
@@ -19,7 +22,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var model = Mock.Of<IModel>();
             var contextServices = TestHelpers.CreateContextServices();
             var creator = contextServices.GetRequiredService<RedisDataStoreCreator>();
-            Assert.False(creator.EnsureCreated(model));
+            Assert.True(creator.EnsureCreated(model));
         }
 
         [Fact]
@@ -28,27 +31,51 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var model = Mock.Of<IModel>();
             var contextServices = TestHelpers.CreateContextServices();
             var creator = contextServices.GetRequiredService<RedisDataStoreCreator>();
-            Assert.False(creator.EnsureCreatedAsync(model).Result);
+            Assert.True(creator.EnsureCreatedAsync(model).Result);
         }
 
         [Fact]
         public void Ensure_deletion()
         {
             var model = Mock.Of<IModel>();
-            var contextServices = TestHelpers.CreateContextServices();
+            var redisDataStoreMock = new Mock<RedisDataStore>(Mock.Of<StateManager>(),
+                new DbContextService<IModel>(() => model),
+                Mock.Of<EntityKeyFactorySource>(),
+                Mock.Of<EntityMaterializerSource>(),
+                Mock.Of<ClrCollectionAccessorSource>(),
+                Mock.Of<ClrPropertySetterSource>(),
+                Mock.Of<RedisConnection>(),
+                new LoggerFactory());
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddInstance<RedisDataStore>(redisDataStoreMock.Object);
+            redisDataStoreMock.Setup(s => s.FlushDatabase());
+            var contextServices = TestHelpers.CreateContextServices(serviceCollection);
             var creator = contextServices.GetRequiredService<RedisDataStoreCreator>();
 
             Assert.True(creator.EnsureDeleted(model));
+            redisDataStoreMock.Verify(m => m.FlushDatabase(), Times.Once);
         }
 
         [Fact]
         public void Ensure_deletion_async()
         {
             var model = Mock.Of<IModel>();
-            var contextServices = TestHelpers.CreateContextServices();
+            var redisDataStoreMock = new Mock<RedisDataStore>(Mock.Of<StateManager>(),
+                new DbContextService<IModel>(() => model),
+                Mock.Of<EntityKeyFactorySource>(),
+                Mock.Of<EntityMaterializerSource>(),
+                Mock.Of<ClrCollectionAccessorSource>(),
+                Mock.Of<ClrPropertySetterSource>(),
+                Mock.Of<RedisConnection>(),
+                new LoggerFactory());
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddInstance<RedisDataStore>(redisDataStoreMock.Object);
+            redisDataStoreMock.Setup(s => s.FlushDatabaseAsync(CancellationToken.None)).Returns(Task.FromResult(true));
+            var contextServices = TestHelpers.CreateContextServices(serviceCollection);
             var creator = contextServices.GetRequiredService<RedisDataStoreCreator>();
 
             Assert.True(creator.EnsureDeletedAsync(model).Result);
+            redisDataStoreMock.Verify(m => m.FlushDatabaseAsync(CancellationToken.None), Times.Once);
         }
     }
 }

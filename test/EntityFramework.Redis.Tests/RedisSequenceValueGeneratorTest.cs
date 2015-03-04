@@ -14,11 +14,30 @@ using Xunit;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
+using StackExchange.Redis;
 
 namespace Microsoft.Data.Entity.Redis.Tests
 {
     public class RedisSequenceValueGeneratorTest
     {
+        class FakeRedisDatabase :RedisDatabase
+        {
+            Mock<IDatabase> redisDatabaseMock = new Mock<IDatabase>();
+            public FakeRedisDatabase(DbContextService<IModel> model, RedisDataStoreCreator dataStoreCreator) :
+                base(model, dataStoreCreator, Mock.Of<RedisConnection>(), new LoggerFactory())
+            {
+                long i = 0;
+                redisDatabaseMock.Setup(r => r.StringIncrement(It.IsAny<RedisKey>(), It.IsAny<long>(), CommandFlags.None)).Returns<RedisKey, long, CommandFlags>((sn, incrementBy, flag) => { var ret = i; i += incrementBy; return ret; });
+                redisDatabaseMock.Setup(r => r.StringIncrementAsync(It.IsAny<RedisKey>(), It.IsAny<long>(), CommandFlags.None)).Returns<RedisKey, long, CommandFlags>((sn, incrementBy, flag) => { var ret = i;  i += incrementBy; return Task.FromResult(ret); });                
+            }
+            
+
+            public override IDatabase GetUnderlyingDatabase()
+            {
+                return redisDatabaseMock.Object;
+            }
+        }
+
         private DbContextService<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
         {
             serviceProvider = serviceProvider ?? TestHelpers.CreateServiceProvider();
@@ -42,6 +61,10 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var nullableLongProperty = entityType.GetProperty("NullableLong");
             var nullableShortProperty = entityType.GetProperty("NullableShort");
             var nullableByteProperty = entityType.GetProperty("NullableByte");
+            var uintProperty = entityType.GetProperty("UnsignedInt");
+            var ulongProperty = entityType.GetProperty("UnsignedLong");
+            var ushortProperty = entityType.GetProperty("UnsignedShort");
+            var sbyteProperty = entityType.GetProperty("SignedByte");
 
             var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
             var property = stateEntry.EntityType.GetProperty("Id");
@@ -50,19 +73,12 @@ namespace Microsoft.Data.Entity.Redis.Tests
 
             var model = Mock.Of<IModel>();
             var connectionMock = new Mock<RedisConnection>();
-            connectionMock.SetupGet(c => c.ConnectionString).Returns("localhost");
             var contextServices = TestHelpers.CreateContextServices();
             var creator = contextServices.GetRequiredService<RedisDataStoreCreator>();
 
-            var database = new RedisDatabase(new DbContextService<IModel>(() => model),
-                creator,
-                connectionMock.Object,
-                new LoggerFactory());
+            var database = new FakeRedisDatabase(new DbContextService<IModel>(() => model),
+                creator);
 
-            var uintProperty = entityType.GetProperty("UnsignedInt");
-            var ulongProperty = entityType.GetProperty("UnsignedLong");
-            var ushortProperty = entityType.GetProperty("UnsignedShort");
-            var sbyteProperty = entityType.GetProperty("SignedByte");
 
             var generator = new RedisSequenceValueGenerator(database, sequenceName, blockSize);
 
@@ -103,27 +119,27 @@ namespace Microsoft.Data.Entity.Redis.Tests
 
             for (var i = 105; i < 120; i++)
             {
-                Assert.Equal((byte?)i, generator.Next(nullableByteProperty, storeServices));
+                Assert.Equal((sbyte)i, generator.Next(sbyteProperty, storeServices));
             }
 
             for (var i = 120; i < 135; i++)
             {
-                Assert.Equal((uint)i, generator.Next(uintProperty, storeServices));
+                Assert.Equal((byte?)i, generator.Next(nullableByteProperty, storeServices));
             }
 
             for (var i = 135; i < 150; i++)
             {
-                Assert.Equal((ulong)i, generator.Next(ulongProperty, storeServices));
+                Assert.Equal((uint)i, generator.Next(uintProperty, storeServices));
             }
 
             for (var i = 150; i < 165; i++)
             {
-                Assert.Equal((ushort)i, generator.Next(ushortProperty, storeServices));
+                Assert.Equal((ulong)i, generator.Next(ulongProperty, storeServices));
             }
 
             for (var i = 165; i < 180; i++)
             {
-                Assert.Equal((sbyte)i, generator.Next(sbyteProperty, storeServices));
+                Assert.Equal((ushort)i, generator.Next(ushortProperty, storeServices));
             }
         }
 
@@ -141,6 +157,10 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var nullableLongProperty = entityType.GetProperty("NullableLong");
             var nullableShortProperty = entityType.GetProperty("NullableShort");
             var nullableByteProperty = entityType.GetProperty("NullableByte");
+            var uintProperty = entityType.GetProperty("UnsignedInt");
+            var ulongProperty = entityType.GetProperty("UnsignedLong");
+            var ushortProperty = entityType.GetProperty("UnsignedShort");
+            var sbyteProperty = entityType.GetProperty("SignedByte");
 
             var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
             var property = stateEntry.EntityType.GetProperty("Id");
@@ -148,20 +168,11 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var blockSize = 1;
 
             var model = Mock.Of<IModel>();
-            var connection = Mock.Of<RedisConnection>();
             var contextServices = TestHelpers.CreateContextServices();
             var creator = contextServices.GetRequiredService<RedisDataStoreCreator>();
 
-            var database = new RedisDatabase(new DbContextService<IModel>(() => model),
-                creator,
-                connection,
-                new LoggerFactory());
-
-
-            var uintProperty = entityType.GetProperty("UnsignedInt");
-            var ulongProperty = entityType.GetProperty("UnsignedLong");
-            var ushortProperty = entityType.GetProperty("UnsignedShort");
-            var sbyteProperty = entityType.GetProperty("SignedByte");
+            var database = new FakeRedisDatabase(new DbContextService<IModel>(() => model),
+                creator);
 
             var generator = new RedisSequenceValueGenerator(database, sequenceName, blockSize);
 
@@ -202,27 +213,27 @@ namespace Microsoft.Data.Entity.Redis.Tests
 
             for (var i = 105; i < 120; i++)
             {
-                Assert.Equal((byte?)i, await generator.NextAsync(nullableByteProperty, storeServices));
+                Assert.Equal((sbyte)i, await generator.NextAsync(sbyteProperty, storeServices));
             }
 
             for (var i = 120; i < 135; i++)
             {
-                Assert.Equal((uint)i, await generator.NextAsync(uintProperty, storeServices));
+                Assert.Equal((byte?)i, await generator.NextAsync(nullableByteProperty, storeServices));
             }
 
             for (var i = 135; i < 150; i++)
             {
-                Assert.Equal((ulong)i, await generator.NextAsync(ulongProperty, storeServices));
+                Assert.Equal((uint)i, await generator.NextAsync(uintProperty, storeServices));
             }
 
             for (var i = 150; i < 165; i++)
             {
-                Assert.Equal((ushort)i, await generator.NextAsync(ushortProperty, storeServices));
+                Assert.Equal((ulong)i, await generator.NextAsync(ulongProperty, storeServices));
             }
 
             for (var i = 165; i < 180; i++)
             {
-                Assert.Equal((sbyte)i, await generator.NextAsync(sbyteProperty, storeServices));
+                Assert.Equal((ushort)i, await generator.NextAsync(ushortProperty, storeServices));
             }
         }
 
@@ -234,11 +245,8 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var connection = Mock.Of<RedisConnection>();
             var contextServices = TestHelpers.CreateContextServices();
             var creator = contextServices.GetRequiredService<RedisDataStoreCreator>();
-
-            var database = new RedisDatabase(new DbContextService<IModel>(() => model),
-                creator,
-                connection,
-                new LoggerFactory());
+            var database = new FakeRedisDatabase(new DbContextService<IModel>(() => model),
+                creator);
 
 
             var generator = new RedisSequenceValueGenerator(database, "TestSequenceName", 1);
@@ -291,10 +299,8 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var contextServices = TestHelpers.CreateContextServices();
             var creator = contextServices.GetRequiredService<RedisDataStoreCreator>();
 
-            var database = new RedisDatabase(new DbContextService<IModel>(() => model),
-                creator,
-                connection,
-                new LoggerFactory());
+            var database = new FakeRedisDatabase(new DbContextService<IModel>(() => model),
+                creator);
 
             var generator = new RedisSequenceValueGenerator(database, "TestSequenceName", 1);
 
@@ -352,10 +358,8 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var contextServices = TestHelpers.CreateContextServices();
             var creator = contextServices.GetRequiredService<RedisDataStoreCreator>();
 
-            var database = new RedisDatabase(new DbContextService<IModel>(() => model),
-                creator,
-                connection,
-                new LoggerFactory());
+            var database = new FakeRedisDatabase(new DbContextService<IModel>(() => model),
+                creator);
 
             var generator = new RedisSequenceValueGenerator(database, "TestSequenceName", blockSize);
             var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
@@ -369,31 +373,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
 
                 Assert.Equal(l, generatedValue);
             }
-        }
-
-        [Fact]
-        public void Throws_when_type_conversion_would_overflow()
-        {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
-            var entityType = _model.GetEntityType(typeof(AnEntity));
-            var model = Mock.Of<IModel>();
-            var connection = Mock.Of<RedisConnection>();
-            var contextServices = TestHelpers.CreateContextServices();
-            var creator = contextServices.GetRequiredService<RedisDataStoreCreator>();
-
-            var database = new RedisDatabase(new DbContextService<IModel>(() => model),
-                creator,
-                connection,
-                new LoggerFactory());
-
-            var generator = new RedisSequenceValueGenerator(database, "MyTestSequenceName", 1);
-            
-            var byteProperty = entityType.GetProperty("Byte");
-            var storeServices = CreateStoreServices(serviceProvider);
-
-            Assert.Throws<OverflowException>(() => generator.Next(byteProperty, storeServices));
-        }
-
+        }       
 
         private class AnEntity
         {

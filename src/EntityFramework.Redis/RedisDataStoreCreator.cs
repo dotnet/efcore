@@ -37,13 +37,13 @@ namespace Microsoft.Data.Entity.Redis
         public override bool EnsureCreated(IModel model)
         {
             // returns whether anything changed. In Redis the database is always ready. No need to create anything for each table.
-            return false;
+            return true;
         }
 
         public override Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             // returns whether anything changed. In Redis the database is always ready. No need to create anything for each table.
-            return Task.FromResult(false);
+            return Task.FromResult(true);
         }
     }
 }
