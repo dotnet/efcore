@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -57,6 +58,21 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var propertyInfo = propertyExpression.GetPropertyAccess();
 
             return new PropertyEntry<TEntity, TProperty>(((IAccessor<InternalEntityEntry>)this).Service, propertyInfo.Name);
+        }
+
+        public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
+            [NotNull] string propertyName)
+        {
+            Check.NotNull(propertyName, nameof(propertyName));
+
+            var property = ((IAccessor<InternalEntityEntry>)this).Service.EntityType.GetProperty(propertyName);
+
+            if (property.PropertyType != typeof(TProperty))
+            {
+                throw new ArgumentException(Strings.WrongGenericPropertyType(propertyName,property.EntityType.Name, property.PropertyType.Name,typeof(TProperty).Name));
+            }
+
+            return new PropertyEntry<TEntity, TProperty>(((IAccessor<InternalEntityEntry>)this).Service, propertyName);
         }
     }
 }

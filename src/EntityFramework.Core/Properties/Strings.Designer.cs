@@ -932,6 +932,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("NavigationToSelfDuplicate", "navigation"), navigation);
         }
 
+        /// <summary>
+        /// Property '{propertyName}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.
+        /// </summary>
+        public static string WrongGenericPropertyType([CanBeNull] object propertyName, [CanBeNull] object entityType, [CanBeNull] object actualType, [CanBeNull] object genericType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("WrongGenericPropertyType", "propertyName", "entityType", "actualType", "genericType"), propertyName, entityType, actualType, genericType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

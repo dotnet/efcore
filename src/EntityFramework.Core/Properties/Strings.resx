@@ -462,4 +462,7 @@
   <data name="NavigationToSelfDuplicate" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be used for both ends of the relationship. Either specify it on the principal side or the dependent side.</value>
   </data>
+  <data name="WrongGenericPropertyType" xml:space="preserve">
+    <value>Property '{propertyName}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.</value>
+  </data>
 </root>
