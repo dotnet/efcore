@@ -35,26 +35,30 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                 var jacinto = new City
                     {
                         Location = "Jacinto's location",
-                        Name = "Jacinto"
-                    };
+                        Name = "Jacinto",
+                        IsCapital = false,
+                };
 
                 var ephyra = new City
                     {
                         Location = "Ephyra's location",
-                        Name = "Ephyra"
+                        Name = "Ephyra",
+                        IsCapital = true,
                     };
 
                 var hanover = new City
                     {
                         Location = "Hanover's location",
-                        Name = "Hanover"
-                    };
+                        Name = "Hanover",
+                        IsCapital = false,
+                };
 
                 var unknown = new City
                     {
                         Location = "Unknown",
-                        Name = "Unknown"
-                    };
+                        Name = "Unknown",
+                        IsCapital = false,
+                };
 
                 context.Cities.Add(jacinto);
                 context.Cities.Add(ephyra);

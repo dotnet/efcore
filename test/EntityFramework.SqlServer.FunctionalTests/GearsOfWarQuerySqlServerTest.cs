@@ -75,7 +75,8 @@ INNER JOIN (
     LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
     LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]
 ) AS [s] ON [g].[SquadId] = [s].[Id]
-ORDER BY [s].[Id]", Sql);
+ORDER BY [s].[Id]", 
+                Sql);
         }
 
         public override void Include_multiple_one_to_one_optional_and_one_to_one_required()
@@ -86,7 +87,8 @@ ORDER BY [s].[Id]", Sql);
                 @"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [s].[Id], [s].[InternalNumber], [s].[Name]
 FROM [CogTag] AS [t]
 LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
-LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]", Sql);
+LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]", 
+                Sql);
         }
 
         public override void Include_multiple_circular()
@@ -94,7 +96,7 @@ LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]", Sql);
             base.Include_multiple_circular();
 
             Assert.Equal(
-                @"SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[Location], [c].[Name]
+                @"SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[IsCapital], [c].[Location], [c].[Name]
 FROM [Gear] AS [g]
 INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
 ORDER BY [c].[Name]
@@ -115,7 +117,7 @@ ORDER BY [c].[Name]",
             base.Include_multiple_circular_with_filter();
 
             Assert.Equal(
-                @"SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[Location], [c].[Name]
+                @"SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[IsCapital], [c].[Location], [c].[Name]
 FROM [Gear] AS [g]
 INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
 WHERE [g].[Nickname] = 'Marcus'
@@ -130,6 +132,39 @@ INNER JOIN (
     WHERE [g].[Nickname] = 'Marcus'
 ) AS [c] ON [g].[AssignedCityName] = [c].[Name]
 ORDER BY [c].[Name]",
+                Sql);
+        }
+
+        public override void Where_Equals_method_property_constant()
+        {
+            base.Where_Equals_method_property_constant();
+
+            Assert.Equal(
+@"SELECT [c].[IsCapital], [c].[Location], [c].[Name]
+FROM [City] AS [c]
+WHERE [c].[IsCapital] = 1", 
+                Sql);
+        }
+
+        public override void Where_not_Equals_method_parameter_property()
+        {
+            base.Where_not_Equals_method_parameter_property();
+
+            Assert.Equal(
+@"SELECT [c].[IsCapital], [c].[Location], [c].[Name]
+FROM [City] AS [c]
+WHERE NOT @__prm_0 = [c].[IsCapital]",
+                Sql);
+        }
+
+        public override void Where_Equals_method_property_property()
+        {
+            base.Where_Equals_method_property_property();
+
+            Assert.Equal(
+@"SELECT [c].[IsCapital], [c].[Location], [c].[Name]
+FROM [City] AS [c]
+WHERE [c].[IsCapital] = [c].[IsCapital]",
                 Sql);
         }
 
