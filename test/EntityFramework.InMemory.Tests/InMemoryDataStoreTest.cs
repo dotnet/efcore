@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             mockLogger.Setup(l => l.IsEnabled(LogLevel.Information)).Returns(true);
 
             var mockFactory = new Mock<ILoggerFactory>();
-            mockFactory.Setup(m => m.Create(It.IsAny<string>())).Returns(mockLogger.Object);
+            mockFactory.Setup(m => m.CreateLogger(It.IsAny<string>())).Returns(mockLogger.Object);
 
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddInstance(mockFactory.Object);
@@ -174,7 +174,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
             mockLogger.Verify(
-                l => l.Write(
+                l => l.Log(
                     LogLevel.Information,
                     0,
                     1,

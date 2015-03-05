@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Query
             _collectionAccessorSource = collectionAccessorSource;
             _propertySetterSource = propertySetterSource;
 
-            _logger = new LazyRef<ILogger>(loggerFactory.Create<QueryContextFactory>);
+            _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<QueryContextFactory>);
         }
 
         public virtual ILogger Logger => _logger.Value;

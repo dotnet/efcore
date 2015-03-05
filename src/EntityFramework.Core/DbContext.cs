@@ -185,7 +185,7 @@ namespace Microsoft.Data.Entity
             return new DbContextOptions();
         }
 
-        private ILogger CreateLogger() => _contextServices.Value.ServiceProvider.GetRequiredService<ILoggerFactory>().Create<DbContext>();
+        private ILogger CreateLogger() => _contextServices.Value.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<DbContext>();
 
         private DbSetInitializer GetSetInitializer() => _contextServices.Value.ServiceProvider.GetRequiredService<DbSetInitializer>();
 
@@ -306,7 +306,7 @@ namespace Microsoft.Data.Entity
             }
             catch (Exception ex)
             {
-                _logger.Value.WriteError(
+                _logger.Value.LogError(
                     new DataStoreErrorLogState(GetType()),
                     ex,
                     (state, exception) =>
@@ -358,7 +358,7 @@ namespace Microsoft.Data.Entity
             }
             catch (Exception ex)
             {
-                _logger.Value.WriteError(
+                _logger.Value.LogError(
                     new DataStoreErrorLogState(GetType()),
                     ex,
                     (state, exception) =>

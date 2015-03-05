@@ -12,14 +12,14 @@ namespace Microsoft.Data.Entity.Infrastructure
     {
         public LoggingModelValidator([NotNull] ILoggerFactory loggerFactory)
         {
-            Logger = new LazyRef<ILogger>(loggerFactory.Create<ModelValidatorBase>);
+            Logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<ModelValidatorBase>);
         }
 
         protected LazyRef<ILogger> Logger { get; }
         
         protected override void ShowWarning(string message)
         {
-            Logger.Value.WriteWarning(message);
+            Logger.Value.LogWarning(message);
         }
     }
 }

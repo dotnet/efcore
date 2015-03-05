@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Commands
             _serviceProvider = new ServiceProvider(serviceProvider);
             var loggerFactory = new LoggerFactory();
             loggerFactory.AddProvider(loggerProvider);
-            var logger = new LazyRef<ILogger>(() => loggerFactory.Create<DatabaseTool>());
+            var logger = new LazyRef<ILogger>(() => loggerFactory.CreateLogger<DatabaseTool>());
             _serviceProvider.AddService(typeof(ILogger), logger.Value);
             _serviceProvider.AddService(typeof(CSharpCodeGeneratorHelper), new CSharpCodeGeneratorHelper());
         }

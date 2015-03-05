@@ -19,6 +19,6 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             _creator = creator;
         }
 
-        public virtual ILogger Create(string name) => _creator(name);
+        public virtual ILogger CreateLogger(string name) => _creator(name);
     }
 }

@@ -17,7 +17,7 @@ namespace Microsoft.Framework.Logging
             Check.NotNull(logger, nameof(logger));
             Check.NotEmpty(sql, nameof(sql));
 
-            logger.WriteVerbose(RelationalLoggingEventIds.Sql, sql);
+            logger.LogVerbose(RelationalLoggingEventIds.Sql, sql);
         }
 
         public static void CreatingDatabase([NotNull] this ILogger logger, [NotNull] string databaseName)
@@ -25,7 +25,7 @@ namespace Microsoft.Framework.Logging
             Check.NotNull(logger, nameof(logger));
             Check.NotEmpty(databaseName, nameof(databaseName));
 
-            logger.WriteInformation(
+            logger.LogInformation(
                 RelationalLoggingEventIds.CreatingDatabase,
                 databaseName,
                 Strings.RelationalLoggerCreatingDatabase);
@@ -36,7 +36,7 @@ namespace Microsoft.Framework.Logging
             Check.NotNull(logger, nameof(logger));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
-            logger.WriteVerbose(
+            logger.LogVerbose(
                 RelationalLoggingEventIds.OpeningConnection,
                 connectionString,
                 Strings.RelationalLoggerOpeningConnection);
@@ -47,7 +47,7 @@ namespace Microsoft.Framework.Logging
             Check.NotNull(logger, nameof(logger));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
-            logger.WriteVerbose(
+            logger.LogVerbose(
                 RelationalLoggingEventIds.ClosingConnection,
                 connectionString,
                 Strings.RelationalLoggerClosingConnection);
@@ -57,7 +57,7 @@ namespace Microsoft.Framework.Logging
         {
             Check.NotNull(logger, nameof(logger));
 
-            logger.WriteVerbose(
+            logger.LogVerbose(
                 RelationalLoggingEventIds.BeginningTransaction,
                 isolationLevel,
                 il => Strings.RelationalLoggerBeginningTransaction(il.ToString("G")));
@@ -67,7 +67,7 @@ namespace Microsoft.Framework.Logging
         {
             Check.NotNull(logger, nameof(logger));
 
-            logger.WriteVerbose(
+            logger.LogVerbose(
                 RelationalLoggingEventIds.CommittingTransaction,
                 Strings.RelationalLoggerCommittingTransaction);
         }
@@ -76,7 +76,7 @@ namespace Microsoft.Framework.Logging
         {
             Check.NotNull(logger, nameof(logger));
 
-            logger.WriteVerbose(
+            logger.LogVerbose(
                 RelationalLoggingEventIds.RollingbackTransaction,
                 Strings.RelationalLoggerRollingbackTransaction);
         }

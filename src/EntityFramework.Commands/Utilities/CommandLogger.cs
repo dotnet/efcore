@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 
         public virtual bool IsEnabled(LogLevel logLevel) => _enabledByName;
 
-        public virtual void Write(
+        public virtual void Log(
             LogLevel logLevel,
             int eventId,
             object state,

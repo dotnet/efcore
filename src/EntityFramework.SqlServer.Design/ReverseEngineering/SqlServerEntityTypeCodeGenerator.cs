@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             {
                 GenerateCommentHeader(sb);
                 Generator.CSharpCodeGeneratorHelper.SingleLineComment(errorMessageAnnotation, sb);
-                Generator.Logger.WriteWarning(
+                Generator.Logger.LogWarning(
                     Strings.CannotGenerateEntityType(EntityType.Name, errorMessageAnnotation));
 
                 return;

@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.InMemory
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
 
-            _logger = loggerFactory.Create<InMemoryDatabase>();
+            _logger = loggerFactory.CreateLogger<InMemoryDatabase>();
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.InMemory
                     return ts;
                 });
 
-            _logger.WriteInformation(rowsAffected, ra => Strings.LogSavedChanges(ra));
+            _logger.LogInformation(rowsAffected, ra => Strings.LogSavedChanges(ra));
 
             return rowsAffected;
         }

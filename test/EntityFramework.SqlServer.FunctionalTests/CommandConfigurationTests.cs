@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var selectExpression = new SelectExpression();
             var queryCompilationContext = new RelationalQueryCompilationContext(
                 context.Model,
-                loggerFactory.Create("new"),
+                loggerFactory.CreateLogger("new"),
                 new LinqOperatorProvider(),
                 new RelationalResultOperatorHandler(),
                 source,

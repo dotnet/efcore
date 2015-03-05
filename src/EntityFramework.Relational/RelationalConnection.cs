@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(options, nameof(options));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
 
-            _logger = new LazyRef<ILogger>(loggerFactory.Create<RelationalConnection>);
+            _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<RelationalConnection>);
 
             var storeConfig = RelationalOptionsExtension.Extract(options);
 

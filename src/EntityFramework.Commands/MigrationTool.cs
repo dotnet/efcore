@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Commands
             loggerFactory.AddProvider(loggerProvider);
 
             _loggerProvider = loggerProvider;
-            _logger = new LazyRef<ILogger>(() => loggerFactory.Create<MigrationTool>());
+            _logger = new LazyRef<ILogger>(() => loggerFactory.CreateLogger<MigrationTool>());
             _assembly = assembly;
         }
 
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Commands
         public virtual Type GetContextType([CanBeNull] string name)
         {
             var contextType = ContextTool.SelectType(GetContextTypes(), name);
-            _logger.Value.WriteVerbose(Strings.LogUseContext(contextType.Name));
+            _logger.Value.LogVerbose(Strings.LogUseContext(contextType.Name));
 
             return contextType;
         }

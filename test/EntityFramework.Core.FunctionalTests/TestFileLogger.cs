@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             public LogLevel MinimumLevel { get; set; }
 
-            public ILogger Create(string name)
+            public ILogger CreateLogger(string name)
             {
                 return Instance;
             }
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             _logFilePath = Path.Combine(logDirectory, fileName);
         }
 
-        public void Write(
+        public void Log(
             LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
         {
             if (formatter != null)
