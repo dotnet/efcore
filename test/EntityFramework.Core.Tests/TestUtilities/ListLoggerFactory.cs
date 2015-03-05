@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.TestUtilities
             _shouldCreateLogger = shouldCreateLogger;
         }
 
-        public ILogger Create(string name)
+        public ILogger CreateLogger(string name)
         {
             if (_shouldCreateLogger != null
                 && !_shouldCreateLogger(name))

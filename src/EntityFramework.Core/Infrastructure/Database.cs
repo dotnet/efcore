@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             _context = context;
             _dataStoreCreator = dataStoreCreator;
             Connection = connection;
-            _logger = new LazyRef<ILogger>(loggerFactory.Create<Database>);
+            _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<Database>);
         }
 
         public virtual IDataStoreConnection Connection { get; }

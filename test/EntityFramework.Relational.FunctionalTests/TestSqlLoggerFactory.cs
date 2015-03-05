@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
         public LogLevel MinimumLevel { get; set; }
 
-        public ILogger Create(string name)
+        public ILogger CreateLogger(string name)
         {
             return Logger;
         }
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
         public static string Log
         {
-            get { return Logger.Log; }
+            get { return Logger.Logs; }
         }
 
         public static string Sql
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
             private CancellationTokenSource _cancellationTokenSource;
 
-            public void Write(
+            public void Log(
                 LogLevel logLevel,
                 int eventId,
                 object state,
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 get { return string.Join("\r\n\r\n", SqlStatements); }
             }
 
-            public string Log
+            public string Logs
             {
                 get { return string.Join("\r\n", _log); }
             }

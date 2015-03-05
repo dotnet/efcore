@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             _idGenerator = idGenerator;
             _migrationCodeGenerator = migrationCodeGenerator;
             _historyRepository = historyRepository;
-            _logger = new LazyRef<ILogger>(loggerFactory.Create<MigrationScaffolder>);
+            _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<MigrationScaffolder>);
         }
 
         protected virtual string ProductVersion =>
@@ -157,14 +157,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     var migrationFile = TryGetProjectFile(projectDir, migrationFileName);
                     if (migrationFile != null)
                     {
-                        _logger.Value.WriteInformation(Strings.RemovingMigration(migration.Id));
+                        _logger.Value.LogInformation(Strings.RemovingMigration(migration.Id));
                         // TODO: Test version control. If broken, delete and write files in the commands
                         File.Delete(migrationFile);
                         files.MigrationFile = migrationFile;
                     }
                     else
                     {
-                        _logger.Value.WriteWarning(Strings.NoMigrationFile(migrationFileName, migration.GetType().FullName));
+                        _logger.Value.LogWarning(Strings.NoMigrationFile(migrationFileName, migration.GetType().FullName));
                     }
 
                     var migrationMetadataFileName = migration.Id + ".Designer" + language;
@@ -176,14 +176,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     }
                     else
                     {
-                        _logger.Value.WriteVerbose(Strings.NoMigrationMetadataFile(migrationMetadataFileName));
+                        _logger.Value.LogVerbose(Strings.NoMigrationMetadataFile(migrationMetadataFileName));
                     }
 
                     model = migrations.Count > 1 ? migrations[migrations.Count - 2].Target : null;
                 }
                 else
                 {
-                    _logger.Value.WriteVerbose(Strings.ManuallyDeleted);
+                    _logger.Value.LogVerbose(Strings.ManuallyDeleted);
                 }
             }
 
@@ -194,13 +194,13 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             {
                 if (modelSnapshotFile != null)
                 {
-                    _logger.Value.WriteInformation(Strings.RemovingSnapshot);
+                    _logger.Value.LogInformation(Strings.RemovingSnapshot);
                     File.Delete(modelSnapshotFile);
                     files.ModelSnapshotFile = modelSnapshotFile;
                 }
                 else
                 {
-                    _logger.Value.WriteWarning(
+                    _logger.Value.LogWarning(
                         Strings.NoSnapshotFile(modelSnapshotFileName, modelSnapshot.GetType().FullName));
                 }
             }
@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         modelSnapshotFileName);
                 }
 
-                _logger.Value.WriteInformation(Strings.RevertingSnapshot);
+                _logger.Value.LogInformation(Strings.RevertingSnapshot);
                 File.WriteAllText(modelSnapshotFile, modelSnapshotCode);
             }
 

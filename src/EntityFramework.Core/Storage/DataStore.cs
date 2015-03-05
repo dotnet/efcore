@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Storage
             EntityKeyFactorySource = entityKeyFactorySource;
             EntityMaterializerSource = entityMaterializerSource;
 
-            _logger = new LazyRef<ILogger>(loggerFactory.Create<DataStore>);
+            _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<DataStore>);
         }
 
         public virtual ILogger Logger => _logger.Value;

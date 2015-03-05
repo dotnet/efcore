@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Query
 
             using (QueryCompilationContext.Logger.BeginScope(this))
             {
-                QueryCompilationContext.Logger.WriteInformation(queryModel, Strings.LogCompilingQueryModel);
+                QueryCompilationContext.Logger.LogInformation(queryModel, Strings.LogCompilingQueryModel);
 
                 _blockTaskExpressions = false;
 
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Query
 
             using (QueryCompilationContext.Logger.BeginScope(this))
             {
-                QueryCompilationContext.Logger.WriteInformation(queryModel, Strings.LogCompilingQueryModel);
+                QueryCompilationContext.Logger.LogInformation(queryModel, Strings.LogCompilingQueryModel);
 
                 _blockTaskExpressions = false;
 
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.Query
             new QueryOptimizer(_queryAnnotations).VisitQueryModel(queryModel);
 
             QueryCompilationContext.Logger
-                .WriteInformation(queryModel, Strings.LogOptimizedQueryModel);
+                .LogInformation(queryModel, Strings.LogOptimizedQueryModel);
         }
 
         protected virtual void SingleResultToSequence(
@@ -255,7 +255,7 @@ namespace Microsoft.Data.Entity.Query
                                     Expression.Parameter(queryModel.SelectClause.Selector.Type));
 
                         QueryCompilationContext.Logger
-                            .WriteInformation(
+                            .LogInformation(
                                 include.navigationPath.Join("."),
                                 Strings.LogIncludingNavigation);
 
@@ -336,7 +336,7 @@ namespace Microsoft.Data.Entity.Query
             if (querySourceReferenceExpressionsToTrack.Any())
             {
                 QueryCompilationContext.Logger
-                    .WriteInformation(
+                    .LogInformation(
                         querySourceReferenceExpressionsToTrack,
                         qsres => Strings.LogTrackingQuerySources(
                             qsres.Select(qsre => qsre.ReferencedQuerySource.ItemName).Join()));
@@ -393,7 +393,7 @@ namespace Microsoft.Data.Entity.Query
 
             // TODO: Format expression in log (query plan)
             QueryCompilationContext.Logger
-                .WriteInformation(_expression, _ => Strings.LogCompiledQueryFunction);
+                .LogInformation(_expression, _ => Strings.LogCompiledQueryFunction);
 
             return qc => queryExecutor(qc, null);
         }

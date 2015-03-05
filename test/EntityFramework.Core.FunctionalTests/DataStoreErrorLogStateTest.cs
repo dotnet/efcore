@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
             }
 
-            public ILogger Create(string name)
+            public ILogger CreateLogger(string name)
             {
                 return Logger;
             }
@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     return NullScope.Instance;
                 }
 
-                public void Write(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+                public void Log(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
                 {
                     var error = state as DataStoreErrorLogState;
                     if (error != null)

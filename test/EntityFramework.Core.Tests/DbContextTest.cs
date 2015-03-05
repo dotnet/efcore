@@ -1867,7 +1867,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             public LogLevel MinimumLevel { get; set; }
 
-            public ILogger Create(string name)
+            public ILogger CreateLogger(string name)
             {
                 return null;
             }

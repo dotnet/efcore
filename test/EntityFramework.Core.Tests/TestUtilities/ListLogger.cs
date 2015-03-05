@@ -12,12 +12,12 @@ namespace Microsoft.Data.Entity.Tests.TestUtilities
     {
         public ListLogger(List<Tuple<LogLevel, string>> log)
         {
-            Log = log;
+            Logs = log;
         }
 
-        public List<Tuple<LogLevel, string>> Log { get; }
+        public List<Tuple<LogLevel, string>> Logs { get; }
 
-        public void Write(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+        public void Log(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
         {
             var message = new StringBuilder();
             if (formatter != null)
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Tests.TestUtilities
                 }
             }
 
-            Log.Add(new Tuple<LogLevel, string>(logLevel, message.ToString()));
+            Logs.Add(new Tuple<LogLevel, string>(logLevel, message.ToString()));
         }
 
         public bool IsEnabled(LogLevel logLevel) => true;
