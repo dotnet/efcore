@@ -146,10 +146,8 @@ namespace Microsoft.Data.Entity.Commands
 
         protected virtual MigrationScaffolder CreateScaffolder(IServiceProvider services)
         {
-            var typeActivator = services.GetRequiredService<ITypeActivator>();
-
             // TODO: Can this be hidden in DesignTimeServices?
-            return typeActivator.CreateInstance<MigrationScaffolder>(services);
+            return ActivatorUtilities.CreateInstance<MigrationScaffolder>(services);
         }
     }
 }

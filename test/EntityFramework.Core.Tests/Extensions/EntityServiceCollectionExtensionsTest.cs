@@ -41,7 +41,6 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<EntityEntryMetadataServices>();
             VerifySingleton<ICompiledQueryCache>();
             VerifySingleton<ILoggerFactory>();
-            VerifySingleton<ITypeActivator>();
 
             VerifyCached<IModelBuilderFactory>();
             VerifyCached<IModel>();
