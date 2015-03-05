@@ -3,7 +3,6 @@
 
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests

@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Xunit;
 

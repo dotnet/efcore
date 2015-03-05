@@ -7,7 +7,6 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {

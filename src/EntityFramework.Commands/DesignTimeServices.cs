@@ -7,7 +7,6 @@ using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.Commands
 {
