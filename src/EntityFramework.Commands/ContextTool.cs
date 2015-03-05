@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Utilities;
 #if ASPNET50 || ASPNETCORE50
 using Microsoft.AspNet.Hosting;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.OptionsModel;
 using Microsoft.Framework.Runtime.Infrastructure;
 #endif

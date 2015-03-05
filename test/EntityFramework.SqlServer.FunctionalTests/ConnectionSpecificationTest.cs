@@ -8,7 +8,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 using RelationalStrings = Microsoft.Data.Entity.Relational.Strings;
 

@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.Internal
 {
@@ -36,9 +35,9 @@ namespace Microsoft.Data.Entity.Internal
             }
         }
 
-        private static long CalculateHash(IServiceDescriptor descriptor)
+        private static long CalculateHash(ServiceDescriptor descriptor)
         {
-            return ((((long)descriptor.Lifecycle * 397)
+            return ((((long)descriptor.Lifetime * 397)
                      ^ descriptor.ServiceType.GetHashCode()) * 397)
                    ^ (descriptor.ImplementationInstance
                       ?? descriptor.ImplementationType
