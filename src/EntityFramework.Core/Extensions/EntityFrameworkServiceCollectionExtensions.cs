@@ -101,7 +101,6 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<EntityEntryMetadataServices>()
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .AddTypeActivator()
                 .AddScoped<KeyPropagator>()
                 .AddScoped<NavigationFixer>()
                 .AddScoped<StateManager>()

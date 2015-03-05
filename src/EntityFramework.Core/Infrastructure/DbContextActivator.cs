@@ -24,13 +24,11 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             Check.NotNull(serviceProvider, nameof(serviceProvider));
 
-            var typeActivator = serviceProvider.GetRequiredService<ITypeActivator>();
-
             try
             {
                 _serviceProvider = serviceProvider;
 
-                return (TContext)typeActivator.CreateInstance(serviceProvider, typeof(TContext));
+                return (TContext)ActivatorUtilities.CreateInstance(serviceProvider, typeof(TContext));
             }
             finally
             {

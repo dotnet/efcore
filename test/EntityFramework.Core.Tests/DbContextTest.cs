@@ -1629,7 +1629,6 @@ namespace Microsoft.Data.Entity.Tests
             var provider = serviceCollection.BuildServiceProvider();
 
             Assert.IsType<LoggerFactory>(provider.GetRequiredService<ILoggerFactory>());
-            Assert.IsType<TypeActivator>(provider.GetRequiredService<ITypeActivator>());
             Assert.IsType<OptionsManager<DbContextOptions>>(provider.GetRequiredService<IOptions<DbContextOptions>>());
         }
 
@@ -1639,18 +1638,15 @@ namespace Microsoft.Data.Entity.Tests
             var serviceCollection = new ServiceCollection();
 
             var loggerFactory = new FakeLoggerFactory();
-            var typeActivator = new TypeActivator();
 
             serviceCollection
                 .AddInstance<ILoggerFactory>(loggerFactory)
-                .AddInstance<ITypeActivator>(typeActivator)
                 .AddOptions()
                 .AddEntityFramework();
 
             var provider = serviceCollection.BuildServiceProvider();
 
             Assert.Same(loggerFactory, provider.GetRequiredService<ILoggerFactory>());
-            Assert.Same(typeActivator, provider.GetRequiredService<ITypeActivator>());
             Assert.IsType<OptionsManager<DbContextOptions>>(provider.GetRequiredService<IOptions<DbContextOptions>>());
         }
 
@@ -1660,20 +1656,17 @@ namespace Microsoft.Data.Entity.Tests
             var serviceCollection = new ServiceCollection();
 
             var loggerFactory = new FakeLoggerFactory();
-            var typeActivator = new TypeActivator();
 
             serviceCollection
                 .AddEntityFramework();
 
             serviceCollection
                 .AddInstance<ILoggerFactory>(loggerFactory)
-                .AddInstance<ITypeActivator>(typeActivator)
                 .AddOptions();
 
             var provider = serviceCollection.BuildServiceProvider();
 
             Assert.Same(loggerFactory, provider.GetRequiredService<ILoggerFactory>());
-            Assert.Same(typeActivator, provider.GetRequiredService<ITypeActivator>());
             Assert.IsType<OptionsManager<DbContextOptions>>(provider.GetRequiredService<IOptions<DbContextOptions>>());
         }
 
