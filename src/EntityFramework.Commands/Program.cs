@@ -10,10 +10,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Common.CommandLine;
 
@@ -140,6 +137,10 @@ namespace Microsoft.Data.Entity.Commands
                             script.Description = "Generate a SQL script from migrations";
                             var from = script.Argument("[from]", "The starting migration");
                             var to = script.Argument("[to]", "The ending migration");
+                            var output = script.Option(
+                                "-o|--output <file>",
+                                "The file to write the script to instead of stdout",
+                                CommandOptionType.SingleValue);
                             var idempotent = script.Option(
                                 "-i|--idempotent",
                                 "Generate an idempotent script",
@@ -153,7 +154,7 @@ namespace Microsoft.Data.Entity.Commands
                                 "The name of the project to use as the startup project",
                                 CommandOptionType.SingleValue);
                             script.HelpOption("-h|--help");
-                            script.OnExecute(() => ScriptMigration(from.Value, to.Value, idempotent.HasValue(), context.Value(), startupProject.Value()));
+                            script.OnExecute(() => ScriptMigration(from.Value, to.Value, output.Value(), idempotent.HasValue(), context.Value(), startupProject.Value()));
                         },
                         addHelpCommand: false);
                     migration.Command(
@@ -271,6 +272,7 @@ namespace Microsoft.Data.Entity.Commands
         public virtual int ScriptMigration(
             [CanBeNull] string from,
             [CanBeNull] string to,
+            [CanBeNull] string output,
             bool idempotent,
             [CanBeNull] string context,
             [CanBeNull] string startupProject)
@@ -281,8 +283,14 @@ namespace Microsoft.Data.Entity.Commands
                 {
                     var sql = _migrationTool.ScriptMigration(from, to, idempotent, context);
 
-                    // TODO: Write to file?
-                    Console.WriteLine(sql);
+                    if (string.IsNullOrEmpty(output))
+                    {
+                        Console.WriteLine(sql);
+                    }
+                    else
+                    {
+                        File.WriteAllText(output, sql);
+                    }
 
                     return 0;
                 });
