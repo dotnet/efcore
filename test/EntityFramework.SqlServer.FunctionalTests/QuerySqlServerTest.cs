@@ -1540,6 +1540,17 @@ WHERE NOT [p].[Discontinued] = 1",
                 Sql);
         }
 
+        public override void Where_bool_member_negated_twice()
+        {
+            base.Where_bool_member_negated_twice();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE NOT NOT [p].[Discontinued] = 1",
+                Sql);
+        }
+
         public override void Where_bool_member_shadow()
         {
             base.Where_bool_member_shadow();
@@ -1559,6 +1570,28 @@ WHERE [p].[Discontinued] = 1",
                 @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE NOT [p].[Discontinued] = 1",
+                Sql);
+        }
+
+        public override void Where_bool_member_equals_constant()
+        {
+            base.Where_bool_member_equals_constant();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[Discontinued] = 1",
+                Sql);
+        }
+
+        public override void Where_bool_member_in_complex_predicate()
+        {
+            base.Where_bool_member_in_complex_predicate();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE (([p].[ProductID] > 100 AND [p].[Discontinued] = 1) OR [p].[Discontinued] = 1)",
                 Sql);
         }
 
