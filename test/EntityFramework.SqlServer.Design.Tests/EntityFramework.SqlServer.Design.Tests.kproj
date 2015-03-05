@@ -8,7 +8,6 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>ceac19c5-68d3-4ab6-957a-d380344008e7</ProjectGuid>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">

@@ -6,17 +6,15 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>54e13632-c302-474d-909a-06f6469d96bd</ProjectGuid>
+    <ProjectGuid>1f85eaf4-16c7-428d-bdf9-8f0250c24b06</ProjectGuid>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
   </PropertyGroup>
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
-    <DevelopmentServerPort>0</DevelopmentServerPort>
-    <CommandLineArguments>re EntityFramework.ReverseEngineering.TestProvider connString -o outputPath -n namespace -c MyClassName -f abc,def,ghi</CommandLineArguments>
-    <DebugTarget>re</DebugTarget>
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>
