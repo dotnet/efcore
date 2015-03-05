@@ -76,6 +76,12 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             get { return Logger.SqlStatements; }
         }
 
+        public LogLevel MinimumLevel
+        {
+            get;
+            set;
+        }
+
         private class SqlLogger : ILogger
         {
             private readonly List<string> _sqlStatements = new List<string>();

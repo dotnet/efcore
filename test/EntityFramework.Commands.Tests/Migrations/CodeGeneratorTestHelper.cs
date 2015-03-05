@@ -26,6 +26,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
     using Microsoft.Framework.DependencyInjection;
     using Microsoft.Framework.Runtime;
     using Microsoft.Framework.Runtime.Infrastructure;
+    using Microsoft.Framework.Runtime.Roslyn;
 
     public static partial class CodeGeneratorTestHelper
     {

@@ -7,11 +7,11 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
-    public class NorthwindAsyncQueryTest : IClassFixture<NorthwindQueryFixture>
+    public class RedisNorthwindAsyncQueryTest : IClassFixture<RedisNorthwindQueryFixture>
     {
-        private readonly NorthwindQueryFixture _fixture;
+        private readonly RedisNorthwindQueryFixture _fixture;
 
-        public NorthwindAsyncQueryTest(NorthwindQueryFixture fixture)
+        public RedisNorthwindAsyncQueryTest(RedisNorthwindQueryFixture fixture)
         {
             _fixture = fixture;
         }

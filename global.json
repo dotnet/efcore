@@ -1,3 +1,7 @@
 {
-    "sources": [ "src" ]
+  "sources": [
+	"src",
+	"StackExchange.Redis/StackExchange.Redis",
+    "wrap"
+  ]
 }

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
-    public class SimpleTest
+    public class RedisSimpleTest
     {
         [Fact]
         public void Add_modify_and_delete_simple_poco()

@@ -4,6 +4,7 @@ using Microsoft.Framework.ConfigurationModel;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
+
 #if ASPNET50 || ASPNETCORE50
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Infrastructure;

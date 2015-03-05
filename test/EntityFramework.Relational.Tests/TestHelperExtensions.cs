@@ -268,6 +268,12 @@ namespace Microsoft.Data.Entity.Tests
             get { return _builder.ToString(); }
         }
 
+        public LogLevel MinimumLevel
+        {
+            get;
+            set;
+        }
+
         public ILogger Create(string name)
         {
             return new RecordingLogger(name, _builder);

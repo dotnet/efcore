@@ -182,6 +182,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             public readonly TestLogger Logger = new TestLogger();
 
+            public LogLevel MinimumLevel
+            {
+                get;
+                set;
+            }
+
             public void AddProvider(ILoggerProvider provider)
             {
             }

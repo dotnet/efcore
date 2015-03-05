@@ -22,6 +22,10 @@
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\StackExchange.Redis\StackExchange.Redis\StackExchange.Redis.csproj" />
+    <ProjectReference Include="..\StackExchange.Redis\StackExchange.Redis.csproj" />
+  </ItemGroup>
   <Import Project="$(VSToolsPath)\AspNet\Microsoft.Web.AspNet.targets" Condition="'$(VSToolsPath)' != ''" />
   <ProjectExtensions>
     <VisualStudio>

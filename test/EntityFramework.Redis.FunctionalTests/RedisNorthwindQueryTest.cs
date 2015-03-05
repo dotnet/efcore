@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 
 namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
-    public class NorthwindQueryTest : IClassFixture<NorthwindQueryFixture>
+    public class RedisNorthwindQueryTest : IClassFixture<RedisNorthwindQueryFixture>
     {
         [Fact]
         public virtual void Include_throws_not_implemented()
@@ -23,9 +23,9 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
                 });
         }
 
-        private readonly NorthwindQueryFixture _fixture;
+        private readonly RedisNorthwindQueryFixture _fixture;
 
-        public NorthwindQueryTest(NorthwindQueryFixture fixture)
+        public RedisNorthwindQueryTest(RedisNorthwindQueryFixture fixture)
         {
             _fixture = fixture;
         }
