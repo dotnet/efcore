@@ -15,7 +15,7 @@ using Microsoft.Data.Entity.Relational.FunctionalTests;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class SqlServerTestStore : RelationalTestStore, IDbCommandExecutor
+    public class SqlServerTestStore : RelationalTestStore
     {
         public const int CommandTimeout = 30;
 

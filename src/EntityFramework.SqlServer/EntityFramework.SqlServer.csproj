@@ -133,7 +133,6 @@
     <Compile Include="Migrations\SqlServerMigrationSqlGenerator.cs" />
     <Compile Include="SqlServerSequenceValueGenerator.cs" />
     <Compile Include="SqlServerSequenceValueGeneratorFactory.cs" />
-    <Compile Include="SqlServerSimpleCommandExecutor.cs" />
     <Compile Include="SqlServerSqlGenerator.cs" />
     <Compile Include="SqlServerTypeMapper.cs" />
     <Compile Include="Extensions\SqlServerDbContextOptionsExtensions.cs" />

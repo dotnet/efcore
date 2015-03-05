@@ -73,7 +73,6 @@
     <Compile Include="Migrations\Builders\ColumnBuilder.cs" />
     <Compile Include="Migrations\Builders\MigrationBuilder.cs" />
     <Compile Include="Migrations\Builders\TableBuilder.cs" />
-    <Compile Include="IDbCommandExecutor.cs" />
     <Compile Include="Migrations\History\HistoryRow.cs" />
     <Compile Include="Migrations\Infrastructure\ContextTypeAttribute.cs" />
     <Compile Include="Migrations\History\IHistoryRepository.cs" />

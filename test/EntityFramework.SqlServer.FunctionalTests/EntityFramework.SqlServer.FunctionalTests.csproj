@@ -128,7 +128,6 @@
     <Compile Include="SqlServerDataStoreCreatorTest.cs" />
     <Compile Include="SqlServerEndToEndTest.cs" />
     <Compile Include="SentinelGraphUpdatesSqlServerTest.cs" />
-    <Compile Include="SqlServerSimpleCommandExecutorTest.cs" />
     <Compile Include="MonsterFixupSqlServerTest.cs" />
     <Compile Include="SqlServerTestStore.cs" />
     <Compile Include="TransactionSqlServerFixture.cs" />
