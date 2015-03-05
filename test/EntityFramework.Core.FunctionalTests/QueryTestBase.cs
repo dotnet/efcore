@@ -800,6 +800,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_bool_member_negated_twice()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => !!(p.Discontinued == true)), entryCount: 8);
+        }
+
+        [Fact]
         public virtual void Where_bool_member_shadow()
         {
             AssertQuery<Product>(ps => ps.Where(p => p.Property<bool>("Discontinued")), entryCount: 8);
@@ -809,6 +815,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Where_bool_member_false_shadow()
         {
             AssertQuery<Product>(ps => ps.Where(p => !p.Property<bool>("Discontinued")), entryCount: 69);
+        }
+
+        [Fact]
+        public virtual void Where_bool_member_equals_constant()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => p.Discontinued.Equals(true)), entryCount: 8);
+        }
+
+        [Fact]
+        public virtual void Where_bool_member_in_complex_predicate()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => p.ProductID > 100 && p.Discontinued || (p.Discontinued == true)), entryCount: 8);
         }
 
         [Fact]

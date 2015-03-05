@@ -16,7 +16,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
 
         private bool _requiresClientEval;
-        private bool _inBinaryEqualityExpression;
 
         public FilteringExpressionTreeVisitor([NotNull] RelationalQueryModelVisitor queryModelVisitor)
         {
@@ -36,14 +35,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
                 {
-                    _inBinaryEqualityExpression = true;
-
                     var structuralComparisonExpression
                         = UnfoldStructuralComparison(
                             binaryExpression.NodeType,
                             ProcessComparisonExpression(binaryExpression));
-
-                    _inBinaryEqualityExpression = false;
 
                     return structuralComparisonExpression;
                 }
@@ -205,10 +200,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                 if (columnExpression != null)
                 {
-                    return !_inBinaryEqualityExpression
-                           && columnExpression.Type == typeof(bool)
-                        ? (Expression)Expression.Equal(columnExpression, Expression.Constant(true))
-                        : columnExpression;
+                    return columnExpression;
                 }
             }
 
@@ -234,10 +226,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             if (columnExpression != null)
             {
-                return !_inBinaryEqualityExpression
-                       && columnExpression.Type == typeof(bool)
-                    ? (Expression)Expression.Equal(columnExpression, Expression.Constant(true))
-                    : columnExpression;
+                return columnExpression;
             }
 
             _requiresClientEval = true;
