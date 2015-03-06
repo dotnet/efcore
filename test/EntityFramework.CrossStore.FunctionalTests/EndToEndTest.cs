@@ -114,6 +114,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
             : base(fixture)
         {
         }
+
+#if DNXCORE50
+        [Fact(Skip = "Fails on Core CLR")]
+        public override void Can_save_changes_and_query()
+        {
+        }
+#endif
     }
 
     [Collection("SharedEndToEndCollection")]

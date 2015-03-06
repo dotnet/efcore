@@ -1,6 +1,5 @@
 {
     "dependencies": {
-        "EntityFramework.Core.Tests": "1.0.0",
         "EntityFramework.Core.FunctionalTests": "1.0.0",
         "EntityFramework.Relational": "7.0.0-*"
     },

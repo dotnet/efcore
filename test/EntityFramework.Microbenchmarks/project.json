@@ -10,6 +10,12 @@
         "test": "xunit.runner.aspnet"
     },
     "frameworks": {
+        "dnxcore50": {
+            "dependencies": {
+                "System.ComponentModel.Annotations": "4.0.10-beta-*",
+                "System.Net.NetworkInformation":  "4.0.10-beta-*"
+            }
+        },
         "dnx451": {
             "frameworkAssemblies": {
                 "System.ComponentModel.DataAnnotations": ""

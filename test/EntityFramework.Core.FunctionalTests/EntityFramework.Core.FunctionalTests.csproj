@@ -110,6 +110,7 @@
     <Compile Include="F1FixtureBase.cs" />
     <Compile Include="QueryTestBase.cs" />
     <Compile Include="OptimisticConcurrencyTestBase.cs" />
+    <Compile Include="TestHelpers.cs" />
     <Compile Include="TestModelSource.cs" />
     <Compile Include="TestModels\ComplexNavigationsModel\ComplexNavigationsContext.cs" />
     <Compile Include="TestModels\ComplexNavigationsModel\ComplexNavigationsModelInitializer.cs" />
@@ -178,10 +179,6 @@
     <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>EntityFramework.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EntityFramework.Core.Tests\EntityFramework.Core.Tests.csproj">
-      <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
-      <Name>EntityFramework.Core.Tests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
