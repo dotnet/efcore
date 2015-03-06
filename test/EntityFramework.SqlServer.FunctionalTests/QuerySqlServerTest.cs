@@ -976,7 +976,7 @@ WHERE [c].[City] = [c].[City]",
         public override void Where_select_many_or()
         {
             base.Where_select_many_or();
-
+            
             Assert.Equal(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
@@ -1018,6 +1018,18 @@ WHERE [c].[City] IN ('London', 'Berlin', 'Seattle')",
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] IN ('London', 'Berlin', 'Seattle', 'Lisboa')",
+                Sql);
+        }
+
+        public override void Where_in_optimization_multiple()
+        {
+            base.Where_in_optimization_multiple();
+
+            Assert.StartsWith(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Customers] AS [c]
+CROSS JOIN [Employees] AS [e]
+WHERE (([c].[City] IN ('London', 'Berlin') OR [c].[CustomerID] = 'ALFKI') OR [c].[CustomerID] = 'ABCDE')",
                 Sql);
         }
 

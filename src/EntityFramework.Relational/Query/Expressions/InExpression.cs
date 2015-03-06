@@ -31,5 +31,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 ? specificVisitor.VisitInExpression(this)
                 : base.Accept(visitor);
         }
+
+        public override string ToString()
+        {
+            return Column + " IN (" + string.Join(", ", Values) + ")";
+        }
     }
 }

@@ -25,9 +25,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                     var optimized
                         = TryOptimize(
                             binaryExpression,
-                            expressionType: ExpressionType.OrElse,
                             equalityType: ExpressionType.Equal,
-                            inFactory: (c, vs) => new InExpression(c, vs));
+                            inExpressionFactory: (c, vs) => new InExpression(c, vs));
 
                     if (optimized != null)
                     {
@@ -42,9 +41,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                     var optimized
                         = TryOptimize(
                             binaryExpression,
-                            expressionType: ExpressionType.AndAlso,
                             equalityType: ExpressionType.NotEqual,
-                            inFactory: (c, vs) => new NotInExpression(c, vs));
+                            inExpressionFactory: (c, vs) => new NotInExpression(c, vs));
 
                     if (optimized != null)
                     {
@@ -58,58 +56,65 @@ namespace Microsoft.Data.Entity.Relational.Query
             return base.VisitBinaryExpression(binaryExpression);
         }
 
-        private Expression TryOptimize(
+        private Expression TryOptimize<TInExpression>(
             BinaryExpression binaryExpression,
-            ExpressionType expressionType,
             ExpressionType equalityType,
-            Func<ColumnExpression, Expression[], InExpressionBase> inFactory)
+            Func<ColumnExpression, Expression[], TInExpression> inExpressionFactory)
+            where TInExpression : InExpressionBase
         {
-            Expression value;
+            ConstantExpression leftConstantExpression, rightConstantExpression;
 
-            var column = MatchEqualityExpression(binaryExpression.Left, equalityType, out value);
-
-            var newLeft
-                = column != null
-                    ? inFactory(column, new[] { value })
-                    : VisitExpression(binaryExpression.Left) as InExpressionBase;
-
-            column = MatchEqualityExpression(binaryExpression.Right, equalityType, out value);
-
-            var newRight
-                = column != null
-                    ? inFactory(column, new[] { value })
-                    : VisitExpression(binaryExpression.Right) as InExpressionBase;
-
-            if (newLeft != null
-                && newRight != null)
-            {
-                if (newLeft.Column.Equals(newRight.Column))
-                {
-                    return inFactory(
-                        newLeft.Column,
-                        newLeft.Values.Concat(newRight.Values).ToArray());
-                }
-
-                return Expression.MakeBinary(
-                    expressionType,
-                    newLeft.Values.Count > 1 ? newLeft : binaryExpression.Left,
-                    newRight.Values.Count > 1 ? newRight : binaryExpression.Right);
-            }
-
-            if (newLeft != null)
-            {
-                return Expression.MakeBinary(
-                    expressionType,
-                    newLeft.Values.Count > 1 ? newLeft : binaryExpression.Left,
-                    binaryExpression.Right);
-            }
-
-            if (newRight != null)
-            {
-                return Expression.MakeBinary(
-                    expressionType,
+            var leftColumnExpression
+                = MatchEqualityExpression(
                     binaryExpression.Left,
-                    newRight.Values.Count > 1 ? newRight : binaryExpression.Right);
+                    equalityType,
+                    out leftConstantExpression);
+
+            var rightColumnExpression
+                = MatchEqualityExpression(
+                    binaryExpression.Right,
+                    equalityType,
+                    out rightConstantExpression);
+
+            if (leftColumnExpression != null
+                && rightColumnExpression != null
+                && leftColumnExpression.Equals(rightColumnExpression))
+            {
+                return inExpressionFactory(
+                    leftColumnExpression,
+                    new Expression[] { leftConstantExpression, rightConstantExpression });
+            }
+
+            if (leftColumnExpression != null)
+            {
+                var rightInExpression
+                    = VisitExpression(binaryExpression.Right) as TInExpression;
+
+                if (rightInExpression != null
+                    && leftColumnExpression.Equals(rightInExpression.Column))
+                {
+                    return inExpressionFactory(
+                        leftColumnExpression,
+                        new[] { leftConstantExpression }
+                            .Concat(rightInExpression.Values)
+                            .ToArray());
+                }
+            }
+
+            if (rightColumnExpression != null)
+            {
+                var leftInExpression
+                    = VisitExpression(binaryExpression.Left) as TInExpression;
+
+                if (leftInExpression != null
+                    && rightColumnExpression.Equals(leftInExpression.Column))
+                {
+                    return inExpressionFactory(
+                        rightColumnExpression,
+                        leftInExpression.Values
+                            .Concat(new[] { rightConstantExpression })
+                            .ToArray());
+                }
             }
 
             return null;
@@ -118,19 +123,19 @@ namespace Microsoft.Data.Entity.Relational.Query
         private static ColumnExpression MatchEqualityExpression(
             Expression expression,
             ExpressionType equalityType,
-            out Expression value)
+            out ConstantExpression constantExpression)
         {
-            value = null;
+            constantExpression = null;
 
             var binaryExpression = expression as BinaryExpression;
 
             if (binaryExpression?.NodeType == equalityType)
             {
-                value
+                constantExpression
                     = binaryExpression.Right as ConstantExpression
                       ?? binaryExpression.Left as ConstantExpression;
 
-                if (value != null)
+                if (constantExpression != null)
                 {
                     return binaryExpression.Right as ColumnExpression
                            ?? binaryExpression.Left as ColumnExpression;
