@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
 {
-    // TODO: Remove and sort usings
+    // TODO: Remove and sort usings (See #1773)
     public class CSharpMigrationGenerator : MigrationCodeGenerator
     {
         private readonly CSharpHelper _code;

@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
         // TODO: Hide?
         public virtual void AddOperation([NotNull] MigrationOperation operation) => _operations.Add(operation);
 
-        // TODO: Cycle option?
+        // TODO: Cycle option? (See #1777)
         public virtual void CreateSequence(
             [NotNull] string name,
             [CanBeNull] string schema = null,
@@ -351,7 +351,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
                 AddOperation(new RenameIndexOperation(table, schema, name, newName, annotations));
 
-        // TODO: SqlFile, SqlResource
+        // TODO: SqlFile, SqlResource (See #1776)
         public virtual void Sql(
             [NotNull] string sql,
             bool suppressTransaction = false,

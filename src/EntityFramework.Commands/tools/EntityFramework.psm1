@@ -64,7 +64,7 @@ Register-TabExpansion Apply-Migration @{
     StartupProject = { GetProjects }
 }
 
-# TODO: WhatIf
+# TODO: WhatIf (See #1775)
 function Apply-Migration {
     [CmdletBinding()]
     param ([string] $Migration, [string] $Context, [string] $Project, [string] $StartupProject)
