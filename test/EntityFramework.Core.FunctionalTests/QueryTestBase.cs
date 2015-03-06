@@ -2476,12 +2476,59 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Contains_with_local_collection()
+        public virtual void Contains_with_local_array_parameter()
         {
             string[] ids = { "ABCDE", "ALFKI" };
             AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
         }
+
+        [Fact]
+        public virtual void Contains_with_local_array_constant()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => new[] { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_list_parameter()
+        {
+            var ids = new List<string> { "ABCDE", "ALFKI" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_list_constant()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => new List<string>{ "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_collection_false()
+        {
+            string[] ids = { "ABCDE", "ALFKI" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => !ids.Contains(c.CustomerID)), entryCount: 90);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_collection_complex_predicate_and()
+        {
+            string[] ids = { "ABCDE", "ALFKI" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") && ids.Contains(c.CustomerID)), entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_collection_complex_predicate_or()
+        {
+            string[] ids = { "ABCDE", "ALFKI" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
+        }
+
 
         [Fact]
         public virtual void Contains_top_level()

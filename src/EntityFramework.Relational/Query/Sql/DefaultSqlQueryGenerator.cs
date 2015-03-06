@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -259,24 +260,51 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append(" IN (");
 
-            VisitJoin(inExpression.Values);
+            ProcessInExpressionArguments(inExpression);
             
             _sql.Append(")");
 
             return inExpression;
         }
 
-        public virtual Expression VisitNotInExpression(NotInExpression inExpression)
+        public virtual Expression VisitNotInExpression(NotInExpression notInExpression)
         {
-            VisitExpression(inExpression.Column);
+            VisitExpression(notInExpression.Column);
 
             _sql.Append(" NOT IN (");
 
-            VisitJoin(inExpression.Values);
+            ProcessInExpressionArguments(notInExpression);
 
             _sql.Append(")");
 
-            return inExpression;
+            return notInExpression;
+        }
+
+        private void ProcessInExpressionArguments(InExpressionBase inExpressionBase)
+        {
+            if (inExpressionBase.ParameterArgument != null)
+            {
+                var values = (IEnumerable)_parameterValues[inExpressionBase.ParameterArgument.Name];
+                bool first = true;
+                foreach (var value in values)
+                {
+                    if (!first)
+                    {
+                        _sql.Append(", ");
+                    }
+                    else
+                    {
+                        first = false;
+                    }
+
+                    _sql.Append(GenerateLiteral((dynamic)value));
+
+                }
+            }
+            else
+            {
+                VisitJoin(inExpressionBase.Values);
+            }
         }
 
         public virtual Expression VisitInnerJoinExpression(InnerJoinExpression innerJoinExpression)

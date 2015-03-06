@@ -14,18 +14,20 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
     {
         protected InExpressionBase(
             [NotNull] ColumnExpression column,
-            [NotNull] IReadOnlyList<Expression> values)
+            [CanBeNull] IReadOnlyList<Expression> values,
+            [CanBeNull] ParameterExpression parameter)
             : base(typeof(bool))
         {
             Check.NotNull(column, nameof(column));
-            Check.NotNull(values, nameof(values));
 
             Column = column;
             Values = values;
+            ParameterArgument = parameter;
         }
 
         public virtual ColumnExpression Column { get; }
         public virtual IReadOnlyList<Expression> Values { get; }
+        public virtual ParameterExpression ParameterArgument { get; }
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {
