@@ -111,13 +111,13 @@ namespace Microsoft.Data.Entity.Relational.Query
         private static Expression HandleAll(HandlerContext handlerContext)
         {
             var filteringVisitor
-                = new FilteringExpressionTreeVisitor(handlerContext.QueryModelVisitor);
+                = new SqlTranslatingExpressionTreeVisitor(handlerContext.QueryModelVisitor);
 
             var predicate
                 = filteringVisitor.VisitExpression(
                     ((AllResultOperator)handlerContext.ResultOperator).Predicate);
 
-            if (!filteringVisitor.RequiresClientEval)
+            if (predicate != null)
             {
                 var innerSelectExpression = new SelectExpression();
 

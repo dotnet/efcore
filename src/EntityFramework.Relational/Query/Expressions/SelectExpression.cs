@@ -336,19 +336,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public virtual ColumnExpression AddToOrderBy(
             [NotNull] string column,
             [NotNull] IProperty property,
-            [NotNull] IQuerySource querySource,
-            OrderingDirection orderingDirection)
-        {
-            Check.NotEmpty(column, nameof(column));
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(querySource, nameof(querySource));
-
-            return AddToOrderBy(column, property, FindTableForQuerySource(querySource), orderingDirection);
-        }
-
-        public virtual ColumnExpression AddToOrderBy(
-            [NotNull] string column,
-            [NotNull] IProperty property,
             [NotNull] TableExpressionBase table,
             OrderingDirection orderingDirection)
         {
@@ -371,6 +358,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotNull(orderings, nameof(orderings));
 
             _orderBy.AddRange(orderings);
+        }
+
+        public virtual void PrependToOrderBy([NotNull] IEnumerable<Ordering> orderings)
+        {
+            Check.NotNull(orderings, nameof(orderings));
+
+            _orderBy.InsertRange(0, orderings);
         }
 
         public virtual IReadOnlyList<Ordering> OrderBy => _orderBy;

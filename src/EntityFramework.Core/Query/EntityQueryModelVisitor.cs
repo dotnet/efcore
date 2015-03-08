@@ -713,7 +713,10 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public override void VisitOrdering(
-            [NotNull] Ordering ordering, [NotNull] QueryModel queryModel, [NotNull] OrderByClause orderByClause, int index)
+            [NotNull] Ordering ordering, 
+            [NotNull] QueryModel queryModel, 
+            [NotNull] OrderByClause orderByClause, 
+            int index)
         {
             Check.NotNull(ordering, nameof(ordering));
             Check.NotNull(queryModel, nameof(queryModel));

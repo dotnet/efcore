@@ -28,8 +28,6 @@ namespace Microsoft.Data.Entity.Relational.Query
         private readonly Dictionary<IQuerySource, SelectExpression> _queriesBySource
             = new Dictionary<IQuerySource, SelectExpression>();
 
-        private Expression _preOrderingExpression;
-
         private bool _requiresClientFilter;
 
         private RelationalProjectionExpressionTreeVisitor _projectionTreeVisitor;
@@ -43,7 +41,6 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         public virtual bool RequiresClientFilter => _requiresClientFilter;
-
         public virtual bool RequiresClientProjection => _projectionTreeVisitor.RequiresClientEval;
 
         public new virtual RelationalQueryCompilationContext QueryCompilationContext
@@ -79,13 +76,6 @@ namespace Microsoft.Data.Entity.Relational.Query
             return _projectionTreeVisitor = new RelationalProjectionExpressionTreeVisitor(this);
         }
 
-        protected override ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor(Ordering ordering)
-        {
-            Check.NotNull(ordering, nameof(ordering));
-
-            return new RelationalOrderingExpressionTreeVisitor(this, ordering);
-        }
-
         public override void VisitQueryModel(QueryModel queryModel)
         {
             base.VisitQueryModel(queryModel);
@@ -112,7 +102,11 @@ namespace Microsoft.Data.Entity.Relational.Query
             Check.NotNull(navigationPath, nameof(navigationPath));
 
             Expression
-                = new IncludeExpressionTreeVisitor(querySource, navigationPath, QueryCompilationContext, querySourceRequiresTracking)
+                = new IncludeExpressionTreeVisitor(
+                    querySource,
+                    navigationPath,
+                    QueryCompilationContext,
+                    querySourceRequiresTracking)
                     .VisitExpression(Expression);
         }
 
@@ -179,7 +173,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 if (selectExpression != null)
                 {
                     var filteringExpressionTreeVisitor
-                        = new FilteringExpressionTreeVisitor(this);
+                        = new SqlTranslatingExpressionTreeVisitor(this);
 
                     var predicate
                         = filteringExpressionTreeVisitor
@@ -223,104 +217,73 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
-            var previousExpression = Expression;
+            var selectExpression = TryGetQuery(queryModel.MainFromClause);
+            var requiresClientEval = selectExpression == null;
 
-            var projectionCounts
-                = _queriesBySource
-                    .Select(kv => new
-                        {
-                            SelectExpression = kv.Value,
-                            kv.Value.Projection.Count
-                        })
-                    .ToList();
-
-            var requiresClientFilter = !_queriesBySource.Any();
-            base.VisitWhereClause(whereClause, queryModel, index);
-
-            foreach (var selectExpression in _queriesBySource.Values)
+            if (!requiresClientEval)
             {
-                var filteringVisitor = new FilteringExpressionTreeVisitor(this);
-                var predicate = filteringVisitor.VisitExpression(whereClause.Predicate);
+                var sqlPredicateExpression
+                    = new SqlTranslatingExpressionTreeVisitor(this)
+                        .VisitExpression(whereClause.Predicate);
 
-                if (predicate != null)
+                if (sqlPredicateExpression != null)
                 {
-                    selectExpression.Predicate = selectExpression.Predicate == null
-                        ? predicate
-                        : Expression.AndAlso(selectExpression.Predicate, predicate);
+                    selectExpression.Predicate
+                        = selectExpression.Predicate == null
+                            ? sqlPredicateExpression
+                            : Expression.AndAlso(selectExpression.Predicate, sqlPredicateExpression);
                 }
-
-                requiresClientFilter |= filteringVisitor.RequiresClientEval;
+                else
+                {
+                    requiresClientEval = true;
+                }
             }
 
-            if (!requiresClientFilter)
+            if (requiresClientEval)
             {
-                foreach (var projectionCount in projectionCounts)
-                {
-                    projectionCount.SelectExpression
-                        .RemoveRangeFromProjection(projectionCount.Count);
-                }
-
-                Expression = previousExpression;
+                base.VisitWhereClause(whereClause, queryModel, index);
             }
 
-            _requiresClientFilter |= requiresClientFilter;
+            _requiresClientFilter |= requiresClientEval;
         }
 
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
         {
-            if (_preOrderingExpression == null)
-            {
-                _preOrderingExpression = Expression;
-            }
+            var selectExpression = TryGetQuery(queryModel.MainFromClause);
 
-            var orderingCounts
-                = _queriesBySource
-                    .Where(kv => kv.Value.OrderBy.Any())
-                    .Select(kv => new { kv.Key, kv.Value.OrderBy.Count })
-                    .ToList();
+            if (selectExpression != null)
+            {
+                var sqlTranslatingExpressionTreeVisitor
+                    = new SqlTranslatingExpressionTreeVisitor(this);
+
+                var orderings = new List<Ordering>();
+
+                foreach (var ordering in orderByClause.Orderings)
+                {
+                    var sqlOrderingExpression
+                        = sqlTranslatingExpressionTreeVisitor
+                            .VisitExpression(ordering.Expression);
+
+                    if (sqlOrderingExpression == null)
+                    {
+                        break;
+                    }
+
+                    orderings.Add(
+                        new Ordering(
+                            sqlOrderingExpression,
+                            ordering.OrderingDirection));
+                }
+
+                if (orderings.Count == orderByClause.Orderings.Count)
+                {
+                    selectExpression.PrependToOrderBy(orderings);
+
+                    return;
+                }
+            }
 
             base.VisitOrderByClause(orderByClause, queryModel, index);
-
-            foreach (var querySourceOrdering in orderingCounts)
-            {
-                var selectExpression = _queriesBySource[querySourceOrdering.Key];
-
-                if (querySourceOrdering.Count != selectExpression.OrderBy.Count)
-                {
-                    var orderBy = selectExpression.OrderBy.ToList();
-
-                    selectExpression.ClearOrderBy();
-                    selectExpression.AddToOrderBy(orderBy.Skip(querySourceOrdering.Count));
-                    selectExpression.AddToOrderBy(orderBy.Take(querySourceOrdering.Count));
-                }
-            }
-
-            if (index == queryModel.BodyClauses.Count - 1)
-            {
-                var queriesWithOrdering
-                    = _queriesBySource
-                        .Where(kv => kv.Value.OrderBy.Any())
-                        .Select(kv => kv.Value)
-                        .ToList();
-
-                if (queriesWithOrdering.Count == 1
-                    && queriesWithOrdering[0].OrderBy.Count == queryModel.BodyClauses
-                        .OfType<OrderByClause>()
-                        .SelectMany(ob => ob.Orderings)
-                        .Count())
-                {
-                    queriesWithOrdering[0].RemoveFromProjection(queriesWithOrdering[0].OrderBy);
-
-                    Expression = _preOrderingExpression;
-                }
-                else
-                {
-                    foreach (var selectExpression in _queriesBySource.Values)
-                    {
-                        selectExpression.ClearOrderBy();
-                    }
-                }
-            }
         }
 
         public override Expression BindMemberToValueReader(MemberExpression memberExpression, Expression expression)

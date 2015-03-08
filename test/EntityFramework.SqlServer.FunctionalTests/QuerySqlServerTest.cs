@@ -381,11 +381,6 @@ WHERE [o].[CustomerID] <> 'ALFKI'",
                 Sql);
         }
 
-        public override void GroupBy_LongCount()
-        {
-            base.GroupBy_LongCount();
-        }
-
         public override void Sum_with_no_arg()
         {
             base.Sum_with_no_arg();

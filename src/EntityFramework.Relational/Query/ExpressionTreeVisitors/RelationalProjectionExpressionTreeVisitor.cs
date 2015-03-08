@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return base.VisitMethodCallExpression(methodCallExpression);
         }
 
-        public override Expression VisitExpression([NotNull] Expression expression)
+        public override Expression VisitExpression(Expression expression)
         {
             if (!(expression is MemberExpression
                   || expression is MethodCallExpression

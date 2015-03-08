@@ -11,20 +11,16 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
-    public class FilteringExpressionTreeVisitor : ThrowingExpressionTreeVisitor
+    public class SqlTranslatingExpressionTreeVisitor : ThrowingExpressionTreeVisitor
     {
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
 
-        private bool _requiresClientEval;
-
-        public FilteringExpressionTreeVisitor([NotNull] RelationalQueryModelVisitor queryModelVisitor)
+        public SqlTranslatingExpressionTreeVisitor([NotNull] RelationalQueryModelVisitor queryModelVisitor)
         {
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
             _queryModelVisitor = queryModelVisitor;
         }
-
-        public virtual bool RequiresClientEval => _requiresClientEval;
 
         protected override Expression VisitBinaryExpression([NotNull] BinaryExpression binaryExpression)
         {
@@ -72,8 +68,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         : null;
                 }
             }
-
-            _requiresClientEval = true;
 
             return null;
         }
@@ -175,36 +169,22 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             methodCallExpression.Method,
                             arguments);
 
-                    var translatedMethodExpression
-                        = _queryModelVisitor.QueryCompilationContext.MethodCallTranslator
-                            .Translate(boundExpression);
-
-                    if (translatedMethodExpression != null)
-                    {
-                        return translatedMethodExpression;
-                    }
+                    return _queryModelVisitor.QueryCompilationContext.MethodCallTranslator
+                        .Translate(boundExpression);
                 }
             }
             else
             {
-                var columnExpression
-                    = _queryModelVisitor
-                        .BindMethodCallExpression(
-                            methodCallExpression,
-                            (property, querySource, selectExpression)
-                                => new ColumnExpression(
-                                    _queryModelVisitor.QueryCompilationContext
-                                        .GetColumnName(property),
-                                    property,
-                                    selectExpression.FindTableForQuerySource(querySource)));
-
-                if (columnExpression != null)
-                {
-                    return columnExpression;
-                }
+                return _queryModelVisitor
+                    .BindMethodCallExpression(
+                        methodCallExpression,
+                        (property, querySource, selectExpression)
+                            => new ColumnExpression(
+                                _queryModelVisitor.QueryCompilationContext
+                                    .GetColumnName(property),
+                                property,
+                                selectExpression.FindTableForQuerySource(querySource)));
             }
-
-            _requiresClientEval = true;
 
             return null;
         }
@@ -213,49 +193,42 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
 
-            var columnExpression
-                = _queryModelVisitor
-                    .BindMemberExpression(
-                        memberExpression,
-                        (property, querySource, selectExpression)
-                            => new ColumnExpression(
-                                _queryModelVisitor.QueryCompilationContext
-                                    .GetColumnName(property),
-                                property,
-                                selectExpression.FindTableForQuerySource(querySource)));
-
-            if (columnExpression != null)
-            {
-                return columnExpression;
-            }
-
-            _requiresClientEval = true;
-
-            return null;
+            return _queryModelVisitor
+                .BindMemberExpression(
+                    memberExpression,
+                    (property, querySource, selectExpression)
+                        => new ColumnExpression(
+                            _queryModelVisitor.QueryCompilationContext
+                                .GetColumnName(property),
+                            property,
+                            selectExpression.FindTableForQuerySource(querySource)));
         }
 
         protected override Expression VisitUnaryExpression([NotNull] UnaryExpression expression)
         {
-            if (expression.NodeType == ExpressionType.Not)
+            switch (expression.NodeType)
             {
-                var operand = VisitExpression(expression.Operand);
-
-                if (operand != null)
+                case ExpressionType.Not:
                 {
-                    return Expression.Not(operand);
-                }
-            }
-            else if (expression.NodeType == ExpressionType.Convert)
-            {
-                var operand = VisitExpression(expression.Operand);
+                    var operand = VisitExpression(expression.Operand);
 
-                if (operand != null)
+                    if (operand != null)
+                    {
+                        return Expression.Not(operand);
+                    }
+                }
+                    break;
+                case ExpressionType.Convert:
                 {
-                    return Expression.Convert(operand, expression.Type);
-                }
-            }
+                    var operand = VisitExpression(expression.Operand);
 
-            _requiresClientEval = true;
+                    if (operand != null)
+                    {
+                        return Expression.Convert(operand, expression.Type);
+                    }
+                }
+                    break;
+            }
 
             return null;
         }
@@ -279,8 +252,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     return Expression.Constant(memberBindings);
                 }
             }
-
-            _requiresClientEval = true;
 
             return null;
         }
@@ -322,8 +293,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 return constantExpression;
             }
 
-            _requiresClientEval = true;
-
             return null;
         }
 
@@ -338,16 +307,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 return parameterExpression;
             }
 
-            _requiresClientEval = true;
-
             return null;
         }
 
         protected override TResult VisitUnhandledItem<TItem, TResult>(
             TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
         {
-            _requiresClientEval = true;
-
             return default(TResult);
         }
 
