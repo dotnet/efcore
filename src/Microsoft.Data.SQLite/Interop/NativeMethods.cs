@@ -1,10 +1,10 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Runtime.InteropServices;
 
-#if NET451 ||ASPNET50 || ASPNETCORE50
+#if NET451 ||DNX451 || DNXCORE50
 using Microsoft.Data.SQLite.Utilities;
 #endif
 
@@ -14,7 +14,7 @@ namespace Microsoft.Data.SQLite.Interop
     // TODO: Consider using function pointers instead of SQLITE_TRANSIENT #Perf
     internal static class NativeMethods
     {
-#if NET451 || ASPNET50 || ASPNETCORE50
+#if NET451 || DNX451 || DNXCORE50
         static NativeMethods()
         {
             NativeLibraryLoader.Load("sqlite3");

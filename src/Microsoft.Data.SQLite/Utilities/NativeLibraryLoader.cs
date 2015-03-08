@@ -1,15 +1,15 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 
-#if NET451 || ASPNET50 || ASPNETCORE50
+#if NET451 || DNX451 || DNXCORE50
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-#if ASPNET50 || ASPNETCORE50
+#if DNX451 || DNXCORE50
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Infrastructure;
 #endif
@@ -35,7 +35,7 @@ namespace Microsoft.Data.SQLite.Utilities
 
             var currentAssembly = typeof(NativeLibraryLoader).GetTypeInfo().Assembly;
 
-#if ASPNET50 || ASPNETCORE50
+#if DNX451 || DNXCORE50
             try
             {
                 if (TryLoadUnderKRuntime(currentAssembly, dllName))
@@ -54,7 +54,7 @@ namespace Microsoft.Data.SQLite.Utilities
         }
 
 
-#if ASPNET50 || ASPNETCORE50
+#if DNX451 || DNXCORE50
         private static bool TryLoadUnderKRuntime(Assembly currentAssembly, string dllName)
         {
             var serviceProvider = CallContextServiceLocator.Locator.ServiceProvider;

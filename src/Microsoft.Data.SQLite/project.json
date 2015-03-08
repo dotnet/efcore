@@ -1,4 +1,4 @@
-{
+﻿{
     "version": "1.0.0-*",
     "description": "SQLite implementation of the DataCommon provider model.",
     "dependencies": {
@@ -6,12 +6,12 @@
     },
     "frameworks": {
         "net451": { },
-        "aspnet50": {
+        "dnx451": {
             "dependencies": {
                 "Microsoft.Framework.Runtime.Interfaces": { "version": "1.0.0-*", "type": "build" }
             }
         },
-        "aspnetcore50": {
+        "dnxcore50": {
             "dependencies": {
                 "Microsoft.Framework.Runtime.Interfaces": { "version": "1.0.0-*", "type": "build" },
                 "System.IO.FileSystem": "4.0.0-beta-*",
