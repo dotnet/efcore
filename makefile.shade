@@ -1,4 +1,4 @@
-use assembly='WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
+﻿use assembly='WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
 use namespace='System.IO.Packaging'
 
 var VERSION='0.1'
@@ -15,7 +15,7 @@ k-standard-goals
     exec program='${buildProgram}' commandline='${projectFile} /t:WritePackageReferences /v:m /nologo /p:Configuration=${E("Configuration")}'
 
 @{
-    var packagesDir = Environment.GetEnvironmentVariable("KRE_PACKAGES")
+    var packagesDir = Environment.GetEnvironmentVariable("DNX_PACKAGES")
         ?? Path.Combine(
             Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME"),
             ".k",
@@ -23,8 +23,8 @@ k-standard-goals
 }
 
 #nuspec-pack target="compile"
-    var K_BUILD_VERSION='${E("K_BUILD_VERSION")}'
-    nuget-pack each='var nuspecFile in Files.Include("src/**/*.nuspec")' outputDir='artifacts/build' extra='-Properties "star=${K_BUILD_VERSION};author=${AUTHORS}"'
+    var DNX_BUILD_VERSION='${E("DNX_BUILD_VERSION")}'
+    nuget-pack each='var nuspecFile in Files.Include("src/**/*.nuspec")' outputDir='artifacts/build' extra='-Properties "star=${DNX_BUILD_VERSION};author=${AUTHORS}"'
 
 #nupkg-patch target='compile'
     @{

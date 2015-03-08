@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <PackagesTargetsFile>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)Packages.targets</PackagesTargetsFile>
@@ -22,7 +22,7 @@
     <Task>
       <Code Type="Fragment" Language="cs">
         <![CDATA[
-        var packagesFolder = Environment.GetEnvironmentVariable("KRE_PACKAGES")
+        var packagesFolder = Environment.GetEnvironmentVariable("DNX_PACKAGES")
             ?? Path.Combine(
                 Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME"),
                 ".k",

@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                             if (!File.Exists(scriptPath))
                             {
-                                var appBase = Environment.GetEnvironmentVariable("KRE_APPBASE");
+                                var appBase = Environment.GetEnvironmentVariable("DNX_APPBASE");
 
                                 if (appBase != null)
                                 {
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                             if (!File.Exists(scriptPath))
                             {
-                                var appBase = Environment.GetEnvironmentVariable("KRE_APPBASE");
+                                var appBase = Environment.GetEnvironmentVariable("DNX_APPBASE");
 
                                 if (appBase != null)
                                 {
