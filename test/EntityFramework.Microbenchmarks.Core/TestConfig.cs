@@ -7,7 +7,7 @@ using Microsoft.Framework.ConfigurationModel;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-#if ASPNET50 || ASPNETCORE50
+#if DNX451 || DNXCORE50
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Infrastructure;
 #endif
@@ -119,7 +119,7 @@ namespace EntityFramework.Microbenchmarks.Core
         private string getRuntimeFlavor()
         {
             var runtimeFlavor = "Net45";
-#if ASPNET50 || ASPNETCORE50
+#if DNX451 || DNXCORE50
             var services = CallContextServiceLocator.Locator.ServiceProvider;
             var appEnv = (IApplicationEnvironment)services.GetService(typeof(IApplicationEnvironment));
             var isCoreCLR = appEnv.RuntimeFramework.Identifier == "Asp.NetCore";

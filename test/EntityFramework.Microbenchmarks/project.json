@@ -1,4 +1,4 @@
-{
+﻿{
     "dependencies": {
         "EntityFramework.SqlServer": "7.0.0-*",
         "EntityFramework.Microbenchmarks.Core": "1.0.0-*",
@@ -10,7 +10,7 @@
         "test": "xunit.runner.aspnet"
     },
     "frameworks": {
-        "aspnet50": {
+        "dnx451": {
             "frameworkAssemblies": {
                 "System.ComponentModel.DataAnnotations": ""
             }

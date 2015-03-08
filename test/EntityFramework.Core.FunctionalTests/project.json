@@ -1,4 +1,4 @@
-{
+﻿{
     "dependencies": {
         "EntityFramework.InMemory": "7.0.0-*",
         "xunit.runner.aspnet": "2.0.0-aspnet-*"
@@ -7,6 +7,6 @@
         "test": "xunit.runner.aspnet"
     },
     "frameworks": {
-        "aspnet50": { }
+        "dnx451": { }
     }
 }

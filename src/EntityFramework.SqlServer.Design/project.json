@@ -1,4 +1,4 @@
-{
+﻿{
     "version": "7.0.0-*",
     "description":  "Design-time Entity Framework Functionality for Microsoft SQL Server data store.",
     "compilationOptions": {
@@ -11,8 +11,8 @@
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
         "net451": { },
-        "aspnet50": { },
-        "aspnetcore50": {
+        "dnx451": { },
+        "dnxcore50": {
             "dependencies": {
                 "System.Data.SqlClient": "4.0.0-beta-*",
                 "System.Runtime.Extensions": "4.0.10-beta-*"

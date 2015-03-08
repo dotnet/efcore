@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
-#if !ASPNETCORE50
+#if !DNXCORE50
 using System.Runtime.Remoting.Messaging;
 
 #endif
@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
     public class TestSqlLoggerFactory : ILoggerFactory
     {
-#if ASPNETCORE50
+#if DNXCORE50
         private readonly static AsyncLocal<SqlLogger> _logger = new AsyncLocal<SqlLogger>();
 #else
         private const string ContextName = "__SQL";
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         private static SqlLogger Init()
         {
             var logger = new SqlLogger();
-#if ASPNETCORE50
+#if DNXCORE50
             _logger.Value = logger;
 #else
             CallContext.LogicalSetData(ContextName, logger);
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             get
             {
-#if ASPNETCORE50
+#if DNXCORE50
                 var logger = _logger.Value;
 #else
                 var logger = (SqlLogger)CallContext.LogicalGetData(ContextName);

@@ -5,7 +5,7 @@ using System;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-#if ASPNET50
+#if DNX451
 using System.Linq;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Runtime;
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 
         private static MetadataReference ResolveReference(string name)
         {
-#if ASPNET50
+#if DNX451
             return CallContextServiceLocator
                 .Locator
                 .ServiceProvider

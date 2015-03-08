@@ -1,4 +1,4 @@
-{
+﻿{
     "dependencies": {
         "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-*",
         "xunit.runner.aspnet": "2.0.0-aspnet-*"
@@ -7,13 +7,13 @@
         "test": "xunit.runner.aspnet"
     },
     "frameworks": {
-        "aspnetcore50": {
+        "dnxcore50": {
             "dependencies": {
                 "System.ComponentModel.Annotations": "4.0.10-beta-*",
                 "System.Net.NetworkInformation":  "4.0.10-beta-*"
             }
         },
-        "aspnet50": {
+        "dnx451": {
             "frameworkAssemblies": {
                 "System.ComponentModel.DataAnnotations": ""
             }

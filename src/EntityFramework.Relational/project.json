@@ -1,4 +1,4 @@
-{
+﻿{
     "version": "7.0.0-*",
     "description":  "Shared Entity Framework components for relational data stores.",
     "compilationOptions": {
@@ -14,12 +14,12 @@
                 "System.Data": ""
             }
         },
-        "aspnet50": {
+        "dnx451": {
             "frameworkAssemblies": {
                 "System.Data": ""
             }
         },
-        "aspnetcore50": {
+        "dnxcore50": {
             "dependencies": {
                 "Microsoft.CSharp": "4.0.0-beta-*",
                 "System.Data.Common": "4.0.0-beta-*",

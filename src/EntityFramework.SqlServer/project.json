@@ -1,4 +1,4 @@
-{
+﻿{
     "version": "7.0.0-*",
     "description":  "Microsoft SQL Server data store for Entity Framework.",
     "compilationOptions": {
@@ -10,8 +10,8 @@
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
         "net451": { },
-        "aspnet50": { },
-        "aspnetcore50": {
+        "dnx451": { },
+        "dnxcore50": {
             "dependencies": {
                 "System.Data.SqlClient": "4.0.0-beta-*",
                 "System.Security.Principal.Windows": "4.0.0-beta-*",

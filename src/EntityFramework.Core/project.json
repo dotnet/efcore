@@ -1,4 +1,4 @@
-{
+﻿{
     "version": "7.0.0-*",
     "description":  "Entity Framework is Microsoft's recommended data access technology for new applications.",
     "compilationOptions": {
@@ -34,7 +34,7 @@
                 "System.Threading": { "version": "", "type": "build" }
             }
         },
-        "aspnet50": {
+        "dnx451": {
             "frameworkAssemblies": {
                 "System.Collections": "",
                 "System.Diagnostics.Debug": "",
@@ -53,7 +53,7 @@
                 "System.Threading": ""
             }
         },
-        "aspnetcore50": {
+        "dnxcore50": {
             "dependencies": {
                 "System.Diagnostics.Contracts": "4.0.0-beta-*",
                 "System.Linq.Queryable": "4.0.0-beta-*",

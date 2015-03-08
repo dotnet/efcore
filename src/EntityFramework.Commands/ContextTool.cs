@@ -9,7 +9,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-#if ASPNET50 || ASPNETCORE50
+#if DNX451 || DNXCORE50
 using Microsoft.AspNet.Hosting;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.OptionsModel;
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Commands
 
         private static DbContext TryCreateContextFromStartup(Type type)
         {
-#if ASPNET50 || ASPNETCORE50
+#if DNX451 || DNXCORE50
             try
             {
                 var hostingServiceCollection = HostingServices.Create();
