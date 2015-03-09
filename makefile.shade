@@ -24,7 +24,8 @@ k-standard-goals
 
 #nuspec-pack target="compile"
     var DNX_BUILD_VERSION='${E("DNX_BUILD_VERSION")}'
-    nuget-pack each='var nuspecFile in Files.Include("src/**/*.nuspec")' outputDir='artifacts/build' extra='-Properties "star=${DNX_BUILD_VERSION};author=${AUTHORS}"'
+    var DNX_AUTHOR='${E("DNX_AUTHOR")}'
+    nuget-pack each='var nuspecFile in Files.Include("src/**/*.nuspec")' outputDir='artifacts/build' extra='-Properties "star=${DNX_BUILD_VERSION};author=${DNX_AUTHOR}"'
 
 #nupkg-patch target='compile'
     @{
