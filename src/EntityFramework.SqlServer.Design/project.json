@@ -1,4 +1,4 @@
-﻿{
+{
     "version": "7.0.0-*",
     "description":  "Design-time Entity Framework Functionality for Microsoft SQL Server data store.",
     "compilationOptions": {

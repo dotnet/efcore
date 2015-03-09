@@ -1,4 +1,4 @@
-﻿{
+{
     "dependencies": {
         "EntityFramework.Core.FunctionalTests": "1.0.0"
     },
