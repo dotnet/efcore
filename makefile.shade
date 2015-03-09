@@ -1,4 +1,4 @@
-﻿use assembly='WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
+use assembly='WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
 use namespace='System.IO.Packaging'
 
 var VERSION='0.1'

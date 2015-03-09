@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 if test `uname` = Darwin; then
     cachedir=~/Library/Caches/KBuild
@@ -36,4 +36,3 @@ if ! type k > /dev/null 2>&1; then
 fi
 
 mono packages/Sake/tools/Sake.exe -I packages/KoreBuild/build -f makefile.shade "$@"
-
