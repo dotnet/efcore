@@ -71,9 +71,12 @@ namespace Microsoft.Data.Entity.Relational.Query
             return new RelationalEntityQueryableExpressionTreeVisitor(this, querySource);
         }
 
-        protected override ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor()
+        protected override ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor(IQuerySource querySource)
         {
-            return _projectionTreeVisitor = new RelationalProjectionExpressionTreeVisitor(this);
+            Check.NotNull(querySource, nameof(querySource));
+
+            return _projectionTreeVisitor 
+                = new RelationalProjectionExpressionTreeVisitor(this, querySource);
         }
 
         public override void VisitQueryModel(QueryModel queryModel)

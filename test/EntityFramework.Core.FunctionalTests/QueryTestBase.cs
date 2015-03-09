@@ -1963,6 +1963,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Sum_with_arg_expression()
+        {
+            AssertQuery<Order>(os => os.Sum(o => o.OrderID + o.OrderID));
+        }
+
+        [Fact]
         public virtual void Min_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Min());

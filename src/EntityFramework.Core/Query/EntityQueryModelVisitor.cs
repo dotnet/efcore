@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Query
 
         protected abstract ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor([NotNull] IQuerySource querySource);
 
-        protected virtual ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor()
+        protected virtual ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor([NotNull] IQuerySource querySource)
         {
             return new ProjectionExpressionTreeVisitor(this);
         }
@@ -774,7 +774,7 @@ namespace Microsoft.Data.Entity.Query
 
             var selector
                 = ReplaceClauseReferences(
-                    CreateProjectionExpressionTreeVisitor()
+                    CreateProjectionExpressionTreeVisitor(queryModel.MainFromClause)
                         .VisitExpression(selectClause.Selector));
 
             _expression

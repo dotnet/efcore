@@ -58,13 +58,17 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
 
                 case ExpressionType.OrElse:
+                case ExpressionType.Add:
+                case ExpressionType.Subtract:
+                case ExpressionType.Multiply:
+                case ExpressionType.Divide:
                 {
-                    var left = VisitExpression(binaryExpression.Left);
-                    var right = VisitExpression(binaryExpression.Right);
+                    var leftExpression = VisitExpression(binaryExpression.Left);
+                    var rightExpression = VisitExpression(binaryExpression.Right);
 
-                    return left != null
-                           && right != null
-                        ? Expression.OrElse(left, right)
+                    return leftExpression != null
+                           && rightExpression != null
+                        ? Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression)
                         : null;
                 }
             }
