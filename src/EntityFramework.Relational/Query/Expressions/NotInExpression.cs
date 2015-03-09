@@ -15,9 +15,28 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public NotInExpression(
             [NotNull] ColumnExpression column,
             [NotNull] IReadOnlyList<Expression> values)
-            : base(
+            : this(
                 Check.NotNull(column, nameof(column)),
-                Check.NotNull(values, nameof(values)))
+                Check.NotNull(values, nameof(values)),
+                null)
+        {
+        }
+
+        public NotInExpression(
+            [NotNull] ColumnExpression column,
+            [NotNull] ParameterExpression parameter)
+            : this(
+                  Check.NotNull(column, nameof(column)),
+                  null,
+                  Check.NotNull(parameter, nameof(parameter)))
+        {
+        }
+
+        internal NotInExpression(
+            ColumnExpression column,
+            IReadOnlyList<Expression> values,
+            ParameterExpression parameter)
+            : base(column, values, parameter)
         {
         }
 

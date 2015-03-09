@@ -91,6 +91,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     = VisitExpression(binaryExpression.Right) as TInExpression;
 
                 if (rightInExpression != null
+                    && rightInExpression.Values != null
                     && leftColumnExpression.Equals(rightInExpression.Column))
                 {
                     return inExpressionFactory(
@@ -106,7 +107,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                 var leftInExpression
                     = VisitExpression(binaryExpression.Left) as TInExpression;
 
-                if (leftInExpression != null
+                if (leftInExpression != null 
+                    && leftInExpression.Values != null
                     && rightColumnExpression.Equals(leftInExpression.Column))
                 {
                     return inExpressionFactory(
