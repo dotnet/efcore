@@ -1,4 +1,4 @@
-﻿{
+{
     "dependencies": {
         "EntityFramework.InMemory.FunctionalTests": "1.0.0",
         "EntityFramework.SqlServer.FunctionalTests": "1.0.0"

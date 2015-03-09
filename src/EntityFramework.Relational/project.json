@@ -1,4 +1,4 @@
-﻿{
+{
     "version": "7.0.0-*",
     "description":  "Shared Entity Framework components for relational data stores.",
     "compilationOptions": {

@@ -1,4 +1,4 @@
-﻿{
+{
     "dependencies": {
         "EntityFramework.Core.Tests": "1.0.0",
         "EntityFramework.SqlServer.Design": "7.0.0-*"

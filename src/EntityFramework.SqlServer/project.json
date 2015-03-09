@@ -1,4 +1,4 @@
-﻿{
+{
     "version": "7.0.0-*",
     "description":  "Microsoft SQL Server data store for Entity Framework.",
     "compilationOptions": {
