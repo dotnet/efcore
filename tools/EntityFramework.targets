@@ -25,7 +25,7 @@
         var packagesFolder = Environment.GetEnvironmentVariable("DNX_PACKAGES")
             ?? Path.Combine(
                 Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME"),
-                ".k",
+                ".dnx",
                 "packages");
 
         if (!Directory.Exists(packagesFolder))
