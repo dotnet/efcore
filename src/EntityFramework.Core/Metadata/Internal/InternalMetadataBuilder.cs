@@ -3,12 +3,13 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public abstract class InternalMetadataBuilder<TMetadata>
-        where TMetadata : MetadataBase
+        where TMetadata : Annotatable
     {
         private readonly TMetadata _metadata;
 

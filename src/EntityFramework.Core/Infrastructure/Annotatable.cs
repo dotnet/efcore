@@ -8,9 +8,9 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Metadata
+namespace Microsoft.Data.Entity.Infrastructure
 {
-    public abstract class MetadataBase : IMetadata
+    public class Annotatable : IAnnotatable
     {
         // TODO: Perf: use a mutable structure before the model is made readonly
         // Issue #868 
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Metadata
             var annotation = TryGetAnnotation(annotationName);
             if (annotation == null)
             {
-                throw new ModelItemNotFoundException(Strings.AnnotationNotFound(annotationName));
+                throw new InvalidOperationException(Strings.AnnotationNotFound(annotationName));
             }
 
             return annotation;
@@ -113,6 +113,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        IEnumerable<IAnnotation> IMetadata.Annotations => Annotations;
+        IEnumerable<IAnnotation> IAnnotatable.Annotations => Annotations;
     }
 }

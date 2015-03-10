@@ -4,10 +4,11 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public interface IEntityType : IMetadata
+    public interface IEntityType : IAnnotatable
     {
         IModel Model { get; }
 

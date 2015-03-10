@@ -4,11 +4,12 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class Key : MetadataBase, IKey
+    public class Key : Annotatable, IKey
     {
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members

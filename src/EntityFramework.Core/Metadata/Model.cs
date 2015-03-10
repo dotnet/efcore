@@ -7,12 +7,13 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class Model : MetadataBase, IModel
+    public class Model : Annotatable, IModel
     {
         // TODO: Perf: use a mutable structure before the model is made readonly
         // Issue #868

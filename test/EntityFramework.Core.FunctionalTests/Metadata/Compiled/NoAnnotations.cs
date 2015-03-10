@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {

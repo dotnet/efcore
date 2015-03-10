@@ -1,0 +1,89 @@
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Linq;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
+using Xunit;
+
+namespace Microsoft.Data.Entity.Tests.Infrastructure
+{
+    public class AnnotatableTest
+    {
+        [Fact]
+        public void Can_add_and_remove_annotation()
+        {
+            var annotatable = new Annotatable();
+            Assert.Null(annotatable.TryGetAnnotation("Foo"));
+            Assert.Null(annotatable.RemoveAnnotation(new Annotation("Foo", "Bar")));
+
+            var annotation = annotatable.AddAnnotation("Foo", "Bar");
+
+            Assert.NotNull(annotation);
+            Assert.Equal("Bar", annotation.Value);
+            Assert.Equal("Bar", annotatable["Foo"]);
+            Assert.Same(annotation, annotatable.TryGetAnnotation("Foo"));
+
+            Assert.Same(annotation, annotatable.GetOrAddAnnotation("Foo", "Baz"));
+
+            Assert.Equal(new[] { annotation }, annotatable.Annotations.ToArray());
+
+            Assert.Same(annotation, annotatable.RemoveAnnotation(annotation));
+
+            Assert.Empty(annotatable.Annotations);
+            Assert.Null(annotatable.RemoveAnnotation(annotation));
+            Assert.Null(annotatable["Foo"]);
+            Assert.Null(annotatable.TryGetAnnotation("Foo"));
+        }
+
+        [Fact]
+        public void Addind_duplicate_annotation_throws()
+        {
+            var annotatable = new Annotatable();
+
+            annotatable.AddAnnotation("Foo", "Bar");
+
+            Assert.Equal(
+                Strings.DuplicateAnnotation("Foo"),
+                Assert.Throws<InvalidOperationException>(() => annotatable.AddAnnotation("Foo", "Bar")).Message);
+        }
+
+        [Fact]
+        public void Can_get_and_set_model_annotations()
+        {
+            var annotatable = new Annotatable();
+            var annotation = annotatable.GetOrAddAnnotation("Foo", "Bar");
+
+            Assert.NotNull(annotation);
+            Assert.Same(annotation, annotatable.TryGetAnnotation("Foo"));
+            Assert.Same(annotation, annotatable.GetAnnotation("Foo"));
+            Assert.Null(annotatable["foo"]);
+            Assert.Null(annotatable.TryGetAnnotation("foo"));
+
+            annotatable["Foo"] = "horse";
+
+            Assert.Equal("horse", annotatable["Foo"]);
+
+            annotatable["Foo"] = null;
+
+            Assert.Null(annotatable["Foo"]);
+            Assert.Empty(annotatable.Annotations);
+
+            Assert.Equal(
+                Strings.AnnotationNotFound("Foo"),
+                Assert.Throws<InvalidOperationException>(() => annotatable.GetAnnotation("Foo")).Message);
+        }
+
+        [Fact]
+        public void Annotations_are_ordered_by_name()
+        {
+            var annotatable = new Annotatable();
+
+            var annotation1 = annotatable.AddAnnotation("Z", "Foo");
+            var annotation2 = annotatable.AddAnnotation("A", "Bar");
+
+            Assert.True(new[] { annotation2, annotation1 }.SequenceEqual(annotatable.Annotations));
+        }
+    }
+}

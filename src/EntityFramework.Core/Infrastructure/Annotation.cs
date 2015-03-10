@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Metadata
+namespace Microsoft.Data.Entity.Infrastructure
 {
     public class Annotation : IAnnotation
     {

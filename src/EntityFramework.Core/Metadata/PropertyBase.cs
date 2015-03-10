@@ -4,12 +4,13 @@
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
     [DebuggerDisplay("{EntityType.Name,nq}.{Name,nq}")]
-    public abstract class PropertyBase : MetadataBase, IPropertyBase
+    public abstract class PropertyBase : Annotatable, IPropertyBase
     {
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members

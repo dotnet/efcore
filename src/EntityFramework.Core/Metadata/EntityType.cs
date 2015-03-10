@@ -9,12 +9,13 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class EntityType : MetadataBase, IEntityType
+    public class EntityType : Annotatable, IEntityType
     {
         private static readonly char[] _simpleNameChars = { '.', '+' };
 

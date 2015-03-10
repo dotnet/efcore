@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Metadata
+namespace Microsoft.Data.Entity.Infrastructure
 {
-    public interface IMetadata
+    public interface IAnnotatable
     {
         string this[[NotNull] string annotationName] { get; }
         Annotation GetAnnotation([NotNull] string annotationName);

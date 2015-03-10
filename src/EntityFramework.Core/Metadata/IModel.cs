@@ -4,10 +4,11 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public interface IModel : IMetadata
+    public interface IModel : IAnnotatable
     {
         [CanBeNull]
         IEntityType TryGetEntityType([NotNull] Type type);

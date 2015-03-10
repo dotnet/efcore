@@ -154,7 +154,7 @@
     <Compile Include="Metadata\ForeignKeyTest.cs" />
     <Compile Include="Metadata\KeyTest.cs" />
     <Compile Include="Metadata\MemberMapperTest.cs" />
-    <Compile Include="Metadata\MetadataBaseTest.cs" />
+    <Compile Include="Infrastructure\AnnotatableTest.cs" />
     <Compile Include="Metadata\ModelTest.cs" />
     <Compile Include="Metadata\NavigationTest.cs" />
     <Compile Include="Metadata\ObjectArrayValueReaderTest.cs" />
