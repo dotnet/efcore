@@ -276,7 +276,7 @@ namespace Microsoft.Data.Entity.Query
             if (chainedNavigationProperties != null)
             {
                 foreach (
-                    var navigation in 
+                    var navigation in
                         from propertyInfo in chainedNavigationProperties
                         let entityType
                             = QueryCompilationContext.Model

@@ -36,6 +36,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             switch (binaryExpression.NodeType)
             {
+                case ExpressionType.Coalesce:
+                {
+                    var left = VisitExpression(binaryExpression.Left);
+                    var right = VisitExpression(binaryExpression.Right);
+
+                    return new AliasExpression(binaryExpression.Update(left, binaryExpression.Conversion, right));
+                }
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
                 {
@@ -105,6 +112,15 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return null;
         }
 
+        protected override Expression VisitConditionalExpression(ConditionalExpression expression)
+        {
+            var test = VisitExpression(expression.Test);
+            var ifTrue = VisitExpression(expression.IfTrue);
+            var ifFalse = VisitExpression(expression.IfFalse);
+
+            return new CaseExpression(expression.Update(test, ifTrue, ifFalse));
+        }
+
         private static Expression UnfoldStructuralComparison(ExpressionType expressionType, Expression expression)
         {
             var binaryExpression = expression as BinaryExpression;
@@ -165,8 +181,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     && constantExpression.Value == null)
                 {
                     var columnExpression
-                        = left as ColumnExpression
-                          ?? right as ColumnExpression;
+                        = (left as AliasExpression)?.ColumnExpression
+                          ?? (right as AliasExpression)?.ColumnExpression;
 
                     if (columnExpression != null)
                     {
@@ -212,11 +228,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     .BindMethodCallExpression(
                         methodCallExpression,
                         (property, querySource, selectExpression)
-                            => new ColumnExpression(
-                                _queryModelVisitor.QueryCompilationContext
-                                    .GetColumnName(property),
-                                property,
-                                selectExpression.FindTableForQuerySource(querySource)));
+                            =>
+                            {
+                                return new AliasExpression(new ColumnExpression(
+                                    _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                                    property,
+                                    selectExpression.FindTableForQuerySource(querySource)));
+                            });
             }
 
             return null;
@@ -230,11 +248,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 .BindMemberExpression(
                     memberExpression,
                     (property, querySource, selectExpression)
-                        => new ColumnExpression(
-                            _queryModelVisitor.QueryCompilationContext
-                                .GetColumnName(property),
-                            property,
-                            selectExpression.FindTableForQuerySource(querySource)));
+                        =>
+                        {
+                            return new AliasExpression(new ColumnExpression(
+                                _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                                property,
+                                selectExpression.FindTableForQuerySource(querySource)));
+                        });
         }
 
         protected override Expression VisitUnaryExpression([NotNull] UnaryExpression expression)
@@ -299,9 +319,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     var memberItem = contains.Item as MemberExpression;
                     if (parameter != null && memberItem != null)
                     {
-                        var columnExpression = (ColumnExpression)VisitMemberExpression(memberItem);
+                        var aliasExpression = (AliasExpression)VisitMemberExpression(memberItem);
 
-                        return new InExpression(columnExpression, new[] { parameter });
+                        return new InExpression(aliasExpression, new[] { parameter });
                     }
                 }
             }

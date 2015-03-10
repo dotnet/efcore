@@ -67,8 +67,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             var discriminatorColumn
                 = selectExpression.Projection
-                    .OfType<ColumnExpression>()
-                    .Single(c => c.Property == discriminatorProperty);
+                    .OfType<AliasExpression>()
+                    .Single(c => c.ColumnExpression?.Property == discriminatorProperty);
 
             var firstDiscriminatorValue
                 = Expression.Constant(

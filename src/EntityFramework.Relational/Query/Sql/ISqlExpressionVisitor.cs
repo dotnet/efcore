@@ -10,6 +10,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
     public interface ISqlExpressionVisitor
     {
         Expression VisitColumnExpression([NotNull] ColumnExpression columnExpression);
+        Expression VisitAliasExpression([NotNull] AliasExpression aliasExpression);
         Expression VisitIsNullExpression([NotNull] IsNullExpression isNullExpression);
         Expression VisitIsNotNullExpression([NotNull] IsNotNullExpression isNotNullExpression);
         Expression VisitLikeExpression([NotNull] LikeExpression likeExpression);

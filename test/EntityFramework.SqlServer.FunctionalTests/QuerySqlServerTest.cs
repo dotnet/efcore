@@ -2256,6 +2256,39 @@ WHERE ([o].[CustomerID] = 'QUICK') AND ([o].[OrderDate] > @__p_0)",
                 Sql);
         }
 
+        public override void OrderBy_null_coalesce_operator()
+        {
+            base.OrderBy_null_coalesce_operator();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY COALESCE([c].[Region], 'ZZ')",
+                Sql);
+        }
+
+        public override void Select_null_coalesce_operator()
+        {
+            base.Select_null_coalesce_operator();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], 'ZZ') AS [Coalesce]
+FROM [Customers] AS [c]
+ORDER BY [Coalesce]",
+                Sql);
+        }
+
+        public override void OrderBy_conditional_operator()
+        {
+            base.OrderBy_conditional_operator();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY CASE WHEN ([c].[Region] IS NULL) THEN 'ZZ' ELSE [c].[Region] END",
+                Sql);
+        }
+
         public override void Contains_with_local_array_closure()
         {
             base.Contains_with_local_array_closure();
@@ -2396,6 +2429,78 @@ WHERE 1 = 0",
     @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 1 = 1",
+                Sql);
+        }
+
+        public override void Projection_null_coalesce_operator()
+        {
+            base.Projection_null_coalesce_operator();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], 'ZZ') AS [Coalesce]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Filter_coalesce_operator()
+        {
+            base.Filter_coalesce_operator();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE COALESCE([c].[CompanyName], [c].[ContactName]) = 'The Big Cheese'",
+                Sql);
+        }
+
+        public override void Take_skip_null_coalesce_operator()
+        {
+            base.Take_skip_null_coalesce_operator();
+
+            Assert.Equal(@"SELECT DISTINCT [t1].*
+FROM (
+    SELECT [t0].*
+    FROM (
+        SELECT TOP(10) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        FROM [Customers] AS [c]
+        ORDER BY COALESCE([c].[Region], 'ZZ')
+    ) AS [t0]
+    ORDER BY COALESCE([t0].[Region], 'ZZ') OFFSET 5 ROWS
+) AS [t1]", Sql);
+        }
+
+        public override void Select_take_null_coalesce_operator()
+        {
+            base.Select_take_null_coalesce_operator();
+
+            Assert.Equal(@"SELECT TOP(5) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], 'ZZ') AS [Coalesce]
+FROM [Customers] AS [c]
+ORDER BY [Coalesce]", Sql);
+        }
+
+        public override void Select_take_skip_null_coalesce_operator()
+        {
+            base.Select_take_skip_null_coalesce_operator();
+
+            Assert.Equal(
+                @"SELECT [t0].*
+FROM (
+    SELECT TOP(10) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], 'ZZ') AS [Coalesce]
+    FROM [Customers] AS [c]
+    ORDER BY [Coalesce]
+) AS [t0]
+ORDER BY [Coalesce] OFFSET 5 ROWS", 
+            Sql);
+        }
+
+        public override void Selected_column_can_coalesce()
+        {
+            base.Selected_column_can_coalesce();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY COALESCE([c].[Region], 'ZZ')",
                 Sql);
         }
 

@@ -60,7 +60,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     if (!(expression is NewExpression))
                     {
-                        var columnExpression = sqlExpression as ColumnExpression;
+                        var aliasExpression = sqlExpression as AliasExpression;
+                        var columnExpression = aliasExpression?.ColumnExpression;
 
                         if (columnExpression != null)
                         {

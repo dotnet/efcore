@@ -40,8 +40,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual string Name { get; }
 
-        public virtual string Alias { get; [param: CanBeNull] set; }
-
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -94,11 +92,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             // TODO: Get provider-specific name
             // Issue #871 
             var s = _tableExpression.Alias + "." + Name;
-
-            if (Alias != null)
-            {
-                s += " " + Alias;
-            }
 
             return s;
         }

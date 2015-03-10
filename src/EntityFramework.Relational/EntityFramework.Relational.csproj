@@ -153,6 +153,7 @@
     <Compile Include="Query\ExpressionTreeVisitors\EqualityPredicateExpandingVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EqualityPredicateInExpressionOptimizer.cs" />
     <Compile Include="Query\Expressions\AggregateExpression.cs" />
+    <Compile Include="Query\Expressions\AliasExpression.cs" />
     <Compile Include="Query\Expressions\RawSqlDerivedTableExpression.cs" />
     <Compile Include="Query\Expressions\DiscriminatorPredicateExpression.cs" />
     <Compile Include="Query\Expressions\InExpression.cs" />

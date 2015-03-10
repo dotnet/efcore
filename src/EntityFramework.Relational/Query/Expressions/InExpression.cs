@@ -14,18 +14,18 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
     public class InExpression : ExtensionExpression
     {
         public InExpression(
-            [NotNull] ColumnExpression column,
+            [NotNull] AliasExpression alias,
             [NotNull] IReadOnlyList<Expression> values)
             : base(typeof(bool))
         {
-            Check.NotNull(column, nameof(column));
+            Check.NotNull(alias, nameof(alias));
             Check.NotNull(values, nameof(values));
 
-            Column = column;
+            Alias = alias;
             Values = values;
         }
 
-        public virtual ColumnExpression Column { get; }
+        public virtual AliasExpression Alias { get; }
         public virtual IReadOnlyList<Expression> Values { get; }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override string ToString()
         {
-            return Column + " IN (" + string.Join(", ", Values) + ")";
+            return Alias.ColumnExpression + " IN (" + string.Join(", ", Values) + ")";
         }
     }
 }

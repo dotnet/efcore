@@ -1281,7 +1281,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
                     new Customer
                         {
                             CustomerID = "TRADH",
-                            CompanyName = "Tradiçao Hipermercados",
+                            CompanyName = "Tradição Hipermercados",
                             ContactName = "Anabela Domingues",
                             ContactTitle = "Sales Representative",
                             Address = "Av. Inês de Castro, 414",
