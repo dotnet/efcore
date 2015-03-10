@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = 'Stop'
 
 $EFDefaultParameterValues = @{
     ProjectName = ''
@@ -39,14 +39,15 @@ function Add-Migration {
     [CmdletBinding()]
     param ([Parameter(Mandatory = $true)] [string] $Name, [string] $Context, [string] $Project, [string] $StartupProject)
 
-    $values = ProcessCommonParameters $Context $Project
+    $values = ProcessCommonParameters $Context $Project $StartupProject
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
+    $dteStartupProject = $values.StartupProject
 
-    $artifacts = InvokeOperation $dteProject $StartupProject AddMigration @{
+    $artifacts = InvokeOperation $dteProject AddMigration @{
         migrationName = $Name
         contextTypeName = $contextTypeName
-    }
+    } -startupProject $dteStartupProject
 
     $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
     $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
@@ -69,9 +70,10 @@ function Apply-Migration {
     [CmdletBinding()]
     param ([string] $Migration, [string] $Context, [string] $Project, [string] $StartupProject)
 
-    $values = ProcessCommonParameters $Context $Project
+    $values = ProcessCommonParameters $Context $Project $StartupProject
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
+    $dteStartupProject = $values.StartupProject
 
     $targetFrameworkMoniker = GetProperty $dteProject.Properties TargetFrameworkMoniker
     $frameworkName = New-Object System.Runtime.Versioning.FrameworkName $targetFrameworkMoniker
@@ -79,10 +81,10 @@ function Apply-Migration {
         throw 'Apply-Migration should not be used with Phone/Store apps. Instead, call DbContext.Database.AsRelational().ApplyMigrations() at runtime.'
     }
 
-    InvokeOperation $dteProject $StartupProject ApplyMigration @{
+    InvokeOperation $dteProject ApplyMigration @{
         migrationName = $Migration
         contextTypeName = $contextTypeName
-    }
+    } -startupProject $dteStartupProject
 }
 
 #
@@ -121,16 +123,17 @@ function Script-Migration {
     [CmdletBinding()]
     param ([string] $From, [string] $To, [switch] $Idempotent, [string] $Context, [string] $Project, [string] $StartupProject)
 
-    $values = ProcessCommonParameters $Context $Project
+    $values = ProcessCommonParameters $Context $Project $StartupProject
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
+    $dteStartupProject = $values.StartupProject
 
-    $script = InvokeOperation $dteProject $StartupProject ScriptMigration @{
+    $script = InvokeOperation $dteProject ScriptMigration @{
         fromMigrationName = $From
         toMigrationName = $To
         idempotent = [bool]$Idempotent
         contextTypeName = $contextTypeName
-    }
+    } -startupProject $dteStartupProject
 
     try {
         # NOTE: Certain SKUs cannot create new SQL files
@@ -167,13 +170,16 @@ function Remove-Migration {
     [CmdletBinding()]
     param ([string] $Context, [string] $Project, [string] $StartupProject)
 
-    $values = ProcessCommonParameters $Context $Project
+    $values = ProcessCommonParameters $Context $Project $StartupProject
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
+    $dteStartupProject = $values.StartupProject
 
-    $filesToDelete = InvokeOperation $dteProject $StartupProject RemoveMigration @{ contextTypeName = $contextTypeName }
+    $filesToDelete = InvokeOperation $dteProject RemoveMigration @{
+        contextTypeName = $contextTypeName
+    } -startupProject $dteStartupProject
 
-	$filesToDelete | ?{ Test-Path $_ } | %{ (GetProjectItem $dteProject $_).Delete() }
+    $filesToDelete | ?{ Test-Path $_ } | %{ (GetProjectItem $dteProject $_).Delete() }
 }
 
 #
@@ -220,16 +226,19 @@ function GetMigrations($contextTypeName, $projectName) {
     return $migrations | %{ $_.SafeName }
 }
 
-function ProcessCommonParameters($contextTypeName, $projectName) {
+function ProcessCommonParameters($contextTypeName, $projectName, $startupProjectName) {
     $project = GetProject $projectName
 
     if (!$contextTypeName -and $project.ProjectName -eq $EFDefaultParameterValues.ProjectName) {
         $contextTypeName = $EFDefaultParameterValues.ContextTypeName
     }
 
+    $startupProject = GetStartupProject $startupProjectName $project
+
     return @{
         Project = $project
         ContextTypeName = $contextTypeName
+        StartupProject = $startupProject
     }
 }
 
@@ -247,13 +256,13 @@ function ShowConsole {
     $powerConsoleWindow.Show()
 }
 
-function InvokeOperation($project, $startupProjectName, $operation, $arguments = @{}, [switch] $skipBuild) {
+function InvokeOperation($project, $operation, $arguments = @{}, $startupProject = $project, [switch] $skipBuild) {
     $projectName = $project.ProjectName
 
     Write-Verbose "Using project '$projectName'"
 
     if (!$skipBuild) {
-        Write-Verbose "Build started..."
+        Write-Verbose 'Build started...'
 
         $solutionBuild = $DTE.Solution.SolutionBuild
         $solutionBuild.BuildProject($solutionBuild.ActiveConfiguration.Name, $project.UniqueName, $true)
@@ -261,15 +270,12 @@ function InvokeOperation($project, $startupProjectName, $operation, $arguments =
             throw "Build failed for project '$projectName'."
         }
 
-        Write-Verbose "Build succeeded."
+        Write-Verbose 'Build succeeded.'
     }
 
-    #Get startup project
-    $startupProject = Get-MigrationsStartUpProject $startupProjectName $project
-    $startupProjectDirectoryObject = Get-ChildItem $startupProject.FileName | Select-Object Directory
-
     $startupProjectName = $startupProject.ProjectName
-    $startupProjectDirectory = $startupProjectDirectoryObject.Directory.FullName
+
+    Write-Verbose "Using start-up project '$startupProjectName'."
 
     if (![Type]::GetType('Microsoft.Data.Entity.Commands.ILogHandler')) {
         $componentModel = Get-VSComponentModel
@@ -301,27 +307,24 @@ function InvokeOperation($project, $startupProjectName, $operation, $arguments =
     $startupFullPath = GetProperty $startupProperties FullPath
     $startupTargetDir = Join-Path $startupFullPath $startupOutputPath
 
-    $webConfig = GetProjectItemByString $startupProject 'Web.Config'
-    $appConfig = GetProjectItemByString $startupProject 'App.Config'
+    $webConfig = GetProjectItem $startupProject 'Web.Config'
+    $appConfig = GetProjectItem $startupProject 'App.Config'
 
     Write-Verbose "Using application base '$targetDir'."
 
-    if ($webConfig)
-    {
-        $configurationFile = $webConfig.Properties.Item('LocalPath').Value
-        $dataDirectory = Join-Path $startupProjectDirectory 'App_Data'
+    if ($webConfig) {
+        $configurationFile = GetProperty $webConfig.Properties FullPath
+        $dataDirectory = Join-Path $startupFullPath 'App_Data'
         Write-Verbose "Using application configuration '$configurationFile'"
     }
-    elseif ($appConfig)
-    {
-        $configurationFile = $appConfig.Properties.Item('LocalPath').Value
-        $dataDirectory = $outputPath
+    elseif ($appConfig) {
+        $configurationFile = GetProperty $appConfig.Properties FullPath
+        $dataDirectory = $startupTargetDir
         Write-Verbose "Using application configuration '$configurationFile'"
     }
-    else
-    {
-        Write-Verbose "No configuration file found."
-        $dataDirectory = $outputPath
+    else {
+        Write-Verbose 'No configuration file found.'
+        $dataDirectory = $startupTargetDir
     }
 
     Write-Verbose "Using data directory '$dataDirectory'"
@@ -333,7 +336,7 @@ function InvokeOperation($project, $startupProjectName, $operation, $arguments =
     }
 
     $domain = [AppDomain]::CreateDomain('EntityFrameworkDesignDomain', $null, $info)
-    $domain.SetData("DataDirectory", $dataDirectory)
+    $domain.SetData('DataDirectory', $dataDirectory)
     try {
         $assemblyName = 'EntityFramework.Commands'
         $typeName = 'Microsoft.Data.Entity.Commands.Executor'
@@ -362,7 +365,7 @@ function InvokeOperation($project, $startupProjectName, $operation, $arguments =
         $resultHandler = New-Object Microsoft.Data.Entity.Commands.ResultHandler
         $currentDirectory = [IO.Directory]::GetCurrentDirectory()
 
-        Write-Verbose "Using current directory '$currentDirectory'."
+        Write-Verbose "Using current directory '$startupTargetDir'."
 
         [IO.Directory]::SetCurrentDirectory($startupTargetDir)
         try {
@@ -405,7 +408,12 @@ function GetProperty($properties, $propertyName) {
 
 function GetProjectItem($project, $path) {
     $fullPath = GetProperty $project.Properties FullPath
-    $itemDirectory = (Split-Path $path.Substring($fullPath.Length) -Parent)
+
+    if (Split-Path $path -IsAbsolute) {
+        $path = $path.Substring($fullPath.Length)
+    }
+
+    $itemDirectory = (Split-Path $path -Parent)
 
     $projectItems = $project.ProjectItems
     if ($itemDirectory) {
@@ -417,103 +425,74 @@ function GetProjectItem($project, $path) {
 
     $itemName = Split-Path $path -Leaf
 
-    return $projectItems.Item($itemName)
+    try {
+        return $projectItems.Item($itemName)
+    }
+    catch [Exception] {
+    }
+
+    return $null
 }
 
-function GetProjectItemByString($project, $itemName){
-    try
-    {
-        return $project.ProjectItems.Item($itemName)
+function GetStartUpProject($name, $fallbackProject) {
+    if ($name) {
+        return Get-Project $name
     }
-    catch [Exception]
-    {
-    }
-}
 
-function Get-MigrationsStartUpProject($name, $fallbackProject)
-{
-    $startUpProject = $null
+    $startupProjectPaths = $DTE.Solution.SolutionBuild.StartupProjects
+    if ($startupProjectPaths) {
+        if ($startupProjectPaths.Length -eq 1) {
+            $startupProjectPath = $startupProjectPaths[0]
+            if (!(Split-Path -IsAbsolute $startupProjectPath)) {
+                $solutionPath = Split-Path (GetProperty $DTE.Solution.Properties Path)
+                $startupProjectPath = Join-Path $solutionPath $startupProjectPath -Resolve
+            }
 
-    if ($name)
-    {
-        $startupProject = Get-Project $name
-    }
-    else
-    {
-        $startupProjectPaths = $DTE.Solution.SolutionBuild.StartupProjects
-
-        if ($startupProjectPaths)
-        {
-            if ($startupProjectPaths.Length -eq 1)
-            {
-                $startupProjectPath = $startupProjectPaths[0]
-
-                if (!(Split-Path -IsAbsolute $startupProjectPath))
-                {
-                    $solutionPath = Split-Path $DTE.Solution.Properties.Item('Path').Value
-                    $startupProjectPath = Join-Path $solutionPath $startupProjectPath -Resolve
+            $startupProject = GetSolutionProjects | ?{
+                try {
+                    $fullName = $_.FullName
+                }
+                catch [NotImplementedException] {
+                    return $false
                 }
 
-                $startupProject = Get-SolutionProjects | ?{
-                    try
-                    {
-                        $fullName = $_.FullName
-                    }
-                    catch [NotImplementedException]
-                    {
-                        return $false
-                    }
-
-                    if ($fullName -and $fullName.EndsWith('\'))
-                    {
-                        $fullName = $fullName.Substring(0, $fullName.Length - 1)
-                    }
-
-                    return $fullName -eq $startupProjectPath
+                if ($fullName -and $fullName.EndsWith('\')) {
+                    $fullName = $fullName.Substring(0, $fullName.Length - 1)
                 }
+
+                return $fullName -eq $startupProjectPath
             }
-            else
-            {
-                $errorMessage = 'More than one start-up project found.'
+            if ($startupProject) {
+                return $startupProject
             }
+
+            Write-Warning "Unable to resolve start-up project '$startupProjectPath'."
         }
-        else
-        {
-            $errorMessage = 'No start-up project found.'
+        else {
+            Write-Verbose 'More than one start-up project found.'
         }
     }
-
-    if (!$startUpProject)
-    {
-        $fallbackProjectName = $fallbackProject.Name
-        Write-Verbose "$errorMessage Using '$fallbackProjectName' instead."
-
-        return $fallbackProject
+    else {
+        Write-Verbose 'No start-up project found.'
     }
 
-    $startUpProjectName = $startUpProject.Name
-    Write-Verbose "Using start-up project '$startUpProjectName'."
-
-    return $startUpProject
+    return $fallbackProject
 }
 
-function Get-SolutionProjects()
-{
+function GetSolutionProjects() {
     $projects = New-Object System.Collections.Stack
 
     $DTE.Solution.Projects | %{
         $projects.Push($_)
     }
 
-    while ($projects.Count -ne 0)
-    {
+    while ($projects.Count -ne 0) {
         $project = $projects.Pop();
 
         # NOTE: This line is similar to doing a "yield return" in C#
         $project
 
-        if ($project.ProjectItems)
-        {
+        if ($project.ProjectItems) {
             $project.ProjectItems | ?{ $_.SubProject } | %{
                 $projects.Push($_.SubProject)
             }
