@@ -4,10 +4,10 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.Data.Entity.Internal
 {
-    public abstract class ModelValidator
+    public interface IModelValidator
     {
-        public abstract void Validate([NotNull] IModel model);
+        void Validate([NotNull] IModel model);
     }
 }

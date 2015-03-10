@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -31,7 +32,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return model;
         }
 
-        private class ThrowingModelValidator : ModelValidatorBase
+        private class ThrowingModelValidator : ModelValidator
         {
             protected override void ShowWarning(string message)
             {
