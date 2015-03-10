@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Query
             protected set
             {
                 Check.NotNull(value, nameof(value));
-                
+
                 _expression = value;
             }
         }
@@ -713,9 +713,9 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public override void VisitOrdering(
-            [NotNull] Ordering ordering, 
-            [NotNull] QueryModel queryModel, 
-            [NotNull] OrderByClause orderByClause, 
+            [NotNull] Ordering ordering,
+            [NotNull] QueryModel queryModel,
+            [NotNull] OrderByClause orderByClause,
             int index)
         {
             Check.NotNull(ordering, nameof(ordering));
@@ -846,7 +846,7 @@ namespace Microsoft.Data.Entity.Query
 
         private Expression ReplaceClauseReferences(Expression expression)
         {
-            return new PropertyAccessBindingExpressionTreeVisitor(_querySourceMapping, this)
+            return new MemberAccessBindingExpressionTreeVisitor(_querySourceMapping, this)
                 .VisitExpression(expression);
         }
 
@@ -876,8 +876,14 @@ namespace Microsoft.Data.Entity.Query
                     => BindReadValueMethod(memberExpression.Type, expression, property.Index));
         }
 
-        protected Expression BindReadValueMethod(Type memberType, Expression expression, int index)
+        public virtual Expression BindReadValueMethod(
+            [NotNull] Type memberType,
+            [NotNull] Expression expression,
+            int index)
         {
+            Check.NotNull(memberType, nameof(memberType));
+            Check.NotNull(expression, nameof(expression));
+
             return QueryCompilationContext.EntityMaterializerSource
                 .CreateReadValueExpression(expression, memberType, index);
         }

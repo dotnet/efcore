@@ -112,7 +112,7 @@ FROM [Order] AS [o]
 INNER JOIN (
     SELECT DISTINCT [c].[FirstName], [c].[LastName]
     FROM [Customer] AS [c]
-) AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName] AND [o].[CustomerLastName] = [c].[LastName])
+) AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])
 ORDER BY [c].[FirstName], [c].[LastName]";
 
                 Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
@@ -147,7 +147,7 @@ ORDER BY [c].[FirstName], [c].[LastName]";
                 var expectedSql =
                     @"SELECT [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Id], [o].[Name], [c].[FirstName], [c].[LastName]
 FROM [Order] AS [o]
-LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName] AND [o].[CustomerLastName] = [c].[LastName])";
+LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])";
 
                 Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
             }

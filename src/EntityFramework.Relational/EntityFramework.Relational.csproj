@@ -145,7 +145,7 @@
     <Compile Include="Query\CommandBuilder.cs" />
     <Compile Include="Query\CommandParameter.cs" />
     <Compile Include="Query\EqualityPredicateOptimizer.cs" />
-    <Compile Include="Query\Expressions\ColumnAggregateExpression.cs" />
+    <Compile Include="Query\Expressions\AggregateExpression.cs" />
     <Compile Include="Query\Expressions\DiscriminatorPredicateExpression.cs" />
     <Compile Include="Query\Expressions\InExpression.cs" />
     <Compile Include="Query\Expressions\JoinExpressionBase.cs" />

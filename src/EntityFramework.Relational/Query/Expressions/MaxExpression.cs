@@ -9,10 +9,10 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class MaxExpression : ColumnAggregateExpression
+    public class MaxExpression : AggregateExpression
     {
-        public MaxExpression([NotNull] ColumnExpression columnExpression)
-            : base(Check.NotNull(columnExpression, nameof(columnExpression)))
+        public MaxExpression([NotNull] Expression expression)
+            : base(Check.NotNull(expression, nameof(expression)))
         {
         }
 

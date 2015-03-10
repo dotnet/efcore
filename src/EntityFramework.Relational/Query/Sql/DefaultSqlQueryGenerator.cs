@@ -19,10 +19,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
     public class DefaultSqlQueryGenerator : ThrowingExpressionTreeVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
     {
         private IndentedStringBuilder _sql;
-        private Expression _binaryExpression;
         private List<string> _parameters;
         private IDictionary<string, object> _parameterValues;
-        private Stack<bool> _insideFilter = new Stack<bool>();
 
         public virtual string GenerateSql(
             SelectExpression selectExpression, IDictionary<string, object> parameterValues)
@@ -52,8 +50,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             Check.NotNull(selectExpression, nameof(selectExpression));
 
             IDisposable subQueryIndent = null;
-
-            _insideFilter.Push(false);
 
             if (selectExpression.Alias != null)
             {
@@ -102,16 +98,22 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 _sql.AppendLine()
                     .Append("WHERE ");
 
-                _insideFilter.Push(true);
+                var constantExpression = selectExpression.Predicate as ConstantExpression;
 
-                VisitExpression(selectExpression.Predicate);
-
-                if (selectExpression.Predicate is ColumnExpression)
+                if (constantExpression != null)
                 {
-                    _sql.Append(" = 1");
+                    _sql.Append((bool)constantExpression.Value ? "1 = 1" : "1 = 0");
                 }
+                else
+                {
+                    VisitExpression(selectExpression.Predicate);
 
-                _insideFilter.Pop();
+                    if (selectExpression.Predicate is ColumnExpression
+                        || selectExpression.Predicate is ParameterExpression)
+                    {
+                        _sql.Append(" = 1");
+                    }
+                }
             }
 
             if (selectExpression.OrderBy.Any())
@@ -150,8 +152,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     .Append(") AS ")
                     .Append(DelimitIdentifier(selectExpression.Alias));
             }
-
-            _insideFilter.Pop();
 
             return selectExpression;
         }
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append("SUM(");
 
-            VisitExpression(sumExpression.ColumnExpression);
+            VisitExpression(sumExpression.Expression);
 
             _sql.Append(")");
 
@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append("MIN(");
 
-            VisitExpression(minExpression.ColumnExpression);
+            VisitExpression(minExpression.Expression);
 
             _sql.Append(")");
 
@@ -247,7 +247,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append("MAX(");
 
-            VisitExpression(maxExpression.ColumnExpression);
+            VisitExpression(maxExpression.Expression);
 
             _sql.Append(")");
 
@@ -432,8 +432,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
-            _binaryExpression = binaryExpression;
-
             var maybeNullComparisonExpression = TransformNullComparison(binaryExpression);
 
             if (maybeNullComparisonExpression != null)
@@ -442,18 +440,30 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
             else
             {
-                if (binaryExpression.IsLogicalOperation())
+                var needClosingParen = false;
+
+                var leftBinaryExpression = binaryExpression.Left as BinaryExpression;
+
+                if (leftBinaryExpression != null
+                    && leftBinaryExpression.NodeType != binaryExpression.NodeType)
                 {
                     _sql.Append("(");
+
+                    needClosingParen = true;
                 }
 
                 VisitExpression(binaryExpression.Left);
 
-                if (binaryExpression.IsLogicalOperation() 
-                    && binaryExpression.Left is ColumnExpression 
-                    && _insideFilter.Peek())
+                if (binaryExpression.IsLogicalOperation()
+                    && (binaryExpression.Left is ColumnExpression
+                        || binaryExpression.Left is ParameterExpression))
                 {
                     _sql.Append(" = 1");
+                }
+
+                if (needClosingParen)
+                {
+                    _sql.Append(")");
                 }
 
                 string op;
@@ -487,28 +497,47 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     case ExpressionType.Add:
                         op = " " + ConcatOperator + " ";
                         break;
+                    case ExpressionType.Subtract:
+                        op = " - ";
+                        break;
+                    case ExpressionType.Multiply:
+                        op = " * ";
+                        break;
+                    case ExpressionType.Divide:
+                        op = " / ";
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
 
                 _sql.Append(op);
 
+                needClosingParen = false;
+
+                var rightBinaryExpression = binaryExpression.Right as BinaryExpression;
+
+                if (rightBinaryExpression != null
+                    && rightBinaryExpression.NodeType != binaryExpression.NodeType)
+                {
+                    _sql.Append("(");
+
+                    needClosingParen = true;
+                }
+
                 VisitExpression(binaryExpression.Right);
 
                 if (binaryExpression.IsLogicalOperation()
-                    && binaryExpression.Right is ColumnExpression
-                    && _insideFilter.Peek())
+                    && (binaryExpression.Right is ColumnExpression
+                        || binaryExpression.Right is ParameterExpression))
                 {
                     _sql.Append(" = 1");
                 }
 
-                if (binaryExpression.IsLogicalOperation())
+                if (needClosingParen)
                 {
                     _sql.Append(")");
                 }
             }
-
-            _binaryExpression = null;
 
             return binaryExpression;
         }
@@ -612,19 +641,24 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             if (unaryExpression.NodeType == ExpressionType.Not)
             {
                 var inExpression = unaryExpression.Operand as InExpression;
+
                 if (inExpression != null)
                 {
                     return VisitNotInExpression(inExpression);
                 }
 
-                _sql.Append("NOT ");
+                var isColumnOperand = unaryExpression.Operand is ColumnExpression;
+
+                if (!isColumnOperand)
+                {
+                    _sql.Append("NOT ");
+                }
 
                 VisitExpression(unaryExpression.Operand);
 
-                if (unaryExpression.Operand is ColumnExpression
-                    && _insideFilter.Peek())
+                if (isColumnOperand)
                 {
-                    _sql.Append(" = 1");
+                    _sql.Append(" = 0");
                 }
 
                 return unaryExpression;
@@ -644,34 +678,16 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(constantExpression, nameof(constantExpression));
 
-            var maybeBool = constantExpression.Value as bool?;
-
-            if (maybeBool != null
-                && (_binaryExpression == null
-                    || _binaryExpression.IsLogicalOperation()))
-            {
-                _sql.Append(maybeBool.Value ? "1 = 1" : "1 = 0");
-            }
-            else
-            {
-                _sql.Append(GenerateLiteral((dynamic)constantExpression.Value));
-            }
+            _sql.Append(constantExpression.Value == null
+                ? "NULL"
+                : GenerateLiteral((dynamic)constantExpression.Value));
 
             return constantExpression;
         }
 
         protected override Expression VisitParameterExpression(ParameterExpression parameterExpression)
         {
-            if (parameterExpression.Type == typeof(bool)
-                && (_binaryExpression == null
-                    || _binaryExpression.IsLogicalOperation()))
-            {
-                _sql.Append(ParameterPrefix + parameterExpression.Name + " = 1");
-            }
-            else
-            {
-                _sql.Append(ParameterPrefix + parameterExpression.Name);
-            }
+            _sql.Append(ParameterPrefix + parameterExpression.Name);
 
             _parameters.Add(parameterExpression.Name);
 

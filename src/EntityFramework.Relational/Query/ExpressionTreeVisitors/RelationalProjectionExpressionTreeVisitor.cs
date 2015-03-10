@@ -4,6 +4,8 @@
 using System.Diagnostics;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
@@ -15,6 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
     public class RelationalProjectionExpressionTreeVisitor : ProjectionExpressionTreeVisitor
     {
         private readonly IQuerySource _querySource;
+
         private readonly SqlTranslatingExpressionTreeVisitor _sqlTranslatingExpressionTreeVisitor;
 
         private bool _requiresClientEval;
@@ -37,7 +40,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         public override Expression VisitExpression(Expression expression)
         {
-            if (!(expression is QuerySourceReferenceExpression))
+            if (expression != null
+                && !(expression is QuerySourceReferenceExpression))
             {
                 var sqlExpression
                     = _sqlTranslatingExpressionTreeVisitor.VisitExpression(expression);
@@ -53,18 +57,32 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     Debug.Assert(selectExpression != null);
 
-                    var columnExpression = sqlExpression as ColumnExpression;
-
-                    if (columnExpression != null)
+                    if (!(expression is NewExpression))
                     {
-                        selectExpression.AddToProjection(columnExpression);
+                        var columnExpression = sqlExpression as ColumnExpression;
+
+                        if (columnExpression != null)
+                        {
+                            selectExpression.AddToProjection(columnExpression);
+
+                            return expression;
+                        }
+
+                        var index = selectExpression.AddToProjection(sqlExpression);
+
+                        return
+                            QueryModelVisitor.BindReadValueMethod(
+                                expression.Type,
+                                QuerySourceScope.GetResult(
+                                    EntityQueryModelVisitor.QuerySourceScopeParameter,
+                                    _querySource,
+                                    typeof(IValueReader)),
+                                index);
                     }
                 }
             }
 
             return base.VisitExpression(expression);
         }
-
-
     }
 }

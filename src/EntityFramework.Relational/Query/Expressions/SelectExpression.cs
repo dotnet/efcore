@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         internal string DebugView => ToString();
 #endif
 
-        private readonly List<ColumnExpression> _projection = new List<ColumnExpression>();
+        private readonly List<Expression> _projection = new List<Expression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<Ordering> _orderBy = new List<Ordering>();
 
@@ -191,9 +191,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var columnAliasCounter = 0;
 
-            foreach (var columnExpression in _projection)
+            foreach (var columnExpression in _projection.OfType<ColumnExpression>())
             {
-                if (subquery._projection.FindIndex(ce => ce.Name == columnExpression.Name) != -1)
+                if (subquery._projection.OfType<ColumnExpression>().Any(ce => ce.Name == columnExpression.Name))
                 {
                     columnExpression.Alias = "c" + columnAliasCounter++;
                 }
@@ -225,7 +225,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return subquery;
         }
 
-        public virtual IReadOnlyList<ColumnExpression> Projection => _projection;
+        public virtual IReadOnlyList<Expression> Projection => _projection;
 
         public virtual Expression ProjectionExpression => _projectionExpression;
 
@@ -251,15 +251,28 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return projectionIndex;
         }
 
+        public virtual int AddToProjection([NotNull] Expression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            _projection.Add(expression);
+
+            return _projection.Count - 1;
+        }
+
         public virtual int AddToProjection([NotNull] ColumnExpression columnExpression)
         {
             Check.NotNull(columnExpression, nameof(columnExpression));
 
             var projectionIndex
                 = _projection
-                    .FindIndex(ce =>
-                        ce.Property == columnExpression.Property
-                        && ce.TableAlias == columnExpression.TableAlias);
+                    .FindIndex(e =>
+                        {
+                            var ce = e as ColumnExpression;
+
+                            return ce?.Property == columnExpression.Property
+                                   && ce.TableAlias == columnExpression.TableAlias;
+                        });
 
             if (projectionIndex == -1)
             {
@@ -330,7 +343,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var table = FindTableForQuerySource(querySource);
 
-            return _projection.FindIndex(ce => ce.Property == property && ce.TableAlias == table.Alias);
+            return _projection
+                .FindIndex(e =>
+                    {
+                        var ce = e as ColumnExpression;
+
+                        return ce?.Property == property
+                               && ce.TableAlias == table.Alias;
+                    });
         }
 
         public virtual ColumnExpression AddToOrderBy(
@@ -376,7 +396,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual void AddCrossJoin(
             [NotNull] TableExpressionBase tableExpression,
-            [NotNull] IEnumerable<ColumnExpression> projection)
+            [NotNull] IEnumerable<Expression> projection)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
@@ -395,7 +415,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual JoinExpressionBase AddInnerJoin(
             [NotNull] TableExpressionBase tableExpression,
-            [NotNull] IEnumerable<ColumnExpression> projection)
+            [NotNull] IEnumerable<Expression> projection)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
@@ -441,7 +461,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             var uniqueAlias = currentAlias;
             var counter = 0;
 
-            while (_projection.Any(p => string.Equals(p.Alias ?? p.Name, uniqueAlias, StringComparison.OrdinalIgnoreCase)))
+            while (_projection
+                .OfType<ColumnExpression>()
+                .Any(p => string.Equals(p.Alias ?? p.Name, uniqueAlias, StringComparison.OrdinalIgnoreCase)))
             {
                 uniqueAlias = currentAlias + counter++;
             }

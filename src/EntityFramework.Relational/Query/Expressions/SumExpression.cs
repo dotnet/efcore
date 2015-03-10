@@ -9,10 +9,10 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class SumExpression : ColumnAggregateExpression
+    public class SumExpression : AggregateExpression
     {
-        public SumExpression([NotNull] ColumnExpression columnExpression)
-            : base(Check.NotNull(columnExpression, nameof(columnExpression)))
+        public SumExpression([NotNull] Expression expression)
+            : base(Check.NotNull(expression, nameof(expression)))
         {
         }
 

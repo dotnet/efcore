@@ -314,12 +314,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             var underlyingType = constantExpression.Type.UnwrapNullableType().UnwrapEnumType();
 
-            if (_supportedConstantTypes.Contains(underlyingType))
-            {
-                return constantExpression;
-            }
-
-            return null;
+            return _supportedConstantTypes.Contains(underlyingType) 
+                ? constantExpression 
+                : null;
         }
 
         protected override Expression VisitParameterExpression([NotNull] ParameterExpression parameterExpression)
@@ -328,12 +325,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             var underlyingType = parameterExpression.Type.UnwrapNullableType().UnwrapEnumType();
 
-            if (_supportedConstantTypes.Contains(underlyingType))
-            {
-                return parameterExpression;
-            }
-
-            return null;
+            return _supportedConstantTypes.Contains(underlyingType) 
+                ? parameterExpression 
+                : null;
         }
 
         protected override TResult VisitUnhandledItem<TItem, TResult>(

@@ -12,11 +12,11 @@ using Remotion.Linq.Clauses.ExpressionTreeVisitors;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
-    public class PropertyAccessBindingExpressionTreeVisitor : ReferenceReplacingExpressionTreeVisitor
+    public class MemberAccessBindingExpressionTreeVisitor : ReferenceReplacingExpressionTreeVisitor
     {
         private readonly EntityQueryModelVisitor _queryModelVisitor;
 
-        public PropertyAccessBindingExpressionTreeVisitor(
+        public MemberAccessBindingExpressionTreeVisitor(
             [NotNull] QuerySourceMapping querySourceMapping,
             [NotNull] EntityQueryModelVisitor queryModelVisitor)
             : base(
@@ -81,8 +81,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
         }
 
         private static readonly MethodInfo _getValueMethodInfo
-            = typeof(PropertyAccessBindingExpressionTreeVisitor)
-                .GetTypeInfo().GetDeclaredMethod("GetValue");
+            = typeof(MemberAccessBindingExpressionTreeVisitor)
+                .GetTypeInfo().GetDeclaredMethod(nameof(GetValue));
 
         [UsedImplicitly]
         private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property)

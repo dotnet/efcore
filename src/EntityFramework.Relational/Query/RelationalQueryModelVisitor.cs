@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                                     selectExpression.Tables.Single(),
                                     QuerySourceRequiresMaterialization(joinClause)
                                         ? selectExpression.Projection
-                                        : Enumerable.Empty<ColumnExpression>());
+                                        : Enumerable.Empty<Expression>());
 
                         innerJoinExpression.Predicate = predicate;
 

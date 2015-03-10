@@ -188,7 +188,7 @@
     <Compile Include="Query\ExpressionTreeVisitors\EntityResultFindingExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionPrinter.cs" />
     <Compile Include="Query\IAsyncEnumerableAccessor.cs" />
-    <Compile Include="Query\ExpressionTreeVisitors\PropertyAccessBindingExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\MemberAccessBindingExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ProjectionExpressionTreeVisitor.cs" />
     <Compile Include="Query\ICompiledQueryCache.cs" />
     <Compile Include="Query\IQueryContextFactory.cs" />

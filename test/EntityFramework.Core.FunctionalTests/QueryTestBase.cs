@@ -213,6 +213,57 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Projection_when_arithmetic_expressions()
+        {
+            AssertQuery<Order>(
+                os => os.Select(o => new
+                    {
+                        o.OrderID,
+                        Double = o.OrderID * 2,
+                        Add = o.OrderID + 23,
+                        Sub = 100000 - o.OrderID,
+                        Divide = o.OrderID / (o.OrderID / 2),
+                        Literal = 42,
+                        o
+                    }),
+                entryCount: 830);
+        }
+
+        [Fact]
+        public virtual void Projection_when_arithmetic_mixed()
+        {
+            AssertQuery<Order, Employee>((os, es) =>
+                from o in os
+                from e in es
+                select new
+                    {
+                        Add = e.EmployeeID + o.OrderID,
+                        o.OrderID,
+                        o,
+                        Literal = 42,
+                        e.EmployeeID,
+                        e
+                    });
+        }
+
+        [Fact]
+        public virtual void Projection_when_arithmetic_mixed_subqueries()
+        {
+            AssertQuery<Order, Employee>((os, es) =>
+                from o in os.Select(o2 => new { o2, Mod = o2.OrderID % 2 })
+                from e in es.Select(e2 => new { e2, Square = e2.EmployeeID ^ 2 })
+                select new
+                    {
+                        Add = e.e2.EmployeeID + o.o2.OrderID,
+                        e.Square,
+                        e.e2,
+                        Literal = 42,
+                        o.o2,
+                        o.Mod
+                    });
+        }
+
+        [Fact]
         public virtual void Projection_when_null_value()
         {
             AssertQuery<Customer>(
@@ -855,6 +906,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Where_bool_member_in_complex_predicate()
         {
+            // ReSharper disable once RedundantBoolCompare
             AssertQuery<Product>(ps => ps.Where(p => p.ProductID > 100 && p.Discontinued || (p.Discontinued == true)), entryCount: 8);
         }
 
@@ -877,6 +929,35 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => false));
+        }
+
+        [Fact]
+        public virtual void Where_bool_closure()
+        {
+            var boolean = false;
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && boolean));
+
+            boolean = true;
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID == "ALFKI" && boolean),
+                entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Select_bool_closure()
+        {
+            var boolean = false;
+
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { f = boolean }));
+
+            boolean = true;
+
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { f = boolean }));
         }
 
         // TODO: Re-write entity ref equality to identity equality.
@@ -2617,7 +2698,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-
                 AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
                     new[] { query(context.Set<TItem>()) },

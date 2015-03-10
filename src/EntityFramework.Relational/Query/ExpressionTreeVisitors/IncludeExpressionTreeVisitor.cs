@@ -328,7 +328,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         }
 
         private Expression BuildColumnExpression(
-            IReadOnlyCollection<ColumnExpression> projections,
+            IReadOnlyCollection<Expression> projections,
             TableExpressionBase tableExpression,
             IProperty property)
         {
@@ -341,7 +341,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             }
 
             var matchingColumnExpression
-                = projections.Last(p => p.Property == property);
+                = projections
+                    .OfType<ColumnExpression>()
+                    .Last(p => p.Property == property);
 
             return new ColumnExpression(
                 matchingColumnExpression.Alias ?? matchingColumnExpression.Name,
@@ -349,7 +351,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 tableExpression);
         }
 
-        private static IEnumerable<ColumnExpression> ExtractProjections(TableExpressionBase tableExpression)
+        private static IEnumerable<Expression> ExtractProjections(TableExpressionBase tableExpression)
         {
             var selectExpression = tableExpression as SelectExpression;
 
@@ -362,7 +364,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             return joinExpression != null
                 ? ExtractProjections(joinExpression.TableExpression)
-                : Enumerable.Empty<ColumnExpression>();
+                : Enumerable.Empty<Expression>();
         }
     }
 }

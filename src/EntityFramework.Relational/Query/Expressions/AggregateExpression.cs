@@ -9,15 +9,15 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public abstract class ColumnAggregateExpression : ExtensionExpression
+    public abstract class AggregateExpression : ExtensionExpression
     {
-        protected ColumnAggregateExpression([NotNull] ColumnExpression columnExpression)
-            : base(Check.NotNull(columnExpression, nameof(columnExpression)).Type)
+        protected AggregateExpression([NotNull] Expression expression)
+            : base(Check.NotNull(expression, nameof(expression)).Type)
         {
-            ColumnExpression = columnExpression;
+            Expression = expression;
         }
 
-        public virtual ColumnExpression ColumnExpression { get; }
+        public virtual Expression Expression { get; }
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {
