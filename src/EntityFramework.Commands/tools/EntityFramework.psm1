@@ -177,6 +177,15 @@ function Remove-Migration {
 }
 
 #
+# Enable-Migrations (Obsolete)
+#
+
+function Enable-Migrations {
+    # TODO: Link to some docs on the changes to Migrations
+    Write-Warning 'Enable-Migrations is obsolete. Use Add-Migration to start using Migrations.'
+}
+
+#
 # (Private Helpers)
 #
 
