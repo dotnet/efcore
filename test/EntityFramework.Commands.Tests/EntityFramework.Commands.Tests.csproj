@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net45</TargetFramework>
@@ -95,6 +96,7 @@
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="ExecutorTest.cs" />
     <Compile Include="HandlerTest.cs" />
+    <Compile Include="Utilities\CSharpHelperTest.cs" />
     <None Include="packages.config" />
     <None Include="project.json" />
   </ItemGroup>

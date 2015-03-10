@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         }
 
         public SqlServerModificationCommandBatchFactory(
-            [NotNull] SqlServerSqlGenerator sqlGenerator)
+            [NotNull] ISqlServerSqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
         }
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
             var maxBatchSize = optionsExtension?.MaxBatchSize;
 
-            return new SqlServerModificationCommandBatch((SqlServerSqlGenerator)SqlGenerator, maxBatchSize);
+            return new SqlServerModificationCommandBatch((ISqlServerSqlGenerator)SqlGenerator, maxBatchSize);
         }
     }
 }

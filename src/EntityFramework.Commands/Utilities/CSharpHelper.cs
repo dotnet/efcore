@@ -169,8 +169,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         public virtual string Literal(ushort value) => "(ushort)" + value;
 
         public virtual string Literal<T>([NotNull] T? value) where T : struct =>
-            // TODO: Test. May need dynamic
-            Literal(value.Value);
+            Literal((dynamic)value.Value);
 
         public virtual string Literal([NotNull] IReadOnlyList<string> values) =>
             values.Count == 1
@@ -183,8 +182,10 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         public virtual string Literal([NotNull] KeyValuePair<string, string> value) =>
             "{ " + Literal(value.Key) + ", " + Literal(value.Value) + " }";
 
-        protected virtual string Literal([CanBeNull] object value)
+        public virtual string Literal([NotNull] object value)
         {
+            Check.NotNull(value, nameof(value));
+
             throw new InvalidOperationException(Strings.UnknownLiteral(value.GetType()));
         }
     }

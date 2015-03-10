@@ -102,7 +102,8 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             return new SqlServerHistoryRepository(
                 Mock.Of<ISqlServerConnection>(),
                 Mock.Of<ISqlServerDataStoreCreator>(),
-                new Context());
+                new Context(),
+                new SqlServerSqlGenerator());
         }
 
         private class Context : DbContext

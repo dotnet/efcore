@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
         }
 
-        protected ReaderModificationCommandBatch([NotNull] SqlGenerator sqlGenerator)
+        protected ReaderModificationCommandBatch([NotNull] ISqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
         }

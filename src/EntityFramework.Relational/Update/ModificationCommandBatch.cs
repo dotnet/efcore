@@ -22,14 +22,14 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
         }
 
-        protected ModificationCommandBatch([NotNull] SqlGenerator sqlGenerator)
+        protected ModificationCommandBatch([NotNull] ISqlGenerator sqlGenerator)
         {
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
             SqlGenerator = sqlGenerator;
         }
 
-        protected SqlGenerator SqlGenerator { get; private set; }
+        protected ISqlGenerator SqlGenerator { get; private set; }
 
         public abstract IReadOnlyList<ModificationCommand> ModificationCommands { get; }
 

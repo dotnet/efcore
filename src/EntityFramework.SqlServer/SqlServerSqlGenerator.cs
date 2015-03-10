@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -11,7 +13,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerSqlGenerator : SqlGenerator
+    public class SqlServerSqlGenerator : SqlGenerator, ISqlServerSqlGenerator
     {
         public override void AppendInsertOperation(
             StringBuilder commandStringBuilder,
@@ -23,8 +25,8 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         public virtual ResultsGrouping AppendBulkInsertOperation(
-            [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] IReadOnlyList<ModificationCommand> modificationCommands)
+            StringBuilder commandStringBuilder,
+            IReadOnlyList<ModificationCommand> modificationCommands)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(modificationCommands, nameof(modificationCommands));
@@ -147,6 +149,8 @@ namespace Microsoft.Data.Entity.SqlServer
                 .Append("@@ROWCOUNT = " + expectedRowsAffected);
         }
 
+        public override string BatchSeparator => "GO";
+
         public override string DelimitIdentifier(string identifier)
         {
             Check.NotEmpty(identifier, nameof(identifier));
@@ -160,6 +164,28 @@ namespace Microsoft.Data.Entity.SqlServer
 
             return identifier.Replace("]", "]]");
         }
+
+        public override string GenerateLiteral(byte[] literal)
+        {
+            Check.NotNull(literal, nameof(literal));
+
+            var builder = new StringBuilder();
+
+            builder.Append("0x");
+
+            var parts = literal.Select(b => b.ToString("X2", CultureInfo.InvariantCulture));
+            foreach (var part in parts)
+            {
+                builder.Append(part);
+            }
+
+            return builder.ToString();
+        }
+
+        public override string GenerateLiteral(bool literal) => literal ? "1" : "0";
+        public override string GenerateLiteral(DateTime literal) => "'" + literal.ToString(@"yyyy-MM-dd HH\:mm\:ss.fffffff") + "'";
+        public override string GenerateLiteral(DateTimeOffset literal) => "'" + literal.ToString(@"yyyy-MM-dd HH\:mm\:ss.fffffffzzz") + "'";
+        public virtual string GenerateLiteral(Guid literal) => "'" + literal + "'";
 
         public enum ResultsGrouping
         {

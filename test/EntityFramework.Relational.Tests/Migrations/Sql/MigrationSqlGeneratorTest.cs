@@ -5,8 +5,16 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
 {
     public class MigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        protected override IMigrationSqlGenerator SqlGenerator =>
-            new Mock<MigrationSqlGenerator> { CallBase = true }.Object;
+        protected override IMigrationSqlGenerator SqlGenerator
+        {
+            get
+            {
+                var sqlGenerator = new Mock<SqlGenerator>() { CallBase = true };
+                var migrationSqlGenerator = new Mock<MigrationSqlGenerator>(sqlGenerator.Object) { CallBase = true };
+
+                return migrationSqlGenerator.Object;
+            }
+        }
 
         public override void AddColumnOperation_with_defaultValue()
         {

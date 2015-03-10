@@ -303,7 +303,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 return base.CreateStoreCommand(commandText, transaction, typeMapper, commandTimeout);
             }
 
-            public TestSqlServerModificationCommandBatch(SqlServerSqlGenerator sqlGenerator, int? maxBatchSize)
+            public TestSqlServerModificationCommandBatch(ISqlServerSqlGenerator sqlGenerator, int? maxBatchSize)
                 : base(sqlGenerator, maxBatchSize)
             {
             }
@@ -311,7 +311,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public class TestSqlServerModificationCommandBatchFactory : SqlServerModificationCommandBatchFactory
         {
-            public TestSqlServerModificationCommandBatchFactory(SqlServerSqlGenerator sqlGenerator)
+            public TestSqlServerModificationCommandBatchFactory(ISqlServerSqlGenerator sqlGenerator)
                 : base(sqlGenerator)
             {
             }
@@ -322,7 +322,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 var maxBatchSize = optionsExtension?.MaxBatchSize;
 
-                return new TestSqlServerModificationCommandBatch((SqlServerSqlGenerator)SqlGenerator, maxBatchSize);
+                return new TestSqlServerModificationCommandBatch((ISqlServerSqlGenerator)SqlGenerator, maxBatchSize);
             }
         }
 

@@ -14,5 +14,6 @@ namespace Microsoft.Data.Entity.Relational
         IHistoryRepository HistoryRepository { get; }
         IMigrationSqlGenerator MigrationSqlGenerator { get; }
         IRelationalConnection RelationalConnection { get; }
+        ISqlGenerator SqlGenerator { get; }
     }
 }

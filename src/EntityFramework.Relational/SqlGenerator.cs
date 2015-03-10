@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -10,11 +12,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract class SqlGenerator
+    public abstract class SqlGenerator : ISqlGenerator
     {
-        public virtual void AppendInsertOperation(
-            [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] ModificationCommand command)
+        public virtual void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command)
         {
             Check.NotNull(command, nameof(command));
 
@@ -39,9 +39,7 @@ namespace Microsoft.Data.Entity.Relational
             }
         }
 
-        public virtual void AppendUpdateOperation(
-            [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] ModificationCommand command)
+        public virtual void AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command)
         {
             Check.NotNull(command, nameof(command));
 
@@ -67,9 +65,7 @@ namespace Microsoft.Data.Entity.Relational
             }
         }
 
-        public virtual void AppendDeleteOperation(
-            [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] ModificationCommand command)
+        public virtual void AppendDeleteOperation(StringBuilder commandStringBuilder, ModificationCommand command)
         {
             Check.NotNull(command, nameof(command));
 
@@ -232,7 +228,7 @@ namespace Microsoft.Data.Entity.Relational
             commandStringBuilder
                 .AppendLine()
                 .Append("FROM ")
-                .Append(DelimitIdentifier(tableName,schemaName));
+                .Append(DelimitIdentifier(tableName, schemaName));
         }
 
         protected virtual void AppendValuesHeader(
@@ -334,7 +330,7 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] ColumnModification columnModification);
 
-        public virtual void AppendBatchHeader([NotNull] StringBuilder commandStringBuilder)
+        public virtual void AppendBatchHeader(StringBuilder commandStringBuilder)
         {
         }
 
@@ -343,10 +339,12 @@ namespace Microsoft.Data.Entity.Relational
             get { return ";"; }
         }
 
+        public virtual string BatchSeparator => string.Empty;
+
         // TODO: Consider adding a base class for all SQL generators (DDL, DML),
         // to avoid duplicating the five methods below.
 
-        public virtual string DelimitIdentifier([NotNull] string tableName, [CanBeNull] string schemaName)
+        public virtual string DelimitIdentifier(string tableName, string schemaName)
         {
             Check.NotEmpty(tableName, nameof(tableName));
 
@@ -357,7 +355,7 @@ namespace Microsoft.Data.Entity.Relational
                 + DelimitIdentifier(tableName);
         }
 
-        public virtual string DelimitIdentifier([NotNull] string identifier)
+        public virtual string DelimitIdentifier(string identifier)
         {
             Check.NotEmpty(identifier, nameof(identifier));
 
@@ -371,18 +369,50 @@ namespace Microsoft.Data.Entity.Relational
             return identifier.Replace("\"", "\"\"");
         }
 
-        public virtual string GenerateLiteral([NotNull] string literal)
+        public virtual string GenerateLiteral(string literal)
         {
             Check.NotNull(literal, nameof(literal));
 
             return "'" + EscapeLiteral(literal) + "'";
         }
 
-        public virtual string EscapeLiteral([NotNull] string literal)
+        public virtual string EscapeLiteral(string literal)
         {
             Check.NotNull(literal, nameof(literal));
 
             return literal.Replace("'", "''");
         }
+
+        public virtual string GenerateLiteral(byte[] literal)
+        {
+            Check.NotNull(literal, nameof(literal));
+
+            var builder = new StringBuilder();
+
+            builder.Append("X'");
+
+            var parts = literal.Select(b => b.ToString("X2", CultureInfo.InvariantCulture));
+            foreach (var part in parts)
+            {
+                builder.Append(part);
+            }
+
+            builder.Append("'");
+
+            return builder.ToString();
+        }
+
+        public virtual string GenerateLiteral(bool literal) => literal ? "TRUE" : "FALSE";
+        public virtual string GenerateLiteral(char literal) => "'" + literal + "'";
+        public virtual string GenerateLiteral(DateTime literal) => "TIMESTAMP '" + literal.ToString(@"yyyy-MM-dd HH\:mm\:ss.fffffff") + "'";
+        public virtual string GenerateLiteral(DateTimeOffset literal) => "TIMESTAMP '" + literal.ToString(@"yyyy-MM-dd HH\:mm\:ss.fffffffzzz") + "'";
+        public virtual string GenerateLiteral<T>(T? literal) where T : struct =>
+            literal.HasValue
+                ? GenerateLiteral((dynamic)literal.Value)
+                : "NULL";
+        public virtual string GenerateLiteral(object literal) =>
+            literal != null
+                ? string.Format(CultureInfo.InvariantCulture, "{0}", literal)
+                : "NULL";
     }
 }

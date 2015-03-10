@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void Create_returns_new_instances()
         {
             var factory = new TestModificationCommandBatchFactory(
-                new Mock<SqlGenerator>().Object);
+                new Mock<ISqlGenerator>().Object);
             var options = new Mock<IDbContextOptions>().Object;
 
             var firstBatch = factory.Create(options);
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void AddCommand_delegates()
         {
-            var sqlGenerator = new Mock<SqlGenerator>().Object;
+            var sqlGenerator = new Mock<ISqlGenerator>().Object;
             var factory = new TestModificationCommandBatchFactory(sqlGenerator);
 
             var modificationCommandBatchMock = new Mock<ModificationCommandBatch>();
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
         {
-            public TestModificationCommandBatchFactory(SqlGenerator sqlGenerator)
+            public TestModificationCommandBatchFactory(ISqlGenerator sqlGenerator)
                 : base(sqlGenerator)
             {
             }
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class TestModificationCommandBatch : SingularModificationCommandBatch
         {
-            public TestModificationCommandBatch(SqlGenerator sqlGenerator)
+            public TestModificationCommandBatch(ISqlGenerator sqlGenerator)
                 : base(sqlGenerator)
             {
             }

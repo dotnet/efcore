@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 {
     public class SqlGeneratorTest : SqlGeneratorTestBase
     {
-        protected override SqlGenerator CreateSqlGenerator()
+        protected override ISqlGenerator CreateSqlGenerator()
         {
             return new ConcreteSqlGenerator();
         }

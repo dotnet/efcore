@@ -14,6 +14,14 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerMigrationSqlGenerator : MigrationSqlGenerator, ISqlServerMigrationSqlGenerator
     {
+        private readonly ISqlServerSqlGenerator _sql;
+
+        public SqlServerMigrationSqlGenerator([NotNull] ISqlServerSqlGenerator sqlGenerator)
+            : base(Check.NotNull(sqlGenerator, nameof(sqlGenerator)))
+        {
+            _sql = sqlGenerator;
+        }
+
         public virtual void Generate(
             [NotNull] CreateDatabaseOperation operation,
             [CanBeNull] IModel model,
@@ -24,10 +32,10 @@ namespace Microsoft.Data.Entity.SqlServer
 
             builder
                 .Append("CREATE DATABASE ")
-                .Append(DelimitIdentifier(operation.Name))
+                .Append(_sql.DelimitIdentifier(operation.Name))
                 .EndBatch()
                 .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N'ALTER DATABASE ")
-                .Append(DelimitIdentifier(operation.Name))
+                .Append(_sql.DelimitIdentifier(operation.Name))
                 .Append(" SET READ_COMMITTED_SNAPSHOT ON';");
         }
 
@@ -41,11 +49,11 @@ namespace Microsoft.Data.Entity.SqlServer
 
             builder
                 .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N'ALTER DATABASE ")
-                .Append(DelimitIdentifier(operation.Name))
+                .Append(_sql.DelimitIdentifier(operation.Name))
                 .Append(" SET SINGLE_USER WITH ROLLBACK IMMEDIATE'")
                 .EndBatch()
                 .Append("DROP DATABASE ")
-                .Append(DelimitIdentifier(operation.Name))
+                .Append(_sql.DelimitIdentifier(operation.Name))
                 .Append(";");
         }
 
@@ -95,7 +103,7 @@ namespace Microsoft.Data.Entity.SqlServer
             }
 
             builder
-                .Append(DelimitIdentifier(column.Name))
+                .Append(_sql.DelimitIdentifier(column.Name))
                 .Append(" ")
                 .Append("AS ")
                 .Append(computedSql);
@@ -138,11 +146,6 @@ namespace Microsoft.Data.Entity.SqlServer
                 builder);
         }
 
-        protected override string DelimitIdentifier(string identifier) => "[" + EscapeIdentifier(identifier) + "]";
-        protected override string EscapeIdentifier(string identifier) => identifier.Replace("]", "]]");
-
-        public override string BatchSeparator => "GO";
-
         protected override void GenerateColumnTraits(ColumnModel column, SqlBatchBuilder builder)
         {
             Check.NotNull(column, nameof(column));
@@ -173,9 +176,9 @@ namespace Microsoft.Data.Entity.SqlServer
 
             builder
                 .Append("DROP INDEX ")
-                .Append(DelimitIdentifier(operation.Name))
+                .Append(_sql.DelimitIdentifier(operation.Name))
                 .Append(" ON ")
-                .Append(DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(";");
         }
 
@@ -192,11 +195,11 @@ namespace Microsoft.Data.Entity.SqlServer
 
             builder
                 .Append("EXECUTE sp_rename @objname = N")
-                .Append(Literal(objname))
+                .Append(_sql.GenerateLiteral(objname))
                 .Append(", @newname = N")
-                .Append(Literal(newName))
+                .Append(_sql.GenerateLiteral(newName))
                 .Append(", @objtype = N")
-                .Append(Literal(objectType))
+                .Append(_sql.GenerateLiteral(objectType))
                 .Append(";");
         }
 
@@ -207,9 +210,9 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlBatchBuilder builder) =>
                 builder
                     .Append("ALTER SCHEMA ")
-                    .Append(DelimitIdentifier(newSchema))
+                    .Append(_sql.DelimitIdentifier(newSchema))
                     .Append(" TRANSFER ")
-                    .Append(DelimitIdentifier(name, schema))
+                    .Append(_sql.DelimitIdentifier(name, schema))
                     .Append(";");
     }
 }

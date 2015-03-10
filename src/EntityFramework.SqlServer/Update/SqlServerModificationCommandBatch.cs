@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         {
         }
 
-        public SqlServerModificationCommandBatch([NotNull] SqlServerSqlGenerator sqlGenerator, [CanBeNull] int? maxBatchSize)
+        public SqlServerModificationCommandBatch([NotNull] ISqlServerSqlGenerator sqlGenerator, [CanBeNull] int? maxBatchSize)
             : base(sqlGenerator)
         {
             if (maxBatchSize.HasValue
@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             }
 
             var stringBuilder = new StringBuilder();
-            var grouping = ((SqlServerSqlGenerator)SqlGenerator).AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands);
+            var grouping = ((ISqlServerSqlGenerator)SqlGenerator).AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands);
             for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
             {
                 ResultSetEnds[i] = grouping == SqlServerSqlGenerator.ResultsGrouping.OneCommandPerResultSet;
