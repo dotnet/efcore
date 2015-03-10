@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<ClrCollectionAccessorSource>();
             VerifySingleton<CollectionTypeFactory>();
             VerifySingleton<EntityMaterializerSource>();
-            VerifySingleton<ModelValidator>();
+            VerifySingleton<IModelValidator>();
             VerifySingleton<MemberMapper>();
             VerifySingleton<FieldMatcher>();
             VerifySingleton<OriginalValuesFactory>();

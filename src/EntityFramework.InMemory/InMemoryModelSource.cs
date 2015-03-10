@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryModelSource : ModelSource, IInMemoryModelSource
     {
-        public InMemoryModelSource([NotNull] DbSetFinder setFinder, [NotNull] ModelValidator modelValidator)
+        public InMemoryModelSource([NotNull] DbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
             : base(setFinder, modelValidator)
         {
         }

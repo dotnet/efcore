@@ -3,10 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.Data.Entity.Internal
 {
     public static class DbContextActivator
     {
@@ -22,8 +21,6 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public static TContext CreateInstance<TContext>([NotNull] IServiceProvider serviceProvider)
         {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
-
             try
             {
                 _serviceProvider = serviceProvider;

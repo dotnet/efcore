@@ -8,19 +8,14 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.Data.Entity.Internal
 {
     public class DbSetFinder
     {
         private readonly ThreadSafeDictionaryCache<Type, IReadOnlyList<DbSetProperty>> _cache
             = new ThreadSafeDictionaryCache<Type, IReadOnlyList<DbSetProperty>>();
 
-        public virtual IReadOnlyList<DbSetProperty> FindSets([NotNull] DbContext context)
-        {
-            Check.NotNull(context, nameof(context));
-
-            return _cache.GetOrAdd(context.GetType(), FindSets);
-        }
+        public virtual IReadOnlyList<DbSetProperty> FindSets([NotNull] DbContext context) => _cache.GetOrAdd(context.GetType(), FindSets);
 
         private static DbSetProperty[] FindSets(Type contextType)
         {
@@ -42,11 +37,6 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             public DbSetProperty([NotNull] Type contextType, [NotNull] string name, [NotNull] Type entityType, bool hasSetter)
             {
-                Check.NotNull(contextType, nameof(contextType));
-                Check.NotNull(name, nameof(name));
-                Check.NotNull(entityType, nameof(entityType));
-                Check.ValidEntityType(entityType, "entityType");
-
                 ContextType = contextType;
                 Name = name;
                 EntityType = entityType;
