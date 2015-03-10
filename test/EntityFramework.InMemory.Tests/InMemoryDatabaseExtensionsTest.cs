@@ -19,7 +19,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var database = new InMemoryDatabaseFacade(
                 TestHelpers.Instance.CreateContext(),
                 Mock.Of<IInMemoryDataStoreCreator>(),
-                Mock.Of<IInMemoryConnection>(),
                 new LoggerFactory());
 
             Assert.Same(database, database.AsInMemory());
@@ -31,7 +30,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var database = new ConcreteDatabase(
                 TestHelpers.Instance.CreateContext(),
                 Mock.Of<IDataStoreCreator>(),
-                Mock.Of<IDataStoreConnection>(),
                 new LoggerFactory());
 
             Assert.Equal(
@@ -44,9 +42,8 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             public ConcreteDatabase(
                 DbContext context,
                 IDataStoreCreator dataStoreCreator,
-                IDataStoreConnection connection,
                 ILoggerFactory loggerFactory)
-                : base(context, dataStoreCreator, connection, loggerFactory)
+                : base(context, dataStoreCreator, loggerFactory)
             {
             }
         }

@@ -32,7 +32,6 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var database = new ConcreteDatabase(
                 TestHelpers.Instance.CreateContext(),
                 Mock.Of<IRelationalDataStoreCreator>(),
-                Mock.Of<IRelationalConnection>(),
                 new LoggerFactory());
 
             Assert.Equal(
@@ -45,9 +44,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             public ConcreteDatabase(
                 DbContext context,
                 IRelationalDataStoreCreator dataStoreCreator,
-                IRelationalConnection connection,
                 ILoggerFactory loggerFactory)
-                : base(context, dataStoreCreator, connection, loggerFactory)
+                : base(context, dataStoreCreator, loggerFactory)
             {
             }
         }

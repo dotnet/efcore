@@ -21,21 +21,16 @@ namespace Microsoft.Data.Entity.Infrastructure
         protected Database(
             [NotNull] DbContext context,
             [NotNull] IDataStoreCreator dataStoreCreator,
-            [NotNull] IDataStoreConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(context, nameof(context));
             Check.NotNull(dataStoreCreator, nameof(dataStoreCreator));
-            Check.NotNull(connection, nameof(connection));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
 
             _context = context;
             _dataStoreCreator = dataStoreCreator;
-            Connection = connection;
             _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<Database>);
         }
-
-        public virtual IDataStoreConnection Connection { get; }
 
         // TODO: Make sure API docs say that return value indicates whether or not the database or tables were created
         public virtual bool EnsureCreated() => _dataStoreCreator.EnsureCreated(_context.Model);

@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var commandBuilder = setupCommandBuilder(context);
 
-                var relationalConnection = (IRelationalConnection)context.Database.Connection;
+                var relationalConnection = context.Database.AsRelational().Connection;
                 var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(30, command.CommandTimeout);
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var commandBuilder = setupCommandBuilder(context);
 
-                var relationalConnection = (IRelationalConnection)context.Database.Connection;
+                var relationalConnection = context.Database.AsRelational().Connection;
                 var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(77, command.CommandTimeout);
@@ -71,13 +71,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var commandBuilder = setupCommandBuilder(context);
 
                 context.Database.AsRelational().Connection.CommandTimeout = 88;
-                var relationalConnection = (IRelationalConnection)context.Database.Connection;
+                var relationalConnection = context.Database.AsRelational().Connection;
                 var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(88, command.CommandTimeout);
 
                 context.Database.AsRelational().Connection.CommandTimeout = 99;
-                relationalConnection = (IRelationalConnection)context.Database.Connection;
+                relationalConnection = context.Database.AsRelational().Connection;
                 var command2 = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(99, command2.CommandTimeout);
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var commandBuilder = setupCommandBuilder(context);
 
-                var relationalConnection = (IRelationalConnection)context.Database.Connection;
+                var relationalConnection = context.Database.AsRelational().Connection;
                 context.Database.AsRelational().Connection.CommandTimeout = null;
                 var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 

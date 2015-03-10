@@ -26,12 +26,9 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Setup(m => m.EnsureCreated(model)).Returns(true);
             creatorMock.Setup(m => m.EnsureDeleted(model)).Returns(true);
 
-            var connection = Mock.Of<IDataStoreConnection>();
-
             var database = new ConcreteDatabase(
                 context,
                 creatorMock.Object,
-                connection,
                 new LoggerFactory());
 
             Assert.True(database.EnsureCreated());
@@ -39,8 +36,6 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.True(database.EnsureDeleted());
             creatorMock.Verify(m => m.EnsureDeleted(model), Times.Once);
-
-            Assert.Same(connection, database.Connection);
         }
 
         [Fact]
@@ -57,7 +52,6 @@ namespace Microsoft.Data.Entity.Tests
             var database = new ConcreteDatabase(
                 context,
                 creatorMock.Object,
-                Mock.Of<IDataStoreConnection>(),
                 new LoggerFactory());
 
             Assert.True(await database.EnsureCreatedAsync(cancellationToken));
@@ -114,9 +108,8 @@ namespace Microsoft.Data.Entity.Tests
             public ConcreteDatabase(
                 DbContext context,
                 IDataStoreCreator dataStoreCreator,
-                IDataStoreConnection connection,
                 ILoggerFactory loggerFactory)
-                : base(context, dataStoreCreator, connection, loggerFactory)
+                : base(context, dataStoreCreator, loggerFactory)
             {
             }
         }

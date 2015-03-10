@@ -12,26 +12,22 @@ namespace Microsoft.Data.Entity.InMemory
     {
         private readonly DbContext _context;
         private readonly IInMemoryDataStoreCreator _dataStoreCreator;
-        private readonly IInMemoryConnection _connection;
         private readonly ILoggerFactory _loggerFactory;
 
         public InMemoryDatabaseFactory(
             [NotNull] DbContext context,
             [NotNull] IInMemoryDataStoreCreator dataStoreCreator,
-            [NotNull] IInMemoryConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(context, nameof(context));
             Check.NotNull(dataStoreCreator, nameof(dataStoreCreator));
-            Check.NotNull(connection, nameof(connection));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
 
             _context = context;
             _dataStoreCreator = dataStoreCreator;
-            _connection = connection;
             _loggerFactory = loggerFactory;
         }
 
-        public virtual Database CreateDatabase() => new InMemoryDatabaseFacade(_context, _dataStoreCreator, _connection, _loggerFactory);
+        public virtual Database CreateDatabase() => new InMemoryDatabaseFacade(_context, _dataStoreCreator, _loggerFactory);
     }
 }

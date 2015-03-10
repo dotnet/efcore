@@ -23,18 +23,20 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] IRelationalConnection connection,
             [NotNull] Migrator migrator,
             [NotNull] ILoggerFactory loggerFactory)
-            : base(context, dataStoreCreator, connection, loggerFactory)
+            : base(context, dataStoreCreator, loggerFactory)
         {
             Check.NotNull(migrator, nameof(migrator));
+            Check.NotNull(connection, nameof(connection));
 
             _migrator = migrator;
+            Connection = connection;
         }
 
         public virtual void ApplyMigrations() => _migrator.ApplyMigrations();
 
         Migrator IAccessor<Migrator>.Service => _migrator;
 
-        public new virtual IRelationalConnection Connection => (IRelationalConnection)base.Connection;
+        public virtual IRelationalConnection Connection { get; }
 
         public virtual void Create()
         {

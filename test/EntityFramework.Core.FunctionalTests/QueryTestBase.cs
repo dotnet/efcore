@@ -2524,7 +2524,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
 
-                var foo = context.Database.Connection;
                 AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
                     new[] { query(context.Set<TItem>()) },
