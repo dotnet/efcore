@@ -22,7 +22,7 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, nameof(builder));
 
             ((IAccessor<IServiceCollection>)builder.AddRelational()).Service
-                .AddScoped<IDataStoreSource, SqlServerDataStoreSource>()
+                .AddSingleton<IDataStoreSource, SqlServerDataStoreSource>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<ISqlServerModelBuilderFactory, SqlServerModelBuilderFactory>()
                     .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()

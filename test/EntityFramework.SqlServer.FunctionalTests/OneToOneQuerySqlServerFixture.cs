@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -27,10 +28,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var model = CreateModel();
             var database = SqlServerTestStore.CreateScratch();
 
-            _options
-                = new DbContextOptions()
-                    .UseModel(model);
-            _options.UseSqlServer(database.Connection.ConnectionString);
+            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model);
+            optionsBuilder.UseSqlServer(database.Connection.ConnectionString);
+            _options = optionsBuilder.Options;
 
             using (var context = new DbContext(_serviceProvider, _options))
             {

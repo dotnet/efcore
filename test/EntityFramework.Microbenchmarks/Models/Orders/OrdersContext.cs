@@ -22,9 +22,9 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
         public DbSet<OrderLine> OrderLines { get; set; }
         public DbSet<Product> Products { get; set; }
 
-        protected override void OnConfiguring(DbContextOptions builder)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var sqlBuilder = builder.UseSqlServer(_connectionString);
+            var sqlBuilder = optionsBuilder.UseSqlServer(_connectionString);
 
             if (_disableBatching)
             {

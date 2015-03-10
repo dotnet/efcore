@@ -462,4 +462,7 @@
   <data name="NavigationToSelfDuplicate" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be used for both ends of the relationship. Either specify it on the principal side or the dependent side.</value>
   </data>
+  <data name="NonGenericOptions" xml:space="preserve">
+    <value>The DbContextOptions object registered in the service provider must be a DbContextOptions&lt;TContext&gt; where TContext is the type of the DbContext being used.</value>
+  </data>
 </root>

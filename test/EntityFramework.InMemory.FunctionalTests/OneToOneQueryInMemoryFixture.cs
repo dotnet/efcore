@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
@@ -23,9 +24,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var model = CreateModel();
 
-            _options = new DbContextOptions()
-                .UseModel(model);
-            _options.UseInMemoryStore();
+            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model);
+            optionsBuilder.UseInMemoryStore();
+            _options = optionsBuilder.Options;
 
             using (var context = new DbContext(_serviceProvider, _options))
             {

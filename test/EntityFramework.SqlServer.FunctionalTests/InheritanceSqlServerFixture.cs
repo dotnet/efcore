@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Inheritance;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -12,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class InheritanceSqlServerFixture : InheritanceFixtureBase
     {
-        private readonly DbContextOptions _options = new DbContextOptions();
+        private readonly DbContextOptions _options;
         private readonly IServiceProvider _serviceProvider;
 
         public InheritanceSqlServerFixture()
@@ -28,7 +29,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var testStore = SqlServerTestStore.CreateScratch();
 
-            _options.UseSqlServer(testStore.Connection);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(testStore.Connection);
+            _options = optionsBuilder.Options;
 
             // TODO: Do this via migrations & update pipeline
 

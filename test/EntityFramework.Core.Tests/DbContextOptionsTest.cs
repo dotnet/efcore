@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
@@ -13,118 +12,94 @@ namespace Microsoft.Data.Entity.Tests
     public class DbContextOptionsTest
     {
         [Fact]
-        public void Model_is_null_if_not_set()
-        {
-            Assert.Null(new DbContextOptions().Model);
-        }
-
-        [Fact]
         public void Model_can_be_set_explicitly_in_options()
         {
-            var model = Mock.Of<IModel>();
+            var model = new Model();
 
-            var options = new DbContextOptions().UseModel(model);
+            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model);
 
-            Assert.Same(model, options.Model);
+            Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
         }
 
         [Fact]
         public void Extensions_can_be_added_to_options()
         {
-            IDbContextOptions options = new DbContextOptions();
+            var optionsBuilder = new DbContextOptionsBuilder();
 
-            options.AddOrUpdateExtension<FakeDbContextOptionsExtension1>(e => { });
-            options.AddOrUpdateExtension<FakeDbContextOptionsExtension2>(e => { });
+            Assert.Null(optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
+            Assert.Empty(optionsBuilder.Options.Extensions);
 
-            Assert.Equal(2, options.Extensions.Count);
-            Assert.IsType<FakeDbContextOptionsExtension1>(options.Extensions[0]);
-            Assert.IsType<FakeDbContextOptionsExtension2>(options.Extensions[1]);
+            var extension1 = new FakeDbContextOptionsExtension1();
+            var extension2 = new FakeDbContextOptionsExtension2();
+
+            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension1);
+            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension2);
+
+            Assert.Equal(2, optionsBuilder.Options.Extensions.Count());
+            Assert.Contains(extension1, optionsBuilder.Options.Extensions);
+            Assert.Contains(extension2, optionsBuilder.Options.Extensions);
+
+            Assert.Same(extension1, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
+            Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension2>());
         }
 
         [Fact]
         public void Can_update_an_existing_extension()
         {
-            IDbContextOptions options = new DbContextOptions();
+            var optionsBuilder = new DbContextOptionsBuilder();
 
-            options.AddOrUpdateExtension<FakeDbContextOptionsExtension1>(e => e.Something += "One");
-            options.AddOrUpdateExtension<FakeDbContextOptionsExtension1>(e => e.Something += "Two");
+            var extension1 = new FakeDbContextOptionsExtension1 { Something = "One " };
+            var extension2 = new FakeDbContextOptionsExtension1 { Something = "Two " };
 
-            Assert.Equal("OneTwo", options.Extensions.OfType<FakeDbContextOptionsExtension1>().Single().Something);
+            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension1);
+            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension2);
+
+            Assert.Equal(1, optionsBuilder.Options.Extensions.Count());
+            Assert.DoesNotContain(extension1, optionsBuilder.Options.Extensions);
+            Assert.Contains(extension2, optionsBuilder.Options.Extensions);
+
+            Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
         }
 
-        private class FakeDbContextOptionsExtension1 : DbContextOptionsExtension
+        private class FakeDbContextOptionsExtension1 : IDbContextOptionsExtension
         {
             public string Something { get; set; }
 
-            protected internal override void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
             }
         }
 
-        private class FakeDbContextOptionsExtension2 : DbContextOptionsExtension
+        private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
         {
-            protected internal override void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
             }
         }
 
         [Fact]
-        public void UseModel_on_generic_options_returns_generic_options()
+        public void UseModel_on_generic_builder_returns_generic_builder()
         {
-            var model = Mock.Of<IModel>();
+            var model = new Model();
 
-            var options = GenericCheck(new DbContextOptions<UnkoolContext>().UseModel(model));
+            var optionsBuilder = GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().UseModel(model));
 
-            Assert.Same(model, options.Model);
+            Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
         }
 
-        private DbContextOptions<UnkoolContext> GenericCheck(DbContextOptions<UnkoolContext> options)
+        private DbContextOptionsBuilder<UnkoolContext> GenericCheck(DbContextOptionsBuilder<UnkoolContext> optionsBuilder) => optionsBuilder;
+
+        [Fact]
+        public void Generic_builder_returns_generic_options()
         {
-            return options;
+            var builder = new DbContextOptionsBuilder<UnkoolContext>();
+            Assert.Same(((DbContextOptionsBuilder)builder).Options, GenericCheck(builder.Options));
         }
+
+        private DbContextOptions<UnkoolContext> GenericCheck(DbContextOptions<UnkoolContext> options) => options;
 
         private class UnkoolContext : DbContext
         {
-        }
-
-        [Fact]
-        public void Cloning_copies_options_and_further_config_does_not_impact_original()
-        {
-            var model = Mock.Of<IModel>();
-
-            IDbContextOptions options = new DbContextOptions<UnkoolContext>().UseModel(model);
-
-            options.AddOrUpdateExtension<FakeDbContextOptionsExtension1>(e => { });
-
-            options.RawOptions = new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } };
-
-            var clone = options.Clone();
-
-            Assert.IsType<DbContextOptions<UnkoolContext>>(clone);
-            Assert.Same(model, clone.Model);
-
-            var cloneAsExtensions = ((IDbContextOptions)clone);
-
-            Assert.Equal(1, cloneAsExtensions.Extensions.Count);
-            Assert.IsType<FakeDbContextOptionsExtension1>(cloneAsExtensions.Extensions[0]);
-
-            Assert.Equal("Database=Crunchie", cloneAsExtensions.RawOptions["ConnectionString"]);
-
-            var model2 = Mock.Of<IModel>();
-            clone.UseModel(model2);
-
-            cloneAsExtensions.AddOrUpdateExtension<FakeDbContextOptionsExtension2>(e => { });
-
-            Assert.Same(model2, clone.Model);
-
-            Assert.Equal(2, cloneAsExtensions.Extensions.Count);
-            Assert.IsType<FakeDbContextOptionsExtension1>(cloneAsExtensions.Extensions[0]);
-            Assert.IsType<FakeDbContextOptionsExtension2>(cloneAsExtensions.Extensions[1]);
-
-            Assert.Same(model, options.Model);
-
-            Assert.Equal(1, options.Extensions.Count);
-            Assert.IsType<FakeDbContextOptionsExtension1>(options.Extensions[0]);
         }
     }
 }

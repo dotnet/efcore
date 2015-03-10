@@ -66,9 +66,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<KettleChips> Chips { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

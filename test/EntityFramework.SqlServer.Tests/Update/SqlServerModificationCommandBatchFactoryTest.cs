@@ -17,11 +17,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         public void Uses_MaxBatchSize_specified_in_SqlServerOptionsExtension()
         {
             var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
-            IDbContextOptions options = new DbContextOptions();
-            options.RawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "MaxBatchSize", "1" } };
-            options.AddExtension(new SqlServerOptionsExtension());
 
-            var batch = factory.Create(options);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer().MaxBatchSize(1);
+
+            var batch = factory.Create(optionsBuilder.Options);
 
             Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
             Assert.False(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
@@ -31,11 +31,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         public void MaxBatchSize_is_optional()
         {
             var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
-            IDbContextOptions options = new DbContextOptions();
-            options.RawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            options.AddExtension(new SqlServerOptionsExtension());
 
-            var batch = factory.Create(options);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer();
+
+            var batch = factory.Create(optionsBuilder.Options);
 
             Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
             Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
@@ -45,10 +45,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         public void SqlServerOptionsExtension_is_optional()
         {
             var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
-            IDbContextOptions options = new DbContextOptions();
-            options.RawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-            var batch = factory.Create(options);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer();
+
+            var batch = factory.Create(optionsBuilder.Options);
 
             Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
             Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
@@ -58,13 +59,31 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         public void MaxBatchSize_is_used_only_if_sqlServerOptionsExtension_is_registered()
         {
             var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
-            IDbContextOptions options = new DbContextOptions();
-            options.RawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "MaxBatchSize", "1" } };
 
-            var batch = factory.Create(options);
+            var rawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "MaxBatchSize", "1" } };
+            var optionsExtension = new TestRelationalOptionsExtension(
+                new DbContextOptions<DbContext>(rawOptions, new Dictionary<Type, IDbContextOptionsExtension>()));
+
+            var optionsBuilder = new DbContextOptionsBuilder();
+            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(optionsExtension);
+
+            var batch = factory.Create(optionsBuilder.Options);
 
             Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
             Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+        }
+
+        private class TestRelationalOptionsExtension : RelationalOptionsExtension
+        {
+            public TestRelationalOptionsExtension(IDbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public override void ApplyServices(EntityFrameworkServicesBuilder builder)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

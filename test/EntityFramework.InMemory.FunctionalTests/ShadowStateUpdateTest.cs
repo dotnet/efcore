@@ -21,11 +21,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             customerType.GetOrSetPrimaryKey(customerType.AddProperty("Id", typeof(int), shadowProperty: true));
             customerType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
 
-            var options = new DbContextOptions()
+            var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            options.UseInMemoryStore();
+            optionsBuilder.UseInMemoryStore();
 
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 // TODO: Better API for shadow state access
                 var customerEntry = ((IAccessor<StateManager>)context.ChangeTracker).Service.CreateNewEntry(customerType);
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             //
             // Assert.Equal(new object[] { 42, "Daenerys" }, customerFromStore);
 
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 var customerEntry = ((IAccessor<StateManager>)context.ChangeTracker).Service.CreateNewEntry(customerType);
                 customerEntry[customerType.GetProperty("Id")] = 42;
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             // 
             // Assert.Equal(new object[] { 42, "Daenerys Targaryen" }, customerFromStore);
 
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 var customerEntry = ((IAccessor<StateManager>)context.ChangeTracker).Service.CreateNewEntry(customerType);
                 customerEntry[customerType.GetProperty("Id")] = 42;
@@ -83,13 +83,13 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             customerType.GetOrSetPrimaryKey(customerType.GetOrAddProperty("Id", typeof(int)));
             customerType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
 
-            var options = new DbContextOptions()
+            var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            options.UseInMemoryStore();
+            optionsBuilder.UseInMemoryStore();
 
             var customer = new Customer { Id = 42 };
 
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 context.Add(customer);
 
@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 customerEntry[customerType.GetProperty("Name")] = "Changed!";
             }
 
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     (string)context.Entry(customerFromStore).Property("Name").CurrentValue);
             }
 
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 var customerEntry = ((IAccessor<InternalEntityEntry>)context.Entry(customer)).Service;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys Targaryen";
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -132,14 +132,14 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     (string)context.Entry(customerFromStore).Property("Name").CurrentValue);
             }
 
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 context.Remove(customer);
 
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 Assert.Equal(0, context.Set<Customer>().Count());
             }

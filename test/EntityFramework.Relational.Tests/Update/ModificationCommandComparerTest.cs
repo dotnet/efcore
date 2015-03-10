@@ -19,11 +19,11 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var model = new Entity.Metadata.Model();
             var entityType = model.AddEntityType(typeof(object));
 
-            var options = new DbContextOptions()
+            var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            options.UseInMemoryStore(persist: false);
+            optionsBuilder.UseInMemoryStore(persist: false);
 
-            var contextServices = ((IAccessor<IServiceProvider>)new DbContext(options)).Service;
+            var contextServices = ((IAccessor<IServiceProvider>)new DbContext(optionsBuilder.Options)).Service;
             var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var key = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);

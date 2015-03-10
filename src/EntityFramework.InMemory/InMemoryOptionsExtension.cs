@@ -7,11 +7,11 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryOptionsExtension : DbContextOptionsExtension
+    public class InMemoryOptionsExtension : IDbContextOptionsExtension
     {
         public virtual bool Persist { get; internal set; }
 
-        protected override void ApplyServices(EntityFrameworkServicesBuilder builder)
+        public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
 

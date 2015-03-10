@@ -33,10 +33,10 @@ namespace Microsoft.Data.Entity.SqlServer
             var builder = new SqlConnectionStringBuilder { ConnectionString = ConnectionString, InitialCatalog = "master" };
 
             // TODO use clone connection method once implimented see #1406
-            var options = new DbContextOptions();
-            options.UseSqlServer(builder.ConnectionString).CommandTimeout(CommandTimeout);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(builder.ConnectionString).CommandTimeout(CommandTimeout);
 
-            return new SqlServerConnection(options, _loggerFactory);
+            return new SqlServerConnection(optionsBuilder.Options, _loggerFactory);
         }
     }
 }

@@ -260,9 +260,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .GenerateValueOnAdd(false);
             }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseInMemoryStore(persist: false);
+                optionsBuilder.UseInMemoryStore(persist: false);
             }
         }
 

@@ -14,48 +14,48 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerDbContextOptionsExtensions
     {
-        public static SqlServerDbContextOptions UseSqlServer([NotNull] this DbContextOptions options)
+        public static SqlServerDbContextOptionsBuilder UseSqlServer([NotNull] this DbContextOptionsBuilder optionsBuilder)
         {
-            Check.NotNull(options, nameof(options));
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 
-            ((IDbContextOptions)options)
-                .AddOrUpdateExtension<SqlServerOptionsExtension>(x => { });
+            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(GetOrCreateExtension(optionsBuilder));
 
-            return new SqlServerDbContextOptions(options);
+            return new SqlServerDbContextOptionsBuilder(optionsBuilder);
         }
 
-        public static SqlServerDbContextOptions UseSqlServer([NotNull] this DbContextOptions options, [NotNull] string connectionString)
+        public static SqlServerDbContextOptionsBuilder UseSqlServer([NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] string connectionString)
         {
-            Check.NotNull(options, nameof(options));
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
-            ((IDbContextOptions)options)
-                .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.ConnectionString = connectionString);
+            var extension = GetOrCreateExtension(optionsBuilder);
 
-            return new SqlServerDbContextOptions(options);
-        }
+            // TODO: Don't mutate
+            extension.ConnectionString = connectionString;
 
-        public static SqlServerDbContextOptions UseSqlServer<T>([NotNull] this DbContextOptions<T> options, [NotNull] string connectionString)
-        {
-            return UseSqlServer((DbContextOptions)options, connectionString);
+            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension);
+
+            return new SqlServerDbContextOptionsBuilder(optionsBuilder);
         }
 
         // Note: Decision made to use DbConnection not SqlConnection: Issue #772
-        public static SqlServerDbContextOptions UseSqlServer([NotNull] this DbContextOptions options, [NotNull] DbConnection connection)
+        public static SqlServerDbContextOptionsBuilder UseSqlServer([NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] DbConnection connection)
         {
-            Check.NotNull(options, nameof(options));
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(connection, nameof(connection));
 
-            ((IDbContextOptions)options)
-                .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.Connection = connection);
+            var extension = GetOrCreateExtension(optionsBuilder);
 
-            return new SqlServerDbContextOptions(options);
+            // TODO: Don't mutate
+            extension.Connection = connection;
+
+            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension);
+
+            return new SqlServerDbContextOptionsBuilder(optionsBuilder);
         }
 
-        // Note: Decision made to use DbConnection not SqlConnection: Issue #772
-        public static SqlServerDbContextOptions UseSqlServer<T>([NotNull] this DbContextOptions<T> options, [NotNull] DbConnection connection)
-        {
-            return UseSqlServer((DbContextOptions)options, connection);
-        }
+        private static SqlServerOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.Options.FindExtension<SqlServerOptionsExtension>()
+               ?? new SqlServerOptionsExtension(optionsBuilder.Options);
     }
 }

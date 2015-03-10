@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             Generator.CSharpCodeGeneratorHelper.BeginMethod(AccessModifier.Protected,
                 VirtualModifier.Override, "void", "OnConfiguring", sb, _onConfiguringMethodParameters);
-            sb.Append("options.UseSqlServer(");
+            sb.Append("optionsBuilder.UseSqlServer(");
             sb.Append(CSharpUtilities.Instance.GenerateVerbatimStringLiteral(ConnectionString));
             sb.AppendLine(");");
             Generator.CSharpCodeGeneratorHelper.EndMethod(sb);

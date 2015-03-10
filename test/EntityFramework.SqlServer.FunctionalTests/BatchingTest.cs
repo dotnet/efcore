@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -14,10 +15,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public void Batches_are_divided_correctly_with_two_inserted_columns()
         {
-            var options = new DbContextOptions();
-            options.UseSqlServer(_testStore.Connection);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(_testStore.Connection);
 
-            using (var context = new BloggingContext(_serviceProvider, options))
+            using (var context = new BloggingContext(_serviceProvider, optionsBuilder.Options))
             {
                 context.Database.EnsureCreated();
 
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var context = new BloggingContext(_serviceProvider, options))
+            using (var context = new BloggingContext(_serviceProvider, optionsBuilder.Options))
             {
                 Assert.Equal(1100, context.Set<Blog>().Count());
             }

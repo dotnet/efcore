@@ -18,6 +18,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         protected override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder) 
             => builder.AddInMemoryStore().AddRelational();
 
-        protected override DbContextOptions UseProviderOptions(DbContextOptions options) => options;
+        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+        {
+        }
     }
 }

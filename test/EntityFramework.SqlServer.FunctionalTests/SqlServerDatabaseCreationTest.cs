@@ -306,9 +306,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 _testStore = testStore;
             }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(_testStore.Connection.ConnectionString);
+                optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

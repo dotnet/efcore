@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
@@ -380,9 +379,9 @@ namespace Microsoft.Data.Entity.Tests
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
 
-            protected internal override void OnConfiguring(DbContextOptions options)
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseInMemoryStore(persist: false);
+                optionsBuilder.UseInMemoryStore(persist: false);
             }
         }
     }

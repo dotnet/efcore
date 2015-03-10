@@ -86,7 +86,6 @@
     <Compile Include="SqlServerDataStoreCreatorTest.cs" />
     <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />
     <Compile Include="SqlServerDatabaseExtensionsTest.cs" />
-    <Compile Include="SqlServerDbContextOptionsTest.cs" />
     <Compile Include="SqlServerOptionsExtensionTest.cs" />
     <Compile Include="SqlServerConnectionTest.cs" />
     <Compile Include="SqlServerDataStoreSourceTest.cs" />

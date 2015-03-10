@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -12,12 +13,23 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     public class SqlServerDbContextOptionsExtensionsTest
     {
         [Fact]
+        public void Can_add_extension_with_max_batch_size()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer().MaxBatchSize(123);
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+
+            Assert.Equal(123, extension.MaxBatchSize);
+        }
+
+        [Fact]
         public void Can_add_extension_with_connection_string()
         {
-            var options = new DbContextOptions();
-            options.UseSqlServer("Database=Crunchie");
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer("Database=Crunchie");
 
-            var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 
             Assert.Equal("Database=Crunchie", extension.ConnectionString);
             Assert.Null(extension.Connection);
@@ -26,10 +38,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Can_add_extension_with_connection_string_using_generic_options()
         {
-            var options = new DbContextOptions<DbContext>();
-            options.UseSqlServer("Database=Whisper");
+            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
+            optionsBuilder.UseSqlServer("Database=Whisper");
 
-            var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 
             Assert.Equal("Database=Whisper", extension.ConnectionString);
             Assert.Null(extension.Connection);
@@ -38,12 +50,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Can_add_extension_with_connection()
         {
-            var options = new DbContextOptions();
+            var optionsBuilder = new DbContextOptionsBuilder();
             var connection = new SqlConnection();
 
-            options.UseSqlServer(connection);
+            optionsBuilder.UseSqlServer(connection);
 
-            var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 
             Assert.Same(connection, extension.Connection);
             Assert.Null(extension.ConnectionString);
@@ -52,12 +64,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Can_add_extension_with_connection_using_generic_options()
         {
-            var options = new DbContextOptions<DbContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
             var connection = new SqlConnection();
 
-            options.UseSqlServer(connection);
+            optionsBuilder.UseSqlServer(connection);
 
-            var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 
             Assert.Same(connection, extension.Connection);
             Assert.Null(extension.ConnectionString);
@@ -66,12 +78,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void UseSqlServer_uses_connection_string_from_raw_options()
         {
-            var options = new DbContextOptions();
-            ((IDbContextOptions)options).RawOptions = new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } };
+            var optionsBuilder = new DbContextOptionsBuilder(
+                new DbContextOptions<DbContext>(
+                    new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } }, 
+                    new Dictionary<Type, IDbContextOptionsExtension>()));
 
-            options.UseSqlServer();
+            optionsBuilder.UseSqlServer();
 
-            var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 
             Assert.Equal("Database=Crunchie", extension.ConnectionString);
             Assert.Null(extension.Connection);

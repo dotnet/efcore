@@ -932,6 +932,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("NavigationToSelfDuplicate", "navigation"), navigation);
         }
 
+        /// <summary>
+        /// The DbContextOptions object registered in the service provider must be a DbContextOptions&lt;TContext&gt; where TContext is the type of the DbContext being used.
+        /// </summary>
+        public static string NonGenericOptions
+        {
+            get { return GetString("NonGenericOptions"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

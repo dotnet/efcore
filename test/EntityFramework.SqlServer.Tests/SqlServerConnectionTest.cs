@@ -33,10 +33,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         public static IDbContextOptions CreateOptions()
         {
-            var options = new DbContextOptions();
-            options.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;Trusted_Connection=True;");
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;Trusted_Connection=True;");
 
-            return options;
+            return optionsBuilder.Options;
         }
     }
 }

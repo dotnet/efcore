@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
@@ -28,9 +29,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             _testDatabase = SqlServerNorthwindContext.GetSharedStore();
 
-            _options = new DbContextOptions()
-                .UseModel(CreateModel());
-            _options.UseSqlServer(_testDatabase.Connection.ConnectionString);
+            var optionsBuilder = new DbContextOptionsBuilder().UseModel(CreateModel());
+            optionsBuilder.UseSqlServer(_testDatabase.Connection.ConnectionString);
+            _options = optionsBuilder.Options;
         }
 
         public DbContext CreateContext()

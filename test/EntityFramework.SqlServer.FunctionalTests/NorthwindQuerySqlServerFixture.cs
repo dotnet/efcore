@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
@@ -29,8 +30,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
-            _options = new DbContextOptions();
-            _options.UseSqlServer(_testStore.Connection.ConnectionString);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
+            _options = optionsBuilder.Options;
         }
 
         public override NorthwindContext CreateContext()

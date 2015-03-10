@@ -1,42 +1,52 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Extensions
 {
-    public class SqlServerDbContextOptions : RelationalDbContextOptions
+    public class SqlServerDbContextOptionsBuilder : RelationalDbContextOptionsBuilder
     {
-        public SqlServerDbContextOptions([NotNull] DbContextOptions options)
-            : base(options)
+        public SqlServerDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
+            : base(optionsBuilder)
         {
         }
 
-        public virtual SqlServerDbContextOptions MaxBatchSize(int maxBatchSize)
+        public virtual SqlServerDbContextOptionsBuilder MaxBatchSize(int maxBatchSize)
         {
-            ((IDbContextOptions)Options)
-                .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.MaxBatchSize = maxBatchSize);
+            var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.FindExtension<SqlServerOptionsExtension>());
+            Debug.Assert(extension != null);
+
+            extension.MaxBatchSize = maxBatchSize;
+
+            ((IOptionsBuilderExtender)OptionsBuilder).AddOrUpdateExtension(extension);
 
             return this;
         }
 
-        public virtual SqlServerDbContextOptions CommandTimeout(int? commandTimeout)
+        public virtual SqlServerDbContextOptionsBuilder CommandTimeout(int? commandTimeout)
         {
-            ((IDbContextOptions)Options)
-                .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.CommandTimeout = commandTimeout);
+            var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.FindExtension<SqlServerOptionsExtension>());
+            Debug.Assert(extension != null);
+
+            extension.CommandTimeout = commandTimeout;
+
+            ((IOptionsBuilderExtender)OptionsBuilder).AddOrUpdateExtension(extension);
 
             return this;
         }
 
-        public virtual SqlServerDbContextOptions MigrationsAssembly([NotNull] string assemblyName)
+        public virtual SqlServerDbContextOptionsBuilder MigrationsAssembly([NotNull] string assemblyName)
         {
-            Check.NotEmpty(assemblyName, nameof(assemblyName));
+            var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.FindExtension<SqlServerOptionsExtension>());
+            Debug.Assert(extension != null);
 
-            ((IDbContextOptions)Options)
-                .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.MigrationsAssembly = assemblyName);
+            extension.MigrationsAssembly = assemblyName;
+
+            ((IOptionsBuilderExtender)OptionsBuilder).AddOrUpdateExtension(extension);
 
             return this;
         }

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -193,9 +194,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public DbSet<Unicorn> Unicorns { get; set; }
             public DbSet<EarthPony> EarthPonies { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions builder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                builder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

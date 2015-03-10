@@ -4,26 +4,17 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
     public interface IDbContextOptions
     {
-        DbContextOptions Clone();
+        IReadOnlyDictionary<string, string> RawOptions { get; }
 
-        DbContextOptions UseModel([NotNull] IModel model);
+        IEnumerable<IDbContextOptionsExtension> Extensions { get; }
 
-        [CanBeNull]
-        IModel Model { get; }
+        TExtension FindExtension<TExtension>() where TExtension : class, IDbContextOptionsExtension;
 
-        void AddOrUpdateExtension<TExtension>([NotNull] Action<TExtension> updater)
-            where TExtension : DbContextOptionsExtension, new();
-
-        void AddExtension([NotNull] DbContextOptionsExtension extension);
-
-        IReadOnlyList<DbContextOptionsExtension> Extensions { get; }
-
-        IReadOnlyDictionary<string, string> RawOptions { get; [param: NotNull] set; }
+        TValue FindRawOption<TValue>([NotNull] string key);
     }
 }

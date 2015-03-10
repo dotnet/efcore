@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -22,10 +23,10 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .ServiceCollection()
                     .BuildServiceProvider();
 
-            var options = new DbContextOptions();
-            options.UseInMemoryStore(persist: true);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseInMemoryStore(persist: true);
 
-            using (var db = new MusicStoreContext(serviceProvider, options))
+            using (var db = new MusicStoreContext(serviceProvider, optionsBuilder.Options))
             {
                 var albums = GetAlbums("~/Images/placeholder.png", Genres, Artists);
 
@@ -36,7 +37,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 db.SaveChanges();
             }
 
-            using (var db = new MusicStoreContext(serviceProvider, options))
+            using (var db = new MusicStoreContext(serviceProvider, optionsBuilder.Options))
             {
                 var q = from album in db.Albums
                     join genre in db.Genres on album.GenreId equals genre.GenreId
