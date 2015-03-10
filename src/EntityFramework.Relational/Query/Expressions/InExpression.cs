@@ -3,23 +3,30 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
+using JetBrains.Annotations;
+using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class InExpression : InExpressionBase
+    public class InExpression : ExtensionExpression
     {
         public InExpression(
             [NotNull] ColumnExpression column,
             [NotNull] IReadOnlyList<Expression> values)
-            : base(
-                Check.NotNull(column, nameof(column)),
-                Check.NotNull(values, nameof(values)))
+            : base(typeof(bool))
         {
+            Check.NotNull(column, nameof(column));
+            Check.NotNull(values, nameof(values));
+
+            Column = column;
+            Values = values;
         }
+
+        public virtual ColumnExpression Column { get; }
+        public virtual IReadOnlyList<Expression> Values { get; }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
@@ -30,6 +37,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return specificVisitor != null
                 ? specificVisitor.VisitInExpression(this)
                 : base.Accept(visitor);
+        }
+
+        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
+        {
+            return this;
         }
 
         public override string ToString()

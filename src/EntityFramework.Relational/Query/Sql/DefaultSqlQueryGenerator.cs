@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -259,24 +260,72 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append(" IN (");
 
-            VisitJoin(inExpression.Values);
+            VisitInExpressionValues(inExpression.Values);
             
             _sql.Append(")");
 
             return inExpression;
         }
 
-        public virtual Expression VisitNotInExpression(NotInExpression inExpression)
+        protected virtual Expression VisitNotInExpression(InExpression inExpression)
         {
             VisitExpression(inExpression.Column);
 
             _sql.Append(" NOT IN (");
 
-            VisitJoin(inExpression.Values);
+            VisitInExpressionValues(inExpression.Values);
 
             _sql.Append(")");
 
             return inExpression;
+        }
+
+        protected virtual void VisitInExpressionValues(IReadOnlyList<Expression> inExpressionValues)
+        {
+            bool first = true;
+            foreach (var inValue in inExpressionValues)
+            {
+                if (!first)
+                {
+                    _sql.Append(", ");
+                }
+
+                var inConstant = inValue as ConstantExpression;
+                if (inConstant != null)
+                {
+                    VisitConstantExpression(inConstant);
+                }
+
+                var inParameter = inValue as ParameterExpression;
+                if (inParameter != null)
+                {
+                    var parameterValue = _parameterValues[inParameter.Name];
+                    var valuesCollection = parameterValue as IEnumerable;
+
+                    if (valuesCollection != null 
+                        && parameterValue.GetType() != typeof(string) 
+                        && parameterValue.GetType() != typeof(byte[]))
+                    {
+                        foreach (var value in valuesCollection)
+                        {
+                            if (!first)
+                            {
+                                _sql.Append(", ");
+                            }
+
+                            _sql.Append(GenerateLiteral((dynamic)value));
+
+                            first = false;
+                        }
+                    }
+                    else
+                    {
+                        VisitParameterExpression(inParameter);
+                    }
+                }
+
+                first = false;
+            }
         }
 
         public virtual Expression VisitInnerJoinExpression(InnerJoinExpression innerJoinExpression)
@@ -562,9 +611,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             if (unaryExpression.NodeType == ExpressionType.Not)
             {
+                var inExpression = unaryExpression.Operand as InExpression;
+                if (inExpression != null)
+                {
+                    return VisitNotInExpression(inExpression);
+                }
+
                 _sql.Append("NOT ");
 
-                var result = VisitExpression(unaryExpression.Operand);
+                VisitExpression(unaryExpression.Operand);
 
                 if (unaryExpression.Operand is ColumnExpression
                     && _insideFilter.Peek())
@@ -572,12 +627,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     _sql.Append(" = 1");
                 }
 
-                return result;
+                return unaryExpression;
             }
 
             if (unaryExpression.NodeType == ExpressionType.Convert)
             {
-                return VisitExpression(unaryExpression.Operand);
+                VisitExpression(unaryExpression.Operand);
+
+                return unaryExpression;
             }
 
             return base.VisitUnaryExpression(unaryExpression);

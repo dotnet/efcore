@@ -26,6 +26,5 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         Expression VisitMinExpression([NotNull] MinExpression minExpression);
         Expression VisitMaxExpression([NotNull] MaxExpression maxExpression);
         Expression VisitInExpression([NotNull] InExpression inExpression);
-        Expression VisitNotInExpression([NotNull] NotInExpression inExpression);
     }
 }

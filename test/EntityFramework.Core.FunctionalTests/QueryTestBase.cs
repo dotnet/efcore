@@ -722,6 +722,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_select_many_or_with_parameter()
+        {
+            var london = "London";
+            var lisboa = "Lisboa";
+
+            AssertQuery<Customer, Employee>((cs, es) =>
+                from c in cs
+                from e in es
+                where c.City == london
+                      || c.City == "Berlin"
+                      || c.City == "Seattle"
+                      || c.City == lisboa
+                select new { c, e });
+        }
+
+        [Fact]
         public virtual void Where_in_optimization_multiple()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -2482,11 +2498,89 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Contains_with_local_collection()
+        public virtual void Contains_with_local_array_closure()
         {
             string[] ids = { "ABCDE", "ALFKI" };
             AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_array_inline()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => new[] { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_list_closure()
+        {
+            var ids = new List<string> { "ABCDE", "ALFKI" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_list_inline()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => new List<string>{ "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_list_inline_closure_mix()
+        {
+            var alfki = "ALFKI";
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => new List<string> { "ABCDE", alfki }.Contains(c.CustomerID)), entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_collection_false()
+        {
+            string[] ids = { "ABCDE", "ALFKI" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => !ids.Contains(c.CustomerID)), entryCount: 90);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_collection_complex_predicate_and()
+        {
+            string[] ids = { "ABCDE", "ALFKI" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") && ids.Contains(c.CustomerID)), entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_collection_complex_predicate_or()
+        {
+            string[] ids = { "ABCDE", "ALFKI" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_collection_complex_predicate_not_matching_ins1()
+        {
+            string[] ids = { "ABCDE", "ALFKI" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") || !ids.Contains(c.CustomerID)), entryCount: 91);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_collection_complex_predicate_not_matching_ins2()
+        {
+            string[] ids = { "ABCDE", "ALFKI" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => ids.Contains(c.CustomerID) && (c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE")), entryCount: 0);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_collection_sql_injection()
+        {
+            string[] ids = { "ALFKI", "ABC')); GO; DROP TABLE Orders; GO; --" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
         }
 
         [Fact]

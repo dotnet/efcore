@@ -1027,6 +1027,18 @@ WHERE [c].[City] IN ('London', 'Berlin', 'Seattle', 'Lisboa')",
                 Sql);
         }
 
+        public override void Where_select_many_or_with_parameter()
+        {
+            base.Where_select_many_or_with_parameter();
+
+            Assert.StartsWith(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Customers] AS [c]
+CROSS JOIN [Employees] AS [e]
+WHERE [c].[City] IN (@__london_0, 'Berlin', 'Seattle', @__lisboa_1)",
+                Sql);
+        }
+
         public override void Where_in_optimization_multiple()
         {
             base.Where_in_optimization_multiple();
@@ -1935,6 +1947,127 @@ INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]",
                 @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = 'QUICK' AND [o].[OrderDate] > @__p_0)",
+                Sql);
+        }
+
+        public override void Contains_with_local_array_closure()
+        {
+            base.Contains_with_local_array_closure();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
+                Sql);
+        }
+
+        public override void Contains_with_local_array_inline()
+        {
+            base.Contains_with_local_array_inline();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
+                Sql);
+        }
+
+        public override void Contains_with_local_list_closure()
+        {
+            base.Contains_with_local_list_closure();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
+                Sql);
+        }
+
+        public override void Contains_with_local_list_inline()
+        {
+            base.Contains_with_local_list_inline();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
+                Sql);
+        }
+
+        public override void Contains_with_local_list_inline_closure_mix()
+        {
+            base.Contains_with_local_list_inline_closure_mix();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
+                Sql);
+        }
+
+        public override void Contains_with_local_collection_false()
+        {
+            base.Contains_with_local_collection_false();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] NOT IN ('ABCDE', 'ALFKI')",
+                Sql);
+        }
+
+        public override void Contains_with_local_collection_complex_predicate_and()
+        {
+            base.Contains_with_local_collection_complex_predicate_and();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[CustomerID] IN ('ALFKI', 'ABCDE') AND [c].[CustomerID] IN ('ABCDE', 'ALFKI'))",
+                Sql);
+        }
+
+        public override void Contains_with_local_collection_complex_predicate_or()
+        {
+            base.Contains_with_local_collection_complex_predicate_or();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI', 'ALFKI', 'ABCDE')",
+                Sql);
+        }
+
+        public override void Contains_with_local_collection_complex_predicate_not_matching_ins1()
+        {
+            base.Contains_with_local_collection_complex_predicate_not_matching_ins1();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[CustomerID] IN ('ALFKI', 'ABCDE') OR [c].[CustomerID] NOT IN ('ABCDE', 'ALFKI'))",
+                Sql);
+        }
+
+        public override void Contains_with_local_collection_complex_predicate_not_matching_ins2()
+        {
+            base.Contains_with_local_collection_complex_predicate_not_matching_ins2();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[CustomerID] IN ('ABCDE', 'ALFKI') AND [c].[CustomerID] NOT IN ('ALFKI', 'ABCDE'))",
+                Sql);
+        }
+
+        public override void Contains_with_local_collection_sql_injection()
+        {
+            base.Contains_with_local_collection_sql_injection();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN ('ALFKI', 'ABC'')); GO; DROP TABLE Orders; GO; --', 'ALFKI', 'ABCDE')",
                 Sql);
         }
 
