@@ -3,34 +3,27 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.Data.Entity.Internal
 {
     public class ModelSource : IModelSource
     {
         private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
         
-        public ModelSource([NotNull] DbSetFinder setFinder, [NotNull] ModelValidator modelValidator)
+        public ModelSource([NotNull] DbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
         {
-            Check.NotNull(setFinder, nameof(setFinder));
-            Check.NotNull(modelValidator, nameof(modelValidator));
-
             SetFinder = setFinder;
             Validator = modelValidator;
         }
 
         protected DbSetFinder SetFinder { get; }
-        protected ModelValidator Validator { get; }
+        protected IModelValidator Validator { get; }
 
-        public virtual IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
-        {
-            Check.NotNull(context, nameof(context));
-            Check.NotNull(modelBuilderFactory, nameof(modelBuilderFactory));
-
-            return _models.GetOrAdd(context.GetType(), k => CreateModel(context, modelBuilderFactory));
-        }
+        public virtual IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory) 
+            => _models.GetOrAdd(context.GetType(), k => CreateModel(context, modelBuilderFactory));
 
         protected virtual IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
         {
@@ -39,7 +32,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             FindSets(modelBuilder, context);
 
-            ModelSourceHelpers.OnModelCreating(context, modelBuilder);
+            OnModelCreating(context, modelBuilder);
 
             Validator.Validate(model);
 
@@ -53,5 +46,8 @@ namespace Microsoft.Data.Entity.Infrastructure
                 modelBuilder.Entity(setInfo.EntityType);
             }
         }
+
+        public static void OnModelCreating([NotNull] DbContext context, [NotNull] ModelBuilder modelBuilder) 
+            => context.OnModelCreating(modelBuilder);
     }
 }

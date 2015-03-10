@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 
@@ -13,20 +13,16 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
     {
         private readonly TestModelSource _testModelSource;
 
-        public TestInMemoryModelSource(Action<ModelBuilder> onModelCreating, DbSetFinder setFinder, ModelValidator modelValidator)
+        public TestInMemoryModelSource(Action<ModelBuilder> onModelCreating, DbSetFinder setFinder, IModelValidator modelValidator)
             : base(setFinder, modelValidator)
         {
             _testModelSource = new TestModelSource(onModelCreating, setFinder);
         }
 
-        public override IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
-        {
-            return _testModelSource.GetModel(context, modelBuilderFactory);
-        }
-        
-        public static Func<IServiceProvider, IInMemoryModelSource> GetFactory(Action<ModelBuilder> onModelCreating)
-        {
-            return p => new TestInMemoryModelSource(onModelCreating, p.GetRequiredService<DbSetFinder>(), p.GetRequiredService<ModelValidator>());
-        }
+        public override IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory) 
+            => _testModelSource.GetModel(context, modelBuilderFactory);
+
+        public static Func<IServiceProvider, IInMemoryModelSource> GetFactory(Action<ModelBuilder> onModelCreating) 
+            => p => new TestInMemoryModelSource(onModelCreating, p.GetRequiredService<DbSetFinder>(), p.GetRequiredService<IModelValidator>());
     }
 }

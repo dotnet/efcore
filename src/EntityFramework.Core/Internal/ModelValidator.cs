@@ -3,17 +3,13 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.Data.Entity.Internal
 {
-    public abstract class ModelValidatorBase : ModelValidator
+    public abstract class ModelValidator : IModelValidator
     {
-        public override void Validate(IModel model)
-        {
-            EnsureNoShadowKeys(model);
-        }
+        public virtual void Validate(IModel model) => EnsureNoShadowKeys(model);
 
         protected void EnsureNoShadowKeys(IModel model)
         {

@@ -4,24 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
     public class DbSetFinderTest
     {
-        [Fact]
-        public void Members_check_arguments()
-        {
-            var finder = new DbSetFinder();
-
-            Assert.Equal(
-                "context",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => finder.FindSets(null)).ParamName);
-        }
-
         [Fact]
         public void All_non_static_DbSet_properties_are_discovered()
         {

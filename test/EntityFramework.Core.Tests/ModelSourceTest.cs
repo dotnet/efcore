@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -60,9 +61,7 @@ namespace Microsoft.Data.Entity.Tests
         {
         }
 
-        private IModelSource CreateDefaultModelSource(DbSetFinder setFinder)
-        {
-            return new ModelSource(setFinder, Mock.Of<ModelValidator>());
-        }
+        private IModelSource CreateDefaultModelSource(DbSetFinder setFinder) 
+            => new ModelSource(setFinder, Mock.Of<IModelValidator>());
     }
 }

@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Infrastructure
 {
-    public abstract class ModelValidatorBaseTest
+    public abstract class ModelValidatorTest
     {
         [Fact]
         public virtual void Detects_shadow_keys()
@@ -21,15 +20,12 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             VerifyWarning(Strings.ShadowKey("{'Id'}", "E", "{'Id'}"), model);
         }
 
-        protected virtual void Validate(IModel model)
-        {
-            CreateModelValidatorBase().Validate(model);
-        }
+        protected virtual void Validate(IModel model) => CreateModelValidator().Validate(model);
 
         protected abstract void VerifyWarning(string expectedMessage, IModel model);
 
         protected abstract void VerifyError(string expectedMessage, IModel model);
 
-        protected abstract ModelValidatorBase CreateModelValidatorBase();
+        protected abstract ModelValidator CreateModelValidator();
     }
 }

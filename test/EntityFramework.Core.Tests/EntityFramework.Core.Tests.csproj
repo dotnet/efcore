@@ -114,7 +114,7 @@
     <Compile Include="Extensions\ForeignKeyExtensionsTest.cs" />
     <Compile Include="Extensions\ServiceProviderExtensionsTest.cs" />
     <Compile Include="Extensions\TaskExtensionsTest.cs" />
-    <Compile Include="Infrastructure\ModelValidatorBaseTest.cs" />
+    <Compile Include="Infrastructure\ModelValidatorTest.cs" />
     <Compile Include="Infrastructure\LoggingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\NonThrowingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\ThrowingModelValidatorTest.cs" />

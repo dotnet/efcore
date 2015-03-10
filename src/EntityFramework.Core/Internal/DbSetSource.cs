@@ -5,10 +5,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.Data.Entity.Internal
 {
     public class DbSetSource
     {
@@ -19,24 +18,13 @@ namespace Microsoft.Data.Entity.Infrastructure
         private readonly ThreadSafeDictionaryCache<Type, Func<DbContext, object>> _cache
             = new ThreadSafeDictionaryCache<Type, Func<DbContext, object>>();
 
-        public virtual object Create(
-            [NotNull] DbContext context,
-            [NotNull] Type type)
-        {
-            Check.NotNull(context, nameof(context));
-            Check.NotNull(type, nameof(type));
-
-            var factory = _cache.GetOrAdd(
+        public virtual object Create([NotNull] DbContext context, [NotNull] Type type)
+            => _cache.GetOrAdd(
                 type,
-                t => (Func<DbContext, object>)_genericCreate.MakeGenericMethod(type).Invoke(null, null));
-
-            return factory(context);
-        }
+                t => (Func<DbContext, object>)_genericCreate.MakeGenericMethod(type).Invoke(null, null))(context);
 
         [UsedImplicitly]
         private static Func<DbContext, object> CreateConstructor<TEntity>() where TEntity : class
-        {
-            return c => new InternalDbSet<TEntity>(c);
-        }
+            => c => new InternalDbSet<TEntity>(c);
     }
 }

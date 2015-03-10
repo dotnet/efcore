@@ -1422,7 +1422,7 @@ namespace Microsoft.Data.Entity.Tests
             var servicesMock = new Mock<IDataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), Mock.Of<ModelValidator>())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), Mock.Of<IModelValidator>())
                 { CallBase = true }.Object);
 
             var sourceMock = new Mock<IDataStoreSource>();
@@ -1464,7 +1464,7 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.Store).Returns(store.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), Mock.Of<ModelValidator>())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), Mock.Of<IModelValidator>())
                 { CallBase = true }.Object);
 
             var sourceMock = new Mock<IDataStoreSource>();
@@ -1510,7 +1510,7 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.Store).Returns(store.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), Mock.Of<ModelValidator>())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), Mock.Of<IModelValidator>())
                 { CallBase = true }.Object);
 
             var sourceMock = new Mock<IDataStoreSource>();
