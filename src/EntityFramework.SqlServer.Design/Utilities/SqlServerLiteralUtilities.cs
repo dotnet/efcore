@@ -3,7 +3,6 @@
 
 using System;
 using System.Text.RegularExpressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;

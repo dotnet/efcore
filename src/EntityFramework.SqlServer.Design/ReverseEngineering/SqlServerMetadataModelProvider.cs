@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model;
 using Microsoft.Data.Entity.SqlServer.Design.Utilities;
@@ -32,6 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public const string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";
 
         private ILogger _logger;
+        private ModelUtilities _modelUtilities;
         private SqlServerLiteralUtilities _sqlServerLiteralUtilities;
 
         // data loaded directly from database
@@ -58,6 +60,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             Check.NotNull(serviceProvider, nameof(serviceProvider));
 
             _logger = serviceProvider.GetRequiredService<ILogger>();
+            _modelUtilities = serviceProvider.GetRequiredService<ModelUtilities>();
             _sqlServerLiteralUtilities = new SqlServerLiteralUtilities(_logger);
         }
 
@@ -383,9 +386,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                                     })
                                 .ToList();
 
-                        //TODO: SQL Server allows more than 1 foreign key on the same set of properties
-                        // how should we react?
-                        var codeGenForeignKey = codeGenEntityType.GetOrAddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey);
+                        // Note: SQL Server allows more than 1 foreign key on the exact same
+                        // set of properties. Here we just conflate into one foreign key.
+                        var codeGenForeignKey = codeGenEntityType
+                            .GetOrAddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey);
 
                         if (targetRelationalEntityType == fromColumnRelationalEntityType // self-referencing foreign key
                             || _uniqueConstraintColumns.Contains(
@@ -395,8 +399,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         {
                             codeGenForeignKey.IsUnique = true;
                         }
-
-                        //TODO: what if multiple Navs to same target?
                     }
                 }
             }
@@ -414,7 +416,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 var existingIdentifiers = new List<string>();
                 entityTypeToExistingIdentifiers.Add(entityType, existingIdentifiers);
                 existingIdentifiers.Add(entityType.Name);
-                existingIdentifiers.AddRange(entityType.Properties.Select(p => p.Name));
+                existingIdentifiers.AddRange(
+                    _modelUtilities.OrderedProperties(entityType).Select(p => p.Name));
             }
 
             foreach (var entityType in codeGenModel.EntityTypes)
@@ -423,18 +426,31 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 foreach (var foreignKey in entityType.ForeignKeys.Cast<ForeignKey>())
                 {
                     // set up the name of the navigation property on the dependent end of the foreign key
-                    var dependentEndNavigationPropertyName = CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                        foreignKey.ReferencedEntityType.Name, dependentEndExistingIdentifiers);
-                    foreignKey.AddAnnotation(AnnotationNameDependentEndNavPropName, dependentEndNavigationPropertyName);
+                    var dependentEndNavigationPropertyCandidateName =
+                        _modelUtilities.GetDependentEndCandidateNavigationPropertyName(foreignKey);
+                    var dependentEndNavigationPropertyName =
+                        CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                            dependentEndNavigationPropertyCandidateName,
+                            dependentEndExistingIdentifiers);
+                    foreignKey.AddAnnotation(
+                        AnnotationNameDependentEndNavPropName,
+                        dependentEndNavigationPropertyName);
                     dependentEndExistingIdentifiers.Add(dependentEndNavigationPropertyName);
 
                     if (foreignKey.ReferencedEntityType != foreignKey.EntityType)
                     {
                         // set up the name of the navigation property on the principal end of the foreign key
-                        var principalEndExistingIdentifiers = entityTypeToExistingIdentifiers[foreignKey.ReferencedEntityType];
-                        var principalEndNavigationPropertyName = CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                            entityType.Name, principalEndExistingIdentifiers);
-                        foreignKey.AddAnnotation(AnnotationNamePrincipalEndNavPropName, principalEndNavigationPropertyName);
+                        var principalEndExistingIdentifiers =
+                            entityTypeToExistingIdentifiers[foreignKey.ReferencedEntityType];
+                        var principalEndNavigationPropertyCandidateName =
+                            _modelUtilities.GetPrincipalEndCandidateNavigationPropertyName(foreignKey);
+                        var principalEndNavigationPropertyName =
+                            CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                                principalEndNavigationPropertyCandidateName,
+                                principalEndExistingIdentifiers);
+                        foreignKey.AddAnnotation(
+                            AnnotationNamePrincipalEndNavPropName,
+                            principalEndNavigationPropertyName);
                         principalEndExistingIdentifiers.Add(principalEndNavigationPropertyName);
                     }
                 }
