@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
@@ -38,10 +39,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         protected override DbContextOptions CreateOptions(string databaseName)
         {
-            var options = new DbContextOptions();
-            options.UseSqlServer(CreateConnectionString(databaseName));
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(CreateConnectionString(databaseName));
 
-            return options;
+            return optionsBuilder.Options;
         }
 
         private static string CreateConnectionString(string name)

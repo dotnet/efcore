@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
@@ -23,8 +24,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-            _options = new DbContextOptions();
-            _options.UseInMemoryStore();
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseInMemoryStore();
+            _options = optionsBuilder.Options;
 
             using (var context = CreateContext())
             {

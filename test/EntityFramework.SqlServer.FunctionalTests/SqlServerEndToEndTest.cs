@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
@@ -125,10 +126,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var options = new DbContextOptions();
-                options.UseSqlServer(testDatabase.Connection.ConnectionString);
+                var optionsBuilder = new DbContextOptionsBuilder();
+                optionsBuilder.UseSqlServer(testDatabase.Connection.ConnectionString);
 
-                using (var db = new BloggingContext(_fixture.ServiceProvider, options))
+                using (var db = new BloggingContext(_fixture.ServiceProvider, optionsBuilder.Options))
                 {
                     await CreateBlogDatabaseAsync<Blog>(db);
                 }
@@ -141,7 +142,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddInstance<ILoggerFactory>(loggingFactory)
                     .BuildServiceProvider();
 
-                using (var db = new BloggingContext(serviceProvider, options))
+                using (var db = new BloggingContext(serviceProvider, optionsBuilder.Options))
                 {
                     var toUpdate = db.Blogs.Single(b => b.Name == "Blog1");
                     toUpdate.Name = "Blog is Updated";
@@ -208,13 +209,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var options = new DbContextOptions();
-                options.UseSqlServer(testDatabase.Connection.ConnectionString);
+                var optionsBuilder = new DbContextOptionsBuilder();
+                optionsBuilder.UseSqlServer(testDatabase.Connection.ConnectionString);
 
                 int updatedId;
                 int deletedId;
                 int addedId;
-                using (var db = new BloggingContext(_fixture.ServiceProvider, options))
+                using (var db = new BloggingContext(_fixture.ServiceProvider, optionsBuilder.Options))
                 {
                     var toAdd = db.Blogs.Add(new Blog
                         {
@@ -253,7 +254,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
                 }
 
-                using (var db = new BloggingContext(_fixture.ServiceProvider, options))
+                using (var db = new BloggingContext(_fixture.ServiceProvider, optionsBuilder.Options))
                 {
                     var toUpdate = db.Blogs.Single(b => b.Id == updatedId);
                     Assert.Equal("Blog is Updated", toUpdate.Name);
@@ -337,9 +338,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public DbSet<Jack> Jacks { get; set; }
             public DbSet<Black> Blacks { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(Connection);
+                optionsBuilder.UseSqlServer(Connection);
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -388,14 +389,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var options = new DbContextOptions();
-                options.UseSqlServer(testDatabase.Connection.ConnectionString);
+                var optionsBuilder = new DbContextOptionsBuilder();
+                optionsBuilder.UseSqlServer(testDatabase.Connection.ConnectionString);
 
                 int blog1Id;
                 int blog2Id;
                 int blog3Id;
 
-                using (var context = new BloggingContext<TBlog>(_fixture.ServiceProvider, options))
+                using (var context = new BloggingContext<TBlog>(_fixture.ServiceProvider, optionsBuilder.Options))
                 {
                     var blogs = await CreateBlogDatabaseAsync<TBlog>(context);
                     blog1Id = blogs[0].Id;
@@ -406,7 +407,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.NotEqual(blog1Id, blog2Id);
                 }
 
-                using (var context = new BloggingContext<TBlog>(_fixture.ServiceProvider, options))
+                using (var context = new BloggingContext<TBlog>(_fixture.ServiceProvider, optionsBuilder.Options))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(2, blogs.Count);
@@ -442,7 +443,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.NotEqual(0, blog3Id);
                 }
 
-                using (var context = new BloggingContext<TBlog>(_fixture.ServiceProvider, options))
+                using (var context = new BloggingContext<TBlog>(_fixture.ServiceProvider, optionsBuilder.Options))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(3, blogs.Count);
@@ -522,9 +523,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Customer> Customers { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

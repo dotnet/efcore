@@ -1,15 +1,17 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
+
 namespace Microsoft.Data.Entity.Storage
 {
     public interface IDataStoreSource
     {
-        IDataStoreServices StoreServices { get; }
-        bool IsAvailable { get; }
-        bool IsConfigured { get; }
+        IDataStoreServices GetStoreServices([NotNull] IServiceProvider serviceProvider);
+        bool IsConfigured([NotNull] IDbContextOptions options);
         string Name { get; }
-        DbContextOptions ContextOptions { get; }
-        void AutoConfigure();
+        void AutoConfigure([NotNull] DbContextOptionsBuilder optionsBuilder);
     }
 }

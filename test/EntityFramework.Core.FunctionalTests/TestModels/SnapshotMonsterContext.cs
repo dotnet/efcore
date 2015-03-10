@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 {

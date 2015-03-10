@@ -39,25 +39,25 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseInMemoryStore();
+                optionsBuilder.UseInMemoryStore();
             }
         }
 
         [Fact]
         public void Can_save_and_query_with_implicit_services_and_explicit_config()
         {
-            var options = new DbContextOptions();
-            options.UseInMemoryStore();
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseInMemoryStore();
 
-            using (var context = new ImplicitServicesExplicitConfigBlogContext(options))
+            using (var context = new ImplicitServicesExplicitConfigBlogContext(optionsBuilder.Options))
             {
                 context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                 context.SaveChanges();
             }
 
-            using (var context = new ImplicitServicesExplicitConfigBlogContext(options))
+            using (var context = new ImplicitServicesExplicitConfigBlogContext(optionsBuilder.Options))
             {
                 var blog = context.Blogs.SingleOrDefault();
 
@@ -117,9 +117,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseInMemoryStore();
+                optionsBuilder.UseInMemoryStore();
             }
         }
 
@@ -130,16 +130,16 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             services.AddEntityFramework().AddInMemoryStore();
             var serviceProvider = services.BuildServiceProvider();
 
-            var options = new DbContextOptions();
-            options.UseInMemoryStore();
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseInMemoryStore();
 
-            using (var context = new ExplicitServicesAndConfigBlogContext(serviceProvider, options))
+            using (var context = new ExplicitServicesAndConfigBlogContext(serviceProvider, optionsBuilder.Options))
             {
                 context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                 context.SaveChanges();
             }
 
-            using (var context = new ExplicitServicesAndConfigBlogContext(serviceProvider, options))
+            using (var context = new ExplicitServicesAndConfigBlogContext(serviceProvider, optionsBuilder.Options))
             {
                 var blog = context.Blogs.SingleOrDefault();
 
@@ -248,9 +248,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseInMemoryStore();
+                optionsBuilder.UseInMemoryStore();
             }
         }
 
@@ -305,13 +305,13 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         [Fact]
         public void Can_register_context_and_configuration_with_DI_container_and_have_both_injected()
         {
-            var options = new DbContextOptions();
-            options.UseInMemoryStore();
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseInMemoryStore();
 
             var services = new ServiceCollection();
             services.AddTransient<InjectContextAndConfigurationBlogContext>()
                 .AddTransient<InjectContextAndConfigurationController>()
-                .AddInstance(options)
+                .AddInstance(optionsBuilder.Options)
                 .AddEntityFramework()
                 .AddInMemoryStore();
 
@@ -361,13 +361,13 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         [Fact]
         public void Can_register_configuration_with_DI_container_and_have_it_injected()
         {
-            var options = new DbContextOptions();
-            options.UseInMemoryStore(persist: false);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseInMemoryStore(persist: false);
 
             var services = new ServiceCollection();
             services.AddTransient<InjectConfigurationBlogContext>()
                 .AddTransient<InjectConfigurationController>()
-                .AddInstance(options)
+                .AddInstance(optionsBuilder.Options)
                 .AddEntityFramework()
                 .AddInMemoryStore();
 
@@ -413,10 +413,10 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         [Fact]
         public void Can_inject_different_configurations_into_different_contexts()
         {
-            var blogOptions = new DbContextOptions<InjectDifferentConfigurationsBlogContext>();
+            var blogOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsBlogContext>();
             blogOptions.UseInMemoryStore();
 
-            var accountOptions = new DbContextOptions<InjectDifferentConfigurationsAccountContext>();
+            var accountOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsAccountContext>();
             accountOptions.UseInMemoryStore();
 
             var services = new ServiceCollection();
@@ -424,8 +424,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 .AddTransient<InjectDifferentConfigurationsAccountContext>()
                 .AddTransient<InjectDifferentConfigurationsBlogController>()
                 .AddTransient<InjectDifferentConfigurationsAccountController>()
-                .AddInstance(blogOptions)
-                .AddInstance(accountOptions)
+                .AddInstance(blogOptions.Options)
+                .AddInstance(accountOptions.Options)
                 .AddEntityFramework()
                 .AddInMemoryStore();
 
@@ -514,10 +514,10 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         [Fact]
         public void Can_inject_different_configurations_into_different_contexts_without_declaring_in_constructor()
         {
-            var blogOptions = new DbContextOptions<InjectDifferentConfigurationsNoConstructorBlogContext>();
+            var blogOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsNoConstructorBlogContext>();
             blogOptions.UseInMemoryStore();
 
-            var accountOptions = new DbContextOptions<InjectDifferentConfigurationsNoConstructorAccountContext>();
+            var accountOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsNoConstructorAccountContext>();
             accountOptions.UseInMemoryStore();
 
             var services = new ServiceCollection();
@@ -525,8 +525,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 .AddTransient<InjectDifferentConfigurationsNoConstructorAccountContext>()
                 .AddTransient<InjectDifferentConfigurationsNoConstructorBlogController>()
                 .AddTransient<InjectDifferentConfigurationsNoConstructorAccountController>()
-                .AddInstance(blogOptions)
-                .AddInstance(accountOptions)
+                .AddInstance(blogOptions.Options)
+                .AddInstance(accountOptions.Options)
                 .AddEntityFramework()
                 .AddInMemoryStore();
 
@@ -534,6 +534,33 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             serviceProvider.GetRequiredService<InjectDifferentConfigurationsNoConstructorBlogController>().Test();
             serviceProvider.GetRequiredService<InjectDifferentConfigurationsNoConstructorAccountController>().Test();
+        }
+
+        [Fact]
+        public void Cannot_inject_different_configurations_into_different_contexts_both_as_base_type_without_constructor()
+        {
+            var blogOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsNoConstructorBlogContext>();
+            blogOptions.UseInMemoryStore();
+
+            var accountOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsNoConstructorAccountContext>();
+            accountOptions.UseInMemoryStore();
+
+            var services = new ServiceCollection();
+            services.AddTransient<InjectDifferentConfigurationsNoConstructorBlogContext>()
+                .AddTransient<InjectDifferentConfigurationsNoConstructorAccountContext>()
+                .AddTransient<InjectDifferentConfigurationsNoConstructorBlogController>()
+                .AddTransient<InjectDifferentConfigurationsNoConstructorAccountController>()
+                .AddInstance<DbContextOptions>(blogOptions.Options)
+                .AddInstance<DbContextOptions>(accountOptions.Options)
+                .AddEntityFramework()
+                .AddInMemoryStore();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            Assert.Equal(
+                CoreStrings.NonGenericOptions,
+                Assert.Throws<InvalidOperationException>(
+                    () => serviceProvider.GetRequiredService<InjectDifferentConfigurationsNoConstructorBlogController>().Test()).Message);
         }
 
         private class InjectDifferentConfigurationsNoConstructorBlogController

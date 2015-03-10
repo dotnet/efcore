@@ -3,7 +3,6 @@
 
 using System;
 using System.Data.Common;
-using Microsoft.Data.Entity.SqlServer.Extensions;
 using Moq;
 using Xunit;
 
@@ -31,8 +30,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             [Fact]
             public void Setting_CommandTimeout_to_negative_value_throws()
             {
-                var options = new SqlServerDbContextOptions(new DbContextOptions());
-                Assert.Throws<InvalidOperationException>(() => options.CommandTimeout(-55));
+                var optionsBuilder = new DbContextOptionsBuilder().UseSqlServer();
+
+                Assert.Throws<InvalidOperationException>(() => optionsBuilder.CommandTimeout(-55));
 
                 using (var context = new TimeoutContext())
                 {
@@ -57,11 +57,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     Database.AsRelational().Connection.CommandTimeout = commandTimeout;
                 }
 
-                protected internal override void OnConfiguring(DbContextOptions options)
+                protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 {
                     var connectionMock = new Mock<DbConnection>();
-                    base.OnConfiguring(options);
-                    options.UseSqlServer(connectionMock.Object);
+                    optionsBuilder.UseSqlServer(connectionMock.Object);
                 }
             }
         }

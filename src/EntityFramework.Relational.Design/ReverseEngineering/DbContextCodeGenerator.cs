@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         private static readonly List<Tuple<string, string>> _onConfiguringMethodParameters =
             new List<Tuple<string, string>>()
                 {
-                    new Tuple<string, string>("DbContextOptions", "options")
+                    new Tuple<string, string>("DbContextOptionsBuilder", "optionsBuilder")
                 };
 
         private static readonly List<Tuple<string, string>> _onModelCreatingMethodParameters =
@@ -138,7 +138,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             Generator.CSharpCodeGeneratorHelper.BeginMethod(AccessModifier.Protected,
                 VirtualModifier.Override, "void", "OnConfiguring", sb, _onConfiguringMethodParameters);
-            sb.Append("options.UseSqlServer(");
+            sb.Append("optionsBuilder.UseSqlServer(");
             sb.Append(CSharpUtilities.Instance.GenerateVerbatimStringLiteral(ConnectionString));
             sb.AppendLine(");");
             Generator.CSharpCodeGeneratorHelper.EndMethod(sb);

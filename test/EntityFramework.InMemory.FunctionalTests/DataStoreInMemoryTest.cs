@@ -24,13 +24,13 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 .AddInstance(TestFileLogger.Factory)
                 .BuildServiceProvider();
 
-            var options = new DbContextOptions()
+            var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            options.UseInMemoryStore(persist: true);
+            optionsBuilder.UseInMemoryStore(persist: true);
 
             var customer = new Customer { Id = 42, Name = "Theon" };
 
-            using (var context = new DbContext(serviceProvider, options))
+            using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
             {
                 context.Add(customer);
 
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 customer.Name = "Changed!";
             }
 
-            using (var context = new DbContext(serviceProvider, options))
+            using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.Equal("Theon", customerFromStore.Name);
             }
 
-            using (var context = new DbContext(serviceProvider, options))
+            using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
             {
                 customer.Name = "Theon Greyjoy";
                 context.Update(customer);
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new DbContext(serviceProvider, options))
+            using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -63,14 +63,14 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.Equal("Theon Greyjoy", customerFromStore.Name);
             }
 
-            using (var context = new DbContext(serviceProvider, options))
+            using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
             {
                 context.Remove(customer);
 
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new DbContext(serviceProvider, options))
+            using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
             {
                 Assert.Equal(0, context.Set<Customer>().Count());
             }
@@ -134,9 +134,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             public DbSet<Artist> Artists { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseInMemoryStore();
+                optionsBuilder.UseInMemoryStore();
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

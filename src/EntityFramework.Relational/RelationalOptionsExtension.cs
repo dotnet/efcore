@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using JetBrains.Annotations;
@@ -11,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract class RelationalOptionsExtension : DbContextOptionsExtension
+    public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     {
         private const string ConnectionStringKey = "ConnectionString";
         private const string CommandTimeoutKey = "CommandTimeout";
@@ -21,6 +20,30 @@ namespace Microsoft.Data.Entity.Relational
         private DbConnection _connection;
         private int? _commandTimeout;
         private int? _maxBatchSize;
+
+        protected RelationalOptionsExtension([NotNull] IDbContextOptions options)
+        {
+            Check.NotNull(options, nameof(options));
+
+            var connectionString = options.FindRawOption<string>(ConnectionStringKey);
+            if (!string.IsNullOrWhiteSpace(connectionString))
+            {
+                _connectionString = connectionString;
+            }
+
+            _commandTimeout = options.FindRawOption<int?>(CommandTimeoutKey);
+            _maxBatchSize = options.FindRawOption<int?>(MaxBatchSizeKey);
+        }
+
+        protected RelationalOptionsExtension([NotNull] RelationalOptionsExtension copyFrom)
+        {
+            Check.NotNull(copyFrom, nameof(copyFrom));
+
+            _connectionString = copyFrom._connectionString;
+            _connection = copyFrom._connection;
+            _commandTimeout = copyFrom._commandTimeout;
+            _maxBatchSize = copyFrom._maxBatchSize;
+        }
 
         public virtual string ConnectionString
         {
@@ -81,30 +104,6 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual string MigrationsAssembly { get; [param: CanBeNull] set; }
 
-        protected override void Configure(IReadOnlyDictionary<string, string> rawOptions)
-        {
-            base.Configure(rawOptions);
-
-            if (string.IsNullOrWhiteSpace(_connectionString))
-            {
-                var connectionString = GetSetting<string>(ConnectionStringKey);
-                if (!string.IsNullOrWhiteSpace(connectionString))
-                {
-                    ConnectionString = connectionString;
-                }
-            }
-
-            if (!_commandTimeout.HasValue)
-            {
-                CommandTimeout = GetSetting<int?>(CommandTimeoutKey);
-            }
-
-            if (!_maxBatchSize.HasValue)
-            {
-                MaxBatchSize = GetSetting<int?>(MaxBatchSizeKey);
-            }
-        }
-
         public static RelationalOptionsExtension Extract([NotNull] IDbContextOptions options)
         {
             Check.NotNull(options, nameof(options));
@@ -125,5 +124,7 @@ namespace Microsoft.Data.Entity.Relational
 
             return storeConfigs[0];
         }
+
+        public abstract void ApplyServices(EntityFrameworkServicesBuilder builder);
     }
 }

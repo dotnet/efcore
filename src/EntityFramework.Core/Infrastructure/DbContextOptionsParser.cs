@@ -3,11 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
@@ -16,41 +15,47 @@ namespace Microsoft.Data.Entity.Infrastructure
         private const string EntityFrameworkKey = "EntityFramework";
         private const string ConnectionStringKey = "ConnectionString";
 
-        public virtual IReadOnlyDictionary<string, string> ReadRawOptions<TContext>(
-            [NotNull] IConfiguration configuration,
-            [NotNull] IReadOnlyDictionary<string, string> currentOptions)
+        public static DbContextOptions<TContext> DbContextOptionsFactory<TContext>(
+            [NotNull] IServiceProvider serviceProvider,
+            [CanBeNull] IConfiguration configuration,
+            [CanBeNull] Action<DbContextOptionsBuilder> optionsAction)
             where TContext : DbContext
         {
-            Check.NotNull(configuration, nameof(configuration));
-            Check.NotNull(currentOptions, nameof(currentOptions));
+            var parser = serviceProvider.GetRequiredService<DbContextOptionsParser>();
 
-            return ReadRawOptions(configuration, typeof(TContext), currentOptions);
-        }
+            var options = new DbContextOptions<TContext>(
+                parser.ReadRawOptions<TContext>(configuration),
+                new Dictionary<Type, IDbContextOptionsExtension>());
 
-        public virtual IReadOnlyDictionary<string, string> ReadRawOptions(
-            [NotNull] IConfiguration configuration,
-            [NotNull] Type contextType,
-            [NotNull] IReadOnlyDictionary<string, string> currentOptions)
-        {
-            Check.NotNull(configuration, nameof(configuration));
-            Check.NotNull(contextType, nameof(contextType));
-
-            var options = currentOptions.ToDictionary(i => i.Key, i => i.Value, StringComparer.OrdinalIgnoreCase);
-
-            ReadRawOptions(options, configuration, string.Concat(
-                EntityFrameworkKey, Constants.KeyDelimiter, contextType.Name), string.Empty);
-
-            ReadRawOptions(options, configuration, string.Concat(
-                EntityFrameworkKey, Constants.KeyDelimiter, contextType.FullName), string.Empty);
+            if (optionsAction != null)
+            {
+                var builder = new DbContextOptionsBuilder<TContext>(options);
+                optionsAction(builder);
+                options = builder.Options;
+            }
 
             return options;
         }
 
-        private static void ReadRawOptions(
-            Dictionary<string, string> options,
-            IConfiguration configuration,
-            string contextKey,
-            string keyPrefix)
+        public virtual IReadOnlyDictionary<string, string> ReadRawOptions<TContext>(
+            [CanBeNull] IConfiguration configuration)
+            where TContext : DbContext
+        {
+            var options = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            if (configuration != null)
+            {
+                ReadRawOptions(options, configuration, string.Concat(
+                    EntityFrameworkKey, Constants.KeyDelimiter, typeof(TContext).Name), string.Empty);
+
+                ReadRawOptions(options, configuration, string.Concat(
+                    EntityFrameworkKey, Constants.KeyDelimiter, typeof(TContext).FullName), string.Empty);
+            }
+
+            return options;
+        }
+
+        private static void ReadRawOptions(IDictionary<string, string> options, IConfiguration configuration, string contextKey, string keyPrefix)
         {
             foreach (var pair in configuration.GetSubKeys(contextKey))
             {

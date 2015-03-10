@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -16,7 +17,6 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
-using Microsoft.Framework.OptionsModel;
 
 namespace Microsoft.Data.Entity
 {
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity
     ///         they are automatically initialized when the instance of the derived context is created.
     ///     </para>
     ///     <para>
-    ///         Override the <see cref="OnConfiguring(DbContextOptions)" /> method to configure the data store (and other
+    ///         Override the <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method to configure the data store (and other
     ///         options) to be
     ///         used for the context.
     ///     </para>
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbContext" /> class. The
-        ///     <see cref="OnConfiguring(DbContextOptions)" />
+        ///     <see cref="OnConfiguring(DbContextOptionsBuilder)" />
         ///     method will be called to configure the data store (and other options) to be used for this context.
         /// </summary>
         protected DbContext()
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbContext" /> with the specified options. The
-        ///     <see cref="OnConfiguring(DbContextOptions)" /> method will still be called to allow further
+        ///     <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method will still be called to allow further
         ///     configuration of the options.
         /// </summary>
         /// <param name="options">The options for this context.</param>
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity
         ///     Initializes a new instance of the <see cref="DbContext" /> class using an <see cref="IServiceProvider" />
         ///     and the specified options.
         ///     <para>
-        ///         The <see cref="OnConfiguring(DbContextOptions)" /> method will still be called to allow further
+        ///         The <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method will still be called to allow further
         ///         configuration of the options.
         ///     </para>
         ///     <para>
@@ -152,37 +152,21 @@ namespace Microsoft.Data.Entity
         {
             if (serviceProvider == null)
             {
-                return new DbContextOptions();
+                return new DbContextOptions<DbContext>();
             }
 
             var genericOptions = _optionsTypes.GetOrAdd(GetType(), t => typeof(DbContextOptions<>).MakeGenericType(t));
 
-            var optionsAccessor = (IOptions<DbContextOptions>)serviceProvider.GetService(
-                typeof(IOptions<>).MakeGenericType(genericOptions));
-            if (optionsAccessor != null)
+            var options = (DbContextOptions)serviceProvider.GetService(genericOptions)
+                          ?? serviceProvider.GetService<DbContextOptions>();
+
+            if (options != null
+                && options.GetType() != genericOptions)
             {
-                return optionsAccessor.Options;
+                throw new InvalidOperationException(Strings.NonGenericOptions);
             }
 
-            optionsAccessor = serviceProvider.GetService<IOptions<DbContextOptions>>();
-            if (optionsAccessor != null)
-            {
-                return optionsAccessor.Options;
-            }
-
-            var options = (DbContextOptions)serviceProvider.GetService(genericOptions);
-            if (options != null)
-            {
-                return options;
-            }
-
-            options = serviceProvider.GetService<DbContextOptions>();
-            if (options != null)
-            {
-                return options;
-            }
-
-            return new DbContextOptions();
+            return options ?? new DbContextOptions<DbContext>();
         }
 
         private ILogger CreateLogger() => _contextServices.Value.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<DbContext>();
@@ -206,15 +190,23 @@ namespace Microsoft.Data.Entity
             {
                 _initializing = true;
 
-                options = options.Clone();
+                var optionsBuilder = new DbContextOptionsBuilder(options);
+                OnConfiguring(optionsBuilder);
 
-                OnConfiguring(options);
+                var dataStores = serviceProvider?.GetService<IEnumerable<IDataStoreSource>>()?.ToList()
+                                 ?? new List<IDataStoreSource>();
+
+                if (dataStores.Count == 1 
+                    && !dataStores[0].IsConfigured(optionsBuilder.Options))
+                {
+                    dataStores[0].AutoConfigure(optionsBuilder);
+                }
 
                 var providerSource = serviceProvider != null
                     ? DbContextServices.ServiceProviderSource.Explicit
                     : DbContextServices.ServiceProviderSource.Implicit;
 
-                serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
+                serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(optionsBuilder.Options);
 
                 var scopedServiceProvider = serviceProvider
                     .GetRequiredService<IServiceScopeFactory>()
@@ -223,7 +215,7 @@ namespace Microsoft.Data.Entity
 
                 return scopedServiceProvider
                     .GetRequiredService<DbContextServices>()
-                    .Initialize(scopedServiceProvider, options, this, providerSource);
+                    .Initialize(scopedServiceProvider, optionsBuilder.Options, this, providerSource);
             }
             finally
             {
@@ -260,11 +252,11 @@ namespace Microsoft.Data.Entity
         ///     affecting other context instances that are constructed with the same <see cref="DbContextOptions" />
         ///     instance.
         /// </remarks>
-        /// <param name="options">
-        ///     The options for this context. Data stores (and other extensions) typically define extension methods
-        ///     on this object that allow you to configure the context.
+        /// <param name="optionsBuilder">
+        ///     A builder used to create or modify options for this context. Data stores (and other extensions)
+        ///     typically define extension methods on this object that allow you to configure the context.
         /// </param>
-        protected internal virtual void OnConfiguring(DbContextOptions options)
+        protected internal virtual void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }
 

@@ -49,19 +49,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var inMemoryTestStore = testStore as InMemoryTestStore;
             if (inMemoryTestStore != null)
             {
-                var options = new DbContextOptions();
-                options.UseInMemoryStore();
+                var optionsBuilder = new DbContextOptionsBuilder();
+                optionsBuilder.UseInMemoryStore();
 
-                return new CrossStoreContext(_serviceProvider, options);
+                return new CrossStoreContext(_serviceProvider, optionsBuilder.Options);
             }
 
             var sqlServerTestStore = testStore as SqlServerTestStore;
             if (sqlServerTestStore != null)
             {
-                var options = new DbContextOptions();
-                options.UseSqlServer(sqlServerTestStore.Connection);
+                var optionsBuilder = new DbContextOptionsBuilder();
+                optionsBuilder.UseSqlServer(sqlServerTestStore.Connection);
 
-                var context = new CrossStoreContext(_serviceProvider, options);
+                var context = new CrossStoreContext(_serviceProvider, optionsBuilder.Options);
                 context.Database.EnsureCreated();
                 context.Database.AsRelational().Connection.UseTransaction(sqlServerTestStore.Transaction);
 

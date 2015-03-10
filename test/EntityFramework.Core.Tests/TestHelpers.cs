@@ -19,12 +19,18 @@ namespace Microsoft.Data.Entity.Tests
 
         public DbContextOptions CreateOptions(IModel model)
         {
-            return UseProviderOptions(new DbContextOptions().UseModel(model));
+            var optionsBuilder = new DbContextOptionsBuilder();
+            UseProviderOptions(optionsBuilder.UseModel(model));
+
+            return optionsBuilder.Options;
         }
 
         public DbContextOptions CreateOptions()
         {
-            return UseProviderOptions(new DbContextOptions());
+            var optionsBuilder = new DbContextOptionsBuilder();
+            UseProviderOptions(optionsBuilder);
+
+            return optionsBuilder.Options;
         }
 
         public IServiceProvider CreateServiceProvider(IServiceCollection customServices = null)
@@ -55,9 +61,8 @@ namespace Microsoft.Data.Entity.Tests
             return builder.AddInMemoryStore();
         }
 
-        protected virtual DbContextOptions UseProviderOptions(DbContextOptions options)
+        protected virtual void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
         {
-            return options;
         }
 
         public DbContext CreateContext(IServiceProvider serviceProvider, IModel model)

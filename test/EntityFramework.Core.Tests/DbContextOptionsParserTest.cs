@@ -14,39 +14,6 @@ namespace Microsoft.Data.Entity.Tests
     public class DbContextOptionsParserTest
     {
         [Fact]
-        public void Connection_string_is_found_using_context_name()
-        {
-            var config = new Configuration(
-                    new MemoryConfigurationSource
-                        {
-                            { "EntityFramework:" + typeof(MyContext).Name + ":ConnectionString", "MyConnectionString" }
-                        }
-                );
-
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
-
-            Assert.Equal(1, rawOptions.Count);
-            Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
-        }
-
-        [Fact]
-        public void Connection_string_is_found_using_context_full_name()
-        {
-            var config = new Configuration
-                (
-                    new MemoryConfigurationSource
-                        {
-                            { "EntityFramework:" + typeof(MyContext).FullName + ":ConnectionString", "MyConnectionString" }
-                        }
-                );
-
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
-
-            Assert.Equal(1, rawOptions.Count);
-            Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
-        }
-
-        [Fact]
         public void Connection_string_is_found_using_context_name_generic()
         {
             var config = new Configuration
@@ -57,7 +24,8 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
+            ;
 
             Assert.Equal(1, rawOptions.Count);
             Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
@@ -74,7 +42,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(1, rawOptions.Count);
             Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
@@ -96,7 +64,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(1, rawOptions.Count);
             Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
@@ -114,7 +82,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(1, rawOptions.Count);
             Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
@@ -132,7 +100,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(1, rawOptions.Count);
             Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
@@ -150,7 +118,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(1, rawOptions.Count);
             Assert.Equal("Name=Data:DefaultConnection:ConnectionString;Key=Value", rawOptions["ConnectionString"]);
@@ -168,7 +136,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(1, rawOptions.Count);
             Assert.Equal("Data Source=Data:DefaultConnection:ConnectionString", rawOptions["ConnectionString"]);
@@ -186,7 +154,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(1, rawOptions.Count);
             Assert.Equal("=Data:DefaultConnection:ConnectionString", rawOptions["ConnectionString"]);
@@ -203,7 +171,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(1, rawOptions.Count);
             Assert.Equal("=", rawOptions["ConnectionString"]);
@@ -222,7 +190,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Equal(Strings.ConnectionStringNotFound("MyConnection"),
                 Assert.Throws<InvalidOperationException>(() =>
-                    new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase))).Message);
+                    new DbContextOptionsParser().ReadRawOptions<MyContext>(config)).Message);
         }
 
         [Fact]
@@ -238,47 +206,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Equal(Strings.ConnectionStringNotFound(""),
                 Assert.Throws<InvalidOperationException>(() =>
-                    new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase))).Message);
-        }
-
-        [Fact]
-        public void Existing_options_are_updated()
-        {
-            var config = new Configuration
-                (
-                    new MemoryConfigurationSource
-                        {
-                            { "EntityFramework:" + typeof(MyContext).Name + ":ConnectionString", "MyConnectionString" }
-                        }
-                );
-
-            var currentOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "Foo", "Goo" } };
-
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), currentOptions);
-
-            Assert.Equal(2, rawOptions.Count);
-            Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
-            Assert.Equal("Goo", rawOptions["Foo"]);
-        }
-
-        [Fact]
-        public void Existing_options_are_updated_generic()
-        {
-            var config = new Configuration
-                (
-                    new MemoryConfigurationSource
-                        {
-                            { "EntityFramework:" + typeof(MyContext).Name + ":ConnectionString", "MyConnectionString" }
-                        }
-                );
-
-            var currentOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "Foo", "Goo" } };
-
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config, currentOptions);
-
-            Assert.Equal(2, rawOptions.Count);
-            Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
-            Assert.Equal("Goo", rawOptions["Foo"]);
+                    new DbContextOptionsParser().ReadRawOptions<MyContext>(config)).Message);
         }
 
         [Fact]
@@ -292,7 +220,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(1, rawOptions.Count);
             Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
@@ -313,7 +241,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(5, rawOptions.Count);
             Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
@@ -338,7 +266,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(5, rawOptions.Count);
             Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
@@ -363,7 +291,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(5, rawOptions.Count);
             Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
@@ -388,7 +316,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(5, rawOptions.Count);
             Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
@@ -416,7 +344,7 @@ namespace Microsoft.Data.Entity.Tests
             config.Add(memConfig);
             config.AddIniFile(iniConfigFilePath);
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(1, rawOptions.Count);
             Assert.Equal("IniConnectionString", rawOptions["ConnectionString"]);
@@ -434,7 +362,7 @@ namespace Microsoft.Data.Entity.Tests
                         }
                 );
 
-            var rawOptions = new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
 
             Assert.Equal(1, rawOptions.Count);
             Assert.Equal("ContextFullNameConnectionString", rawOptions["ConnectionString"]);

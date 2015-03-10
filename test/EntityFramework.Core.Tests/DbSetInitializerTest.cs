@@ -30,9 +30,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(customServices);
 
-            var options = new DbContextOptions();
-
-            using (var context = new JustAContext(serviceProvider, options))
+            using (var context = new JustAContext(serviceProvider, new DbContextOptionsBuilder().Options))
             {
                 Assert.NotNull(context.One);
                 Assert.NotNull(context.GetTwo());

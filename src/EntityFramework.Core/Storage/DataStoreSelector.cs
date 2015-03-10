@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -12,10 +13,20 @@ namespace Microsoft.Data.Entity.Storage
 {
     public class DataStoreSelector : IDataStoreSelector
     {
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IDbContextOptions _contextOptions;
         private readonly IDataStoreSource[] _sources;
 
-        public DataStoreSelector([CanBeNull] IEnumerable<IDataStoreSource> sources)
+        public DataStoreSelector(
+            [NotNull] IServiceProvider serviceProvider,
+            [NotNull] IDbContextOptions contextOptions,
+            [CanBeNull] IEnumerable<IDataStoreSource> sources)
         {
+            Check.NotNull(serviceProvider, nameof(serviceProvider));
+            Check.NotNull(contextOptions, nameof(contextOptions));
+
+            _serviceProvider = serviceProvider;
+            _contextOptions = contextOptions;
             _sources = sources == null ? new IDataStoreSource[0] : sources.ToArray();
         }
 
@@ -23,11 +34,11 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.IsDefined(providerSource, nameof(providerSource));
 
-            var configured = _sources.Where(f => f.IsConfigured).ToArray();
+            var configured = _sources.Where(f => f.IsConfigured(_contextOptions)).ToArray();
 
             if (configured.Length == 1)
             {
-                return configured[0].StoreServices;
+                return configured[0].GetStoreServices(_serviceProvider);
             }
 
             if (configured.Length > 1)
@@ -49,14 +60,7 @@ namespace Microsoft.Data.Entity.Storage
                 throw new InvalidOperationException(Strings.MultipleDataStoresAvailable(BuildStoreNamesString(_sources)));
             }
 
-            _sources[0].AutoConfigure();
-
-            if (!_sources[0].IsAvailable)
-            {
-                throw new InvalidOperationException(Strings.NoDataStoreConfigured);
-            }
-
-            return _sources[0].StoreServices;
+            throw new InvalidOperationException(Strings.NoDataStoreConfigured);
         }
 
         private static string BuildStoreNamesString(IEnumerable<IDataStoreSource> available) 

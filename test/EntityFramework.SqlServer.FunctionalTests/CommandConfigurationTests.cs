@@ -337,10 +337,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<KettleChips> Chips { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
-                base.OnConfiguring(options);
+                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
             }
         }
 
@@ -358,10 +357,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
             }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer().CommandTimeout(77);
-                base.OnConfiguring(options);
+                optionsBuilder.UseSqlServer().CommandTimeout(77);
+
+                base.OnConfiguring(optionsBuilder);
             }
         }
     }

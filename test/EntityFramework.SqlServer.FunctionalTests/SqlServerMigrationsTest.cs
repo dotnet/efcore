@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations.Builders;
@@ -38,12 +39,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .ServiceCollection()
                     .BuildServiceProvider();
 
-            var options = new DbContextOptions();
-            options.UseSqlServer(testStore.Connection.ConnectionString);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(testStore.Connection.ConnectionString);
 
-            return new BloggingContext(
-                serviceProvider,
-                options);
+            return new BloggingContext(serviceProvider, optionsBuilder.Options);
         }
 
         private class BloggingContext : DbContext

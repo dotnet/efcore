@@ -68,9 +68,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Entity> Entities { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -125,9 +125,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<EnumItem> EnumItems { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

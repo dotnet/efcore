@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -28,8 +29,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-                _options = new DbContextOptions();
-                _options.UseSqlServer(SqlServerTestStore.CreateConnectionString("StringsContext"));
+                var optionsBuilder = new DbContextOptionsBuilder();
+                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("StringsContext"));
+                _options = optionsBuilder.Options;
 
                 EnsureCreated();
             }

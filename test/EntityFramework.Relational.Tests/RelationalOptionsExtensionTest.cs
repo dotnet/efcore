@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_set_Connection()
         {
-            var optionsExtension = new TestRelationalOptionsExtension();
+            var optionsExtension = new TestRelationalOptionsExtension(CreateOptions(new Dictionary<string, string>()));
 
             Assert.Null(optionsExtension.Connection);
 
@@ -35,13 +35,13 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Throws_when_setting_Connection_to_null()
         {
-            Assert.Throws<ArgumentNullException>(() => { new TestRelationalOptionsExtension().Connection = null; });
+            Assert.Throws<ArgumentNullException>(() => { new TestRelationalOptionsExtension(CreateOptions(new Dictionary<string, string>())).Connection = null; });
         }
 
         [Fact]
         public void Can_set_ConnectionString()
         {
-            var optionsExtension = new TestRelationalOptionsExtension();
+            var optionsExtension = new TestRelationalOptionsExtension(CreateOptions(new Dictionary<string, string>()));
 
             Assert.Null(optionsExtension.ConnectionString);
 
@@ -53,16 +53,14 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Throws_when_setting_ConnectionString_to_null()
         {
-            Assert.Throws<ArgumentNullException>(() => { new TestRelationalOptionsExtension().ConnectionString = null; });
+            Assert.Throws<ArgumentNullException>(() => { new TestRelationalOptionsExtension(CreateOptions(new Dictionary<string, string>())).ConnectionString = null; });
         }
 
         [Fact]
         public void Configure_sets_ConnectionString_to_value_specified_in_raw_options()
         {
             var rawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { ConnectionStringKey, ConnectionString } };
-            var optionsExtension = new TestRelationalOptionsExtension();
-
-            optionsExtension.Configure(rawOptions);
+            var optionsExtension = new TestRelationalOptionsExtension(CreateOptions(rawOptions));
 
             Assert.Equal(ConnectionString, optionsExtension.ConnectionString);
         }
@@ -73,9 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             const string originalConnectionString = "The=Doozers";
             var rawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { ConnectionStringKey, ConnectionString } };
 
-            var optionsExtension = new TestRelationalOptionsExtension { ConnectionString = originalConnectionString };
-
-            optionsExtension.Configure(rawOptions);
+            var optionsExtension = new TestRelationalOptionsExtension(CreateOptions(rawOptions)) { ConnectionString = originalConnectionString };
 
             Assert.Equal(originalConnectionString, optionsExtension.ConnectionString);
         }
@@ -84,9 +80,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Configure_does_not_set_ConnectionString_if_not_specified_in_raw_options()
         {
             var rawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            var optionsExtension = new TestRelationalOptionsExtension();
-
-            optionsExtension.Configure(rawOptions);
+            var optionsExtension = new TestRelationalOptionsExtension(CreateOptions(rawOptions));
 
             Assert.Null(optionsExtension.ConnectionString);
         }
@@ -94,7 +88,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_set_CommandTimeout()
         {
-            var optionsExtension = new TestRelationalOptionsExtension();
+            var optionsExtension = new TestRelationalOptionsExtension(CreateOptions(new Dictionary<string, string>()));
 
             Assert.Null(optionsExtension.CommandTimeout);
 
@@ -108,16 +102,15 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             Assert.Equal(
                 Strings.InvalidCommandTimeout,
-                Assert.Throws<InvalidOperationException>(() => { new TestRelationalOptionsExtension().CommandTimeout = -1; }).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => { new TestRelationalOptionsExtension(CreateOptions(new Dictionary<string, string>())).CommandTimeout = -1; }).Message);
         }
 
         [Fact]
         public void Configure_sets_CommandTimeout_to_value_specified_in_raw_options()
         {
             var rawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { CommandTimeoutKey, "1" } };
-            var optionsExtension = new TestRelationalOptionsExtension();
-
-            optionsExtension.Configure(rawOptions);
+            var optionsExtension = new TestRelationalOptionsExtension(CreateOptions(rawOptions));
 
             Assert.Equal(1, optionsExtension.CommandTimeout);
         }
@@ -125,11 +118,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Configure_does_not_set_CommandTimeout_if_value_already_set()
         {
-            var optionsExtension = new TestRelationalOptionsExtension { CommandTimeout = 42 };
-
             var rawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { CommandTimeoutKey, "1" } };
 
-            optionsExtension.Configure(rawOptions);
+            var optionsExtension = new TestRelationalOptionsExtension(CreateOptions(rawOptions)) { CommandTimeout = 42 };
 
             Assert.Equal(42, optionsExtension.CommandTimeout);
         }
@@ -138,9 +129,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Configure_does_not_set_CommandTimeout_if_not_specified_in_raw_options()
         {
             var rawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            var optionsExtension = new TestRelationalOptionsExtension();
-
-            optionsExtension.Configure(rawOptions);
+            var optionsExtension = new TestRelationalOptionsExtension(CreateOptions(rawOptions));
 
             Assert.Null(optionsExtension.CommandTimeout);
         }
@@ -153,13 +142,13 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Equal(
                 CoreStrings.IntegerConfigurationValueFormatError(CommandTimeoutKey, "one"),
                 Assert.Throws<InvalidOperationException>(
-                    () => new TestRelationalOptionsExtension().Configure(rawOptions)).Message);
+                    () => new TestRelationalOptionsExtension(CreateOptions(rawOptions))).Message);
         }
 
         [Fact]
         public void Can_set_MaxBatchSize()
         {
-            var optionsExtension = new TestRelationalOptionsExtension();
+            var optionsExtension = new TestRelationalOptionsExtension((CreateOptions(new Dictionary<string, string>())));
 
             Assert.Null(optionsExtension.MaxBatchSize);
 
@@ -173,16 +162,15 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             Assert.Equal(
                 Strings.InvalidMaxBatchSize,
-                Assert.Throws<InvalidOperationException>(() => { new TestRelationalOptionsExtension().MaxBatchSize = -1; }).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => { new TestRelationalOptionsExtension((CreateOptions(new Dictionary<string, string>()))).MaxBatchSize = -1; }).Message);
         }
 
         [Fact]
         public void Configure_sets_MaxBatchSize_to_value_specified_in_raw_options()
         {
             var rawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { MaxBatchSizeKey, "1" } };
-            var optionsExtension = new TestRelationalOptionsExtension();
-
-            optionsExtension.Configure(rawOptions);
+            var optionsExtension = new TestRelationalOptionsExtension(CreateOptions(rawOptions));
 
             Assert.Equal(1, optionsExtension.MaxBatchSize);
         }
@@ -190,11 +178,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Configure_does_not_set_MaxBatchSize_if_value_already_set()
         {
-            var optionsExtension = new TestRelationalOptionsExtension { MaxBatchSize = 42 };
-
             var rawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { MaxBatchSizeKey, "1" } };
 
-            optionsExtension.Configure(rawOptions);
+            var optionsExtension = new TestRelationalOptionsExtension(CreateOptions(rawOptions)) { MaxBatchSize = 42 };
 
             Assert.Equal(42, optionsExtension.MaxBatchSize);
         }
@@ -203,9 +189,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Configure_does_not_set_MaxBatchSize_if_not_specified_in_raw_options()
         {
             var rawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            var optionsExtension = new TestRelationalOptionsExtension();
-
-            optionsExtension.Configure(rawOptions);
+            var optionsExtension = new TestRelationalOptionsExtension(CreateOptions(rawOptions));
 
             Assert.Null(optionsExtension.MaxBatchSize);
         }
@@ -217,19 +201,25 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             Assert.Equal(
                 CoreStrings.IntegerConfigurationValueFormatError(MaxBatchSizeKey, "one"),
-                Assert.Throws<InvalidOperationException>(() => new TestRelationalOptionsExtension().Configure(rawOptions)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => new TestRelationalOptionsExtension(CreateOptions(rawOptions))).Message);
+        }
+
+        private static DbContextOptions<DbContext> CreateOptions(IReadOnlyDictionary<string, string> rawOptions)
+        {
+            return new DbContextOptions<DbContext>(rawOptions, new Dictionary<Type, IDbContextOptionsExtension>());
         }
 
         private class TestRelationalOptionsExtension : RelationalOptionsExtension
         {
-            protected override void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public TestRelationalOptionsExtension(IDbContextOptions options)
+                : base(options)
             {
-                throw new NotImplementedException();
             }
 
-            public new void Configure(IReadOnlyDictionary<string, string> rawOptions)
+            public override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
-                base.Configure(rawOptions);
+                throw new NotImplementedException();
             }
         }
     }

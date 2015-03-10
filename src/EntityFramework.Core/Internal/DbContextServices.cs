@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         private IServiceProvider _provider;
-        private DbContextOptions _contextOptions;
+        private IDbContextOptions _contextOptions;
         private DbContext _context;
         private LazyRef<IModel> _modelFromSource;
         private LazyRef<IDataStoreServices> _dataStoreServices;
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Internal
 
         public virtual DbContextServices Initialize(
             [NotNull] IServiceProvider scopedProvider,
-            [NotNull] DbContextOptions contextOptions,
+            [NotNull] IDbContextOptions contextOptions,
             [NotNull] DbContext context,
             ServiceProviderSource serviceProviderSource)
         {
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Internal
 
         public virtual DbContext Context => _context;
 
-        public virtual IModel Model => _contextOptions.Model ?? _modelFromSource.Value;
+        public virtual IModel Model => _contextOptions.FindExtension<CoreOptionsExtension>()?.Model ?? _modelFromSource.Value;
 
         public virtual IDbContextOptions ContextOptions => _contextOptions;
 

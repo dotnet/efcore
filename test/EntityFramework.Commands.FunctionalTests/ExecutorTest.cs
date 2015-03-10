@@ -84,9 +84,9 @@ namespace Microsoft.Data.Entity.Commands
                             {
                                 internal class SimpleContext : DbContext
                                 {
-                                    protected override void OnConfiguring(DbContextOptions options)
+                                    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                                     {
-                                        options.UseSqlServer();
+                                        optionsBuilder.UseSqlServer();
                                     }
                                 }
 
@@ -169,9 +169,9 @@ namespace Microsoft.Data.Entity.Commands
                         {
                             internal class Context1 : DbContext
                             {
-                                protected override void OnConfiguring(DbContextOptions options)
+                                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                                 {
-                                    options.UseSqlServer();
+                                    optionsBuilder.UseSqlServer();
                                 }
                             }
 

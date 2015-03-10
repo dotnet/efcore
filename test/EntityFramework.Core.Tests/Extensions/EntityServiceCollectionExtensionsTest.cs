@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Tests
 
         protected void VerifyCommonDataStoreServices()
         {
-            VerifyScoped<IDataStoreSource>(isExistingReplaced: true);
+            VerifySingleton<IDataStoreSource>(isExistingReplaced: true);
             Assert.NotNull(VerifyCached<IModel>());
             Assert.NotNull(VerifyScoped<DbContext>());
             Assert.NotNull(VerifyScoped<IDbContextOptions>());

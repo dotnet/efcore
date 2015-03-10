@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 {

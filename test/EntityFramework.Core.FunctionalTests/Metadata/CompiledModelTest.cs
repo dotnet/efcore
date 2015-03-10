@@ -83,10 +83,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         [Fact]
         public void Property_values_can_be_read_and_set_using_compiled_metadata_without_reflection()
         {
-            var options = new DbContextOptions();
-            options.UseModel(new _OneTwoThreeContextModel()).UseInMemoryStore();
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseModel(new _OneTwoThreeContextModel()).UseInMemoryStore();
 
-            using (var context = new DbContext(options))
+            using (var context = new DbContext(optionsBuilder.Options))
             {
                 var entity = new KoolEntity15();
                 var property = (_KoolEntity15IdProperty)context.Model.GetEntityType(entity.GetType()).TryGetProperty("Id");
@@ -120,11 +120,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         private static void FixupTest(IModel model)
         {
-            var options = new DbContextOptions()
+            var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            options.UseInMemoryStore(persist: false);
+            optionsBuilder.UseInMemoryStore(persist: false);
 
-            using (var context = new DbContext(options))
+            using (var context = new DbContext(optionsBuilder.Options))
             {
                 var guid1 = Guid.NewGuid();
                 var guid2 = Guid.NewGuid();
@@ -172,11 +172,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         [Fact]
         public void Navigation_fixup_happens_with_compiled_metadata_using_non_standard_collection_access()
         {
-            var options = new DbContextOptions()
+            var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(new _OneTwoThreeContextModel());
-            options.UseInMemoryStore();
+            optionsBuilder.UseInMemoryStore();
 
-            using (var context = new DbContext(options))
+            using (var context = new DbContext(optionsBuilder.Options))
             {
                 context.Add(new KoolEntity6 { Id = 11, Kool5Id = 24 });
                 context.Add(new KoolEntity5 { Id = 21 });

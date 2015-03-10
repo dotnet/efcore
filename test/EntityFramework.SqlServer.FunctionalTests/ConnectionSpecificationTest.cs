@@ -49,9 +49,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class StringInOnConfiguringContext : NorthwindContextBase
         {
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
             }
         }
 
@@ -97,9 +97,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 _connection = connection;
             }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(_connection);
+                optionsBuilder.UseSqlServer(_connection);
             }
 
             public override void Dispose()
@@ -228,9 +228,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class StringInConfigContext : NorthwindContextBase
         {
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer();
+                optionsBuilder.UseSqlServer();
             }
         }
 
@@ -426,15 +426,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             public bool UseSqlServer { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 if (UseSqlServer)
                 {
-                    options.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                    optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
                 }
                 else
                 {
-                    options.UseInMemoryStore();
+                    optionsBuilder.UseInMemoryStore();
                 }
             }
         }
@@ -494,18 +494,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 _options = options;
                 _connection = connection;
-
-                ((IDbContextOptions)_options).AddExtension(new FakeDbContextOptionsExtension());
             }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(_connection);
+                Assert.Same(_options, optionsBuilder.Options);
 
-                // Options was cloned
-                Assert.NotSame(options, _options);
+                optionsBuilder.UseSqlServer(_connection);
 
-                Assert.Equal(1, ((IDbContextOptions)options).Extensions.OfType<FakeDbContextOptionsExtension>().Count());
+                Assert.NotSame(_options, optionsBuilder.Options);
             }
 
             public override void Dispose()
@@ -569,12 +566,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 _options = options;
             }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                Assert.Same(_options, optionsBuilder.Options);
 
-                // Options was cloned
-                Assert.NotSame(options, _options);
+                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+
+                Assert.NotSame(_options, optionsBuilder.Options);
             }
         }
 
@@ -588,12 +586,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 _options = options;
             }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseInMemoryStore();
+                Assert.Same(_options, optionsBuilder.Options);
 
-                // Options was cloned
-                Assert.NotSame(options, _options);
+                optionsBuilder.UseInMemoryStore();
+
+                Assert.NotSame(_options, optionsBuilder.Options);
             }
         }
 
@@ -611,16 +610,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             using (await SqlServerNorthwindContext.GetSharedStoreAsync())
             {
-                // TODO: Make this work or provide better exception
-                // Issue #935
-                Assert.Throws<InvalidOperationException>(()
-                    =>
-                    {
-                        using (var context = serviceProvider.GetRequiredService<NonGenericOptionsContext>())
-                        {
-                            Assert.True(context.Customers.Any());
-                        }
-                    });
+                using (var context = serviceProvider.GetRequiredService<NonGenericOptionsContext>())
+                {
+                    Assert.True(context.Customers.Any());
+                }
             }
         }
 
@@ -629,7 +622,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (await SqlServerNorthwindContext.GetSharedStoreAsync())
             {
-                using (var context = new NonGenericOptionsContext(new DbContextOptions()))
+                using (var context = new NonGenericOptionsContext(new DbContextOptions<DbContext>()))
                 {
                     Assert.True(context.Customers.Any());
                 }
@@ -644,18 +637,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 : base(options)
             {
                 _options = options;
-
-                ((IDbContextOptions)_options).AddExtension(new FakeDbContextOptionsExtension());
             }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                Assert.Same(_options, optionsBuilder.Options);
 
-                // Options was cloned
-                Assert.NotSame(options, _options);
+                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
 
-                Assert.Equal(1, ((IDbContextOptions)options).Extensions.OfType<FakeDbContextOptionsExtension>().Count());
+                Assert.NotSame(_options, optionsBuilder.Options);
             }
         }
 
@@ -687,13 +677,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public string CustomerID { get; set; }
             public string CompanyName { get; set; }
             public string Fax { get; set; }
-        }
-
-        private class FakeDbContextOptionsExtension : DbContextOptionsExtension
-        {
-            protected override void ApplyServices(EntityFrameworkServicesBuilder builder)
-            {
-            }
         }
     }
 }

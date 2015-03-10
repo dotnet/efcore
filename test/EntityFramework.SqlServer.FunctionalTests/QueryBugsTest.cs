@@ -74,9 +74,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Product> Products { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"));
+                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"));
             }
         }
 
@@ -199,9 +199,9 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName] AND [o
             public DbSet<Customer> Customers { get; set; }
             public DbSet<Order> Orders { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"));
+                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"));
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -336,9 +336,9 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             public DbSet<Details> Details { get; set; }
             public DbSet<Dragon> Dragons { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions options)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                options.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro963"));
+                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro963"));
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

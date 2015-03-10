@@ -19,7 +19,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_create_new_connection_lazily_using_given_connection_string()
         {
-            using (var connection = new FakeConnection(CreateOptions(e => e.ConnectionString = "Database=FrodoLives")))
+            using (var connection = new FakeConnection(
+                CreateOptions(new FakeOptionsExtension1 { ConnectionString = "Database=FrodoLives" })))
             {
                 Assert.Equal(0, connection.CreateCount);
 
@@ -33,7 +34,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Lazy_connection_is_opened_and_closed_when_necessary()
         {
-            using (var connection = new FakeConnection(CreateOptions(e => e.ConnectionString = "Database=FrodoLives")))
+            using (var connection = new FakeConnection(
+                CreateOptions(new FakeOptionsExtension1 { ConnectionString = "Database=FrodoLives" })))
             {
                 Assert.Equal(0, connection.CreateCount);
 
@@ -74,7 +76,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public async Task Lazy_connection_is_async_opened_and_closed_when_necessary()
         {
-            using (var connection = new FakeConnection(CreateOptions(e => e.ConnectionString = "Database=FrodoLives")))
+            using (var connection = new FakeConnection(
+                CreateOptions(new FakeOptionsExtension1 { ConnectionString = "Database=FrodoLives" })))
             {
                 Assert.Equal(0, connection.CreateCount);
 
@@ -116,7 +119,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Lazy_connection_is_recreated_if_used_again_after_being_disposed()
         {
-            var connection = new FakeConnection(CreateOptions(e => e.ConnectionString = "Database=FrodoLives"));
+            var connection = new FakeConnection(
+                CreateOptions(new FakeOptionsExtension1 { ConnectionString = "Database=FrodoLives" }));
 
             Assert.Equal(0, connection.CreateCount);
             var connectionMock = Mock.Get(connection.DbConnection);
@@ -148,7 +152,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Lazy_connection_is_not_created_just_so_it_can_be_disposed()
         {
-            var connection = new FakeConnection(CreateOptions(e => e.ConnectionString = "Database=FrodoLives"));
+            var connection = new FakeConnection(
+                CreateOptions(new FakeOptionsExtension1 { ConnectionString = "Database=FrodoLives" }));
 
             connection.Dispose();
 
@@ -160,7 +165,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             var dbConnection = CreateDbConnectionMock("Database=FrodoLives").Object;
 
-            using (var connection = new FakeConnection(CreateOptions(e => e.Connection = dbConnection)))
+            using (var connection = new FakeConnection(
+                CreateOptions(new FakeOptionsExtension1 { Connection = dbConnection })))
             {
                 Assert.Equal(0, connection.CreateCount);
 
@@ -176,7 +182,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var connectionMock = CreateDbConnectionMock("Database=FrodoLives");
             connectionMock.Setup(m => m.State).Returns(ConnectionState.Closed);
 
-            using (var connection = new FakeConnection(CreateOptions(e => e.Connection = connectionMock.Object)))
+            using (var connection = new FakeConnection(
+                CreateOptions(new FakeOptionsExtension1 { Connection = connectionMock.Object })))
             {
                 Assert.Equal(0, connection.CreateCount);
 
@@ -219,7 +226,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var connectionMock = CreateDbConnectionMock("Database=FrodoLives");
             connectionMock.Setup(m => m.State).Returns(ConnectionState.Open);
 
-            using (var connection = new FakeConnection(CreateOptions(e => e.Connection = connectionMock.Object)))
+            using (var connection = new FakeConnection(
+                CreateOptions(new FakeOptionsExtension1 { Connection = connectionMock.Object })))
             {
                 Assert.Equal(0, connection.CreateCount);
 
@@ -260,7 +268,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Existing_connection_is_not_disposed_even_after_being_opened_and_closed()
         {
             var connectionMock = CreateDbConnectionMock("Database=FrodoLives");
-            var connection = new FakeConnection(CreateOptions(e => e.Connection = connectionMock.Object));
+            var connection = new FakeConnection(
+                CreateOptions(new FakeOptionsExtension1 { Connection = connectionMock.Object }));
 
             Assert.Equal(0, connection.CreateCount);
             Assert.Same(connectionMock.Object, connection.DbConnection);
@@ -298,7 +307,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             Assert.Equal(
                 Strings.MultipleDataStoresConfigured,
-                Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateOptions(e => { }, e => { }))).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => new FakeConnection(CreateOptions(new FakeOptionsExtension1(), new FakeOptionsExtension2()))).Message);
         }
 
         [Fact]
@@ -306,7 +316,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             Assert.Equal(
                 Strings.NoConnectionOrConnectionString,
-                Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateOptions(e => { }))).Message);
+                Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateOptions(new FakeOptionsExtension1()))).Message);
         }
 
         [Fact]
@@ -315,31 +325,30 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Equal(
                 Strings.ConnectionAndConnectionString,
                 Assert.Throws<InvalidOperationException>(() => new FakeConnection(
-                    CreateOptions(
-                        e =>
-                            {
-                                e.Connection = CreateDbConnectionMock("Database=FrodoLives").Object;
-                                e.ConnectionString = "Database=FrodoLives";
-                            }))).Message);
+                    CreateOptions(new FakeOptionsExtension1
+                        {
+                            Connection = CreateDbConnectionMock("Database=FrodoLives").Object,
+                            ConnectionString = "Database=FrodoLives"
+                        }))).Message);
         }
 
         private static IDbContextOptions CreateOptions(
-            Action<FakeOptionsExtension1> configUpdater1,
-            Action<FakeOptionsExtension2> configUpdater2 = null)
+            FakeOptionsExtension1 configUpdater1,
+            FakeOptionsExtension2 configUpdater2 = null)
         {
-            IDbContextOptions contextOptions = new DbContextOptions();
+            var optionsBuilder = new DbContextOptionsBuilder();
 
             if (configUpdater1 != null)
             {
-                contextOptions.AddOrUpdateExtension(configUpdater1);
+                ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(configUpdater1);
             }
 
             if (configUpdater2 != null)
             {
-                contextOptions.AddOrUpdateExtension(configUpdater2);
+                ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(configUpdater2);
             }
 
-            return contextOptions;
+            return optionsBuilder.Options;
         }
 
         private class FakeConnection : RelationalConnection
@@ -367,14 +376,24 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         private class FakeOptionsExtension1 : RelationalOptionsExtension
         {
-            protected override void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public FakeOptionsExtension1()
+                : base(new DbContextOptions<DbContext>())
+            {
+            }
+
+            public override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
             }
         }
 
         private class FakeOptionsExtension2 : RelationalOptionsExtension
         {
-            protected override void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public FakeOptionsExtension2()
+                : base(new DbContextOptions<DbContext>())
+            {
+            }
+
+            public override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
             }
         }

@@ -13,11 +13,9 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.Cache.Memory;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.Logging;
-using Microsoft.Framework.OptionsModel;
 
 // ReSharper disable once CheckNamespace
 
@@ -101,6 +99,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<EntityEntryMetadataServices>()
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .AddSingleton<DbContextOptionsParser>()
                 .AddScoped<KeyPropagator>()
                 .AddScoped<NavigationFixer>()
                 .AddScoped<StateManager>()
@@ -166,31 +165,16 @@ namespace Microsoft.Framework.DependencyInjection
         /// </returns>
         public static EntityFrameworkServicesBuilder AddDbContext<TContext>(
             [NotNull] this EntityFrameworkServicesBuilder builder,
-            [CanBeNull] Action<DbContextOptions> optionsAction = null)
+            [CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null)
             where TContext : DbContext
         {
             Check.NotNull(builder, nameof(builder));
 
             var serviceCollection = ((IAccessor<IServiceCollection>)builder).Service;
-
-            serviceCollection.AddSingleton(
-                sp => sp.GetRequiredService<IOptions<DbContextOptions<TContext>>>().Options);
-
             var configuration = ((IAccessor<IConfiguration>)builder).Service;
-            if (configuration != null)
-            {
-                // TODO: Allows parser to be obtained from service provider. Issue #947
-                serviceCollection.ConfigureOptions(
-                    new DbContextConfigureOptions<TContext>(configuration, new DbContextOptionsParser())
-                        {
-                            Order = ConfigurationOrder
-                        });
-            }
 
-            if (optionsAction != null)
-            {
-                serviceCollection.Configure<DbContextOptions<TContext>>(optionsAction);
-            }
+            serviceCollection.AddSingleton(p => DbContextOptionsParser.DbContextOptionsFactory<TContext>(p, configuration, optionsAction));
+            serviceCollection.AddSingleton<DbContextOptions>(p => p.GetRequiredService<DbContextOptions<TContext>>());
 
             serviceCollection.AddScoped(typeof(TContext), DbContextActivator.CreateInstance<TContext>);
 

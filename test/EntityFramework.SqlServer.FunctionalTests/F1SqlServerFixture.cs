@@ -33,10 +33,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var options = new DbContextOptions();
-                    options.UseSqlServer(_connectionString);
+                    var optionsBuilder = new DbContextOptionsBuilder();
+                    optionsBuilder.UseSqlServer(_connectionString);
 
-                    using (var context = new F1Context(_serviceProvider, options))
+                    using (var context = new F1Context(_serviceProvider, optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
                         context.Database.EnsureDeleted();
@@ -52,10 +52,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public override F1Context CreateContext(SqlServerTestStore testStore)
         {
-            var options = new DbContextOptions();
-            options.UseSqlServer(testStore.Connection);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(testStore.Connection);
 
-            var context = new F1Context(_serviceProvider, options);
+            var context = new F1Context(_serviceProvider, optionsBuilder.Options);
             context.Database.AsRelational().Connection.UseTransaction(testStore.Transaction);
             return context;
         }

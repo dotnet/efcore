@@ -90,12 +90,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var nameProperty = entityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
             entityType.GetOrSetPrimaryKey(idProperty);
 
-            var options = new DbContextOptions()
+            var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            options.UseInMemoryStore();
+            optionsBuilder.UseInMemoryStore();
 
             T entity;
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 var entry = ((IAccessor<StateManager>)context.ChangeTracker).Service.CreateNewEntry(entityType);
                 entity = (T)entry.Entity;
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 var entityFromStore = context.Set<T>().Single();
                 var entityEntry = context.Entry(entityFromStore);
@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 var entityFromStore = context.Set<T>().Single();
                 var entry = context.Entry(entityFromStore);
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var context = new DbContext(_fixture.ServiceProvider, options))
+            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 Assert.Equal(0, context.Set<T>().Count());
             }

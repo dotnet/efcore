@@ -19,9 +19,8 @@ namespace Microsoft.Data.Entity.Tests
             return builder.AddInMemoryStore();
         }
 
-        protected override DbContextOptions UseProviderOptions(DbContextOptions options)
+        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
         {
-            return options;
         }
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Framework.DependencyInjection;
@@ -132,21 +131,18 @@ namespace Microsoft.Data.Entity.Tests
 
         private static DbContextOptions CreateOptions(Action<EntityFrameworkServicesBuilder> builderAction)
         {
-            IDbContextOptions options = new DbContextOptions();
-            options.AddOrUpdateExtension<FakeDbContextOptionsExtension>(e => e.BuilderActions.Add(builderAction));
-            return (DbContextOptions)options;
+            var optionsBuilder = new DbContextOptionsBuilder();
+            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(new FakeDbContextOptionsExtension { BuilderAction = builderAction });
+            return optionsBuilder.Options;
         }
 
-        private class FakeDbContextOptionsExtension : DbContextOptionsExtension
+        private class FakeDbContextOptionsExtension : IDbContextOptionsExtension
         {
-            public List<Action<EntityFrameworkServicesBuilder>> BuilderActions { get; } = new List<Action<EntityFrameworkServicesBuilder>>();
+            public Action<EntityFrameworkServicesBuilder> BuilderAction { get; set; }
 
-            protected internal override void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
-                foreach (var builderAction in BuilderActions)
-                {
-                    builderAction(builder);
-                }
+                BuilderAction(builder);
             }
         }
 

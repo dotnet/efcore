@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
@@ -26,10 +27,10 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
         protected override DbContextOptions CreateOptions(string databaseName)
         {
-            var options = new DbContextOptions();
-            options.UseInMemoryStore();
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseInMemoryStore();
 
-            return options;
+            return optionsBuilder.Options;
         }
 
         protected override Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)

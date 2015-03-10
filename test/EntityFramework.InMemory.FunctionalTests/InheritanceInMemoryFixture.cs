@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class InheritanceInMemoryFixture : InheritanceFixtureBase
     {
-        private readonly DbContextOptions _options = new DbContextOptions();
+        private readonly DbContextOptionsBuilder _optionsBuilder = new DbContextOptionsBuilder();
         private readonly IServiceProvider _serviceProvider;
 
         public InheritanceInMemoryFixture()
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-            _options.UseInMemoryStore();
+            _optionsBuilder.UseInMemoryStore();
 
             using (var context = CreateContext())
             {
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
         public override AnimalContext CreateContext()
         {
-            return new AnimalContext(_serviceProvider, _options);
+            return new AnimalContext(_serviceProvider, _optionsBuilder.Options);
         }
     }
 }
