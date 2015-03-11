@@ -89,7 +89,7 @@
     <Compile Include="SqlServerOptionsExtensionTest.cs" />
     <Compile Include="SqlServerConnectionTest.cs" />
     <Compile Include="SqlServerDataStoreSourceTest.cs" />
-    <Compile Include="SqlServerEntityServicesBuilderExtensionsTest.cs" />
+    <Compile Include="SqlServerEntityFrameworkServicesBuilderExtensionsTest.cs" />
     <Compile Include="SqlServerSequenceValueGeneratorTest.cs" />
     <Compile Include="SqlServerSqlGeneratorTest.cs" />
     <Compile Include="SqlServerTypeMapperTest.cs" />

@@ -36,12 +36,10 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         private static long CalculateHash(ServiceDescriptor descriptor)
-        {
-            return ((((long)descriptor.Lifetime * 397)
-                     ^ descriptor.ServiceType.GetHashCode()) * 397)
-                   ^ (descriptor.ImplementationInstance
-                      ?? descriptor.ImplementationType
-                      ?? (object)descriptor.ImplementationFactory).GetHashCode();
-        }
+            => ((((long)descriptor.Lifetime * 397)
+                 ^ descriptor.ServiceType.GetHashCode()) * 397)
+               ^ (descriptor.ImplementationInstance
+                  ?? descriptor.ImplementationType
+                  ?? (object)descriptor.ImplementationFactory).GetHashCode();
     }
 }

@@ -1424,7 +1424,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             return contextServices.GetRequiredService<InternalEntityEntrySubscriber>().SnapshotAndSubscribe(
                 new InternalEntityEntryFactory(
-                    contextServices.GetRequiredService<EntityMaterializerSource>(),
                     contextServices.GetRequiredService<EntityEntryMetadataServices>())
                     .Create(contextServices.GetRequiredService<StateManager>(), entityType, entity));
         }
@@ -1433,7 +1432,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             return contextServices.GetRequiredService<InternalEntityEntrySubscriber>().SnapshotAndSubscribe(
                 new InternalEntityEntryFactory(
-                    contextServices.GetRequiredService<EntityMaterializerSource>(),
                     contextServices.GetRequiredService<EntityEntryMetadataServices>())
                     .Create(contextServices.GetRequiredService<StateManager>(), entityType, entity, valueReader));
         }

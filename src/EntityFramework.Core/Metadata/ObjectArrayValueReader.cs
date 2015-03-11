@@ -17,15 +17,9 @@ namespace Microsoft.Data.Entity.Metadata
             _valueBuffer = valueBuffer;
         }
 
-        public virtual bool IsNull(int index)
-        {
-            return _valueBuffer[index] == null;
-        }
+        public virtual bool IsNull(int index) => _valueBuffer[index] == null;
 
-        public virtual T ReadValue<T>(int index)
-        {
-            return (T)_valueBuffer[index];
-        }
+        public virtual T ReadValue<T>(int index) => (T)_valueBuffer[index];
 
         public virtual int Count => _valueBuffer.Length;
     }

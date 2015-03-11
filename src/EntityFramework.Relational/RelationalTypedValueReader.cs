@@ -19,19 +19,10 @@ namespace Microsoft.Data.Entity.Relational
             _dataReader = dataReader;
         }
 
-        public virtual bool IsNull(int index)
-        {
-            return _dataReader.IsDBNull(index);
-        }
+        public virtual bool IsNull(int index) => _dataReader.IsDBNull(index);
 
-        public virtual T ReadValue<T>(int index)
-        {
-            return _dataReader.GetFieldValue<T>(index);
-        }
+        public virtual T ReadValue<T>(int index) => _dataReader.GetFieldValue<T>(index);
 
-        public virtual int Count
-        {
-            get { return _dataReader.FieldCount; }
-        }
+        public virtual int Count => _dataReader.FieldCount;
     }
 }

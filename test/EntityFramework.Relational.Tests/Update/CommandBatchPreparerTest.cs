@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
@@ -270,7 +271,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             return new TestCommandBatchPreparer(modificationCommandBatchFactory,
                 new ParameterNameGeneratorFactory(),
-                new ModificationCommandComparer());
+                new ModificationCommandComparer(),
+                new BoxedValueReaderSource());
         }
 
         private static IModel CreateSimpleFKModel()
@@ -335,8 +337,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             public TestCommandBatchPreparer(
                 ModificationCommandBatchFactory modificationCommandBatchFactory,
                 ParameterNameGeneratorFactory parameterNameGeneratorFactory,
-                ModificationCommandComparer modificationCommandComparer)
-                : base(modificationCommandBatchFactory, parameterNameGeneratorFactory, modificationCommandComparer)
+                ModificationCommandComparer modificationCommandComparer,
+                IBoxedValueReaderSource boxedValueReaderSource)
+                : base(modificationCommandBatchFactory, parameterNameGeneratorFactory, modificationCommandComparer, boxedValueReaderSource)
             {
             }
 

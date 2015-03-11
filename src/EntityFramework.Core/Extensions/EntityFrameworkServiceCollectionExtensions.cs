@@ -99,6 +99,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
                 .AddSingleton<DbContextOptionsParser>()
+                .AddSingleton<IBoxedValueReaderSource, BoxedValueReaderSource>()
                 .AddScoped<KeyPropagator>()
                 .AddScoped<NavigationFixer>()
                 .AddScoped<StateManager>()

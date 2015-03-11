@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer.Update;
@@ -23,8 +24,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var batch = factory.Create(optionsBuilder.Options);
 
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
-            Assert.False(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new BoxedValueReaderSource())));
+            Assert.False(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new BoxedValueReaderSource())));
         }
 
         [Fact]
@@ -37,8 +38,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var batch = factory.Create(optionsBuilder.Options);
 
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new BoxedValueReaderSource())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new BoxedValueReaderSource())));
         }
 
         [Fact]
@@ -51,8 +52,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var batch = factory.Create(optionsBuilder.Options);
 
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new BoxedValueReaderSource())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new BoxedValueReaderSource())));
         }
 
         [Fact]
@@ -69,8 +70,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var batch = factory.Create(optionsBuilder.Options);
 
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new BoxedValueReaderSource())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new BoxedValueReaderSource())));
         }
 
         private class TestRelationalOptionsExtension : RelationalOptionsExtension

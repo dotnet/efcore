@@ -18,7 +18,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class EntityServiceCollectionExtensionsTest : IDisposable
+    public class EntityFrameworkServiceCollectionExtensionsTest : IDisposable
     {
         [Fact]
         public virtual void Services_wire_up_correctly()
@@ -41,6 +41,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<EntityEntryMetadataServices>();
             VerifySingleton<ICompiledQueryCache>();
             VerifySingleton<ILoggerFactory>();
+            VerifySingleton<IBoxedValueReaderSource>();
 
             VerifyCached<IModelBuilderFactory>();
             VerifyCached<IModel>();
@@ -91,7 +92,7 @@ namespace Microsoft.Data.Entity.Tests
         private readonly DbContext _firstContext;
         private readonly DbContext _secondContext;
 
-        public EntityServiceCollectionExtensionsTest()
+        public EntityFrameworkServiceCollectionExtensionsTest()
         {
             _serviceProvider = GetServices().BuildServiceProvider();
             _firstContext = CreateContext(_serviceProvider);

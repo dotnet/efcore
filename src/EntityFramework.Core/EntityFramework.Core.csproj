@@ -125,6 +125,8 @@
     <Compile Include="Infrastructure\CoreOptionsExtension.cs" />
     <Compile Include="Infrastructure\DbContextOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptions`.cs" />
+    <Compile Include="Infrastructure\IBoxedValueReader.cs" />
+    <Compile Include="Infrastructure\IBoxedValueReaderSource.cs" />
     <Compile Include="Infrastructure\IDatabaseFactory.cs" />
     <Compile Include="Infrastructure\IDbContextOptions.cs" />
     <Compile Include="Infrastructure\IOptionsBuilderExtender.cs" />
@@ -140,6 +142,8 @@
     <Compile Include="Internal\LoggingModelValidator.cs" />
     <Compile Include="Internal\ModelSource.cs" />
     <Compile Include="Internal\ModelValidator.cs" />
+    <Compile Include="Internal\BoxedValueReaderSource.cs" />
+    <Compile Include="Internal\GenericBoxedValueReader.cs" />
     <Compile Include="Metadata\IModelBuilderFactory.cs" />
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="Query\EntityLoadInfo.cs" />
@@ -314,6 +318,7 @@
     <Compile Include="Utilities\Multigraph.cs" />
     <Compile Include="Utilities\PropertyInfoExtensions.cs" />
     <Compile Include="Utilities\ReferenceEqualityComparer.cs" />
+    <Compile Include="Utilities\ReferenceEnumerableEqualityComparer.cs" />
     <Compile Include="Utilities\ThreadSafeDictionaryCache.cs" />
     <Compile Include="Utilities\ThreadSafeLazyRef.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />

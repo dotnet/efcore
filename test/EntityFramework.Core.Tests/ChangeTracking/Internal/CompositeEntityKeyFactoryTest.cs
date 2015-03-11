@@ -3,6 +3,8 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -23,7 +25,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(type, type.GetPrimaryKey().Properties, entry);
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(
+                new object[] { 0, null, null },
+                new IBoxedValueReader[] { new GenericBoxedValueReader<int>(), new GenericBoxedValueReader<string>(), new GenericBoxedValueReader<Random>() })
+                .Create(type, type.GetPrimaryKey().Properties, entry);
 
             Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
         }
@@ -40,8 +45,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(
-                type, new[] { type.GetProperty("P6"), type.GetProperty("P5") }, entry);
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(
+                new object[] { null, null },
+                new IBoxedValueReader[] { new GenericBoxedValueReader<Random>(), new GenericBoxedValueReader<string>() })
+                .Create(type, new[] { type.GetProperty("P6"), type.GetProperty("P5") }, entry);
 
             Assert.Equal(new object[] { random, "Ate" }, key.Value);
         }
@@ -61,8 +68,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var sidecar = new RelationshipsSnapshot(entry);
             sidecar[type.GetProperty("P4")] = 77;
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(
-                type, new[] { type.GetProperty("P6"), type.GetProperty("P4"), type.GetProperty("P5") }, sidecar);
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(
+                new object[] { null, 0, null },
+                new IBoxedValueReader[] { new GenericBoxedValueReader<Random>(), new GenericBoxedValueReader<int>(), new GenericBoxedValueReader<string>() })
+                .Create(type, new[] { type.GetProperty("P6"), type.GetProperty("P4"), type.GetProperty("P5") }, sidecar);
 
             Assert.Equal(new object[] { random, 77, "Ate" }, key.Value);
         }
@@ -79,7 +88,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            Assert.Equal(EntityKey.InvalidEntityKey, new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(type, type.GetPrimaryKey().Properties, entry));
+            Assert.Equal(
+                EntityKey.InvalidEntityKey,
+                new CompositeEntityKeyFactory(
+                    new object[] { 0, null, null },
+                    new IBoxedValueReader[] { new GenericBoxedValueReader<int>(), new GenericBoxedValueReader<string>(), new GenericBoxedValueReader<Random>() })
+                    .Create(type, type.GetPrimaryKey().Properties, entry));
         }
 
         [Fact]
@@ -95,7 +109,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
-                new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(type, type.GetPrimaryKey().Properties, entry));
+                new CompositeEntityKeyFactory(
+                    new object[] { 0, null, null },
+                    new IBoxedValueReader[] { new GenericBoxedValueReader<int>(), new GenericBoxedValueReader<string>(), new GenericBoxedValueReader<Random>() })
+                    .Create(type, type.GetPrimaryKey().Properties, entry));
         }
 
         [Fact]
@@ -111,7 +128,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
-                new CompositeEntityKeyFactory(new object[] { 7, null, null }).Create(type, type.GetPrimaryKey().Properties, entry));
+                new CompositeEntityKeyFactory(
+                    new object[] { 7, null, null },
+                    new IBoxedValueReader[] { new GenericBoxedValueReader<int>(), new GenericBoxedValueReader<string>(), new GenericBoxedValueReader<Random>() })
+                    .Create(type, type.GetPrimaryKey().Properties, entry));
         }
 
         [Fact]
@@ -121,7 +141,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
-                new CompositeEntityKeyFactory(new object[] { 0, null, null })
+                new CompositeEntityKeyFactory(
+                    new object[] { 0, null, null },
+                    new IBoxedValueReader[] { new GenericBoxedValueReader<int>(), new GenericBoxedValueReader<string>(), new GenericBoxedValueReader<Random>() })
                     .Create(type, type.GetPrimaryKey().Properties, new ObjectArrayValueReader(new object[] { 0, "Ate", new Random() })));
         }
 
@@ -132,7 +154,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
-                new CompositeEntityKeyFactory(new object[] { 7, null, null })
+                new CompositeEntityKeyFactory(
+                    new object[] { 7, null, null },
+                    new IBoxedValueReader[] { new GenericBoxedValueReader<int>(), new GenericBoxedValueReader<string>(), new GenericBoxedValueReader<Random>() })
                     .Create(type, type.GetPrimaryKey().Properties, new ObjectArrayValueReader(new object[] { 7, "Ate", new Random() })));
         }
 
@@ -144,8 +168,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var random = new Random();
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(
-                type, type.GetPrimaryKey().Properties, new ObjectArrayValueReader(new object[] { 7, "Ate", random }));
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(
+                new object[] { 0, null, null },
+                new IBoxedValueReader[] { new GenericBoxedValueReader<int>(), new GenericBoxedValueReader<string>(), new GenericBoxedValueReader<Random>() })
+                .Create(type, type.GetPrimaryKey().Properties, new ObjectArrayValueReader(new object[] { 7, "Ate", random }));
 
             Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
         }
@@ -158,10 +184,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var random = new Random();
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(
-                type,
-                new[] { type.GetProperty("P6"), type.GetProperty("P5") },
-                new ObjectArrayValueReader(new object[] { null, null, null, null, "Ate", random }));
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(
+                new object[] { null, null },
+                new IBoxedValueReader[] { new GenericBoxedValueReader<Random>(), new GenericBoxedValueReader<string>() })
+                .Create(
+                    type,
+                    new[] { type.GetProperty("P6"), type.GetProperty("P5") },
+                    new ObjectArrayValueReader(new object[] { null, null, null, null, "Ate", random }));
 
             Assert.Equal(new object[] { random, "Ate" }, key.Value);
         }
@@ -174,10 +203,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var random = new Random();
 
-            var key = new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(
-                type,
-                new[] { type.GetProperty("P6"), type.GetProperty("P5") },
-                new ObjectArrayValueReader(new object[] { 7, "Ate", random, 77, null, random }));
+            var key = new CompositeEntityKeyFactory(
+                new object[] { null, null },
+                new IBoxedValueReader[] { new GenericBoxedValueReader<Random>(), new GenericBoxedValueReader<string>() })
+                .Create(
+                    type,
+                    new[] { type.GetProperty("P6"), type.GetProperty("P5") },
+                    new ObjectArrayValueReader(new object[] { 7, "Ate", random, 77, null, random }));
 
             Assert.Equal(EntityKey.InvalidEntityKey, key);
         }

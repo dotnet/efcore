@@ -20,15 +20,9 @@ namespace Microsoft.Data.Entity.Relational.Query
             _offset = offset;
         }
 
-        public virtual bool IsNull(int index)
-        {
-            return _valueReader.IsNull(_offset + index);
-        }
+        public virtual bool IsNull(int index) => _valueReader.IsNull(_offset + index);
 
-        public virtual T ReadValue<T>(int index)
-        {
-            return _valueReader.ReadValue<T>(_offset + index);
-        }
+        public virtual T ReadValue<T>(int index) => _valueReader.ReadValue<T>(_offset + index);
 
         public virtual int Count => _valueReader.Count;
     }

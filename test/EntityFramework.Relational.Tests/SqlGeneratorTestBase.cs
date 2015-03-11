@@ -5,6 +5,8 @@ using System;
 using System.Linq;
 using System.Text;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
@@ -304,15 +306,15 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var columnModifications = new[]
                 {
                     new ColumnModification(
-                        entry, idProperty, idProperty.Relational(), generator, identityKey, !identityKey, true, false),
+                        entry, idProperty, idProperty.Relational(), generator, new GenericBoxedValueReader<int>() , identityKey, !identityKey, true, false),
                     new ColumnModification(
-                        entry, nameProperty, nameProperty.Relational(), generator, false, true, false, false),
+                        entry, nameProperty, nameProperty.Relational(), generator, null, false, true, false, false),
                     new ColumnModification(
-                        entry, quacksProperty, quacksProperty.Relational(), generator, false, true, false, false),
+                        entry, quacksProperty, quacksProperty.Relational(), generator, null, false, true, false, false),
                     new ColumnModification(
-                        entry, computedProperty, computedProperty.Relational(), generator, isComputed, false, false, false),
+                        entry, computedProperty, computedProperty.Relational(), generator, new GenericBoxedValueReader<int>(), isComputed, false, false, false),
                     new ColumnModification(
-                        entry, concurrencyProperty, concurrencyProperty.Relational(), generator, false, true, false, false)
+                        entry, concurrencyProperty, concurrencyProperty.Relational(), generator, null, false, true, false, false)
                 };
 
             if (defaultsOnly)
@@ -321,7 +323,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             }
 
             Func<IProperty, IRelationalPropertyExtensions> func = p => p.Relational();
-            var commandMock = new Mock<ModificationCommand>("Ducks", SchemaName, new ParameterNameGenerator(), func) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>("Ducks", SchemaName, new ParameterNameGenerator(), func, new BoxedValueReaderSource()) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
@@ -340,19 +342,19 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var columnModifications = new[]
                 {
                     new ColumnModification(
-                        entry, idProperty, idProperty.Relational(), generator, false, false, true, true),
+                        entry, idProperty, idProperty.Relational(), generator, null, false, false, true, true),
                     new ColumnModification(
-                        entry, nameProperty, nameProperty.Relational(), generator, false, true, false, false),
+                        entry, nameProperty, nameProperty.Relational(), generator, null, false, true, false, false),
                     new ColumnModification(
-                        entry, quacksProperty, quacksProperty.Relational(), generator, false, true, false, false),
+                        entry, quacksProperty, quacksProperty.Relational(), generator, null, false, true, false, false),
                     new ColumnModification(
-                        entry, computedProperty, computedProperty.Relational(), generator, isComputed, false, false, false),
+                        entry, computedProperty, computedProperty.Relational(), generator, new GenericBoxedValueReader<int>(), isComputed, false, false, false),
                     new ColumnModification(
-                        entry, concurrencyProperty, concurrencyProperty.Relational(), generator, false, true, false, concurrencyToken)
+                        entry, concurrencyProperty, concurrencyProperty.Relational(), generator, null, false, true, false, concurrencyToken)
                 };
 
             Func<IProperty, IRelationalPropertyExtensions> func = p => p.Relational();
-            var commandMock = new Mock<ModificationCommand>("Ducks", SchemaName, new ParameterNameGenerator(), func) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>("Ducks", SchemaName, new ParameterNameGenerator(), func, new BoxedValueReaderSource()) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
@@ -368,13 +370,13 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var columnModifications = new[]
                 {
                     new ColumnModification(
-                        entry, idProperty, idProperty.Relational(), generator, false, false, true, true),
+                        entry, idProperty, idProperty.Relational(), generator, null, false, false, true, true),
                     new ColumnModification(
-                        entry, concurrencyProperty, concurrencyProperty.Relational(), generator, false, false, false, concurrencyToken)
+                        entry, concurrencyProperty, concurrencyProperty.Relational(), generator, null, false, false, false, concurrencyToken)
                 };
 
             Func<IProperty, IRelationalPropertyExtensions> func = p => p.Relational();
-            var commandMock = new Mock<ModificationCommand>("Ducks", SchemaName, new ParameterNameGenerator(), func) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>("Ducks", SchemaName, new ParameterNameGenerator(), func, new BoxedValueReaderSource()) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;

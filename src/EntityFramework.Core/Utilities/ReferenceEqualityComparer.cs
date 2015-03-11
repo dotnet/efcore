@@ -14,14 +14,8 @@ namespace Microsoft.Data.Entity.Utilities
 
         public static ReferenceEqualityComparer Instance { get; } = new ReferenceEqualityComparer();
 
-        bool IEqualityComparer<object>.Equals(object x, object y)
-        {
-            return ReferenceEquals(x, y);
-        }
+        bool IEqualityComparer<object>.Equals(object x, object y) => ReferenceEquals(x, y);
 
-        int IEqualityComparer<object>.GetHashCode(object obj)
-        {
-            return RuntimeHelpers.GetHashCode(obj);
-        }
+        int IEqualityComparer<object>.GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
     }
 }

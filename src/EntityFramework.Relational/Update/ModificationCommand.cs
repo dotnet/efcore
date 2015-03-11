@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -15,6 +16,7 @@ namespace Microsoft.Data.Entity.Relational.Update
     public class ModificationCommand
     {
         private readonly Func<IProperty, IRelationalPropertyExtensions> _getPropertyExtensions;
+        private readonly IBoxedValueReaderSource _boxedValueReaderSource;
         private readonly List<InternalEntityEntry> _entries = new List<InternalEntityEntry>();
 
         private readonly LazyRef<IReadOnlyList<ColumnModification>> _columnModifications
@@ -35,16 +37,19 @@ namespace Microsoft.Data.Entity.Relational.Update
             [NotNull] string tableName,
             [CanBeNull] string schemaName,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
-            [NotNull] Func<IProperty, IRelationalPropertyExtensions> getPropertyExtensions)
+            [NotNull] Func<IProperty, IRelationalPropertyExtensions> getPropertyExtensions,
+            [NotNull] IBoxedValueReaderSource boxedValueReaderSource)
         {
             Check.NotEmpty(tableName, nameof(tableName));
             Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
             Check.NotNull(getPropertyExtensions, nameof(getPropertyExtensions));
+            Check.NotNull(boxedValueReaderSource, nameof(boxedValueReaderSource));
 
             TableName = tableName;
             SchemaName = schemaName;
             ParameterNameGenerator = parameterNameGenerator;
             _getPropertyExtensions = getPropertyExtensions;
+            _boxedValueReaderSource = boxedValueReaderSource;
         }
 
         public virtual string TableName { get; }
@@ -126,6 +131,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                             property,
                             _getPropertyExtensions(property),
                             ParameterNameGenerator,
+                            readValue ? _boxedValueReaderSource.GetReader(property) : null,
                             readValue,
                             writeValue,
                             isKey,
@@ -141,14 +147,12 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             Check.NotNull(reader, nameof(reader));
 
-            // TODO: Consider using strongly typed ReadValue instead of just <object>
-            // Issue #771
             // Note that this call sets the value into a sidecar and will only commit to the actual entity
             // if SaveChanges is successful.
-            var columnOperations = ColumnModifications.Where(o => o.IsRead).ToArray();
-            for (var i = 0; i < columnOperations.Length; i++)
+            var index = 0;
+            foreach (var modification in ColumnModifications.Where(o => o.IsRead))
             {
-                columnOperations[i].Value = reader.IsNull(i) ? null : reader.ReadValue<object>(i);
+                modification.Value = modification.BoxedValueReader.ReadValue(reader, index++);
             }
         }
     }

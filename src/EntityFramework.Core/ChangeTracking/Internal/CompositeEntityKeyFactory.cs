@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
@@ -10,10 +11,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     public class CompositeEntityKeyFactory : EntityKeyFactory
     {
         private readonly IReadOnlyList<object> _sentinels;
+        private readonly IReadOnlyList<IBoxedValueReader> _boxedValueReaders;
 
-        public CompositeEntityKeyFactory([NotNull] IReadOnlyList<object> sentinels)
+        public CompositeEntityKeyFactory(
+            [NotNull] IReadOnlyList<object> sentinels,
+            [NotNull] IReadOnlyList<IBoxedValueReader> boxedValueReaders)
         {
             _sentinels = sentinels;
+            _boxedValueReaders = boxedValueReaders;
         }
 
         public override EntityKey Create(
@@ -30,9 +35,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     return EntityKey.InvalidEntityKey;
                 }
 
-                // TODO: Consider using strongly typed ReadValue instead of always object
-                // See issue #736
-                var value = valueReader.ReadValue<object>(index);
+                var value = _boxedValueReaders[i].ReadValue(valueReader, index);
 
                 if (Equals(value, _sentinels[i]))
                 {

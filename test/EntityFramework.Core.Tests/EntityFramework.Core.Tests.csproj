@@ -110,7 +110,7 @@
     <Compile Include="DbSetySourceTest.cs" />
     <Compile Include="DbContextOptionsTest.cs" />
     <Compile Include="EntitySetFinderTest.cs" />
-    <Compile Include="Extensions\EntityServiceCollectionExtensionsTest.cs" />
+    <Compile Include="Extensions\EntityFrameworkServiceCollectionExtensionsTest.cs" />
     <Compile Include="Extensions\ForeignKeyExtensionsTest.cs" />
     <Compile Include="Extensions\ServiceProviderExtensionsTest.cs" />
     <Compile Include="Extensions\TaskExtensionsTest.cs" />
@@ -118,6 +118,7 @@
     <Compile Include="Infrastructure\LoggingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\NonThrowingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\ThrowingModelValidatorTest.cs" />
+    <Compile Include="Internal\BoxedValueReaderSourceTest.cs" />
     <Compile Include="Metadata\BasicModelBuilderTest.cs" />
     <Compile Include="Metadata\CollectionTyoeFactoryTest.cs" />
     <Compile Include="Metadata\EntityTypeExtensionsTest.cs" />

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
 {
-    public class InMemoryEntityServicesBuilderExtensionsTest : EntityServiceCollectionExtensionsTest
+    public class InMemoryEntityFrameworkServicesBuilderExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
     {
         [Fact]
         public override void Services_wire_up_correctly()

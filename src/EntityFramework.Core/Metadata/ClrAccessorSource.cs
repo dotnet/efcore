@@ -22,14 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(property, nameof(property));
 
-            var clrPropertySetter = property as TAccessor;
-
-            if (clrPropertySetter != null)
-            {
-                return clrPropertySetter;
-            }
-
-            return GetAccessor(property.EntityType.Type, property.Name);
+            return property as TAccessor ?? GetAccessor(property.EntityType.Type, property.Name);
         }
 
         public virtual TAccessor GetAccessor([NotNull] Type declaringType, [NotNull] string propertyName)

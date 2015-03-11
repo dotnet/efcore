@@ -18,7 +18,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
 {
-    public class SqlServerEntityServicesBuilderExtensionsTest : EntityServiceCollectionExtensionsTest
+    public class SqlServerEntityFrameworkServicesBuilderExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
     {
         [Fact]
         public override void Services_wire_up_correctly()

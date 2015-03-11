@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
@@ -121,7 +122,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 new LinqOperatorProvider(),
                 new RelationalResultOperatorHandler(),
                 source,
-                new EntityKeyFactorySource(),
+                new EntityKeyFactorySource(new BoxedValueReaderSource()),
                 new AsyncQueryMethodProvider(),
                 new CompositeMethodCallTranslator());
 

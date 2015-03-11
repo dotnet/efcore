@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
@@ -20,6 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 new Mock<IProperty>().Object,
                 new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
+                new GenericBoxedValueReader<int>(),
                 isRead: true,
                 isWrite: true,
                 isKey: true,
@@ -47,6 +50,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 new Mock<IProperty>().Object,
                 new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
+                null,
                 isRead: false,
                 isWrite: false,
                 isKey: false,
@@ -70,6 +74,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 new Mock<IProperty>().Object,
                 new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
+                null,
                 isRead: false,
                 isWrite: false,
                 isKey: false,
@@ -90,6 +95,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 new Mock<IProperty>().Object,
                 new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
+                null,
                 isRead: false,
                 isWrite: false,
                 isKey: false,
@@ -110,6 +116,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 property,
                 property.Relational(),
                 new ParameterNameGenerator(),
+                null,
                 isRead: false,
                 isWrite: false,
                 isKey: false,
