@@ -74,6 +74,27 @@ WHERE Customers.City = 'London'"),
                 entryCount: 6);
         }
 
+        [Fact]
+        public virtual void From_sql_annotations_do_not_modify_successive_calls()
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    NorthwindData.Set<Customer>().Where(c => c.ContactName.Contains("z")).ToArray(),
+                    context.Customers.FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'").ToArray(),
+                    assertOrder: false);
+
+                Assert.Equal(14, context.ChangeTracker.Entries().Count());
+
+                TestHelpers.AssertResults(
+                    NorthwindData.Set<Customer>().ToArray(),
+                    context.Customers.ToArray(),
+                    assertOrder: false);
+
+                Assert.Equal(91, context.ChangeTracker.Entries().Count());
+            }
+        }
+
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Framework.Logging;
@@ -21,10 +22,12 @@ namespace Microsoft.Data.Entity.Storage
         EntityKeyFactorySource EntityKeyFactorySource { get; }
         EntityMaterializerSource EntityMaterializerSource { get; }
 
+        bool IsSupported([NotNull] IAnnotation annotation);
+
         int SaveChanges([NotNull] IReadOnlyList<InternalEntityEntry> entries);
 
         Task<int> SaveChangesAsync(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entries, 
+            [NotNull] IReadOnlyList<InternalEntityEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken));
 
         Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>([NotNull] QueryModel queryModel);

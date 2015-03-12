@@ -6,10 +6,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
@@ -71,54 +69,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return base.VisitMethodCallExpression(methodCallExpression);
         }
 
-        protected override Expression VisitConstantExpression(ConstantExpression constantExpression)
-        {
-            Check.NotNull(constantExpression, nameof(constantExpression));
-
-            if (constantExpression.Type.GetTypeInfo().IsGenericType
-                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>))
-            {
-                var sql = ((IAnnotatable)constantExpression.Value)["Sql"];
-
-                if (sql != null)
-                {
-                    return VisitRawSqlQueryable(((IQueryable)constantExpression.Value).ElementType, sql);
-                }
-            }
-
-            return base.VisitConstantExpression(constantExpression);
-        }
-
-        protected override Expression VisitEntityQueryable(Type elementType)
+        protected override Expression VisitEntityQueryable(Type elementType, IAnnotatable annotatable)
         {
             Check.NotNull(elementType, nameof(elementType));
+            Check.NotNull(annotatable, nameof(annotatable));
 
-            return CreateQuery(elementType,
-                (entityType, tableName, alias) =>
-                    new TableExpression(
-                        tableName,
-                        QueryModelVisitor.QueryCompilationContext.GetSchema(entityType),
-                        alias,
-                        _querySource));
-        }
-
-        protected virtual Expression VisitRawSqlQueryable(Type elementType, string sql)
-        {
-            Check.NotNull(elementType, nameof(elementType));
-            Check.NotNull(sql, nameof(sql));
-
-            return CreateQuery(elementType,
-                (entityType, tableName, alias) =>
-                    new RawSqlDerivedTableExpression(
-                        sql,
-                        alias,
-                        _querySource));
-        }
-
-        private Expression CreateQuery(
-            Type elementType,
-            Func<IEntityType, string, string, TableExpressionBase> createTableExpression)
-        {
             var queryMethodInfo = RelationalQueryModelVisitor.CreateValueReaderMethodInfo;
             var entityType = QueryModelVisitor.QueryCompilationContext.Model.GetEntityType(elementType);
 
@@ -129,7 +84,23 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 ? tableName.First().ToString().ToLower()
                 : _querySource.ItemName;
 
-            selectExpression.AddTable(createTableExpression(entityType, tableName, alias));
+            if (annotatable["Sql"] != null)
+            {
+                selectExpression.AddTable(
+                    new RawSqlDerivedTableExpression(
+                        annotatable["Sql"],
+                        alias,
+                        _querySource));
+            }
+            else
+            {
+                selectExpression.AddTable(
+                    new TableExpression(
+                        tableName,
+                        QueryModelVisitor.QueryCompilationContext.GetSchema(entityType),
+                        alias,
+                        _querySource));
+            }
 
             QueryModelVisitor.AddQuery(_querySource, selectExpression);
 

@@ -81,6 +81,21 @@ FROM (
                 Sql);
         }
 
+        public override void From_sql_annotations_do_not_modify_successive_calls()
+        {
+            base.From_sql_annotations_do_not_modify_successive_calls();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'
+) AS [c]
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture)
             : base(fixture)
         {

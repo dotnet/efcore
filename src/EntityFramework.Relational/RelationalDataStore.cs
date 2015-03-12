@@ -55,6 +55,18 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual IDbContextOptions DbContextOptions => _options;
 
+        public override bool IsSupported([NotNull] IAnnotation annotation)
+        {
+            Check.NotNull(annotation, nameof(annotation));
+
+            if (base.IsSupported(annotation))
+            {
+                return true;
+            }
+
+            return annotation.Name.Equals("Sql");
+        }
+
         public override int SaveChanges(
             IReadOnlyList<InternalEntityEntry> entries)
         {

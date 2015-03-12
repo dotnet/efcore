@@ -468,4 +468,7 @@
   <data name="NonGenericOptions" xml:space="preserve">
     <value>The DbContextOptions object registered in the service provider must be a DbContextOptions&lt;TContext&gt; where TContext is the type of the DbContext being used.</value>
   </data>
+  <data name="AnnotationNotSupported" xml:space="preserve">
+    <value>The annotation '{annotation}' is not supported in this context.</value>
+  </data>
 </root>

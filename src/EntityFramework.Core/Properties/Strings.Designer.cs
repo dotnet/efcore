@@ -645,6 +645,14 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// The annotation '{annotation}' is not supported in this context.
+        /// </summary>
+        public static string AnnotationNotSupported([CanBeNull] object annotation)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("AnnotationNotSupported", "annotation"), annotation);
+        }
+
+        /// <summary>
         /// The Include operator is not implemented by the current data store provider.
         /// </summary>
         public static string IncludeNotImplemented

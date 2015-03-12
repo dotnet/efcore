@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
@@ -22,12 +23,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             if (constantExpression.Type.GetTypeInfo().IsGenericType
                 && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>))
             {
-                return VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType);
+                return VisitEntityQueryable(
+                    ((IQueryable)constantExpression.Value).ElementType,
+                    (IAnnotatable)constantExpression.Value);
             }
 
             return constantExpression;
         }
 
-        protected abstract Expression VisitEntityQueryable([NotNull] Type elementType);
+        protected abstract Expression VisitEntityQueryable([NotNull] Type elementType, IAnnotatable annotatable);
     }
 }
