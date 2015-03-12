@@ -15,7 +15,7 @@ using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.Cache.Memory;
+using Microsoft.Framework.Caching.Memory;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
