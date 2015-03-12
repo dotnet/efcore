@@ -52,7 +52,7 @@
       <TargetFramework>net45</TargetFramework>
       <Assemblies>Microsoft.CodeAnalysis.CSharp;Microsoft.CodeAnalysis.CSharp.Desktop</Assemblies>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Cache.Memory">
+    <PackageReference Include="Microsoft.Framework.Caching.Memory">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
