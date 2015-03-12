@@ -8,6 +8,8 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Tests;
 using Xunit;
 
+using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
+
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
     public abstract class FromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
@@ -92,6 +94,18 @@ WHERE Customers.City = 'London'"),
                     assertOrder: false);
 
                 Assert.Equal(91, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Multiple_calls_to_from_sql_throw()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    CoreStrings.DuplicateAnnotation("Sql"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.Customers.FromSql("X").FromSql("X")).Message);
             }
         }
 

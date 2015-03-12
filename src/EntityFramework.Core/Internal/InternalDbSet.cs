@@ -15,8 +15,7 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Internal
 {
-    public class InternalDbSet<TEntity>
-        : DbSet<TEntity>, IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>, IAccessor<EntityQueryable<TEntity>>
+    public class InternalDbSet<TEntity> : DbSet<TEntity>, IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>
         where TEntity : class
     {
         private readonly DbContext _context;
@@ -34,6 +33,15 @@ namespace Microsoft.Data.Entity.Internal
                 = new LazyRef<EntityQueryable<TEntity>>(
                     () => new EntityQueryable<TEntity>(
                         ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<EntityQueryProvider>()));
+        }
+
+        private InternalDbSet([NotNull] DbContext context, [NotNull] EntityQueryable<TEntity> entityQueryable)
+        {
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(entityQueryable, nameof(entityQueryable));
+
+            _context = context;
+            _entityQueryable = new LazyRef<EntityQueryable<TEntity>>(() => entityQueryable);
         }
 
         public override EntityEntry<TEntity> Add(TEntity entity)
@@ -132,10 +140,19 @@ namespace Microsoft.Data.Entity.Internal
 
         IQueryProvider IQueryable.Provider => _entityQueryable.Value.Provider;
 
+        public override DbSet<TEntity> AddAnnotation([NotNull] string annotationName, [NotNull] string value)
+        {
+            Check.NotEmpty(annotationName, nameof(annotationName));
+            Check.NotEmpty(value, nameof(value));
+
+            var entityQueryable = _entityQueryable.Value.Clone();
+            entityQueryable.AddAnnotation(annotationName, value);
+
+            return new InternalDbSet<TEntity>(_context, entityQueryable);
+        }
+
         public override DbContext Context => _context;
 
         IServiceProvider IAccessor<IServiceProvider>.Service => ((IAccessor<IServiceProvider>)_context).Service;
-
-        EntityQueryable<TEntity> IAccessor<EntityQueryable<TEntity>>.Service => _entityQueryable.Value;
     }
 }
