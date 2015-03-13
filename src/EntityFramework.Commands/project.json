@@ -7,25 +7,14 @@
     "dependencies": {
         "EntityFramework.Relational": "7.0.0-*",
         "EntityFramework.Relational.Design": "7.0.0-*",
+        "EntityFramework.SqlServer.Design": "7.0.0-*",
         "Microsoft.CodeAnalysis.CSharp": "1.0.0-rc2-*",
         "Microsoft.Framework.DependencyInjection": "1.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "exclude": "tools\\Handlers.cs",
     "frameworks": {
-        "net451": { },
-        "dnx451": {
-            "dependencies": {
-                "Microsoft.AspNet.Hosting": "1.0.0-*",
-                "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
-            }
-        },
-        "dnxcore50": {
-            "dependencies": {
-                "Microsoft.AspNet.Hosting": "1.0.0-*",
-                "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
-            }
-        }
+        "net451": { }
     },
     "commands": {
         "ef": "EntityFramework.Commands"
