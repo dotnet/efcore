@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var rawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "MaxBatchSize", "1" } };
             var optionsExtension = new TestRelationalOptionsExtension(
-                new DbContextOptions<DbContext>(rawOptions, new Dictionary<Type, IDbContextOptionsExtension>()));
+                new DbContextOptions<DbContext>(rawOptions, new Dictionary<Type, IDbContextOptionsExtension>(), null));
 
             var optionsBuilder = new DbContextOptionsBuilder();
             ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(optionsExtension);

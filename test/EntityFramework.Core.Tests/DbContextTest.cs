@@ -2030,7 +2030,9 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.NotNull(contextOptions);
                 var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;
                 Assert.Equal(1, rawOptions.Count);
-                Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
+                Assert.Equal("Name=Data:DefaultConnection:ConnectionString", rawOptions["ConnectionString"]);
+
+                Assert.Equal("MyConnectionString", config.ResolveConnectionString(rawOptions["ConnectionString"]));
             }
         }
 

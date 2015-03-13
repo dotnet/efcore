@@ -207,7 +207,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         private static DbContextOptions<DbContext> CreateOptions(IReadOnlyDictionary<string, string> rawOptions)
         {
-            return new DbContextOptions<DbContext>(rawOptions, new Dictionary<Type, IDbContextOptionsExtension>());
+            return new DbContextOptions<DbContext>(rawOptions, new Dictionary<Type, IDbContextOptionsExtension>(), null);
         }
 
         private class TestRelationalOptionsExtension : RelationalOptionsExtension

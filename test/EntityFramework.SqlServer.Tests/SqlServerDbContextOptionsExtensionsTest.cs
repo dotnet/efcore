@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
+using Microsoft.Framework.ConfigurationModel;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -48,6 +50,77 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
+        public void Can_add_extension_with_redirected_connection_string()
+        {
+            var config = new Configuration
+                (
+                new MemoryConfigurationSource
+                    {
+                        { "Foo:Bar:Aero", "Database=Whisper" }
+                    }
+                );
+
+            var optionsBuilder = new DbContextOptionsBuilder(
+                new DbContextOptions<DbContext>(new Dictionary<string, string>(), new Dictionary<Type, IDbContextOptionsExtension>(), config));
+
+            optionsBuilder.UseSqlServer("name=Foo:Bar:Aero");
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+
+            Assert.Equal("Database=Whisper", extension.ConnectionString);
+            Assert.Null(extension.Connection);
+        }
+
+        [Fact]
+        public void Can_add_extension_with_connection_string_read_from_config_by_convention()
+        {
+            var config = new Configuration
+                (
+                new MemoryConfigurationSource
+                    {
+                        { "EntityFramework:" + typeof(MyContext).Name + ":ConnectionString", "Database=Whisper" }
+                    }
+                );
+
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
+
+            var optionsBuilder = new DbContextOptionsBuilder(
+                new DbContextOptions<DbContext>(rawOptions, new Dictionary<Type, IDbContextOptionsExtension>(), config));
+
+            optionsBuilder.UseSqlServer();
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+
+            Assert.Equal("Database=Whisper", extension.ConnectionString);
+            Assert.Null(extension.Connection);
+        }
+
+        [Fact]
+        public void Can_add_extension_with_redirected_connection_string_read_from_config_by_convention()
+        {
+            var config = new Configuration
+                (
+                new MemoryConfigurationSource
+                    {
+                        { "Foo:Bar:Aero", "Database=Whisper" },
+                        { "EntityFramework:" + typeof(MyContext).Name + ":ConnectionString", "name=Foo:Bar:Aero" }
+                    }
+                );
+
+            var rawOptions = new DbContextOptionsParser().ReadRawOptions<MyContext>(config);
+
+            var optionsBuilder = new DbContextOptionsBuilder(
+                new DbContextOptions<DbContext>(rawOptions, new Dictionary<Type, IDbContextOptionsExtension>(), config));
+
+            optionsBuilder.UseSqlServer();
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+
+            Assert.Equal("Database=Whisper", extension.ConnectionString);
+            Assert.Null(extension.Connection);
+        }
+
+        [Fact]
         public void Can_add_extension_with_connection()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -80,8 +153,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var optionsBuilder = new DbContextOptionsBuilder(
                 new DbContextOptions<DbContext>(
-                    new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } }, 
-                    new Dictionary<Type, IDbContextOptionsExtension>()));
+                    new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } },
+                    new Dictionary<Type, IDbContextOptionsExtension>(),
+                    null));
 
             optionsBuilder.UseSqlServer();
 
@@ -89,6 +163,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Equal("Database=Crunchie", extension.ConnectionString);
             Assert.Null(extension.Connection);
+        }
+
+        private class MyContext : DbContext
+        {
         }
     }
 }

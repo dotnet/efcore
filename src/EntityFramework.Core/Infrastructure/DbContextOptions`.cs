@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.ConfigurationModel;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
@@ -13,14 +14,15 @@ namespace Microsoft.Data.Entity.Infrastructure
         where TContext : DbContext
     {
         public DbContextOptions()
-            : base(new Dictionary<string, string>(), new Dictionary<Type, IDbContextOptionsExtension>())
+            : base(new Dictionary<string, string>(), new Dictionary<Type, IDbContextOptionsExtension>(), null)
         {
         }
 
         public DbContextOptions(
             [NotNull] IReadOnlyDictionary<string, string> rawOptions,
-            [NotNull] IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
-            : base(rawOptions, extensions)
+            [NotNull] IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions,
+            [CanBeNull] IConfiguration configuration)
+            : base(rawOptions, extensions, configuration)
         {
         }
 
@@ -31,7 +33,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             var extensions = Extensions.ToDictionary(p => p.GetType(), p => p);
             extensions[typeof(TExtension)] = extension;
 
-            return new DbContextOptions<TContext>(RawOptions, extensions);
+            return new DbContextOptions<TContext>(RawOptions, extensions, Configuration);
         }
     }
 }

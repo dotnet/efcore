@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Extensions;
 using Microsoft.Data.Entity.Utilities;
@@ -18,9 +20,10 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 
-            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(GetOrCreateExtension(optionsBuilder));
+            string connectionString;
+            optionsBuilder.Options.RawOptions.TryGetValue("ConnectionString", out connectionString);
 
-            return new SqlServerDbContextOptionsBuilder(optionsBuilder);
+            return optionsBuilder.UseConnectionString(connectionString);
         }
 
         public static SqlServerDbContextOptionsBuilder UseSqlServer([NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] string connectionString)
@@ -28,10 +31,17 @@ namespace Microsoft.Data.Entity
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
+            return optionsBuilder.UseConnectionString(connectionString);
+        }
+
+        private static SqlServerDbContextOptionsBuilder UseConnectionString(this DbContextOptionsBuilder optionsBuilder, string connectionString)
+        {
             var extension = GetOrCreateExtension(optionsBuilder);
 
-            // TODO: Don't mutate
-            extension.ConnectionString = connectionString;
+            if (connectionString != null)
+            {
+                extension.ConnectionString = optionsBuilder.Options.Configuration.ResolveConnectionString(connectionString);
+            }
 
             ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension);
 
@@ -46,7 +56,6 @@ namespace Microsoft.Data.Entity
 
             var extension = GetOrCreateExtension(optionsBuilder);
 
-            // TODO: Don't mutate
             extension.Connection = connection;
 
             ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension);
@@ -55,7 +64,11 @@ namespace Microsoft.Data.Entity
         }
 
         private static SqlServerOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.Options.FindExtension<SqlServerOptionsExtension>()
-               ?? new SqlServerOptionsExtension(optionsBuilder.Options);
+        {
+            var existing = optionsBuilder.Options.FindExtension<SqlServerOptionsExtension>();
+            return existing != null
+                ? new SqlServerOptionsExtension(existing)
+                : new SqlServerOptionsExtension(optionsBuilder.Options);
+        }
     }
 }
