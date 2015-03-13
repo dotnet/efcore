@@ -6,23 +6,48 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.ConfigurationModel;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
     public abstract class DbContextOptions : IDbContextOptions
     {
+        private static readonly Dictionary<Type, Func<string, string, object>> _conversionFuncs = new Dictionary<Type, Func<string, string, object>>
+            {
+                {
+                    typeof(int), (valueKey, valueString) =>
+                        {
+                            int valueInt;
+                            if (!Int32.TryParse(valueString, out valueInt))
+                            {
+                                throw new InvalidOperationException(Strings.IntegerConfigurationValueFormatError(valueKey, valueString));
+                            }
+                            return valueInt;
+                        }
+                },
+                {
+                    typeof(string), (valueKey, valueString) => valueString
+                }
+            };
+
+        private readonly IReadOnlyDictionary<Type, IDbContextOptionsExtension> _extensions;
+
         protected DbContextOptions(
             [NotNull] IReadOnlyDictionary<string, string> rawOptions,
-            [NotNull] IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
+            [NotNull] IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions,
+            [CanBeNull] IConfiguration configuration)
         {
             Check.NotNull(rawOptions, nameof(rawOptions));
             Check.NotNull(extensions, nameof(extensions));
 
             RawOptions = rawOptions;
             _extensions = extensions;
+            Configuration = configuration;
         }
 
         public virtual IReadOnlyDictionary<string, string> RawOptions { get; }
+
+        public virtual IConfiguration Configuration { get; }
 
         public virtual IEnumerable<IDbContextOptionsExtension> Extensions => _extensions.Values;
 
@@ -47,25 +72,5 @@ namespace Microsoft.Data.Entity.Infrastructure
             }
             return default(TValue);
         }
-
-        private static readonly Dictionary<Type, Func<string, string, object>> _conversionFuncs = new Dictionary<Type, Func<string, string, object>>
-            {
-                {
-                    typeof(int), (valueKey, valueString) =>
-                        {
-                            int valueInt;
-                            if (!Int32.TryParse(valueString, out valueInt))
-                            {
-                                throw new InvalidOperationException(Strings.IntegerConfigurationValueFormatError(valueKey, valueString));
-                            }
-                            return valueInt;
-                        }
-                },
-                {
-                    typeof(string), (valueKey, valueString) => valueString
-                }
-            };
-
-        private readonly IReadOnlyDictionary<Type, IDbContextOptionsExtension> _extensions;
     }
 }

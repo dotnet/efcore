@@ -138,6 +138,7 @@
     <Compile Include="Internal\DbSetFinder.cs" />
     <Compile Include="Internal\DbSetInitializer.cs" />
     <Compile Include="Internal\DbSetSource.cs" />
+    <Compile Include="Internal\EntityFrameworkConfigurationExtensions.cs" />
     <Compile Include="Internal\IModelValidator.cs" />
     <Compile Include="Internal\LoggingModelValidator.cs" />
     <Compile Include="Internal\ModelSource.cs" />
