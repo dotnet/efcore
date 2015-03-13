@@ -34,6 +34,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
         {
             Check.NotEmpty(sqlServerStringLiteral, nameof(sqlServerStringLiteral));
 
+            if (sqlServerStringLiteral[0] == 'N')
+                sqlServerStringLiteral = sqlServerStringLiteral.Substring(1);
+
             var sqlServerStringLiteralLength = sqlServerStringLiteral.Length;
             if (sqlServerStringLiteralLength < 2)
             {
@@ -42,7 +45,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
             }
 
             if (sqlServerStringLiteral[0] != '\'' ||
-                sqlServerStringLiteral[sqlServerStringLiteralLength-1] != '\'')
+                sqlServerStringLiteral[sqlServerStringLiteralLength - 1] != '\'')
             {
                 Logger.LogWarning(Strings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
                 return null;
@@ -83,7 +86,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
         }
 
         public virtual DefaultExpressionOrValue ConvertSqlServerDefaultValue(
-            [NotNull] Type propertyType , [NotNull] string sqlServerDefaultValue)
+            [NotNull] Type propertyType, [NotNull] string sqlServerDefaultValue)
         {
             Check.NotNull(propertyType, nameof(propertyType));
             Check.NotEmpty(sqlServerDefaultValue, nameof(sqlServerDefaultValue));
@@ -113,7 +116,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
             }
 
             propertyType = propertyType.IsNullableType()
-                ? Nullable.GetUnderlyingType(propertyType)
+                ? propertyType.UnwrapNullableType()
                 : propertyType;
 
             if (typeof(string) == propertyType)
@@ -129,6 +132,14 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
                 return new DefaultExpressionOrValue()
                 {
                     DefaultValue = ConvertSqlServerBitLiteral(sqlServerDefaultValue)
+                };
+            }
+
+            if (typeof(Guid) == propertyType)
+            {
+                return new DefaultExpressionOrValue()
+                {
+                    DefaultValue = new Guid(ConvertSqlServerStringLiteral(sqlServerDefaultValue))
                 };
             }
 
@@ -150,7 +161,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
 
     public class DefaultExpressionOrValue
     {
-        public virtual string DefaultExpression { get; [param: NotNull] set; }
+        public virtual string DefaultExpression { get;[param: NotNull] set; }
         public virtual object DefaultValue { get;[param: NotNull] set; }
     }
 }
