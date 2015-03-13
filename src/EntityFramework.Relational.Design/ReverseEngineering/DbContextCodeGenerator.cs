@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 {
                     new Tuple<string, string>("ModelBuilder", "modelBuilder")
                 };
-        private static readonly KeyConvention _keyConvention = new KeyConvention();
+        private static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
 
         private List<string> _usedNamespaces = new List<string>()
                 {
@@ -229,7 +229,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Check.NotNull(sb, nameof(sb));
 
             var conventionKeyProperties =
-                _keyConvention.DiscoverKeyProperties((EntityType)key.EntityType);
+                _keyDiscoveryConvention.DiscoverKeyProperties((EntityType)key.EntityType);
             if (conventionKeyProperties == null
                 || !Enumerable.SequenceEqual(
                         key.Properties.OrderBy(p => p.Name),

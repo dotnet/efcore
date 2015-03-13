@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 () => existingKey,
                 () => Metadata.SetPrimaryKey(properties),
                 key => new InternalKeyBuilder(key, ModelBuilder),
-                onNewKeyAdded: null,
+                onNewKeyAdded: ModelBuilder.ConventionDispatcher.OnKeyAdded,
                 configurationSource: configurationSource);
         }
 
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 () => Metadata.TryGetKey(properties),
                 () => Metadata.AddKey(properties),
                 key => new InternalKeyBuilder(key, ModelBuilder),
-                onNewKeyAdded: null,
+                onNewKeyAdded: ModelBuilder.ConventionDispatcher.OnKeyAdded,
                 configurationSource: configurationSource);
         }
 
@@ -486,6 +486,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             navigationToPrincipal?.EntityType.RemoveNavigation(navigationToPrincipal);
 
             Metadata.RemoveForeignKey(foreignKey);
+            ModelBuilder.ConventionDispatcher.OnForeignKeyRemoved(this, foreignKey);
             RemoveShadowPropertiesIfUnused(foreignKey.Properties);
             principalEntityBuilder.RemoveKeyIfUnused(foreignKey.ReferencedKey);
 
@@ -1013,6 +1014,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var newForeignKey = dependentType.AddForeignKey(foreignKeyProperties, principalKey);
             newForeignKey.IsUnique = isUnique;
+
+            foreach (var foreignKeyProperty in foreignKeyProperties)
+            {
+                dependentEntityTypeBuilder.Property(foreignKeyProperty.PropertyType, foreignKeyProperty.Name, ConfigurationSource.Convention)
+                    .GenerateValueOnAdd(false, ConfigurationSource.Convention);
+            }
 
             return newForeignKey;
         }

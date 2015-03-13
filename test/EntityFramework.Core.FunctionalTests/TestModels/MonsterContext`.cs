@@ -218,42 +218,17 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             modelBuilder.Entity<TBarcodeDetail>().Key(e => e.Code);
 
-            // TODO: Key should not get by-convention value generation if it is dependent of identifying relationship
-            modelBuilder.Entity<TResolution>()
-                .Property(e => e.ResolutionId)
-                .GenerateValueOnAdd(false);
-
             modelBuilder.Entity<TSuspiciousActivity>();
             modelBuilder.Entity<TLastLogin>().Key(e => e.Username);
             modelBuilder.Entity<TMessage>().Key(e => new { e.MessageId, e.FromUsername });
 
-            modelBuilder.Entity<TOrderNote>(b =>
-                {
-                    b.Key(e => e.NoteId);
-                    // TODO: Key should get by-convention value generation even if key is not discovered by convention
-                    b.Property(e => e.NoteId).GenerateValueOnAdd();
-                });
+            modelBuilder.Entity<TOrderNote>().Key(e => e.NoteId);
 
             modelBuilder.Entity<TProductDetail>().Key(e => e.ProductId);
 
-            modelBuilder.Entity<TProductWebFeature>(b =>
-                {
-                    b.Key(e => e.FeatureId);
-                    // TODO: Key should get by-convention value generation even if key is not discovered by convention
-                    b.Property(e => e.FeatureId).GenerateValueOnAdd();
-                });
+            modelBuilder.Entity<TProductWebFeature>().Key(e => e.FeatureId);
 
             modelBuilder.Entity<TSupplierLogo>().Key(e => e.SupplierId);
-
-            // TODO: Key should not get by-convention value generation if it is dependent of identifying relationship
-            modelBuilder.Entity<TCustomerInfo>()
-                .Property(e => e.CustomerInfoId)
-                .GenerateValueOnAdd(false);
-
-            // TODO: Key should not get by-convention value generation if it is dependent of identifying relationship
-            modelBuilder.Entity<TComputerDetail>()
-                .Property(e => e.ComputerDetailId)
-                .GenerateValueOnAdd(false);
 
             modelBuilder.Entity<TLicense>().Key(e => e.Name);
 
@@ -287,6 +262,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             modelBuilder.Entity<TOrderLine>(b =>
                 {
                     b.Key(e => new { e.OrderId, e.ProductId });
+
                     b.HasOne(e => (TProduct)e.Product).WithMany().ForeignKey(e => e.ProductId);
                 });
 
@@ -310,30 +286,23 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
                     b.HasOne(e => (TResolution)e.Resolution).WithOne(e => (TComplaint)e.Complaint)
                         .ReferencedKey<TComplaint>(e => e.AlternateId);
-
-                    // Should not be needed: see Issue #1271
-                    b.Property(e => e.AlternateId).GenerateValueOnAdd();
                 });
 
             modelBuilder.Entity<TProductPhoto>(b =>
                 {
-                    b.Key(e => new { e.ProductId, e.PhotoId });
-                    // TODO: Key should get by-convention value generation even if key is not discovered by convention
-                    b.Property(e => e.PhotoId).GenerateValueOnAdd();
+                    b.Key(e => new { e.PhotoId, e.ProductId });
 
                     b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductPhoto)e.Photo)
-                        .ForeignKey(e => new { e.ProductId, e.PhotoId })
-                        .ReferencedKey(e => new { e.ProductId, e.PhotoId });
+                        .ForeignKey(e => new { e.PhotoId, e.ProductId })
+                        .ReferencedKey(e => new { e.PhotoId, e.ProductId });
                 });
 
             modelBuilder.Entity<TProductReview>(b =>
                 {
-                    b.Key(e => new { e.ProductId, e.ReviewId });
-                    // TODO: Key should get by-convention value generation even if key is not discovered by convention
-                    b.Property(e => e.ReviewId).GenerateValueOnAdd();
+                    b.Key(e => new { e.ReviewId, e.ProductId });
 
                     b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductReview)e.Review)
-                        .ForeignKey(e => new { e.ProductId, e.ReviewId });
+                        .ForeignKey(e => new { e.ReviewId, e.ProductId });
                 });
 
             modelBuilder.Entity<TLogin>(b =>

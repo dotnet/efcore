@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -46,7 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Blog>().Property(b => b.Id).GenerateValueOnAdd(generateValue: false);
+                modelBuilder.Entity<Blog>().Property(b => b.Id).GenerateValueOnAdd(generateValue: false).ForSqlServer(b => b.UseNoValueGeneration());
             }
         }
 

@@ -1689,20 +1689,25 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider, string databaseName = SnapshotDatabaseName)
         {
-            return new SnapshotMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating);
+            return new SnapshotMonsterContext(serviceProvider, CreateOptions(databaseName),
+                OnModelCreating<SnapshotMonsterContext.ProductPhoto, SnapshotMonsterContext.ProductReview>);
         }
 
         private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider, string databaseName = FullNotifyDatabaseName)
         {
-            return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating);
+            return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName),
+                OnModelCreating<ChangedChangingMonsterContext.ProductPhoto, ChangedChangingMonsterContext.ProductReview>);
         }
 
         private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider, string databaseName = ChangedOnlyDatabaseName)
         {
-            return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating);
+            return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName),
+                OnModelCreating<ChangedOnlyMonsterContext.ProductPhoto, ChangedOnlyMonsterContext.ProductReview>);
         }
 
-        protected virtual void OnModelCreating(ModelBuilder builder)
+        public virtual void OnModelCreating<TProductPhoto, TProductReview>(ModelBuilder builder)
+            where TProductPhoto : class
+            where TProductReview : class
         {
         }
 

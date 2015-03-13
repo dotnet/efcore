@@ -23,10 +23,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _metadata = metadata;
         }
 
-        public virtual bool Annotation([NotNull] string annotation, [NotNull] string value, ConfigurationSource configurationSource)
+        public virtual bool Annotation([NotNull] string annotation, [CanBeNull] string value, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotEmpty(value, nameof(value));
 
             var existingValue = Metadata[annotation];
             if (existingValue != null)
@@ -37,7 +36,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     existingConfigurationSource = ConfigurationSource.Explicit;
                 }
 
-                if (existingValue != value
+                if ((value == null || existingValue != value)
                     && !configurationSource.Overrides(existingConfigurationSource))
                 {
                     return false;
@@ -46,8 +45,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 configurationSource = configurationSource.Max(existingConfigurationSource);
             }
 
-            _annotationSources.Value[annotation] = configurationSource;
-            _metadata[annotation] = value;
+            if (value != null)
+            {
+                _annotationSources.Value[annotation] = configurationSource;
+                _metadata[annotation] = value;
+            }
+            else
+            {
+                _annotationSources.Value.Remove(annotation);
+                _metadata.RemoveAnnotation(new Annotation(annotation, "_"));
+            }
 
             return true;
         }

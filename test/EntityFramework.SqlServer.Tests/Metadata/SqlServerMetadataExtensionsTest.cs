@@ -876,7 +876,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void TryGetSequence_returns_sequence_model_is_marked_for_sequence_generation()
+        public void TryGetSequence_returns_sequence_property_is_marked_for_default_generation_and_model_is_marked_for_sequence_generation()
         {
             var modelBuilder = new BasicModelBuilder();
 
@@ -888,6 +888,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
             modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
             property.SqlServer().SequenceName = "DaneelOlivaw";
+            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Default;
 
             Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
             Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
@@ -912,7 +913,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void TryGetSequence_returns_sequence_model_is_marked_for_sequence_generation_and_model_has_name()
+        public void TryGetSequence_returns_sequence_property_is_marked_for_default_generation_and_model_is_marked_for_sequence_generation_and_model_has_name()
         {
             var modelBuilder = new BasicModelBuilder();
 
@@ -924,6 +925,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
             modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
             modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
+            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Default;
 
             Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
             Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
@@ -964,6 +966,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
             property.SqlServer().SequenceName = "DaneelOlivaw";
             property.SqlServer().SequenceSchema = "R";
+            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Default;
 
             Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
             Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
@@ -1006,6 +1009,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
             modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
             modelBuilder.Model.SqlServer().DefaultSequenceSchema = "R";
+            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Default;
 
             Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
             Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);

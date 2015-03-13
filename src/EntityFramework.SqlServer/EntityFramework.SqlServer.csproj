@@ -81,6 +81,7 @@
     <Compile Include="Metadata\ISqlServerKeyExtensions.cs" />
     <Compile Include="Metadata\ISqlServerModelExtensions.cs" />
     <Compile Include="Metadata\ISqlServerPropertyExtensions.cs" />
+    <Compile Include="Metadata\ModelConventions\SqlServerValueGenerationStrategyConvention.cs" />
     <Compile Include="Metadata\ReadOnlySqlServerEntityTypeExtensions.cs" />
     <Compile Include="Metadata\ReadOnlySqlServerForeignKeyExtensions.cs" />
     <Compile Include="Metadata\ReadOnlySqlServerIndexExtensions.cs" />

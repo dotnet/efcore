@@ -90,18 +90,31 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 Assert.Throws<NotSupportedException>(() => selector.Select(entityType.GetProperty("Float"))).Message);
         }
 
+        [Fact]
+        public void Does_not_return_generator_configured_on_model_when_default_is_not_set_on_property()
+        {
+            var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
+            model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            var entityType = model.GetEntityType(typeof(AnEntity));
+
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorSelector>();
+
+            Assert.IsType<TemporaryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("Id")));
+        }
+
         private static Model BuildModel(bool generateValues = true)
         {
             var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            entityType.GetProperty("AlwaysIdentity").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
-            entityType.GetProperty("AlwaysSequence").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
-
             foreach (var property in entityType.Properties)
             {
                 property.GenerateValueOnAdd = generateValues;
+                property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Default;
             }
+
+            entityType.GetProperty("AlwaysIdentity").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
+            entityType.GetProperty("AlwaysSequence").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
 
             return model;
         }

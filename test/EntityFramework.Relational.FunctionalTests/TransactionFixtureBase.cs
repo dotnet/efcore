@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
         public abstract DbContext CreateContext(DbConnection connection);
 
-        protected void OnModelCreating(ModelBuilder modelBuilder)
+        public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TransactionCustomer>(ps =>
                 {

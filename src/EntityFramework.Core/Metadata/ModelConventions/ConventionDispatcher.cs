@@ -34,6 +34,33 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             return entityBuilder;
         }
 
+        public virtual InternalKeyBuilder OnKeyAdded([NotNull] InternalKeyBuilder keyBuilder)
+        {
+            Check.NotNull(keyBuilder, nameof(keyBuilder));
+
+            foreach (var keyConvention in _conventionSet.KeyAddedConventions)
+            {
+                keyBuilder = keyConvention.Apply(keyBuilder);
+                if (keyBuilder == null)
+                {
+                    break;
+                }
+            }
+
+            return keyBuilder;
+        }
+
+        public virtual void OnForeignKeyRemoved([NotNull] InternalEntityBuilder entityBuilder, [NotNull] ForeignKey foreignKey)
+        {
+            Check.NotNull(entityBuilder, nameof(entityBuilder));
+            Check.NotNull(foreignKey, nameof(foreignKey));
+
+            foreach (var foreignKeyConvention in _conventionSet.ForeignKeyRemovedConventions)
+            {
+                foreignKeyConvention.Apply(entityBuilder, foreignKey);
+            }
+        }
+
         public virtual InternalRelationshipBuilder OnRelationshipAdded([NotNull] InternalRelationshipBuilder relationshipBuilder)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));

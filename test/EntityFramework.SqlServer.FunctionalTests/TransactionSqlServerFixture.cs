@@ -4,7 +4,9 @@
 using System;
 using System.Data.Common;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -61,6 +63,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             optionsBuilder.UseSqlServer(connection);
 
             return new DbContext(_serviceProvider, optionsBuilder.Options);
+        }
+
+        public override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<TransactionCustomer>().Property(c => c.Id).ForSqlServer(b => b.UseNoValueGeneration());
         }
     }
 }

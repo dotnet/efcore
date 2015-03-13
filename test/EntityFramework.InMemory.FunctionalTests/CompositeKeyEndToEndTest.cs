@@ -186,18 +186,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 modelBuilder.Entity<Pegasus>().Key(e => new { e.Id1, e.Id2 });
 
-                modelBuilder.Entity<Unicorn>(b =>
-                    {
-                        b.Key(e => new { e.Id1, e.Id2, e.Id3 });
-                        b.Property(e => e.Id1).GenerateValueOnAdd();
-                        b.Property(e => e.Id3).GenerateValueOnAdd();
-                    });
+                modelBuilder.Entity<Unicorn>().Key(e => new { e.Id1, e.Id2, e.Id3 });
 
-                modelBuilder.Entity<EarthPony>(b =>
-                    {
-                        b.Key(e => new { e.Id1, e.Id2 });
-                        b.Property(e => e.Id1).GenerateValueOnAdd();
-                    });
+                modelBuilder.Entity<EarthPony>().Key(e => new { e.Id1, e.Id2 });
             }
         }
 

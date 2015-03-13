@@ -1373,10 +1373,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 .WithOne(e => e.Root)
                 .ForeignKey<FirstDependent>(e => e.Id);
 
-            modelBuilder.Entity<Root>().Property(e => e.Id).GenerateValueOnAdd();
-            modelBuilder.Entity<FirstDependent>().Property(e => e.Id).GenerateValueOnAdd(false);
-            modelBuilder.Entity<SecondDependent>().Property(e => e.Id).GenerateValueOnAdd(false);
-
             return modelBuilder.Model;
         }
 

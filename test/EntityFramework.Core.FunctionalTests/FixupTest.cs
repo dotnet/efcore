@@ -245,19 +245,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 modelBuilder.Entity<Product>(b =>
                     {
-                        b.Property(e => e.Id).GenerateValueOnAdd(false);
                         b.HasMany(e => e.SpecialOffers).WithOne(e => e.Product);
                     });
 
                 modelBuilder.Entity<Category>(b =>
                     {
-                        b.Property(e => e.Id).GenerateValueOnAdd(false);
                         b.HasMany(e => e.Products).WithOne(e => e.Category);
                     });
-
-                modelBuilder.Entity<SpecialOffer>()
-                    .Property(e => e.Id)
-                    .GenerateValueOnAdd(false);
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

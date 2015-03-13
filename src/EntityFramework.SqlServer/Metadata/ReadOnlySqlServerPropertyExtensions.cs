@@ -57,7 +57,10 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             {
                 // TODO: Issue #777: Non-string annotations
                 var value = Property[SqlServerValueGenerationAnnotation];
-                return value == null ? null : (SqlServerValueGenerationStrategy?)Enum.Parse(typeof(SqlServerValueGenerationStrategy), value);
+                var strategy = value == null ? null : (SqlServerValueGenerationStrategy?)Enum.Parse(typeof(SqlServerValueGenerationStrategy), value);
+                return strategy == SqlServerValueGenerationStrategy.Default
+                    ? (Property.EntityType.Model.SqlServer().ValueGenerationStrategy ?? SqlServerValueGenerationStrategy.Identity)
+                    : strategy;
             }
         }
 
@@ -75,9 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
             var modelExtensions = Property.EntityType.Model.SqlServer();
 
-            if (ValueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence
-                && (ValueGenerationStrategy != null
-                    || modelExtensions.ValueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence))
+            if (ValueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence)
             {
                 return null;
             }

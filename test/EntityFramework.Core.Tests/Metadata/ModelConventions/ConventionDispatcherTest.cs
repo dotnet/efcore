@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Metadata.ModelConventions;
@@ -9,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 {
-    public class ConventionsDispatcherTest
+    public class ConventionDispatcherTest
     {
         [Fact]
         public void OnEntityTypeAdded_calls_apply_on_conventions_in_order()
@@ -50,7 +51,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         }
 
         [Fact]
-        public void OnForeignKeyAdded_calls_apply_on_conventions_in_order()
+        public void OnRelationshipAdded_calls_apply_on_conventions_in_order()
         {
             var conventions = new ConventionSet();
 
@@ -87,6 +88,67 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.Null(entityBuilder.Relationship(typeof(Order), typeof(Order), null, null, ConfigurationSource.Convention));
 
             Assert.NotNull(relationsipBuilder);
+        }
+
+        [Fact]
+        public void OnKeyAdded_calls_apply_on_conventions_in_order()
+        {
+            var conventions = new ConventionSet();
+
+            InternalKeyBuilder keyBuilder = null;
+            var convention = new Mock<IKeyConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalKeyBuilder>())).Returns<InternalKeyBuilder>(b =>
+            {
+                Assert.NotNull(b);
+                keyBuilder = new InternalKeyBuilder(b.Metadata, b.ModelBuilder);
+                return keyBuilder;
+            });
+            conventions.KeyAddedConventions.Add(convention.Object);
+
+            var nullConvention = new Mock<IKeyConvention>();
+            nullConvention.Setup(c => c.Apply(It.IsAny<InternalKeyBuilder>())).Returns<InternalKeyBuilder>(b =>
+            {
+                Assert.Same(keyBuilder, b);
+                return null;
+            });
+            conventions.KeyAddedConventions.Add(nullConvention.Object);
+
+            var extraConvention = new Mock<IKeyConvention>();
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalKeyBuilder>())).Returns<InternalKeyBuilder>(b =>
+            {
+                Assert.False(true);
+                return null;
+            });
+            conventions.KeyAddedConventions.Add(extraConvention.Object);
+
+            var builder = new InternalModelBuilder(new Model(), conventions);
+
+            var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var explicitKeyBuilder = entityBuilder.Key(new List<string> { "OrderId" }, ConfigurationSource.Convention);
+
+            Assert.Null(explicitKeyBuilder);
+            Assert.NotNull(keyBuilder);
+        }
+
+        [Fact]
+        public void OnForeignKeyRemoved_calls_apply_on_conventions_in_order()
+        {
+            var conventions = new ConventionSet();
+
+            var foreignKeyRemoved = false;
+
+            var convention = new Mock<IForeignKeyRemovedConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalEntityBuilder>(), It.IsAny<ForeignKey>())).Callback(() => foreignKeyRemoved = true);
+            conventions.ForeignKeyRemovedConventions.Add(convention.Object);
+
+            var builder = new InternalModelBuilder(new Model(), conventions);
+
+            var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var foreignKeyMock = new Mock<ForeignKey>();
+            var conventionDispatcher = new ConventionDispatcher(conventions);
+            conventionDispatcher.OnForeignKeyRemoved(entityBuilder, foreignKeyMock.Object);
+
+            Assert.True(foreignKeyRemoved);
         }
 
         private class Order

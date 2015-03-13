@@ -75,5 +75,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 }
             }
         }
+
+        public override void OnModelCreating<TProductPhoto, TProductReview>(ModelBuilder builder)
+        {
+            base.OnModelCreating<TProductPhoto, TProductReview>(builder);
+
+            builder.Entity<TProductPhoto>().Property(typeof(int), "PhotoId").ForSqlServer().UseIdentity();
+            builder.Entity<TProductReview>().Property(typeof(int), "ReviewId").ForSqlServer().UseIdentity();
+        }
     }
+
 }

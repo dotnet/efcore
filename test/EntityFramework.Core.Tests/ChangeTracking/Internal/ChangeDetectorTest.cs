@@ -1801,20 +1801,25 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var builder = TestHelpers.Instance.CreateConventionBuilder();
 
-            builder.Entity<Product>()
-                .HasOne(e => e.Tag).WithOne(e => e.Product)
-                .ReferencedKey<Product>(e => e.TagId)
-                .ForeignKey<ProductTag>(e => e.ProductId);
+            builder.Entity<Product>(b =>
+                {
+                    b.HasOne(e => e.Tag).WithOne(e => e.Product)
+                        .ReferencedKey<Product>(e => e.TagId)
+                        .ForeignKey<ProductTag>(e => e.ProductId);
+                    b.Property(e => e.TagId).GenerateValueOnAdd(false);
+                });
 
             builder.Entity<Category>(b =>
                 {
                     b.HasMany(e => e.Products).WithOne(e => e.Category)
                         .ForeignKey(e => e.DependentId)
                         .ReferencedKey(e => e.PrincipalId);
+                    b.Property(e => e.PrincipalId).GenerateValueOnAdd(false);
 
                     b.HasOne(e => e.Tag).WithOne(e => e.Category)
                         .ForeignKey<CategoryTag>(e => e.CategoryId)
                         .ReferencedKey<Category>(e => e.TagId);
+                    b.Property(e => e.TagId).GenerateValueOnAdd(false);
                 });
 
             builder.Entity<Person>()
@@ -2021,20 +2026,26 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var builder = TestHelpers.Instance.CreateConventionBuilder();
 
-            builder.Entity<NotifyingProduct>()
-                .HasOne(e => e.Tag).WithOne(e => e.Product)
-                .ReferencedKey<NotifyingProduct>(e => e.TagId)
-                .ForeignKey<NotifyingProductTag>(e => e.ProductId);
+            builder.Entity<NotifyingProduct>(b =>
+                {
+                    b.HasOne(e => e.Tag).WithOne(e => e.Product)
+                        .ReferencedKey<NotifyingProduct>(e => e.TagId)
+                        .ForeignKey<NotifyingProductTag>(e => e.ProductId);
+                    b.Property(e => e.TagId).GenerateValueOnAdd(false);
+                });
+
 
             builder.Entity<NotifyingCategory>(b =>
                 {
                     b.HasMany(e => e.Products).WithOne(e => e.Category)
                         .ForeignKey(e => e.DependentId)
                         .ReferencedKey(e => e.PrincipalId);
+                    b.Property(e => e.PrincipalId).GenerateValueOnAdd(false);
 
                     b.HasOne(e => e.Tag).WithOne(e => e.Category)
                         .ForeignKey<NotifyingCategoryTag>(e => e.CategoryId)
                         .ReferencedKey<NotifyingCategory>(e => e.TagId);
+                    b.Property(e => e.TagId).GenerateValueOnAdd(false);
                 });
 
             builder.Entity<NotifyingPerson>()

@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<Gear>(b =>
                 {
                     b.Key(g => new { g.Nickname, g.SquadId });
+
                     b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).ForeignKey(g => g.CityOrBirthName).Required();
                     b.HasMany(g => g.Reports).WithOne().ForeignKey(g => new { g.LeaderNickname, g.LeaderSquadId });
                     b.HasOne(g => g.Tag).WithOne(t => t.Gear).ForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
@@ -28,14 +29,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<CogTag>(b =>
                 {
                     b.Key(t => t.Id);
-                    b.Property(t => t.Id).GenerateValueOnAdd();
                 });
 
             modelBuilder.Entity<Squad>(b =>
                 {
                     b.Key(s => s.Id);
                     b.HasMany(s => s.Members).WithOne(g => g.Squad).ForeignKey(g => g.SquadId);
-                    b.Property(t => t.Id).GenerateValueOnAdd();
                 });
 
             modelBuilder.Entity<Weapon>(b =>

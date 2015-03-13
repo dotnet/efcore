@@ -38,8 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(property, nameof(property));
 
-            var strategy = property.SqlServer().ValueGenerationStrategy
-                           ?? property.EntityType.Model.SqlServer().ValueGenerationStrategy;
+            var strategy = property.SqlServer().ValueGenerationStrategy;
 
             if (property.PropertyType.IsInteger()
                 && strategy == SqlServerValueGenerationStrategy.Sequence)

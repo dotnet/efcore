@@ -135,12 +135,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                 modelBuilder.Entity<Stoat>();
                 modelBuilder.Entity<StoatInACoat>();
 
-                modelBuilder.Entity<CompositeStoat>(b =>
-                    {
-                        b.Key(e => new { e.Id1, e.Id2 });
-                        b.Property(e => e.Id1).GenerateValueOnAdd();
-                        b.Property(e => e.Id2).GenerateValueOnAdd();
-                    });
+                modelBuilder.Entity<CompositeStoat>().Key(e => new { e.Id1, e.Id2 });
             }
         }
     }

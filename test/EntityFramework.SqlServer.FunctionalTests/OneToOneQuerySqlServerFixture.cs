@@ -22,13 +22,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddEntityFramework()
                     .AddSqlServer()
                     .ServiceCollection()
+                    .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                     .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                     .BuildServiceProvider();
 
-            var model = CreateModel();
             var database = SqlServerTestStore.CreateScratch();
 
-            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model);
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(database.Connection.ConnectionString);
             _options = optionsBuilder.Options;
 
@@ -44,5 +44,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             return new DbContext(_serviceProvider, _options);
         }
+
     }
 }

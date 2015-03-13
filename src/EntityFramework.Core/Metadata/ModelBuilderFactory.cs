@@ -20,10 +20,15 @@ namespace Microsoft.Data.Entity.Metadata
             var conventions = new ConventionSet();
 
             conventions.EntityTypeAddedConventions.Add(new PropertiesConvention());
-            conventions.EntityTypeAddedConventions.Add(new KeyConvention());
+            conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention());
             conventions.EntityTypeAddedConventions.Add(new RelationshipDiscoveryConvention());
 
+            var keyConvention = new KeyConvention();
+            conventions.KeyAddedConventions.Add(keyConvention);
+
             conventions.ForeignKeyAddedConventions.Add(new ForeignKeyPropertyDiscoveryConvention());
+
+            conventions.ForeignKeyRemovedConventions.Add(keyConvention);
 
             return conventions;
         }
