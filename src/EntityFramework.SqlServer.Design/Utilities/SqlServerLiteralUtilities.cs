@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
             }
 
             propertyType = propertyType.IsNullableType()
-                ? Nullable.GetUnderlyingType(propertyType)
+                ? propertyType.UnwrapNullableType()
                 : propertyType;
 
             if (typeof(string) == propertyType)
