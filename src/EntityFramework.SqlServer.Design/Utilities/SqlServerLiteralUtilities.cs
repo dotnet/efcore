@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
             }
 
             if (sqlServerStringLiteral[0] != '\'' ||
-                sqlServerStringLiteral[sqlServerStringLiteralLength-1] != '\'')
+                sqlServerStringLiteral[sqlServerStringLiteralLength - 1] != '\'')
             {
                 Logger.LogWarning(Strings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
                 return null;
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
         }
 
         public virtual DefaultExpressionOrValue ConvertSqlServerDefaultValue(
-            [NotNull] Type propertyType , [NotNull] string sqlServerDefaultValue)
+            [NotNull] Type propertyType, [NotNull] string sqlServerDefaultValue)
         {
             Check.NotNull(propertyType, nameof(propertyType));
             Check.NotEmpty(sqlServerDefaultValue, nameof(sqlServerDefaultValue));
@@ -132,6 +132,14 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
                 };
             }
 
+            if (typeof(Guid) == propertyType)
+            {
+                return new DefaultExpressionOrValue()
+                {
+                    DefaultValue = new Guid(ConvertSqlServerStringLiteral(sqlServerDefaultValue))
+                };
+            }
+
             //TODO: decide what to do about byte[] default values
 
             try
@@ -150,7 +158,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
 
     public class DefaultExpressionOrValue
     {
-        public virtual string DefaultExpression { get; [param: NotNull] set; }
+        public virtual string DefaultExpression { get;[param: NotNull] set; }
         public virtual object DefaultValue { get;[param: NotNull] set; }
     }
 }
