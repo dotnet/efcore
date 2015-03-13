@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -178,6 +179,30 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
         }
 
+        public virtual Expression VisitRawSqlDerivedTableExpression([NotNull] RawSqlDerivedTableExpression rawSqlDerivedTableExpression)
+        {
+            Check.NotNull(rawSqlDerivedTableExpression, nameof(rawSqlDerivedTableExpression));
+
+            _sql.AppendLine("(");
+
+            using (_sql.Indent())
+            {
+                using (var reader = new StringReader(rawSqlDerivedTableExpression.Sql))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        _sql.AppendLine(line);
+                    }
+                }
+            }
+
+            _sql.Append(") AS ")
+                .Append(DelimitIdentifier(rawSqlDerivedTableExpression.Alias));
+
+            return rawSqlDerivedTableExpression;
+        }
+
         public virtual Expression VisitTableExpression(TableExpression tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
@@ -261,7 +286,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             _sql.Append(" IN (");
 
             VisitInExpressionValues(inExpression.Values);
-            
+
             _sql.Append(")");
 
             return inExpression;

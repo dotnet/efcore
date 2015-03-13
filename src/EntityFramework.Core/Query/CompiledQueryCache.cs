@@ -10,6 +10,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
@@ -55,6 +56,19 @@ namespace Microsoft.Data.Entity.Query
             var compiledQuery
                 = GetOrAdd(query, queryContext, dataStore, isAsync: false, compiler: (q, ds) =>
                     {
+                        if (query.Type == typeof(ConstantExpression))
+                        {
+                            var annotatable = ((ConstantExpression)query).Value as IAnnotatable;
+
+                            foreach (var annotation in annotatable.Annotations)
+                            {
+                                if (!dataStore.IsSupported(annotation))
+                                {
+                                    throw new InvalidOperationException(Strings.AnnotationNotSupported(annotation.Name));
+                                }
+                            }
+                        }
+
                         var queryModel = CreateQueryParser().GetParsedQuery(q);
 
                         var streamedSequenceInfo

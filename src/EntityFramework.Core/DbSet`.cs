@@ -263,6 +263,24 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
+        ///     Adds an <see cref="IAnnotation"/> to the current query.
+        /// </summary>
+        public virtual DbSet<TEntity> AddAnnotation([NotNull] string annotationName, [NotNull] string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the <see cref="DbContext" /> instance.
+        ///     </para>
+        /// </summary>
+        public virtual DbContext Context
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
         ///     <para>
         ///         Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
         ///     </para>

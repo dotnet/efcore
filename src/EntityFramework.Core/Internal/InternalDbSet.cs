@@ -35,6 +35,15 @@ namespace Microsoft.Data.Entity.Internal
                         ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<EntityQueryProvider>()));
         }
 
+        private InternalDbSet([NotNull] DbContext context, [NotNull] EntityQueryable<TEntity> entityQueryable)
+        {
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(entityQueryable, nameof(entityQueryable));
+
+            _context = context;
+            _entityQueryable = new LazyRef<EntityQueryable<TEntity>>(() => entityQueryable);
+        }
+
         public override EntityEntry<TEntity> Add(TEntity entity)
         {
             Check.NotNull(entity, nameof(entity));
@@ -130,6 +139,19 @@ namespace Microsoft.Data.Entity.Internal
         Expression IQueryable.Expression => _entityQueryable.Value.Expression;
 
         IQueryProvider IQueryable.Provider => _entityQueryable.Value.Provider;
+
+        public override DbSet<TEntity> AddAnnotation([NotNull] string annotationName, [NotNull] string value)
+        {
+            Check.NotEmpty(annotationName, nameof(annotationName));
+            Check.NotEmpty(value, nameof(value));
+
+            var entityQueryable = _entityQueryable.Value.Clone();
+            entityQueryable.AddAnnotation(annotationName, value);
+
+            return new InternalDbSet<TEntity>(_context, entityQueryable);
+        }
+
+        public override DbContext Context => _context;
 
         IServiceProvider IAccessor<IServiceProvider>.Service => ((IAccessor<IServiceProvider>)_context).Service;
     }

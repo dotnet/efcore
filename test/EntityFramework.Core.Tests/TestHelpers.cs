@@ -2,10 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
+using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
@@ -178,6 +181,40 @@ namespace Microsoft.Data.Entity.Tests
             entry.SetEntityState(entityState);
 
             return entry;
+        }
+
+        public static int AssertResults<T>(
+            IList<T> expected,
+            IList<T> actual,
+            bool assertOrder,
+            Action<IList<T>, IList<T>> asserter = null)
+        {
+            Assert.Equal(expected.Count, actual.Count);
+
+            if (asserter != null)
+            {
+                asserter(expected, actual);
+            }
+            else
+            {
+                if (assertOrder)
+                {
+                    Assert.Equal(expected, actual);
+                }
+                else
+                {
+                    foreach (var expectedItem in expected)
+                    {
+                        Assert.True(
+                            actual.Contains(expectedItem),
+                            string.Format(
+                                "\r\nExpected item: [{0}] not found in results: [{1}]...",
+                                expectedItem,
+                                string.Join(", ", actual.Take(10))));
+                    }
+                }
+            }
+            return actual.Count;
         }
     }
 }
