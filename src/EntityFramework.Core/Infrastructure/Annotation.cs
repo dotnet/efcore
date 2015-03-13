@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         public Annotation([NotNull] string name, [NotNull] string value)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NotEmpty(value, nameof(value));
+            Check.NotNull(value, nameof(value));
 
             Name = name;
             Value = value;

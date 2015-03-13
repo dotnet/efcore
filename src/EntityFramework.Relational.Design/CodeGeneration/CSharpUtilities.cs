@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
 
         public virtual string EscapeString([NotNull] string str)
         {
-            Check.NotEmpty(str, nameof(str));
+            Check.NotNull(str, nameof(str));
 
             return str.Replace("\"", "\\\"");
         }
