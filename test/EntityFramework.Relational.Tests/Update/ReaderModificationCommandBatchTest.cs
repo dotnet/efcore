@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
             command.AddEntry(entry);
 
-            var sqlGeneratorMock = new Mock<SqlGenerator>();
+            var sqlGeneratorMock = new Mock<ISqlGenerator>();
             var batch = new ModificationCommandBatchFake(sqlGeneratorMock.Object);
             batch.AddCommand(command);
 
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
             command.AddEntry(entry);
 
-            var sqlGeneratorMock = new Mock<SqlGenerator>();
+            var sqlGeneratorMock = new Mock<ISqlGenerator>();
             var batch = new ModificationCommandBatchFake(sqlGeneratorMock.Object);
             batch.AddCommand(command);
 
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
             command.AddEntry(entry);
 
-            var sqlGeneratorMock = new Mock<SqlGenerator>();
+            var sqlGeneratorMock = new Mock<ISqlGenerator>();
             var batch = new ModificationCommandBatchFake(sqlGeneratorMock.Object);
             batch.AddCommand(command);
 
@@ -599,14 +599,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             private readonly DbDataReader _reader;
 
-            public ModificationCommandBatchFake(SqlGenerator sqlGenerator = null)
+            public ModificationCommandBatchFake(ISqlGenerator sqlGenerator = null)
                 : base(sqlGenerator ?? new FakeSqlGenerator())
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;
             }
 
-            public ModificationCommandBatchFake(DbDataReader reader, SqlGenerator sqlGenerator = null)
+            public ModificationCommandBatchFake(DbDataReader reader, ISqlGenerator sqlGenerator = null)
                 : base(sqlGenerator ?? new FakeSqlGenerator())
             {
                 _reader = reader;

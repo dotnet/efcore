@@ -267,7 +267,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         private static CommandBatchPreparer CreateCommandBatchPreparer(ModificationCommandBatchFactory modificationCommandBatchFactory = null)
         {
             modificationCommandBatchFactory =
-                modificationCommandBatchFactory ?? new TestModificationCommandBatchFactory(new Mock<SqlGenerator>().Object);
+                modificationCommandBatchFactory ?? new TestModificationCommandBatchFactory(new Mock<ISqlGenerator>().Object);
 
             return new TestCommandBatchPreparer(modificationCommandBatchFactory,
                 new ParameterNameGeneratorFactory(),
@@ -356,7 +356,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
         {
-            public TestModificationCommandBatchFactory(SqlGenerator sqlGenerator)
+            public TestModificationCommandBatchFactory(ISqlGenerator sqlGenerator)
                 : base(sqlGenerator)
             {
             }
@@ -369,7 +369,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class TestModificationCommandBatch : SingularModificationCommandBatch
         {
-            public TestModificationCommandBatch(SqlGenerator sqlGenerator)
+            public TestModificationCommandBatch(ISqlGenerator sqlGenerator)
                 : base(sqlGenerator)
             {
             }

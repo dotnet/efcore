@@ -18,19 +18,23 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         private readonly ISqlServerConnection _connection;
         private readonly ISqlServerDataStoreCreator _creator;
         private readonly Type _contextType;
+        private readonly ISqlServerSqlGenerator _sql;
 
         public SqlServerHistoryRepository(
             [NotNull] ISqlServerConnection connection,
             [NotNull] ISqlServerDataStoreCreator creator,
-            [NotNull] DbContext context)
+            [NotNull] DbContext context,
+            [NotNull] ISqlServerSqlGenerator sqlGenerator)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(creator, nameof(creator));
             Check.NotNull(context, nameof(context));
+            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
             _connection = connection;
             _creator = creator;
             _contextType = context.GetType();
+            _sql = sqlGenerator;
         }
 
         public virtual bool Exists()
@@ -124,12 +128,12 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
 
-            // TODO: Escape
             return new SqlOperation(
                 new StringBuilder()
                     .AppendLine("DELETE FROM [dbo].[__MigrationHistory]")
-                    .Append("WHERE [MigrationId] = '").Append(migrationId).Append("' AND [ContextKey] = '")
-                        .Append(_contextType.FullName).AppendLine("';")
+                    .Append("WHERE [MigrationId] = '").Append(_sql.EscapeLiteral(migrationId))
+                        .Append("' AND [ContextKey] = '").Append(_sql.EscapeLiteral(_contextType.FullName))
+                        .AppendLine("';")
                     .ToString(),
                 suppressTransaction: false);
         }
@@ -138,12 +142,12 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
         {
             Check.NotNull(row, nameof(row));
 
-            // TODO: Escape
             return new SqlOperation(
                 new StringBuilder()
                     .AppendLine("INSERT INTO [dbo].[__MigrationHistory] ([MigrationId], [ContextKey], [ProductVersion])")
-                    .Append("VALUES ('").Append(row.MigrationId).Append("', '").Append(_contextType.FullName)
-                        .Append("', '").Append(row.ProductVersion).AppendLine("');")
+                    .Append("VALUES ('").Append(_sql.EscapeLiteral(row.MigrationId)).Append("', '")
+                        .Append(_sql.EscapeLiteral(_contextType.FullName)).Append("', '")
+                        .Append(_sql.EscapeLiteral(row.ProductVersion)).AppendLine("');")
                     .ToString(),
                 suppressTransaction: false);
         }
@@ -152,10 +156,10 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
 
-            // TODO: Escape
             return new StringBuilder()
                 .Append("IF NOT EXISTS(SELECT * FROM [dbo].[__MigrationHistory] WHERE [MigrationId] = '")
-                    .Append(migrationId).Append("' AND [ContextKey] = '").Append(_contextType.FullName).AppendLine("')")
+                    .Append(_sql.EscapeLiteral(migrationId)).Append("' AND [ContextKey] = '")
+                    .Append(_sql.EscapeLiteral(_contextType.FullName)).AppendLine("')")
                 .Append("BEGIN")
                 .ToString();
         }
@@ -164,10 +168,10 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
 
-            // TODO: Escape
             return new StringBuilder()
                 .Append("IF EXISTS(SELECT * FROM [dbo].[__MigrationHistory] WHERE [MigrationId] = '")
-                    .Append(migrationId).Append("' AND [ContextKey] = '").Append(_contextType.FullName).AppendLine("')")
+                    .Append(_sql.EscapeLiteral(migrationId)).Append("' AND [ContextKey] = '")
+                    .Append(_sql.EscapeLiteral(_contextType.FullName)).AppendLine("')")
                 .Append("BEGIN")
                 .ToString();
         }

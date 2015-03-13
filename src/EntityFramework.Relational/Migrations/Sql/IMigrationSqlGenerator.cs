@@ -13,7 +13,5 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
         IReadOnlyList<SqlBatch> Generate(
             [NotNull] IReadOnlyList<MigrationOperation> operations,
             [CanBeNull] IModel model = null);
-
-        string BatchSeparator { get; }
     }
 }

@@ -20,14 +20,14 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         protected ModificationCommandBatchFactory(
-            [NotNull] SqlGenerator sqlGenerator)
+            [NotNull] ISqlGenerator sqlGenerator)
         {
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
             SqlGenerator = sqlGenerator;
         }
 
-        protected SqlGenerator SqlGenerator { get; }
+        protected ISqlGenerator SqlGenerator { get; }
 
         public abstract ModificationCommandBatch Create([NotNull] IDbContextOptions options);
 

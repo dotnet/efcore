@@ -70,6 +70,7 @@
     <Compile Include="IRelationalConnection.cs" />
     <Compile Include="IRelationalDataStore.cs" />
     <Compile Include="IRelationalDataStoreCreator.cs" />
+    <Compile Include="ISqlGenerator.cs" />
     <Compile Include="Migrations\Builders\ColumnBuilder.cs" />
     <Compile Include="Migrations\Builders\MigrationBuilder.cs" />
     <Compile Include="Migrations\Builders\TableBuilder.cs" />

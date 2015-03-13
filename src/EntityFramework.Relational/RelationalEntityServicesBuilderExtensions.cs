@@ -31,7 +31,8 @@ namespace Microsoft.Data.Entity.Relational
                 .AddScoped(RelationalDataStoreServiceFactories.ModelDifferFactory)
                 .AddScoped(RelationalDataStoreServiceFactories.HistoryRepositoryFactory)
                 .AddScoped(RelationalDataStoreServiceFactories.MigrationSqlGeneratorFactory)
-                .AddScoped(RelationalDataStoreServiceFactories.RelationalConnectionFactory));
+                .AddScoped(RelationalDataStoreServiceFactories.RelationalConnectionFactory)
+                .AddScoped(RelationalDataStoreServiceFactories.SqlGeneratorFactory));
 
             return builder;
         }

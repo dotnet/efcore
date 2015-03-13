@@ -73,6 +73,7 @@
     <Compile Include="ISqlServerDataStoreServices.cs" />
     <Compile Include="ISqlServerModelBuilderFactory.cs" />
     <Compile Include="ISqlServerModelSource.cs" />
+    <Compile Include="ISqlServerSqlGenerator.cs" />
     <Compile Include="ISqlServerValueGeneratorCache.cs" />
     <Compile Include="ISqlServerValueGeneratorSelector.cs" />
     <Compile Include="Metadata\ISqlServerEntityTypeExtensions.cs" />

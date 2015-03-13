@@ -24,12 +24,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         private readonly MigrationAssembly _migrationAssembly;
         private readonly IHistoryRepository _historyRepository;
         private readonly IRelationalDataStoreCreator _dataStoreCreator;
-        private readonly IMigrationSqlGenerator _sqlGenerator;
+        private readonly IMigrationSqlGenerator _migrationSqlGenerator;
         private readonly SqlStatementExecutor _executor;
         private readonly IRelationalConnection _connection;
         private readonly IModelDiffer _modelDiffer;
         private readonly IModel _model;
         private readonly MigrationIdGenerator _idGenerator;
+        private readonly ISqlGenerator _sqlGenerator;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -44,32 +45,35 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             [NotNull] MigrationAssembly migrationAssembly,
             [NotNull] IHistoryRepository historyRepository,
             [NotNull] IDataStoreCreator dataStoreCreator,
-            [NotNull] IMigrationSqlGenerator sqlGenerator,
+            [NotNull] IMigrationSqlGenerator migrationSqlGenerator,
             [NotNull] SqlStatementExecutor executor,
             [NotNull] IRelationalConnection connection,
             [NotNull] IModelDiffer modelDiffer,
             [NotNull] IModel model,
-            [NotNull] MigrationIdGenerator idGenerator)
+            [NotNull] MigrationIdGenerator idGenerator,
+            [NotNull] ISqlGenerator sqlGenerator)
         {
             Check.NotNull(migrationAssembly, nameof(migrationAssembly));
             Check.NotNull(historyRepository, nameof(historyRepository));
             Check.NotNull(dataStoreCreator, nameof(dataStoreCreator));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(migrationSqlGenerator, nameof(migrationSqlGenerator));
             Check.NotNull(executor, nameof(executor));
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
             Check.NotNull(model, nameof(model));
             Check.NotNull(idGenerator, nameof(idGenerator));
+            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
             _migrationAssembly = migrationAssembly;
             _historyRepository = historyRepository;
             _dataStoreCreator = (IRelationalDataStoreCreator)dataStoreCreator;
-            _sqlGenerator = sqlGenerator;
+            _migrationSqlGenerator = migrationSqlGenerator;
             _executor = executor;
             _connection = connection;
             _modelDiffer = modelDiffer;
             _model = model;
             _idGenerator = idGenerator;
+            _sqlGenerator = sqlGenerator;
         }
 
         protected virtual string ProductVersion =>
@@ -280,7 +284,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             var operations = migrationBuilder.Operations.ToList();
             operations.Add(_historyRepository.GetInsertOperation(new HistoryRow(migration.Id, ProductVersion)));
 
-            return _sqlGenerator.Generate(operations, migration.Target);
+            return _migrationSqlGenerator.Generate(operations, migration.Target);
         }
 
         protected virtual IReadOnlyList<SqlBatch> RevertMigration([NotNull] Migration migration)
@@ -294,7 +298,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             operations.Add(_historyRepository.GetDeleteOperation(migration.Id));
 
             // TODO: Pass source model?
-            return _sqlGenerator.Generate(operations);
+            return _migrationSqlGenerator.Generate(operations);
         }
 
         protected virtual void Execute([NotNull] IEnumerable<SqlBatch> sqlBatches, bool ensureDatabase = false)

@@ -53,5 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer
         public virtual IMigrationSqlGenerator MigrationSqlGenerator => _serviceProvider.GetRequiredService<ISqlServerMigrationSqlGenerator>();
 
         public virtual IModelSource ModelSource => _serviceProvider.GetRequiredService<ISqlServerModelSource>();
+
+        public virtual ISqlGenerator SqlGenerator => _serviceProvider.GetRequiredService<ISqlServerSqlGenerator>();
     }
 }

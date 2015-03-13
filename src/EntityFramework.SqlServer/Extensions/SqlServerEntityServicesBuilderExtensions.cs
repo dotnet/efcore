@@ -27,7 +27,7 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddSingleton<ISqlServerModelBuilderFactory, SqlServerModelBuilderFactory>()
                     .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                     .AddSingleton<SqlServerSequenceValueGeneratorFactory>()
-                    .AddSingleton<SqlServerSqlGenerator>()
+                    .AddSingleton<ISqlServerSqlGenerator, SqlServerSqlGenerator>()
                     .AddSingleton<SqlStatementExecutor>()
                     .AddSingleton<SqlServerTypeMapper>()
                     .AddSingleton<SqlServerModificationCommandBatchFactory>()
