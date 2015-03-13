@@ -34,6 +34,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
         {
             Check.NotEmpty(sqlServerStringLiteral, nameof(sqlServerStringLiteral));
 
+            if (sqlServerStringLiteral[0] == 'N')
+                sqlServerStringLiteral = sqlServerStringLiteral.Substring(1);
+
             var sqlServerStringLiteralLength = sqlServerStringLiteral.Length;
             if (sqlServerStringLiteralLength < 2)
             {
