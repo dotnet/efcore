@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual ILogger Logger { get; }
 
-        public virtual async Task GenerateAsync(
+        public virtual async Task<List<string>> GenerateAsync(
             [NotNull] ReverseEngineeringConfiguration configuration,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -50,6 +50,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             CheckConfiguration(configuration);
 
+            var resultingFiles = new List<string>();
             var providerAssembly = configuration.ProviderAssembly;
             var provider = GetProvider(providerAssembly);
             var metadataModel = GetMetadataModel(provider, configuration);
@@ -78,10 +79,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             dbContextCodeGenerator.Generate(contextStringBuilder);
 
             // output DbContext .cs file
+            var dbContextFileName = dbContextCodeGenerator.ClassName + FileExtension;
             using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(contextStringBuilder.ToString())))
             {
-                await OutputFile(configuration.OutputPath, dbContextCodeGenerator.ClassName + FileExtension, sourceStream);
+                await OutputFile(configuration.OutputPath, dbContextFileName, sourceStream);
             }
+            resultingFiles.Add(Path.Combine(configuration.OutputPath, dbContextFileName));
 
             foreach (var entityType in metadataModel.EntityTypes)
             {
@@ -110,11 +113,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 // output EntityType poco .cs file
                 using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeStringBuilder.ToString())))
                 {
-                    await OutputFile(configuration.OutputPath,
-                        entityType.Name + FileExtension,
-                        sourceStream);
+                    var entityTypeFileName = entityType.Name + FileExtension;
+                    await OutputFile(configuration.OutputPath, entityTypeFileName, sourceStream);
+                    resultingFiles.Add(Path.Combine(configuration.OutputPath, entityTypeFileName));
                 }
             }
+
+            return resultingFiles;
         }
 
         public virtual IDatabaseMetadataModelProvider GetProvider([NotNull] Assembly providerAssembly)

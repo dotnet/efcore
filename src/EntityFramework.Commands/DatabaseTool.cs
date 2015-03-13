@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
@@ -32,7 +33,7 @@ namespace Microsoft.Data.Entity.Commands
             _serviceProvider.AddService(typeof(ModelUtilities), new ModelUtilities());
         }
 
-        public virtual void ReverseEngineer(
+        public virtual IEnumerable<string> ReverseEngineer(
             [NotNull] Assembly providerAssembly,
             [NotNull] string connectionString,
             [NotNull] string rootNamespace,
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity.Commands
             };
 
             var generator = new ReverseEngineeringGenerator(_serviceProvider);
-            generator.GenerateAsync(configuration).Wait();
+            return generator.GenerateAsync(configuration).Result;
         }
     }
 }

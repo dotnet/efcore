@@ -183,6 +183,32 @@ function Remove-Migration {
 }
 
 #
+# Reverse-Engineer
+#
+
+Register-TabExpansion Reverse-Engineer @{
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+}
+
+function Reverse-Engineer {
+    [CmdletBinding()]
+    param ([string] $ConnectionString, [string] $Project, [string] $StartupProject)
+
+    $values = ProcessCommonParameters -projectName $Project -startupProjectName $StartupProject
+    $dteProject = $values.Project
+    $dteStartupProject = $values.StartupProject
+
+    $artifacts = InvokeOperation $dteProject ReverseEngineer @{
+        connectionString = $ConnectionString
+    } -startupProject $dteStartupProject
+
+    $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
+    $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
+    ShowConsole
+}
+
+#
 # Enable-Migrations (Obsolete)
 #
 

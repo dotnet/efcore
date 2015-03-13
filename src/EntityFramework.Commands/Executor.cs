@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
+using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands
@@ -18,6 +19,7 @@ namespace Microsoft.Data.Entity.Commands
     {
         private readonly string _projectDir;
         private readonly string _rootNamespace;
+        private readonly DatabaseTool _databaseTool;
         private readonly MigrationTool _migrationTool;
 
         public Executor([NotNull] object logHandler, [NotNull] IDictionary args)
@@ -37,6 +39,7 @@ namespace Microsoft.Data.Entity.Commands
             var assemblyName = AssemblyName.GetAssemblyName(targetPath);
             var assembly = Assembly.Load(assemblyName);
             _migrationTool = new MigrationTool(loggerProvider, assembly);
+            _databaseTool = new DatabaseTool(null, loggerProvider);
         }
 
         public class GetContextType : OperationBase
@@ -220,6 +223,26 @@ namespace Microsoft.Data.Entity.Commands
             // TODO: Determine safe names (See #1774)
             _migrationTool.GetMigrations(contextTypeName).Select(
                 m => new Hashtable { ["MigrationId"] = m.Id, ["MigrationName"] = m.Id, ["SafeName"] = m.Id });
+
+        public class ReverseEngineer : OperationBase
+        {
+            public ReverseEngineer([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+                : base(resultHandler)
+            {
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
+
+                var connectionString = (string)args["connectionString"];
+
+                var providerAssembly = typeof(SqlServerMetadataModelProvider).Assembly;
+
+                Execute(() => executor.ReverseEngineerImpl(providerAssembly, connectionString));
+            }
+        }
+
+        public virtual IEnumerable<string> ReverseEngineerImpl(
+            [NotNull] Assembly providerAssembly, [NotNull] string connectionString) =>
+                _databaseTool.ReverseEngineer(providerAssembly, connectionString, _rootNamespace, _projectDir);
 
         public abstract class OperationBase : MarshalByRefObject
         {
