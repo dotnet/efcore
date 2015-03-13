@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class EntityMaterializerSource
+    public class EntityMaterializerSource : IEntityMaterializerSource
     {
         private static readonly MethodInfo _readValue
             = typeof(IValueReader).GetTypeInfo().GetDeclaredMethods("ReadValue").Single();
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata
         private static readonly MethodInfo _isNull
             = typeof(IValueReader).GetTypeInfo().GetDeclaredMethods("IsNull").Single();
 
-        private readonly MemberMapper _memberMapper;
+        private readonly IMemberMapper _memberMapper;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -31,15 +31,14 @@ namespace Microsoft.Data.Entity.Metadata
         {
         }
 
-        public EntityMaterializerSource([NotNull] MemberMapper memberMapper)
+        public EntityMaterializerSource([NotNull] IMemberMapper memberMapper)
         {
             Check.NotNull(memberMapper, nameof(memberMapper));
 
             _memberMapper = memberMapper;
         }
 
-        public virtual Expression CreateReadValueExpression(
-            [NotNull] Expression valueReader, [NotNull] Type type, int index)
+        public virtual Expression CreateReadValueExpression(Expression valueReader, Type type, int index)
         {
             Check.NotNull(valueReader, nameof(valueReader));
             Check.NotNull(type, nameof(type));
@@ -73,9 +72,9 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual Expression CreateMaterializeExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] Expression valueReaderExpression,
-            [CanBeNull] int[] indexMap = null)
+            IEntityType entityType,
+            Expression valueReaderExpression,
+            int[] indexMap = null)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(valueReaderExpression, nameof(valueReaderExpression));

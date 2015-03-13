@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public abstract class ClrAccessorSource<TAccessor>
+    public abstract class ClrAccessorSource<TAccessor> : IClrAccessorSource<TAccessor>
         where TAccessor : class
     {
         private static readonly MethodInfo _genericCreate
@@ -18,14 +18,14 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly ThreadSafeDictionaryCache<Tuple<Type, string>, TAccessor> _cache
             = new ThreadSafeDictionaryCache<Tuple<Type, string>, TAccessor>();
 
-        public virtual TAccessor GetAccessor([NotNull] IPropertyBase property)
+        public virtual TAccessor GetAccessor(IPropertyBase property)
         {
             Check.NotNull(property, nameof(property));
 
             return property as TAccessor ?? GetAccessor(property.EntityType.Type, property.Name);
         }
 
-        public virtual TAccessor GetAccessor([NotNull] Type declaringType, [NotNull] string propertyName)
+        public virtual TAccessor GetAccessor(Type declaringType, string propertyName)
         {
             Check.NotNull(declaringType, nameof(declaringType));
             Check.NotEmpty(propertyName, nameof(propertyName));

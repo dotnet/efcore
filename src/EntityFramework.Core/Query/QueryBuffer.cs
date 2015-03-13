@@ -17,9 +17,9 @@ namespace Microsoft.Data.Entity.Query
     public class QueryBuffer : IQueryBuffer
     {
         private readonly StateManager _stateManager;
-        private readonly EntityKeyFactorySource _entityKeyFactorySource;
-        private readonly ClrCollectionAccessorSource _clrCollectionAccessorSource;
-        private readonly ClrPropertySetterSource _clrPropertySetterSource;
+        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
+        private readonly IClrCollectionAccessorSource _clrCollectionAccessorSource;
+        private readonly IClrAccessorSource<IClrPropertySetter> _clrPropertySetterSource;
 
         private sealed class BufferedEntity
         {
@@ -49,9 +49,9 @@ namespace Microsoft.Data.Entity.Query
 
         public QueryBuffer(
             [NotNull] StateManager stateManager,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] ClrCollectionAccessorSource clrCollectionAccessorSource,
-            [NotNull] ClrPropertySetterSource clrPropertySetterSource)
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IClrCollectionAccessorSource clrCollectionAccessorSource,
+            [NotNull] IClrAccessorSource<IClrPropertySetter> clrPropertySetterSource)
         {
             Check.NotNull(stateManager, nameof(stateManager));
             Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));

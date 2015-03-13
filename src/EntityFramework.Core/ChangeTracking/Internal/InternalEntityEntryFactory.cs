@@ -10,9 +10,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class InternalEntityEntryFactory
     {
-        private readonly EntityEntryMetadataServices _metadataServices;
+        private readonly IEntityEntryMetadataServices _metadataServices;
 
-        public InternalEntityEntryFactory([NotNull] EntityEntryMetadataServices metadataServices)
+        public InternalEntityEntryFactory([NotNull] IEntityEntryMetadataServices metadataServices)
         {
             _metadataServices = metadataServices;
         }

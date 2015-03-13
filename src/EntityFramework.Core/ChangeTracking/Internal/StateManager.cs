@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             = new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
 
         private readonly Dictionary<EntityKey, InternalEntityEntry> _identityMap = new Dictionary<EntityKey, InternalEntityEntry>();
-        private readonly EntityKeyFactorySource _keyFactorySource;
+        private readonly IEntityKeyFactorySource _keyFactorySource;
         private readonly InternalEntityEntryFactory _factory;
         private readonly InternalEntityEntrySubscriber _subscriber;
         private readonly IModel _model;
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public StateManager(
             [NotNull] InternalEntityEntryFactory factory,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] InternalEntityEntrySubscriber subscriber,
             [NotNull] InternalEntityEntryNotifier notifier,
             [NotNull] ValueGenerationManager valueGeneration,

@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity
 
         private LazyRef<DbContextServices> _contextServices;
         private LazyRef<ILogger> _logger;
-        private LazyRef<DbSetInitializer> _setInitializer;
+        private LazyRef<IDbSetInitializer> _setInitializer;
         private LazyRef<Database> _database;
 
         private bool _initializing;
@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity
             InitializeSets(serviceProvider, options);
             _contextServices = new LazyRef<DbContextServices>(() => InitializeServices(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
-            _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
+            _setInitializer = new LazyRef<IDbSetInitializer>(GetSetInitializer);
             _database = new LazyRef<Database>(GetDatabase);
         }
 
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity
 
         private ILogger CreateLogger() => _contextServices.Value.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<DbContext>();
 
-        private DbSetInitializer GetSetInitializer() => _contextServices.Value.ServiceProvider.GetRequiredService<DbSetInitializer>();
+        private IDbSetInitializer GetSetInitializer() => _contextServices.Value.ServiceProvider.GetRequiredService<IDbSetInitializer>();
 
         private ChangeDetector GetChangeDetector() => _contextServices.Value.ServiceProvider.GetRequiredService<ChangeDetector>();
 
@@ -227,7 +227,7 @@ namespace Microsoft.Data.Entity
         {
             serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
-            serviceProvider.GetRequiredService<DbSetInitializer>().InitializeSets(this);
+            serviceProvider.GetRequiredService<IDbSetInitializer>().InitializeSets(this);
         }
 
         /// <summary>

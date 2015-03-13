@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     {
         private readonly TestModelSource _testModelSource;
 
-        public TestSqlServerModelSource(Action<ModelBuilder> onModelCreating, DbSetFinder setFinder, IModelValidator modelValidator)
+        public TestSqlServerModelSource(Action<ModelBuilder> onModelCreating, IDbSetFinder setFinder, IModelValidator modelValidator)
             : base(setFinder, modelValidator)
         {
             _testModelSource = new TestModelSource(onModelCreating, setFinder);
@@ -23,6 +23,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             => _testModelSource.GetModel(context, modelBuilderFactory);
 
         public static Func<IServiceProvider, ISqlServerModelSource> GetFactory(Action<ModelBuilder> onModelCreating) 
-            => p => new TestSqlServerModelSource(onModelCreating, p.GetRequiredService<DbSetFinder>(), p.GetRequiredService<IModelValidator>());
+            => p => new TestSqlServerModelSource(onModelCreating, p.GetRequiredService<IDbSetFinder>(), p.GetRequiredService<IModelValidator>());
     }
 }

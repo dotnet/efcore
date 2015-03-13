@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
     {
         private readonly TestModelSource _testModelSource;
 
-        public TestInMemoryModelSource(Action<ModelBuilder> onModelCreating, DbSetFinder setFinder, IModelValidator modelValidator)
+        public TestInMemoryModelSource(Action<ModelBuilder> onModelCreating, IDbSetFinder setFinder, IModelValidator modelValidator)
             : base(setFinder, modelValidator)
         {
             _testModelSource = new TestModelSource(onModelCreating, setFinder);
@@ -23,6 +23,6 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             => _testModelSource.GetModel(context, modelBuilderFactory);
 
         public static Func<IServiceProvider, IInMemoryModelSource> GetFactory(Action<ModelBuilder> onModelCreating) 
-            => p => new TestInMemoryModelSource(onModelCreating, p.GetRequiredService<DbSetFinder>(), p.GetRequiredService<IModelValidator>());
+            => p => new TestInMemoryModelSource(onModelCreating, p.GetRequiredService<IDbSetFinder>(), p.GetRequiredService<IModelValidator>());
     }
 }

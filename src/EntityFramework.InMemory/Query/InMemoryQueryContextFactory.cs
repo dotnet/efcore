@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         public InMemoryQueryContextFactory(
             [NotNull] StateManager stateManager,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] ClrPropertySetterSource propertySetterSource,
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
+            [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
             [NotNull] IInMemoryDataStore dataStore,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, loggerFactory)

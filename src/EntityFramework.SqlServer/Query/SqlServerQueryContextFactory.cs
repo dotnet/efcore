@@ -14,9 +14,9 @@ namespace Microsoft.Data.Entity.SqlServer.Query
     {
         public SqlServerQueryContextFactory(
             [NotNull] StateManager stateManager,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] ClrPropertySetterSource propertySetterSource,
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
+            [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
             [NotNull] ISqlServerConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, connection, loggerFactory)

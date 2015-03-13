@@ -16,13 +16,13 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Adds_all_entities_based_on_all_distinct_entity_types_found()
         {
-            var setFinderMock = new Mock<DbSetFinder>();
+            var setFinderMock = new Mock<IDbSetFinder>();
             setFinderMock.Setup(m => m.FindSets(It.IsAny<DbContext>())).Returns(
                 new[]
                     {
-                        new DbSetFinder.DbSetProperty(typeof(JustAClass), "One", typeof(Random), hasSetter: true),
-                        new DbSetFinder.DbSetProperty(typeof(JustAClass), "Two", typeof(object), hasSetter: true),
-                        new DbSetFinder.DbSetProperty(typeof(JustAClass), "Three", typeof(Random), hasSetter: true)
+                        new DbSetProperty(typeof(JustAClass), "One", typeof(Random), hasSetter: true),
+                        new DbSetProperty(typeof(JustAClass), "Two", typeof(object), hasSetter: true),
+                        new DbSetProperty(typeof(JustAClass), "Three", typeof(Random), hasSetter: true)
                     });
 
             var model = CreateDefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object, new ModelBuilderFactory());
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Tests
         {
         }
 
-        private IModelSource CreateDefaultModelSource(DbSetFinder setFinder) 
+        private IModelSource CreateDefaultModelSource(IDbSetFinder setFinder) 
             => new ModelSource(setFinder, Mock.Of<IModelValidator>());
     }
 }

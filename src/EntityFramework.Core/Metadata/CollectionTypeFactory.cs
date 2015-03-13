@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class CollectionTypeFactory
+    public class CollectionTypeFactory : ICollectionTypeFactory
     {
         public virtual Type TryFindTypeToInstantiate([NotNull] Type collectionType)
         {

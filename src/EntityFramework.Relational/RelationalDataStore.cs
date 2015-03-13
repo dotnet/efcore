@@ -29,8 +29,8 @@ namespace Microsoft.Data.Entity.Relational
 
         protected RelationalDataStore(
             [NotNull] IModel model,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] EntityMaterializerSource entityMaterializerSource,
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IRelationalConnection connection,
             [NotNull] CommandBatchPreparer batchPreparer,
             [NotNull] BatchExecutor batchExecutor,

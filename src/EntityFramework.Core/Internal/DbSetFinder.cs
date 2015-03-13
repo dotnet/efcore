@@ -5,21 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Internal
 {
-    public class DbSetFinder
+    public class DbSetFinder : IDbSetFinder
     {
         private readonly ThreadSafeDictionaryCache<Type, IReadOnlyList<DbSetProperty>> _cache
             = new ThreadSafeDictionaryCache<Type, IReadOnlyList<DbSetProperty>>();
 
-        public virtual IReadOnlyList<DbSetProperty> FindSets([NotNull] DbContext context) => _cache.GetOrAdd(context.GetType(), FindSets);
+        public virtual IReadOnlyList<DbSetProperty> FindSets(DbContext context) => _cache.GetOrAdd(context.GetType(), FindSets);
 
         private static DbSetProperty[] FindSets(Type contextType)
-        {
-            return contextType.GetRuntimeProperties()
+            => contextType.GetRuntimeProperties()
                 .Where(
                     p => !p.IsStatic()
                          && !p.GetIndexParameters().Any()
@@ -31,25 +29,5 @@ namespace Microsoft.Data.Entity.Internal
                     p.DeclaringType, p.Name,
                     p.PropertyType.GetTypeInfo().GenericTypeArguments.Single(), p.SetMethod != null))
                 .ToArray();
-        }
-
-        public struct DbSetProperty
-        {
-            public DbSetProperty([NotNull] Type contextType, [NotNull] string name, [NotNull] Type entityType, bool hasSetter)
-            {
-                ContextType = contextType;
-                Name = name;
-                EntityType = entityType;
-                HasSetter = hasSetter;
-            }
-
-            public Type ContextType { get; }
-
-            public string Name { get; }
-
-            public Type EntityType { get; }
-
-            public bool HasSetter { get; }
-        }
     }
 }

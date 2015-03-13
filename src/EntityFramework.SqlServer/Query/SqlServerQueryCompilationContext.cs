@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             [NotNull] ILogger logger,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
-            [NotNull] EntityMaterializerSource entityMaterializerSource,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IEntityMaterializerSource entityMaterializerSource,
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator methodCallTranslator)
             : base(

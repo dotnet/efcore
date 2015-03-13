@@ -82,6 +82,11 @@
     </Compile>
     <Compile Include="ChangeTracking\Internal\ArraySidecar.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetector.cs" />
+    <Compile Include="ChangeTracking\Internal\IEntityEntryMetadataServices.cs" />
+    <Compile Include="ChangeTracking\Internal\IEntityKeyFactorySource.cs" />
+    <Compile Include="ChangeTracking\Internal\IOriginalValuesFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\IRelationshipsSnapshotFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\IStoreGeneratedValuesFactory.cs" />
     <Compile Include="ChangeTracking\Internal\KeyPropagator.cs" />
     <Compile Include="ChangeTracking\Internal\IKeyListener.cs" />
     <Compile Include="ChangeTracking\Internal\INavigationListener.cs" />
@@ -137,13 +142,24 @@
     <Compile Include="Internal\DbContextServices.cs" />
     <Compile Include="Internal\DbSetFinder.cs" />
     <Compile Include="Internal\DbSetInitializer.cs" />
+    <Compile Include="Internal\DbSetProperty.cs" />
     <Compile Include="Internal\DbSetSource.cs" />
+    <Compile Include="Internal\IDbContextOptionsParser.cs" />
+    <Compile Include="Internal\IDbSetFinder.cs" />
+    <Compile Include="Internal\IDbSetInitializer.cs" />
+    <Compile Include="Internal\IDbSetSource.cs" />
     <Compile Include="Internal\IModelValidator.cs" />
     <Compile Include="Internal\LoggingModelValidator.cs" />
     <Compile Include="Internal\ModelSource.cs" />
     <Compile Include="Internal\ModelValidator.cs" />
     <Compile Include="Internal\BoxedValueReaderSource.cs" />
     <Compile Include="Internal\GenericBoxedValueReader.cs" />
+    <Compile Include="Metadata\IClrAccessorSource.cs" />
+    <Compile Include="Metadata\IClrCollectionAccessorSource.cs" />
+    <Compile Include="Metadata\ICollectionTypeFactory.cs" />
+    <Compile Include="Metadata\IEntityMaterializerSource.cs" />
+    <Compile Include="Metadata\IFieldMatcher.cs" />
+    <Compile Include="Metadata\IMemberMapper.cs" />
     <Compile Include="Metadata\IModelBuilderFactory.cs" />
     <Compile Include="Metadata\ModelConventions\IForeignKeyRemovedConvention.cs" />
     <Compile Include="Metadata\ModelConventions\IKeyConvention.cs" />

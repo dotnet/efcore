@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public InternalShadowEntityEntry(
             [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
-            [NotNull] EntityEntryMetadataServices metadataServices)
+            [NotNull] IEntityEntryMetadataServices metadataServices)
             : base(stateManager, entityType, metadataServices)
         {
             _propertyValues = new object[entityType.ShadowPropertyCount];
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public InternalShadowEntityEntry(
             [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
-            [NotNull] EntityEntryMetadataServices metadataServices,
+            [NotNull] IEntityEntryMetadataServices metadataServices,
             [NotNull] IValueReader valueReader)
             : base(stateManager, entityType, metadataServices)
         {

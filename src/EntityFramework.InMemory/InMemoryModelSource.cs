@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryModelSource : ModelSource, IInMemoryModelSource
     {
-        public InMemoryModelSource([NotNull] DbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
+        public InMemoryModelSource([NotNull] IDbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
             : base(setFinder, modelValidator)
         {
         }

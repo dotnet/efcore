@@ -10,7 +10,7 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Internal
 {
-    public class DbContextOptionsParser
+    public class DbContextOptionsParser : IDbContextOptionsParser
     {
         private const string EntityFrameworkKey = "EntityFramework";
         private const string ConnectionStringKey = "ConnectionString";
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Internal
             [CanBeNull] Action<DbContextOptionsBuilder> optionsAction)
             where TContext : DbContext
         {
-            var parser = serviceProvider.GetRequiredService<DbContextOptionsParser>();
+            var parser = serviceProvider.GetRequiredService<IDbContextOptionsParser>();
 
             var options = new DbContextOptions<TContext>(
                 parser.ReadRawOptions<TContext>(configuration),
@@ -37,8 +37,7 @@ namespace Microsoft.Data.Entity.Internal
             return options;
         }
 
-        public virtual IReadOnlyDictionary<string, string> ReadRawOptions<TContext>(
-            [CanBeNull] IConfiguration configuration)
+        public virtual IReadOnlyDictionary<string, string> ReadRawOptions<TContext>(IConfiguration configuration)
             where TContext : DbContext
         {
             var options = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);

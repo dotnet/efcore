@@ -1547,7 +1547,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.IsType<EntityKeyFactorySource>(contextServices.GetRequiredService<EntityKeyFactorySource>());
+                Assert.IsType<EntityKeyFactorySource>(contextServices.GetRequiredService<IEntityKeyFactorySource>());
             }
         }
 
@@ -1576,18 +1576,18 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_start_with_custom_services_by_passing_in_base_service_provider()
         {
-            var factory = Mock.Of<OriginalValuesFactory>();
+            var factory = Mock.Of<IOriginalValuesFactory>();
             var serviceCollection = new ServiceCollection()
-                .AddSingleton<DbSetFinder>()
-                .AddSingleton<DbSetSource>()
-                .AddSingleton<ClrPropertyGetterSource>()
-                .AddSingleton<ClrPropertySetterSource>()
-                .AddSingleton<ClrCollectionAccessorSource>()
-                .AddSingleton<EntityMaterializerSource>()
-                .AddSingleton<MemberMapper>()
-                .AddSingleton<FieldMatcher>()
+                .AddSingleton<IDbSetFinder, DbSetFinder>()
+                .AddSingleton<IDbSetSource, DbSetSource>()
+                .AddSingleton<IClrAccessorSource<IClrPropertyGetter>, ClrPropertyGetterSource>()
+                .AddSingleton<IClrAccessorSource<IClrPropertySetter>, ClrPropertySetterSource >()
+                .AddSingleton<IClrCollectionAccessorSource, ClrCollectionAccessorSource>()
+                .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
+                .AddSingleton<IMemberMapper, MemberMapper>()
+                .AddSingleton<IFieldMatcher, FieldMatcher>()
                 .AddSingleton<DataStoreSelector>()
-                .AddScoped<DbSetInitializer>()
+                .AddScoped<IDbSetInitializer, DbSetInitializer>()
                 .AddScoped<DbContextServices>()
                 .AddInstance(factory);
 
@@ -1597,7 +1597,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.Same(factory, contextServices.GetRequiredService<OriginalValuesFactory>());
+                Assert.Same(factory, contextServices.GetRequiredService<IOriginalValuesFactory>());
             }
         }
 
@@ -1651,7 +1651,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_replace_already_registered_service_with_new_service()
         {
-            var factory = Mock.Of<OriginalValuesFactory>();
+            var factory = Mock.Of<IOriginalValuesFactory>();
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddEntityFramework();
             serviceCollection.AddInstance(factory);
@@ -1662,7 +1662,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.Same(factory, contextServices.GetRequiredService<OriginalValuesFactory>());
+                Assert.Same(factory, contextServices.GetRequiredService<IOriginalValuesFactory>());
             }
         }
 
@@ -1762,14 +1762,14 @@ namespace Microsoft.Data.Entity.Tests
             var provider = new ServiceCollection()
                 .AddEntityFramework()
                 .ServiceCollection()
-                .AddSingleton<EntityMaterializerSource, FakeEntityMaterializerSource>()
+                .AddSingleton<IEntityMaterializerSource, FakeEntityMaterializerSource>()
                 .BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(provider))
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.IsType<FakeEntityMaterializerSource>(contextServices.GetRequiredService<EntityMaterializerSource>());
+                Assert.IsType<FakeEntityMaterializerSource>(contextServices.GetRequiredService<IEntityMaterializerSource>());
             }
         }
 

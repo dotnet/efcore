@@ -11,9 +11,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class MemberMapper
+    public class MemberMapper : IMemberMapper
     {
-        private readonly FieldMatcher _fieldMatcher;
+        private readonly IFieldMatcher _fieldMatcher;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
         }
 
-        public MemberMapper([NotNull] FieldMatcher fieldMatcher)
+        public MemberMapper([NotNull] IFieldMatcher fieldMatcher)
         {
             Check.NotNull(fieldMatcher, nameof(fieldMatcher));
 
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         // TODO: Consider doing this at model building time, but also consider mapping to interfaces
         // Issue #757
-        public virtual IEnumerable<Tuple<IProperty, MemberInfo>> MapPropertiesToMembers([NotNull] IEntityType entityType)
+        public virtual IEnumerable<Tuple<IProperty, MemberInfo>> MapPropertiesToMembers(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 

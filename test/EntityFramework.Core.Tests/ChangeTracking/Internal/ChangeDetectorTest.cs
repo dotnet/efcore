@@ -257,7 +257,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entry.SetEntityState(EntityState.Added);
 
             var property = entry.EntityType.GetProperty("PrincipalId");
-            var sidecar = entry.AddSidecar(contextServices.GetRequiredService<StoreGeneratedValuesFactory>()
+            var sidecar = entry.AddSidecar(contextServices.GetRequiredService<IStoreGeneratedValuesFactory>()
                 .Create(entry, entry.EntityType.Properties));
             sidecar.TakeSnapshot();
 
@@ -319,7 +319,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var storeGeneratedValuesFactory = contextServices.GetRequiredService<StoreGeneratedValuesFactory>();
+            var storeGeneratedValuesFactory = contextServices.GetRequiredService<IStoreGeneratedValuesFactory>();
 
             var category = new Category { Id = -1 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -393,7 +393,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entry.SetEntityState(EntityState.Added);
 
             var property = entry.EntityType.GetProperty("PrincipalId");
-            var sidecar = entry.AddSidecar(contextServices.GetRequiredService<StoreGeneratedValuesFactory>()
+            var sidecar = entry.AddSidecar(contextServices.GetRequiredService<IStoreGeneratedValuesFactory>()
                 .Create(entry, entry.EntityType.Properties));
             sidecar.TakeSnapshot();
 
@@ -496,7 +496,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entry.SetEntityState(EntityState.Unchanged);
 
             var property = entry.EntityType.GetProperty("DependentId");
-            var sidecar = entry.AddSidecar(contextServices.GetRequiredService<StoreGeneratedValuesFactory>()
+            var sidecar = entry.AddSidecar(contextServices.GetRequiredService<IStoreGeneratedValuesFactory>()
                 .Create(entry, entry.EntityType.Properties));
             sidecar.TakeSnapshot();
 
@@ -563,7 +563,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entry.SetEntityState(EntityState.Unchanged);
 
             var property = entry.EntityType.GetProperty("DependentId");
-            var sidecar = entry.AddSidecar(contextServices.GetRequiredService<StoreGeneratedValuesFactory>()
+            var sidecar = entry.AddSidecar(contextServices.GetRequiredService<IStoreGeneratedValuesFactory>()
                 .Create(entry, entry.EntityType.Properties));
             sidecar.TakeSnapshot();
 
@@ -2139,7 +2139,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             return new InternalClrEntityEntry(
                 contextServices.GetRequiredService<StateManager>(),
                 contextServices.GetRequiredService<IModel>().GetEntityType(typeof(TEntity)),
-                contextServices.GetRequiredService<EntityEntryMetadataServices>(), entity ?? new TEntity());
+                contextServices.GetRequiredService<IEntityEntryMetadataServices>(), entity ?? new TEntity());
         }
 
         private static void AssertDetectChangesNoOp(

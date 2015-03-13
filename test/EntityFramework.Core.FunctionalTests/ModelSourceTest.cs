@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private class MyModelSource : InMemoryModelSource
         {
-            public MyModelSource(DbSetFinder setFinder, IModelValidator modelValidator)
+            public MyModelSource(IDbSetFinder setFinder, IModelValidator modelValidator)
                 : base(setFinder, modelValidator)
             {
             }

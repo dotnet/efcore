@@ -15,9 +15,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
     public class MaterializerFactory
     {
-        private readonly EntityMaterializerSource _entityMaterializerSource;
+        private readonly IEntityMaterializerSource _entityMaterializerSource;
 
-        public MaterializerFactory([NotNull] EntityMaterializerSource entityMaterializerSource)
+        public MaterializerFactory([NotNull] IEntityMaterializerSource entityMaterializerSource)
         {
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
 

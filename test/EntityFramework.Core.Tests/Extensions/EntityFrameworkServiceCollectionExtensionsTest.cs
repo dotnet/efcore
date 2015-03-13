@@ -23,22 +23,23 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Services_wire_up_correctly()
         {
-            VerifySingleton<DbSetFinder>();
-            VerifySingleton<DbSetInitializer>();
-            VerifySingleton<DbSetSource>();
-            VerifySingleton<EntityKeyFactorySource>();
-            VerifySingleton<ClrPropertyGetterSource>();
-            VerifySingleton<ClrPropertySetterSource>();
-            VerifySingleton<ClrCollectionAccessorSource>();
-            VerifySingleton<CollectionTypeFactory>();
-            VerifySingleton<EntityMaterializerSource>();
+            VerifySingleton<IDbSetFinder>();
+            VerifySingleton<IDbSetInitializer>();
+            VerifySingleton<IDbSetSource>();
+            VerifySingleton<IEntityKeyFactorySource>();
+            VerifySingleton<IClrAccessorSource<IClrPropertyGetter>>();
+            VerifySingleton<IClrAccessorSource<IClrPropertySetter>>();
+            VerifySingleton<IClrCollectionAccessorSource>();
+            VerifySingleton<ICollectionTypeFactory>();
+            VerifySingleton<IEntityMaterializerSource>();
             VerifySingleton<IModelValidator>();
-            VerifySingleton<MemberMapper>();
-            VerifySingleton<FieldMatcher>();
-            VerifySingleton<OriginalValuesFactory>();
-            VerifySingleton<RelationshipsSnapshotFactory>();
-            VerifySingleton<StoreGeneratedValuesFactory>();
-            VerifySingleton<EntityEntryMetadataServices>();
+            VerifySingleton<IMemberMapper>();
+            VerifySingleton<IFieldMatcher>();
+            VerifySingleton<IOriginalValuesFactory>();
+            VerifySingleton<IRelationshipsSnapshotFactory>();
+            VerifySingleton<IStoreGeneratedValuesFactory>();
+            VerifySingleton<IEntityEntryMetadataServices>();
+            VerifySingleton<IDbContextOptionsParser>();
             VerifySingleton<ICompiledQueryCache>();
             VerifySingleton<ILoggerFactory>();
             VerifySingleton<IBoxedValueReaderSource>();

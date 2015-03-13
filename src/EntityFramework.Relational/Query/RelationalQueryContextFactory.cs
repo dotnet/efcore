@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public RelationalQueryContextFactory(
             [NotNull] StateManager stateManager,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] ClrPropertySetterSource propertySetterSource,
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
+            [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
             [NotNull] IRelationalConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, loggerFactory)

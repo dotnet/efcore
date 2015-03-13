@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Internal
 {
-    public class DbSetSource
+    public class DbSetSource : IDbSetSource
     {
         private static readonly MethodInfo _genericCreate
             = typeof(DbSetSource).GetTypeInfo().GetDeclaredMethods("CreateConstructor").Single();
@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Internal
         private readonly ThreadSafeDictionaryCache<Type, Func<DbContext, object>> _cache
             = new ThreadSafeDictionaryCache<Type, Func<DbContext, object>>();
 
-        public virtual object Create([NotNull] DbContext context, [NotNull] Type type)
+        public virtual object Create(DbContext context, Type type)
             => _cache.GetOrAdd(
                 type,
                 t => (Func<DbContext, object>)_genericCreate.MakeGenericMethod(type).Invoke(null, null))(context);

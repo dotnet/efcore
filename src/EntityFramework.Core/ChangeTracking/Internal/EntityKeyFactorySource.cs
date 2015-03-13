@@ -13,7 +13,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class EntityKeyFactorySource
+    public class EntityKeyFactorySource : IEntityKeyFactorySource
     {
         private readonly IBoxedValueReaderSource _boxedValueReaderSource;
 

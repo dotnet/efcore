@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         private static readonly ParameterExpression _readerParameter
             = Expression.Parameter(typeof(IValueReader), "valueReader");
 
-        public virtual Func<IValueReader, object> GetMaterializer(EntityMaterializerSource source, IEntityType entityType)
+        public virtual Func<IValueReader, object> GetMaterializer(IEntityMaterializerSource source, IEntityType entityType)
         {
             return Expression.Lambda<Func<IValueReader, object>>(
                 source.CreateMaterializeExpression(entityType, _readerParameter),

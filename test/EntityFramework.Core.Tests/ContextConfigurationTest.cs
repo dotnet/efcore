@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Tests
             var contextServices1 = TestHelpers.Instance.CreateContextServices(provider);
             var contextServices2 = TestHelpers.Instance.CreateContextServices(provider);
 
-            Assert.Same(contextServices1.GetRequiredService<MemberMapper>(), contextServices2.GetRequiredService<MemberMapper>());
+            Assert.Same(contextServices1.GetRequiredService<IMemberMapper>(), contextServices2.GetRequiredService<IMemberMapper>());
         }
 
         [Fact]

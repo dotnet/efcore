@@ -5,8 +5,8 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class RelationshipsSnapshotFactory : IRelationshipsSnapshotFactory
+    public interface IRelationshipsSnapshotFactory
     {
-        public virtual Sidecar Create(InternalEntityEntry entry) => new RelationshipsSnapshot(entry);
+        Sidecar Create([NotNull] InternalEntityEntry entry);
     }
 }

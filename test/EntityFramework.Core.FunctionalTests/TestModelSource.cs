@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         private readonly Action<ModelBuilder> _onModelCreating;
 
-        public TestModelSource(Action<ModelBuilder> onModelCreating, DbSetFinder setFinder)
+        public TestModelSource(Action<ModelBuilder> onModelCreating, IDbSetFinder setFinder)
             : base(setFinder, new ThrowingModelValidator())
         {
             _onModelCreating = onModelCreating;

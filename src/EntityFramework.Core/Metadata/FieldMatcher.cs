@@ -3,15 +3,14 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class FieldMatcher
+    public class FieldMatcher : IFieldMatcher
     {
         public virtual FieldInfo TryMatchFieldName(
-            [NotNull] IProperty property, [NotNull] PropertyInfo propertyInfo, [NotNull] Dictionary<string, FieldInfo> dclaredFields)
+            IProperty property, PropertyInfo propertyInfo, Dictionary<string, FieldInfo> dclaredFields)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(propertyInfo, nameof(propertyInfo));

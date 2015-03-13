@@ -13,9 +13,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class NavigationFixer : IEntityStateListener, IForeignKeyListener, INavigationListener, IKeyListener
     {
-        private readonly ClrPropertySetterSource _setterSource;
-        private readonly ClrPropertyGetterSource _getterSource;
-        private readonly ClrCollectionAccessorSource _collectionAccessorSource;
+        private readonly IClrAccessorSource<IClrPropertySetter> _setterSource;
+        private readonly IClrAccessorSource<IClrPropertyGetter> _getterSource;
+        private readonly IClrCollectionAccessorSource _collectionAccessorSource;
         private readonly IModel _model;
         private bool _inFixup;
 
@@ -29,9 +29,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public NavigationFixer(
-            [NotNull] ClrPropertyGetterSource getterSource,
-            [NotNull] ClrPropertySetterSource setterSource,
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> getterSource,
+            [NotNull] IClrAccessorSource<IClrPropertySetter> setterSource,
+            [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IModel model)
         {
             _getterSource = getterSource;

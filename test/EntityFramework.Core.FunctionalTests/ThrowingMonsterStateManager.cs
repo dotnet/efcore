@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         public ThrowingMonsterStateManager(
             InternalEntityEntryFactory factory,
-            EntityKeyFactorySource entityKeyFactorySource,
+            IEntityKeyFactorySource entityKeyFactorySource,
             InternalEntityEntrySubscriber subscriber,
             InternalEntityEntryNotifier notifier,
             ValueGenerationManager valueGeneration,

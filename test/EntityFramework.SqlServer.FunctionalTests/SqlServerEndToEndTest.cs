@@ -89,9 +89,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             public TestSqlServerQueryContextFactory(
                 StateManager stateManager,
-                EntityKeyFactorySource entityKeyFactorySource,
-                ClrCollectionAccessorSource collectionAccessorSource,
-                ClrPropertySetterSource propertySetterSource,
+                IEntityKeyFactorySource entityKeyFactorySource,
+                IClrCollectionAccessorSource collectionAccessorSource,
+                IClrAccessorSource<IClrPropertySetter> propertySetterSource,
                 ISqlServerConnection connection,
                 ILoggerFactory loggerFactory)
                 : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, connection, loggerFactory)

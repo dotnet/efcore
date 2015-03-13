@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public InternalMixedEntityEntry(
             [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
-            [NotNull] EntityEntryMetadataServices metadataServices,
+            [NotNull] IEntityEntryMetadataServices metadataServices,
             [NotNull] object entity)
             : base(stateManager, entityType, metadataServices)
         {
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public InternalMixedEntityEntry(
             [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
-            [NotNull] EntityEntryMetadataServices metadataServices,
+            [NotNull] IEntityEntryMetadataServices metadataServices,
             [NotNull] object entity,
             [NotNull] IValueReader valueReader)
             : base(stateManager, entityType, metadataServices)

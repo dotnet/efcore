@@ -7,23 +7,23 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Internal
 {
-    public class DbSetInitializer
+    public class DbSetInitializer : IDbSetInitializer
     {
-        private readonly DbSetFinder _setFinder;
-        private readonly ClrPropertySetterSource _setSetters;
-        private readonly DbSetSource _setSource;
+        private readonly IDbSetFinder _setFinder;
+        private readonly IClrAccessorSource<IClrPropertySetter> _setSetters;
+        private readonly IDbSetSource _setSource;
 
         public DbSetInitializer(
-            [NotNull] DbSetFinder setFinder,
-            [NotNull] ClrPropertySetterSource setSetters,
-            [NotNull] DbSetSource setSource)
+            [NotNull] IDbSetFinder setFinder,
+            [NotNull] IClrAccessorSource<IClrPropertySetter> setSetters,
+            [NotNull] IDbSetSource setSource)
         {
             _setFinder = setFinder;
             _setSetters = setSetters;
             _setSource = setSource;
         }
 
-        public virtual void InitializeSets([NotNull] DbContext context)
+        public virtual void InitializeSets(DbContext context)
         {
             foreach (var setInfo in _setFinder.FindSets(context).Where(p => p.HasSetter))
             {
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Internal
             }
         }
 
-        public virtual DbSet<TEntity> CreateSet<TEntity>([NotNull] DbContext context) where TEntity : class
+        public virtual DbSet<TEntity> CreateSet<TEntity>(DbContext context) where TEntity : class
             => (DbSet<TEntity>)_setSource.Create(context, typeof(TEntity));
     }
 }

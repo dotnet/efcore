@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerModelSource : ModelSource, ISqlServerModelSource
     {
-        public SqlServerModelSource([NotNull] DbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
+        public SqlServerModelSource([NotNull] IDbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
             : base(setFinder, modelValidator)
         {
         }

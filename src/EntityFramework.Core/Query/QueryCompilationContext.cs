@@ -16,8 +16,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] ILogger logger,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
-            [NotNull] EntityMaterializerSource entityMaterializerSource,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource)
+            [NotNull] IEntityMaterializerSource entityMaterializerSource,
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(logger, nameof(logger));
@@ -42,14 +42,11 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual IResultOperatorHandler ResultOperatorHandler { get; }
 
-        public virtual EntityMaterializerSource EntityMaterializerSource { get; }
+        public virtual IEntityMaterializerSource EntityMaterializerSource { get; }
 
-        public virtual EntityKeyFactorySource EntityKeyFactorySource { get; }
+        public virtual IEntityKeyFactorySource EntityKeyFactorySource { get; }
 
-        public virtual EntityQueryModelVisitor CreateQueryModelVisitor()
-        {
-            return CreateQueryModelVisitor(null);
-        }
+        public virtual EntityQueryModelVisitor CreateQueryModelVisitor() => CreateQueryModelVisitor(null);
 
         public abstract EntityQueryModelVisitor CreateQueryModelVisitor(
             [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor);

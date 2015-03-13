@@ -72,8 +72,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             public FakeRelationalDataStore(
                 IModel model,
-                EntityKeyFactorySource entityKeyFactorySource,
-                EntityMaterializerSource entityMaterializerSource,
+                IEntityKeyFactorySource entityKeyFactorySource,
+                IEntityMaterializerSource entityMaterializerSource,
                 IRelationalConnection connection,
                 CommandBatchPreparer batchPreparer,
                 BatchExecutor batchExecutor,

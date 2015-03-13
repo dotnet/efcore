@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Storage
     {
         ILogger Logger { get; }
         IModel Model { get; }
-        EntityKeyFactorySource EntityKeyFactorySource { get; }
-        EntityMaterializerSource EntityMaterializerSource { get; }
+        IEntityKeyFactorySource EntityKeyFactorySource { get; }
+        IEntityMaterializerSource EntityMaterializerSource { get; }
 
         int SaveChanges([NotNull] IReadOnlyList<InternalEntityEntry> entries);
 

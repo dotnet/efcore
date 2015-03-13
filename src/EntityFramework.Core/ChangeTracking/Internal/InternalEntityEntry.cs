@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract partial class InternalEntityEntry : IPropertyAccessor
     {
-        private readonly EntityEntryMetadataServices _metadataServices;
+        private readonly IEntityEntryMetadataServices _metadataServices;
         private StateData _stateData;
         private Sidecar[] _sidecars;
 
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         protected InternalEntityEntry(
             [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
-            [NotNull] EntityEntryMetadataServices metadataServices)
+            [NotNull] IEntityEntryMetadataServices metadataServices)
         {
             StateManager = stateManager;
             _metadataServices = metadataServices;

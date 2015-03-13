@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.Storage
 
         protected DataStore(
             [NotNull] IModel model,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] EntityMaterializerSource entityMaterializerSource,
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(model, nameof(model));
@@ -43,9 +43,9 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual IModel Model { get; }
 
-        public virtual EntityKeyFactorySource EntityKeyFactorySource { get; }
+        public virtual IEntityKeyFactorySource EntityKeyFactorySource { get; }
 
-        public virtual EntityMaterializerSource EntityMaterializerSource { get; }
+        public virtual IEntityMaterializerSource EntityMaterializerSource { get; }
 
         public abstract int SaveChanges(IReadOnlyList<InternalEntityEntry> entries);
 

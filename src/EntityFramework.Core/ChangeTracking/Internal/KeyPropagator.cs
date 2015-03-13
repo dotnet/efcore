@@ -12,8 +12,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class KeyPropagator
     {
-        private readonly ClrPropertyGetterSource _getterSource;
-        private readonly ClrCollectionAccessorSource _collectionAccessorSource;
+        private readonly IClrAccessorSource<IClrPropertyGetter> _getterSource;
+        private readonly IClrCollectionAccessorSource _collectionAccessorSource;
         private readonly IValueGeneratorSelector _valueGeneratorSelector;
 
         /// <summary>
@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public KeyPropagator(
-            [NotNull] ClrPropertyGetterSource getterSource,
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> getterSource,
+            [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IValueGeneratorSelector valueGeneratorSelector)
         {
             _getterSource = getterSource;

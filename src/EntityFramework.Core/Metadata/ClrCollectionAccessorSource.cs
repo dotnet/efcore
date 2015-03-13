@@ -11,9 +11,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class ClrCollectionAccessorSource
+    public class ClrCollectionAccessorSource : IClrCollectionAccessorSource
     {
-        private readonly CollectionTypeFactory _collectionTypeFactory;
+        private readonly ICollectionTypeFactory _collectionTypeFactory;
 
         private static readonly MethodInfo _genericCreate
             = typeof(ClrCollectionAccessorSource).GetTypeInfo().GetDeclaredMethods("CreateGeneric").Single();
@@ -33,14 +33,14 @@ namespace Microsoft.Data.Entity.Metadata
         {
         }
 
-        public ClrCollectionAccessorSource([NotNull] CollectionTypeFactory collectionTypeFactory)
+        public ClrCollectionAccessorSource([NotNull] ICollectionTypeFactory collectionTypeFactory)
         {
             Check.NotNull(collectionTypeFactory, nameof(collectionTypeFactory));
 
             _collectionTypeFactory = collectionTypeFactory;
         }
 
-        public virtual IClrCollectionAccessor GetAccessor([NotNull] INavigation navigation)
+        public virtual IClrCollectionAccessor GetAccessor(INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
 

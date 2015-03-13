@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity.InMemory
 
         public InMemoryDataStore(
             [NotNull] IModel model,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] EntityMaterializerSource entityMaterializerSource,
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] InMemoryDatabase persistentDatabase,
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory)

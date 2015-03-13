@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public InternalClrEntityEntry(
             [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
-            [NotNull] EntityEntryMetadataServices metadataServices,
+            [NotNull] IEntityEntryMetadataServices metadataServices,
             [NotNull] object entity)
             : base(stateManager, entityType, metadataServices)
         {

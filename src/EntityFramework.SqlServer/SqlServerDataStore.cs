@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         public SqlServerDataStore(
             [NotNull] IModel model,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] EntityMaterializerSource entityMaterializerSource,
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] ISqlServerConnection connection,
             [NotNull] SqlServerCommandBatchPreparer batchPreparer,
             [NotNull] SqlServerBatchExecutor batchExecutor,

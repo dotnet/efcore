@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Same(factorySource.GetKeyFactory(new[] { property }), factorySource.GetKeyFactory(new[] { property }));
         }
 
-        private static EntityKeyFactorySource CreateKeyFactorySource()
+        private static IEntityKeyFactorySource CreateKeyFactorySource()
         {
             return new EntityKeyFactorySource(new BoxedValueReaderSource());
         }
