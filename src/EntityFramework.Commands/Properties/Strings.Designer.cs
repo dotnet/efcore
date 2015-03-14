@@ -156,6 +156,14 @@ namespace Microsoft.Data.Entity.Commands
             return string.Format(CultureInfo.CurrentCulture, GetString("UnknownLiteral", "literalType"), literalType);
         }
 
+        /// <summary>
+        /// Unable to find asssembly with name {assemblyName}.
+        /// </summary>
+        public static string CannotFindAssembly([CanBeNull] object assemblyName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindAssembly", "assemblyName"), assemblyName);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
