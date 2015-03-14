@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Internal
 {
     public abstract class ModelValidator : IModelValidator
     {
-        public override void Validate(IModel model)
+        public virtual void Validate(IModel model)
         {
             EnsureNoShadowKeys(model);
             EnsureValidForeignKeyChains(model);
