@@ -3,7 +3,6 @@
 
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -59,6 +58,18 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Contains(extension2, optionsBuilder.Options.Extensions);
 
             Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
+        }
+
+        [Fact]
+        public void IsConfigured_returns_true_if_any_extensions_have_been_added()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+
+            Assert.False(optionsBuilder.IsConfigured);
+
+            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(new FakeDbContextOptionsExtension2());
+
+            Assert.True(optionsBuilder.IsConfigured);
         }
 
         private class FakeDbContextOptionsExtension1 : IDbContextOptionsExtension
