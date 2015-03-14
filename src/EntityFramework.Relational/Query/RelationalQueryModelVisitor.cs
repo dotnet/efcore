@@ -83,12 +83,12 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             base.VisitQueryModel(queryModel);
 
-            var predicateOptimizer = new EqualityPredicateOptimizer();
+            var compositePredicateVisitor = new CompositePredicateExpressionTreeVisitor();
 
             foreach (var selectExpression in _queriesBySource.Values.Where(se => se.Predicate != null))
             {
                 selectExpression.Predicate
-                    = predicateOptimizer.VisitExpression(selectExpression.Predicate);
+                    = compositePredicateVisitor.VisitExpression(selectExpression.Predicate);
             }
         }
 
