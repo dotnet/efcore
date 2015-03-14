@@ -19,8 +19,6 @@ namespace Microsoft.Data.Entity.Commands
     // TODO: Add verbose option
     public class Program
     {
-        public static readonly string _defaultReverseEngineeringProviderAssembly = "EntityFramework.SqlServer.Design";
-
         private readonly string _projectDir;
         private readonly string _rootNamespace;
         private readonly ILibraryManager _libraryManager;
@@ -305,14 +303,9 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual int ReverseEngineer([NotNull] string connectionString)
         {
-            var providerAssembly = GetReverseEngineerProviderAssembly(_defaultReverseEngineeringProviderAssembly);
-            if (providerAssembly == null)
-            {
-                Console.WriteLine("No provider assembly was found with name " + _defaultReverseEngineeringProviderAssembly);
-                return 1;
-            }
-
-            _databaseTool.ReverseEngineer(providerAssembly, connectionString, _rootNamespace, _projectDir);
+            _databaseTool.ReverseEngineer(
+                DatabaseTool._defaultReverseEngineeringProviderAssembly,
+                connectionString, _rootNamespace, _projectDir);
 
             return 0;
         }
@@ -370,16 +363,6 @@ namespace Microsoft.Data.Entity.Commands
             }
 
             return projectDir;
-        }
-
-        private Assembly GetReverseEngineerProviderAssembly(string providerAssemblyName)
-        {
-            return _libraryManager.GetReferencingLibraries("EntityFramework.Relational.Design")
-                .Distinct()
-                .Where(l => l.Name == providerAssemblyName)
-                .SelectMany(l => l.LoadableAssemblies)
-                .Select((assemblyName, assembly) => Assembly.Load(assemblyName))
-                .FirstOrDefault();
         }
     }
 }

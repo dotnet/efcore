@@ -121,10 +121,6 @@
       <Project>{7028a7e3-0ad8-4606-a922-8189c8a704e0}</Project>
       <Name>EntityFramework.Relational.Design</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EntityFramework.SqlServer.Design\EntityFramework.SqlServer.Design.csproj">
-      <Project>{9AFDF1FA-1710-48E3-9802-7AB9DAC91B35}</Project>
-      <Name>EntityFramework.SqlServer.Design</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>EntityFramework.Relational</Name>

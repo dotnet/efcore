@@ -16,7 +16,10 @@ namespace Microsoft.Data.Entity.Commands
 {
     public class DatabaseTool
     {
+        public static readonly string _defaultReverseEngineeringProviderAssembly = "EntityFramework.SqlServer.Design";
+
         private readonly ServiceProvider _serviceProvider;
+        private readonly LazyRef<ILogger> _logger;
 
         public DatabaseTool(
             [CanBeNull] IServiceProvider serviceProvider,
@@ -27,26 +30,32 @@ namespace Microsoft.Data.Entity.Commands
             _serviceProvider = new ServiceProvider(serviceProvider);
             var loggerFactory = new LoggerFactory();
             loggerFactory.AddProvider(loggerProvider);
-            var logger = new LazyRef<ILogger>(() => loggerFactory.CreateLogger<DatabaseTool>());
-            _serviceProvider.AddService(typeof(ILogger), logger.Value);
+            _logger = new LazyRef<ILogger>(() => loggerFactory.CreateLogger<DatabaseTool>());
+            _serviceProvider.AddService(typeof(ILogger), _logger.Value);
             _serviceProvider.AddService(typeof(CSharpCodeGeneratorHelper), new CSharpCodeGeneratorHelper());
             _serviceProvider.AddService(typeof(ModelUtilities), new ModelUtilities());
         }
 
         public virtual IEnumerable<string> ReverseEngineer(
-            [NotNull] Assembly providerAssembly,
+            [NotNull] string providerAssemblyName,
             [NotNull] string connectionString,
             [NotNull] string rootNamespace,
             [NotNull] string projectDir)
         {
-            Check.NotNull(providerAssembly, nameof(providerAssembly));
+            Check.NotNull(providerAssemblyName, nameof(providerAssemblyName));
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
             Check.NotEmpty(projectDir, nameof(projectDir));
 
+            var assembly = GetReverseEngineerProviderAssembly(providerAssemblyName);
+            if (assembly == null)
+            {
+                throw new InvalidOperationException(Strings.CannotFindAssembly(providerAssemblyName));
+            }
+
             var configuration = new ReverseEngineeringConfiguration()
             {
-                ProviderAssembly = providerAssembly,
+                ProviderAssembly = assembly,
                 ConnectionString = connectionString,
                 Namespace = rootNamespace,
                 OutputPath = projectDir
@@ -54,6 +63,12 @@ namespace Microsoft.Data.Entity.Commands
 
             var generator = new ReverseEngineeringGenerator(_serviceProvider);
             return generator.GenerateAsync(configuration).Result;
+        }
+
+        private Assembly GetReverseEngineerProviderAssembly(string providerAssemblyName)
+        {
+            var assemblyName = new AssemblyName(providerAssemblyName);
+            return Assembly.Load(assemblyName);
         }
     }
 }

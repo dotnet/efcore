@@ -114,9 +114,17 @@
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>EntityFramework.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Relational.Design\EntityFramework.Relational.Design.csproj">
+      <Project>{7028a7e3-0ad8-4606-a922-8189c8a704e0}</Project>
+      <Name>EntityFramework.Relational.Design</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.SqlServer.Design\EntityFramework.SqlServer.Design.csproj">
+      <Project>{9afdf1fa-1710-48e3-9802-7ab9dac91b35}</Project>
+      <Name>EntityFramework.SqlServer.Design</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
       <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>

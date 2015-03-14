@@ -60,6 +60,7 @@ namespace Microsoft.Data.Entity.Commands
                                     BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
+                                    BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.SqlServer", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Framework.Caching.Interfaces", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Framework.Caching.Memory", copyLocal: true),
@@ -145,6 +146,7 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.SqlServer", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Framework.Caching.Interfaces", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Framework.Caching.Memory", copyLocal: true),
@@ -265,6 +267,7 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                                 BuildReference.ByName("EntityFramework.Core"),
                                 BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true),
                                 BuildReference.ByPath(contextsBuild.TargetPath)

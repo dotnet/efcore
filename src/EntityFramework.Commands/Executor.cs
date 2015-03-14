@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
-using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands
@@ -234,15 +233,15 @@ namespace Microsoft.Data.Entity.Commands
 
                 var connectionString = (string)args["connectionString"];
 
-                var providerAssembly = typeof(SqlServerMetadataModelProvider).Assembly;
+                var providerAssemblyName = DatabaseTool._defaultReverseEngineeringProviderAssembly;
 
-                Execute(() => executor.ReverseEngineerImpl(providerAssembly, connectionString));
+                Execute(() => executor.ReverseEngineerImpl(providerAssemblyName, connectionString));
             }
         }
 
         public virtual IEnumerable<string> ReverseEngineerImpl(
-            [NotNull] Assembly providerAssembly, [NotNull] string connectionString) =>
-                _databaseTool.ReverseEngineer(providerAssembly, connectionString, _rootNamespace, _projectDir);
+            [NotNull] string providerAssemblyName, [NotNull] string connectionString) =>
+                _databaseTool.ReverseEngineer(providerAssemblyName, connectionString, _rootNamespace, _projectDir);
 
         public abstract class OperationBase : MarshalByRefObject
         {
