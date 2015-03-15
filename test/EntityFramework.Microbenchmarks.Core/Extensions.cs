@@ -7,9 +7,8 @@ namespace EntityFramework.Microbenchmarks.Core
     {
         public static void RunTest(this TestDefinition definition)
         {
-            var runner = new PerfTestRunner();
-            runner.Register(definition);
-            runner.RunTests(TestConfig.Instance.ResultsDirectory);
+            var runner = new PerfTestRunner(definition);
+            runner.Run(TestConfig.Instance.ResultsDirectory);
         }
     }
 }

@@ -15,47 +15,32 @@ namespace EntityFramework.Microbenchmarks.Core
 {
     public class PerfTestRunner
     {
-        private readonly ICollection<TestDefinition> _tests = new List<TestDefinition>();
-        public string PathToResultsFile { get; set; }
+        private readonly TestDefinition _test;
 
-        public void Register(TestDefinition test)
+        public PerfTestRunner(TestDefinition test)
         {
-            _tests.Add(test);
+            _test = test;
         }
 
-        public void RunTests(string resultDirectory)
+        public void Run(string resultDirectory)
         {
-            var results = new List<PerformanceMetric>();
-            var failedRunResult = new List<Exception>();
             var performanceCaseResult = new PerformanceCaseResult();
             performanceCaseResult.StartTimer();
 
-            foreach (var testDefinition in _tests)
-            {
-                var result = Run(testDefinition);
-                PrintSummary(result);
-                results.AddRange(ConvertResultToMetrics(result));
-                if (!result.Successful)
-                {
-                    failedRunResult.Add(result.ReportedException);
-                }
-            }
+            var result = Run(_test);
 
             performanceCaseResult.StopTimer();
-            performanceCaseResult.Metrics = results.ToArray();
+            performanceCaseResult.Metrics = ConvertResultToMetrics(result).ToArray();
 
-            Assert.False(failedRunResult.Any(), failedRunResult.Any() ? failedRunResult.First().Message : string.Empty);
-            Assert.False(results.Count == 0, "tests returned no results");
+            PrintSummary(result);
 
-            WriteResultFiles(resultDirectory, results, performanceCaseResult);
-        }
-
-        private void PrintSummary(List<RunResult> results)
-        {
-            foreach (var runResult in results)
+            if (!result.Successful)
             {
-                PrintSummary(runResult);
+                // log the failure using an Assert that will always fail
+                Assert.True(false, result.ReportedException.Message);
             }
+
+            WriteResultFile(resultDirectory, _test.TestName, performanceCaseResult);
         }
 
         private void PrintSummary(RunResult runResult)
@@ -241,7 +226,7 @@ namespace EntityFramework.Microbenchmarks.Core
             return metrics;
         }
 
-        private static void WriteResultFiles(string resultDirectory, List<PerformanceMetric> results, PerformanceCaseResult performanceCaseResult)
+        private static void WriteResultFile(string resultDirectory, string scenario, PerformanceCaseResult performanceCaseResult)
         {
             if (!Directory.Exists(resultDirectory))
             {
@@ -249,10 +234,10 @@ namespace EntityFramework.Microbenchmarks.Core
             }
 
             var jsonData = JsonConvert.SerializeObject(performanceCaseResult, Formatting.Indented);
-            var jsonFilename = string.Format("result_{0}_{1}.json", results.First().Scenario.Replace(' ', '_'), TestConfig.Instance.RuntimeFlavor);
+            var jsonFilename = string.Format("result_{0}_{1}.json", scenario, TestConfig.Instance.RuntimeFlavor);
             File.WriteAllText(Path.Combine(resultDirectory, jsonFilename), jsonData);
 
-            var csvFilename = Path.Combine(resultDirectory, "results.csv");
+            var csvFilename = string.Format("results.csv", scenario, TestConfig.Instance.RuntimeFlavor);
             if (!File.Exists(csvFilename))
             {
                 File.WriteAllText(csvFilename, "StartTime,EndTime,Scenario,Metric,Unit,Value");
