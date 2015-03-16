@@ -41,11 +41,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             _propertyValues = new object[valueReader.Count];
 
-            for (var i = 0; i < valueReader.Count; i++)
+            var index = 0;
+            foreach (var property in entityType.Properties)
             {
-                // TODO: Consider using strongly typed ReadValue instead of always object
-                // Issue #738
-                _propertyValues[i] = valueReader.IsNull(i) ? null : valueReader.ReadValue<object>(i);
+                _propertyValues[index++] = metadataServices.ReadValueFromReader(valueReader, property);
             }
         }
 

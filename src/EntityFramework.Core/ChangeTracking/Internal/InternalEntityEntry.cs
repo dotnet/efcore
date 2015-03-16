@@ -14,7 +14,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract partial class InternalEntityEntry : IPropertyAccessor
     {
-        private readonly IEntityEntryMetadataServices _metadataServices;
         private StateData _stateData;
         private Sidecar[] _sidecars;
 
@@ -35,7 +34,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IEntityEntryMetadataServices metadataServices)
         {
             StateManager = stateManager;
-            _metadataServices = metadataServices;
+            MetadataServices = metadataServices;
             EntityType = entityType;
             _stateData = new StateData(EntityType.PropertyCount);
         }
@@ -47,11 +46,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual StateManager StateManager { get; }
 
+        protected virtual IEntityEntryMetadataServices MetadataServices { get; }
+
         public virtual Sidecar OriginalValues => TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)
-                                                 ?? AddSidecar(_metadataServices.CreateOriginalValues(this));
+                                                 ?? AddSidecar(MetadataServices.CreateOriginalValues(this));
 
         public virtual Sidecar RelationshipsSnapshot => TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
-                                                        ?? AddSidecar(_metadataServices.CreateRelationshipSnapshot(this));
+                                                        ?? AddSidecar(MetadataServices.CreateRelationshipSnapshot(this));
 
         public virtual Sidecar AddSidecar([NotNull] Sidecar sidecar)
         {
@@ -270,14 +271,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             Debug.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
 
-            return _metadataServices.ReadValue(Entity, propertyBase);
+            return MetadataServices.ReadValue(Entity, propertyBase);
         }
 
         protected virtual void WritePropertyValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
         {
             Debug.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
 
-            _metadataServices.WriteValue(Entity, propertyBase, value);
+            MetadataServices.WriteValue(Entity, propertyBase, value);
         }
 
         public virtual object this[IPropertyBase property]
@@ -339,7 +340,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual EntityKey CreateKey(
             [NotNull] IEntityType entityType,
             [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IPropertyAccessor propertyAccessor) => _metadataServices.CreateKey(entityType, properties, propertyAccessor);
+            [NotNull] IPropertyAccessor propertyAccessor) => MetadataServices.CreateKey(entityType, properties, propertyAccessor);
 
         public virtual EntityKey GetDependentKeySnapshot([NotNull] IForeignKey foreignKey)
             => CreateKey(foreignKey.ReferencedEntityType, foreignKey.Properties, RelationshipsSnapshot);
@@ -399,7 +400,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             var properties = MayGetStoreValue();
             if (properties.Any())
             {
-                AddSidecar(_metadataServices.CreateStoreGeneratedValues(this, properties));
+                AddSidecar(MetadataServices.CreateStoreGeneratedValues(this, properties));
             }
 
             return this;

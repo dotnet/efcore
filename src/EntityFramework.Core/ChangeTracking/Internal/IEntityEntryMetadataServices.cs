@@ -19,5 +19,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IEntityType entityType,
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IPropertyAccessor propertyAccessor);
+
+        object ReadValueFromReader([NotNull] IValueReader valueReader, [NotNull] IProperty property);
     }
 }

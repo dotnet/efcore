@@ -77,12 +77,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             foreach (var property in EntityType.Properties.Where(property => property.IsShadowProperty))
             {
-                // TODO: Consider using strongly typed ReadValue instead of always object
-                // Issue #738
-                shadowValues[property.ShadowIndex]
-                    = valueReader.IsNull(property.Index)
-                        ? null
-                        : valueReader.ReadValue<object>(property.Index);
+                shadowValues[property.ShadowIndex] = MetadataServices.ReadValueFromReader(valueReader, property);
             }
 
             return shadowValues;

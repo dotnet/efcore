@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
@@ -15,6 +16,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private readonly IRelationshipsSnapshotFactory _relationshipsSnapshotFactory;
         private readonly IStoreGeneratedValuesFactory _storeGeneratedValuesFactory;
         private readonly IEntityKeyFactorySource _entityKeyFactorySource;
+        private readonly IBoxedValueReaderSource _boxedValueReaderSource;
 
         public EntityEntryMetadataServices(
             [NotNull] IClrAccessorSource<IClrPropertyGetter> getterSource,
@@ -22,7 +24,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IOriginalValuesFactory originalValuesFactory,
             [NotNull] IRelationshipsSnapshotFactory relationshipsSnapshotFactory,
             [NotNull] IStoreGeneratedValuesFactory storeGeneratedValuesFactory,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource)
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IBoxedValueReaderSource boxedValueReaderSource)
         {
             _getterSource = getterSource;
             _setterSource = setterSource;
@@ -30,12 +33,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _relationshipsSnapshotFactory = relationshipsSnapshotFactory;
             _storeGeneratedValuesFactory = storeGeneratedValuesFactory;
             _entityKeyFactorySource = entityKeyFactorySource;
+            _boxedValueReaderSource = boxedValueReaderSource;
         }
 
         public virtual object ReadValue(object entity, IPropertyBase propertyBase)
             => _getterSource.GetAccessor(propertyBase).GetClrValue(entity);
 
-        public virtual void WriteValue(object entity, IPropertyBase propertyBase, object value) 
+        public virtual void WriteValue(object entity, IPropertyBase propertyBase, object value)
             => _setterSource.GetAccessor(propertyBase).SetClrValue(entity, value);
 
         public virtual Sidecar CreateOriginalValues(InternalEntityEntry entry)
@@ -51,5 +55,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             => _entityKeyFactorySource
                 .GetKeyFactory(properties)
                 .Create(entityType, properties, propertyAccessor);
+
+        public virtual object ReadValueFromReader(IValueReader valueReader, IProperty property)
+            => _boxedValueReaderSource.GetReader(property).ReadValue(valueReader, property.Index);
     }
 }
