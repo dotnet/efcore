@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Commands
         {
             if (string.IsNullOrEmpty(name))
             {
-                _app.ShowHelp("migration add");
+                _app.Commands.Single(c => c.Name == "migration").ShowHelp("add");
 
                 return 1;
             }
