@@ -817,7 +817,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             navigationToPrincipalName = navigationToPrincipalName == "" ? null : navigationToPrincipalName;
             navigationToDependentName = navigationToDependentName == "" ? null : navigationToDependentName;
 
-            var builder = Relationship(
+            return Relationship(
                 principalEntityTypeBuilder,
                 dependentEntityTypeBuilder,
                 navigationToPrincipalName,
@@ -826,8 +826,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 configurationSource,
                 isUnique);
-
-            return builder;
         }
 
         public virtual InternalRelationshipBuilder Relationship(
@@ -1209,14 +1207,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             public InternalRelationshipBuilder Attach()
             {
                 var newRelationship = Relationship.Attach(RelationshipConfigurationSource);
+                var inverted = Relationship.Metadata.EntityType != newRelationship.Metadata.EntityType;
                 if (NavigationToPrincipalName != null)
                 {
-                    newRelationship = newRelationship.NavigationToPrincipal(NavigationToPrincipalName, RelationshipConfigurationSource);
+                    newRelationship = inverted
+                        ? newRelationship.NavigationToDependent(NavigationToPrincipalName, RelationshipConfigurationSource)
+                        : newRelationship.NavigationToPrincipal(NavigationToPrincipalName, RelationshipConfigurationSource);
                 }
 
+                inverted = Relationship.Metadata.EntityType != newRelationship.Metadata.EntityType;
                 if (NavigationToDependentName != null)
                 {
-                    newRelationship = newRelationship.NavigationToDependent(NavigationToDependentName, RelationshipConfigurationSource);
+                    newRelationship = inverted
+                        ? newRelationship.NavigationToPrincipal(NavigationToDependentName, RelationshipConfigurationSource)
+                        : newRelationship.NavigationToDependent(NavigationToDependentName, RelationshipConfigurationSource);
                 }
 
                 return newRelationship;

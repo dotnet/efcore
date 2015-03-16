@@ -169,6 +169,44 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
             Assert.True(fk.Properties[1].IsNullable);
         }
 
+        [Fact]
+        public void Can_only_invert_same_or_lower_source()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            customerEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = orderEntityBuilder
+                .Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, isUnique: true);
+
+            Assert.Same(orderEntityBuilder.Metadata, relationshipBuilder.Metadata.EntityType);
+
+            relationshipBuilder = relationshipBuilder.Invert(ConfigurationSource.Convention);
+            Assert.Same(customerEntityBuilder.Metadata, relationshipBuilder.Metadata.EntityType);
+
+            relationshipBuilder = relationshipBuilder.ReferencedKey(
+                orderEntityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.Convention).Metadata.Properties,
+                ConfigurationSource.Convention);
+
+            Assert.Null(relationshipBuilder.Invert(ConfigurationSource.Convention));
+            Assert.Same(customerEntityBuilder.Metadata, relationshipBuilder.Metadata.EntityType);
+
+            relationshipBuilder = relationshipBuilder.Invert(ConfigurationSource.DataAnnotation);
+            Assert.Same(orderEntityBuilder.Metadata, relationshipBuilder.Metadata.EntityType);
+
+            relationshipBuilder = relationshipBuilder.Invert(ConfigurationSource.DataAnnotation);
+            Assert.Same(customerEntityBuilder.Metadata, relationshipBuilder.Metadata.EntityType);
+
+            Assert.Null(relationshipBuilder.Invert(ConfigurationSource.Convention));
+            Assert.Same(customerEntityBuilder.Metadata, relationshipBuilder.Metadata.EntityType);
+
+            relationshipBuilder = relationshipBuilder.ForeignKey(new[] { Customer.IdProperty }, ConfigurationSource.DataAnnotation);
+
+            Assert.Null(relationshipBuilder.Invert(ConfigurationSource.DataAnnotation));
+            Assert.Same(customerEntityBuilder.Metadata, relationshipBuilder.Metadata.EntityType);
+        }
+
         private InternalModelBuilder CreateInternalModelBuilder()
         {
             return new InternalModelBuilder(new Model());

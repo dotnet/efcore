@@ -356,12 +356,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Can_write_convention_ont_to_many_builder_extension()
+        public void Can_write_convention_one_to_one_builder_extension()
         {
             var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Avatar>().HasOne(e => e.Gunter).WithOne(e => e.Avatar)
+                .ReferencedKey<Gunter>(e => e.Id)
                 .OneToOneBuilderExtension("V1")
                 .OneToOneBuilderExtension("V2");
 
@@ -721,12 +722,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Can_write_convention_ont_to_many_builder_extension_with_common_name()
+        public void Can_write_convention_one_to_one_builder_extension_with_common_name()
         {
             var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Avatar>().HasOne(e => e.Gunter).WithOne(e => e.Avatar)
+                .ReferencedKey<Gunter>(e => e.Id)
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 

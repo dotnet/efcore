@@ -53,25 +53,24 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Can_build_monster_model_and_seed_data_using_all_navigations()
         {
             const string databaseName = SnapshotDatabaseName + "_AllNavs";
-            Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName), databaseName);
+            Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName));
         }
 
         [Fact]
         public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_all_navigations()
         {
             const string databaseName = FullNotifyDatabaseName + "_AllNavs";
-            Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName), databaseName);
+            Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName));
         }
 
         [Fact]
         public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_all_navigations()
         {
             const string databaseName = ChangedOnlyDatabaseName + "_AllNavs";
-            Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateChangedOnlyMonsterContext(p, databaseName), databaseName);
+            Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateChangedOnlyMonsterContext(p, databaseName));
         }
 
-        private void Can_build_monster_model_and_seed_data_using_all_navigations_test(
-            Func<IServiceProvider, MonsterContext> createContext, string databaseName)
+        private void Can_build_monster_model_and_seed_data_using_all_navigations_test(Func<IServiceProvider, MonsterContext> createContext)
         {
             var serviceProvider = CreateServiceProvider();
 
@@ -91,25 +90,24 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Can_build_monster_model_and_seed_data_using_dependent_navigations()
         {
             const string databaseName = SnapshotDatabaseName + "_DependentNavs";
-            Can_build_monster_model_and_seed_data_using_dependent_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName), databaseName);
+            Can_build_monster_model_and_seed_data_using_dependent_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName));
         }
 
         [Fact]
         public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_dependent_navigations()
         {
             const string databaseName = FullNotifyDatabaseName + "_DependentNavs";
-            Can_build_monster_model_and_seed_data_using_dependent_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName), databaseName);
+            Can_build_monster_model_and_seed_data_using_dependent_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName));
         }
 
         [Fact]
         public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_dependent_navigations()
         {
             const string databaseName = ChangedOnlyDatabaseName + "_DependentNavs";
-            Can_build_monster_model_and_seed_data_using_dependent_navigations_test(p => CreateChangedOnlyMonsterContext(p, databaseName), databaseName);
+            Can_build_monster_model_and_seed_data_using_dependent_navigations_test(p => CreateChangedOnlyMonsterContext(p, databaseName));
         }
 
-        private void Can_build_monster_model_and_seed_data_using_dependent_navigations_test(
-            Func<IServiceProvider, MonsterContext> createContext, string databaseName)
+        private void Can_build_monster_model_and_seed_data_using_dependent_navigations_test(Func<IServiceProvider, MonsterContext> createContext)
         {
             var serviceProvider = CreateServiceProvider();
 
@@ -129,25 +127,24 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Can_build_monster_model_and_seed_data_using_principal_navigations()
         {
             const string databaseName = SnapshotDatabaseName + "_PrincipalNavs";
-            Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName), databaseName);
+            Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName));
         }
 
         //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
         public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_principal_navigations()
         {
             const string databaseName = FullNotifyDatabaseName + "_PrincipalNavs";
-            Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName), databaseName);
+            Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName));
         }
 
         //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
         public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_principal_navigations()
         {
             const string databaseName = ChangedOnlyDatabaseName + "_PrincipalNavs";
-            Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateChangedOnlyMonsterContext(p, databaseName), databaseName);
+            Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateChangedOnlyMonsterContext(p, databaseName));
         }
 
-        private void Can_build_monster_model_and_seed_data_using_principal_navigations_test(
-            Func<IServiceProvider, MonsterContext> createContext, string databaseName)
+        private void Can_build_monster_model_and_seed_data_using_principal_navigations_test(Func<IServiceProvider, MonsterContext> createContext)
         {
             var serviceProvider = CreateServiceProvider();
 
@@ -167,25 +164,24 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add()
         {
             const string databaseName = SnapshotDatabaseName + "_AllNavsDeferred";
-            Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(p => CreateSnapshotMonsterContext(p, databaseName), databaseName);
+            Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(p => CreateSnapshotMonsterContext(p, databaseName));
         }
 
         [Fact]
         public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_navigations_with_deferred_add()
         {
             const string databaseName = FullNotifyDatabaseName + "_AllNavsDeferred";
-            Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(p => CreateChangedChangingMonsterContext(p, databaseName), databaseName);
+            Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(p => CreateChangedChangingMonsterContext(p, databaseName));
         }
 
         [Fact]
         public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_navigations_with_deferred_add()
         {
             const string databaseName = ChangedOnlyDatabaseName + "_AllNavsDeferred";
-            Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(p => CreateChangedOnlyMonsterContext(p, databaseName), databaseName);
+            Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(p => CreateChangedOnlyMonsterContext(p, databaseName));
         }
 
-        private void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(
-            Func<IServiceProvider, MonsterContext> createContext, string databaseName)
+        private void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(Func<IServiceProvider, MonsterContext> createContext)
         {
             var serviceProvider = CreateServiceProvider();
 
@@ -205,25 +201,24 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual async Task Store_generated_values_are_discarded_if_saving_changes_fails()
         {
             const string databaseName = SnapshotDatabaseName + "_Bad";
-            await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateSnapshotMonsterContext(p, databaseName), databaseName);
+            await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateSnapshotMonsterContext(p, databaseName));
         }
 
         [Fact]
         public virtual async Task Store_generated_values_are_discarded_if_saving_changes_fails_with_full_notification_entities()
         {
             const string databaseName = FullNotifyDatabaseName + "_Bad";
-            await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateChangedChangingMonsterContext(p, databaseName), databaseName);
+            await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateChangedChangingMonsterContext(p, databaseName));
         }
 
         [Fact]
         public virtual async Task Store_generated_values_are_discarded_if_saving_changes_fails_with_changed_only_notification_entities()
         {
             const string databaseName = ChangedOnlyDatabaseName + "_Bad";
-            await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateChangedOnlyMonsterContext(p, databaseName), databaseName);
+            await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateChangedOnlyMonsterContext(p, databaseName));
         }
 
-        private async Task Store_generated_values_are_discarded_if_saving_changes_fails_test(
-            Func<IServiceProvider, MonsterContext> createContext, string databaseName)
+        private async Task Store_generated_values_are_discarded_if_saving_changes_fails_test(Func<IServiceProvider, MonsterContext> createContext)
         {
             var serviceProvider = CreateServiceProvider(throwingStateManager: true);
 

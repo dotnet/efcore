@@ -18,6 +18,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ConfigurationSource? _referencedKeyConfigurationSource;
         private ConfigurationSource? _isUniqueConfigurationSource;
         private ConfigurationSource? _isRequiredConfigurationSource;
+        private ConfigurationSource? _principalEndConfigurationSource;
 
         public InternalRelationshipBuilder(
             [NotNull] ForeignKey foreignKey,
@@ -32,6 +33,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _referencedKeyConfigurationSource = initialConfigurationSource;
             _isUniqueConfigurationSource = initialConfigurationSource;
             _isRequiredConfigurationSource = initialConfigurationSource;
+            _principalEndConfigurationSource = initialConfigurationSource;
         }
 
         public virtual InternalRelationshipBuilder NavigationToPrincipal(
@@ -70,7 +72,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var hasChanged = navigationToPrincipalName != null &&
                              Metadata.GetNavigationToPrincipal()?.Name != navigationToPrincipalName;
 
-            if (Metadata.EntityType == Metadata.ReferencedEntityType
+            if (Metadata.IsSelfReferencing()
                 && navigationToPrincipalName != null
                 && navigationToPrincipalName == Metadata.GetNavigationToDependent()?.Name)
             {
@@ -119,7 +121,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var hasChanged = navigationToDependentName != null &&
                              Metadata.GetNavigationToDependent()?.Name != navigationToDependentName;
 
-            if (Metadata.EntityType == Metadata.ReferencedEntityType
+            if (Metadata.IsSelfReferencing()
                 && navigationToDependentName != null
                 && navigationToDependentName == Metadata.GetNavigationToPrincipal()?.Name)
             {
@@ -184,7 +186,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             if ((_foreignKeyPropertiesConfigurationSource != null && _foreignKeyPropertiesConfigurationSource.Value.Overrides(configurationSource))
-                || (_referencedKeyConfigurationSource != null && _referencedKeyConfigurationSource.Value.Overrides(configurationSource)))
+                || (_referencedKeyConfigurationSource != null && _referencedKeyConfigurationSource.Value.Overrides(configurationSource))
+                || (_principalEndConfigurationSource != null && !configurationSource.Overrides(_principalEndConfigurationSource.Value)))
             {
                 if (configurationSource == ConfigurationSource.Explicit)
                 {
@@ -193,6 +196,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
+            _principalEndConfigurationSource = configurationSource.Max(_principalEndConfigurationSource);
             _foreignKeyPropertiesConfigurationSource = null;
             _referencedKeyConfigurationSource = null;
 
@@ -294,6 +298,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalRelationshipBuilder ForeignInvertIfNeeded(EntityType entityType, ConfigurationSource configurationSource)
         {
+            _principalEndConfigurationSource = configurationSource.Max(_principalEndConfigurationSource);
             return entityType == Metadata.EntityType
                 ? this
                 : Invert(configurationSource);
@@ -408,6 +413,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalRelationshipBuilder ReferenceInvertIfNeeded(EntityType entityType, ConfigurationSource configurationSource)
         {
+            _principalEndConfigurationSource = configurationSource.Max(_principalEndConfigurationSource);
             return entityType == Metadata.ReferencedEntityType
                 ? this
                 : Invert(configurationSource);
@@ -550,9 +556,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var inverted = builder.Metadata.EntityType != Metadata.EntityType;
             Debug.Assert(inverted
-                         || (builder.Metadata.EntityType == Metadata.EntityType && builder.Metadata.ReferencedEntityType == Metadata.ReferencedEntityType));
+                         || (builder.Metadata.EntityType == Metadata.EntityType
+                             && builder.Metadata.ReferencedEntityType == Metadata.ReferencedEntityType));
             Debug.Assert(!inverted
-                         || (builder.Metadata.EntityType == Metadata.ReferencedEntityType && builder.Metadata.ReferencedEntityType == Metadata.EntityType));
+                         || (builder.Metadata.EntityType == Metadata.ReferencedEntityType
+                             && builder.Metadata.ReferencedEntityType == Metadata.EntityType));
 
             var targetForeignKeyPropertiesConfigurationSource = inverted
                 ? builder._referencedKeyConfigurationSource
@@ -566,6 +574,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             _referencedKeyConfigurationSource =
                 targetReferencedKeyConfigurationSource?.Max(_referencedKeyConfigurationSource) ?? _referencedKeyConfigurationSource;
+            _principalEndConfigurationSource = builder._principalEndConfigurationSource;
 
             _isUniqueConfigurationSource = builder._isUniqueConfigurationSource?.Max(_isUniqueConfigurationSource) ?? _isUniqueConfigurationSource;
             _isRequiredConfigurationSource = builder._isRequiredConfigurationSource?.Max(_isRequiredConfigurationSource) ?? _isRequiredConfigurationSource;

@@ -957,24 +957,24 @@ namespace Microsoft.Data.Entity
                 /// <returns> The internal builder to further configure the relationship. </returns>
                 protected InternalRelationshipBuilder WithOneBuilder(string inverseReferenceName)
                 {
-                    var isSelfReferencing = Metadata.EntityType == Metadata.ReferencedEntityType;
-                    var inverseToPrincipal = !isSelfReferencing
-                                             && Metadata.EntityType == RelatedEntityType
-                                             && (string.IsNullOrEmpty(ReferenceName) || Metadata.GetNavigationToDependent()?.Name == ReferenceName);
-
-                    Debug.Assert(inverseToPrincipal
-                                 || (Metadata.ReferencedEntityType == RelatedEntityType
-                                     && (string.IsNullOrEmpty(ReferenceName) || Metadata.GetNavigationToPrincipal()?.Name == ReferenceName)));
-
                     var builder = Builder;
                     if (!((IForeignKey)Metadata).IsUnique)
                     {
-                        Debug.Assert(!inverseToPrincipal);
+                        Debug.Assert(Metadata.GetNavigationToPrincipal()?.Name == ReferenceName);
 
                         builder = builder.NavigationToDependent(null, ConfigurationSource.Explicit);
                     }
 
                     builder = builder.Unique(true, ConfigurationSource.Explicit);
+                    var foreignKey = builder.Metadata;
+
+                    var inverseToPrincipal = !foreignKey.IsSelfReferencing()
+                                             && foreignKey.EntityType == RelatedEntityType
+                                             && foreignKey.GetNavigationToDependent()?.Name == ReferenceName;
+
+                    Debug.Assert(inverseToPrincipal
+                                 || (foreignKey.ReferencedEntityType == RelatedEntityType
+                                     && foreignKey.GetNavigationToPrincipal()?.Name == ReferenceName));
 
                     builder = inverseToPrincipal
                         ? builder.NavigationToPrincipal(inverseReferenceName, ConfigurationSource.Explicit, strictPreferExisting: false)

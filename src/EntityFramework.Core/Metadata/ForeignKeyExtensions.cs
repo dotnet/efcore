@@ -36,6 +36,14 @@ namespace Microsoft.Data.Entity.Metadata
                 navigation => navigation.ForeignKey == foreignKey && !navigation.PointsToPrincipal);
         }
 
+        public static bool IsSelfReferencing(
+            [NotNull] this ForeignKey foreignKey)
+        {
+            Check.NotNull(foreignKey, nameof(foreignKey));
+
+            return foreignKey.EntityType == foreignKey.ReferencedEntityType;
+        }
+
         public static bool IsCompatible(
             [NotNull] this ForeignKey foreignKey,
             [NotNull] EntityType principalType,

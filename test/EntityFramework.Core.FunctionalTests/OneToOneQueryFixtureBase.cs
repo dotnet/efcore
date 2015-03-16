@@ -1,17 +1,15 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Metadata;
-
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class OneToOneQueryFixtureBase
     {
-
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .Entity<Address>(e => e.HasOne(a => a.Resident).WithOne(p => p.Address));
+                .Entity<Address>(e => e.HasOne(a => a.Resident).WithOne(p => p.Address)
+                    .ReferencedKey<Person>(person => person.Id));
 
             modelBuilder.Entity<Address2>().Property<int>("PersonId");
 
@@ -19,7 +17,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .Entity<Person2>(
                     e => e.HasOne(p => p.Address).WithOne(a => a.Resident)
                         .ForeignKey(typeof(Address2), "PersonId"));
-
         }
 
         protected static void AddTestData(DbContext context)

@@ -14,7 +14,27 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         {
             if (relationshipBuilder.Metadata.Properties.All(fk => fk.IsShadowProperty))
             {
-                var foreignKeyProperties = GetCandidateForeignKeyProperties(relationshipBuilder.Metadata);
+                var foreignKey = relationshipBuilder.Metadata;
+                var foreignKeyProperties = GetCandidateForeignKeyProperties(foreignKey, onDependent: true);
+                
+                if (((IForeignKey)foreignKey).IsUnique
+                    && !foreignKey.IsSelfReferencing())
+                {
+                    if (ShouldFlip(foreignKey, foreignKeyProperties))
+                    {
+                        var newRelationshipBuilder = relationshipBuilder.Invert(ConfigurationSource.Convention);
+                        if (newRelationshipBuilder != null)
+                        {
+                            return newRelationshipBuilder;
+                        }
+                    }
+
+                    if (foreignKeyProperties == null
+                        && foreignKey.IsRequired != false)
+                    {
+                        foreignKeyProperties = GetCompatiblePrimaryKeyProperties(foreignKey.EntityType, foreignKey.ReferencedKey.Properties);
+                    }
+                }
 
                 if (foreignKeyProperties != null
                     && relationshipBuilder.Metadata.EntityType.TryGetForeignKey(foreignKeyProperties) == null)
@@ -30,59 +50,128 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             return relationshipBuilder;
         }
 
-        private IReadOnlyList<Property> GetCandidateForeignKeyProperties(ForeignKey foreignKey)
+        private bool ShouldFlip(ForeignKey foreignKey, IReadOnlyList<Property> currentDependentCandidateProperties)
         {
-            var baseNames = new List<string>();
-            var navigationToPrincipal = foreignKey.GetNavigationToPrincipal();
-            if (navigationToPrincipal != null)
+            var currentPrincipalCandidateProperties = GetCandidateForeignKeyProperties(foreignKey, onDependent: false);
+            
+            if (currentDependentCandidateProperties != null
+                && currentPrincipalCandidateProperties == null)
             {
-                baseNames.Add(navigationToPrincipal.Name);
+                return false;
             }
 
-            baseNames.Add(foreignKey.ReferencedEntityType.SimpleName);
+            if (currentDependentCandidateProperties == null
+                && currentPrincipalCandidateProperties != null)
+            {
+                return true;
+            }
+
+            var navigationToPrincipal = foreignKey.GetNavigationToPrincipal();
+            var navigationToDependent = foreignKey.GetNavigationToDependent();
+
+            if (navigationToPrincipal == null
+                && navigationToDependent != null)
+            {
+                return false;
+            }
+
+            if (navigationToPrincipal != null
+                && navigationToDependent == null)
+            {
+                return true;
+            }
+
+            var model = foreignKey.EntityType.Model;
+            var principalPk = foreignKey.ReferencedEntityType.TryGetPrimaryKey();
+            var principalPkReferenceThreshold = foreignKey.ReferencedKey == principalPk? 1 : 0;
+            var isPrincipalKeyReferenced = principalPk != null && model.GetReferencingForeignKeys(principalPk).Count > principalPkReferenceThreshold;
+            var dependentPk = foreignKey.EntityType.TryGetPrimaryKey();
+            var isDependentPrimaryKeyReferenced = dependentPk != null && model.GetReferencingForeignKeys(dependentPk).Count > 0;
+
+            if (isPrincipalKeyReferenced
+                && !isDependentPrimaryKeyReferenced)
+            {
+                return false;
+            }
+
+            if (!isPrincipalKeyReferenced
+                && isDependentPrimaryKeyReferenced)
+            {
+                return true;
+            }
+            
+            return StringComparer.Ordinal.Compare(foreignKey.ReferencedEntityType.Name, foreignKey.EntityType.Name) > 0;
+        }
+
+        private IReadOnlyList<Property> GetCandidateForeignKeyProperties(ForeignKey foreignKey, bool onDependent)
+        {
+            var baseNames = new List<string>();
+            var navigation = onDependent
+                ? foreignKey.GetNavigationToPrincipal()
+                : foreignKey.GetNavigationToDependent();
+            if (navigation != null)
+            {
+                baseNames.Add(navigation.Name);
+            }
+
+            var entityTypeToReference = onDependent
+                ? foreignKey.ReferencedEntityType
+                : foreignKey.EntityType;
+            baseNames.Add(entityTypeToReference.SimpleName);
+
             baseNames.Add("");
 
             foreach (var baseName in baseNames)
             {
-                var match = TryFindMatchingClrProperties(foreignKey, baseName);
+                var match = TryFindMatchingClrProperties(foreignKey, baseName, onDependent);
                 if (match != null)
                 {
                     return match;
                 }
             }
+            
+            return null;
+        }
 
-            if (((IForeignKey)foreignKey).IsUnique
-                && foreignKey.IsRequired != false
-                && foreignKey.EntityType != foreignKey.ReferencedEntityType)
+        private IReadOnlyList<Property> GetCompatiblePrimaryKeyProperties(EntityType entityType, IReadOnlyList<Property> propertiesToReference)
+        {
+            var dependentPkProperties = entityType.TryGetPrimaryKey()?.Properties;
+            if (dependentPkProperties != null
+                && Property.AreCompatible(propertiesToReference, dependentPkProperties))
             {
-                var dependentPkProperties = foreignKey.EntityType.TryGetPrimaryKey()?.Properties;
-                if (dependentPkProperties != null
-                    && Property.AreCompatible(foreignKey.ReferencedKey.Properties, dependentPkProperties))
-                {
-                    return dependentPkProperties;
-                }
+                return dependentPkProperties;
             }
 
             return null;
         }
 
-        private IReadOnlyList<Property> TryFindMatchingClrProperties(ForeignKey foreignKey, string baseName)
+        private IReadOnlyList<Property> TryFindMatchingClrProperties(ForeignKey foreignKey, string baseName, bool onDependent)
         {
-            var dependentType = foreignKey.EntityType;
-            var referencedProperties = foreignKey.ReferencedProperties;
-            var fkProperties = new List<Property>();
-            foreach (var referencedProperty in referencedProperties)
+            var entityType = onDependent
+                ? foreignKey.EntityType
+                : foreignKey.ReferencedEntityType;
+            var propertiesToReference = onDependent
+                ? foreignKey.ReferencedProperties
+                : foreignKey.EntityType.TryGetPrimaryKey()?.Properties;
+
+            if (propertiesToReference == null)
+            {
+                return null;
+            }
+
+            var foreignKeyProperties = new List<Property>();
+            foreach (var referencedProperty in propertiesToReference)
             {
                 var propertyName = baseName + referencedProperty.Name;
                 var propertyFound = false;
-                foreach (var property in dependentType.Properties)
+                foreach (var property in entityType.Properties)
                 {
                     if (property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase)
                         && !property.IsShadowProperty
                         && property.UnderlyingType == referencedProperty.UnderlyingType)
                     {
                         propertyFound = true;
-                        fkProperties.Add(property);
+                        foreignKeyProperties.Add(property);
                         break;
                     }
                 }
@@ -94,21 +183,21 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             }
 
             if (foreignKey.IsRequired == false
-                && fkProperties.All(p => !((IProperty)p).IsNullable))
+                && foreignKeyProperties.All(p => !((IProperty)p).IsNullable))
             {
                 return null;
             }
 
-            var dependentPk = dependentType.TryGetPrimaryKey();
-            if (dependentPk != null)
+            var primaryKey = entityType.TryGetPrimaryKey();
+            if (primaryKey != null)
             {
-                if (fkProperties.All(property => dependentPk.Properties.Contains(property)))
+                if (foreignKeyProperties.All(property => primaryKey.Properties.Contains(property)))
                 {
                     return null;
                 }
             }
 
-            return fkProperties;
+            return foreignKeyProperties;
         }
     }
 }

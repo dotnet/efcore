@@ -437,7 +437,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         dependentEndNavigationPropertyName);
                     dependentEndExistingIdentifiers.Add(dependentEndNavigationPropertyName);
 
-                    if (foreignKey.ReferencedEntityType != foreignKey.EntityType)
+                    if (!foreignKey.IsSelfReferencing())
                     {
                         // set up the name of the navigation property on the principal end of the foreign key
                         var principalEndExistingIdentifiers =
