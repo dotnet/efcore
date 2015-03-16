@@ -128,28 +128,30 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
 
-            return new SqlOperation(
-                new StringBuilder()
+            return new SqlOperation
+            {
+                Sql = new StringBuilder()
                     .AppendLine("DELETE FROM [dbo].[__MigrationHistory]")
                     .Append("WHERE [MigrationId] = '").Append(_sql.EscapeLiteral(migrationId))
                         .Append("' AND [ContextKey] = '").Append(_sql.EscapeLiteral(_contextType.FullName))
                         .AppendLine("';")
-                    .ToString(),
-                suppressTransaction: false);
+                    .ToString()
+            };
         }
 
         public virtual MigrationOperation GetInsertOperation(IHistoryRow row)
         {
             Check.NotNull(row, nameof(row));
 
-            return new SqlOperation(
-                new StringBuilder()
+            return new SqlOperation
+            {
+                Sql = new StringBuilder()
                     .AppendLine("INSERT INTO [dbo].[__MigrationHistory] ([MigrationId], [ContextKey], [ProductVersion])")
                     .Append("VALUES ('").Append(_sql.EscapeLiteral(row.MigrationId)).Append("', '")
                         .Append(_sql.EscapeLiteral(_contextType.FullName)).Append("', '")
                         .Append(_sql.EscapeLiteral(row.ProductVersion)).AppendLine("');")
-                    .ToString(),
-                suppressTransaction: false);
+                    .ToString()
+            };
         }
 
         public virtual string BeginIfNotExists(string migrationId)

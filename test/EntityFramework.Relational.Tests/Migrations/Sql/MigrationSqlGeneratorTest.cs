@@ -1,4 +1,7 @@
-﻿using Moq;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Migrations.Sql
@@ -30,7 +33,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             base.AddColumnOperation_with_defaultValueSql();
 
             Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Birthday\" date DEFAULT CURRENT_TIMESTAMP;" + EOL,
+                "ALTER TABLE \"People\" ADD \"Birthday\" date DEFAULT (CURRENT_TIMESTAMP);" + EOL,
                 Sql);
         }
 
@@ -88,21 +91,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
                 Sql);
         }
 
-        public override void AlterColumnOperation()
-        {
-            base.AlterColumnOperation();
-
-            Assert.Equal(
-                "ALTER TABLE \"dbo\".\"People\" ALTER COLUMN \"LuckyNumber\" int NOT NULL DEFAULT 7;" + EOL,
-                Sql);
-        }
-
         public override void AlterSequenceOperation_with_minValue_and_maxValue()
         {
             base.AlterSequenceOperation_with_minValue_and_maxValue();
 
             Assert.Equal(
-                "ALTER SEQUENCE \"dbo\".\"DefaultSequence\" INCREMENT BY 1 MINVALUE 2 MAXVALUE 816;" + EOL,
+                "ALTER SEQUENCE \"dbo\".\"DefaultSequence\" INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
                 Sql);
         }
 
@@ -111,15 +105,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             base.AlterSequenceOperation_without_minValue_and_maxValue();
 
             Assert.Equal(
-                "ALTER SEQUENCE \"DefaultSequence\" INCREMENT BY 1 NO MINVALUE NO MAXVALUE;" + EOL,
+                "ALTER SEQUENCE \"DefaultSequence\" INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;" + EOL,
                 Sql);
-        }
-
-        public override void AlterTableOperation()
-        {
-            base.AlterTableOperation();
-
-            Assert.Equal(EOL, Sql);
         }
 
         public override void CreateIndexOperation_unique()
@@ -145,7 +132,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             base.CreateSequenceOperation_with_minValue_and_maxValue();
 
             Assert.Equal(
-                "CREATE SEQUENCE \"dbo\".\"DefaultSequence\" AS bigint START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816;" + EOL,
+                "CREATE SEQUENCE \"dbo\".\"DefaultSequence\" AS bigint START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
                 Sql);
         }
 
@@ -154,7 +141,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             base.CreateSequenceOperation_without_minValue_and_maxValue();
 
             Assert.Equal(
-                "CREATE SEQUENCE \"DefaultSequence\" AS bigint START WITH 3 INCREMENT BY 1;" + EOL,
+                "CREATE SEQUENCE \"DefaultSequence\" START WITH 3 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;" + EOL,
                 Sql);
         }
 
@@ -189,15 +176,6 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
 
             Assert.Equal(
                 "ALTER TABLE \"dbo\".\"People\" DROP CONSTRAINT \"FK_People_Companies\";" + EOL,
-                Sql);
-        }
-
-        public override void DropIndexOperation()
-        {
-            base.DropIndexOperation();
-
-            Assert.Equal(
-                "DROP INDEX \"dbo\".\"IX_People_Name\";" + EOL,
                 Sql);
         }
 
@@ -242,7 +220,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             base.SqlOperation();
 
             Assert.Equal(
-                "-- I <3 DDL" + EOL,
+                "-- I <3 DDL;" + EOL,
                 Sql);
         }
     }

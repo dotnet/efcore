@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.SqlServer.Metadata;
@@ -15,22 +17,14 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public virtual void AddColumnOperation_with_computedSql()
         {
             Generate(
-                new AddColumnOperation(
-                    "People",
-                    /*schema:*/ null,
-                    new ColumnModel(
-                        "FullName",
-                        storeType: null,
-                        nullable: false,
-                        defaultValue: null,
-                        defaultValueSql: null,
-                        annotations: new Dictionary<string, string>
-                        {
-                            {
-                                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ColumnComputedExpression,
-                                "FirstName + ' ' + LastName"
-                            }
-                        })));
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Name = "FullName",
+                    Type = "nvarchar(30)",
+                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ColumnComputedExpression] =
+                        "FirstName + ' ' + LastName"
+                });
 
             Assert.Equal(
                 "ALTER TABLE [People] ADD [FullName] AS FirstName + ' ' + LastName;" + EOL,
@@ -41,22 +35,15 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public virtual void AddColumnOperation_identity()
         {
             Generate(
-                new AddColumnOperation(
-                    "People",
-                    /*schema:*/ null,
-                    new ColumnModel(
-                        "Id",
-                        "int",
-                        nullable: false,
-                        defaultValue: null,
-                        defaultValueSql: null,
-                        annotations: new Dictionary<string, string>
-                        {
-                            {
-                                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration,
-                                SqlServerValueGenerationStrategy.Identity.ToString()
-                            }
-                        })));
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Name = "Id",
+                    Type = "int",
+                    IsNullable = false,
+                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration] =
+                        SqlServerValueGenerationStrategy.Identity.ToString()
+                });
 
             Assert.Equal(
                 "ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;" + EOL,
@@ -67,28 +54,31 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public virtual void AddPrimaryKeyOperation_nonclustered()
         {
             Generate(
-                new AddPrimaryKeyOperation(
-                    "People",
-                    /*schema:*/ null,
-                    /*name:*/ null,
-                    new[] { "Id" },
-                    new Dictionary<string, string>
-                    {
-                        {
-                            SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered,
-                            bool.FalseString
-                        }
-                    }));
+                new AddPrimaryKeyOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "Id" },
+                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] = bool.FalseString
+                });
 
             Assert.Equal(
                 "ALTER TABLE [People] ADD PRIMARY KEY NONCLUSTERED ([Id]);" + EOL,
                 Sql);
         }
 
+        public override void AlterColumnOperation()
+        {
+            base.AlterColumnOperation();
+
+            Assert.Equal(
+                "ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL DEFAULT 7;" + EOL,
+                Sql);
+        }
+
         [Fact]
         public virtual void CreateDatabaseOperation()
         {
-            Generate(new CreateDatabaseOperation("Northwind"));
+            Generate(new CreateDatabaseOperation { Name = "Northwind" });
 
             Assert.Equal(
                 "CREATE DATABASE [Northwind]" + EOL +
@@ -102,19 +92,13 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public virtual void CreateIndexOperation_clustered()
         {
             Generate(
-                new CreateIndexOperation(
-                    "IX_People_Name",
-                    "People",
-                    /*schema:*/ null,
-                    new[] { "Name" },
-                    unique: false,
-                    annotations: new Dictionary<string, string>
-                    {
-                        {
-                            SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered,
-                            bool.TrueString
-                        }
-                    }));
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] = bool.TrueString
+                });
 
             Assert.Equal(
                 "CREATE CLUSTERED INDEX [IX_People_Name] ON [People] ([Name]);" + EOL,
@@ -124,7 +108,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         [Fact]
         public virtual void DropDatabaseOperation()
         {
-            Generate(new DropDatabaseOperation("Northwind"));
+            Generate(new DropDatabaseOperation { Name = "Northwind" });
 
             Assert.Equal(
                 "IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N'ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE'" + EOL +
@@ -147,10 +131,12 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public virtual void MoveSequenceOperation()
         {
             Generate(
-                new MoveSequenceOperation(
-                    "DefaultSequence",
-                    "dbo",
-                    "my"));
+                new RenameSequenceOperation
+                {
+                    Name = "DefaultSequence",
+                    Schema = "dbo",
+                    NewSchema = "my"
+                });
 
             Assert.Equal(
                 "ALTER SCHEMA [my] TRANSFER [dbo].[DefaultSequence];" + EOL,
@@ -161,10 +147,12 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public virtual void MoveTableOperation()
         {
             Generate(
-                new MoveTableOperation(
-                    "People",
-                    "dbo",
-                    "hr"));
+                new RenameTableOperation
+                {
+                    Name = "People",
+                    Schema = "dbo",
+                    NewSchema = "hr"
+                });
 
             Assert.Equal(
                 "ALTER SCHEMA [hr] TRANSFER [dbo].[People];" + EOL,
@@ -175,14 +163,16 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public virtual void RenameColumnOperation()
         {
             Generate(
-                new RenameColumnOperation(
-                    "People",
-                    "dbo",
-                    "Name",
-                    "FullName"));
+                new RenameColumnOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "Name",
+                    NewName = "FullName"
+                });
 
             Assert.Equal(
-                "EXECUTE sp_rename @objname = N'dbo.People.Name', @newname = N'FullName', @objtype = N'COLUMN';" + EOL,
+                "EXECUTE sp_rename 'dbo.People.Name', 'FullName', 'COLUMN';" + EOL,
                 Sql);
         }
 
@@ -190,14 +180,16 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public virtual void RenameIndexOperation()
         {
             Generate(
-                new RenameIndexOperation(
-                    "People",
-                    "dbo",
-                    "IX_People_Name",
-                    "IX_People_FullName"));
+                new RenameIndexOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "IX_People_Name",
+                    NewName = "IX_People_FullName"
+                });
 
             Assert.Equal(
-                "EXECUTE sp_rename @objname = N'dbo.People.IX_People_Name', @newname = N'IX_People_FullName', @objtype = N'INDEX';" + EOL,
+                "EXECUTE sp_rename 'dbo.People.IX_People_Name', 'IX_People_FullName', 'INDEX';" + EOL,
                 Sql);
         }
 
@@ -205,13 +197,15 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public virtual void RenameSequenceOperation()
         {
             Generate(
-                new RenameSequenceOperation(
-                    "DefaultSequence",
-                    "dbo",
-                    "MySequence"));
+                new RenameSequenceOperation
+                {
+                    Name = "DefaultSequence",
+                    Schema = "dbo",
+                    NewName = "MySequence"
+                });
 
             Assert.Equal(
-                "EXECUTE sp_rename @objname = N'dbo.DefaultSequence', @newname = N'MySequence', @objtype = N'OBJECT';" + EOL,
+                "EXECUTE sp_rename 'dbo.DefaultSequence', 'MySequence';" + EOL,
                 Sql);
         }
 
@@ -219,13 +213,15 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public virtual void RenameTableOperation()
         {
             Generate(
-                new RenameTableOperation(
-                    "People",
-                    "dbo",
-                    "Person"));
+                new RenameTableOperation
+                {
+                    Name = "People",
+                    Schema = "dbo",
+                    NewName = "Person"
+                });
 
             Assert.Equal(
-                "EXECUTE sp_rename @objname = N'dbo.People', @newname = N'Person', @objtype = N'OBJECT';" + EOL,
+                "EXECUTE sp_rename 'dbo.People', 'Person';" + EOL,
                 Sql);
         }
     }

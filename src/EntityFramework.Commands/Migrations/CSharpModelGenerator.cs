@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .Append(".Annotation(")
                 .Append(_code.Literal(annotation.Name))
                 .Append(", ")
-                .Append(_code.Literal((dynamic)annotation.Value))
+                .Append(_code.UnknownLiteral(annotation.Value))
                 .Append(")");
         }
     }

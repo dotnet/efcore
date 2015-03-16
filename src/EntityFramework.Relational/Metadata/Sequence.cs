@@ -26,7 +26,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             int incrementBy = DefaultIncrement,
             [CanBeNull] long? minValue = null,
             [CanBeNull] long? maxValue = null,
-            [CanBeNull] Type type = null)
+            [CanBeNull] Type type = null,
+            bool cycle = false)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, "schema");
@@ -49,6 +50,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             MinValue = minValue;
             MaxValue = maxValue;
             Type = type;
+            Cycle = cycle;
         }
 
         public virtual string Name { get; }
@@ -64,6 +66,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         public virtual long? MaxValue { get; }
 
         public virtual Type Type { get; }
+
+        public virtual bool Cycle { get; }
 
         public virtual IModel Model
         {
@@ -94,6 +98,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             EscapeAndQuote(builder, MaxValue);
             builder.Append(", ");
             EscapeAndQuote(builder, Type.Name);
+            builder.Append(", ");
+            EscapeAndQuote(builder, Cycle);
 
             return builder.ToString();
         }
@@ -112,8 +118,9 @@ namespace Microsoft.Data.Entity.Relational.Metadata
                 var minValue = AsLong(ExtractValue(value, ref position));
                 var maxValue = AsLong(ExtractValue(value, ref position));
                 var type = AsType(ExtractValue(value, ref position));
+                var cycle = AsBool(ExtractValue(value, ref position));
 
-                return new Sequence(name, schema, (long)startValue, (int)incrementBy, minValue, maxValue, type);
+                return new Sequence(name, schema, (long)startValue, (int)incrementBy, minValue, maxValue, type, cycle);
             }
             catch (Exception ex)
             {
@@ -153,6 +160,11 @@ namespace Microsoft.Data.Entity.Relational.Metadata
                     : value == typeof(short).Name
                         ? typeof(short)
                         : typeof(byte);
+        }
+
+        private static bool AsBool(string value)
+        {
+            return value != null && bool.Parse(value);
         }
 
         private static void EscapeAndQuote(StringBuilder builder, object value)

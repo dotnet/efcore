@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Linq;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Xunit;
@@ -17,331 +20,358 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
         public virtual void AddColumnOperation_with_defaultValue()
         {
             Generate(
-                new AddColumnOperation(
-                    "People",
-                    "dbo",
-                    new ColumnModel(
-                        "Name",
-                        "varchar(30)",
-                        /*nullable:*/ false,
-                        "John Doe",
-                        defaultValueSql: null)));
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "Name",
+                    Type = "varchar(30)",
+                    IsNullable = false,
+                    DefaultValue = "John Doe"
+                });
         }
 
         [Fact]
         public virtual void AddColumnOperation_with_defaultValueSql()
         {
             Generate(
-                new AddColumnOperation(
-                    "People",
-                        /*schema:*/ null,
-                        new ColumnModel(
-                            "Birthday",
-                            "date",
-                            /*nullable:*/ true,
-                        /*defaultValueSql:*/ null,
-                        "CURRENT_TIMESTAMP")));
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Name = "Birthday",
+                    Type = "date",
+                    IsNullable = true,
+                    DefaultExpression = "CURRENT_TIMESTAMP"
+                });
         }
 
         [Fact]
         public virtual void AddForeignKeyOperation_with_name()
         {
             Generate(
-                new AddForeignKeyOperation(
-                    "People",
-                    "dbo",
-                    "FK_People_Companies",
-                    new[] { "EmployerId1", "EmployerId2" },
-                    "Companies",
-                    "hr",
-                    new[] { "Id1", "Id2" },
-                    cascadeDelete: true));
+                new AddForeignKeyOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "FK_People_Companies",
+                    Columns = new[] { "EmployerId1", "EmployerId2" },
+                    ReferencedTable = "Companies",
+                    ReferencedSchema = "hr",
+                    ReferencedColumns = new[] { "Id1", "Id2" },
+                    OnDelete = ReferentialAction.Cascade
+                });
         }
 
         [Fact]
         public virtual void AddForeignKeyOperation_without_name()
         {
             Generate(
-                new AddForeignKeyOperation(
-                    "People",
-                    /*dependentSchema:*/ null,
-                    /*name:*/ null,
-                    new[] { "SpouseId" },
-                    "People",
-                    /*principalSchema:*/ null,
-                    new[] { "Id" },
-                    cascadeDelete: false));
+                new AddForeignKeyOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "SpouseId" },
+                    ReferencedTable = "People",
+                    ReferencedColumns = new[] { "Id" }
+                });
         }
 
         [Fact]
         public virtual void AddPrimaryKeyOperation_with_name()
         {
             Generate(
-                new AddPrimaryKeyOperation(
-                    "People",
-                    "dbo",
-                    "PK_People",
-                    new[] { "Id1", "Id2" }));
+                new AddPrimaryKeyOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "PK_People",
+                    Columns = new[] { "Id1", "Id2" }
+                });
         }
 
         [Fact]
         public virtual void AddPrimaryKeyOperation_without_name()
         {
             Generate(
-                new AddPrimaryKeyOperation(
-                    "People",
-                    /*schema:*/ null,
-                    /*name:*/ null,
-                    new[] { "Id" }));
+                new AddPrimaryKeyOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "Id" }
+                });
         }
 
         [Fact]
         public virtual void AddUniqueConstraintOperation_with_name()
         {
             Generate(
-                new AddUniqueConstraintOperation(
-                    "People",
-                    "dbo",
-                    "AK_People_DriverLicense",
-                    new[] { "DriverLicense_State", "DriverLicense_Number" }));
+                new AddUniqueConstraintOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "AK_People_DriverLicense",
+                    Columns = new[] { "DriverLicense_State", "DriverLicense_Number" }
+                });
         }
 
         [Fact]
         public virtual void AddUniqueConstraintOperation_without_name()
         {
             Generate(
-                new AddUniqueConstraintOperation(
-                    "People",
-                    /*schema:*/ null,
-                    /*name:*/ null,
-                    new[] { "SSN" }));
+                new AddUniqueConstraintOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "SSN" }
+                });
         }
 
         [Fact]
         public virtual void AlterColumnOperation()
         {
             Generate(
-                new AlterColumnOperation(
-                    "People",
-                    "dbo",
-                    new ColumnModel(
-                        "LuckyNumber",
-                        "int",
-                        nullable: false,
-                        defaultValue: 7,
-                        defaultValueSql: null)));
+                new AlterColumnOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "LuckyNumber",
+                    Type = "int",
+                    IsNullable = false,
+                    DefaultValue = 7
+                });
         }
 
         [Fact]
         public virtual void AlterSequenceOperation_with_minValue_and_maxValue()
         {
             Generate(
-                new AlterSequenceOperation(
-                    "DefaultSequence",
-                    "dbo",
-                    incrementBy: 1,
-                    minValue: 2,
-                    maxValue: 816));
+                new AlterSequenceOperation
+                {
+                    Name = "DefaultSequence",
+                    Schema = "dbo",
+                    IncrementBy = 1,
+                    MinValue = 2,
+                    MaxValue = 816,
+                    Cycle = true
+                });
         }
 
         [Fact]
         public virtual void AlterSequenceOperation_without_minValue_and_maxValue()
         {
             Generate(
-                new AlterSequenceOperation(
-                    "DefaultSequence",
-                    schema: null,
-                    incrementBy: 1,
-                    minValue: null,
-                    maxValue: null));
+                new AlterSequenceOperation
+                {
+                    Name = "DefaultSequence",
+                    IncrementBy = 1
+                });
         }
 
         [Fact]
         public virtual void AlterTableOperation()
         {
             Generate(
-                new AlterTableOperation(
-                    "People",
-                    "dbo"));
+                new RenameTableOperation
+                {
+                    Name = "People",
+                    Schema = "dbo"
+                });
         }
 
         [Fact]
         public virtual void CreateIndexOperation_unique()
         {
             Generate(
-                new CreateIndexOperation(
-                    "IX_People_Name",
-                    "People",
-                    "dbo",
-                    new[] { "FirstName", "LastName" },
-                    unique: true));
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Schema = "dbo",
+                    Columns = new[] { "FirstName", "LastName" },
+                    IsUnique = true
+                });
         }
 
         [Fact]
         public virtual void CreateIndexOperation_nonunique()
         {
             Generate(
-                new CreateIndexOperation(
-                    "IX_People_Name",
-                    "People",
-                    /*schema:*/ null,
-                    new[] { "Name" },
-                    unique: false));
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = false
+                });
         }
 
         [Fact]
         public virtual void CreateSequenceOperation_with_minValue_and_maxValue()
         {
             Generate(
-                new CreateSequenceOperation(
-                    "DefaultSequence",
-                    "dbo",
-                    /*startValue:*/ 3,
-                    /*incrementBy:*/ 1,
-                    /*minValue:*/ 2,
-                    /*maxValue:*/ 816,
-                    "bigint"));
+                new CreateSequenceOperation
+                {
+                    Name = "DefaultSequence",
+                    Schema = "dbo",
+                    StartWith = 3,
+                    IncrementBy = 1,
+                    MinValue = 2,
+                    MaxValue = 816,
+                    Type = "bigint",
+                    Cycle = true
+                });
         }
 
         [Fact]
         public virtual void CreateSequenceOperation_without_minValue_and_maxValue()
         {
             Generate(
-                new CreateSequenceOperation(
-                    "DefaultSequence",
-                    /*schema:*/ null,
-                    /*startValue:*/ 3,
-                    /*incrementBy:*/ 1,
-                    /*minValue:*/ null,
-                    /*maxValue:*/ null,
-                    "bigint"));
+                new CreateSequenceOperation
+                {
+                    Name = "DefaultSequence",
+                    StartWith = 3,
+                    IncrementBy = 1
+                });
         }
 
         [Fact]
         public virtual void CreateTableOperation()
         {
-            var operation = new CreateTableOperation("People", "dbo");
-            operation.Columns.Add(
-                new ColumnModel(
-                    "Id",
-                    "int",
-                    nullable: false,
-                    defaultValue: null,
-                    defaultValueSql: null));
-            operation.Columns.Add(
-                new ColumnModel(
-                    "EmployerId",
-                    "int",
-                    nullable: true,
-                    defaultValue: null,
-                    defaultValueSql: null));
-            operation.Columns.Add(
-                new ColumnModel(
-                    "SSN",
-                    "char(11)",
-                    nullable: true,
-                    defaultValue: null,
-                    defaultValueSql: null));
-            operation.PrimaryKey = new AddPrimaryKeyOperation(
-                "People",
-                "dbo",
-                /*name:*/ null,
-                new[] { "Id" });
-            operation.UniqueConstraints.Add(
-                new AddUniqueConstraintOperation(
-                    "People",
-                    "dbo",
-                    /*name:*/ null,
-                    new[] { "SSN" }));
-            operation.ForeignKeys.Add(
-                new AddForeignKeyOperation(
-                    "People",
-                    "dbo",
-                    /*name:*/ null,
-                    new[] { "EmployerId" },
-                    "Companies",
-                    principalSchema: null,
-                    principalColumns: null,
-                    cascadeDelete: false));
-
-            Generate(operation);
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Schema = "dbo",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Type = "int",
+                            IsNullable = false
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "EmployerId",
+                            Type = "int",
+                            IsNullable = true
+                        },
+                         new AddColumnOperation
+                        {
+                            Name = "SSN",
+                            Type = "char(11)",
+                            IsNullable = true
+                        }
+                    },
+                    PrimaryKey = new AddPrimaryKeyOperation
+                    {
+                        Columns = new[] { "Id" }
+                    },
+                    UniqueConstraints =
+                    {
+                        new AddUniqueConstraintOperation
+                        {
+                            Columns = new[] { "SSN" }
+                        }
+                    },
+                    ForeignKeys =
+                    {
+                        new AddForeignKeyOperation
+                        {
+                            Columns = new[] { "EmployerId" },
+                            ReferencedTable = "Companies"
+                        }
+                    }
+                });
         }
 
         [Fact]
         public virtual void DropColumnOperation()
         {
             Generate(
-                new DropColumnOperation(
-                    "People",
-                    "dbo",
-                    "LuckyNumber"));
+                new DropColumnOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "LuckyNumber"
+                });
         }
 
         [Fact]
         public virtual void DropForeignKeyOperation()
         {
             Generate(
-                new DropForeignKeyOperation(
-                    "People",
-                    "dbo",
-                    "FK_People_Companies"));
+                new DropForeignKeyOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "FK_People_Companies"
+                });
         }
 
         [Fact]
         public virtual void DropIndexOperation()
         {
             Generate(
-                new DropIndexOperation(
-                    "IX_People_Name",
-                    "People",
-                    "dbo"));
+                new DropIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Schema = "dbo"
+                });
         }
 
         [Fact]
         public virtual void DropPrimaryKeyOperation()
         {
             Generate(
-                new DropPrimaryKeyOperation(
-                    "People",
-                    "dbo",
-                    "PK_People"));
+                new DropPrimaryKeyOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "PK_People"
+                });
         }
 
         [Fact]
         public virtual void DropSequenceOperation()
         {
             Generate(
-                new DropSequenceOperation(
-                    "DefaultSequence",
-                    "dbo"));
+                new DropSequenceOperation
+                {
+                    Name = "DefaultSequence",
+                    Schema = "dbo"
+                });
         }
 
         [Fact]
         public virtual void DropTableOperation()
         {
             Generate(
-                new DropTableOperation(
-                    "People",
-                    "dbo"));
+                new DropTableOperation
+                {
+                    Name = "People",
+                    Schema = "dbo"
+                });
         }
 
         [Fact]
         public virtual void DropUniqueConstraintOperation()
         {
             Generate(
-                new DropUniqueConstraintOperation(
-                    "People",
-                    "dbo",
-                    "AK_People_SSN"));
+                new DropUniqueConstraintOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "AK_People_SSN"
+                });
         }
 
         [Fact]
         public virtual void SqlOperation()
         {
             Generate(
-                new SqlOperation(
-                    "-- I <3 DDL",
-                    suppressTransaction: false));
+                new SqlOperation
+                {
+                    Sql = "-- I <3 DDL"
+                });
         }
 
         protected virtual void Generate(MigrationOperation operation)

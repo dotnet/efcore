@@ -32,6 +32,30 @@ namespace Microsoft.Data.Entity.Commands.Utilities
                 { typeof(object), "object" }
             };
 
+        private static readonly IReadOnlyDictionary<Type, Func<CSharpHelper, object, string>> _literalFuncs =
+            new Dictionary<Type, Func<CSharpHelper, object, string>>
+            {
+                { typeof(bool), (c, v) => c.Literal((bool)v) },
+                { typeof(byte), (c, v) => c.Literal((byte)v) },
+                { typeof(byte[]), (c, v) => c.Literal((byte[])v) },
+                { typeof(char), (c, v) => c.Literal((char)v) },
+                { typeof(DateTime), (c, v) => c.Literal((DateTime)v) },
+                { typeof(DateTimeOffset), (c, v) => c.Literal((DateTimeOffset)v) },
+                { typeof(decimal), (c, v) => c.Literal((decimal)v) },
+                { typeof(double), (c, v) => c.Literal((double)v) },
+                { typeof(float), (c, v) => c.Literal((float)v) },
+                { typeof(Guid), (c, v) => c.Literal((Guid)v) },
+                { typeof(int), (c, v) => c.Literal((int)v) },
+                { typeof(long), (c, v) => c.Literal((long)v) },
+                { typeof(sbyte), (c, v) => c.Literal((sbyte)v) },
+                { typeof(short), (c, v) => c.Literal((short)v) },
+                { typeof(string), (c, v) => c.Literal((string)v) },
+                { typeof(TimeSpan), (c, v) => c.Literal((TimeSpan)v) },
+                { typeof(uint), (c, v) => c.Literal((uint)v) },
+                { typeof(ulong), (c, v) => c.Literal((ulong)v) },
+                { typeof(ushort), (c, v) => c.Literal((ushort)v) }
+            };
+
         public virtual string Lambda([NotNull] IReadOnlyList<string> properties)
         {
             Check.NotNull(properties, nameof(properties));
@@ -169,22 +193,35 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         public virtual string Literal(ushort value) => "(ushort)" + value;
 
         public virtual string Literal<T>([NotNull] T? value) where T : struct =>
-            Literal((dynamic)value.Value);
+            UnknownLiteral(value.Value);
 
         public virtual string Literal([NotNull] IReadOnlyList<string> values) =>
             values.Count == 1
                 ? Literal(values[0])
                 : "new[] { " + string.Join(", ", values.Select(Literal)) + " }";
 
-        public virtual string Literal([NotNull] IDictionary<string, string> values) =>
-            "new Dictionary<string, string> { " + string.Join(", ", values.Select(Literal)) + " }";
+        public virtual string Literal([NotNull] Enum value) => value.GetType().Name + "." + value;
 
-        public virtual string Literal([NotNull] KeyValuePair<string, string> value) =>
-            "{ " + Literal(value.Key) + ", " + Literal(value.Value) + " }";
-
-        public virtual string Literal([NotNull] object value)
+        public virtual string UnknownLiteral([CanBeNull] object value)
         {
-            Check.NotNull(value, nameof(value));
+            if (value == null)
+            {
+                return "null";
+            }
+
+            var type = value.GetType().UnwrapNullableType();
+
+            Func<CSharpHelper, object, string> literalFunc;
+            if (_literalFuncs.TryGetValue(type, out literalFunc))
+            {
+                return literalFunc(this, value);
+            }
+
+            var enumValue = value as Enum;
+            if (enumValue != null)
+            {
+                return Literal(enumValue);
+            }
 
             throw new InvalidOperationException(Strings.UnknownLiteral(value.GetType()));
         }

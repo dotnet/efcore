@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
 {
-    // TODO: Remove and sort usings (See #1773)
     public class CSharpMigrationGenerator : MigrationCodeGenerator
     {
         private readonly CSharpHelper _code;
@@ -50,6 +49,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .AppendLine("using System.Collections.Generic;")
                 .AppendLine("using Microsoft.Data.Entity.Relational.Migrations;")
                 .AppendLine("using Microsoft.Data.Entity.Relational.Migrations.Builders;")
+                .AppendLine("using Microsoft.Data.Entity.Relational.Migrations.Operations;")
                 .AppendLine()
                 .Append("namespace ").AppendLine(migrationNamespace)
                 .AppendLine("{");
@@ -61,20 +61,20 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 using (builder.Indent())
                 {
                     builder
-                        .AppendLine("public override void Up(MigrationBuilder migrationBuilder)")
+                        .AppendLine("public override void Up(MigrationBuilder migration)")
                         .AppendLine("{");
                     using (builder.Indent())
                     {
-                        _operationGenerator.Generate("migrationBuilder", upOperations, builder);
+                        _operationGenerator.Generate("migration", upOperations, builder);
                     }
                     builder
                         .AppendLine("}")
                         .AppendLine()
-                        .AppendLine("public override void Down(MigrationBuilder migrationBuilder)")
+                        .AppendLine("public override void Down(MigrationBuilder migration)")
                         .AppendLine("{");
                     using (builder.Indent())
                     {
-                        _operationGenerator.Generate("migrationBuilder", downOperations, builder);
+                        _operationGenerator.Generate("migration", downOperations, builder);
                     }
                     builder.AppendLine("}");
                 }

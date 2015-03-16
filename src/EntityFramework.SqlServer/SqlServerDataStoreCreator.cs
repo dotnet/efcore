@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.SqlServer
             => "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES) SELECT 1 ELSE SELECT 0";
 
         private IEnumerable<SqlBatch> CreateCreateOperations()
-            => _sqlGenerator.Generate(new[] { new CreateDatabaseOperation(_connection.DbConnection.Database) });
+            => _sqlGenerator.Generate(new[] { new CreateDatabaseOperation { Name = _connection.DbConnection.Database } });
 
         public override bool Exists()
             => Exists(retryOnNotExists: false);
@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 {
                     // TODO Check DbConnection.Database always gives us what we want
                     // Issue #775
-                    new DropDatabaseOperation(_connection.DbConnection.Database)
+                    new DropDatabaseOperation { Name = _connection.DbConnection.Database }
                 };
 
             var masterCommands = _sqlGenerator.Generate(operations);

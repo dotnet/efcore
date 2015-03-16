@@ -25,5 +25,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         Type Type { get; }
 
         IModel Model { get; }
+
+        bool Cycle { get; }
     }
 }
