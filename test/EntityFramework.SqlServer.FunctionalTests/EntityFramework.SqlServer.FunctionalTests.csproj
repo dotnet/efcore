@@ -85,6 +85,8 @@
     <Compile Include="NavigationTest.cs" />
     <Compile Include="InheritanceSqlServerFixture.cs" />
     <Compile Include="InheritanceSqlServerTest.cs" />
+    <Compile Include="NullSemanticsQuerySqlServerFixture.cs" />
+    <Compile Include="NullSemanticsQuerySqlServerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BuiltInDataTypesSqlServerFixture.cs" />
     <Compile Include="BuiltInDataTypesSqlServerTest.cs" />

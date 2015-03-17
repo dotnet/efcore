@@ -111,6 +111,8 @@
     <Compile Include="ModelSourceTest.cs" />
     <Compile Include="MonsterFixupTestBase.cs" />
     <Compile Include="NullKeysTestBase.cs" />
+    <Compile Include="NullSemanticsQueryFixtureBase.cs" />
+    <Compile Include="NullSemanticsQueryTestBase.cs" />
     <Compile Include="OneToOneQueryFixtureBase.cs" />
     <Compile Include="NorthwindQueryFixtureBase.cs" />
     <Compile Include="AsyncQueryTestBase.cs" />
@@ -145,6 +147,12 @@
     <Compile Include="TestModels\GearsOfWarModel\MilitaryRank.cs" />
     <Compile Include="TestModels\GearsOfWarModel\Squad.cs" />
     <Compile Include="TestModels\GearsOfWarModel\Weapon.cs" />
+    <Compile Include="TestModels\NullSemanticsModel\NullSemanticsContext.cs" />
+    <Compile Include="TestModels\NullSemanticsModel\NullSemanticsData.cs" />
+    <Compile Include="TestModels\NullSemanticsModel\NullSemanticsEntity1.cs" />
+    <Compile Include="TestModels\NullSemanticsModel\NullSemanticsEntity2.cs" />
+    <Compile Include="TestModels\NullSemanticsModel\NullSemanticsEntityBase.cs" />
+    <Compile Include="TestModels\NullSemanticsModel\NullSemanticsModelInitializer.cs" />
     <Compile Include="TestStore.cs" />
     <Compile Include="TestFileLogger.cs" />
     <Compile Include="TestModels\ChangedChangingMonsterContext.cs" />
