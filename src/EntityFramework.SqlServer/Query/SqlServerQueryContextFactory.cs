@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query
     public class SqlServerQueryContextFactory : RelationalQueryContextFactory, ISqlServerQueryContextFactory
     {
         public SqlServerQueryContextFactory(
-            [NotNull] StateManager stateManager,
+            [NotNull] IStateManager stateManager,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,

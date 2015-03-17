@@ -17,11 +17,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
     ///     Instances of this class are typically obtained from <see cref="DbContext.ChangeTracker"/> and it is not designed 
     ///     to be directly constructed in your application code.
     /// </summary>
-    public class ChangeTracker : IAccessor<StateManager>
+    public class ChangeTracker : IAccessor<IStateManager>
     {
-        private readonly StateManager _stateManager;
-        private readonly ChangeDetector _changeDetector;
-        private readonly EntityEntryGraphIterator _graphIterator;
+        private readonly IStateManager _stateManager;
+        private readonly IChangeDetector _changeDetector;
+        private readonly IEntityEntryGraphIterator _graphIterator;
         private readonly DbContext _context;
 
         /// <summary>
@@ -43,9 +43,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// <param name="graphIterator"> The internal graph iterator used to traverse graphs of entities. </param>
         /// <param name="context"> The context this change tracker belongs to. </param>
         public ChangeTracker(
-            [NotNull] StateManager stateManager,
-            [NotNull] ChangeDetector changeDetector,
-            [NotNull] EntityEntryGraphIterator graphIterator,
+            [NotNull] IStateManager stateManager,
+            [NotNull] IChangeDetector changeDetector,
+            [NotNull] IEntityEntryGraphIterator graphIterator,
             [NotNull] DbContext context)
         {
             Check.NotNull(stateManager, nameof(stateManager));
@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// <summary>
         ///     Gets the internal state manager being used to store information about tracked entities.
         /// </summary>
-        StateManager IAccessor<StateManager>.Service => _stateManager;
+        IStateManager IAccessor<IStateManager>.Service => _stateManager;
 
         /// <summary>
         ///     Gets the context this change tracker belongs to.

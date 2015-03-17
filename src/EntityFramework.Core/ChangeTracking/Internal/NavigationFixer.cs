@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class NavigationFixer : IEntityStateListener, IForeignKeyListener, INavigationListener, IKeyListener
+    public class NavigationFixer : INavigationFixer
     {
         private readonly IClrAccessorSource<IClrPropertySetter> _setterSource;
         private readonly IClrAccessorSource<IClrPropertyGetter> _getterSource;

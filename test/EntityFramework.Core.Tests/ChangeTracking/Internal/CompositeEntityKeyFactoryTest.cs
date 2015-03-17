@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
             var random = new Random();
             var entity = new Banana { P1 = 7, P2 = "Ate", P3 = random };
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
             var random = new Random();
             var entity = new Banana { P5 = "Ate", P6 = random };
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
             var random = new Random();
             var entity = new Banana { P4 = 7, P5 = "Ate", P6 = random };
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
             var random = new Random();
             var entity = new Banana { P1 = 7, P2 = null, P3 = random };
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
             var entity = new Banana { P1 = 0, P2 = "Ate", P3 = new Random() };
 
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
             var entity = new Banana { P1 = 7, P2 = "Ate", P3 = new Random() };
 

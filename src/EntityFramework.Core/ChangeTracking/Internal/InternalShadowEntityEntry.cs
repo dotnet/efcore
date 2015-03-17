@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public override object Entity => null;
 
         public InternalShadowEntityEntry(
-            [NotNull] StateManager stateManager,
+            [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] IEntityEntryMetadataServices metadataServices)
             : base(stateManager, entityType, metadataServices)
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public InternalShadowEntityEntry(
-            [NotNull] StateManager stateManager,
+            [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] IEntityEntryMetadataServices metadataServices,
             [NotNull] IValueReader valueReader)

@@ -99,14 +99,14 @@ namespace Microsoft.Data.Entity.Tests
         public void SaveChanges_calls_DetectChanges()
         {
             var services = new ServiceCollection()
-                .AddScoped<StateManager, FakeStateManager>()
-                .AddScoped<ChangeDetector, FakeChangeDetector>();
+                .AddScoped<IStateManager, FakeStateManager>()
+                .AddScoped<IChangeDetector, FakeChangeDetector>();
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
 
             using (var context = new DbContext(serviceProvider, new DbContextOptionsBuilder().Options))
             {
-                var changeDetector = (FakeChangeDetector)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<ChangeDetector>();
+                var changeDetector = (FakeChangeDetector)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IChangeDetector>();
 
                 Assert.False(changeDetector.DetectChangesCalled);
 
@@ -120,14 +120,14 @@ namespace Microsoft.Data.Entity.Tests
         public void SaveChanges_calls_state_manager_SaveChanges()
         {
             var services = new ServiceCollection()
-                .AddScoped<StateManager, FakeStateManager>()
-                .AddScoped<ChangeDetector, FakeChangeDetector>();
+                .AddScoped<IStateManager, FakeStateManager>()
+                .AddScoped<IChangeDetector, FakeChangeDetector>();
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
 
             using (var context = new DbContext(serviceProvider, new DbContextOptionsBuilder().Options))
             {
-                var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<StateManager>();
+                var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IStateManager>();
 
                 var entryMock = new Mock<InternalEntityEntry>();
                 entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
@@ -145,8 +145,8 @@ namespace Microsoft.Data.Entity.Tests
         public async Task SaveChangesAsync_calls_state_manager_SaveChangesAsync()
         {
             var services = new ServiceCollection()
-                .AddScoped<StateManager, FakeStateManager>()
-                .AddScoped<ChangeDetector, FakeChangeDetector>();
+                .AddScoped<IStateManager, FakeStateManager>()
+                .AddScoped<IChangeDetector, FakeChangeDetector>();
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
 
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<StateManager>();
+                var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IStateManager>();
 
                 var entryMock = new Mock<InternalEntityEntry>();
                 entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Entry_methods_check_arguments()
         {
             var services = new ServiceCollection()
-                .AddScoped<StateManager, FakeStateManager>();
+                .AddScoped<IStateManager, FakeStateManager>();
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
 
@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Entry_methods_delegate_to_underlying_state_manager()
         {
             var entity = new Random();
-            var stateManagerMock = new Mock<StateManager>();
+            var stateManagerMock = new Mock<IStateManager>();
             var entry = new Mock<InternalEntityEntry>().Object;
             stateManagerMock.Setup(m => m.GetOrCreateEntry(entity)).Returns(entry);
 
@@ -209,37 +209,106 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
-        private class FakeStateManager : StateManager
+        private class FakeStateManager : IStateManager
         {
             public IEnumerable<InternalEntityEntry> InternalEntries { get; set; }
             public bool SaveChangesCalled { get; set; }
             public bool SaveChangesAsyncCalled { get; set; }
 
-            public override int SaveChanges()
+            public IEnumerable<InternalEntityEntry> GetDependents(InternalEntityEntry principalEntry, IForeignKey foreignKey)
+            {
+                throw new NotImplementedException();
+            }
+
+            public int SaveChanges()
             {
                 SaveChangesCalled = true;
                 return 1;
             }
 
-            public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+            public Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
             {
                 SaveChangesAsyncCalled = true;
                 return Task.FromResult(1);
             }
 
-            public override IEnumerable<InternalEntityEntry> Entries
+            public InternalEntityEntry CreateNewEntry(IEntityType entityType)
             {
-                get { return Entries ?? Enumerable.Empty<InternalEntityEntry>(); }
+                throw new NotImplementedException();
+            }
+
+            public InternalEntityEntry GetOrCreateEntry(object entity)
+            {
+                throw new NotImplementedException();
+            }
+
+            public InternalEntityEntry StartTracking(IEntityType entityType, object entity, IValueReader valueReader)
+            {
+                throw new NotImplementedException();
+            }
+
+            public InternalEntityEntry TryGetEntry(EntityKey keyValue)
+            {
+                throw new NotImplementedException();
+            }
+
+            public InternalEntityEntry TryGetEntry(object entity)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IEnumerable<InternalEntityEntry> Entries => Entries ?? Enumerable.Empty<InternalEntityEntry>();
+
+            public IInternalEntityEntryNotifier Notify
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public IValueGenerationManager ValueGeneration
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public InternalEntityEntry StartTracking(InternalEntityEntry entry)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void StopTracking(InternalEntityEntry entry)
+            {
+                throw new NotImplementedException();
+            }
+
+            public InternalEntityEntry GetPrincipal(IPropertyAccessor dependentEntry, IForeignKey foreignKey)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void UpdateIdentityMap(InternalEntityEntry entry, EntityKey oldKey)
+            {
+                throw new NotImplementedException();
             }
         }
 
-        private class FakeChangeDetector : ChangeDetector
+        private class FakeChangeDetector : IChangeDetector
         {
             public bool DetectChangesCalled { get; set; }
 
-            public override void DetectChanges(StateManager stateManager)
+            public void DetectChanges(IStateManager stateManager)
             {
                 DetectChangesCalled = true;
+            }
+
+            public void DetectChanges(InternalEntityEntry entry)
+            {
+            }
+
+            public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property)
+            {
+            }
+
+            public void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
+            {
             }
         }
 
@@ -1558,7 +1627,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.IsType<InternalEntityEntryFactory>(contextServices.GetRequiredService<InternalEntityEntryFactory>());
+                Assert.IsType<InternalEntityEntryFactory>(contextServices.GetRequiredService<IInternalEntityEntryFactory>());
             }
         }
 
@@ -1569,7 +1638,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.IsType<StateManager>(contextServices.GetRequiredService<StateManager>());
+                Assert.IsType<StateManager>(contextServices.GetRequiredService<IStateManager>());
             }
         }
 
@@ -1588,7 +1657,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddSingleton<IFieldMatcher, FieldMatcher>()
                 .AddSingleton<DataStoreSelector>()
                 .AddScoped<IDbSetInitializer, DbSetInitializer>()
-                .AddScoped<DbContextServices>()
+                .AddScoped<IDbContextServices, DbContextServices>()
                 .AddInstance(factory);
 
             var provider = serviceCollection.BuildServiceProvider();
@@ -1704,7 +1773,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_set_known_context_scoped_services_using_type_activation()
         {
             var services = new ServiceCollection()
-                .AddScoped<StateManager, FakeStateManager>();
+                .AddScoped<IStateManager, FakeStateManager>();
 
             var provider = TestHelpers.Instance.CreateServiceProvider(services);
 
@@ -1712,7 +1781,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.IsType<FakeStateManager>(contextServices.GetRequiredService<StateManager>());
+                Assert.IsType<FakeStateManager>(contextServices.GetRequiredService<IStateManager>());
             }
         }
 
@@ -1724,7 +1793,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework()
                 .ServiceCollection()
                 .AddSingleton<IModelSource, FakeModelSource>()
-                .AddScoped<StateManager, FakeStateManager>();
+                .AddScoped<IStateManager, FakeStateManager>();
 
             var provider = services.BuildServiceProvider();
 
@@ -1738,9 +1807,9 @@ namespace Microsoft.Data.Entity.Tests
             context = new EarlyLearningCenter(provider);
             contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            Assert.Same(stateManager, contextServices.GetRequiredService<StateManager>());
+            Assert.Same(stateManager, contextServices.GetRequiredService<IStateManager>());
 
             Assert.Same(modelSource, contextServices.GetRequiredService<IModelSource>());
 
@@ -1749,7 +1818,7 @@ namespace Microsoft.Data.Entity.Tests
             context = new EarlyLearningCenter(provider);
             contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-            Assert.NotSame(stateManager, contextServices.GetRequiredService<StateManager>());
+            Assert.NotSame(stateManager, contextServices.GetRequiredService<IStateManager>());
 
             Assert.Same(modelSource, contextServices.GetRequiredService<IModelSource>());
 
@@ -2333,11 +2402,11 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Add_Attach_Remove_Update_do_not_call_DetectChanges()
         {
-            var provider = TestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>());
+            var provider = TestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
             using (var context = new ButTheHedgehogContext(provider))
             {
                 var changeDetector = (ChangeDetectorProxy)((IAccessor<IServiceProvider>)context).Service
-                    .GetRequiredService<ChangeDetector>();
+                    .GetRequiredService<IChangeDetector>();
 
                 var entity = new Product { Id = 1, Name = "Little Hedgehogs" };
 
@@ -2392,7 +2461,7 @@ namespace Microsoft.Data.Entity.Tests
                 base.DetectChanges(entry);
             }
 
-            public override void DetectChanges(StateManager stateManager)
+            public override void DetectChanges(IStateManager stateManager)
             {
                 DetectChangesCalled = true;
 

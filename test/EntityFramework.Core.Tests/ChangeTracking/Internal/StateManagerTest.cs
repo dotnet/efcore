@@ -343,7 +343,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var contextServices = TestHelpers.Instance.CreateContextServices(services, BuildModel());
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(new Category { Id = 77 });
             entry.SetEntityState(EntityState.Added);
@@ -373,10 +373,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void DetectChanges_is_called_for_all_tracked_entities_and_returns_true_if_any_changes_detected()
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>(),
+                new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>(),
                 BuildModel());
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, Name = "Beverages" });
             var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, Name = "Foods" });
@@ -386,7 +386,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             stateManager.StartTracking(entry2);
             stateManager.StartTracking(entry3);
 
-            var changeDetector = (ChangeDetectorProxy)contextServices.GetRequiredService<ChangeDetector>();
+            var changeDetector = (ChangeDetectorProxy)contextServices.GetRequiredService<IChangeDetector>();
 
             changeDetector.DetectChanges(stateManager);
 
@@ -476,9 +476,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Empty(stateManager.GetDependents(categoryEntry4, fk).ToArray());
         }
 
-        private static StateManager CreateStateManager(IModel model)
+        private static IStateManager CreateStateManager(IModel model)
         {
-            return TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+            return TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
         }
 
         private class Category

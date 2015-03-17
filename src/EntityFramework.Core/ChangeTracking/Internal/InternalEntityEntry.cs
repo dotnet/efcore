@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         protected InternalEntityEntry(
-            [NotNull] StateManager stateManager,
+            [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] IEntityEntryMetadataServices metadataServices)
         {
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual IEntityType EntityType { get; }
 
-        public virtual StateManager StateManager { get; }
+        public virtual IStateManager StateManager { get; }
 
         protected virtual IEntityEntryMetadataServices MetadataServices { get; }
 

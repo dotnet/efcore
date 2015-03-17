@@ -47,18 +47,18 @@ namespace Microsoft.Data.Entity.Tests
             VerifyCached<IModelBuilderFactory>();
             VerifyCached<IModel>();
 
-            VerifyScoped<KeyPropagator>();
-            VerifyScoped<NavigationFixer>();
-            VerifyScoped<StateManager>();
-            VerifyScoped<InternalEntityEntryFactory>();
-            VerifyScoped<InternalEntityEntryNotifier>();
-            VerifyScoped<InternalEntityEntrySubscriber>();
-            VerifyScoped<ValueGenerationManager>();
-            VerifyScoped<EntityQueryProvider>();
+            VerifyScoped<IKeyPropagator>();
+            VerifyScoped<INavigationFixer>();
+            VerifyScoped<IStateManager>();
+            VerifyScoped<IInternalEntityEntryFactory>();
+            VerifyScoped<IInternalEntityEntryNotifier>();
+            VerifyScoped<IInternalEntityEntrySubscriber>();
+            VerifyScoped<IValueGenerationManager>();
+            VerifyScoped<IEntityQueryProvider>();
             VerifyScoped<ChangeTracker>();
-            VerifyScoped<ChangeDetector>();
-            VerifyScoped<EntityEntryGraphIterator>();
-            VerifyScoped<DbContextServices>();
+            VerifyScoped<IChangeDetector>();
+            VerifyScoped<IEntityEntryGraphIterator>();
+            VerifyScoped<IDbContextServices>();
             VerifyScoped<DbContext>();
             VerifyScoped<IDbContextOptions>();
             VerifyScoped<IDataStoreSelector>();
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Tests
             }
             Assert.Equal(1, serviceProvider.GetRequiredService<IEnumerable<TService>>().Count());
 
-            if (typeof(TService) != typeof(DbContextServices))
+            if (typeof(TService) != typeof(IDbContextServices))
             {
                 var customServices = isScoped
                     ? new ServiceCollection().AddScoped(p => service)

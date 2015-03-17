@@ -13,7 +13,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class EntityQueryProvider : IAsyncQueryProvider
+    public class EntityQueryProvider : IEntityQueryProvider
     {
         private readonly DbContext _context;
         private readonly IDataStore _dataStore;

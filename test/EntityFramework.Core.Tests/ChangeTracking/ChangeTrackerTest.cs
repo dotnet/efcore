@@ -56,9 +56,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var stateManger = ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<StateManager>();
+                var stateManger = ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IStateManager>();
 
-                Assert.Same(stateManger, ((IAccessor<StateManager>)context.ChangeTracker).Service);
+                Assert.Same(stateManger, ((IAccessor<IStateManager>)context.ChangeTracker).Service);
             }
         }
 
@@ -919,11 +919,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void TrackGraph_does_not_call_DetectChanges()
         {
-            var provider = TestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>());
+            var provider = TestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
             using (var context = new EarlyLearningCenter(provider))
             {
                 var changeDetector = (ChangeDetectorProxy)((IAccessor<IServiceProvider>)context).Service
-                    .GetRequiredService<ChangeDetector>();
+                    .GetRequiredService<IChangeDetector>();
 
                 changeDetector.DetectChangesCalled = false;
 
@@ -958,7 +958,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 base.DetectChanges(entry);
             }
 
-            public override void DetectChanges(StateManager stateManager)
+            public override void DetectChanges(IStateManager stateManager)
             {
                 DetectChangesCalled = true;
 

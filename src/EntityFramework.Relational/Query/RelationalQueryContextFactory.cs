@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         private readonly IRelationalConnection _connection;
 
         public RelationalQueryContextFactory(
-            [NotNull] StateManager stateManager,
+            [NotNull] IStateManager stateManager,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,

@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
+            var entityEntry = serviceProvider.GetRequiredService<IStateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
             var inMemoryDataStore = serviceProvider.GetRequiredService<IInMemoryDataStore>();
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
+            var entityEntry = serviceProvider.GetRequiredService<IStateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
             var inMemoryDataStore = serviceProvider.GetRequiredService<IInMemoryDataStore>();
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
+            var entityEntry = serviceProvider.GetRequiredService<IStateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
             var inMemoryDataStore = serviceProvider.GetRequiredService<IInMemoryDataStore>();
@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var scopedServices = InMemoryTestHelpers.Instance.CreateContextServices(serviceCollection, CreateModel());
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = scopedServices.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
+            var entityEntry = scopedServices.GetRequiredService<IStateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
             var inMemoryDataStore = scopedServices.GetRequiredService<IInMemoryDataStore>();

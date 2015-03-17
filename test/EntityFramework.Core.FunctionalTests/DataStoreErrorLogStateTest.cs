@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.Blogs.Add(new BloggingContext.Blog(false) { Url = "http://sample.com" });
                 context.SaveChanges();
                 var entry = ((IAccessor<InternalEntityEntry>)context.ChangeTracker.Entries().Single()).Service;
-                ((IAccessor<StateManager>)context.ChangeTracker).Service.StopTracking(entry);
+                ((IAccessor<IStateManager>)context.ChangeTracker).Service.StopTracking(entry);
 
                 var ex = Assert.ThrowsAny<Exception>(() => test(context));
                 while (ex.InnerException != null)

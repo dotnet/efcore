@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity
     {
         private static readonly ThreadSafeDictionaryCache<Type, Type> _optionsTypes = new ThreadSafeDictionaryCache<Type, Type>();
 
-        private LazyRef<DbContextServices> _contextServices;
+        private LazyRef<IDbContextServices> _contextServices;
         private LazyRef<ILogger> _logger;
         private LazyRef<IDbSetInitializer> _setInitializer;
         private LazyRef<Database> _database;
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity
         private void Initialize(IServiceProvider serviceProvider, DbContextOptions options)
         {
             InitializeSets(serviceProvider, options);
-            _contextServices = new LazyRef<DbContextServices>(() => InitializeServices(serviceProvider, options));
+            _contextServices = new LazyRef<IDbContextServices>(() => InitializeServices(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
             _setInitializer = new LazyRef<IDbSetInitializer>(GetSetInitializer);
             _database = new LazyRef<Database>(GetDatabase);
@@ -173,13 +173,13 @@ namespace Microsoft.Data.Entity
 
         private IDbSetInitializer GetSetInitializer() => _contextServices.Value.ServiceProvider.GetRequiredService<IDbSetInitializer>();
 
-        private ChangeDetector GetChangeDetector() => _contextServices.Value.ServiceProvider.GetRequiredService<ChangeDetector>();
+        private IChangeDetector GetChangeDetector() => _contextServices.Value.ServiceProvider.GetRequiredService<IChangeDetector>();
 
-        private StateManager GetStateManager() => _contextServices.Value.ServiceProvider.GetRequiredService<StateManager>();
+        private IStateManager GetStateManager() => _contextServices.Value.ServiceProvider.GetRequiredService<IStateManager>();
 
         private Database GetDatabase() => _contextServices.Value.ServiceProvider.GetRequiredService<IDatabaseFactory>().CreateDatabase();
 
-        private DbContextServices InitializeServices(IServiceProvider serviceProvider, DbContextOptions options)
+        private IDbContextServices InitializeServices(IServiceProvider serviceProvider, DbContextOptions options)
         {
             if (_initializing)
             {
@@ -202,9 +202,7 @@ namespace Microsoft.Data.Entity
                     dataStores[0].AutoConfigure(optionsBuilder);
                 }
 
-                var providerSource = serviceProvider != null
-                    ? DbContextServices.ServiceProviderSource.Explicit
-                    : DbContextServices.ServiceProviderSource.Implicit;
+                var providerSource = serviceProvider != null ? ServiceProviderSource.Explicit : ServiceProviderSource.Implicit;
 
                 serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(optionsBuilder.Options);
 
@@ -214,7 +212,7 @@ namespace Microsoft.Data.Entity
                     .ServiceProvider;
 
                 return scopedServiceProvider
-                    .GetRequiredService<DbContextServices>()
+                    .GetRequiredService<IDbContextServices>()
                     .Initialize(scopedServiceProvider, optionsBuilder.Options, this, providerSource);
             }
             finally
@@ -308,7 +306,7 @@ namespace Microsoft.Data.Entity
             }
         }
 
-        private void TryDetectChanges(StateManager stateManager)
+        private void TryDetectChanges(IStateManager stateManager)
         {
             if (ChangeTracker.AutoDetectChangesEnabled)
             {

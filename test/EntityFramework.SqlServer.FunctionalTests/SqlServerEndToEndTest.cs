@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public class TestSqlServerQueryContextFactory : SqlServerQueryContextFactory
         {
             public TestSqlServerQueryContextFactory(
-                StateManager stateManager,
+                IStateManager stateManager,
                 IEntityKeyFactorySource entityKeyFactorySource,
                 IClrCollectionAccessorSource collectionAccessorSource,
                 IClrAccessorSource<IClrPropertySetter> propertySetterSource,

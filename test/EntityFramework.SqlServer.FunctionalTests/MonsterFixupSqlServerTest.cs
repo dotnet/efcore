@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             if (throwingStateManager)
             {
-                serviceCollection.AddScoped<StateManager, ThrowingMonsterStateManager>();
+                serviceCollection.AddScoped<IStateManager, ThrowingMonsterStateManager>();
             }
 
             return serviceCollection.BuildServiceProvider();

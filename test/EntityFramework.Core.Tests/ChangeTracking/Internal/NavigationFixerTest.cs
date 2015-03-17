@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Does_fixup_of_related_principals()
         {
             var contextServices = CreateContextServices();
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Category { Id = 11 };
             var principal2 = new Category { Id = 12 };
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Does_fixup_of_related_dependents()
         {
             var contextServices = CreateContextServices();
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var dependent1 = new Product { Id = 21, CategoryId = 11 };
             var dependent2 = new Product { Id = 22, CategoryId = 12 };
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Does_fixup_of_one_to_one_relationship()
         {
             var contextServices = CreateContextServices();
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Product { Id = 21 };
             var principal2 = new Product { Id = 22 };
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Does_fixup_of_one_to_one_self_referencing_relationship()
         {
             var contextServices = CreateContextServices();
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var entity1 = new Product { Id = 21, AlternateProductId = 22 };
             var entity2 = new Product { Id = 22, AlternateProductId = 23 };
@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Does_fixup_of_FKs_and_related_principals_using_dependent_navigations()
         {
             var contextServices = CreateContextServices();
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Category { Id = 11 };
             var principal2 = new Category { Id = 12 };
@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Does_fixup_of_FKs_and_related_principals_using_principal_navigations()
         {
             var contextServices = CreateContextServices();
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Category { Id = 11 };
             var principal2 = new Category { Id = 12 };
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Does_fixup_of_FKs_and_related_dependents_using_dependent_navigations()
         {
             var contextServices = CreateContextServices();
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal = new Category { Id = 11 };
 
@@ -247,7 +247,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Does_fixup_of_FKs_and_related_dependents_using_principal_navigations()
         {
             var contextServices = CreateContextServices();
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal = new Category { Id = 11 };
 
@@ -283,7 +283,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Does_fixup_of_one_to_one_self_referencing_relationship_using_dependent_navigations()
         {
             var contextServices = CreateContextServices();
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var entity1 = new Product { Id = 21 };
             var entity2 = new Product { Id = 22 };
@@ -344,7 +344,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Does_fixup_of_one_to_one_self_referencing_relationship_using_principal_navigations()
         {
             var contextServices = CreateContextServices();
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var entity1 = new Product { Id = 21 };
             var entity2 = new Product { Id = 22 };
@@ -406,7 +406,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Category { Id = 11 };
             var principal2 = new Category { Id = 12 };
@@ -438,7 +438,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Category { Id = 11 };
             var principal2 = new Category { Id = 12 };
@@ -470,7 +470,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Category { Id = 11 };
             var principal2 = new Category { Id = 12 };
@@ -502,7 +502,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Product { Id = 21 };
             var principal2 = new Product { Id = 22 };
@@ -534,7 +534,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal = new Product { Id = 21 };
             var dependent = new ProductDetail { Id = 21 };
@@ -562,7 +562,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal = new Product { Id = 21 };
             var dependent = new ProductDetail { Id = 7 };
@@ -590,7 +590,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Product { Id = 21 };
             var principal2 = new Product { Id = 22 };
@@ -627,7 +627,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var entity1 = new Product { Id = 21, AlternateProductId = 22 };
             var entity2 = new Product { Id = 22 };
@@ -671,7 +671,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var entity1 = new Product { Id = 21, AlternateProductId = 22 };
             var entity2 = new Product { Id = 22, AlternateProductId = 23 };
@@ -717,7 +717,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
-            var manager = contextServices.GetRequiredService<StateManager>();
+            var manager = contextServices.GetRequiredService<IStateManager>();
 
             var photo1 = new ProductPhoto { ProductId = 1, PhotoId = "Photo1" };
             var photo2 = new ProductPhoto { ProductId = 1, PhotoId = "Photo2" };
@@ -946,9 +946,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             return model;
         }
 
-        private static NavigationFixer CreateNavigationFixer(IServiceProvider contextServices)
+        private static INavigationFixer CreateNavigationFixer(IServiceProvider contextServices)
         {
-            return (NavigationFixer)contextServices.GetRequiredService<IEntityStateListener>();
+            return (INavigationFixer)contextServices.GetRequiredService<IEntityStateListener>();
         }
     }
 }

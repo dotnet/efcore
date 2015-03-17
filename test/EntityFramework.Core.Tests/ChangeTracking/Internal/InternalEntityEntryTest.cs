@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.SetEntityState(EntityState.Added);
 
             Assert.Equal(EntityState.Added, entry.EntityState);
-            Assert.Contains(entry, contextServices.GetRequiredService<StateManager>().Entries);
+            Assert.Contains(entry, contextServices.GetRequiredService<IStateManager>().Entries);
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.SetEntityState(EntityState.Detached);
 
             Assert.Equal(EntityState.Detached, entry.EntityState);
-            Assert.DoesNotContain(entry, contextServices.GetRequiredService<StateManager>().Entries);
+            Assert.DoesNotContain(entry, contextServices.GetRequiredService<IStateManager>().Entries);
         }
 
         [Fact] // GitHub #251, #1247
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.SetEntityState(EntityState.Deleted);
 
             Assert.Equal(EntityState.Deleted, entry.EntityState);
-            Assert.Contains(entry, contextServices.GetRequiredService<StateManager>().Entries);
+            Assert.Contains(entry, contextServices.GetRequiredService<IStateManager>().Entries);
         }
 
         [Fact]
@@ -858,7 +858,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Assert.False(entry.IsPropertyModified(nameProperty));
                 Assert.Equal(EntityState.Unchanged, entry.EntityState);
 
-                configuration.GetRequiredService<ChangeDetector>().DetectChanges(entry);
+                configuration.GetRequiredService<IChangeDetector>().DetectChanges(entry);
             }
 
             Assert.True(entry.IsPropertyModified(nameProperty));
@@ -1418,18 +1418,18 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity)
         {
-            return contextServices.GetRequiredService<InternalEntityEntrySubscriber>().SnapshotAndSubscribe(
+            return contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(
                 new InternalEntityEntryFactory(
                     contextServices.GetRequiredService<IEntityEntryMetadataServices>())
-                    .Create(contextServices.GetRequiredService<StateManager>(), entityType, entity));
+                    .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity));
         }
 
         protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity, IValueReader valueReader)
         {
-            return contextServices.GetRequiredService<InternalEntityEntrySubscriber>().SnapshotAndSubscribe(
+            return contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(
                 new InternalEntityEntryFactory(
                     contextServices.GetRequiredService<IEntityEntryMetadataServices>())
-                    .Create(contextServices.GetRequiredService<StateManager>(), entityType, entity, valueReader));
+                    .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity, valueReader));
         }
 
         protected virtual Model BuildModel()

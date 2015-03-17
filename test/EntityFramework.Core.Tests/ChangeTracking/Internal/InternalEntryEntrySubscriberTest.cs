@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var testListener = contextServices.GetRequiredService<IEnumerable<IPropertyListener>>().OfType<TestPropertyListener>().Single();
 
             var entity = new FullNotificationEntity();
-            var entry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(entity);
+            var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
 
             Assert.Null(testListener.Changing);
             Assert.Null(testListener.Changed);
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var testListener = contextServices.GetRequiredService<IEnumerable<IPropertyListener>>().OfType<TestPropertyListener>().Single();
 
             var entity = new FullNotificationEntity();
-            var entry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(entity);
+            var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
 
             Assert.Null(testListener.Changing);
             Assert.Null(testListener.Changed);
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var testListener = contextServices.GetRequiredService<IEnumerable<IPropertyListener>>().OfType<TestPropertyListener>().Single();
 
             var entity = new FullNotificationEntity();
-            contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(entity);
+            contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
 
             Assert.Null(testListener.Changing);
             Assert.Null(testListener.Changed);

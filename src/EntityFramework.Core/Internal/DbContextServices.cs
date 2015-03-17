@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -11,13 +10,8 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Internal
 {
-    public class DbContextServices : IDisposable
+    public class DbContextServices : IDbContextServices
     {
-        public enum ServiceProviderSource
-        {
-            Explicit,
-            Implicit
-        }
 
         private IServiceProvider _provider;
         private IDbContextOptions _contextOptions;
@@ -26,10 +20,10 @@ namespace Microsoft.Data.Entity.Internal
         private LazyRef<IDataStoreServices> _dataStoreServices;
         private bool _inOnModelCreating;
 
-        public virtual DbContextServices Initialize(
-            [NotNull] IServiceProvider scopedProvider,
-            [NotNull] IDbContextOptions contextOptions,
-            [NotNull] DbContext context,
+        public virtual IDbContextServices Initialize(
+            IServiceProvider scopedProvider, 
+            IDbContextOptions contextOptions, 
+            DbContext context,
             ServiceProviderSource serviceProviderSource)
         {
             Check.NotNull(scopedProvider, nameof(scopedProvider));
@@ -74,13 +68,6 @@ namespace Microsoft.Data.Entity.Internal
         public virtual IDbContextOptions ContextOptions => _contextOptions;
 
         public virtual IDataStoreServices DataStoreServices => _dataStoreServices.Value;
-
-        public static Func<IServiceProvider, DbContext> ContextFactory => p => p.GetRequiredService<DbContextServices>().Context;
-
-        public static Func<IServiceProvider, IModel> ModelFactory => p => p.GetRequiredService<DbContextServices>().Model;
-
-        public static Func<IServiceProvider, IDbContextOptions> ContextOptionsFactory
-            => p => p.GetRequiredService<DbContextServices>().ContextOptions;
 
         public virtual IServiceProvider ServiceProvider => _provider;
 

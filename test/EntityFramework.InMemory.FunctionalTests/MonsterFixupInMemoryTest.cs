@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             if (throwingStateManager)
             {
-                serviceCollection.AddScoped<StateManager, ThrowingMonsterStateManager>();
+                serviceCollection.AddScoped<IStateManager, ThrowingMonsterStateManager>();
             }
 
             return serviceCollection.BuildServiceProvider();

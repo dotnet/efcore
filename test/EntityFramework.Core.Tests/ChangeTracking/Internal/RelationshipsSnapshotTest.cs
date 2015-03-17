@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var contextServices = TestHelpers.Instance.CreateContextServices(_model);
 
-            return contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(entity);
+            return contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
         }
 
         private static Model BuildModel()

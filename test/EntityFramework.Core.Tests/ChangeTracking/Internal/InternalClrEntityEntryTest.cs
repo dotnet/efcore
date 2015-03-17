@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             entity.Id = 77;
 
-            configuration.GetRequiredService<ChangeDetector>().DetectChanges(entry);
+            configuration.GetRequiredService<IChangeDetector>().DetectChanges(entry);
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
 

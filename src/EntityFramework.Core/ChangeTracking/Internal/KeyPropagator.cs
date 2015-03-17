@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
@@ -10,20 +9,11 @@ using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class KeyPropagator
+    public class KeyPropagator : IKeyPropagator
     {
         private readonly IClrAccessorSource<IClrPropertyGetter> _getterSource;
         private readonly IClrCollectionAccessorSource _collectionAccessorSource;
         private readonly IValueGeneratorSelector _valueGeneratorSelector;
-
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected KeyPropagator()
-        {
-        }
 
         public KeyPropagator(
             [NotNull] IClrAccessorSource<IClrPropertyGetter> getterSource,
@@ -35,7 +25,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _valueGeneratorSelector = valueGeneratorSelector;
         }
 
-        public virtual void PropagateValue([NotNull] InternalEntityEntry entry, [NotNull] IProperty property)
+        public virtual void PropagateValue(InternalEntityEntry entry, IProperty property)
         {
             Debug.Assert(property.IsForeignKey());
 
@@ -109,7 +99,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return null;
         }
 
-        private object TryFindPrincipal(StateManager stateManager, INavigation navigation, object dependentEntity)
+        private object TryFindPrincipal(IStateManager stateManager, INavigation navigation, object dependentEntity)
         {
             if (navigation.PointsToPrincipal)
             {

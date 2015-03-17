@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
             var contextServices = TestHelpers.Instance.CreateContextServices(model);
-            var stateManager = contextServices.GetRequiredService<StateManager>();
-            var factory = contextServices.GetRequiredService<InternalEntityEntryFactory>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
+            var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
             var entry = factory.Create(stateManager, entityType, new Random());
 
@@ -41,8 +41,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entityType.GetOrAddProperty("Hammer", typeof(string));
 
             var contextServices = TestHelpers.Instance.CreateContextServices(model);
-            var stateManager = contextServices.GetRequiredService<StateManager>();
-            var factory = contextServices.GetRequiredService<InternalEntityEntryFactory>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
+            var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
             var entity = new RedHook();
             var entry = factory.Create(stateManager, entityType, entity);
@@ -63,8 +63,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
             var contextServices = TestHelpers.Instance.CreateContextServices(model);
-            var stateManager = contextServices.GetRequiredService<StateManager>();
-            var factory = contextServices.GetRequiredService<InternalEntityEntryFactory>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
+            var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
             var entity = new RedHook();
             var entry = factory.Create(stateManager, entityType, entity);

@@ -23,6 +23,6 @@ namespace Microsoft.Data.Entity.Relational
         public static Func<IServiceProvider, ISqlGenerator> SqlGeneratorFactory => p => GetStoreServices(p).SqlGenerator;
 
         private static IRelationalDataStoreServices GetStoreServices(IServiceProvider serviceProvider)
-            => (IRelationalDataStoreServices)serviceProvider.GetRequiredService<DbContextServices>().DataStoreServices;
+            => (IRelationalDataStoreServices)serviceProvider.GetRequiredService<IDbContextServices>().DataStoreServices;
     }
 }

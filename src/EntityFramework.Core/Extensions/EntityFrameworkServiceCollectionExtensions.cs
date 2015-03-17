@@ -10,7 +10,6 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Caching.Memory;
 using Microsoft.Framework.ConfigurationModel;
@@ -73,11 +72,11 @@ namespace Microsoft.Framework.DependencyInjection
 
             // TODO: Is this the appropriate way to register listeners?
             serviceCollection
-                .AddScoped<IEntityStateListener>(p => p.GetService<NavigationFixer>())
-                .AddScoped<IForeignKeyListener>(p => p.GetService<NavigationFixer>())
-                .AddScoped<INavigationListener>(p => p.GetService<NavigationFixer>())
-                .AddScoped<IKeyListener>(p => p.GetService<NavigationFixer>())
-                .AddScoped<IPropertyListener>(p => p.GetService<ChangeDetector>());
+                .AddScoped<IEntityStateListener>(p => p.GetService<INavigationFixer>())
+                .AddScoped<IForeignKeyListener>(p => p.GetService<INavigationFixer>())
+                .AddScoped<INavigationListener>(p => p.GetService<INavigationFixer>())
+                .AddScoped<IKeyListener>(p => p.GetService<INavigationFixer>())
+                .AddScoped<IPropertyListener>(p => p.GetService<IChangeDetector>());
 
             serviceCollection.TryAdd(new ServiceCollection()
                 .AddSingleton<IDbSetFinder, DbSetFinder>()
@@ -100,33 +99,39 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
                 .AddSingleton<IDbContextOptionsParser, DbContextOptionsParser>()
                 .AddSingleton<IBoxedValueReaderSource, BoxedValueReaderSource>()
-                .AddScoped<KeyPropagator>()
-                .AddScoped<NavigationFixer>()
-                .AddScoped<StateManager>()
-                .AddScoped<InternalEntityEntryFactory>()
-                .AddScoped<InternalEntityEntryNotifier>()
-                .AddScoped<InternalEntityEntrySubscriber>()
-                .AddScoped<ValueGenerationManager>()
-                .AddScoped<EntityQueryProvider>()
+                .AddScoped<IKeyPropagator, KeyPropagator>()
+                .AddScoped<INavigationFixer, NavigationFixer>()
+                .AddScoped<IStateManager, StateManager>()
+                .AddScoped<IInternalEntityEntryFactory, InternalEntityEntryFactory>()
+                .AddScoped<IInternalEntityEntryNotifier, InternalEntityEntryNotifier>()
+                .AddScoped<IInternalEntityEntrySubscriber, InternalEntityEntrySubscriber>()
+                .AddScoped<IValueGenerationManager, ValueGenerationManager>()
+                .AddScoped<IEntityQueryProvider, EntityQueryProvider>()
                 .AddScoped<ChangeTracker>()
-                .AddScoped<ChangeDetector>()
-                .AddScoped<EntityEntryGraphIterator>()
-                .AddScoped<DbContextServices>()
-                .AddScoped(DbContextServices.ModelFactory)
-                .AddScoped(DbContextServices.ContextFactory)
-                .AddScoped(DbContextServices.ContextOptionsFactory)
+                .AddScoped<IChangeDetector, ChangeDetector>()
+                .AddScoped<IEntityEntryGraphIterator, EntityEntryGraphIterator>()
+                .AddScoped<IDbContextServices, DbContextServices>()
                 .AddScoped<IDataStoreSelector, DataStoreSelector>()
-                .AddScoped(DataStoreServiceFactories.DataStoreFactory)
-                .AddScoped(DataStoreServiceFactories.QueryContextFactoryFactory)
-                .AddScoped(DataStoreServiceFactories.ConnectionFactory)
-                .AddScoped(DataStoreServiceFactories.DatabaseFactoryFactory)
-                .AddScoped(DataStoreServiceFactories.ValueGeneratorSelectorFactory)
-                .AddScoped(DataStoreServiceFactories.DataStoreCreatorFactory)
-                .AddScoped(DataStoreServiceFactories.ModelBuilderFactoryFactory)
+                .AddScoped(p => GetContextServices(p).Model)
+                .AddScoped(p => GetContextServices(p).Context)
+                .AddScoped(p => GetContextServices(p).ContextOptions)
+                .AddScoped(p => GetStoreServices(p).Store)
+                .AddScoped(p => GetStoreServices(p).QueryContextFactory)
+                .AddScoped(p => GetStoreServices(p).Connection)
+                .AddScoped(p => GetStoreServices(p).DatabaseFactory)
+                .AddScoped(p => GetStoreServices(p).ValueGeneratorSelector)
+                .AddScoped(p => GetStoreServices(p).Creator)
+                .AddScoped(p => GetStoreServices(p).ModelBuilderFactory)
                 .AddTransient<IMemoryCache, MemoryCache>()
                 .AddOptions());
 
             return new EntityFrameworkServicesBuilder(serviceCollection, configuration);
         }
+
+    private static IDbContextServices GetContextServices(IServiceProvider serviceProvider)
+        => serviceProvider.GetRequiredService<IDbContextServices>();
+
+    private static IDataStoreServices GetStoreServices(IServiceProvider serviceProvider)
+        => GetContextServices(serviceProvider).DataStoreServices;
     }
 }

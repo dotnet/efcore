@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
 
             contextServices
-                .GetRequiredService<ChangeDetector>()
+                .GetRequiredService<IChangeDetector>()
                 .PropertyChanging(entry, entry.EntityType.GetProperty("DependentId"));
 
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var property = entry.EntityType.GetProperty("DependentId");
 
             contextServices
-                .GetRequiredService<ChangeDetector>()
+                .GetRequiredService<IChangeDetector>()
                 .PropertyChanging(entry, property);
 
             Assert.Equal(77, entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)[property]);
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
 
             contextServices
-                .GetRequiredService<ChangeDetector>()
+                .GetRequiredService<IChangeDetector>()
                 .PropertyChanging(entry, entry.EntityType.GetProperty("Name"));
 
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var navigation = entry.EntityType.GetNavigation("Category");
 
             contextServices
-                .GetRequiredService<ChangeDetector>()
+                .GetRequiredService<IChangeDetector>()
                 .PropertyChanging(entry, navigation);
 
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var property = entry.EntityType.GetProperty("Id");
 
             contextServices
-                .GetRequiredService<ChangeDetector>()
+                .GetRequiredService<IChangeDetector>()
                 .PropertyChanging(entry, property);
 
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
 
             contextServices
-                .GetRequiredService<ChangeDetector>()
+                .GetRequiredService<IChangeDetector>()
                 .PropertyChanging(entry, entry.EntityType.GetNavigation("Products"));
 
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
@@ -140,10 +140,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
             var product = new Product { Id = Guid.NewGuid(), Name = "Oculus Rift" };
-            var entry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(product);
+            var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
             product.Name = "Gear VR";
@@ -159,10 +159,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanged());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
             var product = new ProductWithChanged { Id = 1, Name = "Oculus Rift" };
-            var entry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(product);
+            var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
             product.Name = "Gear VR";
@@ -178,8 +178,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
             var category = new Category { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -213,8 +213,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new Category { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -249,8 +249,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new Category { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -286,8 +286,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
             var category = new Category { Id = -1 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -317,8 +317,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var storeGeneratedValuesFactory = contextServices.GetRequiredService<IStoreGeneratedValuesFactory>();
 
             var category = new Category { Id = -1 };
@@ -354,8 +354,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
             var category = new Category { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -385,8 +385,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new Category { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -418,8 +418,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
@@ -451,8 +451,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
@@ -488,8 +488,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
@@ -526,8 +526,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
@@ -555,8 +555,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
@@ -589,8 +589,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var originalCategory = new Category { Id = 77, PrincipalId = 1 };
             var product = new Product { Id = Guid.NewGuid(), Category = originalCategory, DependentId = 1 };
@@ -628,8 +628,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var originalCategory = new Category { Id = 77, PrincipalId = 1 };
             var product = new Product { Id = Guid.NewGuid(), Category = originalCategory, DependentId = 1 };
@@ -671,8 +671,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new Category { Id = 55, PrincipalId = 1 };
             var product = new Product { Id = Guid.NewGuid(), Category = category, DependentId = 1 };
@@ -701,8 +701,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product1 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var product2 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
@@ -741,8 +741,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product1 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var product2 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
@@ -784,8 +784,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices();
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product1 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var product2 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
@@ -820,8 +820,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildModelWithChanged());
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
             var product = new ProductWithChanged { Id = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
@@ -851,8 +851,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildModelWithChanged());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product = new ProductWithChanged { Id = 1, DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
@@ -879,8 +879,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildModelWithChanged());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new CategoryWithChanged { Id = 1 };
             var product = new ProductWithChanged { Id = 2, Category = category, DependentId = 1 };
@@ -909,8 +909,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildModelWithChanged());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product1 = new ProductWithChanged { DependentId = 77 };
             var product2 = new ProductWithChanged { DependentId = 77 };
@@ -954,8 +954,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildModelWithChanged());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product1 = new ProductWithChanged { DependentId = 77 };
             var product2 = new ProductWithChanged { DependentId = 77 };
@@ -998,8 +998,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var originalCategory = new Category { Id = 77, PrincipalId = 1 };
             var product = new Product { Id = Guid.NewGuid(), Category = originalCategory, DependentId = 1 };
@@ -1033,8 +1033,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new Category { Id = 1, TagId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -1061,8 +1061,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var tag = new CategoryTag { Id = 1 };
             var entry = stateManager.GetOrCreateEntry(tag);
@@ -1089,8 +1089,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product1 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var product2 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
@@ -1123,8 +1123,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var wife = new Person();
             var entry = stateManager.GetOrCreateEntry(wife);
@@ -1153,8 +1153,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var husband = new Person();
             var entry = stateManager.GetOrCreateEntry(husband);
@@ -1183,8 +1183,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new NotifyingCategory { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -1216,8 +1216,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new NotifyingCategory { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -1247,8 +1247,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new NotifyingCategory { Id = -1 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -1276,8 +1276,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new NotifyingCategory { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -1305,8 +1305,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
@@ -1336,8 +1336,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
@@ -1368,8 +1368,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
@@ -1395,8 +1395,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var originalCategory = new NotifyingCategory { Id = 66, PrincipalId = 1 };
             var product = new NotifyingProduct { Id = Guid.NewGuid(), Category = originalCategory, DependentId = 1 };
@@ -1432,8 +1432,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var originalCategory = new NotifyingCategory { Id = 77, PrincipalId = 1 };
             var product = new NotifyingProduct { Id = Guid.NewGuid(), Category = originalCategory, DependentId = 1 };
@@ -1471,8 +1471,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new NotifyingCategory { Id = 77, PrincipalId = 1 };
             var product = new NotifyingProduct { Id = Guid.NewGuid(), Category = category, DependentId = 1 };
@@ -1499,8 +1499,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product1 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             var product2 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
@@ -1544,8 +1544,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product1 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             var product2 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
@@ -1592,7 +1592,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var originalCategory = new NotifyingCategory { PrincipalId = 1 };
             var product = new NotifyingProduct { Id = Guid.NewGuid(), Category = originalCategory, DependentId = 1 };
@@ -1619,7 +1619,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new NotifyingCategory { Id = 1, TagId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
@@ -1644,7 +1644,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var tag = new NotifyingCategoryTag { Id = 1 };
             var entry = stateManager.GetOrCreateEntry(tag);
@@ -1669,8 +1669,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product1 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             var product2 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
@@ -1699,7 +1699,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var wife = new NotifyingPerson();
             var entry = stateManager.GetOrCreateEntry(wife);
@@ -1726,7 +1726,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
 
-            var stateManager = contextServices.GetRequiredService<StateManager>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var husband = new NotifyingPerson();
             var entry = stateManager.GetOrCreateEntry(husband);
@@ -2137,13 +2137,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             where TEntity : class, new()
         {
             return new InternalClrEntityEntry(
-                contextServices.GetRequiredService<StateManager>(),
+                contextServices.GetRequiredService<IStateManager>(),
                 contextServices.GetRequiredService<IModel>().GetEntityType(typeof(TEntity)),
                 contextServices.GetRequiredService<IEntityEntryMetadataServices>(), entity ?? new TEntity());
         }
 
         private static void AssertDetectChangesNoOp(
-            ChangeDetector changeDetector, StateManager stateManager, TestRelationshipListener testListener)
+            IChangeDetector changeDetector, IStateManager stateManager, TestRelationshipListener testListener)
         {
             testListener.PrincipalKeyChange = null;
             testListener.ForeignKeyChange = null;

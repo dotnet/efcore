@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests
             var provider = TestHelpers.Instance.CreateServiceProvider();
             var contextServices = TestHelpers.Instance.CreateContextServices(provider);
 
-            Assert.Same(contextServices.GetRequiredService<StateManager>(), contextServices.GetRequiredService<StateManager>());
+            Assert.Same(contextServices.GetRequiredService<IStateManager>(), contextServices.GetRequiredService<IStateManager>());
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Tests
             var contextServices1 = TestHelpers.Instance.CreateContextServices(provider);
             var contextServices2 = TestHelpers.Instance.CreateContextServices(provider);
 
-            Assert.NotSame(contextServices1.GetRequiredService<StateManager>(), contextServices2.GetRequiredService<StateManager>());
+            Assert.NotSame(contextServices1.GetRequiredService<IStateManager>(), contextServices2.GetRequiredService<IStateManager>());
         }
 
         [Fact]

@@ -12,13 +12,13 @@ namespace Microsoft.Data.Entity.Query
     public abstract class QueryContextFactory : IQueryContextFactory
     {
         private readonly LazyRef<ILogger> _logger;
-        private readonly StateManager _stateManager;
+        private readonly IStateManager _stateManager;
         private readonly IClrCollectionAccessorSource _collectionAccessorSource;
         private readonly IClrAccessorSource<IClrPropertySetter> _propertySetterSource;
         private readonly IEntityKeyFactorySource _entityKeyFactorySource;
 
         protected QueryContextFactory(
-            [NotNull] StateManager stateManager,
+            [NotNull] IStateManager stateManager,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,

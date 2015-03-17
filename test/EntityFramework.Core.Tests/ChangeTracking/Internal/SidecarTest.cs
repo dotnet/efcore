@@ -377,7 +377,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                 .AddSingleton<IInMemoryValueGeneratorSelector, TestInMemoryValueGeneratorSelector>();
 
             var entry = TestHelpers.Instance.CreateContextServices(customServices, _model)
-                .GetRequiredService<StateManager>()
+                .GetRequiredService<IStateManager>()
                 .GetOrCreateEntry(entity);
 
             entry.SetEntityState(EntityState.Added);

@@ -16,33 +16,25 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     // This is lower-level change tracking services used by the ChangeTracker and other parts of the system
-    public class StateManager
+
+    public class StateManager : IStateManager
     {
         private readonly Dictionary<object, InternalEntityEntry> _entityReferenceMap
             = new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
 
         private readonly Dictionary<EntityKey, InternalEntityEntry> _identityMap = new Dictionary<EntityKey, InternalEntityEntry>();
         private readonly IEntityKeyFactorySource _keyFactorySource;
-        private readonly InternalEntityEntryFactory _factory;
-        private readonly InternalEntityEntrySubscriber _subscriber;
+        private readonly IInternalEntityEntryFactory _factory;
+        private readonly IInternalEntityEntrySubscriber _subscriber;
         private readonly IModel _model;
         private readonly IDataStore _dataStore;
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected StateManager()
-        {
-        }
-
         public StateManager(
-            [NotNull] InternalEntityEntryFactory factory,
+            [NotNull] IInternalEntityEntryFactory factory,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] InternalEntityEntrySubscriber subscriber,
-            [NotNull] InternalEntityEntryNotifier notifier,
-            [NotNull] ValueGenerationManager valueGeneration,
+            [NotNull] IInternalEntityEntrySubscriber subscriber,
+            [NotNull] IInternalEntityEntryNotifier notifier,
+            [NotNull] IValueGenerationManager valueGeneration,
             [NotNull] IModel model,
             [NotNull] IDataStore dataStore)
         {
@@ -55,11 +47,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _dataStore = dataStore;
         }
 
-        public virtual InternalEntityEntryNotifier Notify { get; }
+        public virtual IInternalEntityEntryNotifier Notify { get; }
 
-        public virtual ValueGenerationManager ValueGeneration { get; }
+        public virtual IValueGenerationManager ValueGeneration { get; }
 
-        public virtual InternalEntityEntry CreateNewEntry([NotNull] IEntityType entityType)
+        public virtual InternalEntityEntry CreateNewEntry(IEntityType entityType)
         {
             // TODO: Consider entities without parameterless constructor--use o/c mapping info?
             // Issue #240
@@ -68,7 +60,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity));
         }
 
-        public virtual InternalEntityEntry GetOrCreateEntry([NotNull] object entity)
+        public virtual InternalEntityEntry GetOrCreateEntry(object entity)
         {
             // TODO: Consider how to handle derived types that are not explicitly in the model
             // Issue #743
@@ -84,8 +76,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return entry;
         }
 
-        public virtual InternalEntityEntry StartTracking(
-            [NotNull] IEntityType entityType, [NotNull] object entity, [NotNull] IValueReader valueReader)
+        public virtual InternalEntityEntry StartTracking(IEntityType entityType, object entity, IValueReader valueReader)
         {
             // TODO: Perf: Pre-compute this for speed
             var keyProperties = entityType.GetPrimaryKey().Properties;
@@ -118,14 +109,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return newEntry;
         }
 
-        public virtual InternalEntityEntry TryGetEntry([NotNull] EntityKey keyValue)
+        public virtual InternalEntityEntry TryGetEntry(EntityKey keyValue)
         {
             InternalEntityEntry entry;
             _identityMap.TryGetValue(keyValue, out entry);
             return entry;
         }
 
-        public virtual InternalEntityEntry TryGetEntry([NotNull] object entity)
+        public virtual InternalEntityEntry TryGetEntry(object entity)
         {
             InternalEntityEntry entry;
             _entityReferenceMap.TryGetValue(entity, out entry);
@@ -134,7 +125,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual IEnumerable<InternalEntityEntry> Entries => _identityMap.Values;
 
-        public virtual InternalEntityEntry StartTracking([NotNull] InternalEntityEntry entry)
+        public virtual InternalEntityEntry StartTracking(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
 
@@ -175,7 +166,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return entry;
         }
 
-        public virtual void StopTracking([NotNull] InternalEntityEntry entry)
+        public virtual void StopTracking(InternalEntityEntry entry)
         {
             if (entry.Entity != null)
             {
@@ -192,7 +183,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual InternalEntityEntry GetPrincipal([NotNull] IPropertyAccessor dependentEntry, [NotNull] IForeignKey foreignKey)
+        public virtual InternalEntityEntry GetPrincipal(IPropertyAccessor dependentEntry, IForeignKey foreignKey)
         {
             var dependentKeyValue = dependentEntry.GetDependentKeyValue(foreignKey);
 
@@ -220,7 +211,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return principals.FirstOrDefault();
         }
 
-        public virtual void UpdateIdentityMap([NotNull] InternalEntityEntry entry, [NotNull] EntityKey oldKey)
+        public virtual void UpdateIdentityMap(InternalEntityEntry entry, EntityKey oldKey)
         {
             if (entry.EntityState == EntityState.Detached)
             {
@@ -257,7 +248,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return keyValue;
         }
 
-        public virtual IEnumerable<InternalEntityEntry> GetDependents([NotNull] InternalEntityEntry principalEntry, [NotNull] IForeignKey foreignKey)
+        public virtual IEnumerable<InternalEntityEntry> GetDependents(InternalEntityEntry principalEntry, IForeignKey foreignKey)
         {
             var principalKeyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
 

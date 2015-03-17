@@ -9,20 +9,20 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class EntityEntryGraphIterator
+    public class EntityEntryGraphIterator : IEntityEntryGraphIterator
     {
         private readonly DbContext _context;
-        private readonly StateManager _stateManager;
+        private readonly IStateManager _stateManager;
 
         public EntityEntryGraphIterator(
             [NotNull] DbContext context,
-            [NotNull] StateManager stateManager)
+            [NotNull] IStateManager stateManager)
         {
             _context = context;
             _stateManager = stateManager;
         }
 
-        public virtual IEnumerable<EntityEntry> TraverseGraph([NotNull] object entity)
+        public virtual IEnumerable<EntityEntry> TraverseGraph(object entity)
         {
             var entry = new EntityEntry(_context, _stateManager.GetOrCreateEntry(entity));
 

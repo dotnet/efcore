@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void BatchCommands_creates_valid_batch_for_added_entities()
         {
-            var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
 
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void BatchCommands_creates_valid_batch_for_modified_entities()
         {
-            var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
 
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void BatchCommands_creates_valid_batch_for_deleted_entities()
         {
-            var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
 
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void BatchCommands_sorts_related_added_entities()
         {
             var configuration = CreateContextServices(CreateSimpleFKModel());
-            var stateManager = configuration.GetRequiredService<StateManager>();
+            var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
             entry.SetEntityState(EntityState.Added);
@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void BatchCommands_sorts_added_and_related_modified_entities()
         {
             var configuration = CreateContextServices(CreateSimpleFKModel());
-            var stateManager = configuration.GetRequiredService<StateManager>();
+            var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
             entry.SetEntityState(EntityState.Added);
@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void BatchCommands_sorts_unrelated_entities()
         {
             var configuration = CreateContextServices(CreateSimpleFKModel());
-            var stateManager = configuration.GetRequiredService<StateManager>();
+            var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var firstentry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
             firstentry.SetEntityState(EntityState.Added);
@@ -185,7 +185,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void BatchCommands_sorts_entities_when_reparenting()
         {
             var configuration = CreateContextServices(CreateCyclicFKModel());
-            var stateManager = configuration.GetRequiredService<StateManager>();
+            var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var previousParent = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
             previousParent.SetEntityState(EntityState.Deleted);
@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void BatchCommands_creates_batches_lazily()
         {
             var configuration = CreateContextServices(CreateSimpleFKModel());
-            var stateManager = configuration.GetRequiredService<StateManager>();
+            var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var fakeEntity = new FakeEntity { Id = 42, Value = "Test" };
             var entry = stateManager.GetOrCreateEntry(fakeEntity);
@@ -238,7 +238,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var model = CreateCyclicFKModel();
             var configuration = CreateContextServices(model);
-            var stateManager = configuration.GetRequiredService<StateManager>();
+            var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var fakeEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, RelatedId = 1 });
             fakeEntry.SetEntityState(EntityState.Added);

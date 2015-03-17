@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 // TODO: Better API for shadow state access
-                var customerEntry = ((IAccessor<StateManager>)context.ChangeTracker).Service.CreateNewEntry(customerType);
+                var customerEntry = ((IAccessor<IStateManager>)context.ChangeTracker).Service.CreateNewEntry(customerType);
                 customerEntry[customerType.GetProperty("Id")] = 42;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys";
 
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
-                var customerEntry = ((IAccessor<StateManager>)context.ChangeTracker).Service.CreateNewEntry(customerType);
+                var customerEntry = ((IAccessor<IStateManager>)context.ChangeTracker).Service.CreateNewEntry(customerType);
                 customerEntry[customerType.GetProperty("Id")] = 42;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys Targaryen";
 
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
-                var customerEntry = ((IAccessor<StateManager>)context.ChangeTracker).Service.CreateNewEntry(customerType);
+                var customerEntry = ((IAccessor<IStateManager>)context.ChangeTracker).Service.CreateNewEntry(customerType);
                 customerEntry[customerType.GetProperty("Id")] = 42;
 
                 customerEntry.SetEntityState(EntityState.Deleted);

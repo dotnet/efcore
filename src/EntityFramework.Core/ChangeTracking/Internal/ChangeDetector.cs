@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class ChangeDetector : IPropertyListener
+    public class ChangeDetector : IChangeDetector
     {
         private readonly IModel _model;
 
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual void DetectChanges([NotNull] StateManager stateManager)
+        public virtual void DetectChanges(IStateManager stateManager)
         {
             foreach (var entry in stateManager.Entries.ToList())
             {
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual void DetectChanges([NotNull] InternalEntityEntry entry)
+        public virtual void DetectChanges(InternalEntityEntry entry)
         {
             DetectPropertyChanges(entry);
             DetectRelationshipChanges(entry);

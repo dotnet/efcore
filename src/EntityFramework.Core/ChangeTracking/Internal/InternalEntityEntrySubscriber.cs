@@ -8,16 +8,16 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class InternalEntityEntrySubscriber
+    public class InternalEntityEntrySubscriber : IInternalEntityEntrySubscriber
     {
-        private readonly InternalEntityEntryNotifier _notifier;
+        private readonly IInternalEntityEntryNotifier _notifier;
 
-        public InternalEntityEntrySubscriber([NotNull] InternalEntityEntryNotifier notifier)
+        public InternalEntityEntrySubscriber([NotNull] IInternalEntityEntryNotifier notifier)
         {
             _notifier = notifier;
         }
 
-        public virtual InternalEntityEntry SnapshotAndSubscribe([NotNull] InternalEntityEntry entry)
+        public virtual InternalEntityEntry SnapshotAndSubscribe(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
 

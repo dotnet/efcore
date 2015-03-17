@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
         private readonly IInMemoryDataStore _dataStore;
 
         public InMemoryQueryContextFactory(
-            [NotNull] StateManager stateManager,
+            [NotNull] IStateManager stateManager,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,

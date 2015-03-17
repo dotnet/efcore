@@ -8,20 +8,20 @@ using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class ValueGenerationManager
+    public class ValueGenerationManager : IValueGenerationManager
     {
         private readonly IValueGeneratorSelector _valueGeneratorSelector;
-        private readonly KeyPropagator _keyPropagator;
+        private readonly IKeyPropagator _keyPropagator;
 
         public ValueGenerationManager(
             [NotNull] IValueGeneratorSelector valueGeneratorSelector,
-            [NotNull] KeyPropagator keyPropagator)
+            [NotNull] IKeyPropagator keyPropagator)
         {
             _valueGeneratorSelector = valueGeneratorSelector;
             _keyPropagator = keyPropagator;
         }
 
-        public virtual void Generate([NotNull] InternalEntityEntry entry)
+        public virtual void Generate(InternalEntityEntry entry)
         {
             foreach (var property in entry.EntityType.Properties)
             {
@@ -46,9 +46,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual bool MayGetTemporaryValue([NotNull] IProperty property)
-            => property.GenerateValueOnAdd
-               && _valueGeneratorSelector.Select(property).GeneratesTemporaryValues;
+        public virtual bool MayGetTemporaryValue(IProperty property)
+            => property.GenerateValueOnAdd && _valueGeneratorSelector.Select(property).GeneratesTemporaryValues;
 
         private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object generatedValue, bool isTemporary)
         {

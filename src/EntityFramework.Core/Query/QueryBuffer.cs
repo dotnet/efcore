@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Query
 {
     public class QueryBuffer : IQueryBuffer
     {
-        private readonly StateManager _stateManager;
+        private readonly IStateManager _stateManager;
         private readonly IEntityKeyFactorySource _entityKeyFactorySource;
         private readonly IClrCollectionAccessorSource _clrCollectionAccessorSource;
         private readonly IClrAccessorSource<IClrPropertySetter> _clrPropertySetterSource;
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Query
 
             public IValueReader ValueReader { get; }
 
-            public void StartTracking(StateManager stateManager)
+            public void StartTracking(IStateManager stateManager)
             {
                 stateManager.StartTracking(_entityType, Instance, ValueReader);
             }
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Query
             = new Dictionary<object, List<BufferedEntity>>();
 
         public QueryBuffer(
-            [NotNull] StateManager stateManager,
+            [NotNull] IStateManager stateManager,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrCollectionAccessorSource clrCollectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> clrPropertySetterSource)

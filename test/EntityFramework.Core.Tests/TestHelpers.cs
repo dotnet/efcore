@@ -175,7 +175,7 @@ namespace Microsoft.Data.Entity.Tests
             where TEntity : class, new()
         {
             var entry = CreateContextServices(model)
-                .GetRequiredService<StateManager>()
+                .GetRequiredService<IStateManager>()
                 .GetOrCreateEntry(entity ?? new TEntity());
 
             entry.SetEntityState(entityState);

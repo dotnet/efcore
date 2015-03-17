@@ -82,11 +82,20 @@
     </Compile>
     <Compile Include="ChangeTracking\Internal\ArraySidecar.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetector.cs" />
+    <Compile Include="ChangeTracking\Internal\IChangeDetector.cs" />
+    <Compile Include="ChangeTracking\Internal\IEntityEntryGraphIterator.cs" />
     <Compile Include="ChangeTracking\Internal\IEntityEntryMetadataServices.cs" />
     <Compile Include="ChangeTracking\Internal\IEntityKeyFactorySource.cs" />
+    <Compile Include="ChangeTracking\Internal\IInternalEntityEntryFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\IInternalEntityEntryNotifier.cs" />
+    <Compile Include="ChangeTracking\Internal\IInternalEntityEntrySubscriber.cs" />
+    <Compile Include="ChangeTracking\Internal\IKeyPropagator.cs" />
+    <Compile Include="ChangeTracking\Internal\INavigationFixer.cs" />
     <Compile Include="ChangeTracking\Internal\IOriginalValuesFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IRelationshipsSnapshotFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\IStateManager.cs" />
     <Compile Include="ChangeTracking\Internal\IStoreGeneratedValuesFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\IValueGenerationManager.cs" />
     <Compile Include="ChangeTracking\Internal\KeyPropagator.cs" />
     <Compile Include="ChangeTracking\Internal\IKeyListener.cs" />
     <Compile Include="ChangeTracking\Internal\INavigationListener.cs" />
@@ -147,6 +156,7 @@
     <Compile Include="Internal\DbSetProperty.cs" />
     <Compile Include="Internal\DbSetSource.cs" />
     <Compile Include="Internal\IDbContextOptionsParser.cs" />
+    <Compile Include="Internal\IDbContextServices.cs" />
     <Compile Include="Internal\IDbSetFinder.cs" />
     <Compile Include="Internal\IDbSetInitializer.cs" />
     <Compile Include="Internal\IDbSetSource.cs" />
@@ -156,6 +166,7 @@
     <Compile Include="Internal\ModelValidator.cs" />
     <Compile Include="Internal\BoxedValueReaderSource.cs" />
     <Compile Include="Internal\GenericBoxedValueReader.cs" />
+    <Compile Include="Internal\ServiceProviderSource.cs" />
     <Compile Include="Metadata\IClrAccessorSource.cs" />
     <Compile Include="Metadata\IClrCollectionAccessorSource.cs" />
     <Compile Include="Metadata\ICollectionTypeFactory.cs" />
@@ -170,6 +181,7 @@
     <Compile Include="Query\EntityLoadInfo.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ExpressionStringBuilder.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ExpressionTreeVisitorBase.cs" />
+    <Compile Include="Query\IEntityQueryProvider.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />
     <Compile Include="DbSet`.cs" />
     <Compile Include="EntityState.cs" />
@@ -240,7 +252,6 @@
     <Compile Include="Storage\IDataStore.cs" />
     <Compile Include="Storage\IDataStoreConnection.cs" />
     <Compile Include="Storage\IDataStoreSelector.cs" />
-    <Compile Include="Storage\Internal\DataStoreServiceFactories.cs" />
     <Compile Include="Utilities\INotifyPropertyChanging.cs" />
     <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />

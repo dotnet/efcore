@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             T entity;
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
-                var entry = ((IAccessor<StateManager>)context.ChangeTracker).Service.CreateNewEntry(entityType);
+                var entry = ((IAccessor<IStateManager>)context.ChangeTracker).Service.CreateNewEntry(entityType);
                 entity = (T)entry.Entity;
 
                 entry[idProperty] = 42;

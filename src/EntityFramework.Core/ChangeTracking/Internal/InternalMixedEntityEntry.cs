@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public InternalMixedEntityEntry(
-            [NotNull] StateManager stateManager,
+            [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] IEntityEntryMetadataServices metadataServices,
             [NotNull] object entity)
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public InternalMixedEntityEntry(
-            [NotNull] StateManager stateManager,
+            [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] IEntityEntryMetadataServices metadataServices,
             [NotNull] object entity,

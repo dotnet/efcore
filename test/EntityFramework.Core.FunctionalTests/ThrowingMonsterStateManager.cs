@@ -14,11 +14,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
     public class ThrowingMonsterStateManager : StateManager
     {
         public ThrowingMonsterStateManager(
-            InternalEntityEntryFactory factory,
+            IInternalEntityEntryFactory factory,
             IEntityKeyFactorySource entityKeyFactorySource,
-            InternalEntityEntrySubscriber subscriber,
-            InternalEntityEntryNotifier notifier,
-            ValueGenerationManager valueGeneration,
+            IInternalEntityEntrySubscriber subscriber,
+            IInternalEntityEntryNotifier notifier,
+            IValueGenerationManager valueGeneration,
             IModel model,
             IDataStore dataStore)
             : base(factory, entityKeyFactorySource, subscriber, notifier, valueGeneration, model, dataStore)

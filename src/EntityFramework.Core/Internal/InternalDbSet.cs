@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Internal
             _entityQueryable
                 = new LazyRef<EntityQueryable<TEntity>>(
                     () => new EntityQueryable<TEntity>(
-                        ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<EntityQueryProvider>()));
+                        ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<IEntityQueryProvider>()));
         }
 
         public override EntityEntry<TEntity> Add(TEntity entity)
