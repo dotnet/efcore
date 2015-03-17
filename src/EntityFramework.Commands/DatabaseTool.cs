@@ -11,6 +11,8 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
+using Microsoft.Data.Entity.Relational.Design.Templating;
+using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 
 namespace Microsoft.Data.Entity.Commands
 {
@@ -34,6 +36,10 @@ namespace Microsoft.Data.Entity.Commands
             _serviceProvider.AddService(typeof(ILogger), _logger.Value);
             _serviceProvider.AddService(typeof(CSharpCodeGeneratorHelper), new CSharpCodeGeneratorHelper());
             _serviceProvider.AddService(typeof(ModelUtilities), new ModelUtilities());
+            var metadataReferencesProvider = new MetadataReferencesProvider(_serviceProvider);
+            _serviceProvider.AddService(typeof(MetadataReferencesProvider), metadataReferencesProvider);
+            var compilationService = new RoslynCompilationService();
+            _serviceProvider.AddService(typeof(ITemplating), new RazorTemplating(compilationService, metadataReferencesProvider));
         }
 
         public virtual IEnumerable<string> ReverseEngineer(
@@ -47,7 +53,7 @@ namespace Microsoft.Data.Entity.Commands
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
             Check.NotEmpty(projectDir, nameof(projectDir));
 
-            var assembly = GetReverseEngineerProviderAssembly(providerAssemblyName);
+            var assembly = Assembly.Load(new AssemblyName(providerAssemblyName));
             if (assembly == null)
             {
                 throw new InvalidOperationException(Strings.CannotFindAssembly(providerAssemblyName));
@@ -63,12 +69,6 @@ namespace Microsoft.Data.Entity.Commands
 
             var generator = new ReverseEngineeringGenerator(_serviceProvider);
             return generator.GenerateAsync(configuration).Result;
-        }
-
-        private Assembly GetReverseEngineerProviderAssembly(string providerAssemblyName)
-        {
-            var assemblyName = new AssemblyName(providerAssemblyName);
-            return Assembly.Load(assemblyName);
         }
     }
 }

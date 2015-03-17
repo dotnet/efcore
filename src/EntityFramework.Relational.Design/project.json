@@ -5,6 +5,10 @@
         "warningsAsErrors": true
     },
     "dependencies": {
+        "System.IO": "4.0.10-*",
+        "Microsoft.AspNet.Razor": "4.0.0-*",
+        "Microsoft.CodeAnalysis.Common":  "1.0.0-*",
+        "Microsoft.CodeAnalysis.CSharp":  "1.0.0-*",
         "EntityFramework.Core": "7.0.0-*",
         "EntityFramework.Relational": "7.0.0-*"
     },
@@ -15,21 +19,25 @@
     "frameworks": {
         "net451": {
             "frameworkAssemblies": {
-                "System.Data": ""
+                "System.Text.Encoding": "4.0.0-*",
+                "System.Threading.Tasks": "4.0.0-*"
             }
         },
         "dnx451": {
             "frameworkAssemblies": {
-                "System.Data": ""
+                "System.Text.Encoding": "4.0.0-*",
+                "System.Threading.Tasks": "4.0.0-*"
+            },
+            "dependencies": {
+                "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*"
             }
         },
         "dnxcore50": {
             "dependencies": {
-                "Microsoft.CSharp": "4.0.0-beta-*",
-                "System.Data.Common": "4.0.0-beta-*",
-                "System.Data.SqlClient": "4.0.0-beta-*",
                 "System.Reflection.Extensions": "4.0.0-beta-*",
-                "System.Text.RegularExpressions": "4.0.10-beta-*"
+                "System.Text.RegularExpressions": "4.0.10-beta-*",
+                "Microsoft.CSharp": "4.0.0-beta-*",
+                "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*"
             }
         }
     }

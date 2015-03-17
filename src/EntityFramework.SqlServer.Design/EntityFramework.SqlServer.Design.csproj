@@ -65,9 +65,9 @@
     <Compile Include="ReverseEngineering\Model\ForeignKeyColumnMapping.cs" />
     <Compile Include="ReverseEngineering\Model\TableColumn.cs" />
     <Compile Include="ReverseEngineering\Model\TableConstraintColumn.cs" />
-    <Compile Include="ReverseEngineering\SqlServerDbContextCodeGenerator.cs" />
     <Compile Include="ReverseEngineering\Model\Table.cs" />
-    <Compile Include="ReverseEngineering\SqlServerEntityTypeCodeGenerator.cs" />
+    <Compile Include="ReverseEngineering\SqlServerDbContextCodeGeneratorHelper.cs" />
+    <Compile Include="ReverseEngineering\SqlServerEntityTypeCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\SqlServerMetadataModelProvider.cs" />
     <Compile Include="ReverseEngineering\SqlServerNameMapper.cs" />
     <Compile Include="Utilities\SqlServerLiteralUtilities.cs" />

@@ -5,11 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model;
@@ -22,6 +24,143 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
     public class SqlServerMetadataModelProvider : IDatabaseMetadataModelProvider
     {
+        public const string SqlServerDbContextTemplate =
+@"@inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
+// Generated using Provider Assembly: @Model.ProviderAssembly
+// And Database Connection String: @Model.ConnectionString
+
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace @Model.Namespace
+{
+@{
+string className = Model.ClassName ?? Model.Helper.ClassName(Model.ConnectionString);
+}
+    public partial class @className : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlServer(@Model.Helper.VerbatimStringLiteral(@Model.ConnectionString));
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+@foreach(var entityConfig in Model.Helper.EntityConfigurations)
+{
+    bool first = true;
+@:            modelBuilder.Entity<@entityConfig.EntityType.DisplayName()>(entity =>
+@:            {
+    @foreach(var entityFacet in @entityConfig.FacetConfigurations)
+    {
+        @if(!first)
+        {
+@:
+        }
+@:                entity@(entityFacet.ToString());
+    first = false;
+    }                        
+    @foreach(var propertyConfig in @entityConfig.PropertyConfigurations)
+    {
+        @if(!first)
+        {
+@:
+        }
+        @foreach(var keyValuePair in @propertyConfig.FacetConfigurations)
+        {
+            @foreach(var facetMethodBody in @keyValuePair.Value)
+            {
+                @if(!string.IsNullOrEmpty(keyValuePair.Key))
+                {
+@:                entity.Property(e => e.@(propertyConfig.Property.Name))
+@:                    .@(keyValuePair.Key).@(facetMethodBody.ToString());
+                }
+                else
+                {
+@:                entity.Property(e => e.@(propertyConfig.Property.Name))
+@:                    .@(facetMethodBody.ToString());
+                }
+    first = false;
+            }
+        }
+    }
+@:            });
+}
+
+@foreach(var navigationConfig in Model.Helper.NavigationConfigurations)
+{
+    bool first = true;
+@:            modelBuilder.Entity<@navigationConfig.EntityType.DisplayName()>(entity =>
+@:            {
+    @foreach(var navigationFacet in @navigationConfig.FacetConfigurations)
+    {
+        @if(!first)
+        {
+@:
+        }
+@:                entity@(navigationFacet.ToString());
+    first = false;
+    }                        
+@:            });
+}
+        }@* End of OnModelCreating() *@
+
+@foreach(var et in Model.Helper.OrderedEntityTypes())
+{
+@:        public virtual DbSet<@et.Name> @et.Name { get; set; }
+}
+    }
+}";
+
+        public const string SqlServerEntityTypeTemplate =
+@"@inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
+@using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
+//
+// Generated code
+//
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace @Model.Namespace
+{
+@{
+string errorMessageAnnotation = Model.Helper.ErrorMessageAnnotation;
+}@if(errorMessageAnnotation != null) {
+@:// @errorMessageAnnotation
+}
+else {
+@:    public class @Model.EntityType.Name
+@:    {
+@:        public @(Model.EntityType.Name)()
+@:        {
+    @foreach(var navPropInitializer in Model.Helper.NavPropInitializers)
+    {
+@:            @navPropInitializer.NavigationPropertyName = new HashSet<@navPropInitializer.PrincipalEntityTypeName>();
+    }
+@:        }
+@:
+@:        // Properties
+    @foreach(var property in Model.Helper.OrderedEntityProperties)
+    {
+@:        public @Model.Generator.CSharpCodeGeneratorHelper.GetTypeName(@property.ClrType) @property.Name { get; set; }
+    }
+@:
+@:        // Navigation Properties
+    @foreach(var navProp in Model.Helper.NavigationProperties)
+    {
+        @if(navProp.ErrorAnnotation != null) {
+@:        // @navProp.ErrorAnnotation
+        }
+        else {
+@:        public virtual @navProp.Type @navProp.Name { get; set; }
+        }
+    }
+@:    }
+}
+}";
+
         private static readonly List<string> DataTypesForMax = new List<string>() { "varchar", "nvarchar", "varbinary" };
         private static readonly List<string> DataTypesForMaxLengthNotAllowed = new List<string>() { "ntext", "text", "image" };
         private static readonly List<string> DataTypesForNumericPrecisionAndScale = new List<string>() { "decimal", "numeric" };
@@ -104,32 +243,35 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return CreateModel();
         }
 
-
-        public virtual DbContextCodeGenerator GetContextModelCodeGenerator(
-            [NotNull] ReverseEngineeringGenerator generator,
-            [NotNull] DbContextGeneratorModel dbContextGeneratorModel)
+        public virtual string DbContextTemplate
         {
-            Check.NotNull(generator, nameof(generator));
-            Check.NotNull(dbContextGeneratorModel, nameof(dbContextGeneratorModel));
-
-            return new SqlServerDbContextCodeGenerator(
-                generator,
-                dbContextGeneratorModel.MetadataModel,
-                dbContextGeneratorModel.Namespace,
-                dbContextGeneratorModel.ClassName,
-                dbContextGeneratorModel.ConnectionString);
+            get
+            {
+                return SqlServerDbContextTemplate;
+            }
         }
-        public virtual EntityTypeCodeGenerator GetEntityTypeModelCodeGenerator(
-           [NotNull]  ReverseEngineeringGenerator generator,
-           [NotNull] EntityTypeGeneratorModel entityTypeGeneratorModel)
-        {
-            Check.NotNull(generator, nameof(generator));
-            Check.NotNull(entityTypeGeneratorModel, nameof(entityTypeGeneratorModel));
 
-            return new SqlServerEntityTypeCodeGenerator(
-                generator,
-                entityTypeGeneratorModel.EntityType,
-                entityTypeGeneratorModel.Namespace);
+        public virtual DbContextCodeGeneratorHelper DbContextCodeGeneratorHelper(DbContextGeneratorModel model)
+        {
+            return new SqlServerDbContextCodeGeneratorHelper(model);
+        }
+
+        public virtual string EntityTypeTemplate
+        {
+            get
+            {
+                return SqlServerEntityTypeTemplate;
+            }
+        }
+
+        public virtual EntityTypeCodeGeneratorHelper EntityTypeCodeGeneratorHelper(EntityTypeGeneratorModel model)
+        {
+            return new SqlServerEntityTypeCodeGeneratorHelper(model);
+        }
+
+        public virtual void AddReferencesForTemplates(MetadataReferencesProvider metadataReferencesProvider)
+        {
+            metadataReferencesProvider.AddReferenceFromName("EntityFramework.SqlServer.Design");
         }
 
         public virtual Dictionary<string, T> LoadData<T>(
@@ -338,12 +480,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 }
                 else
                 {
-                    var errorMessage = "Attempt to generate EntityType " + codeGenEntityType.Name
-                        + " failed. We could identify no primary key columns in the underlying SQL Server table "
-                        + _tables[relationalEntityType.Name].SchemaName + "." + _tables[relationalEntityType.Name].TableName + ".";
+                    var errorMessage = Strings.NoPrimaryKeyColumns(
+                        codeGenEntityType.Name,
+                        _tables[relationalEntityType.Name].SchemaName,
+                        _tables[relationalEntityType.Name].TableName);
                     codeGenEntityType.AddAnnotation(AnnotationNameEntityTypeError, errorMessage);
-                    _logger.LogWarning(
-                        Strings.CannotGenerateEntityType(codeGenEntityType.Name, errorMessage));
+                    _logger.LogWarning(Strings.CannotGenerateEntityType(codeGenEntityType.Name, errorMessage));
                 }
             } // end of loop over all relational EntityTypes
 

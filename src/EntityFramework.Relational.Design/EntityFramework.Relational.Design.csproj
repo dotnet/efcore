@@ -36,8 +36,21 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.IO" />
+    <Reference Include="System.Text.Encoding" />
+    <Reference Include="System.Threading.Tasks" />
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="System.Collections.Immutable">
+      <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.Razor">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.Common">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>Microsoft.CodeAnalysis</Assemblies>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp">
       <TargetFramework>net45</TargetFramework>
@@ -79,14 +92,26 @@
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
-    <Compile Include="ReverseEngineering\DbContextCodeGenerator.cs" />
+    <Compile Include="ReverseEngineering\DbContextCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\DbContextGeneratorModel.cs" />
-    <Compile Include="ReverseEngineering\EntityTypeCodeGenerator.cs" />
+    <Compile Include="ReverseEngineering\EntityTypeCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\EntityTypeGeneratorModel.cs" />
     <Compile Include="ReverseEngineering\IDatabaseMetadataModelProvider.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />
+    <Compile Include="Templating\Compilation\CompiledAssemblyResult.cs" />
+    <Compile Include="Templating\Compilation\CompilationResult.cs" />
+    <Compile Include="Templating\Compilation\ICompilationService.cs" />
+    <Compile Include="Templating\Compilation\MetadataReferencesProvider.cs" />
+    <Compile Include="Templating\Compilation\RoslynCompilationService.cs" />
+    <Compile Include="Templating\ITemplating.cs" />
+    <Compile Include="Templating\RazorReverseEngineeringBase.cs" />
+    <Compile Include="Templating\RazorTemplating.cs" />
+    <Compile Include="Templating\RazorTemplatingHost.cs" />
+    <Compile Include="Templating\TemplateProcessingException.cs" />
+    <Compile Include="Templating\TemplateResult.cs" />
     <Compile Include="Utilities\ModelUtilities.cs" />
+    <Compile Include="Utilities\PlatformHelper.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Relational.Design.Strings.resources</LogicalName>
       <SubType>Designer</SubType>

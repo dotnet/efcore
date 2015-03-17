@@ -3,17 +3,17 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public interface IDatabaseMetadataModelProvider
     {
         IModel GenerateMetadataModel([NotNull] string connectionString);
-        DbContextCodeGenerator GetContextModelCodeGenerator(
-            [NotNull] ReverseEngineeringGenerator generator,
-            [NotNull] DbContextGeneratorModel dbContextGeneratorModel);
-        EntityTypeCodeGenerator GetEntityTypeModelCodeGenerator(
-            [NotNull] ReverseEngineeringGenerator generator,
-            [NotNull] EntityTypeGeneratorModel entityTypeGeneratorModel);
+        string DbContextTemplate { get; }
+        DbContextCodeGeneratorHelper DbContextCodeGeneratorHelper([NotNull]DbContextGeneratorModel model);
+        string EntityTypeTemplate { get; }
+        EntityTypeCodeGeneratorHelper EntityTypeCodeGeneratorHelper([NotNull]EntityTypeGeneratorModel model);
+        void AddReferencesForTemplates([NotNull]MetadataReferencesProvider metadataReferencesProvider);
     }
 }
