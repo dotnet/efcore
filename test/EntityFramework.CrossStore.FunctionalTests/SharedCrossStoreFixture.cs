@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             if (testStoreType == typeof(SqlServerTestStore))
             {
-                return SqlServerTestStore.CreateScratchAsync().Result;
+                return SqlServerTestStore.CreateScratch();
             }
 
             throw new NotImplementedException();
