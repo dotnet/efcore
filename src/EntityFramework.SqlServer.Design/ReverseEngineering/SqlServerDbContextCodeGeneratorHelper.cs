@@ -61,9 +61,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
                 var sb = new StringBuilder();
                 sb.Append("Reference");
-                sb.Append("<");
-                sb.Append(foreignKey.PrincipalEntityType.Name);
-                sb.Append(">(d => d.");
+                sb.Append("(d => d.");
                 sb.Append(dependentEndNavigationPropertyName);
                 sb.Append(")");
 
