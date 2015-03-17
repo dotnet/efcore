@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Methods;
@@ -285,6 +286,52 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
+        [Theory]
+        [InlineData(51, 6)]
+        [InlineData(50, 5)]
+        [InlineData(20, 5)]
+        [InlineData(2, 2)]
+        public void Keys_generated_in_batches(int count, int expected)
+        {
+            var loggerFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .ServiceCollection()
+                .AddInstance<ILoggerFactory>(loggerFactory)
+                .AddSingleton<SqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .BuildServiceProvider();
+
+            using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
+            {
+                context.Database.EnsureCreated();
+
+                for (int i = 0; i < count; i++)
+                {
+                    context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos " + i });
+                }
+                context.SaveChanges();
+            }
+
+            Assert.Equal(expected, CountSqlLinesContaining("SELECT NEXT VALUE FOR"));
+        }
+
+        public int CountSqlLinesContaining(string searchTerm)
+        {
+            return CountLinesContaining(Sql, searchTerm);
+        }
+
+        public int CountLinesContaining(string source, string searchTerm)
+        {
+            string[] text = source.Split(new string[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+
+            var matchQuery = from word in text
+                             where word.Contains(searchTerm)
+                             select word;
+
+            return matchQuery.Count();
+        }
+
         public void Dispose()
         {
             using (var context = new ChipsContext(_serviceProvider, "KettleChips"))
@@ -364,6 +411,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 base.OnConfiguring(optionsBuilder);
             }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.ForSqlServer().UseSequence();
+            }
+        }
+
+        private static string Sql
+        {
+            get { return TestSqlLoggerFactory.Sql; }
         }
     }
 }
