@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -465,7 +464,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             if (_deleteDatabase)
             {
-                DeleteDatabaseAsync(_name).Wait();
+                DeleteDatabase(_name);
             }
         }
 
