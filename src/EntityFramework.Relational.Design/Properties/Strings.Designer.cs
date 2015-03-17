@@ -29,6 +29,22 @@ namespace Microsoft.Data.Entity.Relational.Design
         }
 
         /// <summary>
+        /// There was an error running the DbContext template. Message: {errorMessage}
+        /// </summary>
+        public static string ErrorRunningDbContextTemplate([CanBeNull] object errorMessage)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorRunningDbContextTemplate", "errorMessage"), errorMessage);
+        }
+
+        /// <summary>
+        /// There was an error running the EntityType template. Message: {errorMessage}
+        /// </summary>
+        public static string ErrorRunningEntityTypeTemplate([CanBeNull] object errorMessage)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorRunningEntityTypeTemplate", "errorMessage"), errorMessage);
+        }
+
+        /// <summary>
         /// Namespace is required to generate code.
         /// </summary>
         public static string NamespaceRequired
@@ -82,6 +98,14 @@ namespace Microsoft.Data.Entity.Relational.Design
         public static string ReadOnlyFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object readOnlyFiles)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ReadOnlyFiles", "outputDirectoryName", "readOnlyFiles"), outputDirectoryName, readOnlyFiles);
+        }
+
+        /// <summary>
+        /// Template Processing Failed: {errorMessages}
+        /// </summary>
+        public static string TemplateProcessingFailed([CanBeNull] object errorMessages)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("TemplateProcessingFailed", "errorMessages"), errorMessages);
         }
 
         private static string GetString(string name, params string[] formatterNames)
