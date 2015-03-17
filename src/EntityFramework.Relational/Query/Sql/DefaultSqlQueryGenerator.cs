@@ -261,7 +261,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             _sql.Append(" IN (");
 
             VisitInExpressionValues(inExpression.Values);
-            
+
             _sql.Append(")");
 
             return inExpression;
@@ -302,8 +302,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     var parameterValue = _parameterValues[inParameter.Name];
                     var valuesCollection = parameterValue as IEnumerable;
 
-                    if (valuesCollection != null 
-                        && parameterValue.GetType() != typeof(string) 
+                    if (valuesCollection != null
+                        && parameterValue.GetType() != typeof(string)
                         && parameterValue.GetType() != typeof(byte[]))
                     {
                         foreach (var value in valuesCollection)
@@ -433,110 +433,109 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
             var maybeNullComparisonExpression = TransformNullComparison(binaryExpression);
-
             if (maybeNullComparisonExpression != null)
             {
                 VisitExpression(maybeNullComparisonExpression);
+
+                return maybeNullComparisonExpression;
             }
-            else
+
+            var needClosingParen = false;
+
+            var leftBinaryExpression = binaryExpression.Left as BinaryExpression;
+
+            if (leftBinaryExpression != null
+                && leftBinaryExpression.NodeType != binaryExpression.NodeType)
             {
-                var needClosingParen = false;
+                _sql.Append("(");
 
-                var leftBinaryExpression = binaryExpression.Left as BinaryExpression;
+                needClosingParen = true;
+            }
 
-                if (leftBinaryExpression != null
-                    && leftBinaryExpression.NodeType != binaryExpression.NodeType)
-                {
-                    _sql.Append("(");
+            VisitExpression(binaryExpression.Left);
 
-                    needClosingParen = true;
-                }
+            if (binaryExpression.IsLogicalOperation()
+                && (binaryExpression.Left is ColumnExpression
+                    || binaryExpression.Left is ParameterExpression))
+            {
+                _sql.Append(" = 1");
+            }
 
-                VisitExpression(binaryExpression.Left);
+            if (needClosingParen)
+            {
+                _sql.Append(")");
+            }
 
-                if (binaryExpression.IsLogicalOperation()
-                    && (binaryExpression.Left is ColumnExpression
-                        || binaryExpression.Left is ParameterExpression))
-                {
-                    _sql.Append(" = 1");
-                }
+            string op;
 
-                if (needClosingParen)
-                {
-                    _sql.Append(")");
-                }
+            switch (binaryExpression.NodeType)
+            {
+                case ExpressionType.Equal:
+                    op = " = ";
+                    break;
+                case ExpressionType.NotEqual:
+                    op = " <> ";
+                    break;
+                case ExpressionType.GreaterThan:
+                    op = " > ";
+                    break;
+                case ExpressionType.GreaterThanOrEqual:
+                    op = " >= ";
+                    break;
+                case ExpressionType.LessThan:
+                    op = " < ";
+                    break;
+                case ExpressionType.LessThanOrEqual:
+                    op = " <= ";
+                    break;
+                case ExpressionType.AndAlso:
+                    op = " AND ";
+                    break;
+                case ExpressionType.OrElse:
+                    op = " OR ";
+                    break;
+                case ExpressionType.Add:
+                    op = " " + ConcatOperator + " ";
+                    break;
+                case ExpressionType.Subtract:
+                    op = " - ";
+                    break;
+                case ExpressionType.Multiply:
+                    op = " * ";
+                    break;
+                case ExpressionType.Divide:
+                    op = " / ";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
-                string op;
+            _sql.Append(op);
 
-                switch (binaryExpression.NodeType)
-                {
-                    case ExpressionType.Equal:
-                        op = " = ";
-                        break;
-                    case ExpressionType.NotEqual:
-                        op = " <> ";
-                        break;
-                    case ExpressionType.GreaterThan:
-                        op = " > ";
-                        break;
-                    case ExpressionType.GreaterThanOrEqual:
-                        op = " >= ";
-                        break;
-                    case ExpressionType.LessThan:
-                        op = " < ";
-                        break;
-                    case ExpressionType.LessThanOrEqual:
-                        op = " <= ";
-                        break;
-                    case ExpressionType.AndAlso:
-                        op = " AND ";
-                        break;
-                    case ExpressionType.OrElse:
-                        op = " OR ";
-                        break;
-                    case ExpressionType.Add:
-                        op = " " + ConcatOperator + " ";
-                        break;
-                    case ExpressionType.Subtract:
-                        op = " - ";
-                        break;
-                    case ExpressionType.Multiply:
-                        op = " * ";
-                        break;
-                    case ExpressionType.Divide:
-                        op = " / ";
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+            needClosingParen = false;
 
-                _sql.Append(op);
+            var rightBinaryExpression = binaryExpression.Right as BinaryExpression;
 
-                needClosingParen = false;
+            if (rightBinaryExpression != null
+                && rightBinaryExpression.NodeType != binaryExpression.NodeType)
+            {
+                _sql.Append("(");
 
-                var rightBinaryExpression = binaryExpression.Right as BinaryExpression;
+                needClosingParen = true;
+            }
 
-                if (rightBinaryExpression != null
-                    && rightBinaryExpression.NodeType != binaryExpression.NodeType)
-                {
-                    _sql.Append("(");
+            VisitExpression(binaryExpression.Right);
 
-                    needClosingParen = true;
-                }
+            if (binaryExpression.IsLogicalOperation()
+                && (binaryExpression.Right is ColumnExpression
+                    || binaryExpression.Right is ParameterExpression))
+            {
+                _sql.Append(" = 1");
+            }
 
-                VisitExpression(binaryExpression.Right);
-
-                if (binaryExpression.IsLogicalOperation()
-                    && (binaryExpression.Right is ColumnExpression
-                        || binaryExpression.Right is ParameterExpression))
-                {
-                    _sql.Append(" = 1");
-                }
-
-                if (needClosingParen)
-                {
-                    _sql.Append(")");
-                }
+            if (needClosingParen)
+            {
+                _sql.Append(")");
             }
 
             return binaryExpression;
@@ -647,17 +646,19 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     return VisitNotInExpression(inExpression);
                 }
 
-                var isColumnOperand = unaryExpression.Operand is ColumnExpression;
+                var isColumnOrParameterOperand = 
+                    unaryExpression.Operand is ColumnExpression 
+                    || unaryExpression.Operand is ParameterExpression;
 
-                if (!isColumnOperand)
+                if (!isColumnOrParameterOperand)
                 {
-                    _sql.Append("NOT ");
+                    _sql.Append("NOT (");
+                    VisitExpression(unaryExpression.Operand);
+                    _sql.Append(")");
                 }
-
-                VisitExpression(unaryExpression.Operand);
-
-                if (isColumnOperand)
+                else
                 {
+                    VisitExpression(unaryExpression.Operand);
                     _sql.Append(" = 0");
                 }
 
@@ -689,7 +690,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             _sql.Append(ParameterPrefix + parameterExpression.Name);
 
-            _parameters.Add(parameterExpression.Name);
+            if (!_parameters.Contains(parameterExpression.Name))
+            {
+                _parameters.Add(parameterExpression.Name);
+            }
 
             return parameterExpression;
         }

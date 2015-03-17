@@ -10,9 +10,9 @@ using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Parsing;
 using System.Collections.Generic;
 
-namespace Microsoft.Data.Entity.Relational.Query
+namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
-    public class EqualityPredicateOptimizer : ExpressionTreeVisitor
+    public class EqualityPredicateInExpressionOptimizer : ExpressionTreeVisitor
     {
         protected override Expression VisitBinaryExpression(
             [NotNull] BinaryExpression binaryExpression)

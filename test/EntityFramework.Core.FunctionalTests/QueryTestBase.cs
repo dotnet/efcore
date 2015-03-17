@@ -911,6 +911,62 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_bool_member_compared_to_binary_expression()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => p.Discontinued == (p.ProductID > 50)), entryCount: 44);
+        }
+
+        [Fact]
+        public virtual void Where_not_bool_member_compared_to_not_bool_member()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => !p.Discontinued == !p.Discontinued), entryCount: 77);
+        }
+
+        [Fact]
+        public virtual void Where_negated_boolean_expression_compared_to_another_negated_boolean_expression()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => !(p.ProductID > 50) == !(p.ProductID > 20)), entryCount: 47);
+        }
+
+        [Fact]
+        public virtual void Where_not_bool_member_compared_to_binary_expression()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => !p.Discontinued == (p.ProductID > 50)), entryCount: 33);
+        }
+
+        [Fact]
+        public virtual void Where_bool_parameter_compared_to_binary_expression()
+        {
+            bool prm = true;
+            AssertQuery<Product>(ps => ps.Where(p => (p.ProductID > 50) != prm), entryCount: 50);
+        }
+
+        [Fact]
+        public virtual void Where_bool_member_and_parameter_compared_to_binary_expression_nested()
+        {
+            bool prm = true;
+            AssertQuery<Product>(ps => ps.Where(p => p.Discontinued == ((p.ProductID > 50) != prm)), entryCount: 33);
+        }
+
+        [Fact]
+        public virtual void Where_de_morgan_or_optimizated()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => !(p.Discontinued || (p.ProductID < 20))), entryCount: 53);
+        }
+
+        [Fact]
+        public virtual void Where_de_morgan_and_optimizated()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => !(p.Discontinued && (p.ProductID < 20))), entryCount: 74);
+        }
+
+        [Fact]
+        public virtual void Where_complex_negated_expression_optimized()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => !(!(!p.Discontinued && (p.ProductID < 60)) || !(p.ProductID > 30))), entryCount: 27);
+        }
+
+        [Fact]
         public virtual void Where_short_member_comparison()
         {
             AssertQuery<Product>(ps => ps.Where(p => p.UnitsInStock > 10), entryCount: 63);

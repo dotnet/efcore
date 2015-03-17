@@ -672,12 +672,12 @@ FROM [Orders] AS [o]",
 
             Assert.Equal(
                 @"SELECT CASE WHEN (
-    NOT EXISTS (
+    NOT (EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE NOT [c].[ContactName] LIKE 'A' + '%'
+        WHERE NOT ([c].[ContactName] LIKE 'A' + '%')
     )
-) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
+    )) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 Sql);
         }
 
@@ -1596,7 +1596,7 @@ WHERE [p].[Discontinued] = 0",
             Assert.Equal(
                 @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE NOT NOT [p].[Discontinued] = 1",
+WHERE [p].[Discontinued] = 1",
                 Sql);
         }
 
@@ -1641,6 +1641,105 @@ WHERE [p].[Discontinued] = 1",
                 @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE (([p].[ProductID] > 100) AND [p].[Discontinued] = 1) OR ([p].[Discontinued] = 1)",
+                Sql);
+        }
+
+        public override void Where_bool_member_compared_to_binary_expression()
+        {
+            base.Where_bool_member_compared_to_binary_expression();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE ([p].[Discontinued] = 1 AND ([p].[ProductID] > 50)) OR ([p].[Discontinued] = 0 AND ([p].[ProductID] <= 50))",
+                Sql);
+        }
+
+        public override void Where_not_bool_member_compared_to_binary_expression()
+        {
+            base.Where_not_bool_member_compared_to_binary_expression();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE ([p].[Discontinued] = 0 AND ([p].[ProductID] > 50)) OR ([p].[Discontinued] = 1 AND ([p].[ProductID] <= 50))",
+                Sql);
+        }
+
+        public override void Where_not_bool_member_compared_to_not_bool_member()
+        {
+            base.Where_not_bool_member_compared_to_not_bool_member();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE ([p].[Discontinued] = 0 AND [p].[Discontinued] = 0) OR ([p].[Discontinued] = 1 AND [p].[Discontinued] = 1)",
+                Sql);
+        }
+
+        public override void Where_negated_boolean_expression_compared_to_another_negated_boolean_expression()
+        {
+            base.Where_negated_boolean_expression_compared_to_another_negated_boolean_expression();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE (([p].[ProductID] <= 50) AND ([p].[ProductID] <= 20)) OR (([p].[ProductID] > 50) AND ([p].[ProductID] > 20))",
+                Sql);
+        }
+
+        public override void Where_bool_parameter_compared_to_binary_expression()
+        {
+            base.Where_bool_parameter_compared_to_binary_expression();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE (([p].[ProductID] > 50) AND @__prm_0 = 0) OR (([p].[ProductID] <= 50) AND @__prm_0 = 1)",
+                Sql);
+        }
+
+        public override void Where_bool_member_and_parameter_compared_to_binary_expression_nested()
+        {
+            base.Where_bool_member_and_parameter_compared_to_binary_expression_nested();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE ([p].[Discontinued] = 1 AND ((([p].[ProductID] > 50) AND @__prm_0 = 0) OR (([p].[ProductID] <= 50) AND @__prm_0 = 1))) OR ([p].[Discontinued] = 0 AND (([p].[ProductID] <= 50) OR @__prm_0 = 1) AND (([p].[ProductID] > 50) OR @__prm_0 = 0))",
+                Sql);
+        }
+
+        public override void Where_de_morgan_or_optimizated()
+        {
+            base.Where_de_morgan_or_optimizated();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[Discontinued] = 0 AND ([p].[ProductID] >= 20)",
+                Sql);
+        }
+
+        public override void Where_de_morgan_and_optimizated()
+        {
+            base.Where_de_morgan_and_optimizated();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[Discontinued] = 0 OR ([p].[ProductID] >= 20)",
+                Sql);
+        }
+
+        public override void Where_complex_negated_expression_optimized()
+        {
+            base.Where_complex_negated_expression_optimized();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[Discontinued] = 0 AND ([p].[ProductID] < 60) AND ([p].[ProductID] > 30)",
                 Sql);
         }
 
