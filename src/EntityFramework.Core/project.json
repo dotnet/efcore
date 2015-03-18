@@ -13,7 +13,7 @@
         "Remotion.Linq": "2.0.0-alpha-002",
         "System.Collections.Immutable": "1.1.33-beta"
     },
-    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "compile": "..\\Shared\\*.cs",
     "frameworks": {
         "net45": {
             "frameworkAssemblies": {

@@ -8,7 +8,7 @@
         "EntityFramework.Relational.Design": "7.0.0-*",
         "EntityFramework.SqlServer": "7.0.0-*"
     },
-    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "compile": "..\\Shared\\*.cs",
     "frameworks": {
         "net451": { },
         "dnx451": { },

@@ -11,7 +11,7 @@
         "Microsoft.CodeAnalysis.CSharp": "1.0.0-rc2-*",
         "Microsoft.Framework.DependencyInjection": "1.0.0-*"
     },
-    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "compile": "..\\Shared\\*.cs",
     "exclude": "tools\\Handlers.cs",
     "frameworks": {
         "net451": { },

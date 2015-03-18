@@ -5,7 +5,7 @@
         "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
         "xunit.runner.aspnet": "2.0.0-aspnet-*"
     },
-    "code": [ "**\\*.cs", "..\\..\\src\\EntityFramework.Commands\\tools\\Handlers.cs" ],
+    "compile": "..\\..\\src\\EntityFramework.Commands\\tools\\Handlers.cs",
     "commands": {
         "test": "xunit.runner.aspnet"
     },

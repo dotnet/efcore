@@ -7,7 +7,7 @@
     "dependencies": {
         "EntityFramework.Core": "7.0.0-*"
     },
-    "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
+    "compile": "..\\Shared\\*.cs",
     "frameworks": {
         "net45": { },
         "dnx451": { },
