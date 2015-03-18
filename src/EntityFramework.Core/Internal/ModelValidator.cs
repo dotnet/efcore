@@ -31,16 +31,16 @@ namespace Microsoft.Data.Entity.Internal
                         {
                             message = Strings.ReferencedShadowKey(
                                 Property.Format(key.Properties),
-                                entityType.Name,
+                                entityType.FullName,
                                 Property.Format(key.Properties.Where(p => p.IsShadowProperty)),
                                 Property.Format(referencingFk.Properties),
-                                referencingFk.EntityType.Name);
+                                referencingFk.EntityType.FullName);
                         }
                         else
                         {
                             message = Strings.ShadowKey(
                                 Property.Format(key.Properties),
-                                entityType.Name,
+                                entityType.FullName,
                                 Property.Format(key.Properties.Where(p => p.IsShadowProperty)));
                         }
 

@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    [DebuggerDisplay("{EntityType.Name,nq}.{Name,nq}")]
+    [DebuggerDisplay("{EntityType.FullName,nq}.{Name,nq}")]
     public abstract class PropertyBase : Annotatable, IPropertyBase
     {
         /// <summary>

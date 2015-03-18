@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Equal(
                 new[] { typeof(object).FullName, typeof(Random).FullName },
-                model.EntityTypes.Select(e => e.Name).ToArray());
+                model.EntityTypes.Select(e => e.FullName).ToArray());
         }
 
         private class JustAClass

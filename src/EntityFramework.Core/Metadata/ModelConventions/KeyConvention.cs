@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
 
-            ConfigureKeyProperties(keyBuilder.ModelBuilder.Entity(keyBuilder.Metadata.EntityType.Name, ConfigurationSource.Convention),
+            ConfigureKeyProperties(keyBuilder.ModelBuilder.Entity(keyBuilder.Metadata.EntityType.FullName, ConfigurationSource.Convention),
                 keyBuilder.Metadata.Properties);
 
             return keyBuilder;

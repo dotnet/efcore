@@ -167,7 +167,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             foreach (var foreignKey in ModelBuilder.Metadata.GetReferencingForeignKeys(key))
             {
-                var removed = ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention)
+                var removed = ModelBuilder.Entity(foreignKey.EntityType.FullName, ConfigurationSource.Convention)
                     .RemoveRelationship(foreignKey, configurationSource);
                 Debug.Assert(removed.HasValue);
             }
@@ -237,9 +237,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     if (isNavigation)
                     {
-                        throw new InvalidOperationException(Strings.NavigationIgnoredExplicitly(propertyName, Metadata.Name));
+                        throw new InvalidOperationException(Strings.NavigationIgnoredExplicitly(propertyName, Metadata.FullName));
                     }
-                    throw new InvalidOperationException(Strings.PropertyIgnoredExplicitly(propertyName, Metadata.Name));
+                    throw new InvalidOperationException(Strings.PropertyIgnoredExplicitly(propertyName, Metadata.FullName));
                 }
 
                 _ignoredProperties.Value.Remove(propertyName);
@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             if (foreignKey.EntityType != Metadata)
             {
-                return ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention)
+                return ModelBuilder.Entity(foreignKey.EntityType.FullName, ConfigurationSource.Convention)
                     .CanRemove(foreignKey, configurationSource, canOverrideSameSource);
             }
 
@@ -290,7 +290,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var fkOwner = foreignKey.EntityType == Metadata
                 ? this
-                : ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention);
+                : ModelBuilder.Entity(foreignKey.EntityType.FullName, ConfigurationSource.Convention);
 
             if (navigationName == navigation?.Name)
             {
@@ -381,7 +381,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     if (configurationSource == ConfigurationSource.Explicit)
                     {
-                        throw new InvalidOperationException(Strings.PropertyAddedExplicitly(property.Name, Metadata.Name));
+                        throw new InvalidOperationException(Strings.PropertyAddedExplicitly(property.Name, Metadata.FullName));
                     }
 
                     _ignoredProperties.Value.Remove(propertyName);
@@ -396,7 +396,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     if (configurationSource == ConfigurationSource.Explicit)
                     {
-                        throw new InvalidOperationException(Strings.NavigationAddedExplicitly(navigation.Name, Metadata.Name));
+                        throw new InvalidOperationException(Strings.NavigationAddedExplicitly(navigation.Name, Metadata.FullName));
                     }
 
                     _ignoredProperties.Value.Remove(propertyName);
@@ -512,7 +512,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (foreignKey != null)
                 {
-                    var relationshipConfigurationSource = ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention)
+                    var relationshipConfigurationSource = ModelBuilder.Entity(foreignKey.EntityType.FullName, ConfigurationSource.Convention)
                         ._relationshipBuilders.Value.GetConfigurationSource(foreignKey);
 
                     if (!configurationSource.Overrides(relationshipConfigurationSource))
@@ -538,7 +538,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             if (foreignKey.EntityType != Metadata)
             {
-                return ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention)
+                return ModelBuilder.Entity(foreignKey.EntityType.FullName, ConfigurationSource.Convention)
                     .RemoveRelationship(foreignKey, configurationSource);
             }
 
@@ -548,7 +548,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            var principalEntityBuilder = ModelBuilder.Entity(foreignKey.ReferencedEntityType.Name, ConfigurationSource.Convention);
+            var principalEntityBuilder = ModelBuilder.Entity(foreignKey.ReferencedEntityType.FullName, ConfigurationSource.Convention);
 
             var navigationToDependent = foreignKey.GetNavigationToDependent();
             navigationToDependent?.EntityType.RemoveNavigation(navigationToDependent);
@@ -676,7 +676,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             if (foreignKey.EntityType != Metadata)
             {
-                return ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention)
+                return ModelBuilder.Entity(foreignKey.EntityType.FullName, ConfigurationSource.Convention)
                     .Relationship(foreignKey, existingForeignKey, configurationSource);
             }
 
@@ -734,10 +734,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(principalEntityType, nameof(principalEntityType));
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
 
-            var principalEntityTypeBuilder = ModelBuilder.Entity(principalEntityType.Name, configurationSource);
+            var principalEntityTypeBuilder = ModelBuilder.Entity(principalEntityType.FullName, configurationSource);
             Debug.Assert(principalEntityTypeBuilder != null);
 
-            var dependentEntityTypeBuilder = ModelBuilder.Entity(dependentEntityType.Name, configurationSource);
+            var dependentEntityTypeBuilder = ModelBuilder.Entity(dependentEntityType.FullName, configurationSource);
             Debug.Assert(dependentEntityTypeBuilder != null);
 
             return Relationship(
@@ -1141,13 +1141,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     if (Metadata.Type == null)
                     {
-                        throw new ModelItemNotFoundException(Strings.PropertyNotFound(propertyName, Metadata.Name));
+                        throw new ModelItemNotFoundException(Strings.PropertyNotFound(propertyName, Metadata.FullName));
                     }
 
                     var clrProperty = Metadata.Type.GetPropertiesInHierarchy(propertyName).FirstOrDefault();
                     if (clrProperty == null)
                     {
-                        throw new InvalidOperationException(Strings.NoClrProperty(propertyName, Metadata.Name));
+                        throw new InvalidOperationException(Strings.NoClrProperty(propertyName, Metadata.FullName));
                     }
 
                     var propertyBuilder = Property(clrProperty, configurationSource);

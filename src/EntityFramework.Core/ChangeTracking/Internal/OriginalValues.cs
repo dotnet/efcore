@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected override void ThrowInvalidIndexException(IPropertyBase property)
         {
-            throw new InvalidOperationException(Strings.OriginalValueNotTracked(property.Name, InternalEntityEntry.EntityType.Name));
+            throw new InvalidOperationException(Strings.OriginalValueNotTracked(property.Name, InternalEntityEntry.EntityType.FullName));
         }
 
         public override string Name => WellKnownNames.OriginalValues;

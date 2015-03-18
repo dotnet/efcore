@@ -62,12 +62,12 @@ namespace Microsoft.Data.Entity.Metadata
                         FieldInfo fieldInfo;
                         if (!fields.TryGetValue(fieldName, out fieldInfo))
                         {
-                            throw new InvalidOperationException(Strings.MissingBackingField(entityType.Name, propertyName, fieldName));
+                            throw new InvalidOperationException(Strings.MissingBackingField(entityType.FullName, propertyName, fieldName));
                         }
                         if (!fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(property.PropertyType.GetTypeInfo()))
                         {
                             throw new InvalidOperationException(
-                                Strings.BadBackingFieldType(fieldName, fieldInfo.FieldType.Name, entityType.Name, propertyName, property.PropertyType.Name));
+                                Strings.BadBackingFieldType(fieldName, fieldInfo.FieldType.Name, entityType.FullName, propertyName, property.PropertyType.Name));
                         }
                         memberInfo = fieldInfo;
                     }
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 if (memberInfo == null)
                 {
-                    throw new InvalidOperationException(Strings.NoFieldOrSetter(entityType.Name, propertyName));
+                    throw new InvalidOperationException(Strings.NoFieldOrSetter(entityType.FullName, propertyName));
                 }
 
                 propertyMappings.Add(Tuple.Create(property, memberInfo));

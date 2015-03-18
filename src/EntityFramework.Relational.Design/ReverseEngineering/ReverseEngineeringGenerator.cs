@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 // output EntityType poco .cs file
                 using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeStringBuilder.ToString())))
                 {
-                    var entityTypeFileName = entityType.Name + FileExtension;
+                    var entityTypeFileName = entityType.FullName + FileExtension;
                     await OutputFile(configuration.OutputPath, entityTypeFileName, sourceStream);
                     resultingFiles.Add(Path.Combine(configuration.OutputPath, entityTypeFileName));
                 }
@@ -178,7 +178,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     dbContextClassName + FileExtension
                 };
             filesToTest.AddRange(metadataModel.EntityTypes
-                .Select(entityType => entityType.Name + FileExtension));
+                .Select(entityType => entityType.FullName + FileExtension));
 
             var readOnlyFiles = new List<string>();
             foreach (var fileName in filesToTest)

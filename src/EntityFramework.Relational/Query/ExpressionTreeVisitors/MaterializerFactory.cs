@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         [UsedImplicitly]
         private static Exception CreateUnableToDiscriminateException(IEntityType entityType)
         {
-            return new InvalidOperationException(Strings.UnableToDiscriminate(entityType.Name));
+            return new InvalidOperationException(Strings.UnableToDiscriminate(entityType.FullName));
         }
     }
 }

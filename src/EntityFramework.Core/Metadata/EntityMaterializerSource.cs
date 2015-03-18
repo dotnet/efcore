@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (!entityType.HasClrType)
             {
-                throw new InvalidOperationException(Strings.NoClrType(entityType.Name));
+                throw new InvalidOperationException(Strings.NoClrType(entityType.FullName));
             }
 
             if (entityType.IsAbstract)

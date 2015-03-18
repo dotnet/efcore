@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer), new Model());
 
-            Assert.Equal(typeof(Customer).FullName, entityType.Name);
+            Assert.Equal(typeof(Customer).FullName, entityType.FullName);
             Assert.Same(typeof(Customer), entityType.Type);
         }
 

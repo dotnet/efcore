@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource,
             bool? strictPreferExisting = null)
         {
-            var dependentEntityType = ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource);
+            var dependentEntityType = ModelBuilder.Entity(Metadata.EntityType.FullName, configurationSource);
 
             if (strictPreferExisting.HasValue)
             {
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource,
             bool? strictPreferExisting = null)
         {
-            var principalEntityType = ModelBuilder.Entity(Metadata.ReferencedEntityType.Name, configurationSource);
+            var principalEntityType = ModelBuilder.Entity(Metadata.ReferencedEntityType.FullName, configurationSource);
 
             if (strictPreferExisting.HasValue)
             {
@@ -212,7 +212,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource)
         {
             return ForeignKey(
-                ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
+                ModelBuilder.Entity(Metadata.EntityType.FullName, configurationSource)
                     .GetOrCreateProperties(properties, configurationSource),
                 configurationSource);
         }
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource)
         {
             return ForeignKey(
-                ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
+                ModelBuilder.Entity(Metadata.EntityType.FullName, configurationSource)
                     .GetOrCreateProperties(propertyNames, configurationSource),
                 configurationSource);
         }
@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 _foreignKeyPropertiesConfigurationSource = configurationSource.Max(_foreignKeyPropertiesConfigurationSource);
 
-                ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
+                ModelBuilder.Entity(Metadata.EntityType.FullName, configurationSource)
                     .GetOrCreateProperties(properties.Select(p => p.Name), configurationSource);
                 return this;
             }
@@ -303,7 +303,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource)
         {
             return ReferencedKey(
-                ModelBuilder.Entity(Metadata.ReferencedEntityType.Name, configurationSource)
+                ModelBuilder.Entity(Metadata.ReferencedEntityType.FullName, configurationSource)
                     .GetOrCreateProperties(properties, configurationSource),
                 configurationSource);
         }
@@ -312,7 +312,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource)
         {
             return ReferencedKey(
-                ModelBuilder.Entity(Metadata.ReferencedEntityType.Name, configurationSource)
+                ModelBuilder.Entity(Metadata.ReferencedEntityType.FullName, configurationSource)
                     .GetOrCreateProperties(propertyNames, configurationSource),
                 configurationSource);
         }
@@ -323,7 +323,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (properties != null
                 && Metadata.ReferencedProperties.SequenceEqual(properties))
             {
-                var principalEntityTypeBuilder = ModelBuilder.Entity(Metadata.ReferencedEntityType.Name, configurationSource);
+                var principalEntityTypeBuilder = ModelBuilder.Entity(Metadata.ReferencedEntityType.FullName, configurationSource);
                 principalEntityTypeBuilder.Key(properties, configurationSource);
                 _referencedKeyConfigurationSource = configurationSource.Max(_referencedKeyConfigurationSource);
                 return this;
@@ -473,7 +473,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             bool? isRequired,
             ConfigurationSource configurationSource)
         {
-            var entityTypeBuilder = ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource);
+            var entityTypeBuilder = ModelBuilder.Entity(Metadata.EntityType.FullName, configurationSource);
             var replacedConfigurationSource = entityTypeBuilder.RemoveRelationship(Metadata, ConfigurationSource.Explicit);
             if (!replacedConfigurationSource.HasValue)
             {
@@ -495,8 +495,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource,
             ConfigurationSource? replacedConfigurationSource)
         {
-            var principalEntityTypeBuilder = ModelBuilder.Entity(principalType.Name, configurationSource);
-            var dependentEntityTypeBuilder = ModelBuilder.Entity(dependentType.Name, configurationSource);
+            var principalEntityTypeBuilder = ModelBuilder.Entity(principalType.FullName, configurationSource);
+            var dependentEntityTypeBuilder = ModelBuilder.Entity(dependentType.FullName, configurationSource);
 
             return dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
@@ -517,7 +517,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             if (Metadata.EntityType.ForeignKeys.Contains(Metadata))
             {
-                return ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
+                return ModelBuilder.Entity(Metadata.EntityType.FullName, configurationSource)
                     .Relationship(Metadata, existingForeignKey: true, configurationSource: configurationSource);
             }
 
@@ -585,22 +585,22 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return Metadata.ReferencedEntityType;
             }
 
-            throw new ArgumentException(Strings.EntityTypeNotInRelationship(type.FullName, Metadata.EntityType.Name, Metadata.ReferencedEntityType.Name));
+            throw new ArgumentException(Strings.EntityTypeNotInRelationship(type.FullName, Metadata.EntityType.FullName, Metadata.ReferencedEntityType.FullName));
         }
 
         private EntityType ResolveType(string name)
         {
-            if (name == Metadata.EntityType.Name)
+            if (name == Metadata.EntityType.FullName)
             {
                 return Metadata.EntityType;
             }
 
-            if (name == Metadata.ReferencedEntityType.Name)
+            if (name == Metadata.ReferencedEntityType.FullName)
             {
                 return Metadata.ReferencedEntityType;
             }
 
-            throw new ArgumentException(Strings.EntityTypeNotInRelationship(name, Metadata.EntityType.Name, Metadata.ReferencedEntityType.Name));
+            throw new ArgumentException(Strings.EntityTypeNotInRelationship(name, Metadata.EntityType.FullName, Metadata.ReferencedEntityType.FullName));
         }
     }
 }

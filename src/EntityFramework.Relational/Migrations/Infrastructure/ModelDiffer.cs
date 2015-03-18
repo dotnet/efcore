@@ -225,7 +225,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             var candidates = new Dictionary<IEntityType, int>();
             foreach (var target in targets)
             {
-                if (string.Equals(source.Name, target.Name, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(source.FullName, target.FullName, StringComparison.OrdinalIgnoreCase))
                 {
                     return target;
                 }

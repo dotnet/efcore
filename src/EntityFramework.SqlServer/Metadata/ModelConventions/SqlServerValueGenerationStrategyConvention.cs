@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
             var key = keyBuilder.Metadata;
 
             ConfigureValueGenerationStrategy(
-                keyBuilder.ModelBuilder.Entity(key.EntityType.Name, ConfigurationSource.Convention),
+                keyBuilder.ModelBuilder.Entity(key.EntityType.FullName, ConfigurationSource.Convention),
                 key.Properties,
                 true);
 
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
             ConfigureValueGenerationStrategy(
-                relationshipBuilder.ModelBuilder.Entity(relationshipBuilder.Metadata.EntityType.Name, ConfigurationSource.Convention),
+                relationshipBuilder.ModelBuilder.Entity(relationshipBuilder.Metadata.EntityType.FullName, ConfigurationSource.Convention),
                 relationshipBuilder.Metadata.Properties,
                 false);
 

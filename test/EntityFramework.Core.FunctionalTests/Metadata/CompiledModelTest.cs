@@ -31,8 +31,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                     .SequenceEqual(builtModel.Annotations.Select(a => a.Value)));
 
             Assert.True(
-                compiledModel.EntityTypes.Select(e => e.Name)
-                    .SequenceEqual(builtModel.EntityTypes.Select(a => a.Name)));
+                compiledModel.EntityTypes.Select(e => e.FullName)
+                    .SequenceEqual(builtModel.EntityTypes.Select(a => a.FullName)));
             Assert.True(
                 compiledModel.EntityTypes.Select(e => e.Type)
                     .SequenceEqual(builtModel.EntityTypes.Select(a => a.Type)));
@@ -62,8 +62,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 compiledModel.EntityTypes.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Value)
                     .SequenceEqual(builtModel.EntityTypes.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Value)));
 
-            Assert.Equal(compiledModel.EntityTypes.Select(e => compiledModel.GetReferencingForeignKeys(e).Select(fk => fk.EntityType.Name)),
-                builtModel.EntityTypes.Select(e => builtModel.GetReferencingForeignKeys(e).Select(fk => fk.EntityType.Name)));
+            Assert.Equal(compiledModel.EntityTypes.Select(e => compiledModel.GetReferencingForeignKeys(e).Select(fk => fk.EntityType.FullName)),
+                builtModel.EntityTypes.Select(e => builtModel.GetReferencingForeignKeys(e).Select(fk => fk.EntityType.FullName)));
         }
 
         [Fact]

@@ -45,6 +45,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         [UsedImplicitly]
         private string DebuggerDisplay
-            => string.Format("{0}({1})", _entityType.Name, string.Join(", ", _keyValue));
+            => string.Format("{0}({1})", _entityType.FullName, string.Join(", ", _keyValue));
     }
 }

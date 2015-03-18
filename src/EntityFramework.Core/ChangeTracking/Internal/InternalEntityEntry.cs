@@ -231,7 +231,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (isModified && property.IsReadOnly)
             {
-                throw new NotSupportedException(Strings.PropertyReadOnly(property.Name, EntityType.Name));
+                throw new NotSupportedException(Strings.PropertyReadOnly(property.Name, EntityType.FullName));
             }
 
             _stateData.FlagProperty(property.Index, isModified);

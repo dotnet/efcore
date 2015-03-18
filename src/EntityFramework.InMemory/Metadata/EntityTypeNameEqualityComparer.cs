@@ -11,12 +11,12 @@ namespace Microsoft.Data.Entity.InMemory.Metadata
     {
         public virtual bool Equals(IEntityType x, IEntityType y)
         {
-            return StringComparer.Ordinal.Equals(x.Name, y.Name);
+            return StringComparer.Ordinal.Equals(x.FullName, y.FullName);
         }
 
         public virtual int GetHashCode(IEntityType obj)
         {
-            return StringComparer.Ordinal.GetHashCode(obj.Name);
+            return StringComparer.Ordinal.GetHashCode(obj.FullName);
         }
     }
 }
