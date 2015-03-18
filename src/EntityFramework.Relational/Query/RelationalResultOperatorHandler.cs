@@ -59,6 +59,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     { typeof(AllResultOperator), HandleAll },
                     { typeof(AnyResultOperator), HandleAny },
                     { typeof(CountResultOperator), HandleCount },
+                    { typeof(LongCountResultOperator), HandleLongCount },
                     { typeof(DistinctResultOperator), HandleDistinct },
                     { typeof(FirstResultOperator), HandleFirst },
                     { typeof(LastResultOperator), HandleLast },
@@ -156,6 +157,16 @@ namespace Microsoft.Data.Entity.Relational.Query
             handlerContext.SelectExpression.ClearOrderBy();
 
             return TransformClientExpression<int>(handlerContext);
+        }
+
+        private static Expression HandleLongCount(HandlerContext handlerContext)
+        {
+            handlerContext.SelectExpression
+                .SetProjectionExpression(new LongCountExpression());
+
+            handlerContext.SelectExpression.ClearOrderBy();
+
+            return TransformClientExpression<long>(handlerContext);
         }
 
         private static Expression HandleMin(HandlerContext handlerContext)

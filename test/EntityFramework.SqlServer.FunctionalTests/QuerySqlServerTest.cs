@@ -1237,6 +1237,16 @@ FROM [Customers] AS [c]
 CROSS JOIN [Orders] AS [o]", Sql);
         }
 
+        public override void SelectMany_LongCount()
+        {
+            base.SelectMany_LongCount();
+
+            Assert.Equal(
+                @"SELECT COUNT_BIG(*)
+FROM [Customers] AS [c]
+CROSS JOIN [Orders] AS [o]", Sql);
+        }
+
         public override void SelectMany_OrderBy_ThenBy_Any()
         {
             base.SelectMany_OrderBy_ThenBy_Any();
@@ -1359,6 +1369,16 @@ FROM [Orders] AS [o]",
         public override void GroupBy_Count()
         {
             base.GroupBy_Count();
+
+            Assert.Equal(
+                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void GroupBy_LongCount()
+        {
+            base.GroupBy_LongCount();
 
             Assert.Equal(
                 @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]

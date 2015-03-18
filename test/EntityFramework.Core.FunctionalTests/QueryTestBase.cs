@@ -1763,6 +1763,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void SelectMany_LongCount()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                     from o in os
+                     select c.CustomerID).LongCount());
+        }
+
+        [Fact]
         public virtual void SelectMany_OrderBy_ThenBy_Any()
         {
             AssertQuery<Customer, Order>((cs, os) =>

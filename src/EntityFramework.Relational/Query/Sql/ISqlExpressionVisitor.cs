@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         Expression VisitCaseExpression([NotNull] CaseExpression caseExpression);
         Expression VisitExistsExpression([NotNull] ExistsExpression existsExpression);
         Expression VisitCountExpression([NotNull] CountExpression countExpression);
+        Expression VisitLongCountExpression([NotNull] LongCountExpression longCountExpression);
         Expression VisitSumExpression([NotNull] SumExpression sumExpression);
         Expression VisitMinExpression([NotNull] MinExpression minExpression);
         Expression VisitMaxExpression([NotNull] MaxExpression maxExpression);

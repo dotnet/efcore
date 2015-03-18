@@ -215,6 +215,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return countExpression;
         }
 
+        public virtual Expression VisitLongCountExpression(LongCountExpression longCountExpression)
+        {
+            Check.NotNull(longCountExpression, nameof(longCountExpression));
+
+            _sql.Append("COUNT_BIG(*)");
+
+            return longCountExpression;
+        }
+
         public virtual Expression VisitSumExpression(SumExpression sumExpression)
         {
             Check.NotNull(sumExpression, nameof(sumExpression));
