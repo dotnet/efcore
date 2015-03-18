@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         private static Expression HandleLongCount(HandlerContext handlerContext)
         {
             handlerContext.SelectExpression
-                .SetProjectionExpression(new LongCountExpression());
+                .SetProjectionExpression(new CountExpression(typeof(long)));
 
             handlerContext.SelectExpression.ClearOrderBy();
 
