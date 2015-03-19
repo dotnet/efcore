@@ -10,9 +10,13 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 #if DNX451 || DNXCORE50
+using System.Threading.Tasks;
+using Microsoft.AspNet.Builder;
+using Microsoft.AspNet.FeatureModel;
 using Microsoft.AspNet.Hosting;
+using Microsoft.AspNet.Hosting.Server;
+using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.OptionsModel;
 using Microsoft.Framework.Runtime.Infrastructure;
 #endif
 
@@ -33,16 +37,12 @@ namespace Microsoft.Data.Entity.Commands
 #if DNX451 || DNXCORE50
             try
             {
-                var hostingServiceCollection = HostingServices.Create();
-                var hostingServices = hostingServiceCollection.BuildServiceProvider();
-                var assembly = type.GetTypeInfo().Assembly;
-                var startupType = assembly.DefinedTypes.FirstOrDefault(t => t.Name.Equals("Startup", StringComparison.Ordinal));
-                var instance = ActivatorUtilities.GetServiceOrCreateInstance(hostingServices, startupType.AsType());
-                var servicesMethod = startupType.GetDeclaredMethod("ConfigureServices");
-                hostingServiceCollection.AddOptions();
-                servicesMethod.Invoke(instance, new[] { hostingServiceCollection });
-                var applicationServices = hostingServiceCollection.BuildServiceProvider();
-                return applicationServices.GetService(type) as DbContext;
+                var context = new HostingContext
+                {
+                    ServerFactory = new ServerFactory(),
+                };
+                var instance = new HostingEngine().Start(context);
+                return context.ApplicationServices.GetService(type) as DbContext;
             }
             catch
             {
@@ -51,6 +51,35 @@ namespace Microsoft.Data.Entity.Commands
 
             return null;
         }
+
+#if DNX451 || DNXCORE50
+        private class ServerFactory : IServerFactory {
+            public IServerInformation Initialize(IConfiguration configuration)
+            {
+                return null;
+            }
+
+            public IDisposable Start(IServerInformation serverInformation, Func<IFeatureCollection, Task> application)
+            {
+                return new StartInstance(application);
+            }
+
+            private class StartInstance : IDisposable
+            {
+                private readonly Func<IFeatureCollection, Task> _application;
+
+                public StartInstance(Func<IFeatureCollection, Task> application)
+                {
+                    _application = application;
+                }
+
+                public void Dispose()
+                {
+                }
+            }
+        }
+#endif
+
 
         public static IEnumerable<Type> GetContextTypes([NotNull] Assembly assembly) =>
             assembly.GetTypes().Where(

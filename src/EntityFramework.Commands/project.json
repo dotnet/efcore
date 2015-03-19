@@ -18,12 +18,14 @@
         "dnx451": {
             "dependencies": {
                 "Microsoft.AspNet.Hosting": "1.0.0-*",
+                "Microsoft.AspNet.Hosting.Interfaces": "1.0.0-*",
                 "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
             }
         },
         "dnxcore50": {
             "dependencies": {
                 "Microsoft.AspNet.Hosting": "1.0.0-*",
+                "Microsoft.AspNet.Hosting.Interfaces": "1.0.0-*",
                 "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
             }
         }
