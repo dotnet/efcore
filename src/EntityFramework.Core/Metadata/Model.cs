@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (previousLength == _entities.Count)
             {
-                throw new InvalidOperationException(Strings.DuplicateEntityType(entityType.Name));
+                throw new InvalidOperationException(Strings.DuplicateEntityType(entityType.FullName));
             }
 
             return entityType;
@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (GetReferencingForeignKeys(entityType).Any())
             {
-                throw new InvalidOperationException(Strings.EntityTypeInUse(entityType.Name));
+                throw new InvalidOperationException(Strings.EntityTypeInUse(entityType.FullName));
             }
 
             var previousEntities = _entities;

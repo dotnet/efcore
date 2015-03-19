@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Metadata
             foreach (var property in entityType.Properties
                 .Where(property => _properties.ContainsKey(property.Name)))
             {
-                throw new InvalidOperationException(Strings.DuplicateProperty(property.Name, Name));
+                throw new InvalidOperationException(Strings.DuplicateProperty(property.Name, FullName));
             }
         }
 
@@ -195,11 +195,11 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual EntityType RootType => BaseType?.RootType ?? this;
 
-        public virtual string Name => Type?.FullName ?? (string)_typeOrName;
+        public virtual string FullName => Type?.FullName ?? (string)_typeOrName;
 
-        public virtual string SimpleName => Type?.Name ?? ParseSimpleName();
+        public virtual string Name => Type?.Name ?? ParseName();
 
-        private string ParseSimpleName()
+        private string ParseName()
         {
             var fullName = (string)_typeOrName;
             var lastDot = fullName.LastIndexOfAny(_simpleNameChars);
@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public override string ToString()
         {
-            return Name;
+            return FullName;
         }
 
         public virtual int ShadowPropertyCount => _shadowPropertyCount;
@@ -228,7 +228,7 @@ namespace Microsoft.Data.Entity.Metadata
                 if (!value
                     && !this.HasPropertyChangingNotifications())
                 {
-                    throw new InvalidOperationException(Strings.EagerOriginalValuesRequired(Name));
+                    throw new InvalidOperationException(Strings.EagerOriginalValuesRequired(FullName));
                 }
 
                 _useEagerSnapshots = value;
@@ -290,7 +290,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (_primaryKey == null)
             {
-                throw new ModelItemNotFoundException(Strings.EntityRequiresKey(Name));
+                throw new ModelItemNotFoundException(Strings.EntityRequiresKey(FullName));
             }
 
             return _primaryKey;
@@ -334,13 +334,13 @@ namespace Microsoft.Data.Entity.Metadata
             var key = TryGetKey(properties);
             if (key != null)
             {
-                throw new InvalidOperationException(Strings.DuplicateKey(Property.Format(properties), Name));
+                throw new InvalidOperationException(Strings.DuplicateKey(Property.Format(properties), FullName));
             }
 
             key = new Key(properties);
             if (key.EntityType != this)
             {
-                throw new ArgumentException(Strings.KeyPropertiesWrongEntity(Property.Format(properties), Name));
+                throw new ArgumentException(Strings.KeyPropertiesWrongEntity(Property.Format(properties), FullName));
             }
 
             _keys.Value.Add(properties, key);
@@ -395,7 +395,7 @@ namespace Microsoft.Data.Entity.Metadata
             var key = TryGetKey(properties);
             if (key == null)
             {
-                throw new ModelItemNotFoundException(Strings.KeyNotFound(Property.Format(properties), Name));
+                throw new ModelItemNotFoundException(Strings.KeyNotFound(Property.Format(properties), FullName));
             }
 
             return key;
@@ -429,7 +429,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (foreignKey != null)
             {
-                throw new InvalidOperationException(Strings.KeyInUse(Property.Format(key.Properties), Name, foreignKey.EntityType.Name));
+                throw new InvalidOperationException(Strings.KeyInUse(Property.Format(key.Properties), FullName, foreignKey.EntityType.FullName));
             }
         }
 
@@ -450,7 +450,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             if (BaseType != null)
             {
-                throw new InvalidOperationException(Strings.InvalidForDerivedEntity(caller, Name));
+                throw new InvalidOperationException(Strings.InvalidForDerivedEntity(caller, FullName));
             }
         }
 
@@ -476,14 +476,14 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (_foreignKeys.Value.ContainsKey(properties))
             {
-                throw new InvalidOperationException(Strings.DuplicateForeignKey(Property.Format(properties), Name));
+                throw new InvalidOperationException(Strings.DuplicateForeignKey(Property.Format(properties), FullName));
             }
 
             var foreignKey = new ForeignKey(properties, referencedKey, referencedEntityType);
 
             if (foreignKey.EntityType != this)
             {
-                throw new ArgumentException(Strings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
+                throw new ArgumentException(Strings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), FullName));
             }
 
             _foreignKeys.Value.Add(properties, foreignKey);
@@ -560,7 +560,7 @@ namespace Microsoft.Data.Entity.Metadata
             var foreignKey = TryGetForeignKey(properties);
             if (foreignKey == null)
             {
-                throw new ModelItemNotFoundException(Strings.ForeignKeyNotFound(Property.Format(properties), Name));
+                throw new ModelItemNotFoundException(Strings.ForeignKeyNotFound(Property.Format(properties), FullName));
             }
 
             return foreignKey;
@@ -589,7 +589,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (navigation != null)
             {
-                throw new InvalidOperationException(Strings.ForeignKeyInUse(Property.Format(foreignKey.Properties), Name, navigation.Name, navigation.EntityType.Name));
+                throw new InvalidOperationException(Strings.ForeignKeyInUse(Property.Format(foreignKey.Properties), FullName, navigation.Name, navigation.EntityType.FullName));
             }
         }
 
@@ -609,7 +609,7 @@ namespace Microsoft.Data.Entity.Metadata
             if (_navigations.HasValue
                 && _navigations.Value.ContainsKey(name))
             {
-                throw new InvalidOperationException(Strings.DuplicateNavigation(name, Name));
+                throw new InvalidOperationException(Strings.DuplicateNavigation(name, FullName));
             }
 
             var navigation = new Navigation(name, foreignKey, pointsToPrincipal);
@@ -617,24 +617,24 @@ namespace Microsoft.Data.Entity.Metadata
             if (navigation.EntityType != null
                 && navigation.EntityType != this)
             {
-                throw new InvalidOperationException(Strings.NavigationAlreadyOwned(navigation.Name, Name, navigation.EntityType.Name));
+                throw new InvalidOperationException(Strings.NavigationAlreadyOwned(navigation.Name, FullName, navigation.EntityType.FullName));
             }
 
             if (!HasClrType)
             {
-                throw new InvalidOperationException(Strings.NavigationOnShadowEntity(navigation.Name, Name));
+                throw new InvalidOperationException(Strings.NavigationOnShadowEntity(navigation.Name, FullName));
             }
 
             var clrProperty = Type.GetPropertiesInHierarchy(navigation.Name).FirstOrDefault();
             if (clrProperty == null)
             {
-                throw new InvalidOperationException(Strings.NoClrNavigation(navigation.Name, Name));
+                throw new InvalidOperationException(Strings.NoClrNavigation(navigation.Name, FullName));
             }
 
             var targetType = navigation.GetTargetType();
             if (!targetType.HasClrType)
             {
-                throw new InvalidOperationException(Strings.NavigationToShadowEntity(navigation.Name, Name, targetType.Name));
+                throw new InvalidOperationException(Strings.NavigationToShadowEntity(navigation.Name, FullName, targetType.FullName));
             }
 
             var targetClrType = targetType.Type;
@@ -647,20 +647,20 @@ namespace Microsoft.Data.Entity.Metadata
                     || !elementType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
                 {
                     throw new InvalidOperationException(Strings.NavigationCollectionWrongClrType(
-                        navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
+                        navigation.Name, FullName, clrProperty.PropertyType.FullName, targetClrType.FullName));
                 }
             }
             else if (!clrProperty.PropertyType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
             {
                 throw new InvalidOperationException(Strings.NavigationSingleWrongClrType(
-                    navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
+                    navigation.Name, FullName, clrProperty.PropertyType.FullName, targetClrType.FullName));
             }
 
             var otherNavigation = _navigations.Value.Values.FirstOrDefault(n => n.ForeignKey == navigation.ForeignKey
                                                                                 && navigation.PointsToPrincipal == n.PointsToPrincipal);
             if (otherNavigation != null)
             {
-                throw new InvalidOperationException(Strings.MultipleNavigations(navigation.Name, otherNavigation.Name, Name));
+                throw new InvalidOperationException(Strings.MultipleNavigations(navigation.Name, otherNavigation.Name, FullName));
             }
 
             _navigations.Value.Add(name, navigation);
@@ -692,7 +692,7 @@ namespace Microsoft.Data.Entity.Metadata
             var navigation = TryGetNavigation(name);
             if (navigation == null)
             {
-                throw new ModelItemNotFoundException(Strings.NavigationNotFound(name, Name));
+                throw new ModelItemNotFoundException(Strings.NavigationNotFound(name, FullName));
             }
             return navigation;
         }
@@ -730,14 +730,14 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (_indexes.Value.ContainsKey(properties))
             {
-                throw new InvalidOperationException(Strings.DuplicateIndex(Property.Format(properties), Name));
+                throw new InvalidOperationException(Strings.DuplicateIndex(Property.Format(properties), FullName));
             }
 
             var index = new Index(properties);
 
             if (index.EntityType != this)
             {
-                throw new ArgumentException(Strings.IndexPropertiesWrongEntity(Property.Format(properties), Name));
+                throw new ArgumentException(Strings.IndexPropertiesWrongEntity(Property.Format(properties), FullName));
             }
 
             _indexes.Value.Add(properties, index);
@@ -785,7 +785,7 @@ namespace Microsoft.Data.Entity.Metadata
             var index = TryGetIndex(properties);
             if (index == null)
             {
-                throw new ModelItemNotFoundException(Strings.IndexNotFound(Property.Format(properties), Name));
+                throw new ModelItemNotFoundException(Strings.IndexNotFound(Property.Format(properties), FullName));
             }
             return index;
         }
@@ -829,7 +829,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (_properties.ContainsKey(name))
             {
-                throw new InvalidOperationException(Strings.DuplicateProperty(name, Name));
+                throw new InvalidOperationException(Strings.DuplicateProperty(name, FullName));
             }
 
             var property = new Property(name, propertyType, this, shadowProperty);
@@ -893,7 +893,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (property == null)
             {
-                throw new ModelItemNotFoundException(Strings.PropertyNotFound(propertyName, Name));
+                throw new ModelItemNotFoundException(Strings.PropertyNotFound(propertyName, FullName));
             }
 
             return property;
@@ -910,7 +910,7 @@ namespace Microsoft.Data.Entity.Metadata
                     || ForeignKeys.Any(k => k.Properties.Contains(property))
                     || Indexes.Any(i => i.Properties.Contains(property)))
                 {
-                    throw new InvalidOperationException(Strings.PropertyInUse(property.Name, Name));
+                    throw new InvalidOperationException(Strings.PropertyInUse(property.Name, FullName));
                 }
 
                 _properties.Remove(property.Name);
@@ -938,17 +938,17 @@ namespace Microsoft.Data.Entity.Metadata
 
                     if (clrProperty == null)
                     {
-                        throw new InvalidOperationException(Strings.NoClrProperty(property.Name, Name));
+                        throw new InvalidOperationException(Strings.NoClrProperty(property.Name, FullName));
                     }
 
                     if (property.PropertyType != clrProperty.PropertyType)
                     {
-                        throw new InvalidOperationException(Strings.PropertyWrongClrType(property.Name, Name));
+                        throw new InvalidOperationException(Strings.PropertyWrongClrType(property.Name, FullName));
                     }
                 }
                 else
                 {
-                    throw new InvalidOperationException(Strings.ClrPropertyOnShadowEntity(property.Name, Name));
+                    throw new InvalidOperationException(Strings.ClrPropertyOnShadowEntity(property.Name, FullName));
                 }
             }
         }

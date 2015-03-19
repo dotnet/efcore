@@ -31,16 +31,16 @@ namespace Microsoft.Data.Entity.Internal
                         {
                             message = Strings.ReferencedShadowKey(
                                 Property.Format(key.Properties),
-                                entityType.Name,
+                                entityType.FullName,
                                 Property.Format(key.Properties.Where(p => p.IsShadowProperty)),
                                 Property.Format(referencingFk.Properties),
-                                referencingFk.EntityType.Name);
+                                referencingFk.EntityType.FullName);
                         }
                         else
                         {
                             message = Strings.ShadowKey(
                                 Property.Format(key.Properties),
-                                entityType.Name,
+                                entityType.FullName,
                                 Property.Format(key.Properties.Where(p => p.IsShadowProperty)));
                         }
 
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Internal
                             {
                                 ShowError(Strings.ForeignKeyValueGenerationOnAdd(
                                     principalProperty.Name,
-                                    principalProperty.EntityType.SimpleName,
+                                    principalProperty.EntityType.Name,
                                     Property.Format(foreignKey.Properties)));
                                 return principalProperty;
                             }
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.Internal
 
                 if (!principalProperty.GenerateValueOnAdd)
                 {
-                    ShowError(Strings.PrincipalKeyNoValueGenerationOnAdd(principalProperty.Name, principalProperty.EntityType.SimpleName));
+                    ShowError(Strings.PrincipalKeyNoValueGenerationOnAdd(principalProperty.Name, principalProperty.EntityType.Name));
                     return null;
                 }
 
@@ -146,12 +146,12 @@ namespace Microsoft.Data.Entity.Internal
                 var firstRoot = rootPrincipals.Keys.ElementAt(0);
                 var secondRoot = rootPrincipals.Keys.ElementAt(1);
                 ShowWarning(Strings.MultipleRootPrincipals(
-                    rootPrincipals[firstRoot].EntityType.SimpleName,
+                    rootPrincipals[firstRoot].EntityType.Name,
                     Property.Format(rootPrincipals[firstRoot].Properties),
-                    firstRoot.EntityType.SimpleName,
+                    firstRoot.EntityType.Name,
                     firstRoot.Name,
                     Property.Format(rootPrincipals[secondRoot].Properties),
-                    secondRoot.EntityType.SimpleName,
+                    secondRoot.EntityType.Name,
                     secondRoot.Name));
 
                 return firstRoot;

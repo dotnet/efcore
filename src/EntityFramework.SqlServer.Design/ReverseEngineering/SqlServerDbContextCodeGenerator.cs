@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public override IEnumerable<IEntityType> OrderedEntityTypes()
         {
             // do not configure EntityTypes for which we had an error when generating
-            return Model.EntityTypes.OrderBy(e => e.Name)
+            return Model.EntityTypes.OrderBy(e => e.FullName)
                 .Where(e => ((EntityType)e).TryGetAnnotation(
                     SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) == null);
         }
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 sb.Append("entity.");
                 sb.Append("HasOne");
                 sb.Append("<");
-                sb.Append(foreignKey.ReferencedEntityType.Name);
+                sb.Append(foreignKey.ReferencedEntityType.FullName);
                 sb.Append(">(d => d.");
                 sb.Append(dependentEndNavigationPropertyName);
                 sb.Append(")");

@@ -262,7 +262,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity1";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity1";
 
         protected override IKey LoadKey() => new _KoolEntity1Key(Model);
 
@@ -323,7 +323,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity2";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity2";
 
         protected override IKey LoadKey() => new _KoolEntity2Key(Model);
 
@@ -363,7 +363,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity3";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity3";
 
         protected override IKey LoadKey() => new _KoolEntity3Key(Model);
 
@@ -401,7 +401,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity4";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity4";
 
         protected override IKey LoadKey() => new _KoolEntity4Key(Model);
 
@@ -431,7 +431,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity5";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity5";
 
         protected override IKey LoadKey() => new _KoolEntity5Key(Model);
 
@@ -461,7 +461,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity6";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity6";
 
         protected override IKey LoadKey() => new _KoolEntity6Key(Model);
 
@@ -499,7 +499,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity7";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity7";
 
         protected override IKey LoadKey() => new _KoolEntity7Key(Model);
 
@@ -527,7 +527,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity8";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity8";
 
         protected override IKey LoadKey() => new _KoolEntity8Key(Model);
 
@@ -555,7 +555,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity9";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity9";
 
         protected override IKey LoadKey() => new _KoolEntity9Key(Model);
 
@@ -583,7 +583,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity10";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity10";
 
         protected override IKey LoadKey() => new _KoolEntity10Key(Model);
 
@@ -611,7 +611,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity11";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity11";
 
         protected override IKey LoadKey() => new _KoolEntity11Key(Model);
 
@@ -639,7 +639,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity12";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity12";
 
         protected override IKey LoadKey() => new _KoolEntity12Key(Model);
 
@@ -667,7 +667,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity13";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity13";
 
         protected override IKey LoadKey() => new _KoolEntity13Key(Model);
 
@@ -695,7 +695,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity14";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity14";
 
         protected override IKey LoadKey() => new _KoolEntity14Key(Model);
 
@@ -723,7 +723,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity15";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity15";
 
         protected override IKey LoadKey() => new _KoolEntity15Key(Model);
 
@@ -759,7 +759,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity16";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity16";
 
         protected override IKey LoadKey() => new _KoolEntity16Key(Model);
 
@@ -787,7 +787,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity17";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity17";
 
         protected override IKey LoadKey() => new _KoolEntity17Key(Model);
 
@@ -815,7 +815,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity18";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity18";
 
         protected override IKey LoadKey() => new _KoolEntity18Key(Model);
 
@@ -843,7 +843,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity19";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity19";
 
         protected override IKey LoadKey() => new _KoolEntity19Key(Model);
 
@@ -871,7 +871,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        public string Name => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity20";
+        public string FullName => "Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity20";
 
         protected override IKey LoadKey() => new _KoolEntity20Key(Model);
 

@@ -1187,7 +1187,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.True(modelBuilder.Ignore(typeof(Order), ConfigurationSource.Explicit));
 
-            Assert.Equal(typeof(Customer).FullName, modelBuilder.Metadata.EntityTypes.Single().Name);
+            Assert.Equal(typeof(Customer).FullName, modelBuilder.Metadata.EntityTypes.Single().FullName);
             Assert.True(modelBuilder.Ignore(typeof(Order), ConfigurationSource.Convention));
             Assert.Null(principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, true));
             Assert.Equal(Strings.EntityIgnoredExplicitly(typeof(Order).FullName),
@@ -1206,7 +1206,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
-            Assert.Equal(typeof(Order).FullName, modelBuilder.Metadata.EntityTypes.Single().Name);
+            Assert.Equal(typeof(Order).FullName, modelBuilder.Metadata.EntityTypes.Single().FullName);
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Convention));
             Assert.Null(principalEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, true));
             Assert.Equal(Strings.EntityIgnoredExplicitly(typeof(Customer).FullName),

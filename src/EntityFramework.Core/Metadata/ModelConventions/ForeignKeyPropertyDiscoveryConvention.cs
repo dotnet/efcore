@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 baseNames.Add(navigationToPrincipal.Name);
             }
 
-            baseNames.Add(foreignKey.ReferencedEntityType.SimpleName);
+            baseNames.Add(foreignKey.ReferencedEntityType.Name);
             baseNames.Add("");
 
             foreach (var baseName in baseNames)

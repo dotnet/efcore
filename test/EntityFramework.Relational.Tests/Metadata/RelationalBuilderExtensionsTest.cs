@@ -702,7 +702,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
 
             modelBuilder
@@ -724,7 +724,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
         }
 
@@ -740,7 +740,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
         }
 
@@ -755,7 +755,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
         }
 
@@ -771,7 +771,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
         }
 
@@ -786,7 +786,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
         }
 
@@ -802,7 +802,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
         }
 
@@ -817,7 +817,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
         }
 
@@ -833,7 +833,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
             Assert.Equal("db0", entityType.Relational().Schema);
 
@@ -857,7 +857,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
             Assert.Equal("db0", entityType.Relational().Schema);
         }
@@ -874,7 +874,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
             Assert.Equal("db0", entityType.Relational().Schema);
         }
@@ -890,7 +890,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
             Assert.Equal("db0", entityType.Relational().Schema);
         }
@@ -907,7 +907,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
             Assert.Equal("db0", entityType.Relational().Schema);
         }
@@ -923,7 +923,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
             Assert.Equal("db0", entityType.Relational().Schema);
         }
@@ -940,7 +940,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
             Assert.Equal("db0", entityType.Relational().Schema);
         }
@@ -956,7 +956,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
-            Assert.Equal("Customer", entityType.SimpleName);
+            Assert.Equal("Customer", entityType.Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
             Assert.Equal("db0", entityType.Relational().Schema);
         }

@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     if (configurationSource == ConfigurationSource.Explicit)
                     {
-                        throw new InvalidOperationException(Strings.EntityAddedExplicitly(entityType.Name));
+                        throw new InvalidOperationException(Strings.EntityAddedExplicitly(entityType.FullName));
                     }
 
                     return false;

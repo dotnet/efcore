@@ -112,8 +112,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 Generator.CSharpCodeGeneratorHelper.AddProperty(
                     AccessModifier.Public,
                     VirtualModifier.Virtual,
-                    "DbSet<" + entityType.Name + ">",
-                    entityType.Name,
+                    "DbSet<" + entityType.FullName + ">",
+                    entityType.FullName,
                     sb);
             }
 
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     sb.AppendLine();
                 }
                 sb.Append("modelBuilder.Entity<");
-                sb.Append(entityType.Name);
+                sb.Append(entityType.FullName);
                 sb.AppendLine(">(entity =>");
                 GenerateEntityKeyAndPropertyConfiguration(entityType, sb);
                 sb.AppendLine(");");
@@ -179,7 +179,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 {
                     sb.AppendLine();
                     sb.Append("modelBuilder.Entity<");
-                    sb.Append(entityType.Name);
+                    sb.Append(entityType.FullName);
                     sb.AppendLine(">(entity =>");
                     using (sb.Indent())
                     {
@@ -312,7 +312,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
 
             if (entityType.Relational().Table != null
-                && entityType.Relational().Table != entityType.SimpleName)
+                && entityType.Relational().Table != entityType.Name)
             {
                 return string.Format(CultureInfo.InvariantCulture, ".Table({0})",
                     CSharpUtilities.Instance.DelimitString(entityType.Relational().Table));
@@ -518,7 +518,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual IEnumerable<IEntityType> OrderedEntityTypes()
         {
-            // default ordering is by Name, which is what we want here
+            // default ordering is by FullName, which is what we want here
             return Model.EntityTypes;
         }
 

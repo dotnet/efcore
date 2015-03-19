@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 GenerateCommentHeader(sb);
                 Generator.CSharpCodeGeneratorHelper.SingleLineComment(errorMessageAnnotation, sb);
                 Generator.Logger.LogWarning(
-                    Strings.CannotGenerateEntityType(EntityType.Name, errorMessageAnnotation));
+                    Strings.CannotGenerateEntityType(EntityType.FullName, errorMessageAnnotation));
 
                 return;
             }
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         {
                             sb.Append(navigationPropertyName);
                             sb.Append(" = new HashSet<");
-                            sb.Append(otherEntityType.Name);
+                            sb.Append(otherEntityType.FullName);
                             sb.AppendLine(">();");
                         }
                     }
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) != null)
                     {
                         Generator.CSharpCodeGeneratorHelper.SingleLineComment("Unable to add a Navigation Property referencing type "
-                            + otherEntityType.Name + " because of errors generating that EntityType.",
+                            + otherEntityType.FullName + " because of errors generating that EntityType.",
                             sb);
                     }
                     else
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                             Generator.CSharpCodeGeneratorHelper.AddProperty(
                                 AccessModifier.Public,
                                 VirtualModifier.Virtual,
-                                otherEntityType.Name,
+                                otherEntityType.FullName,
                                 navigationPropertyName,
                                 sb);
                         }
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                             Generator.CSharpCodeGeneratorHelper.AddProperty(
                                 AccessModifier.Public,
                                 VirtualModifier.Virtual,
-                                "ICollection<" + otherEntityType.Name + ">",
+                                "ICollection<" + otherEntityType.FullName + ">",
                                 navigationPropertyName,
                                 sb);
                         }
@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 Generator.CSharpCodeGeneratorHelper.AddProperty(
                     AccessModifier.Public,
                     VirtualModifier.Virtual,
-                    foreignKey.ReferencedEntityType.Name,
+                    foreignKey.ReferencedEntityType.FullName,
                     navigationPropertyName,
                     sb);
             }

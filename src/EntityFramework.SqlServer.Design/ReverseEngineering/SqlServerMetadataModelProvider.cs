@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
             var nameMapper = new SqlServerNameMapper(
                 relationalModel,
-                entity => _tables[entity.Name].TableName,
+                entity => _tables[entity.FullName].TableName,
                 property => _tableColumns[property.Name].ColumnName);
 
             return ConstructCodeGenModel(relationalModel, nameMapper);
@@ -281,8 +281,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 var codeGenEntityType = codeGenModel
                     .AddEntityType(nameMapper.EntityTypeToClassNameMap[relationalEntityType]);
                 _relationalEntityTypeToCodeGenEntityTypeMap[relationalEntityType] = codeGenEntityType;
-                codeGenEntityType.Relational().Table = _tables[relationalEntityType.Name].TableName;
-                codeGenEntityType.Relational().Schema = _tables[relationalEntityType.Name].SchemaName;
+                codeGenEntityType.Relational().Table = _tables[relationalEntityType.FullName].TableName;
+                codeGenEntityType.Relational().Schema = _tables[relationalEntityType.FullName].SchemaName;
 
                 // Loop over relational properties constructing a matching property in the 
                 // codeGenModel. Also accumulate:
@@ -337,9 +337,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 else
                 {
                     codeGenEntityType.AddAnnotation(
-                        AnnotationNameEntityTypeError, "Attempt to generate EntityType " + codeGenEntityType.Name
+                        AnnotationNameEntityTypeError, "Attempt to generate EntityType " + codeGenEntityType.FullName
                         + " failed. We could identify no primary key columns in the underlying SQL Server table "
-                        + _tables[relationalEntityType.Name].SchemaName + "." + _tables[relationalEntityType.Name].TableName + ".");
+                        + _tables[relationalEntityType.FullName].SchemaName + "." + _tables[relationalEntityType.FullName].TableName + ".");
                 }
             } // end of loop over all relational EntityTypes
 
@@ -415,7 +415,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             {
                 var existingIdentifiers = new List<string>();
                 entityTypeToExistingIdentifiers.Add(entityType, existingIdentifiers);
-                existingIdentifiers.Add(entityType.Name);
+                existingIdentifiers.Add(entityType.FullName);
                 existingIdentifiers.AddRange(
                     _modelUtilities.OrderedProperties(entityType).Select(p => p.Name));
             }
@@ -588,7 +588,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     _logger.LogWarning(
                         Strings.UnableToConvertDefaultValue(
                             tableColumn.Id, tableColumn.DefaultValue,
-                            property.PropertyType, property.Name, property.EntityType.Name));
+                            property.PropertyType, property.Name, property.EntityType.FullName));
                 }
             }
         }

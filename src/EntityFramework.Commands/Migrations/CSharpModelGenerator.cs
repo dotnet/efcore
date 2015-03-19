@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
             stringBuilder
                 .Append("builder.Entity(")
-                .Append(_code.Literal(entityType.Name))
+                .Append(_code.Literal(entityType.FullName))
                 .AppendLine(", b =>");
 
             using (stringBuilder.Indent())
@@ -237,7 +237,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
             var tableName = entityType.Relational().Table;
             var schema = entityType.Relational().Schema;
-            if (tableName != entityType.SimpleName
+            if (tableName != entityType.Name
                 || schema != null)
             {
                 stringBuilder
@@ -292,7 +292,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             stringBuilder
                 .AppendLine()
                 .Append("b.ForeignKey(")
-                .Append(_code.Literal(foreignKey.ReferencedEntityType.Name))
+                .Append(_code.Literal(foreignKey.ReferencedEntityType.FullName))
                 .Append(", ")
                 .Append(string.Join(", ", foreignKey.Properties.Select(p => _code.Literal(p.Name))))
                 .Append(")");

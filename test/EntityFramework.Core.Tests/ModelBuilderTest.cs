@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityBuilder = modelBuilder.Entity<Customer>();
 
             Assert.NotNull(entityBuilder);
-            Assert.Equal(typeof(Customer).FullName, model.GetEntityType(typeof(Customer)).Name);
+            Assert.Equal(typeof(Customer).FullName, model.GetEntityType(typeof(Customer)).FullName);
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityBuilder = modelBuilder.Entity(typeof(Customer));
 
             Assert.NotNull(entityBuilder);
-            Assert.Equal(typeof(Customer).FullName, model.GetEntityType(typeof(Customer)).Name);
+            Assert.Equal(typeof(Customer).FullName, model.GetEntityType(typeof(Customer)).FullName);
         }
 
         [Fact]

@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEntityType GetEntityType(Type type) => EntityTypes.First(e => e.Type == type);
 
-        public IEntityType TryGetEntityType(string name) => EntityTypes.FirstOrDefault(e => e.Name == name);
+        public IEntityType TryGetEntityType(string name) => EntityTypes.FirstOrDefault(e => e.FullName == name);
 
-        public IEntityType GetEntityType(string name) => EntityTypes.First(e => e.Name == name);
+        public IEntityType GetEntityType(string name) => EntityTypes.First(e => e.FullName == name);
 
         protected abstract IEntityType[] LoadEntityTypes();
 

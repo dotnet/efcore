@@ -515,8 +515,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                new[] { entityTypeB.Name, entityTypeA.Name, entityTypeC.Name },
-                graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
+                new[] { entityTypeB.FullName, entityTypeA.FullName, entityTypeC.FullName },
+                graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.FullName).ToArray());
         }
 
         [Fact]
@@ -541,8 +541,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                new[] { entityTypeC.Name, entityTypeB.Name, entityTypeA.Name },
-                graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
+                new[] { entityTypeC.FullName, entityTypeB.FullName, entityTypeA.FullName },
+                graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.FullName).ToArray());
         }
 
         [Fact]
@@ -567,8 +567,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                new[] { entityTypeB.Name, entityTypeA.Name, entityTypeC.Name },
-                graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
+                new[] { entityTypeB.FullName, entityTypeA.FullName, entityTypeC.FullName },
+                graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.FullName).ToArray());
 
             Assert.Equal(
                 new[] { entityTypeA, entityTypeB, entityTypeC },
@@ -583,8 +583,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                 graph.GetOutgoingNeighbours(entityTypeB));
 
             Assert.Equal(
-                new[] { entityTypeB.Name, entityTypeA.Name, entityTypeC.Name },
-                graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
+                new[] { entityTypeB.FullName, entityTypeA.FullName, entityTypeC.FullName },
+                graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.FullName).ToArray());
         }
 
         [Fact]
@@ -610,8 +610,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                new[] { entityTypeA.Name, entityTypeC.Name, entityTypeB.Name },
-                graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
+                new[] { entityTypeA.FullName, entityTypeC.FullName, entityTypeB.FullName },
+                graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.FullName).ToArray());
         }
 
         [Fact]
@@ -633,8 +633,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeC, entityTypeA, entityTypeB);
 
             Assert.Equal(
-                new[] { entityTypeC.Name, entityTypeA.Name, entityTypeB.Name },
-                graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
+                new[] { entityTypeC.FullName, entityTypeA.FullName, entityTypeB.FullName },
+                graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.FullName).ToArray());
         }
 
         [Fact]

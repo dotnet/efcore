@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         public virtual int Compare(EntityType x, EntityType y)
         {
-            return StringComparer.Ordinal.Compare(x.Name, y.Name);
+            return StringComparer.Ordinal.Compare(x.FullName, y.FullName);
         }
     }
 }

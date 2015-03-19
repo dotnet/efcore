@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             get
             {
-                return EntityType.Name;
+                return EntityType.FullName;
             }
         }
 

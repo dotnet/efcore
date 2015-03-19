@@ -29,8 +29,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var model = context.Model;
 
                 Assert.Equal("Us!", model["AllYourModelAreBelongTo"]);
-                Assert.Equal("Us!", model.EntityTypes.Single(e => e.SimpleName == "Base")["AllYourBaseAreBelongTo"]);
-                Assert.Contains("Peak", model.EntityTypes.Select(e => e.SimpleName));
+                Assert.Equal("Us!", model.EntityTypes.Single(e => e.Name == "Base")["AllYourBaseAreBelongTo"]);
+                Assert.Contains("Peak", model.EntityTypes.Select(e => e.Name));
             }
         }
 

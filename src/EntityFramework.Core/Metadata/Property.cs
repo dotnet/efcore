@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    [DebuggerDisplay("{EntityType.Name,nq}.{Name,nq} ({PropertyType.Name,nq})")]
+    [DebuggerDisplay("{EntityType.FullName,nq}.{Name,nq} ({PropertyType.Name,nq})")]
     public class Property : PropertyBase, IProperty
     {
         private PropertyFlags _flags;
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Metadata
                     && value.Value
                     && !PropertyType.IsNullableType())
                 {
-                    throw new InvalidOperationException(Strings.CannotBeNullable(Name, EntityType.SimpleName, PropertyType.Name));
+                    throw new InvalidOperationException(Strings.CannotBeNullable(Name, EntityType.Name, PropertyType.Name));
                 }
 
                 SetFlag(value, PropertyFlags.IsNullable);
@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Metadata
                     && !value.Value
                     && this.IsKey())
                 {
-                    throw new NotSupportedException(Strings.KeyPropertyMustBeReadOnly(Name, EntityType.Name));
+                    throw new NotSupportedException(Strings.KeyPropertyMustBeReadOnly(Name, EntityType.FullName));
                 }
                 SetFlag(value, PropertyFlags.IsReadOnly);
             }
@@ -225,9 +225,9 @@ namespace Microsoft.Data.Entity.Metadata
                 throw new InvalidOperationException(
                     Strings.ForeignKeyCountMismatch(
                         Format(dependentProperties),
-                        dependentProperties[0].EntityType.Name,
+                        dependentProperties[0].EntityType.FullName,
                         Format(principalProperties),
-                        principalProperties[0].EntityType.Name));
+                        principalProperties[0].EntityType.FullName));
             }
 
             if (!ArePropertyTypesCompatible(principalProperties, dependentProperties))
@@ -235,8 +235,8 @@ namespace Microsoft.Data.Entity.Metadata
                 throw new InvalidOperationException(
                     Strings.ForeignKeyTypeMismatch(
                         Format(dependentProperties),
-                        dependentProperties[0].EntityType.Name,
-                        principalProperties[0].EntityType.Name));
+                        dependentProperties[0].EntityType.FullName,
+                        principalProperties[0].EntityType.FullName));
             }
         }
 

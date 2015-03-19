@@ -67,18 +67,18 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 throw new NotSupportedException(
                     Strings.NavigationBadType(
-                        navigation.Name, navigation.EntityType.Name, property.PropertyType.FullName, navigation.GetTargetType().Name));
+                        navigation.Name, navigation.EntityType.FullName, property.PropertyType.FullName, navigation.GetTargetType().FullName));
             }
 
             if (property.PropertyType.IsArray)
             {
                 throw new NotSupportedException(
-                    Strings.NavigationArray(navigation.Name, navigation.EntityType.Name, property.PropertyType.FullName));
+                    Strings.NavigationArray(navigation.Name, navigation.EntityType.FullName, property.PropertyType.FullName));
             }
 
             if (property.GetMethod == null)
             {
-                throw new NotSupportedException(Strings.NavigationNoGetter(navigation.Name, navigation.EntityType.Name));
+                throw new NotSupportedException(Strings.NavigationNoGetter(navigation.Name, navigation.EntityType.FullName));
             }
 
             var boundMethod = _genericCreate.MakeGenericMethod(

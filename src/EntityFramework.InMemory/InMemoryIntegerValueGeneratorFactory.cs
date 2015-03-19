@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.InMemory
             }
 
             throw new ArgumentException(Internal.Strings.InvalidValueGeneratorFactoryProperty(
-                nameof(InMemoryIntegerValueGeneratorFactory), property.Name, property.EntityType.SimpleName));
+                nameof(InMemoryIntegerValueGeneratorFactory), property.Name, property.EntityType.Name));
         }
     }
 }

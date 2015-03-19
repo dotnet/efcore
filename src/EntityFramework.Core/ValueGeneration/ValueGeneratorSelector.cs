@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
             }
 
             throw new NotSupportedException(
-                Strings.NoValueGenerator(property.Name, property.EntityType.SimpleName, propertyType.Name));
+                Strings.NoValueGenerator(property.Name, property.EntityType.Name, propertyType.Name));
         }
     }
 }

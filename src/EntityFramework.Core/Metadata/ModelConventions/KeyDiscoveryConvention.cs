@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             if (keyProperties.Count == 0)
             {
                 keyProperties = entityType.Properties.Where(
-                    p => string.Equals(p.Name, entityType.SimpleName + KeySuffix, StringComparison.OrdinalIgnoreCase))
+                    p => string.Equals(p.Name, entityType.Name + KeySuffix, StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
 
