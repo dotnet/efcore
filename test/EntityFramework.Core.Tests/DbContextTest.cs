@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
-using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Moq;
@@ -1690,7 +1689,6 @@ namespace Microsoft.Data.Entity.Tests
 
             serviceCollection
                 .AddInstance<ILoggerFactory>(loggerFactory)
-                .AddOptions()
                 .AddEntityFramework();
 
             var provider = serviceCollection.BuildServiceProvider();
@@ -1709,8 +1707,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework();
 
             serviceCollection
-                .AddInstance<ILoggerFactory>(loggerFactory)
-                .AddOptions();
+                .AddInstance<ILoggerFactory>(loggerFactory);
 
             var provider = serviceCollection.BuildServiceProvider();
 
@@ -1931,7 +1928,6 @@ namespace Microsoft.Data.Entity.Tests
 
             services
                 .AddSingleton<FakeService>()
-                .AddOptions()
                 .AddEntityFramework()
                 .AddDbContext<ContextWithDefaults>();
 
@@ -2019,114 +2015,6 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count());
                 Assert.Same(contextOptionsExtension, options.Extensions.Single());
-            }
-        }
-
-        [Fact]
-        public void Context_activation_reads_options_from_configuration_keyed_using_context_type_name()
-        {
-            Context_activation_reads_options_from_configuration<ContextWithDefaults>(t => t.Name);
-            Context_activation_reads_options_from_configuration<ContextWithServiceProvider>(t => t.Name);
-            Context_activation_reads_options_from_configuration<ContextWithOptions>(t => t.Name);
-        }
-
-        [Fact]
-        public void Context_activation_reads_options_from_configuration_keyed_using_context_type_full_name()
-        {
-            Context_activation_reads_options_from_configuration<ContextWithDefaults>(t => t.FullName);
-            Context_activation_reads_options_from_configuration<ContextWithServiceProvider>(t => t.FullName);
-            Context_activation_reads_options_from_configuration<ContextWithOptions>(t => t.FullName);
-        }
-
-        private static void Context_activation_reads_options_from_configuration<ContextT>(Func<Type, string> contextKeyFunc)
-            where ContextT : DbContext
-        {
-            var configSource = new MemoryConfigurationSource
-                {
-                    { string.Concat("EntityFramework:", contextKeyFunc(typeof(ContextT)), ":ConnectionString"), "MyConnectionString" }
-                };
-
-            var config = new Configuration(configSource);
-
-            var services = new ServiceCollection();
-            var contextOptionsExtension = new FakeDbContextOptionsExtension();
-
-            services
-                .AddEntityFramework(config)
-                .AddDbContext<ContextT>(optionsBuilder
-                    => ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(contextOptionsExtension));
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            using (var context = serviceProvider.GetRequiredService<ContextT>())
-            {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var contextOptions = (DbContextOptions<ContextT>)contextServices.GetRequiredService<IDbContextOptions>();
-
-                Assert.NotNull(contextOptions);
-                var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;
-                Assert.Equal(1, rawOptions.Count);
-                Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
-                Assert.Equal(1, contextOptions.Extensions.Count());
-                Assert.Same(contextOptionsExtension, contextOptions.Extensions.Single());
-            }
-        }
-
-        [Fact]
-        public void Context_activation_reads_options_from_configuration_with_key_redirection()
-        {
-            var configSource = new MemoryConfigurationSource
-                {
-                    { "Data:DefaultConnection:ConnectionString", "MyConnectionString" },
-                    { "EntityFramework:ContextWithDefaults:ConnectionString", "Name=Data:DefaultConnection:ConnectionString" }
-                };
-
-            var config = new Configuration(configSource);
-
-            var services = new ServiceCollection();
-
-            services
-                .AddEntityFramework(config)
-                .AddDbContext<ContextWithDefaults>();
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
-            {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<IDbContextOptions>();
-
-                Assert.NotNull(contextOptions);
-                var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;
-                Assert.Equal(1, rawOptions.Count);
-                Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
-            }
-        }
-
-        [Fact]
-        public void Context_activation_reads_options_from_configuration_case_insensitively()
-        {
-            var configSource = new MemoryConfigurationSource { { "entityFramework:contextWithDefaults:connectionString", "MyConnectionString" } };
-
-            var config = new Configuration(configSource);
-
-            var services = new ServiceCollection();
-
-            services
-                .AddEntityFramework(config)
-                .AddDbContext<ContextWithDefaults>();
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
-            {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<IDbContextOptions>();
-
-                Assert.NotNull(contextOptions);
-                var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;
-                Assert.Equal(1, rawOptions.Count);
-                Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
             }
         }
 

@@ -57,6 +57,7 @@ namespace Microsoft.Data.Entity.Commands
                                     BuildReference.ByName("System.Data.Common", copyLocal: true),
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+                                    BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                                     BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
@@ -87,7 +88,7 @@ namespace Microsoft.Data.Entity.Commands
                                 {
                                     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                                     {
-                                        optionsBuilder.UseSqlServer();
+                                        optionsBuilder.UseSqlServer(""Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=SimpleProject.SimpleContext;Integrated Security=True"");
                                     }
                                 }
 
@@ -108,7 +109,7 @@ namespace Microsoft.Data.Entity.Commands
                                     }
                                 }
                             }"
-                        };
+                    };
                     var build = source.Build();
                     Executor = new ExecutorWrapper(TargetDir, build.TargetName + ".dll", TargetDir, "SimpleProject");
                 }
@@ -143,6 +144,7 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByName("System.Data.Common", copyLocal: true),
                                 BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                 BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+                                BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                                 BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
@@ -173,7 +175,7 @@ namespace Microsoft.Data.Entity.Commands
                             {
                                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                                 {
-                                    optionsBuilder.UseSqlServer();
+                                    optionsBuilder.UseSqlServer(""Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=SimpleProject.SimpleContext;Integrated Security=True"");
                                 }
                             }
 
@@ -218,7 +220,7 @@ namespace Microsoft.Data.Entity.Commands
                                 }
                             }
                         }"
-                    };
+                };
                 var build = source.Build();
                 using (var executor = new ExecutorWrapper(targetDir, build.TargetName + ".dll", targetDir, "MyProject"))
                 {

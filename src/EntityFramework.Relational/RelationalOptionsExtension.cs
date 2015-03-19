@@ -12,27 +12,13 @@ namespace Microsoft.Data.Entity.Relational
 {
     public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     {
-        private const string ConnectionStringKey = "ConnectionString";
-        private const string CommandTimeoutKey = "CommandTimeout";
-        private const string MaxBatchSizeKey = "MaxBatchSize";
-
         private string _connectionString;
         private DbConnection _connection;
         private int? _commandTimeout;
         private int? _maxBatchSize;
 
-        protected RelationalOptionsExtension([NotNull] IDbContextOptions options)
+        protected RelationalOptionsExtension()
         {
-            Check.NotNull(options, nameof(options));
-
-            var connectionString = options.FindRawOption<string>(ConnectionStringKey);
-            if (!string.IsNullOrWhiteSpace(connectionString))
-            {
-                _connectionString = connectionString;
-            }
-
-            _commandTimeout = options.FindRawOption<int?>(CommandTimeoutKey);
-            _maxBatchSize = options.FindRawOption<int?>(MaxBatchSizeKey);
         }
 
         protected RelationalOptionsExtension([NotNull] RelationalOptionsExtension copyFrom)

@@ -13,14 +13,13 @@ namespace Microsoft.Data.Entity.Infrastructure
         where TContext : DbContext
     {
         public DbContextOptions()
-            : base(new Dictionary<string, string>(), new Dictionary<Type, IDbContextOptionsExtension>())
+            : base(new Dictionary<Type, IDbContextOptionsExtension>())
         {
         }
 
         public DbContextOptions(
-            [NotNull] IReadOnlyDictionary<string, string> rawOptions,
             [NotNull] IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
-            : base(rawOptions, extensions)
+            : base(extensions)
         {
         }
 
@@ -31,7 +30,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             var extensions = Extensions.ToDictionary(p => p.GetType(), p => p);
             extensions[typeof(TExtension)] = extension;
 
-            return new DbContextOptions<TContext>(RawOptions, extensions);
+            return new DbContextOptions<TContext>(extensions);
         }
     }
 }

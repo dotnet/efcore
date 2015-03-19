@@ -73,6 +73,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ServiceCollection();
         }
 
+        protected override DbContextOptions GetOptions()
+        {
+            return SqlServerTestHelpers.Instance.CreateOptions();
+        }
+
         protected override DbContext CreateContext(IServiceProvider serviceProvider)
         {
             return SqlServerTestHelpers.Instance.CreateContext(serviceProvider);

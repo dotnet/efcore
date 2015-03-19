@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var services = new ServiceCollection();
             var builder = new EntityFrameworkServicesBuilder(services);
 
-            new SqlServerOptionsExtension(new DbContextOptions<DbContext>()).ApplyServices(builder);
+            new SqlServerOptionsExtension().ApplyServices(builder);
 
             Assert.True(services.Any(sd => sd.ServiceType == typeof(ISqlServerDataStore)));
         }

@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
             var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
 
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer().MaxBatchSize(1);
+            optionsBuilder.UseSqlServer("Database=Crunchie").MaxBatchSize(1);
 
             var batch = factory.Create(optionsBuilder.Options);
 
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
             var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
 
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer();
+            optionsBuilder.UseSqlServer("Database=Crunchie");
 
             var batch = factory.Create(optionsBuilder.Options);
 
@@ -48,25 +48,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
             var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
 
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer();
-
-            var batch = factory.Create(optionsBuilder.Options);
-
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new BoxedValueReaderSource())));
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new BoxedValueReaderSource())));
-        }
-
-        [Fact]
-        public void MaxBatchSize_is_used_only_if_sqlServerOptionsExtension_is_registered()
-        {
-            var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
-
-            var rawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "MaxBatchSize", "1" } };
-            var optionsExtension = new TestRelationalOptionsExtension(
-                new DbContextOptions<DbContext>(rawOptions, new Dictionary<Type, IDbContextOptionsExtension>()));
-
-            var optionsBuilder = new DbContextOptionsBuilder();
-            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(optionsExtension);
+            optionsBuilder.UseSqlServer("Database=Crunchie");
 
             var batch = factory.Create(optionsBuilder.Options);
 
@@ -76,11 +58,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
         private class TestRelationalOptionsExtension : RelationalOptionsExtension
         {
-            public TestRelationalOptionsExtension(IDbContextOptions options)
-                : base(options)
-            {
-            }
-
             public override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
                 throw new NotImplementedException();

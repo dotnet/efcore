@@ -17,20 +17,20 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Is_configured_when_configuration_contains_associated_extension()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer();
+            optionsBuilder.UseSqlServer("Database=Crunchie");
 
             Assert.True(new SqlServerDataStoreSource().IsConfigured(optionsBuilder.Options));
         }
 
         [Fact]
-        public void Can_be_auto_configured()
+        public void Can_not_be_auto_configured()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
             var dataStoreSource = new SqlServerDataStoreSource();
             dataStoreSource.AutoConfigure(optionsBuilder);
 
-            Assert.True(dataStoreSource.IsConfigured(optionsBuilder.Options));
+            Assert.False(dataStoreSource.IsConfigured(optionsBuilder.Options));
         }
 
         [Fact]

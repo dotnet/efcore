@@ -377,7 +377,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         private class FakeOptionsExtension1 : RelationalOptionsExtension
         {
             public FakeOptionsExtension1()
-                : base(new DbContextOptions<DbContext>())
+                : base()
             {
             }
 
@@ -389,7 +389,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         private class FakeOptionsExtension2 : RelationalOptionsExtension
         {
             public FakeOptionsExtension2()
-                : base(new DbContextOptions<DbContext>())
+                : base()
             {
             }
 

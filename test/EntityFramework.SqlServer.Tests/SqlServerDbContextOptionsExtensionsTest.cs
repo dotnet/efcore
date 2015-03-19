@@ -1,11 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -16,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Can_add_extension_with_max_batch_size()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer().MaxBatchSize(123);
+            optionsBuilder.UseSqlServer("Database=Crunchie").MaxBatchSize(123);
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 
@@ -73,22 +70,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Same(connection, extension.Connection);
             Assert.Null(extension.ConnectionString);
-        }
-
-        [Fact]
-        public void UseSqlServer_uses_connection_string_from_raw_options()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder(
-                new DbContextOptions<DbContext>(
-                    new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } }, 
-                    new Dictionary<Type, IDbContextOptionsExtension>()));
-
-            optionsBuilder.UseSqlServer();
-
-            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
-
-            Assert.Equal("Database=Crunchie", extension.ConnectionString);
-            Assert.Null(extension.Connection);
         }
     }
 }

@@ -53,8 +53,6 @@
     <PackageReference Include="Microsoft.Framework.Caching.Memory">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Interfaces" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection.Interfaces" />
     <PackageReference Include="Microsoft.Framework.Logging" />
@@ -163,13 +161,11 @@
     <Compile Include="Infrastructure\EntityFrameworkServicesBuilder.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
     <Compile Include="Internal\DbContextActivator.cs" />
-    <Compile Include="Internal\DbContextOptionsParser.cs" />
     <Compile Include="Internal\DbContextServices.cs" />
     <Compile Include="Internal\DbSetFinder.cs" />
     <Compile Include="Internal\DbSetInitializer.cs" />
     <Compile Include="Internal\DbSetProperty.cs" />
     <Compile Include="Internal\DbSetSource.cs" />
-    <Compile Include="Internal\IDbContextOptionsParser.cs" />
     <Compile Include="Internal\IDbContextServices.cs" />
     <Compile Include="Internal\IDbSetFinder.cs" />
     <Compile Include="Internal\IDbSetInitializer.cs" />

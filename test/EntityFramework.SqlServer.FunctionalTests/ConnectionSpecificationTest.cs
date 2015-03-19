@@ -6,10 +6,9 @@ using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
-using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
-using RelationalStrings = Microsoft.Data.Entity.Relational.Strings;
+using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -109,205 +108,20 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        [Fact]
-        public async void Can_specify_dereferenced_connection_string_in_config()
-        {
-            var configuration = new Configuration
-                (
-                    new MemoryConfigurationSource
-                        {
-                            {
-                                "Data:DefaultConnection:ConnectionString", SqlServerNorthwindContext.ConnectionString
-                            },
-                            {
-                                "EntityFramework:" + typeof(StringInConfigContext).Name + ":ConnectionString", "Name=Data:DefaultConnection:ConnectionString"
-                            }
-                        }
-                );
-
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework(configuration)
-                .AddSqlServer()
-                .AddDbContext<StringInConfigContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
-            {
-                using (var context = serviceProvider.GetRequiredService<StringInConfigContext>())
-                {
-                    Assert.True(context.Customers.Any());
-                }
-            }
-        }
-
-        [Fact]
-        public async void Can_specify_connection_string_in_config()
-        {
-            var configuration = new Configuration
-                (
-                    new MemoryConfigurationSource
-                        {
-                            {
-                                "EntityFramework:" + typeof(StringInConfigContext).Name + ":ConnectionString", SqlServerNorthwindContext.ConnectionString
-                            }
-                        }
-                );
-
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework(configuration)
-                .AddSqlServer()
-                .AddDbContext<StringInConfigContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
-            {
-                using (var context = serviceProvider.GetRequiredService<StringInConfigContext>())
-                {
-                    Assert.True(context.Customers.Any());
-                }
-            }
-        }
-
-        [Fact]
-        public void Throws_if_no_connection_found_in_config()
-        {
-            var configuration = new Configuration
-                (
-                    new MemoryConfigurationSource()
-                );
-
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework(configuration)
-                .AddSqlServer()
-                .AddDbContext<StringInConfigContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            using (var context = serviceProvider.GetRequiredService<StringInConfigContext>())
-            {
-                Assert.Equal(
-                    RelationalStrings.NoConnectionOrConnectionString,
-                    Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
-            }
-        }
-
-        [Fact]
-        public void Throws_if_no_config()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework()
-                .AddSqlServer()
-                .AddDbContext<StringInConfigContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            using (var context = serviceProvider.GetRequiredService<StringInConfigContext>())
-            {
-                Assert.Equal(
-                    RelationalStrings.NoConnectionOrConnectionString,
-                    Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
-            }
-        }
-
-        [Fact]
-        public void Throws_if_no_config_with_default_service_provider()
-        {
-            using (var context = new StringInConfigContext())
-            {
-                Assert.Equal(
-                    RelationalStrings.NoConnectionOrConnectionString,
-                    Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
-            }
-        }
-
         private class StringInConfigContext : NorthwindContextBase
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseSqlServer();
-            }
-        }
-
-        [Fact]
-        public async void Can_specify_dereferenced_connection_string_in_config_without_UseSqlServer()
-        {
-            var configuration = new Configuration
-                (
-                    new MemoryConfigurationSource
-                        {
-                            {
-                                "Data:DefaultConnection:ConnectionString", SqlServerNorthwindContext.ConnectionString
-                            },
-                            {
-                                "EntityFramework:" + typeof(NoUseSqlServerContext).Name + ":ConnectionString", "Name=Data:DefaultConnection:ConnectionString"
-                            }
-                        }
-                );
-
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework(configuration)
-                .AddSqlServer()
-                .AddDbContext<NoUseSqlServerContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
-            {
-                using (var context = serviceProvider.GetRequiredService<NoUseSqlServerContext>())
-                {
-                    Assert.True(context.Customers.Any());
-                }
-            }
-        }
-
-        [Fact]
-        public async void Can_specify_connection_string_in_config_without_UseSqlServer()
-        {
-            var configuration = new Configuration
-                (
-                    new MemoryConfigurationSource
-                        {
-                            {
-                                "EntityFramework:" + typeof(NoUseSqlServerContext).Name + ":ConnectionString", SqlServerNorthwindContext.ConnectionString
-                            }
-                        }
-                );
-
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework(configuration)
-                .AddSqlServer()
-                .AddDbContext<NoUseSqlServerContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
-            {
-                using (var context = serviceProvider.GetRequiredService<NoUseSqlServerContext>())
-                {
-                    Assert.True(context.Customers.Any());
-                }
+                optionsBuilder.UseSqlServer("Database=Crunchie");
             }
         }
 
         [Fact]
         public void Throws_if_no_connection_found_in_config_without_UseSqlServer()
         {
-            var configuration = new Configuration
-                (
-                    new MemoryConfigurationSource()
-                );
-
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddEntityFramework(configuration)
+                .AddEntityFramework()
                 .AddSqlServer()
                 .AddDbContext<NoUseSqlServerContext>();
 
@@ -316,7 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = serviceProvider.GetRequiredService<NoUseSqlServerContext>())
             {
                 Assert.Equal(
-                    RelationalStrings.NoConnectionOrConnectionString,
+                    CoreStrings.NoDataStoreConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -335,7 +149,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = serviceProvider.GetRequiredService<NoUseSqlServerContext>())
             {
                 Assert.Equal(
-                    RelationalStrings.NoConnectionOrConnectionString,
+                    CoreStrings.NoDataStoreConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }

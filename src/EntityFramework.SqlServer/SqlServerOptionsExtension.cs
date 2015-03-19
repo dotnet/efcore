@@ -11,8 +11,7 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerOptionsExtension : RelationalOptionsExtension
     {
-        public SqlServerOptionsExtension([NotNull] IDbContextOptions options)
-            : base(options)
+        public SqlServerOptionsExtension()
         {
         }
 

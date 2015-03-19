@@ -407,7 +407,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseSqlServer().CommandTimeout(77);
+                optionsBuilder.UseSqlServer("Database=Crunchie").CommandTimeout(77);
 
                 base.OnConfiguring(optionsBuilder);
             }

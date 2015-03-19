@@ -45,12 +45,6 @@
     <PackageReference Include="System.Collections.Immutable">
       <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Interfaces">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -61,9 +55,6 @@
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.OptionsModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <Reference Include="xunit.abstractions">

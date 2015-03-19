@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
-using RelationalStrings = Microsoft.Data.Entity.Relational.Strings;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -175,7 +174,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
-                        RelationalStrings.NoConnectionOrConnectionString,
+                        CoreStrings.NoDataStoreConfigured,
                         Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext(serviceProvider))

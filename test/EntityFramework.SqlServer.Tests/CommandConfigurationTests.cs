@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             [Fact]
             public void Setting_CommandTimeout_to_negative_value_throws()
             {
-                var optionsBuilder = new DbContextOptionsBuilder().UseSqlServer();
+                var optionsBuilder = new DbContextOptionsBuilder().UseSqlServer("No=LoveyDovey");
 
                 Assert.Throws<InvalidOperationException>(() => optionsBuilder.CommandTimeout(-55));
 

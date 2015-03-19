@@ -14,15 +14,6 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerDbContextOptionsExtensions
     {
-        public static SqlServerDbContextOptionsBuilder UseSqlServer([NotNull] this DbContextOptionsBuilder optionsBuilder)
-        {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
-            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(GetOrCreateExtension(optionsBuilder));
-
-            return new SqlServerDbContextOptionsBuilder(optionsBuilder);
-        }
-
         public static SqlServerDbContextOptionsBuilder UseSqlServer([NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] string connectionString)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
@@ -30,7 +21,6 @@ namespace Microsoft.Data.Entity
 
             var extension = GetOrCreateExtension(optionsBuilder);
 
-            // TODO: Don't mutate
             extension.ConnectionString = connectionString;
 
             ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension);
@@ -46,7 +36,6 @@ namespace Microsoft.Data.Entity
 
             var extension = GetOrCreateExtension(optionsBuilder);
 
-            // TODO: Don't mutate
             extension.Connection = connection;
 
             ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension);
@@ -55,7 +44,11 @@ namespace Microsoft.Data.Entity
         }
 
         private static SqlServerOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.Options.FindExtension<SqlServerOptionsExtension>()
-               ?? new SqlServerOptionsExtension(optionsBuilder.Options);
+        {
+            var existing = optionsBuilder.Options.FindExtension<SqlServerOptionsExtension>();
+            return existing != null
+                ? new SqlServerOptionsExtension(existing)
+                : new SqlServerOptionsExtension();
+        }
     }
 }

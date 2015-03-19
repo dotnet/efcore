@@ -39,7 +39,6 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<IRelationshipsSnapshotFactory>();
             VerifySingleton<IStoreGeneratedValuesFactory>();
             VerifySingleton<IEntityEntryMetadataServices>();
-            VerifySingleton<IDbContextOptionsParser>();
             VerifySingleton<ICompiledQueryCache>();
             VerifySingleton<ILoggerFactory>();
             VerifySingleton<IBoxedValueReaderSource>();
@@ -108,6 +107,11 @@ namespace Microsoft.Data.Entity.Tests
                 .ServiceCollection();
         }
 
+        protected virtual DbContextOptions GetOptions()
+        {
+            return TestHelpers.Instance.CreateOptions();
+        }
+
         protected virtual DbContext CreateContext(IServiceProvider serviceProvider)
         {
             return TestHelpers.Instance.CreateContext(serviceProvider);
@@ -167,7 +171,7 @@ namespace Microsoft.Data.Entity.Tests
                     ? new ServiceCollection().AddScoped(p => service)
                     : new ServiceCollection().AddSingleton(p => service);
 
-                var serviceProviderWithCustomService = ((IAccessor<IServiceProvider>)new DbContext(GetServices(customServices).BuildServiceProvider())).Service;
+                var serviceProviderWithCustomService = ((IAccessor<IServiceProvider>)new DbContext(GetServices(customServices).BuildServiceProvider(), GetOptions())).Service;
                 if (isExistingReplaced)
                 {
                     Assert.NotSame(service, serviceProviderWithCustomService.GetRequiredService<TService>());

@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Caching.Memory;
-using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.Logging;
 
 // ReSharper disable once CheckNamespace
@@ -24,8 +23,6 @@ namespace Microsoft.Framework.DependencyInjection
     /// </summary>
     public static class EntityFrameworkServiceCollectionExtensions
     {
-        private const int ConfigurationOrder = -1000; // OptionsConstants is internal.
-
         /// <summary>
         ///     Adds the services required by the core of Entity Framework to an <see cref="IServiceCollection" />.
         ///     You use this method when using dependency injection in your application, such as with ASP.NET.
@@ -41,32 +38,21 @@ namespace Microsoft.Framework.DependencyInjection
         ///         The data store you are using will also define extension methods that can be called on the returned
         ///         <see cref="EntityFrameworkServicesBuilder" /> to register the services for the data store. For example,
         ///         when using EntityFramework.SqlServer you would call
-        ///         <c>collection.AddEntityFramework(config).UseSqlServer()</c>.
+        ///         <c>collection.AddEntityFramework().UseSqlServer(connectionString)</c>.
         ///     </para>
         ///     <para>
         ///         For derived contexts to resolve their services from the <see cref="IServiceProvider" /> you must chain a call
         ///         to the <see cref="EntityFrameworkServicesBuilder.AddDbContext{TContext}" /> method on the returned
         ///         <see cref="EntityFrameworkServicesBuilder" />.
-        ///         This will ensure services are resolved from the <see cref="IServiceProvider" /> and any Entity Framework
-        ///         configuration from the supplied <paramref name="configuration" /> will be honored.
+        ///         This will ensure services are resolved from the <see cref="IServiceProvider" />  will be honored.
         ///     </para>
         /// </remarks>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
-        /// <param name="configuration">
-        ///     <para>
-        ///         The configuration being used for the current application. Providing this allows configuration under the
-        ///         'entityFramework' node to be applied to contexts that are resolved from the <see cref="IServiceProvider" />.
-        ///         For this configuration to be applied you must register any derived contexts using the
-        ///         <see cref="EntityFrameworkServicesBuilder.AddDbContext{TContext}" /> method on the returned
-        ///         <see cref="EntityFrameworkServicesBuilder" />.
-        ///     </para>
-        /// </param>
         /// <returns>
         ///     A builder that allows further Entity Framework specific setup of the <see cref="IServiceCollection" />.
         /// </returns>
         public static EntityFrameworkServicesBuilder AddEntityFramework(
-            [NotNull] this IServiceCollection serviceCollection,
-            [CanBeNull] IConfiguration configuration = null)
+            [NotNull] this IServiceCollection serviceCollection)
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
@@ -97,7 +83,6 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<IEntityEntryMetadataServices,EntityEntryMetadataServices>()
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .AddSingleton<IDbContextOptionsParser, DbContextOptionsParser>()
                 .AddSingleton<IBoxedValueReaderSource, BoxedValueReaderSource>()
                 .AddScoped<IKeyPropagator, KeyPropagator>()
                 .AddScoped<INavigationFixer, NavigationFixer>()
@@ -125,7 +110,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddTransient<IMemoryCache, MemoryCache>()
                 .AddOptions());
 
-            return new EntityFrameworkServicesBuilder(serviceCollection, configuration);
+            return new EntityFrameworkServicesBuilder(serviceCollection);
         }
 
     private static IDbContextServices GetContextServices(IServiceProvider serviceProvider)
