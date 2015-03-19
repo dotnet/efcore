@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata
         IModel Model { get; }
 
         string FullName { get; }
-        string SimpleName { get; }
+        string Name { get; }
         int PropertyCount { get; }
         int ShadowPropertyCount { get; }
         int OriginalValueCount { get; }

@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Metadata
                     && value.Value
                     && !PropertyType.IsNullableType())
                 {
-                    throw new InvalidOperationException(Strings.CannotBeNullable(Name, EntityType.SimpleName, PropertyType.Name));
+                    throw new InvalidOperationException(Strings.CannotBeNullable(Name, EntityType.Name, PropertyType.Name));
                 }
 
                 SetFlag(value, PropertyFlags.IsNullable);

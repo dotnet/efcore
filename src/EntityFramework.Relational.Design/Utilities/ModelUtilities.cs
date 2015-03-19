@@ -72,14 +72,14 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
                 return candidateName;
             }
 
-            return foreignKey.ReferencedEntityType.SimpleName;
+            return foreignKey.ReferencedEntityType.Name;
         }
 
         public virtual string GetPrincipalEndCandidateNavigationPropertyName([NotNull] ForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            return foreignKey.EntityType.SimpleName;
+            return foreignKey.EntityType.Name;
         }
 
         private string FindCommonPrefix(IEnumerable<string> stringsEnumerable)

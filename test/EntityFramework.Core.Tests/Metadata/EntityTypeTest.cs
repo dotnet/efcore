@@ -104,18 +104,18 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Simple_name_is_simple_CLR_name()
         {
-            Assert.Equal("EntityTypeTest", new EntityType(typeof(EntityTypeTest), new Model()).SimpleName);
-            Assert.Equal("Customer", new EntityType(typeof(Customer), new Model()).SimpleName);
-            Assert.Equal("List`1", new EntityType(typeof(List<Customer>), new Model()).SimpleName);
+            Assert.Equal("EntityTypeTest", new EntityType(typeof(EntityTypeTest), new Model()).Name);
+            Assert.Equal("Customer", new EntityType(typeof(Customer), new Model()).Name);
+            Assert.Equal("List`1", new EntityType(typeof(List<Customer>), new Model()).Name);
         }
 
         [Fact]
         public void Simple_name_is_part_of_name_following_final_separator_when_no_CLR_type()
         {
-            Assert.Equal("Everything", new EntityType("Everything", new Model()).SimpleName);
-            Assert.Equal("Is", new EntityType("Everything.Is", new Model()).SimpleName);
-            Assert.Equal("Awesome", new EntityType("Everything.Is.Awesome", new Model()).SimpleName);
-            Assert.Equal("WhenWe`reLivingOurDream", new EntityType("Everything.Is.Awesome+WhenWe`reLivingOurDream", new Model()).SimpleName);
+            Assert.Equal("Everything", new EntityType("Everything", new Model()).Name);
+            Assert.Equal("Is", new EntityType("Everything.Is", new Model()).Name);
+            Assert.Equal("Awesome", new EntityType("Everything.Is.Awesome", new Model()).Name);
+            Assert.Equal("WhenWe`reLivingOurDream", new EntityType("Everything.Is.Awesome+WhenWe`reLivingOurDream", new Model()).Name);
         }
 
         [Fact]

@@ -1040,7 +1040,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
             else
             {
-                var baseName = (string.IsNullOrEmpty(navigationToPrincipal) ? principalType.SimpleName : navigationToPrincipal);
+                var baseName = (string.IsNullOrEmpty(navigationToPrincipal) ? principalType.Name : navigationToPrincipal);
 
                 if (principalKey == null)
                 {

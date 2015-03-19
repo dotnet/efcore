@@ -49,8 +49,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             entityType.Relational().Table = "Customizer";
 
-            Assert.Equal("Customer", entityType.SimpleName);
-            Assert.Equal("Customer", ((IEntityType)entityType).SimpleName);
+            Assert.Equal("Customer", entityType.Name);
+            Assert.Equal("Customer", ((IEntityType)entityType).Name);
             Assert.Equal("Customizer", entityType.Relational().Table);
             Assert.Equal("Customizer", ((IEntityType)entityType).Relational().Table);
 

@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEntityType RootType => null;
         
-        public string SimpleName => typeof(TEntity).Name;
+        public string Name => typeof(TEntity).Name;
 
         protected abstract IKey LoadKey();
 

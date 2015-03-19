@@ -197,9 +197,9 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual string FullName => Type?.FullName ?? (string)_typeOrName;
 
-        public virtual string SimpleName => Type?.Name ?? ParseSimpleName();
+        public virtual string Name => Type?.Name ?? ParseName();
 
-        private string ParseSimpleName()
+        private string ParseName()
         {
             var fullName = (string)_typeOrName;
             var lastDot = fullName.LastIndexOfAny(_simpleNameChars);

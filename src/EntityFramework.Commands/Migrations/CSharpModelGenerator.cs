@@ -237,7 +237,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
             var tableName = entityType.Relational().Table;
             var schema = entityType.Relational().Schema;
-            if (tableName != entityType.SimpleName
+            if (tableName != entityType.Name
                 || schema != null)
             {
                 stringBuilder
