@@ -273,44 +273,57 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitInExpression(InExpression inExpression)
         {
-            VisitExpression(inExpression.Column);
+            var inValues = ProcessInExpressionValues(inExpression.Values);
+            if (inValues.Count > 0)
+            {
+                VisitExpression(inExpression.Column);
 
-            _sql.Append(" IN (");
+                _sql.Append(" IN (");
 
-            VisitInExpressionValues(inExpression.Values);
+                VisitJoin(inValues);
 
-            _sql.Append(")");
+                _sql.Append(")");
+            }
+            else
+            {
+                _sql.Append("1 = 0");
+            }
 
             return inExpression;
         }
 
         protected virtual Expression VisitNotInExpression(InExpression inExpression)
         {
-            VisitExpression(inExpression.Column);
+            var inValues = ProcessInExpressionValues(inExpression.Values);
+            if (inValues.Count > 0)
+            {
+                VisitExpression(inExpression.Column);
 
-            _sql.Append(" NOT IN (");
+                _sql.Append(" NOT IN (");
 
-            VisitInExpressionValues(inExpression.Values);
+                VisitJoin(inValues);
 
-            _sql.Append(")");
+                _sql.Append(")");
+            }
+            else
+            {
+                _sql.Append("1 = 1");
+            }
 
             return inExpression;
         }
 
-        protected virtual void VisitInExpressionValues(IReadOnlyList<Expression> inExpressionValues)
+        protected virtual IReadOnlyList<Expression> ProcessInExpressionValues(
+            IReadOnlyList<Expression> inExpressionValues)
         {
-            bool first = true;
+            var inConstants = new List<Expression>();
             foreach (var inValue in inExpressionValues)
             {
-                if (!first)
-                {
-                    _sql.Append(", ");
-                }
-
                 var inConstant = inValue as ConstantExpression;
                 if (inConstant != null)
                 {
-                    VisitConstantExpression(inConstant);
+                    inConstants.Add(inConstant);
+                    continue;
                 }
 
                 var inParameter = inValue as ParameterExpression;
@@ -325,24 +338,17 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     {
                         foreach (var value in valuesCollection)
                         {
-                            if (!first)
-                            {
-                                _sql.Append(", ");
-                            }
-
-                            _sql.Append(GenerateLiteral((dynamic)value));
-
-                            first = false;
+                            inConstants.Add(Expression.Constant(value));
                         }
                     }
                     else
                     {
-                        VisitParameterExpression(inParameter);
+                        inConstants.Add(inParameter);
                     }
                 }
-
-                first = false;
             }
+
+            return inConstants;
         }
 
         public virtual Expression VisitInnerJoinExpression(InnerJoinExpression innerJoinExpression)

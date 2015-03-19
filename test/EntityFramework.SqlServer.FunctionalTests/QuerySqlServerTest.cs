@@ -2231,6 +2231,28 @@ WHERE [c].[CustomerID] IN ('ALFKI', 'ABC'')); GO; DROP TABLE Orders; GO; --', 'A
                 Sql);
         }
 
+        public override void Contains_with_local_collection_empty_closure()
+        {
+            base.Contains_with_local_collection_empty_closure();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 1 = 0",
+        Sql);
+        }
+
+        public override void Contains_with_local_collection_empty_inline()
+        {
+            base.Contains_with_local_collection_empty_inline();
+
+            Assert.Equal(
+    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 1 = 1",
+                Sql);
+        }
+
         public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture)
             : base(fixture)
         {

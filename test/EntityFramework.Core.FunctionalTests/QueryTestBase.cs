@@ -2731,6 +2731,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Contains_with_local_collection_empty_closure()
+        {
+            string[] ids = new string[0];
+
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 0);
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_collection_empty_inline()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => !(new List<string> { }.Contains(c.CustomerID))), entryCount: 91);
+        }
+
+        [Fact]
         public virtual void Contains_top_level()
         {
             AssertQuery<Customer>(cs =>
