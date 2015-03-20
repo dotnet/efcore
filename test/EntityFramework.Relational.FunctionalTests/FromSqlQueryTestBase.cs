@@ -75,6 +75,39 @@ WHERE Customers.City = 'London'"),
         }
 
         [Fact]
+        public virtual void From_sql_queryable_with_params_parameters()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+
+            AssertQuery<Customer>(
+                cs => cs.FromSql(@"SELECT * FROM Customers WHERE City = {0} AND ContactTitle = {1}", city, contactTitle),
+                cs => cs.Where(c => c.City == city && c.ContactTitle == contactTitle),
+                entryCount: 3);
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_with_params_parameters_does_not_collide_with_cache()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+            var sql = @"SELECT * FROM Customers WHERE City = {0} AND ContactTitle = {1}";
+
+            AssertQuery<Customer>(
+                cs => cs.FromSql(sql, city, contactTitle),
+                cs => cs.Where(c => c.City == city && c.ContactTitle == contactTitle),
+                entryCount: 3);
+
+            city = "Madrid";
+            contactTitle = "Accounting Manager";
+
+            AssertQuery<Customer>(
+                cs => cs.FromSql(sql, city, contactTitle),
+                cs => cs.Where(c => c.City == city && c.ContactTitle == contactTitle),
+                entryCount: 2);
+        }
+
+        [Fact]
         public virtual void From_sql_annotations_do_not_modify_successive_calls()
         {
             using (var context = CreateContext())

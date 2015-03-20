@@ -91,6 +91,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 (fromSqlAnnotation != null)
                     ? (TableExpressionBase)new RawSqlDerivedTableExpression(
                         fromSqlAnnotation.Sql,
+                        fromSqlAnnotation.Parameters,
                         alias,
                         _querySource)
                     : new TableExpression(

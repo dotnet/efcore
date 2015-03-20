@@ -186,7 +186,20 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             using (_sql.Indent())
             {
-                _sql.AppendLines(rawSqlDerivedTableExpression.Sql);
+                var substitutions = new string[rawSqlDerivedTableExpression.Parameters.Count()];
+
+                for (var index = 0; index < rawSqlDerivedTableExpression.Parameters.Count(); index++)
+                {
+                    var parameterName = "p" + index;
+
+                    _parameters.Add(parameterName);
+                    _parameterValues.Add(parameterName, rawSqlDerivedTableExpression.Parameters[index]);
+                    substitutions[index] = ParameterPrefix + parameterName;
+                }
+
+                _sql.AppendLines(string.Format(
+                    rawSqlDerivedTableExpression.Sql,
+                    substitutions));
             }
 
             _sql.Append(") AS ")
@@ -669,8 +682,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     return VisitNotInExpression(inExpression);
                 }
 
-                var isColumnOrParameterOperand = 
-                    unaryExpression.Operand is ColumnExpression 
+                var isColumnOrParameterOperand =
+                    unaryExpression.Operand is ColumnExpression
                     || unaryExpression.Operand is ParameterExpression;
 
                 if (!isColumnOrParameterOperand)

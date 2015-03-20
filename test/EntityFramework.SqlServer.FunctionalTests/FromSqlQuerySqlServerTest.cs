@@ -81,6 +81,36 @@ FROM (
                 Sql);
         }
 
+        public override void From_sql_queryable_with_params_parameters()
+        {
+            base.From_sql_queryable_with_params_parameters();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1
+) AS [c]",
+                Sql);
+        }
+
+        public override void From_sql_queryable_with_params_parameters_does_not_collide_with_cache()
+        {
+            base.From_sql_queryable_with_params_parameters_does_not_collide_with_cache();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1
+) AS [c]
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1
+) AS [c]",
+                Sql);
+        }
+
+
         public override void From_sql_annotations_do_not_modify_successive_calls()
         {
             base.From_sql_annotations_do_not_modify_successive_calls();

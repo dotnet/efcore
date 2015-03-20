@@ -21,5 +21,16 @@ namespace Microsoft.Data.Entity
 
             return ((IAnnotatableQueryable<TEntity>)dbSet).AnnotateQuery(new FromSqlAnnotation(sql));
         }
+
+        public static IQueryable<TEntity> FromSql<TEntity>([NotNull]this DbSet<TEntity> dbSet, [NotNull]string sql, [NotNull] params object[] parameters)
+            where TEntity : class
+        {
+            Check.NotNull(dbSet, nameof(dbSet));
+            Check.NotEmpty(sql, nameof(sql));
+            Check.NotNull(parameters, nameof(parameters));
+
+            return ((IAnnotatableQueryable<TEntity>)dbSet).AnnotateQuery(
+                new FromSqlAnnotation(sql, parameters));
+        }
     }
 }
