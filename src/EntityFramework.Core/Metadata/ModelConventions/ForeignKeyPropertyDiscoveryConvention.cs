@@ -162,24 +162,28 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var foreignKeyProperties = new List<Property>();
             foreach (var referencedProperty in propertiesToReference)
             {
-                var propertyName = baseName + referencedProperty.Name;
-                var propertyFound = false;
-                foreach (var property in entityType.Properties)
-                {
-                    if (property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase)
-                        && !property.IsShadowProperty
-                        && property.UnderlyingType == referencedProperty.UnderlyingType)
-                    {
-                        propertyFound = true;
-                        foreignKeyProperties.Add(property);
-                        break;
-                    }
-                }
+                var property = TryGetProperty(entityType, baseName + referencedProperty.Name, referencedProperty.UnderlyingType);
 
-                if (!propertyFound)
+                if (property != null)
                 {
-                    return null;
+                    foreignKeyProperties.Add(property);
                 }
+            }
+
+            if (propertiesToReference.Count == 1
+                && foreignKeyProperties.Count == 0)
+            {
+                var property = TryGetProperty(entityType, baseName + "Id", propertiesToReference.Single().UnderlyingType);
+
+                if (property != null)
+                {
+                    foreignKeyProperties.Add(property);
+                }
+            }
+
+            if (foreignKeyProperties.Count < propertiesToReference.Count)
+            {
+                return null;
             }
 
             if (foreignKey.IsRequired == false
@@ -198,6 +202,20 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             }
 
             return foreignKeyProperties;
+        }
+
+        private Property TryGetProperty(EntityType entityType, string name, Type type)
+        {
+            foreach (var property in entityType.Properties)
+            {
+                if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
+                        && !property.IsShadowProperty
+                        && property.UnderlyingType == type)
+                {
+                    return property;
+                }
+            }
+            return null;
         }
     }
 }

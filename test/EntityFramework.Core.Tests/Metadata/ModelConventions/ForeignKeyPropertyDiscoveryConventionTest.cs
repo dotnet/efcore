@@ -82,10 +82,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Returns_same_builder_if_no_matching_clr_properties_found()
         {
-            DependentType.Property(DependentEntity.SomeNavIDProperty, ConfigurationSource.Convention);
-            DependentType.Property(DependentEntity.IDProperty, ConfigurationSource.Convention);
-            DependentType.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention);
-
             var relationshipBuilder = DependentType.Relationship(
                 PrincipalType,
                 DependentType,
@@ -109,6 +105,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         public void Matches_navigation_plus_PK_name_property()
         {
             var fkProperty = DependentType.Property(DependentEntity.SomeNavPeEKaYProperty, ConfigurationSource.Convention).Metadata;
+            DependentType.Property(DependentEntity.SomeNavIDProperty, ConfigurationSource.Convention);
             DependentType.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention);
             DependentType.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
             DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
@@ -171,9 +168,67 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         }
 
         [Fact]
+        public void Matches_navigation_plus_Id_property()
+        {
+            var fkProperty = DependentType.Property(DependentEntity.SomeNavIDProperty, ConfigurationSource.Convention).Metadata;
+            DependentType.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention);
+            DependentType.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
+            DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
+
+            var dependentEntityTypeBuilder = DependentType;
+            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+                PrincipalType,
+                dependentEntityTypeBuilder,
+                "SomeNav",
+                null,
+                null,
+                null,
+                ConfigurationSource.Convention,
+                isUnique: false);
+
+            var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
+            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+
+            var fk = (IForeignKey)DependentType.Metadata.ForeignKeys.Single();
+            Assert.Same(fk, newRelationshipBuilder.Metadata);
+            Assert.Same(fkProperty, fk.Properties.Single());
+            Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
+            Assert.False(fk.IsUnique);
+            Assert.True(fk.IsRequired);
+        }
+
+        [Fact]
         public void Matches_principal_type_plus_PK_name_property()
         {
             var fkProperty = DependentType.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention).Metadata;
+            DependentType.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention);
+            DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
+
+            var relationshipBuilder = DependentType.Relationship(
+                PrincipalType,
+                DependentType,
+                "SomeNav",
+                null,
+                null,
+                null,
+                ConfigurationSource.Convention,
+                isUnique: true);
+
+            var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
+            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+
+            var fk = (IForeignKey)DependentType.Metadata.ForeignKeys.Single();
+            Assert.Same(fk, newRelationshipBuilder.Metadata);
+            Assert.Same(fkProperty, fk.Properties.Single());
+            Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
+            Assert.True(fk.IsUnique);
+            Assert.True(fk.IsRequired);
+        }
+
+        [Fact]
+        public void Matches_principal_type_plus_Id_property()
+        {
+            var fkProperty = DependentType.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention).Metadata;
             DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
 
             var relationshipBuilder = DependentType.Relationship(
@@ -233,6 +288,33 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         public void Matches_PK_name_property()
         {
             var fkProperty = DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention).Metadata;
+            DependentType.Property(DependentEntity.IDProperty, ConfigurationSource.Convention);
+
+            var relationshipBuilder = DependentType.Relationship(
+                PrincipalType,
+                DependentType,
+                "SomeNav",
+                null,
+                null,
+                null,
+                ConfigurationSource.Convention,
+                isUnique: true);
+
+            var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
+            Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
+
+            var fk = (IForeignKey)DependentType.Metadata.ForeignKeys.Single();
+            Assert.Same(fk, newRelationshipBuilder.Metadata);
+            Assert.Same(fkProperty, fk.Properties.Single());
+            Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
+            Assert.True(fk.IsUnique);
+            Assert.True(fk.IsRequired);
+        }
+
+        [Fact]
+        public void Matches_Id_property()
+        {
+            var fkProperty = DependentType.Property(DependentEntity.IDProperty, ConfigurationSource.Convention).Metadata;
 
             var relationshipBuilder = DependentType.Relationship(
                 PrincipalType,
