@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.Builders;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -76,7 +77,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .EntityBuilderExtension("V1")
                 .EntityBuilderExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder>(returnedBuilder);
+            Assert.IsType<EntityBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -116,7 +117,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .EntityBuilderExtension("V1")
                 .EntityBuilderExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<EntityBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -156,7 +157,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .GenericEntityBuilderExtension("V1")
                 .GenericEntityBuilderExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<EntityBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -198,7 +199,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .KeyBuilderExtension("V1")
                 .KeyBuilderExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder.KeyBuilder>(returnedBuilder);
+            Assert.IsType<KeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var key = model.GetEntityType(typeof(Gunter)).GetPrimaryKey();
@@ -240,7 +241,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .PropertyBuilderExtension("V1")
                 .PropertyBuilderExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder.PropertyBuilder>(returnedBuilder);
+            Assert.IsType<PropertyBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var property = model.GetEntityType(typeof(Gunter)).GetProperty("Id");
@@ -305,7 +306,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .IndexBuilderExtension("V1")
                 .IndexBuilderExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder.IndexBuilder>(returnedBuilder);
+            Assert.IsType<IndexBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var index = model.GetEntityType(typeof(Gunter)).Indexes.Single();
@@ -325,7 +326,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .OneToManyBuilderExtension("V1")
                 .OneToManyBuilderExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder<Gunter>.OneToManyBuilder<Gate>>(returnedBuilder);
+            Assert.IsType<OneToManyBuilder<Gunter, Gate>>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
@@ -345,7 +346,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ManyToOneBuilderExtension("V1")
                 .ManyToOneBuilderExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder<Gate>.ManyToOneBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<ManyToOneBuilder<Gate, Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
@@ -366,7 +367,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .OneToOneBuilderExtension("V1")
                 .OneToOneBuilderExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder.OneToOneBuilder>(returnedBuilder);
+            Assert.IsType<OneToOneBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Avatar)).ForeignKeys.Single();
@@ -442,7 +443,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder>(returnedBuilder);
+            Assert.IsType<EntityBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -482,7 +483,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<EntityBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -522,7 +523,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<EntityBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -564,7 +565,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder.KeyBuilder>(returnedBuilder);
+            Assert.IsType<KeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var key = model.GetEntityType(typeof(Gunter)).GetPrimaryKey();
@@ -606,7 +607,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder.PropertyBuilder>(returnedBuilder);
+            Assert.IsType<PropertyBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var property = model.GetEntityType(typeof(Gunter)).GetProperty("Id");
@@ -671,7 +672,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder.IndexBuilder>(returnedBuilder);
+            Assert.IsType<IndexBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var index = model.GetEntityType(typeof(Gunter)).Indexes.Single();
@@ -691,7 +692,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder<Gunter>.OneToManyBuilder<Gate>>(returnedBuilder);
+            Assert.IsType<OneToManyBuilder<Gunter, Gate>>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
@@ -711,7 +712,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder<Gate>.ManyToOneBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<ManyToOneBuilder<Gate, Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
@@ -732,7 +733,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ModelBuilder.EntityBuilder.OneToOneBuilder>(returnedBuilder);
+            Assert.IsType<OneToOneBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Avatar)).ForeignKeys.Single();

@@ -80,6 +80,20 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>Extensions\Internal\LoggingExtensions.cs</Link>
     </Compile>
+    <Compile Include="Builders\CollectionNavigationBuilder.cs" />
+    <Compile Include="Builders\CollectionNavigationBuilder`.cs" />
+    <Compile Include="Builders\EntityBuilder.cs" />
+    <Compile Include="Builders\EntityBuilder`.cs" />
+    <Compile Include="Builders\IndexBuilder.cs" />
+    <Compile Include="Builders\KeyBuilder.cs" />
+    <Compile Include="Builders\ManyToOneBuilder.cs" />
+    <Compile Include="Builders\ManyToOneBuilder`.cs" />
+    <Compile Include="Builders\OneToManyBuilder.cs" />
+    <Compile Include="Builders\OneToManyBuilder`.cs" />
+    <Compile Include="Builders\OneToOneBuilder.cs" />
+    <Compile Include="Builders\PropertyBuilder.cs" />
+    <Compile Include="Builders\ReferenceNavigationBuilder.cs" />
+    <Compile Include="Builders\ReferenceNavigationBuilder`.cs" />
     <Compile Include="ChangeTracking\Internal\ArraySidecar.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetector.cs" />
     <Compile Include="ChangeTracking\Internal\IChangeDetector.cs" />

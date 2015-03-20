@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Data.Entity.Builders;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
@@ -6633,7 +6634,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.False(entityType.ForeignKeys.Single().IsRequired);
         }
 
-        private static void AssertIsGenericOneToMany(ModelBuilder.EntityBuilder<Customer>.OneToManyBuilder<Order> _)
+        private static void AssertIsGenericOneToMany(OneToManyBuilder<Customer, Order> _)
         {
         }
 
@@ -6693,7 +6694,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.False(entityType.ForeignKeys.Single().IsRequired);
         }
 
-        private static void AssertIsGenericManyToOne(ModelBuilder.EntityBuilder<Order>.ManyToOneBuilder<Customer> _)
+        private static void AssertIsGenericManyToOne(ManyToOneBuilder<Order, Customer> _)
         {
         }
 
