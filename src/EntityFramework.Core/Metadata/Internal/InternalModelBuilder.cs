@@ -20,11 +20,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private readonly LazyRef<Dictionary<string, ConfigurationSource>> _ignoredEntityTypeNames =
             new LazyRef<Dictionary<string, ConfigurationSource>>(() => new Dictionary<string, ConfigurationSource>());
 
-        public InternalModelBuilder([NotNull] Model metadata)
-            : this(metadata, new ConventionSet())
-        {
-        }
-
         public InternalModelBuilder([NotNull] Model metadata, [NotNull] ConventionSet conventions)
             : base(metadata)
         {

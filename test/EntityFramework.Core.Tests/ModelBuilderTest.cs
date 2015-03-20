@@ -9,12 +9,59 @@ using System.Reflection;
 using Microsoft.Data.Entity.Builders;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata
 {
     public class ModelBuilderTest
     {
+        [Fact]
+        public void Can_create_a_model_builder_with_given_conventions_and_model()
+        {
+            var convention = new TestConvention();
+            var conventions = new ConventionSet();
+            conventions.EntityTypeAddedConventions.Add(convention);
+
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(conventions, model);
+
+            Assert.Same(model, modelBuilder.Model);
+
+            modelBuilder.Entity<Random>();
+
+            Assert.True(convention.Applied);
+            Assert.NotNull(model.GetEntityType(typeof(Random)));
+        }
+
+        [Fact]
+        public void Can_create_a_model_builder_with_given_conventions_only()
+        {
+            var convention = new TestConvention();
+            var conventions = new ConventionSet();
+            conventions.EntityTypeAddedConventions.Add(convention);
+
+            var modelBuilder = new ModelBuilder(conventions);
+
+            modelBuilder.Entity<Random>();
+
+            Assert.True(convention.Applied);
+            Assert.NotNull(modelBuilder.Model.GetEntityType(typeof(Random)));
+        }
+
+        private class TestConvention : IEntityTypeConvention
+        {
+            public bool Applied { get; set; }
+
+            public InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
+            {
+                Applied = true;
+
+                return entityBuilder;
+            }
+        }
+
         [Fact]
         public void Can_get_entity_builder_for_clr_type()
         {

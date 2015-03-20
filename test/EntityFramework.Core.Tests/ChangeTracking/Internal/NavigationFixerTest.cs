@@ -909,8 +909,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         private static IModel BuildModel()
         {
-            var model = new Model();
-            var builder = new ModelBuilderFactory().CreateConventionBuilder(model);
+            var builder = new ModelBuilderFactory().CreateConventionBuilder();
 
             builder.Entity<Product>(b =>
                 {
@@ -941,7 +940,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             builder.Entity<ProductTag>();
 
-            return model;
+            return builder.Model;
         }
 
         private static INavigationFixer CreateNavigationFixer(IServiceProvider contextServices)

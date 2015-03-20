@@ -3,6 +3,7 @@
 
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -11,7 +12,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     {
         private InternalMetadataBuilder<Model> CreateInternalMetadataBuilder()
         {
-            return new InternalModelBuilder(new Model());
+            return new InternalModelBuilder(new Model(), new ConventionSet());
         }
 
         [Fact]

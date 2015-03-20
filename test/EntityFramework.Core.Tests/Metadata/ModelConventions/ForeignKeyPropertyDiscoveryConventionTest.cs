@@ -940,7 +940,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
         private static InternalModelBuilder BuildModel()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
 
             var principalType = modelBuilder.Entity(typeof(PrincipalEntity), ConfigurationSource.Explicit);
             principalType.PrimaryKey(new[] { "PeeKay" }, ConfigurationSource.Explicit);

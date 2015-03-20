@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -236,7 +237,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)
         {
-            return new InternalModelBuilder(model ?? new Model());
+            return new InternalModelBuilder(model ?? new Model(), new ConventionSet());
         }
 
         private class Customer

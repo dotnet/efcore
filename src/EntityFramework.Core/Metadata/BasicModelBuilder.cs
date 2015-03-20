@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -22,14 +23,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(model, nameof(model));
 
-            _builder = new InternalModelBuilder(model);
-        }
-
-        protected internal BasicModelBuilder([NotNull] InternalModelBuilder internalBuilder)
-        {
-            Check.NotNull(internalBuilder, nameof(internalBuilder));
-
-            _builder = internalBuilder;
+            _builder = new InternalModelBuilder(model, new ConventionSet());
         }
 
         public virtual Model Model

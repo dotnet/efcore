@@ -937,15 +937,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal("V1", entityType.Indexes.Last()["A1"]);
         }
 
-        [Fact]
-        public void Can_convert_to_convention_builder()
-        {
-            var model = new Model();
-            var modelBuilder = new BasicModelBuilder(model);
-
-            Assert.Same(model, new ModelBuilder(modelBuilder.Model).Model);
-        }
-
         private class Customer
         {
             public int Id { get; set; }

@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
         private static InternalEntityBuilder CreateInternalEntityBuilder<T>()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
 
             return entityBuilder;

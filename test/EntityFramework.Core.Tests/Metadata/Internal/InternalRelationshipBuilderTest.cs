@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata.Internal
@@ -209,7 +210,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
 
         private InternalModelBuilder CreateInternalModelBuilder()
         {
-            return new InternalModelBuilder(new Model());
+            return new InternalModelBuilder(new Model(), new ConventionSet());
         }
 
         private class Order

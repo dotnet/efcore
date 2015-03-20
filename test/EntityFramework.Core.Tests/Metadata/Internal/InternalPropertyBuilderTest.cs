@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -181,7 +182,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Can_only_override_existing_Shadow_value_explicitly()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var builder = entityBuilder.Property(Customer.NameProperty.PropertyType, Customer.NameProperty.Name, ConfigurationSource.Explicit);
             var metadata = builder.Metadata;
@@ -228,7 +229,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalPropertyBuilder CreateInternalPropertyBuilder()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
             return entityBuilder.Property(Customer.NameProperty, ConfigurationSource.Convention);
         }

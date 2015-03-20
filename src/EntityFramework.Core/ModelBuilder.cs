@@ -33,54 +33,32 @@ namespace Microsoft.Data.Entity
         // Issue #213
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ModelBuilder" /> class with an empty model.
-        ///     The builder will not use any conventions and the entire model must be explicitly configured.
-        ///     To specify conventions to be used, use a constructor that accepts a <see cref="ConventionSet" />.
-        /// </summary>
-        public ModelBuilder()
-            : this(new Model())
-        {
-        }
-
-        /// <summary>
         ///     Initializes a new instance of the <see cref="ModelBuilder" /> class that will
-        ///     configure an existing model. The builder will not use any conventions and the
-        ///     entire model must be explicitly configured. To specify conventions to be used,
-        ///     use a constructor that accepts a <see cref="ConventionSet" />.
+        ///     apply a set of conventions. Consider using a <see cref="IModelBuilderFactory" /> to
+        ///     create a ModelBuilder with appropriate conventions configured.
         /// </summary>
-        /// <param name="model"> The model to be configured. </param>
-        public ModelBuilder([NotNull] Model model)
-            : this(model, new ConventionSet())
-        {
-            Check.NotNull(model, nameof(model));
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ModelBuilder" /> class that will
-        ///     configure an existing model and apply a set of conventions.
-        /// </summary>
-        /// <param name="model"> The model to be configured. </param>
         /// <param name="conventions"> The conventions to be applied to the model. </param>
-        public ModelBuilder([NotNull] Model model, [NotNull] ConventionSet conventions)
+        public ModelBuilder([NotNull] ConventionSet conventions)
+        {
+            Check.NotNull(conventions, nameof(conventions));
+
+            _builder = new InternalModelBuilder(new Model(), conventions);
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ModelBuilder" /> class that will
+        ///     configure an existing model and apply a set of conventions. Consider using a
+        ///     <see cref="IModelBuilderFactory" /> to create a ModelBuilder with appropriate
+        ///     conventions configured.
+        /// </summary>
+        /// <param name="conventions"> The conventions to be applied to the model. </param>
+        /// <param name="model"> The model to be configured. </param>
+        public ModelBuilder([NotNull] ConventionSet conventions, [NotNull] Model model)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(conventions, nameof(conventions));
 
             _builder = new InternalModelBuilder(model, conventions);
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ModelBuilder" /> class that will
-        ///     configure an existing model. The builder will not use any conventions and the
-        ///     entire model must be explicitly configured. To specify conventions to be used,
-        ///     use a constructor that accepts a <see cref="ConventionSet" />.
-        /// </summary>
-        /// <param name="internalBuilder"> The internal builder being used to configure the model. </param>
-        protected internal ModelBuilder([NotNull] InternalModelBuilder internalBuilder)
-        {
-            Check.NotNull(internalBuilder, nameof(internalBuilder));
-
-            _builder = internalBuilder;
         }
 
         /// <summary>
