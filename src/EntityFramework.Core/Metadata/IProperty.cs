@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata
         bool IsReadOnly { get; }
         bool UseStoreDefault { get; }
         bool IsStoreComputed { get; }
-        bool GenerateValueOnAdd { get; }
+        bool IsValueGeneratedOnAdd { get; }
         int Index { get; }
         int ShadowIndex { get; }
         int OriginalValueIndex { get; }

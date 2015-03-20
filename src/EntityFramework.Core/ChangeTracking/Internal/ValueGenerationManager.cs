@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 var isForeignKey = property.IsForeignKey();
 
-                if ((property.GenerateValueOnAdd || isForeignKey)
+                if ((property.IsValueGeneratedOnAdd || isForeignKey)
                     && property.IsSentinelValue(entry[property]))
                 {
                     if (isForeignKey)
@@ -47,7 +47,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual bool MayGetTemporaryValue(IProperty property)
-            => property.GenerateValueOnAdd && _valueGeneratorSelector.Select(property).GeneratesTemporaryValues;
+            => property.IsValueGeneratedOnAdd 
+                && _valueGeneratorSelector.Select(property).GeneratesTemporaryValues;
 
         private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object generatedValue, bool isTemporary)
         {

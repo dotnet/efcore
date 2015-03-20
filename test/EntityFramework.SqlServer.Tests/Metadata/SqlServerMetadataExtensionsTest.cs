@@ -671,7 +671,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
             Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
             Assert.Null(property.GenerateValueOnAdd);
-            Assert.False(((IProperty)property).GenerateValueOnAdd);
+            Assert.False(((IProperty)property).IsValueGeneratedOnAdd);
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
 
@@ -699,7 +699,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
             Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
             Assert.Null(property.GenerateValueOnAdd);
-            Assert.False(((IProperty)property).GenerateValueOnAdd);
+            Assert.False(((IProperty)property).IsValueGeneratedOnAdd);
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
 

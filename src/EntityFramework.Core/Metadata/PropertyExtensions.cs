@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 var currentProperty = traversalList[index];
 
-                if (currentProperty.GenerateValueOnAdd)
+                if (currentProperty.IsValueGeneratedOnAdd)
                 {
                     return currentProperty;
                 }

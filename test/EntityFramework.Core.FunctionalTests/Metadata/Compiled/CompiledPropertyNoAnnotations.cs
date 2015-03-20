@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public virtual bool IsStoreComputed => false;
 
-        public virtual bool GenerateValueOnAdd => false;
+        public virtual bool IsValueGeneratedOnAdd => false;
 
         public bool IsNullable
         {

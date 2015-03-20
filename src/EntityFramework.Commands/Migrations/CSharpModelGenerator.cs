@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         .Append(".ConcurrencyToken()");
                 }
 
-                if (property.GenerateValueOnAdd)
+                if (property.IsValueGeneratedOnAdd)
                 {
                     stringBuilder
                         .AppendLine()

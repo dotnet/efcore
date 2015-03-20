@@ -487,7 +487,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual bool StoreMustGenerateValue([NotNull] IProperty property)
-            => property.GenerateValueOnAdd && HasTemporaryValue(property)
+            => property.IsValueGeneratedOnAdd && HasTemporaryValue(property)
                || (property.UseStoreDefault && property.IsSentinelValue(this[property]))
                || (property.IsStoreComputed
                    && (EntityState == EntityState.Modified || EntityState == EntityState.Added)

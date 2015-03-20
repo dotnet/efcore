@@ -260,7 +260,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         bool IProperty.IsStoreComputed => IsStoreComputed ?? DefaultIsStoreComputed;
 
-        bool IProperty.GenerateValueOnAdd => GenerateValueOnAdd ?? DefaultGenerateValueOnAdd;
+        bool IProperty.IsValueGeneratedOnAdd => GenerateValueOnAdd ?? DefaultGenerateValueOnAdd;
 
         bool IProperty.IsConcurrencyToken => IsConcurrencyToken ?? DefaultIsConcurrencyToken;
 
