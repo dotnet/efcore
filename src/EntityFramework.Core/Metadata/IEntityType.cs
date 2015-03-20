@@ -18,7 +18,6 @@ namespace Microsoft.Data.Entity.Metadata
         int ShadowPropertyCount { get; }
         int OriginalValueCount { get; }
         bool IsAbstract { get; }
-        bool HasClrType { get; }
         bool UseEagerSnapshots { get; }
         bool HasDerivedTypes { get; }
 

@@ -12,6 +12,13 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class EntityTypeExtensions
     {
+        public static bool HasClrType([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return entityType.Type != null;
+        }
+
         public static IEnumerable<IPropertyBase> GetPropertiesAndNavigations(
             [NotNull] this IEntityType entityType)
         {

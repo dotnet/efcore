@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private InternalEntityEntry NewInternalEntityEntry(IStateManager stateManager, IEntityType entityType, object entity)
         {
-            if (!entityType.HasClrType)
+            if (!entityType.HasClrType())
             {
                 return new InternalShadowEntityEntry(stateManager, entityType, _metadataServices);
             }
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private InternalEntityEntry NewInternalEntityEntry(IStateManager stateManager, IEntityType entityType, object entity, IValueReader valueReader)
         {
-            if (!entityType.HasClrType)
+            if (!entityType.HasClrType())
             {
                 return new InternalShadowEntityEntry(stateManager, entityType, _metadataServices, valueReader);
             }

@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     valueReaderExpression);
             }
 
-            if (!entityType.HasClrType)
+            if (!entityType.HasClrType())
             {
                 throw new InvalidOperationException(Strings.NoClrType(entityType.Name));
             }

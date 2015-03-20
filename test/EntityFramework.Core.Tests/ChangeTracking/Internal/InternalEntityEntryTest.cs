@@ -998,7 +998,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var originalValues = entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
 
-            Assert.True(entry.EntityType.HasClrType == (originalValues != null));
+            Assert.True(entry.EntityType.HasClrType() == (originalValues != null));
             Assert.Null(entry.TryGetSidecar("IMZ-Ural"));
             Assert.Null(entry.TryGetSidecar("GG Duetto"));
 
