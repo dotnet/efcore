@@ -102,8 +102,6 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         private IProperty[] EnsurePropertiesInitialized() 
             => LazyInitializer.EnsureInitialized(ref _properties, LoadProperties);
-        
-        public int ShadowPropertyCount => 0;
 
         public bool UseEagerSnapshots => false;
 

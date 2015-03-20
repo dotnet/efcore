@@ -1348,7 +1348,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(1, entityType.GetProperty("Mane").ShadowIndex);
             Assert.Equal(-1, entityType.GetProperty("Name").ShadowIndex);
 
-            Assert.Equal(2, entityType.ShadowPropertyCount);
+            Assert.Equal(2, entityType.ShadowPropertyCount());
         }
 
         [Fact]
@@ -1368,7 +1368,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(0, entityType.GetProperty("Id").OriginalValueIndex);
             Assert.Equal(-1, entityType.GetProperty("Name").OriginalValueIndex);
 
-            Assert.Equal(1, entityType.ShadowPropertyCount);
+            Assert.Equal(1, entityType.ShadowPropertyCount());
             Assert.Equal(1, entityType.OriginalValueCount());
 
             var gameProperty = entityType.GetOrAddProperty("Game", typeof(int), shadowProperty: true);
@@ -1392,7 +1392,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(2, entityType.GetProperty("Mane").OriginalValueIndex);
             Assert.Equal(-1, entityType.GetProperty("Name").OriginalValueIndex);
 
-            Assert.Equal(3, entityType.ShadowPropertyCount);
+            Assert.Equal(3, entityType.ShadowPropertyCount());
             Assert.Equal(3, entityType.OriginalValueCount());
 
             gameProperty.IsConcurrencyToken = false;
@@ -1413,7 +1413,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(1, entityType.GetProperty("Mane").OriginalValueIndex);
             Assert.Equal(2, entityType.GetProperty("Name").OriginalValueIndex);
 
-            Assert.Equal(3, entityType.ShadowPropertyCount);
+            Assert.Equal(3, entityType.ShadowPropertyCount());
             Assert.Equal(3, entityType.OriginalValueCount());
 
             gameProperty.IsShadowProperty = false;
@@ -1434,7 +1434,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(1, entityType.GetProperty("Mane").OriginalValueIndex);
             Assert.Equal(2, entityType.GetProperty("Name").OriginalValueIndex);
 
-            Assert.Equal(3, entityType.ShadowPropertyCount);
+            Assert.Equal(3, entityType.ShadowPropertyCount());
             Assert.Equal(3, entityType.OriginalValueCount());
         }
 

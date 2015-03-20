@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IEntityEntryMetadataServices metadataServices)
             : base(stateManager, entityType, metadataServices)
         {
-            _propertyValues = new object[entityType.ShadowPropertyCount];
+            _propertyValues = new object[entityType.ShadowPropertyCount()];
         }
 
         public InternalShadowEntityEntry(

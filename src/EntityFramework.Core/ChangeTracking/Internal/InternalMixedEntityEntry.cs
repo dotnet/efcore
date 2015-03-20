@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             : base(stateManager, entityType, metadataServices)
         {
             Entity = entity;
-            _shadowValues = new object[entityType.ShadowPropertyCount];
+            _shadowValues = new object[entityType.ShadowPropertyCount()];
         }
 
         public InternalMixedEntityEntry(
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private object[] ExtractShadowValues(IValueReader valueReader)
         {
-            var shadowValues = new object[EntityType.ShadowPropertyCount];
+            var shadowValues = new object[EntityType.ShadowPropertyCount()];
 
             foreach (var property in EntityType.GetProperties().Where(property => property.IsShadowProperty))
             {

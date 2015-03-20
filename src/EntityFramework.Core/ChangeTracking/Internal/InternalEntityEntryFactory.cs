@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             Debug.Assert(entity != null);
 
-            return entityType.ShadowPropertyCount > 0
+            return entityType.ShadowPropertyCount() > 0
                 ? (InternalEntityEntry)new InternalMixedEntityEntry(stateManager, entityType, _metadataServices, entity)
                 : new InternalClrEntityEntry(stateManager, entityType, _metadataServices, entity);
         }
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return new InternalShadowEntityEntry(stateManager, entityType, _metadataServices, valueReader);
             }
 
-            return entityType.ShadowPropertyCount > 0
+            return entityType.ShadowPropertyCount() > 0
                 ? (InternalEntityEntry)new InternalMixedEntityEntry(stateManager, entityType, _metadataServices, entity, valueReader)
                 : new InternalClrEntityEntry(stateManager, entityType, _metadataServices, entity);
         }

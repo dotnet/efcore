@@ -977,7 +977,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         private void UpdateShadowIndexes()
         {
-            var shadowIndex = BaseType?.ShadowPropertyCount ?? 0;
+            var shadowIndex = BaseType?.ShadowPropertyCount() ?? 0;
 
             foreach (var property in _properties.Values.Where(p => p.IsShadowProperty))
             {

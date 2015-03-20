@@ -19,6 +19,13 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType.GetProperties().Count(p => p.OriginalValueIndex >= 0);
         }
 
+        public static int ShadowPropertyCount([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return entityType.GetProperties().Count(p => p.ShadowIndex >= 0);
+        }
+
         public static bool HasClrType([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
