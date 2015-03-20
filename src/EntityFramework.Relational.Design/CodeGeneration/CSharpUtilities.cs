@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
 
         public virtual string GenerateLiteral(long value)
         {
-            return value.ToString(CultureInfo.InvariantCulture + "L");
+            return value.ToString(CultureInfo.InvariantCulture) + "L";
         }
 
         public virtual string GenerateLiteral(decimal value)
