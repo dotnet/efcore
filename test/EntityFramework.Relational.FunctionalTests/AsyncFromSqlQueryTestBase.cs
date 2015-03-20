@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
-    public class AsyncFromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
+    public abstract class AsyncFromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [Fact]
