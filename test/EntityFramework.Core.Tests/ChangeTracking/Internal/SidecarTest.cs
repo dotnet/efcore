@@ -476,7 +476,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             public override ValueGenerator Create(IProperty property)
             {
-                return property.PropertyType == typeof(int)
+                return property.ClrType == typeof(int)
                     ? _inMemoryFactory.Create(property)
                     : base.Create(property);
             }

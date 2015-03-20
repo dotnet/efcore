@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Check.NotNull(sb, nameof(sb));
 
             foreach (var @namespace in _usedNamespaces.Concat(
-                EntityType.GetProperties().Select(p => p.PropertyType.Namespace)
+                EntityType.GetProperties().Select(p => p.ClrType.Namespace)
                     .Distinct().Except(_usedNamespaces).OrderBy(ns => ns)))
             {
                 Generator.CSharpCodeGeneratorHelper.AddUsingStatement(@namespace, sb);

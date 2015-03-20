@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    [DebuggerDisplay("{EntityType.Name,nq}.{Name,nq} ({PropertyType.Name,nq})")]
+    [DebuggerDisplay("{EntityType.Name,nq}.{Name,nq} ({ClrType.Name,nq})")]
     public class Property : PropertyBase, IProperty
     {
         private PropertyFlags _flags;
@@ -22,22 +22,22 @@ namespace Microsoft.Data.Entity.Metadata
         private int _index;
         private int _maxLength = -1;
 
-        public Property([NotNull] string name, [NotNull] Type propertyType, [NotNull] EntityType entityType, bool shadowProperty = false)
+        public Property([NotNull] string name, [NotNull] Type clrType, [NotNull] EntityType entityType, bool shadowProperty = false)
             : base(name)
         {
-            Check.NotNull(propertyType, nameof(propertyType));
+            Check.NotNull(clrType, nameof(clrType));
             Check.NotNull(entityType, nameof(entityType));
 
-            PropertyType = propertyType;
+            ClrType = clrType;
             EntityType = entityType;
             _shadowIndex = shadowProperty ? 0 : -1;
         }
 
-        public virtual Type PropertyType { get; }
+        public virtual Type ClrType { get; }
 
         public override EntityType EntityType { get; }
 
-        public virtual Type UnderlyingType => PropertyType.UnwrapNullableType();
+        public virtual Type UnderlyingType => ClrType.UnwrapNullableType();
 
         public virtual bool? IsNullable
         {
@@ -46,16 +46,16 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (value.HasValue
                     && value.Value
-                    && !PropertyType.IsNullableType())
+                    && !ClrType.IsNullableType())
                 {
-                    throw new InvalidOperationException(Strings.CannotBeNullable(Name, EntityType.DisplayName(), PropertyType.Name));
+                    throw new InvalidOperationException(Strings.CannotBeNullable(Name, EntityType.DisplayName(), ClrType.Name));
                 }
 
                 SetFlag(value, PropertyFlags.IsNullable);
             }
         }
 
-        protected virtual bool DefaultIsNullable => PropertyType.IsNullableType();
+        protected virtual bool DefaultIsNullable => ClrType.IsNullableType();
 
         public virtual bool? UseStoreDefault
         {
@@ -264,7 +264,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         bool IProperty.IsConcurrencyToken => IsConcurrencyToken ?? DefaultIsConcurrencyToken;
 
-        object IProperty.SentinelValue => SentinelValue == null && !PropertyType.IsNullableType() ? PropertyType.GetDefaultValue() : SentinelValue;
+        object IProperty.SentinelValue => SentinelValue == null && !ClrType.IsNullableType() ? ClrType.GetDefaultValue() : SentinelValue;
 
         [Flags]
         private enum PropertyFlags : ushort

@@ -1495,7 +1495,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int?), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.ClrType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
@@ -1533,7 +1533,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int?), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.ClrType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Empty(dependentType.Navigations);
@@ -1570,7 +1570,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int?), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.ClrType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
@@ -1608,7 +1608,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId1", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int?), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.ClrType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Empty(dependentType.Navigations.Where(nav => nav.ForeignKey != existingFk));
@@ -2707,7 +2707,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int?), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.ClrType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
@@ -2745,7 +2745,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int?), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.ClrType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
@@ -2782,7 +2782,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int?), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.ClrType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Empty(dependentType.Navigations);
@@ -2820,7 +2820,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fkProperty = newFk.Properties.Single();
 
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int?), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.ClrType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Empty(dependentType.Navigations.Where(nav => nav.ForeignKey != fk));

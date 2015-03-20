@@ -2439,7 +2439,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             protected static void SetSentinelValues(ModelBuilder modelBuilder)
             {
                 foreach (var property in modelBuilder.Model.EntityTypes.SelectMany(e => e.Properties)
-                    .Where(p => p.PropertyType == typeof(int) || p.PropertyType == typeof(int?)))
+                    .Where(p => p.ClrType == typeof(int) || p.ClrType == typeof(int?)))
                 {
                     property.SentinelValue = -1;
                 }
@@ -2447,7 +2447,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var sentinelGuid = new Guid("{71334AF2-51DE-4015-9CC1-10CE02D151BB}");
 
                 foreach (var property in modelBuilder.Model.EntityTypes.SelectMany(e => e.Properties)
-                    .Where(p => p.PropertyType == typeof(Guid) || p.PropertyType == typeof(Guid?)))
+                    .Where(p => p.ClrType == typeof(Guid) || p.ClrType == typeof(Guid?)))
                 {
                     property.SentinelValue = sentinelGuid;
                 }

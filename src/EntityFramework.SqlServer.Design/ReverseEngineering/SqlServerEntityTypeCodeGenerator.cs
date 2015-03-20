@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             GenerateEntityPropertyAttribues(property, sb);
 
             Generator.CSharpCodeGeneratorHelper.AddProperty(AccessModifier.Public,
-                VirtualModifier.None, property.PropertyType, property.Name, sb);
+                VirtualModifier.None, property.ClrType, property.Name, sb);
         }
 
         public override void GenerateEntityNavigations(IndentedStringBuilder sb)

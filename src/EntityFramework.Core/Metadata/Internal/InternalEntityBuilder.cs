@@ -901,7 +901,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 var properties = foreignKey.Properties;
                 if (!isRequired.Value)
                 {
-                    var nullableTypeProperties = properties.Where(p => p.PropertyType.IsNullableType()).ToList();
+                    var nullableTypeProperties = properties.Where(p => p.ClrType.IsNullableType()).ToList();
                     if (nullableTypeProperties.Any())
                     {
                         properties = nullableTypeProperties;
@@ -910,7 +910,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 foreach (var property in properties)
                 {
-                    if (!dependentEntityTypeBuilder.Property(property.PropertyType, property.Name, ConfigurationSource.Convention)
+                    if (!dependentEntityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
                         .CanSetRequired(isRequired.Value, configurationSource))
                     {
                         if (!existingForeignKey)
@@ -926,7 +926,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 foreach (var property in properties)
                 {
                     // TODO: Depending on resolution of #723 this may change
-                    var requiredSet = dependentEntityTypeBuilder.Property(property.PropertyType, property.Name, ConfigurationSource.Convention)
+                    var requiredSet = dependentEntityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
                         .Required(isRequired.Value, configurationSource);
                     Debug.Assert(requiredSet);
                 }
@@ -1028,7 +1028,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         var foreignKeyProperty = foreignKeyProperties[i];
                         principalKeyProperties[i] = CreateUniqueProperty(
                             foreignKeyProperty.Name,
-                            foreignKeyProperty.PropertyType,
+                            foreignKeyProperty.ClrType,
                             principalEntityTypeBuilder,
                             isRequired);
                     }
@@ -1059,7 +1059,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     var keyProperty = principalKey.Properties[i];
                     fkProperties[i] = CreateUniqueProperty(
                         baseName + keyProperty.Name,
-                        keyProperty.PropertyType.MakeNullable(),
+                        keyProperty.ClrType.MakeNullable(),
                         dependentEntityTypeBuilder,
                         isRequired);
                 }
@@ -1072,7 +1072,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             foreach (var foreignKeyProperty in foreignKeyProperties)
             {
-                dependentEntityTypeBuilder.Property(foreignKeyProperty.PropertyType, foreignKeyProperty.Name, ConfigurationSource.Convention)
+                dependentEntityTypeBuilder.Property(foreignKeyProperty.ClrType, foreignKeyProperty.Name, ConfigurationSource.Convention)
                     .GenerateValueOnAdd(false, ConfigurationSource.Convention);
             }
 
@@ -1159,7 +1159,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
                 else
                 {
-                    InternalProperty(property.PropertyType, property.Name, property.IsShadowProperty, configurationSource);
+                    InternalProperty(property.ClrType, property.Name, property.IsShadowProperty, configurationSource);
                 }
                 list.Add(property);
             }

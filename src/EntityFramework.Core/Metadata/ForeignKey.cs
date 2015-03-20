@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Metadata
                 if (value.HasValue
                     && !value.Value)
                 {
-                    var nullableTypeProperties = Properties.Where(p => p.PropertyType.IsNullableType()).ToList();
+                    var nullableTypeProperties = Properties.Where(p => p.ClrType.IsNullableType()).ToList();
                     if (nullableTypeProperties.Any())
                     {
                         properties = nullableTypeProperties;

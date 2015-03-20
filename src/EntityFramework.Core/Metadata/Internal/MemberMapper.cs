@@ -64,10 +64,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         {
                             throw new InvalidOperationException(Strings.MissingBackingField(entityType.Name, propertyName, fieldName));
                         }
-                        if (!fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(property.PropertyType.GetTypeInfo()))
+                        if (!fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(property.ClrType.GetTypeInfo()))
                         {
                             throw new InvalidOperationException(
-                                Strings.BadBackingFieldType(fieldName, fieldInfo.FieldType.Name, entityType.Name, propertyName, property.PropertyType.Name));
+                                Strings.BadBackingFieldType(fieldName, fieldInfo.FieldType.Name, entityType.Name, propertyName, property.ClrType.Name));
                         }
                         memberInfo = fieldInfo;
                     }

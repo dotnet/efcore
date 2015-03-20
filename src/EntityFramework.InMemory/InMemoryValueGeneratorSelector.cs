@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.InMemory
         {
             Check.NotNull(property, nameof(property));
 
-            return property.PropertyType.IsInteger()
+            return property.ClrType.IsInteger()
                 ? _inMemoryFactory.Create(property)
                 : base.Create(property);
         }

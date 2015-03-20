@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             Check.NotNull(properties, nameof(properties));
             foreach (var property in properties.Where(property => !entityBuilder.Metadata.ForeignKeys.SelectMany(fk => fk.Properties).Contains(property)))
             {
-                entityBuilder.Property(property.PropertyType, property.Name, ConfigurationSource.Convention)
+                entityBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
                     ?.GenerateValueOnAdd(true, ConfigurationSource.Convention);
             }
             // TODO: Nullable, Sequence

@@ -318,7 +318,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
                     var codeGenProperty = codeGenEntityType.AddProperty(
                         nameMapper.PropertyToPropertyNameMap[relationalProperty],
-                        relationalProperty.PropertyType,
+                        relationalProperty.ClrType,
                         shadowProperty: true);
                     _relationalPropertyToCodeGenPropertyMap[relationalProperty] = codeGenProperty;
                     ApplyPropertyProperties(codeGenProperty, _tableColumns[relationalProperty.Name]);
@@ -572,7 +572,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 var defaultExpressionOrValue =
                     _sqlServerLiteralUtilities
                         .ConvertSqlServerDefaultValue(
-                            property.PropertyType, tableColumn.DefaultValue);
+                            property.ClrType, tableColumn.DefaultValue);
                 if (defaultExpressionOrValue != null
                     && defaultExpressionOrValue.DefaultExpression != null)
                 {
@@ -588,7 +588,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     _logger.LogWarning(
                         Strings.UnableToConvertDefaultValue(
                             tableColumn.Id, tableColumn.DefaultValue,
-                            property.PropertyType, property.Name, property.EntityType.Name));
+                            property.ClrType, property.Name, property.EntityType.Name));
                 }
             }
         }

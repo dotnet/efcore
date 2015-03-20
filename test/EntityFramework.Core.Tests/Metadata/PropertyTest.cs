@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
 
             Assert.Equal("Name", property.Name);
-            Assert.Same(typeof(string), property.PropertyType);
+            Assert.Same(typeof(string), property.ClrType);
         }
 
         [Fact]

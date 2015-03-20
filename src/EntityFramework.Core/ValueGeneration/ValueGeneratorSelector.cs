@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
         {
             Check.NotNull(property, nameof(property));
 
-            var propertyType = property.PropertyType;
+            var propertyType = property.ClrType;
 
             if (propertyType == typeof(Guid))
             {

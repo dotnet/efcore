@@ -437,7 +437,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 // Issue #769
                 var extensions = GetPropertyExtensions(property);
                 var typeMapping = typeMapper
-                    .GetTypeMapping(extensions.ColumnType, extensions.Column, property.PropertyType, isKey, property.IsConcurrencyToken);
+                    .GetTypeMapping(extensions.ColumnType, extensions.Column, property.ClrType, isKey, property.IsConcurrencyToken);
 
                 if (columnModification.ParameterName != null)
                 {

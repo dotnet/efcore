@@ -909,7 +909,7 @@ namespace Microsoft.Data.Entity.Metadata
                         throw new InvalidOperationException(Strings.NoClrProperty(property.Name, Name));
                     }
 
-                    if (property.PropertyType != clrProperty.PropertyType)
+                    if (property.ClrType != clrProperty.PropertyType)
                     {
                         throw new InvalidOperationException(Strings.PropertyWrongClrType(property.Name, Name));
                     }

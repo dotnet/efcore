@@ -67,9 +67,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var property = ((IAccessor<InternalEntityEntry>)this).Service.EntityType.GetProperty(propertyName);
 
-            if (property.PropertyType != typeof(TProperty))
+            if (property.ClrType != typeof(TProperty))
             {
-                throw new ArgumentException(Strings.WrongGenericPropertyType(propertyName,property.EntityType.Name, property.PropertyType.Name,typeof(TProperty).Name));
+                throw new ArgumentException(Strings.WrongGenericPropertyType(propertyName,property.EntityType.Name, property.ClrType.Name,typeof(TProperty).Name));
             }
 
             return new PropertyEntry<TEntity, TProperty>(((IAccessor<InternalEntityEntry>)this).Service, propertyName);

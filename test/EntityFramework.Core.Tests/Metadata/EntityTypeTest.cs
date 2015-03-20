@@ -1126,7 +1126,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.False(property1.IsShadowProperty);
             Assert.Equal("Id", property1.Name);
-            Assert.Same(typeof(int), property1.PropertyType);
+            Assert.Same(typeof(int), property1.ClrType);
             Assert.False(((IProperty)property1).IsConcurrencyToken);
             Assert.Same(entityType, property1.EntityType);
 
@@ -1153,7 +1153,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.False(idProperty.IsShadowProperty);
             Assert.Equal("Id", idProperty.Name);
-            Assert.Same(typeof(int), idProperty.PropertyType);
+            Assert.Same(typeof(int), idProperty.ClrType);
             Assert.False(idProperty.IsConcurrencyToken);
             Assert.Same(entityType, idProperty.EntityType);
 
@@ -1165,7 +1165,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.True(nameProperty.IsShadowProperty);
             Assert.Equal("Name", nameProperty.Name);
-            Assert.Same(typeof(string), nameProperty.PropertyType);
+            Assert.Same(typeof(string), nameProperty.ClrType);
             Assert.False(nameProperty.IsConcurrencyToken);
             Assert.Same(entityType, nameProperty.EntityType);
 

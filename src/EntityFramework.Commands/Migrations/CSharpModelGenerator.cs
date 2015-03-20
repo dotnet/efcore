@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             stringBuilder
                 .AppendLine()
                 .Append("b.Property<")
-                .Append(_code.Reference(property.PropertyType.UnwrapEnumType()))
+                .Append(_code.Reference(property.ClrType.UnwrapEnumType()))
                 .Append(">(")
                 .Append(_code.Literal(property.Name))
                 .Append(")");

@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         if (k.Count == 1)
                         {
                             var keyProperty = k[0];
-                            var keyType = keyProperty.PropertyType;
+                            var keyType = keyProperty.ClrType;
 
                             // Use composite key for anything with structural (e.g. byte[]) properties even if they are
                             // not composite because it is setup to do structural comparisons and the generic typing

@@ -35,10 +35,10 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
 
             if (entityBuilder.Metadata.FindPrimaryKey(properties) != null
                 && properties.Count == 1
-                && properties.First().PropertyType.IsInteger()
+                && properties.First().ClrType.IsInteger()
                 && properties.First().GenerateValueOnAdd == generateValue)
             {
-                entityBuilder.Property(properties.First().PropertyType, properties.First().Name, ConfigurationSource.Convention)
+                entityBuilder.Property(properties.First().ClrType, properties.First().Name, ConfigurationSource.Convention)
                     .Annotation(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration,
                         generateValue ? SqlServerValueGenerationStrategy.Default.ToString() : null,
                         ConfigurationSource.Convention);

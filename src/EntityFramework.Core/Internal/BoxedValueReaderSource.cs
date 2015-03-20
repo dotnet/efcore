@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Internal
             = new ThreadSafeDictionaryCache<Type, IBoxedValueReader>();
 
         public virtual IBoxedValueReader GetReader(IProperty property)
-            => _cache.GetOrAdd(Check.NotNull(property, nameof(property)).PropertyType.UnwrapNullableType(), Create);
+            => _cache.GetOrAdd(Check.NotNull(property, nameof(property)).ClrType.UnwrapNullableType(), Create);
 
         private IBoxedValueReader Create(Type type)
             => (IBoxedValueReader)_genericCreate.MakeGenericMethod(type).Invoke(this, null);

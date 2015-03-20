@@ -46,8 +46,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 compiledModel.EntityTypes.First().GetProperties().Select(p => p.Name)
                     .SequenceEqual(builtModel.EntityTypes.First().GetProperties().Select(p => p.Name)));
             Assert.True(
-                compiledModel.EntityTypes.First().GetProperties().Select(p => p.PropertyType)
-                    .SequenceEqual(builtModel.EntityTypes.First().GetProperties().Select(p => p.PropertyType)));
+                compiledModel.EntityTypes.First().GetProperties().Select(p => p.ClrType)
+                    .SequenceEqual(builtModel.EntityTypes.First().GetProperties().Select(p => p.ClrType)));
 
             Assert.True(
                 compiledModel.EntityTypes.SelectMany(p => p.Annotations).Select(p => p.Name)

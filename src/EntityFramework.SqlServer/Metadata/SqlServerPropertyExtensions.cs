@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 }
                 else
                 {
-                    var propertyType = Property.PropertyType;
+                    var propertyType = Property.ClrType;
 
                     if (value == SqlServerValueGenerationStrategy.Identity
                         && (!propertyType.IsInteger()

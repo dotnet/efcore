@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             EntityType = entityType;
         }
 
-        public Type PropertyType => typeof(TProperty);
+        public Type ClrType => typeof(TProperty);
 
         public Type UnderlyingType => Nullable.GetUnderlyingType(typeof(TProperty)) ?? typeof(TProperty);
 

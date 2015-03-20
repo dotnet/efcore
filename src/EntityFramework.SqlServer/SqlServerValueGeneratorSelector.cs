@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
             var strategy = property.SqlServer().ValueGenerationStrategy;
 
-            if (property.PropertyType.IsInteger()
+            if (property.ClrType.IsInteger()
                 && strategy == SqlServerValueGenerationStrategy.Sequence)
             {
                 return _sequenceFactory.Create(property, _cache.GetOrAddSequenceState(property), _connection);
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(property, nameof(property));
 
-            return property.PropertyType == typeof(Guid) 
+            return property.ClrType == typeof(Guid) 
                 ? _sequentialGuidFactory.Create(property) 
                 : base.Create(property);
         }

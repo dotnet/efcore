@@ -30,42 +30,42 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(generatorState, nameof(generatorState));
             Check.NotNull(connection, nameof(connection));
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(long))
+            if (property.ClrType.UnwrapNullableType() == typeof(long))
             {
                 return new SqlServerSequenceValueGenerator<long>(_executor, generatorState, connection);
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(int))
+            if (property.ClrType.UnwrapNullableType() == typeof(int))
             {
                 return new SqlServerSequenceValueGenerator<int>(_executor, generatorState, connection);
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(short))
+            if (property.ClrType.UnwrapNullableType() == typeof(short))
             {
                 return new SqlServerSequenceValueGenerator<short>(_executor, generatorState, connection);
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(byte))
+            if (property.ClrType.UnwrapNullableType() == typeof(byte))
             {
                 return new SqlServerSequenceValueGenerator<byte>(_executor, generatorState, connection);
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(ulong))
+            if (property.ClrType.UnwrapNullableType() == typeof(ulong))
             {
                 return new SqlServerSequenceValueGenerator<ulong>(_executor, generatorState, connection);
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(uint))
+            if (property.ClrType.UnwrapNullableType() == typeof(uint))
             {
                 return new SqlServerSequenceValueGenerator<uint>(_executor, generatorState, connection);
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(ushort))
+            if (property.ClrType.UnwrapNullableType() == typeof(ushort))
             {
                 return new SqlServerSequenceValueGenerator<ushort>(_executor, generatorState, connection);
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(sbyte))
+            if (property.ClrType.UnwrapNullableType() == typeof(sbyte))
             {
                 return new SqlServerSequenceValueGenerator<sbyte>(_executor, generatorState, connection);
             }

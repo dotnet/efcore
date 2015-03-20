@@ -315,7 +315,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     ConfigurationSource.Convention));
 
             Test_removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
-                (entityBuilder, property) => entityBuilder.Property(property.PropertyType, property.Name, ConfigurationSource.Explicit));
+                (entityBuilder, property) => entityBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Explicit));
         }
 
         private void Test_removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(Func<InternalEntityBuilder, Property, object> shadowConfig)

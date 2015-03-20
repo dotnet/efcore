@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             }
 
             var discriminatorValueVariable
-                = Expression.Variable(discriminatorProperty.PropertyType);
+                = Expression.Variable(discriminatorProperty.ClrType);
 
             var returnLabelTarget = Expression.Label(typeof(object));
 
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             _entityMaterializerSource
                                 .CreateReadValueExpression(
                                     valueReaderParameter,
-                                    discriminatorProperty.PropertyType,
+                                    discriminatorProperty.ClrType,
                                     discriminatorProperty.Index)),
                         Expression.IfThenElse(
                             Expression.Equal(discriminatorValueVariable, firstDiscriminatorValue),

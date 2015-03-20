@@ -14,42 +14,42 @@ namespace Microsoft.Data.Entity.ValueGeneration
         {
             Check.NotNull(property, nameof(property));
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(long))
+            if (property.ClrType.UnwrapNullableType() == typeof(long))
             {
                 return new TemporaryIntegerValueGenerator<long>();
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(int))
+            if (property.ClrType.UnwrapNullableType() == typeof(int))
             {
                 return new TemporaryIntegerValueGenerator<int>();
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(short))
+            if (property.ClrType.UnwrapNullableType() == typeof(short))
             {
                 return new TemporaryIntegerValueGenerator<short>();
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(byte))
+            if (property.ClrType.UnwrapNullableType() == typeof(byte))
             {
                 return new TemporaryIntegerValueGenerator<byte>();
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(ulong))
+            if (property.ClrType.UnwrapNullableType() == typeof(ulong))
             {
                 return new TemporaryIntegerValueGenerator<ulong>();
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(uint))
+            if (property.ClrType.UnwrapNullableType() == typeof(uint))
             {
                 return new TemporaryIntegerValueGenerator<uint>();
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(ushort))
+            if (property.ClrType.UnwrapNullableType() == typeof(ushort))
             {
                 return new TemporaryIntegerValueGenerator<ushort>();
             }
 
-            if (property.PropertyType.UnwrapNullableType() == typeof(sbyte))
+            if (property.ClrType.UnwrapNullableType() == typeof(sbyte))
             {
                 return new TemporaryIntegerValueGenerator<sbyte>();
             }
