@@ -12,6 +12,36 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class EntityTypeExtensions
     {
+        public static IEnumerable<IEntityType> GetDerivedTypes([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return GetDerivedTypes(entityType.Model, entityType);
+        }
+
+        public static IEnumerable<IEntityType> GetConcreteTypesInHierarchy([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return new[] { entityType }
+                .Concat(entityType.GetDerivedTypes())
+                .Where(et => !et.IsAbstract);
+        }
+
+        private static IEnumerable<IEntityType> GetDerivedTypes(IModel model, IEntityType entityType)
+        {
+            foreach (var et1 in model.EntityTypes
+                .Where(et1 => et1.BaseType == entityType))
+            {
+                yield return et1;
+
+                foreach (var et2 in GetDerivedTypes(model, et1))
+                {
+                    yield return et2;
+                }
+            }
+        }
+
         public static string DisplayName([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -30,7 +60,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-             return (entityType as EntityType)?.UseEagerSnapshots ?? false;
+            return (entityType as EntityType)?.UseEagerSnapshots ?? false;
         }
 
         public static int OriginalValueCount([NotNull] this IEntityType entityType)

@@ -18,8 +18,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         bool IsAbstract { get; }
 
-        bool HasDerivedTypes { get; }
-
         [CanBeNull]
         IEntityType BaseType { get; }
 
@@ -55,8 +53,5 @@ namespace Microsoft.Data.Entity.Metadata
 
         [NotNull]
         IEnumerable<IKey> GetKeys();
-
-        IEnumerable<IEntityType> GetDerivedTypes();
-        IEnumerable<IEntityType> GetConcreteTypesInHierarchy();
     }
 }

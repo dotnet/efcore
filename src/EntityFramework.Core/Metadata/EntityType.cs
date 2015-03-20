@@ -163,34 +163,6 @@ namespace Microsoft.Data.Entity.Metadata
             return false;
         }
 
-        public virtual bool HasDerivedTypes => GetDerivedTypes().Any();
-
-        public virtual IEnumerable<EntityType> GetDerivedTypes()
-        {
-            return GetDerivedTypes(Model, this);
-        }
-
-        public virtual IEnumerable<EntityType> GetConcreteTypesInHierarchy()
-        {
-            return new[] { this }
-                .Concat(GetDerivedTypes())
-                .Where(et => !et.IsAbstract);
-        }
-
-        private static IEnumerable<EntityType> GetDerivedTypes(Model model, EntityType entityType)
-        {
-            foreach (var et1 in model.EntityTypes
-                .Where(et1 => et1.BaseType == entityType))
-            {
-                yield return et1;
-
-                foreach (var et2 in GetDerivedTypes(model, et1))
-                {
-                    yield return et2;
-                }
-            }
-        }
-
         public virtual bool IsAbstract => ClrType?.GetTypeInfo().IsAbstract ?? false;
 
         public virtual string Name => ClrType?.FullName ?? (string)_typeOrName;
@@ -1036,16 +1008,6 @@ namespace Microsoft.Data.Entity.Metadata
         INavigation IEntityType.GetNavigation(string name)
         {
             return GetNavigation(name);
-        }
-
-        IEnumerable<IEntityType> IEntityType.GetDerivedTypes()
-        {
-            return GetDerivedTypes();
-        }
-
-        IEnumerable<IEntityType> IEntityType.GetConcreteTypesInHierarchy()
-        {
-            return GetConcreteTypesInHierarchy();
         }
 
         IEnumerable<IProperty> IEntityType.GetProperties() => Properties;
