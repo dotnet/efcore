@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IModel : IAnnotatable
     {
         [CanBeNull]
-        IEntityType TryGetEntityType([NotNull] Type type);
+        IEntityType FindEntityType([NotNull] Type type);
 
         [NotNull]
         IEntityType GetEntityType([NotNull] Type type);
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata
         IReadOnlyList<IEntityType> EntityTypes { get; }
 
         [CanBeNull]
-        IEntityType TryGetEntityType([NotNull] string name);
+        IEntityType FindEntityType([NotNull] string name);
 
         [NotNull]
         IEntityType GetEntityType([NotNull] string name);

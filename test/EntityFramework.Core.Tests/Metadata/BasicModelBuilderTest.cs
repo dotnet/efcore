@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityBuilder = modelBuilder.Entity(typeof(Customer).FullName);
 
             Assert.NotNull(entityBuilder);
-            Assert.NotNull(model.TryGetEntityType(typeof(Customer).FullName));
+            Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
         }
 
         [Fact]

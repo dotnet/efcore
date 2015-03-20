@@ -261,7 +261,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             var entityType
                 = handlerContext.QueryModelVisitor.QueryCompilationContext.Model
-                    .TryGetEntityType(ofTypeResultOperator.SearchedItemType);
+                    .FindEntityType(ofTypeResultOperator.SearchedItemType);
 
             if (entityType == null)
             {

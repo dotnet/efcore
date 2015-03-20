@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             return _entityBuilders.GetOrAdd(
-                () => Metadata.TryGetEntityType(name),
+                () => Metadata.FindEntityType(name),
                 () => Metadata.AddEntityType(name),
                 entityType => new InternalEntityBuilder(entityType, ModelBuilder),
                 ConventionDispatcher.OnEntityTypeAdded,
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             return _entityBuilders.GetOrAdd(
-                () => Metadata.TryGetEntityType(type),
+                () => Metadata.FindEntityType(type),
                 () => Metadata.AddEntityType(type),
                 entityType => new InternalEntityBuilder(entityType, ModelBuilder),
                 ConventionDispatcher.OnEntityTypeAdded,
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
-            var entityType = Metadata.TryGetEntityType(name);
+            var entityType = Metadata.FindEntityType(name);
             if (entityType != null)
             {
                 if (!Remove(entityType, configurationSource, canOverrideSameSource: false))

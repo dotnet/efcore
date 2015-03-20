@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 var navigationToPrincipal = string.IsNullOrEmpty(navigationToPrincipalName)
                     ? null
-                    : Metadata.EntityType.TryGetNavigation(navigationToPrincipalName);
+                    : Metadata.EntityType.FindNavigation(navigationToPrincipalName);
 
                 if (navigationToPrincipal != null
                     && navigationToPrincipal.IsCompatible(
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 var navigationToDependent = navigationToDependentName == null
                     ? null
-                    : Metadata.ReferencedEntityType.TryGetNavigation(navigationToDependentName);
+                    : Metadata.ReferencedEntityType.FindNavigation(navigationToDependentName);
 
                 if (navigationToDependent != null
                     && navigationToDependent.IsCompatible(
@@ -530,13 +530,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var dependentPropertiesExist = true;
             foreach (var dependentProperty in Metadata.Properties)
             {
-                dependentPropertiesExist &= Metadata.EntityType.TryGetProperty(dependentProperty.Name) != null;
+                dependentPropertiesExist &= Metadata.EntityType.FindProperty(dependentProperty.Name) != null;
             }
 
             var principalPropertiesExist = true;
             foreach (var dependentProperty in Metadata.ReferencedProperties)
             {
-                principalPropertiesExist &= Metadata.ReferencedEntityType.TryGetProperty(dependentProperty.Name) != null;
+                principalPropertiesExist &= Metadata.ReferencedEntityType.FindProperty(dependentProperty.Name) != null;
             }
 
             return AddRelationship(

@@ -38,11 +38,11 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual Annotation GetOrAddAnnotation([NotNull] string annotationName, [NotNull] string value)
         {
-            return TryGetAnnotation(annotationName) ?? AddAnnotation(annotationName, value);
+            return FindAnnotation(annotationName) ?? AddAnnotation(annotationName, value);
         }
 
         [CanBeNull]
-        public virtual Annotation TryGetAnnotation([NotNull] string annotationName)
+        public virtual Annotation FindAnnotation([NotNull] string annotationName)
         {
             Check.NotEmpty(annotationName, nameof(annotationName));
 
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             Check.NotEmpty(annotationName, nameof(annotationName));
 
-            var annotation = TryGetAnnotation(annotationName);
+            var annotation = FindAnnotation(annotationName);
             if (annotation == null)
             {
                 throw new InvalidOperationException(Strings.AnnotationNotFound(annotationName));
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         // TODO: Fix API test to handle indexer
         public virtual object this[[NotNull] string annotationName]
         {
-            get { return TryGetAnnotation(annotationName)?.Value; }
+            get { return FindAnnotation(annotationName)?.Value; }
             [param: CanBeNull]
             set
             {

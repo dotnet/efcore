@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 }
 
                 if (foreignKeyProperties != null
-                    && relationshipBuilder.Metadata.EntityType.TryGetForeignKey(foreignKeyProperties) == null)
+                    && relationshipBuilder.Metadata.EntityType.FindForeignKey(foreignKeyProperties) == null)
                 {
                     var newRelationshipBuilder = relationshipBuilder.ForeignKey(foreignKeyProperties, ConfigurationSource.Convention);
                     if (newRelationshipBuilder != null)
@@ -82,10 +82,10 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             }
 
             var model = foreignKey.EntityType.Model;
-            var principalPk = foreignKey.ReferencedEntityType.TryGetPrimaryKey();
+            var principalPk = foreignKey.ReferencedEntityType.FindPrimaryKey();
             var principalPkReferenceThreshold = foreignKey.ReferencedKey == principalPk? 1 : 0;
             var isPrincipalKeyReferenced = principalPk != null && model.GetReferencingForeignKeys(principalPk).Count > principalPkReferenceThreshold;
-            var dependentPk = foreignKey.EntityType.TryGetPrimaryKey();
+            var dependentPk = foreignKey.EntityType.FindPrimaryKey();
             var isDependentPrimaryKeyReferenced = dependentPk != null && model.GetReferencingForeignKeys(dependentPk).Count > 0;
 
             if (isPrincipalKeyReferenced
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
         private IReadOnlyList<Property> GetCompatiblePrimaryKeyProperties(EntityType entityType, IReadOnlyList<Property> propertiesToReference)
         {
-            var dependentPkProperties = entityType.TryGetPrimaryKey()?.Properties;
+            var dependentPkProperties = entityType.FindPrimaryKey()?.Properties;
             if (dependentPkProperties != null
                 && Property.AreCompatible(propertiesToReference, dependentPkProperties))
             {
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 : foreignKey.ReferencedEntityType;
             var propertiesToReference = onDependent
                 ? foreignKey.ReferencedProperties
-                : foreignKey.EntityType.TryGetPrimaryKey()?.Properties;
+                : foreignKey.EntityType.FindPrimaryKey()?.Properties;
 
             if (propertiesToReference == null)
             {
@@ -192,7 +192,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 return null;
             }
 
-            var primaryKey = entityType.TryGetPrimaryKey();
+            var primaryKey = entityType.FindPrimaryKey();
             if (primaryKey != null)
             {
                 if (foreignKeyProperties.All(property => primaryKey.Properties.Contains(property)))

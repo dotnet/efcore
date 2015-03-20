@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata
             return !navigation.PointsToPrincipal && !navigation.ForeignKey.IsUnique;
         }
 
-        public static Navigation TryGetInverse([NotNull] this Navigation navigation)
+        public static Navigation FindInverse([NotNull] this Navigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
 
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Metadata
                 : navigation.ForeignKey.GetNavigationToPrincipal();
         }
 
-        public static INavigation TryGetInverse([NotNull] this INavigation navigation)
+        public static INavigation FindInverse([NotNull] this INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
 

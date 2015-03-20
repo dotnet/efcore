@@ -30,13 +30,13 @@ namespace Microsoft.Data.Entity.Metadata
         IKey GetPrimaryKey();
 
         [CanBeNull]
-        IProperty TryGetProperty([NotNull] string name);
+        IProperty FindProperty([NotNull] string name);
 
         [NotNull]
         IProperty GetProperty([NotNull] string name);
 
         [CanBeNull]
-        INavigation TryGetNavigation([NotNull] string name);
+        INavigation FindNavigation([NotNull] string name);
 
         [NotNull]
         INavigation GetNavigation([NotNull] string name);

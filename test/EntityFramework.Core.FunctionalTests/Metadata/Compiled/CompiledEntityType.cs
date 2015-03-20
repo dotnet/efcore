@@ -22,11 +22,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             Model = model;
         }
 
-        public IProperty TryGetProperty(string name) => GetProperties().FirstOrDefault(p => p.Name == name);
+        public IProperty FindProperty(string name) => GetProperties().FirstOrDefault(p => p.Name == name);
 
         public IProperty GetProperty(string name)
         {
-            var property = TryGetProperty(name);
+            var property = FindProperty(name);
             if (property == null)
             {
                 throw new Exception(string.Format("The property '{0}' on entity type '{1}' could not be found. Ensure that the property exists and has been included in the model.", name, typeof(TEntity).Name));
@@ -34,11 +34,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return property;
         }
 
-        public INavigation TryGetNavigation(string name) => GetNavigations().FirstOrDefault(p => p.Name == name);
+        public INavigation FindNavigation(string name) => GetNavigations().FirstOrDefault(p => p.Name == name);
 
         public INavigation GetNavigation(string name)
         {
-            var navigation = TryGetNavigation(name);
+            var navigation = FindNavigation(name);
             if (navigation == null)
             {
                 throw new Exception(string.Format("The navigation property '{0}' on entity type '{1}' could not be found. Ensure that the navigation property exists and has been included in the model.", name, typeof(TEntity).Name));

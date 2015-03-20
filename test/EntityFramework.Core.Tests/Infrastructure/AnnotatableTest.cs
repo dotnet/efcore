@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         public void Can_add_and_remove_annotation()
         {
             var annotatable = new Annotatable();
-            Assert.Null(annotatable.TryGetAnnotation("Foo"));
+            Assert.Null(annotatable.FindAnnotation("Foo"));
             Assert.Null(annotatable.RemoveAnnotation(new Annotation("Foo", "Bar")));
 
             var annotation = annotatable.AddAnnotation("Foo", "Bar");
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             Assert.NotNull(annotation);
             Assert.Equal("Bar", annotation.Value);
             Assert.Equal("Bar", annotatable["Foo"]);
-            Assert.Same(annotation, annotatable.TryGetAnnotation("Foo"));
+            Assert.Same(annotation, annotatable.FindAnnotation("Foo"));
 
             Assert.Same(annotation, annotatable.GetOrAddAnnotation("Foo", "Baz"));
 
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             Assert.Empty(annotatable.Annotations);
             Assert.Null(annotatable.RemoveAnnotation(annotation));
             Assert.Null(annotatable["Foo"]);
-            Assert.Null(annotatable.TryGetAnnotation("Foo"));
+            Assert.Null(annotatable.FindAnnotation("Foo"));
         }
 
         [Fact]
@@ -56,10 +56,10 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             var annotation = annotatable.GetOrAddAnnotation("Foo", "Bar");
 
             Assert.NotNull(annotation);
-            Assert.Same(annotation, annotatable.TryGetAnnotation("Foo"));
+            Assert.Same(annotation, annotatable.FindAnnotation("Foo"));
             Assert.Same(annotation, annotatable.GetAnnotation("Foo"));
             Assert.Null(annotatable["foo"]);
-            Assert.Null(annotatable.TryGetAnnotation("foo"));
+            Assert.Null(annotatable.FindAnnotation("foo"));
 
             annotatable["Foo"] = "horse";
 

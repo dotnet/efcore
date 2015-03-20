@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new KeyDiscoveryConvention().Apply(entityBuilder));
 
-            var key = entityBuilder.Metadata.TryGetPrimaryKey();
+            var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.Null(key);
         }
 
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, convention.Object.Apply(entityBuilder));
 
-            var key = entityBuilder.Metadata.TryGetPrimaryKey();
+            var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "ModifiedDate", "Name" }, key.Properties.Select(p => p.Name));
         }
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new KeyDiscoveryConvention().Apply(entityBuilder));
 
-            var key = entityBuilder.Metadata.TryGetPrimaryKey();
+            var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
         }
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new KeyDiscoveryConvention().Apply(entityBuilder));
 
-            var key = entityBuilder.Metadata.TryGetPrimaryKey();
+            var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "EntityWithTypeIdId" }, key.Properties.Select(p => p.Name));
         }
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new KeyDiscoveryConvention().Apply(entityBuilder));
 
-            var key = entityBuilder.Metadata.TryGetPrimaryKey();
+            var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
         }
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new KeyDiscoveryConvention().Apply(entityBuilder));
 
-            var key = entityBuilder.Metadata.TryGetPrimaryKey();
+            var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.Null(key);
         }
 

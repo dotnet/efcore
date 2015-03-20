@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             using (var context = new DbContext(optionsBuilder.Options))
             {
                 var entity = new KoolEntity15();
-                var property = (_KoolEntity15IdProperty)context.Model.GetEntityType(entity.GetType()).TryGetProperty("Id");
+                var property = (_KoolEntity15IdProperty)context.Model.GetEntityType(entity.GetType()).FindProperty("Id");
 
                 var entry = ((IAccessor<InternalEntityEntry>)context.Entry(entity)).Service;
 

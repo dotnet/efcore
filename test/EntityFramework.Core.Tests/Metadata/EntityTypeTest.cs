@@ -129,26 +129,28 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.NotNull(key1);
             Assert.Same(key1, entityType.GetPrimaryKey());
-            Assert.Same(key1, entityType.TryGetPrimaryKey());
+
+            Assert.Same(key1, entityType.FindPrimaryKey());
             Assert.Same(key1, entityType.Keys.Single());
 
             var key2 = entityType.SetPrimaryKey(idProperty);
 
             Assert.NotNull(key2);
             Assert.Same(key2, entityType.GetPrimaryKey());
-            Assert.Same(key2, entityType.TryGetPrimaryKey());
+            Assert.Same(key2, entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.Keys.Count);
+
             Assert.Same(key1, entityType.GetKey(key1.Properties));
             Assert.Same(key2, entityType.GetKey(key2.Properties));
 
             Assert.Null(entityType.SetPrimaryKey((Property)null));
 
-            Assert.Null(entityType.TryGetPrimaryKey());
+            Assert.Null(entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.Keys.Count);
 
             Assert.Null(entityType.SetPrimaryKey(new Property[0]));
 
-            Assert.Null(entityType.TryGetPrimaryKey());
+            Assert.Null(entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.Keys.Count);
 
             Assert.Equal(
@@ -180,7 +182,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.NotNull(key1);
             Assert.Same(key1, entityType.GetOrSetPrimaryKey(new[] { idProperty, nameProperty }));
             Assert.Same(key1, entityType.GetPrimaryKey());
-            Assert.Same(key1, entityType.TryGetPrimaryKey());
+
+            Assert.Same(key1, entityType.FindPrimaryKey());
             Assert.Same(key1, entityType.Keys.Single());
 
             var key2 = entityType.GetOrSetPrimaryKey(idProperty);
@@ -189,21 +192,20 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.NotEqual(key1, key2);
             Assert.Same(key2, entityType.GetOrSetPrimaryKey(idProperty));
             Assert.Same(key2, entityType.GetPrimaryKey());
-            Assert.Same(key2, entityType.TryGetPrimaryKey());
+            Assert.Same(key2, entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.Keys.Count);
             Assert.Same(key1, entityType.GetKey(key1.Properties));
             Assert.Same(key2, entityType.GetKey(key2.Properties));
 
             Assert.Null(entityType.GetOrSetPrimaryKey((Property)null));
 
-            Assert.Null(entityType.TryGetPrimaryKey());
+            Assert.Null(entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.Keys.Count);
 
             Assert.Null(entityType.GetOrSetPrimaryKey(new Property[0]));
 
-            Assert.Null(entityType.TryGetPrimaryKey());
+            Assert.Null(entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.Keys.Count);
-
             Assert.Equal(
                 Strings.EntityRequiresKey(typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => entityType.GetPrimaryKey()).Message);
@@ -223,8 +225,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.SetPrimaryKey((Property)null);
 
             Assert.Equal(1, entityType.Keys.Count);
-            Assert.Same(customerPk, entityType.TryGetKey(idProperty));
-            Assert.Null(entityType.TryGetPrimaryKey());
+            Assert.Same(customerPk, entityType.FindKey(idProperty));
+            Assert.Null(entityType.FindPrimaryKey());
             Assert.Same(customerPk, fk.ReferencedKey);
         }
 
@@ -242,7 +244,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.SetPrimaryKey(entityType.GetOrAddProperty(Customer.NameProperty));
 
             Assert.Equal(2, entityType.Keys.Count);
-            Assert.Same(customerPk, entityType.TryGetKey(idProperty));
+            Assert.Same(customerPk, entityType.FindKey(idProperty));
             Assert.NotSame(customerPk, entityType.GetPrimaryKey());
             Assert.Same(customerPk, fk.ReferencedKey);
         }
@@ -410,13 +412,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.NotNull(fk1);
             Assert.Same(fk1, orderType.GetForeignKey(customerFk1));
-            Assert.Same(fk1, orderType.TryGetForeignKey(customerFk1));
+            Assert.Same(fk1, orderType.FindForeignKey(customerFk1));
             Assert.Same(fk1, orderType.GetOrAddForeignKey(customerFk1, new Key(new[] { idProperty })));
             Assert.Same(fk1, orderType.ForeignKeys.Single());
 
             var fk2 = orderType.AddForeignKey(customerFk2, customerKey);
             Assert.Same(fk2, orderType.GetForeignKey(customerFk2));
-            Assert.Same(fk2, orderType.TryGetForeignKey(customerFk2));
+            Assert.Same(fk2, orderType.FindForeignKey(customerFk2));
             Assert.Same(fk2, orderType.GetOrAddForeignKey(customerFk2, new Key(new[] { idProperty })));
             Assert.Equal(new[] { fk1, fk2 }, orderType.ForeignKeys.ToArray());
         }
@@ -463,9 +465,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.NotNull(fk2);
             Assert.NotEqual(fk1, fk2);
             Assert.Same(fk2, orderType.GetForeignKey(customerFk2));
-            Assert.Same(fk2, orderType.TryGetForeignKey(customerFk2));
+            Assert.Same(fk2, orderType.FindForeignKey(customerFk2));
             Assert.Equal(new[] { fk1, fk2 }, orderType.ForeignKeys.ToArray());
-
             Assert.Same(fk2, orderType.GetOrAddForeignKey(customerFk2, customerKey));
             Assert.Equal(new[] { fk1, fk2 }, orderType.ForeignKeys.ToArray());
         }
@@ -477,7 +478,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey());
 
-            Assert.Same(fk, DependentType.TryGetForeignKey(
+            Assert.Same(fk, DependentType.FindForeignKey(
                 PrincipalType,
                 "SomeNav",
                 "SomeInverse",
@@ -499,7 +500,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(
                 fk,
-                DependentType.TryGetForeignKey(
+                DependentType.FindForeignKey(
                     PrincipalType,
                     "SomeNav",
                     "SomeInverse",
@@ -527,7 +528,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(
                 fk,
-                DependentType.TryGetForeignKey(
+                DependentType.FindForeignKey(
                     PrincipalType,
                     "SomeNav",
                     "SomeInverse",
@@ -548,7 +549,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(
                 fk,
-                DependentType.TryGetForeignKey(
+                DependentType.FindForeignKey(
                     PrincipalType,
                     "SomeNav",
                     "SomeInverse",
@@ -568,7 +569,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(
                 fk,
-                DependentType.TryGetForeignKey(
+                DependentType.FindForeignKey(
                     PrincipalType,
                     "SomeNav",
                     "SomeInverse",
@@ -587,7 +588,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(
                 fk,
-                DependentType.TryGetForeignKey(
+                DependentType.FindForeignKey(
                     PrincipalType,
                     "SomeNav",
                     "SomeInverse",
@@ -603,7 +604,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey());
             DependentType.AddNavigation("AnotherNav", fk, pointsToPrincipal: true);
 
-            var newFk = DependentType.TryGetForeignKey(
+            var newFk = DependentType.FindForeignKey(
                 PrincipalType,
                 "SomeNav",
                 "SomeInverse",
@@ -621,7 +622,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey());
             PrincipalType.AddNavigation("AnotherNav", fk, pointsToPrincipal: false);
 
-            var newFk = DependentType.TryGetForeignKey(
+            var newFk = DependentType.FindForeignKey(
                 PrincipalType,
                 "SomeNav",
                 "SomeInverse",
@@ -639,7 +640,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey());
             fk.IsUnique = true;
 
-            var newFk = DependentType.TryGetForeignKey(
+            var newFk = DependentType.FindForeignKey(
                 PrincipalType,
                 "SomeNav",
                 "SomeInverse",
@@ -842,10 +843,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var customerNavigation = orderType.GetOrAddNavigation("Customer", customerForeignKey, pointsToPrincipal: true);
 
-            Assert.Same(customerNavigation, orderType.TryGetNavigation("Customer"));
+            Assert.Same(customerNavigation, orderType.FindNavigation("Customer"));
             Assert.Same(customerNavigation, orderType.GetNavigation("Customer"));
 
-            Assert.Null(orderType.TryGetNavigation("Nose"));
+            Assert.Null(orderType.FindNavigation("Nose"));
 
             Assert.Equal(
                 Strings.NavigationNotFound("Nose", typeof(Order).FullName),
@@ -1045,14 +1046,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(1, index1.Properties.Count);
             Assert.Same(index1, entityType.GetIndex(property1));
-            Assert.Same(index1, entityType.TryGetIndex(property1));
+            Assert.Same(index1, entityType.FindIndex(property1));
             Assert.Same(property1, index1.Properties[0]);
 
             var index2 = entityType.AddIndex(new[] { property1, property2 });
 
             Assert.Equal(2, index2.Properties.Count);
             Assert.Same(index2, entityType.GetOrAddIndex(new[] { property1, property2 }));
-            Assert.Same(index2, entityType.TryGetIndex(new[] { property1, property2 }));
+            Assert.Same(index2, entityType.FindIndex(new[] { property1, property2 }));
             Assert.Same(property1, index2.Properties[0]);
             Assert.Same(property2, index2.Properties[1]);
 
@@ -1246,12 +1247,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(Customer), new Model());
             var property = entityType.GetOrAddProperty(Customer.IdProperty);
 
-            Assert.Same(property, entityType.TryGetProperty(Customer.IdProperty));
-            Assert.Same(property, entityType.TryGetProperty("Id"));
+            Assert.Same(property, entityType.FindProperty(Customer.IdProperty));
+            Assert.Same(property, entityType.FindProperty("Id"));
             Assert.Same(property, entityType.GetProperty(Customer.IdProperty));
             Assert.Same(property, entityType.GetProperty("Id"));
 
-            Assert.Null(entityType.TryGetProperty("Nose"));
+            Assert.Null(entityType.FindProperty("Nose"));
 
             Assert.Equal(
                 Strings.PropertyNotFound("Nose", typeof(Customer).FullName),

@@ -52,8 +52,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            var oldPrimaryKey = Metadata.TryGetPrimaryKey();
-            var newPrimaryKey = Metadata.TryGetKey(properties);
+            var oldPrimaryKey = Metadata.FindPrimaryKey();
+            var newPrimaryKey = Metadata.FindKey(properties);
             if (oldPrimaryKey != null
                 && oldPrimaryKey != newPrimaryKey)
             {
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             return _keyBuilders.GetOrAdd(
-                () => Metadata.TryGetKey(properties),
+                () => Metadata.FindKey(properties),
                 () => Metadata.AddKey(properties),
                 key => new InternalKeyBuilder(key, ModelBuilder),
                 ModelBuilder.ConventionDispatcher.OnKeyAdded,
@@ -205,7 +205,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 return _propertyBuilders.GetOrAdd(
-                    () => Metadata.TryGetProperty(propertyName),
+                    () => Metadata.FindProperty(propertyName),
                     () => Metadata.AddProperty(propertyName, propertyType, shadowProperty),
                     property => new InternalPropertyBuilder(property, ModelBuilder, configurationSource),
                     ModelBuilder.ConventionDispatcher.OnPropertyAdded,
@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotEmpty(navigationName, nameof(navigationName));
 
             return CanAdd(navigationName, isNavigation: true, configurationSource: configurationSource)
-                   && Metadata.TryGetNavigation(navigationName) == null;
+                   && Metadata.FindNavigation(navigationName) == null;
         }
 
         private bool CanAdd(string propertyName, bool isNavigation, ConfigurationSource configurationSource)
@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var conflictingNavigation = navigationName == null
                 ? null
-                : Metadata.TryGetNavigation(navigationName);
+                : Metadata.FindNavigation(navigationName);
 
             if (conflictingNavigation != null)
             {
@@ -344,7 +344,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var conflictingNavigation = navigationName == null
                 ? null
-                : Metadata.TryGetNavigation(navigationName);
+                : Metadata.FindNavigation(navigationName);
 
             if (conflictingNavigation != null
                 && !CanRemove(conflictingNavigation.ForeignKey, configurationSource, canOverrideSameSource))
@@ -375,7 +375,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             _ignoredProperties.Value[propertyName] = configurationSource;
 
-            var property = Metadata.TryGetProperty(propertyName);
+            var property = Metadata.FindProperty(propertyName);
             if (property != null)
             {
                 if (!RemoveProperty(property, configurationSource))
@@ -390,7 +390,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
-            var navigation = Metadata.TryGetNavigation(propertyName);
+            var navigation = Metadata.FindNavigation(propertyName);
             if (navigation != null)
             {
                 if (!Navigation(null, navigation.ForeignKey, navigation.PointsToPrincipal, configurationSource, canOverrideSameSource: false))
@@ -567,7 +567,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private void RemoveKeyIfUnused(Key key)
         {
-            if (Metadata.TryGetPrimaryKey() == key)
+            if (Metadata.FindPrimaryKey() == key)
             {
                 return;
             }
@@ -647,7 +647,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return properties == null
                 ? null
                 : _indexBuilders.Value.GetOrAdd(
-                    () => Metadata.TryGetIndex(properties),
+                    () => Metadata.FindIndex(properties),
                     () => Metadata.AddIndex(properties),
                     index => new InternalIndexBuilder(index, ModelBuilder),
                     configurationSource);
@@ -792,7 +792,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var navigationToPrincipal = string.IsNullOrEmpty(navigationToPrincipalName)
                 ? null
-                : dependentEntityType.TryGetNavigation(navigationToPrincipalName);
+                : dependentEntityType.FindNavigation(navigationToPrincipalName);
 
             if (navigationToPrincipal != null
                 && navigationToPrincipal.IsCompatible(principalEntityType, dependentEntityType, strictPrincipal ? (bool?)true : null, isUnique))
@@ -802,7 +802,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var navigationToDependent = string.IsNullOrEmpty(navigationToDependentName)
                 ? null
-                : principalEntityType.TryGetNavigation(navigationToDependentName);
+                : principalEntityType.FindNavigation(navigationToDependentName);
 
             if (navigationToDependent != null
                 && navigationToDependent.IsCompatible(principalEntityType, dependentEntityType, strictPrincipal ? (bool?)false : null, isUnique))
@@ -858,7 +858,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var foreignKey = foreignKeyProperties == null
                 ? null
-                : dependentType.TryGetForeignKey(
+                : dependentType.FindForeignKey(
                     principalType,
                     null,
                     null,
@@ -871,7 +871,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (foreignKeyProperties != null)
                 {
-                    var conflictingForeignKey = dependentType.TryGetForeignKey(foreignKeyProperties);
+                    var conflictingForeignKey = dependentType.FindForeignKey(foreignKeyProperties);
                     if (conflictingForeignKey != null
                         && !dependentEntityTypeBuilder.RemoveRelationship(conflictingForeignKey, configurationSource).HasValue)
                     {
@@ -990,7 +990,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var dependentType = dependentEntityTypeBuilder.Metadata;
 
             if (foreignKeyProperties != null
-                && dependentType.TryGetForeignKey(foreignKeyProperties) != null)
+                && dependentType.FindForeignKey(foreignKeyProperties) != null)
             {
                 return null;
             }
@@ -1013,7 +1013,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
             else
             {
-                principalKey = principalType.TryGetPrimaryKey();
+                principalKey = principalType.FindPrimaryKey();
             }
 
             if (foreignKeyProperties != null)
@@ -1084,7 +1084,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             while (true)
             {
                 var name = baseName + (++index > 0 ? index.ToString() : "");
-                if (entityTypeBuilder.Metadata.TryGetProperty(name) != null)
+                if (entityTypeBuilder.Metadata.FindProperty(name) != null)
                 {
                     continue;
                 }
@@ -1135,7 +1135,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var list = new List<Property>();
             foreach (var propertyName in propertyNames)
             {
-                var property = Metadata.TryGetProperty(propertyName);
+                var property = Metadata.FindProperty(propertyName);
                 if (property == null)
                 {
                     if (Metadata.ClrType == null)

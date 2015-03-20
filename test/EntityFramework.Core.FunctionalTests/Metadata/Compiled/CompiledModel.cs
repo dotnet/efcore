@@ -12,11 +12,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
     {
         private IEntityType[] _entityTypes;
 
-        public IEntityType TryGetEntityType(Type type) => EntityTypes.FirstOrDefault(e => e.ClrType == type);
+        public IEntityType FindEntityType(Type type) => EntityTypes.FirstOrDefault(e => e.ClrType == type);
 
         public IEntityType GetEntityType(Type type) => EntityTypes.First(e => e.ClrType == type);
 
-        public IEntityType TryGetEntityType(string name) => EntityTypes.FirstOrDefault(e => e.Name == name);
+        public IEntityType FindEntityType(string name) => EntityTypes.FirstOrDefault(e => e.Name == name);
 
         public IEntityType GetEntityType(string name) => EntityTypes.First(e => e.Name == name);
 

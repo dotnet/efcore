@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         protected override Expression VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
         {
-            if (_model.TryGetEntityType(expression.Type) != null)
+            if (_model.FindEntityType(expression.Type) != null)
             {
                 _querySourceReferenceExpressions.Add(expression);
             }

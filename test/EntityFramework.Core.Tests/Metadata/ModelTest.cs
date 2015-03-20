@@ -16,13 +16,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_add_and_remove_entity_by_type()
         {
             var model = new Model();
-            Assert.Null(model.TryGetEntityType(typeof(Customer)));
+            Assert.Null(model.FindEntityType(typeof(Customer)));
             Assert.Null(model.RemoveEntityType(new EntityType(typeof(Customer), model)));
 
             var entityType = model.AddEntityType(typeof(Customer));
 
             Assert.Equal(typeof(Customer), entityType.ClrType);
-            Assert.NotNull(model.TryGetEntityType(typeof(Customer)));
+            Assert.NotNull(model.FindEntityType(typeof(Customer)));
             Assert.Same(model, entityType.Model);
 
             Assert.Same(entityType, model.GetOrAddEntityType(typeof(Customer)));
@@ -31,21 +31,21 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(entityType, model.RemoveEntityType(entityType));
             Assert.Null(model.RemoveEntityType(entityType));
-            Assert.Null(model.TryGetEntityType(typeof(Customer)));
+            Assert.Null(model.FindEntityType(typeof(Customer)));
         }
 
         [Fact]
         public void Can_add_and_remove_entity_by_name()
         {
             var model = new Model();
-            Assert.Null(model.TryGetEntityType(typeof(Customer).FullName));
+            Assert.Null(model.FindEntityType(typeof(Customer).FullName));
             Assert.Null(model.RemoveEntityType(new EntityType(typeof(Customer).FullName, model)));
 
             var entityType = model.AddEntityType(typeof(Customer).FullName);
 
             Assert.Null(entityType.ClrType);
             Assert.Equal(typeof(Customer).FullName, entityType.Name);
-            Assert.NotNull(model.TryGetEntityType(typeof(Customer).FullName));
+            Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
             Assert.Same(model, entityType.Model);
 
             Assert.Same(entityType, model.GetOrAddEntityType(typeof(Customer).FullName));
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(entityType, model.RemoveEntityType(entityType));
             Assert.Null(model.RemoveEntityType(entityType));
-            Assert.Null(model.TryGetEntityType(typeof(Customer).FullName));
+            Assert.Null(model.FindEntityType(typeof(Customer).FullName));
         }
 
         [Fact]
@@ -107,8 +107,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = model.GetOrAddEntityType(typeof(Customer));
 
             Assert.Same(entityType, model.GetEntityType(typeof(Customer)));
-            Assert.Same(entityType, model.TryGetEntityType(typeof(Customer)));
-            Assert.Null(model.TryGetEntityType(typeof(string)));
+            Assert.Same(entityType, model.FindEntityType(typeof(Customer)));
+            Assert.Null(model.FindEntityType(typeof(string)));
 
             Assert.Equal(
                 Strings.EntityTypeNotFound("String"),
@@ -122,8 +122,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = model.GetOrAddEntityType(typeof(Customer).FullName);
 
             Assert.Same(entityType, model.GetEntityType(typeof(Customer).FullName));
-            Assert.Same(entityType, model.TryGetEntityType(typeof(Customer).FullName));
-            Assert.Null(model.TryGetEntityType(typeof(string)));
+            Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
+            Assert.Null(model.FindEntityType(typeof(string)));
 
             Assert.Equal(
                 Strings.EntityTypeNotFound("String"),

@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         // TODO: Consider optimizing/consolidating property/navigation lookup
         // Issue #635
         private static IPropertyBase TryGetPropertyBase(IEntityType entityType, string propertyName)
-            => (IPropertyBase)entityType.TryGetProperty(propertyName)
+            => (IPropertyBase)entityType.FindProperty(propertyName)
                ?? entityType.GetNavigations().FirstOrDefault(n => n.Name == propertyName);
     }
 }

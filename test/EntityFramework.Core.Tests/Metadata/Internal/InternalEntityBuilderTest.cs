@@ -743,7 +743,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.True(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Explicit));
 
-            Assert.Null(entityType.TryGetProperty(Order.IdProperty.Name));
+            Assert.Null(entityType.FindProperty(Order.IdProperty.Name));
             Assert.True(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Explicit));
             Assert.Null(entityBuilder.Property(typeof(Order), Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
 
@@ -766,7 +766,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.False(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Convention));
             Assert.False(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
 
-            Assert.NotNull(entityType.TryGetProperty(Order.IdProperty.Name));
+            Assert.NotNull(entityType.FindProperty(Order.IdProperty.Name));
         }
 
         [Fact]
@@ -782,7 +782,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Same(property, entityBuilder.Property(typeof(Order), Order.IdProperty.Name, ConfigurationSource.Convention).Metadata);
             Assert.False(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(entityType.TryGetProperty(Order.IdProperty.Name));
+            Assert.NotNull(entityType.FindProperty(Order.IdProperty.Name));
 
             Assert.Equal(Strings.PropertyAddedExplicitly(Order.IdProperty.Name, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() =>
@@ -978,14 +978,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.False(dependentEntityBuilder.Navigation(Order.CustomerProperty.Name, foreignKeyBuilder.Metadata, pointsToPrincipal: true, configurationSource: ConfigurationSource.Convention));
             Assert.False(principalEntityBuilder.Navigation(Customer.OrdersProperty.Name, foreignKeyBuilder.Metadata, pointsToPrincipal: false, configurationSource: ConfigurationSource.Convention));
 
-            Assert.Same(conflictingForeignKeyBuilder.Metadata, dependentEntityBuilder.Metadata.TryGetNavigation(Order.CustomerProperty.Name).ForeignKey);
-            Assert.Same(conflictingForeignKeyBuilder.Metadata, principalEntityBuilder.Metadata.TryGetNavigation(Customer.OrdersProperty.Name).ForeignKey);
+            Assert.Same(conflictingForeignKeyBuilder.Metadata, dependentEntityBuilder.Metadata.FindNavigation(Order.CustomerProperty.Name).ForeignKey);
+            Assert.Same(conflictingForeignKeyBuilder.Metadata, principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name).ForeignKey);
 
             Assert.True(dependentEntityBuilder.Navigation(Order.CustomerProperty.Name, foreignKeyBuilder.Metadata, pointsToPrincipal: true, configurationSource: ConfigurationSource.DataAnnotation));
             Assert.True(principalEntityBuilder.Navigation(Customer.OrdersProperty.Name, foreignKeyBuilder.Metadata, pointsToPrincipal: false, configurationSource: ConfigurationSource.DataAnnotation));
 
-            Assert.Same(foreignKeyBuilder.Metadata, dependentEntityBuilder.Metadata.TryGetNavigation(Order.CustomerProperty.Name).ForeignKey);
-            Assert.Same(foreignKeyBuilder.Metadata, principalEntityBuilder.Metadata.TryGetNavigation(Customer.OrdersProperty.Name).ForeignKey);
+            Assert.Same(foreignKeyBuilder.Metadata, dependentEntityBuilder.Metadata.FindNavigation(Order.CustomerProperty.Name).ForeignKey);
+            Assert.Same(foreignKeyBuilder.Metadata, principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name).ForeignKey);
             Assert.Same(foreignKeyBuilder.Metadata, dependentEntityBuilder.Metadata.ForeignKeys.Single());
         }
 
@@ -1003,8 +1003,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(dependentEntityBuilder.Ignore(Order.CustomerProperty.Name, ConfigurationSource.Explicit));
             Assert.True(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.Explicit));
 
-            Assert.Null(dependentEntityBuilder.Metadata.TryGetNavigation(Order.CustomerProperty.Name));
-            Assert.Null(principalEntityBuilder.Metadata.TryGetNavigation(Customer.OrdersProperty.Name));
+            Assert.Null(dependentEntityBuilder.Metadata.FindNavigation(Order.CustomerProperty.Name));
+            Assert.Null(principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name));
             Assert.True(dependentEntityBuilder.Ignore(Order.CustomerProperty.Name, ConfigurationSource.Convention));
             Assert.True(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.Convention));
             Assert.Empty(dependentEntityBuilder.Metadata.ForeignKeys);
@@ -1046,8 +1046,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.False(dependentEntityBuilder.Ignore(Order.CustomerProperty.Name, ConfigurationSource.DataAnnotation));
             Assert.False(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.Convention));
             Assert.False(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(dependentEntityBuilder.Metadata.TryGetNavigation(Order.CustomerProperty.Name));
-            Assert.NotNull(principalEntityBuilder.Metadata.TryGetNavigation(Customer.OrdersProperty.Name));
+            Assert.NotNull(dependentEntityBuilder.Metadata.FindNavigation(Order.CustomerProperty.Name));
+            Assert.NotNull(principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name));
 
             Assert.True(principalEntityBuilder.Navigation(Customer.OrdersProperty.Name, foreignKeyBuilder.Metadata, pointsToPrincipal: false, configurationSource: ConfigurationSource.Explicit));
             Assert.False(dependentEntityBuilder.Navigation(null, foreignKeyBuilder.Metadata, pointsToPrincipal: true, configurationSource: ConfigurationSource.DataAnnotation));
@@ -1079,8 +1079,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(principalEntityBuilder.Navigation(Customer.OrdersProperty.Name, foreignKey, pointsToPrincipal: false, configurationSource: ConfigurationSource.Convention));
             Assert.False(dependentEntityBuilder.Ignore(Order.CustomerProperty.Name, ConfigurationSource.DataAnnotation));
             Assert.False(principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.DataAnnotation));
-            Assert.Same(navigationToPrincipal, dependentEntityBuilder.Metadata.TryGetNavigation(Order.CustomerProperty.Name));
-            Assert.Same(navigationToDependent, principalEntityBuilder.Metadata.TryGetNavigation(Customer.OrdersProperty.Name));
+            Assert.Same(navigationToPrincipal, dependentEntityBuilder.Metadata.FindNavigation(Order.CustomerProperty.Name));
+            Assert.Same(navigationToDependent, principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name));
 
             Assert.Equal(Strings.NavigationAddedExplicitly(Order.CustomerProperty.Name, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() =>
@@ -1089,14 +1089,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() =>
                     principalEntityBuilder.Ignore(Customer.OrdersProperty.Name, ConfigurationSource.Explicit)).Message);
 
-            Assert.NotNull(dependentEntityBuilder.Metadata.TryGetNavigation(Order.CustomerProperty.Name));
-            Assert.NotNull(principalEntityBuilder.Metadata.TryGetNavigation(Customer.OrdersProperty.Name));
+            Assert.NotNull(dependentEntityBuilder.Metadata.FindNavigation(Order.CustomerProperty.Name));
+            Assert.NotNull(principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name));
 
             Assert.True(dependentEntityBuilder.Navigation(null, foreignKey, pointsToPrincipal: true, configurationSource: ConfigurationSource.Explicit));
             Assert.True(principalEntityBuilder.Navigation(null, foreignKey, pointsToPrincipal: false, configurationSource: ConfigurationSource.Explicit));
 
-            Assert.Null(dependentEntityBuilder.Metadata.TryGetNavigation(Order.CustomerProperty.Name));
-            Assert.Null(principalEntityBuilder.Metadata.TryGetNavigation(Customer.OrdersProperty.Name));
+            Assert.Null(dependentEntityBuilder.Metadata.FindNavigation(Order.CustomerProperty.Name));
+            Assert.Null(principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name));
         }
 
         [Fact]
@@ -1111,8 +1111,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.False(dependentEntityBuilder.Navigation(Order.CustomerProperty.Name, foreignKeyBuilder.Metadata, pointsToPrincipal: true, configurationSource: ConfigurationSource.Convention));
             Assert.False(principalEntityBuilder.Navigation(Customer.OrdersProperty.Name, foreignKeyBuilder.Metadata, pointsToPrincipal: false, configurationSource: ConfigurationSource.Convention));
 
-            Assert.Null(dependentEntityBuilder.Metadata.TryGetNavigation(Order.CustomerProperty.Name));
-            Assert.Null(principalEntityBuilder.Metadata.TryGetNavigation(Customer.OrdersProperty.Name));
+            Assert.Null(dependentEntityBuilder.Metadata.FindNavigation(Order.CustomerProperty.Name));
+            Assert.Null(principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name));
         }
 
         [Fact]

@@ -269,7 +269,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Key primaryKey;
             if (properties != null
-                && (primaryKey = TryGetPrimaryKey(properties)) != null)
+                && (primaryKey = FindPrimaryKey(properties)) != null)
             {
                 return primaryKey;
             }
@@ -293,19 +293,19 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [CanBeNull]
-        public virtual Key TryGetPrimaryKey()
+        public virtual Key FindPrimaryKey()
         {
-            return BaseType?.TryGetPrimaryKey() ?? _primaryKey;
+            return BaseType?.FindPrimaryKey() ?? _primaryKey;
         }
 
         [CanBeNull]
-        public virtual Key TryGetPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
+        public virtual Key FindPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
         {
             Check.NotNull(properties, nameof(properties));
 
             if (BaseType != null)
             {
-                return BaseType.TryGetPrimaryKey(properties);
+                return BaseType.FindPrimaryKey(properties);
             }
 
             if (_primaryKey != null
@@ -327,7 +327,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(properties, nameof(properties));
             ThrowIfDerivedEntity();
 
-            var key = TryGetKey(properties);
+            var key = FindKey(properties);
             if (key != null)
             {
                 throw new InvalidOperationException(Strings.DuplicateKey(Property.Format(properties), Name));
@@ -351,22 +351,22 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Key GetOrAddKey([NotNull] IReadOnlyList<Property> properties)
         {
-            return TryGetKey(properties)
+            return FindKey(properties)
                    ?? AddKey(properties);
         }
 
         [CanBeNull]
-        public virtual Key TryGetKey([NotNull] Property property)
+        public virtual Key FindKey([NotNull] Property property)
         {
-            return TryGetKey(new[] { property });
+            return FindKey(new[] { property });
         }
 
         [CanBeNull]
-        public virtual Key TryGetKey([NotNull] IReadOnlyList<Property> properties)
+        public virtual Key FindKey([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
 
-            var key = TryGetPrimaryKey(properties);
+            var key = FindPrimaryKey(properties);
             if (key != null)
             {
                 return key;
@@ -388,7 +388,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Key GetKey([NotNull] IReadOnlyList<Property> properties)
         {
-            var key = TryGetKey(properties);
+            var key = FindKey(properties);
             if (key == null)
             {
                 throw new ModelItemNotFoundException(Strings.KeyNotFound(Property.Format(properties), Name));
@@ -499,18 +499,18 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] IReadOnlyList<Property> properties, [NotNull] Key referencedKey)
         {
             // Note: this will return an existing foreign key even if it doesn't have the same referenced key
-            return TryGetForeignKey(properties)
+            return FindForeignKey(properties)
                    ?? AddForeignKey(properties, referencedKey);
         }
 
         [CanBeNull]
-        public virtual ForeignKey TryGetForeignKey([NotNull] Property property)
+        public virtual ForeignKey FindForeignKey([NotNull] Property property)
         {
-            return TryGetForeignKey(new[] { property });
+            return FindForeignKey(new[] { property });
         }
 
         [CanBeNull]
-        public virtual ForeignKey TryGetForeignKey([NotNull] IReadOnlyList<Property> properties)
+        public virtual ForeignKey FindForeignKey([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
 
@@ -525,7 +525,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [CanBeNull]
-        public virtual ForeignKey TryGetForeignKey(
+        public virtual ForeignKey FindForeignKey(
             [NotNull] EntityType principalType,
             [CanBeNull] string navigationToPrincipal,
             [CanBeNull] string navigationToDependent,
@@ -553,7 +553,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual ForeignKey GetForeignKey([NotNull] IReadOnlyList<Property> properties)
         {
-            var foreignKey = TryGetForeignKey(properties);
+            var foreignKey = FindForeignKey(properties);
             if (foreignKey == null)
             {
                 throw new ModelItemNotFoundException(Strings.ForeignKeyNotFound(Property.Format(properties), Name));
@@ -666,11 +666,11 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Navigation GetOrAddNavigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
         {
-            return TryGetNavigation(name) ?? AddNavigation(name, foreignKey, pointsToPrincipal);
+            return FindNavigation(name) ?? AddNavigation(name, foreignKey, pointsToPrincipal);
         }
 
         [CanBeNull]
-        public virtual Navigation TryGetNavigation([NotNull] string name)
+        public virtual Navigation FindNavigation([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -685,7 +685,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Navigation GetNavigation([NotNull] string name)
         {
-            var navigation = TryGetNavigation(name);
+            var navigation = FindNavigation(name);
             if (navigation == null)
             {
                 throw new ModelItemNotFoundException(Strings.NavigationNotFound(name, Name));
@@ -748,17 +748,17 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Index GetOrAddIndex([NotNull] IReadOnlyList<Property> properties)
         {
-            return TryGetIndex(properties) ?? AddIndex(properties);
+            return FindIndex(properties) ?? AddIndex(properties);
         }
 
         [CanBeNull]
-        public virtual Index TryGetIndex([NotNull] Property property)
+        public virtual Index FindIndex([NotNull] Property property)
         {
-            return TryGetIndex(new[] { property });
+            return FindIndex(new[] { property });
         }
 
         [CanBeNull]
-        public virtual Index TryGetIndex([NotNull] IReadOnlyList<Property> properties)
+        public virtual Index FindIndex([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
 
@@ -778,7 +778,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Index GetIndex([NotNull] IReadOnlyList<Property> properties)
         {
-            var index = TryGetIndex(properties);
+            var index = FindIndex(properties);
             if (index == null)
             {
                 throw new ModelItemNotFoundException(Strings.IndexNotFound(Property.Format(properties), Name));
@@ -851,19 +851,19 @@ namespace Microsoft.Data.Entity.Metadata
             // Note: If the property already exists, then whether or not it is a shadow property is not changed.
             // It is useful in many places to get an existing property if it exists, but then create it either in
             // or out of shadow state if it doesn't.
-            return TryGetProperty(name) ?? AddProperty(name, propertyType, shadowProperty);
+            return FindProperty(name) ?? AddProperty(name, propertyType, shadowProperty);
         }
 
         [CanBeNull]
-        public virtual Property TryGetProperty([NotNull] PropertyInfo propertyInfo)
+        public virtual Property FindProperty([NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return TryGetProperty(propertyInfo.Name);
+            return FindProperty(propertyInfo.Name);
         }
 
         [CanBeNull]
-        public virtual Property TryGetProperty([NotNull] string propertyName)
+        public virtual Property FindProperty([NotNull] string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
@@ -871,7 +871,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             return _properties.TryGetValue(propertyName, out property)
                 ? property
-                : BaseType?.TryGetProperty(propertyName);
+                : BaseType?.FindProperty(propertyName);
         }
 
         public virtual Property GetProperty([NotNull] PropertyInfo propertyInfo)
@@ -885,7 +885,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
-            var property = TryGetProperty(propertyName);
+            var property = FindProperty(propertyName);
 
             if (property == null)
             {
@@ -1018,9 +1018,9 @@ namespace Microsoft.Data.Entity.Metadata
             return GetPrimaryKey();
         }
 
-        IProperty IEntityType.TryGetProperty(string propertyName)
+        IProperty IEntityType.FindProperty(string propertyName)
         {
-            return TryGetProperty(propertyName);
+            return FindProperty(propertyName);
         }
 
         IProperty IEntityType.GetProperty(string propertyName)
@@ -1028,9 +1028,9 @@ namespace Microsoft.Data.Entity.Metadata
             return GetProperty(propertyName);
         }
 
-        INavigation IEntityType.TryGetNavigation(string name)
+        INavigation IEntityType.FindNavigation(string name)
         {
-            return TryGetNavigation(name);
+            return FindNavigation(name);
         }
 
         INavigation IEntityType.GetNavigation(string name)

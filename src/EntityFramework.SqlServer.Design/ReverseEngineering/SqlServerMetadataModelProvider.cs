@@ -238,7 +238,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
             foreach (var tc in _tableColumns.Values)
             {
-                var entityType = relationalModel.TryGetEntityType(tc.TableId);
+                var entityType = relationalModel.FindEntityType(tc.TableId);
                 if (entityType == null)
                 {
                     _logger.LogWarning(

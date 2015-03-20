@@ -395,7 +395,7 @@ namespace Microsoft.Data.Entity.Query
                     .GetAccessor(navigationPath[currentNavigationIndex])
                     .SetClrValue(entity, relatedEntities[0]);
 
-                var inverseNavigation = navigationPath[currentNavigationIndex].TryGetInverse();
+                var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
 
                 if (inverseNavigation != null)
                 {
@@ -421,7 +421,7 @@ namespace Microsoft.Data.Entity.Query
                         .GetAccessor(navigationPath[currentNavigationIndex])
                         .AddRange(entity, relatedEntities);
 
-                    var inverseNavigation = navigationPath[currentNavigationIndex].TryGetInverse();
+                    var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
 
                     if (inverseNavigation != null)
                     {
@@ -441,7 +441,7 @@ namespace Microsoft.Data.Entity.Query
                         .GetAccessor(navigationPath[currentNavigationIndex])
                         .SetClrValue(entity, relatedEntities[0]);
 
-                    var inverseNavigation = navigationPath[currentNavigationIndex].TryGetInverse();
+                    var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
 
                     if (inverseNavigation != null)
                     {

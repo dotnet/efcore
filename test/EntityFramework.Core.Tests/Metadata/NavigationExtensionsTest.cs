@@ -19,8 +19,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var category = model.GetEntityType(typeof(Product)).GetNavigations().Single(e => e.Name == "Category");
             var products = model.GetEntityType(typeof(Category)).GetNavigations().Single(e => e.Name == "Products");
 
-            Assert.Same(category, products.TryGetInverse());
-            Assert.Same(products, category.TryGetInverse());
+            Assert.Same(category, products.FindInverse());
+            Assert.Same(products, category.FindInverse());
         }
 
         [Fact]
@@ -31,8 +31,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var category = model.GetEntityType(typeof(Product)).GetNavigations().Single(e => e.Name == "FeaturedProductCategory");
             var product = model.GetEntityType(typeof(Category)).GetNavigations().Single(e => e.Name == "FeaturedProduct");
 
-            Assert.Same(category, product.TryGetInverse());
-            Assert.Same(product, category.TryGetInverse());
+            Assert.Same(category, product.FindInverse());
+            Assert.Same(product, category.FindInverse());
         }
 
         [Fact]
@@ -55,19 +55,19 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var products = BuildModel(createCategory: false).GetEntityType(typeof(Category)).GetNavigations().Single(e => e.Name == "Products");
 
-            Assert.Null(products.TryGetInverse());
+            Assert.Null(products.FindInverse());
 
             var category = BuildModel(createProducts: false).GetEntityType(typeof(Product)).GetNavigations().Single(e => e.Name == "Category");
 
-            Assert.Null(category.TryGetInverse());
+            Assert.Null(category.FindInverse());
 
             var featuredCategory = BuildModel(createFeaturedProduct: false).GetEntityType(typeof(Product)).GetNavigations().Single(e => e.Name == "FeaturedProductCategory");
 
-            Assert.Null(featuredCategory.TryGetInverse());
+            Assert.Null(featuredCategory.FindInverse());
 
             var featuredProduct = BuildModel(createFeaturedProductCategory: false).GetEntityType(typeof(Category)).GetNavigations().Single(e => e.Name == "FeaturedProduct");
 
-            Assert.Null(featuredProduct.TryGetInverse());
+            Assert.Null(featuredProduct.FindInverse());
         }
 
         private class Category

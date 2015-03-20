@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         {
             // do not configure EntityTypes for which we had an error when generating
             return Model.EntityTypes.OrderBy(e => e.Name)
-                .Where(e => ((EntityType)e).TryGetAnnotation(
+                .Where(e => ((EntityType)e).FindAnnotation(
                     SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) == null);
         }
 

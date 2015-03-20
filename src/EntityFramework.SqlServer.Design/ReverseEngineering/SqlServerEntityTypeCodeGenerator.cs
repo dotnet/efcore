@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     var navigationPropertyName =
                         foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
                     if (((EntityType)otherEntityType)
-                        .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) == null)
+                        .FindAnnotation(SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) == null)
                     {
                         if (!foreignKey.IsUnique)
                         {
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         = (string)foreignKey.GetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName).Value;
 
                     if (((EntityType)otherEntityType)
-                        .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) != null)
+                        .FindAnnotation(SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) != null)
                     {
                         Generator.CSharpCodeGeneratorHelper.SingleLineComment("Unable to add a Navigation Property referencing type "
                             + otherEntityType.Name + " because of errors generating that EntityType.",

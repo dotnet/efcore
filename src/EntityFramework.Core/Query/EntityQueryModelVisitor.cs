@@ -286,8 +286,8 @@ namespace Microsoft.Data.Entity.Query
                         from propertyInfo in chainedNavigationProperties
                         let entityType
                             = QueryCompilationContext.Model
-                                .TryGetEntityType(propertyInfo.DeclaringType)
-                        select entityType?.TryGetNavigation(propertyInfo.Name))
+                                .FindEntityType(propertyInfo.DeclaringType)
+                        select entityType?.FindNavigation(propertyInfo.Name))
                 {
                     if (navigation == null)
                     {
@@ -996,7 +996,7 @@ namespace Microsoft.Data.Entity.Query
             {
                 var entityType
                     = QueryCompilationContext.Model
-                        .TryGetEntityType(memberExpression.Expression.Type);
+                        .FindEntityType(memberExpression.Expression.Type);
 
                 if (entityType == null)
                 {
@@ -1004,8 +1004,8 @@ namespace Microsoft.Data.Entity.Query
                 }
 
                 var property
-                    = (IPropertyBase)entityType.TryGetProperty(memberExpression.Member.Name)
-                      ?? entityType.TryGetNavigation(memberExpression.Member.Name);
+                    = (IPropertyBase)entityType.FindProperty(memberExpression.Member.Name)
+                      ?? entityType.FindNavigation(memberExpression.Member.Name);
 
                 if (property == null)
                 {
@@ -1057,13 +1057,13 @@ namespace Microsoft.Data.Entity.Query
                 {
                     var entityType
                         = QueryCompilationContext.Model
-                            .TryGetEntityType(
+                            .FindEntityType(
                                 querySourceReferenceExpression.ReferencedQuerySource.ItemType);
 
                     if (entityType != null)
                     {
                         var propertyName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-                        var property = entityType.TryGetProperty(propertyName);
+                        var property = entityType.FindProperty(propertyName);
 
                         if (property != null)
                         {

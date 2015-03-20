@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
             Check.NotNull(entityBuilder, nameof(entityBuilder));
             Check.NotNull(properties, nameof(properties));
 
-            if (entityBuilder.Metadata.TryGetPrimaryKey(properties) != null
+            if (entityBuilder.Metadata.FindPrimaryKey(properties) != null
                 && properties.Count == 1
                 && properties.First().PropertyType.IsInteger()
                 && properties.First().GenerateValueOnAdd == generateValue)

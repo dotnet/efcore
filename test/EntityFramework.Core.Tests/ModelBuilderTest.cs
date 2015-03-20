@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityBuilder = modelBuilder.Entity(typeof(Customer).FullName);
 
             Assert.NotNull(entityBuilder);
-            Assert.NotNull(model.TryGetEntityType(typeof(Customer).FullName));
+            Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
         }
 
         [Fact]
@@ -2092,7 +2092,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(dependentKey, dependentType.Keys.SingleOrDefault());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
-            Assert.Same(dependentKey, dependentType.TryGetPrimaryKey());
+            Assert.Same(dependentKey, dependentType.FindPrimaryKey());
         }
 
         [Fact]
@@ -2136,7 +2136,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.True(principalType.Keys.Contains(nonPrimaryPrincipalKey));
 
             Assert.Same(dependentKey, dependentType.Keys.SingleOrDefault());
-            Assert.Same(dependentKey, dependentType.TryGetPrimaryKey());
+            Assert.Same(dependentKey, dependentType.FindPrimaryKey());
         }
 
         [Fact]
@@ -2177,9 +2177,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(principalProperty, primaryPrincipalKey.Properties.Single());
             Assert.Equal(2, principalType.Keys.Count);
             Assert.True(principalType.Keys.Contains(nonPrimaryPrincipalKey));
-
             Assert.Same(dependentKey, dependentType.Keys.SingleOrDefault());
-            Assert.Same(dependentKey, dependentType.TryGetPrimaryKey());
+            Assert.Same(dependentKey, dependentType.FindPrimaryKey());
         }
 
         [Fact]
@@ -3564,7 +3563,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             foreach (var navigation in principalType.Navigations.ToList())
             {
-                var inverse = navigation.TryGetInverse();
+                var inverse = navigation.FindInverse();
                 inverse?.EntityType.RemoveNavigation(inverse);
                 principalType.RemoveNavigation(navigation);
 

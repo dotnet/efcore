@@ -49,31 +49,31 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual EntityType GetOrAddEntityType([NotNull] Type type)
         {
-            return TryGetEntityType(type) ?? AddEntityType(type);
+            return FindEntityType(type) ?? AddEntityType(type);
         }
 
         public virtual EntityType GetOrAddEntityType([NotNull] string name)
         {
-            return TryGetEntityType(name) ?? AddEntityType(name);
+            return FindEntityType(name) ?? AddEntityType(name);
         }
 
         [CanBeNull]
-        public virtual EntityType TryGetEntityType([NotNull] Type type)
+        public virtual EntityType FindEntityType([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
 
-            return type.GetTypeInfo().IsClass ? TryGetEntityType(new EntityType(type, this)) : null;
+            return type.GetTypeInfo().IsClass ? FindEntityType(new EntityType(type, this)) : null;
         }
 
         [CanBeNull]
-        public virtual EntityType TryGetEntityType([NotNull] string name)
+        public virtual EntityType FindEntityType([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
-            return TryGetEntityType(new EntityType(name, this));
+            return FindEntityType(new EntityType(name, this));
         }
 
-        private EntityType TryGetEntityType(EntityType entityType)
+        private EntityType FindEntityType(EntityType entityType)
         {
             return _entities.TryGetValue(entityType, out entityType)
                 ? entityType
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(type, nameof(type));
 
-            var entityType = TryGetEntityType(type);
+            var entityType = FindEntityType(type);
             if (entityType == null)
             {
                 throw new ModelItemNotFoundException(Strings.EntityTypeNotFound(type.Name));
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(name, nameof(name));
 
-            var entityType = TryGetEntityType(name);
+            var entityType = FindEntityType(name);
             if (entityType == null)
             {
                 throw new ModelItemNotFoundException(Strings.EntityTypeNotFound(name));
@@ -161,9 +161,9 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual string StorageName { get; [param: CanBeNull] set; }
 
-        IEntityType IModel.TryGetEntityType(Type type)
+        IEntityType IModel.FindEntityType(Type type)
         {
-            return TryGetEntityType(type);
+            return FindEntityType(type);
         }
 
         IEntityType IModel.GetEntityType(Type type)
@@ -171,9 +171,9 @@ namespace Microsoft.Data.Entity.Metadata
             return GetEntityType(type);
         }
 
-        IEntityType IModel.TryGetEntityType(string name)
+        IEntityType IModel.FindEntityType(string name)
         {
-            return TryGetEntityType(name);
+            return FindEntityType(name);
         }
 
         IEntityType IModel.GetEntityType(string name)

@@ -465,7 +465,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private void SetInverse(InternalEntityEntry entry, INavigation navigation, object entity)
         {
-            var inverse = navigation.TryGetInverse();
+            var inverse = navigation.FindInverse();
 
             if (inverse != null)
             {
@@ -507,7 +507,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private void ConditionallyClearInverse(InternalEntityEntry entry, INavigation navigation, object entity)
         {
-            var inverse = navigation.TryGetInverse();
+            var inverse = navigation.FindInverse();
 
             if (inverse != null)
             {
