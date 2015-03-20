@@ -24,29 +24,15 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             _property = property;
         }
 
-        public virtual string Column
-        {
-            get { return _property[NameAnnotation] ?? _property.Name; }
-        }
+        public virtual string Column => _property[NameAnnotation] as string ?? _property.Name;
+        public virtual string ColumnType => _property[ColumnTypeAnnotation] as string;
+        public virtual string DefaultExpression => _property[DefaultExpressionAnnotation] as string;
 
-        public virtual string ColumnType
-        {
-            get { return _property[ColumnTypeAnnotation]; }
-        }
+        public virtual object DefaultValue 
+            => new TypedAnnotation(
+                _property[DefaultValueTypeAnnotation] as string,
+                _property[DefaultValueAnnotation] as string).Value;
 
-        public virtual string DefaultExpression
-        {
-            get { return _property[DefaultExpressionAnnotation]; }
-        }
-
-        public virtual object DefaultValue
-        {
-            get { return new TypedAnnotation(_property[DefaultValueTypeAnnotation], _property[DefaultValueAnnotation]).Value; }
-        }
-
-        protected virtual IProperty Property
-        {
-            get { return _property; }
-        }
+        protected virtual IProperty Property => _property;
     }
 }

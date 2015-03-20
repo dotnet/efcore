@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEnumerable<IAnnotation> Annotations => LazyInitializer.EnsureInitialized(ref _annotations, LoadAnnotations);
 
-        public string this[string annotationName] => Annotations.FirstOrDefault(a => a.Name == annotationName)?.Value;
+        public object this[string annotationName] => Annotations.FirstOrDefault(a => a.Name == annotationName)?.Value;
 
         protected abstract IAnnotation[] LoadAnnotations();
 

@@ -8,8 +8,11 @@ namespace Microsoft.Data.Entity.Infrastructure
 {
     public interface IAnnotatable
     {
-        string this[[NotNull] string annotationName] { get; }
+        [CanBeNull]
+        object this[[NotNull] string annotationName] { get; }
+
         Annotation GetAnnotation([NotNull] string annotationName);
+
         IEnumerable<IAnnotation> Annotations { get; }
     }
 }

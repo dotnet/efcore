@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         fieldCache[propertyInfo.DeclaringType] = fields;
                     }
 
-                    var fieldName = property["BackingField"];
+                    var fieldName = property["BackingField"] as string;
                     if (fieldName != null)
                     {
                         FieldInfo fieldInfo;

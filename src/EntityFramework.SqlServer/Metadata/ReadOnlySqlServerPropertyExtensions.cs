@@ -26,53 +26,45 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         }
 
         public override string Column
-        {
-            get { return Property[SqlServerNameAnnotation] ?? base.Column; }
-        }
+            => Property[SqlServerNameAnnotation] as string
+               ?? base.Column;
 
         public override string ColumnType
-        {
-            get { return Property[SqlServerColumnTypeAnnotation] ?? base.ColumnType; }
-        }
+            => Property[SqlServerColumnTypeAnnotation] as string
+               ?? base.ColumnType;
 
         public override string DefaultExpression
-        {
-            get { return Property[SqlServerDefaultExpressionAnnotation] ?? base.DefaultExpression; }
-        }
+            => Property[SqlServerDefaultExpressionAnnotation] as string
+               ?? base.DefaultExpression;
 
         public override object DefaultValue
-        {
-            get
-            {
-                return new TypedAnnotation(Property[SqlServerDefaultValueTypeAnnotation], Property[SqlServerDefaultValueAnnotation]).Value
-                       ?? base.DefaultValue;
-            }
-        }
+            => new TypedAnnotation(
+                Property[SqlServerDefaultValueTypeAnnotation] as string,
+                Property[SqlServerDefaultValueAnnotation] as string).Value
+                         ?? base.DefaultValue;
 
-        public virtual string ComputedExpression => Property[SqlServerComputedExpressionAnnotation];
+        public virtual string ComputedExpression
+            => Property[SqlServerComputedExpressionAnnotation] as string;
 
         public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
         {
             get
             {
                 // TODO: Issue #777: Non-string annotations
-                var value = Property[SqlServerValueGenerationAnnotation];
-                var strategy = value == null ? null : (SqlServerValueGenerationStrategy?)Enum.Parse(typeof(SqlServerValueGenerationStrategy), value);
+                var value = Property[SqlServerValueGenerationAnnotation] as string;
+
+                var strategy = value == null
+                    ? null
+                    : (SqlServerValueGenerationStrategy?)Enum.Parse(typeof(SqlServerValueGenerationStrategy), value);
+
                 return strategy == SqlServerValueGenerationStrategy.Default
                     ? Property.EntityType.Model.SqlServer().ValueGenerationStrategy
                     : strategy;
             }
         }
 
-        public virtual string SequenceName
-        {
-            get { return Property[SqlServerSequenceNameAnnotation]; }
-        }
-
-        public virtual string SequenceSchema
-        {
-            get { return Property[SqlServerSequenceSchemaAnnotation]; }
-        }
+        public virtual string SequenceName => Property[SqlServerSequenceNameAnnotation] as string;
+        public virtual string SequenceSchema => Property[SqlServerSequenceSchemaAnnotation] as string;
 
         public virtual Sequence TryGetSequence()
         {

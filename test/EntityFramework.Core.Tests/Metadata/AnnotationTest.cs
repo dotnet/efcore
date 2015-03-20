@@ -17,9 +17,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 Strings.ArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => new Annotation("", "Kake")).Message);
 
-            Assert.Equal(
-                Strings.ArgumentIsEmpty("value"),
-                Assert.Throws<ArgumentException>(() => new Annotation("Lie", "")).Message);
+            // ReSharper disable once AssignNullToNotNullAttribute
+            Assert.Throws<ArgumentNullException>(() => new Annotation("Lie", null));
         }
 
         [Fact]

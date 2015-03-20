@@ -20,14 +20,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             _index = index;
         }
 
-        public virtual string Name
-        {
-            get { return _index[NameAnnotation]; }
-        }
+        public virtual string Name => _index[NameAnnotation] as string;
 
-        protected virtual IIndex Index
-        {
-            get { return _index; }
-        }
+        protected virtual IIndex Index => _index;
     }
 }

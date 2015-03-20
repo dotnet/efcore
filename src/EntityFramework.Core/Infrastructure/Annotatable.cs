@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             = new LazyRef<ImmutableSortedSet<Annotation>>(
                 () => ImmutableSortedSet<Annotation>.Empty.WithComparer(new AnnotationComparer()));
 
-        public virtual Annotation AddAnnotation([NotNull] string annotationName, [NotNull] string value)
+        public virtual Annotation AddAnnotation([NotNull] string annotationName, [NotNull] object value)
         {
             Check.NotEmpty(annotationName, nameof(annotationName));
             Check.NotNull(value, nameof(value));
@@ -82,8 +82,9 @@ namespace Microsoft.Data.Entity.Infrastructure
             return removedAnnotations;
         }
 
-        // ReSharper disable once AnnotationRedundanceInHierarchy
-        public virtual string this[[NotNull] string annotationName]
+        // ReSharper disable once AnnotationRedundancyInHierarchy
+        // TODO: Fix API test to handle indexer
+        public virtual object this[[NotNull] string annotationName]
         {
             get { return TryGetAnnotation(annotationName)?.Value; }
             [param: CanBeNull]

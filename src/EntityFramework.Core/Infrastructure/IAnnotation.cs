@@ -6,6 +6,6 @@ namespace Microsoft.Data.Entity.Infrastructure
     public interface IAnnotation
     {
         string Name { get; }
-        string Value { get; }
+        object Value { get; }
     }
 }

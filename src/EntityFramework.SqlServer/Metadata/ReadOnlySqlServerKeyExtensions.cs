@@ -18,9 +18,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         }
 
         public override string Name
-        {
-            get { return Key[SqlServerNameAnnotation] ?? base.Name; }
-        }
+            => Key[SqlServerNameAnnotation] as string
+               ?? base.Name;
 
         public virtual bool? IsClustered
         {
@@ -28,7 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             {
                 // TODO: Issue #777: Non-string annotations
                 // TODO: Issue #700: Annotate associated index object instead
-                var value = Key[SqlServerClusteredAnnotation];
+                var value = Key[SqlServerClusteredAnnotation] as string;
                 return value == null ? null : (bool?)bool.Parse(value);
             }
         }

@@ -8,17 +8,16 @@ namespace Microsoft.Data.Entity.Infrastructure
 {
     public class Annotation : IAnnotation
     {
-        public Annotation([NotNull] string name, [NotNull] string value)
+        public Annotation([NotNull] string name, [NotNull] object value)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NotEmpty(value, nameof(value));
+            Check.NotNull(value, nameof(value));
 
             Name = name;
             Value = value;
         }
 
         public virtual string Name { get; }
-
-        public virtual string Value { get; }
+        public virtual object Value { get; }
     }
 }

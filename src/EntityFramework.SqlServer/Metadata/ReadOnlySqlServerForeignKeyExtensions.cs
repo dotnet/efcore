@@ -17,8 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         }
 
         public override string Name
-        {
-            get { return ForeignKey[SqlServerNameAnnotation] ?? base.Name; }
-        }
+            => ForeignKey[SqlServerNameAnnotation] as string
+               ?? base.Name;
     }
 }

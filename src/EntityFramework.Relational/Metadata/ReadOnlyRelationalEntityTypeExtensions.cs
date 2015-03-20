@@ -23,18 +23,22 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             _entityType = entityType;
         }
 
-        public virtual string Table => _entityType.RootType[RelationalTableAnnotation] ?? _entityType.RootType.SimpleName;
+        public virtual string Table 
+            => _entityType.RootType[RelationalTableAnnotation] as string
+                ?? _entityType.RootType.SimpleName;
 
-        public virtual string Schema => _entityType.RootType[RelationalSchemaAnnotation];
+        public virtual string Schema 
+            => _entityType.RootType[RelationalSchemaAnnotation] as string;
 
         public virtual IProperty DiscriminatorProperty
             => _entityType.RootType
                 .GetProperty(
-                    _entityType.RootType
+                    (string)_entityType.RootType
                         .GetAnnotation(DiscriminatorPropertyAnnotation).Value);
 
         public virtual string DiscriminatorValue 
-            => _entityType[DiscriminatorValueAnnotation] ?? _entityType.SimpleName;
+            => _entityType[DiscriminatorValueAnnotation] as string
+                ?? _entityType.SimpleName;
 
         protected virtual IEntityType EntityType => _entityType;
     }

@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
     {
         public IEnumerable<IAnnotation> Annotations => ImmutableList<IAnnotation>.Empty;
 
-        public string this[string annotationName] => null;
+        public object this[string annotationName] => null;
 
         public virtual string StorageName => null;
 

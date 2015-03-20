@@ -23,7 +23,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _metadata = metadata;
         }
 
-        public virtual bool Annotation([NotNull] string annotation, [CanBeNull] string value, ConfigurationSource configurationSource)
+        public virtual bool Annotation(
+            [NotNull] string annotation, [CanBeNull] object value, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(annotation, nameof(annotation));
 

@@ -17,17 +17,16 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
         }
 
-        public override string Name
-        {
-            get { return Index[SqlServerNameAnnotation] ?? base.Name; }
-        }
+        public override string Name 
+            => Index[SqlServerNameAnnotation] as string 
+                ?? base.Name;
 
         public virtual bool? IsClustered
         {
             get
             {
                 // TODO: Issue #777: Non-string annotations
-                var value = Index[SqlServerClusteredAnnotation];
+                var value = Index[SqlServerClusteredAnnotation] as string;
                 return value == null ? null : (bool?)bool.Parse(value);
             }
         }

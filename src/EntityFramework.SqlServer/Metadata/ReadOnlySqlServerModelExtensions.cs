@@ -28,20 +28,16 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             get
             {
                 // TODO: Issue #777: Non-string annotations
-                var value = Model[SqlServerValueGenerationAnnotation];
-                return value == null ? null : (SqlServerValueGenerationStrategy?)Enum.Parse(typeof(SqlServerValueGenerationStrategy), value);
+                var value = Model[SqlServerValueGenerationAnnotation] as string;
+
+                return value == null
+                    ? null
+                    : (SqlServerValueGenerationStrategy?)Enum.Parse(typeof(SqlServerValueGenerationStrategy), value);
             }
         }
 
-        public virtual string DefaultSequenceName
-        {
-            get { return Model[SqlServerDefaultSequenceNameAnnotation]; }
-        }
-
-        public virtual string DefaultSequenceSchema
-        {
-            get { return Model[SqlServerDefaultSequenceSchemaAnnotation]; }
-        }
+        public virtual string DefaultSequenceName => Model[SqlServerDefaultSequenceNameAnnotation] as string;
+        public virtual string DefaultSequenceSchema => Model[SqlServerDefaultSequenceSchemaAnnotation] as string;
 
         public override IReadOnlyList<Sequence> Sequences
         {
@@ -50,7 +46,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 var sqlServerSequences = (
                     from a in Model.Annotations
                     where a.Name.StartsWith(SqlServerSequenceAnnotation)
-                    select Sequence.Deserialize(a.Value))
+                    select Sequence.Deserialize((string)a.Value))
                     .ToList();
 
                 return base.Sequences
@@ -63,7 +59,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public override Sequence TryGetSequence(string name, string schema = null)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, "schema");
+            Check.NullButNotEmpty(schema, nameof(schema));
 
             return FindSequence(SqlServerSequenceAnnotation + schema + "." + name)
                    ?? base.TryGetSequence(name, schema);

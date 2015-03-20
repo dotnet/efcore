@@ -30,7 +30,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             Check.NotNull(sb, nameof(sb));
 
             var errorMessageAnnotation =
-                EntityType[SqlServerMetadataModelProvider.AnnotationNameEntityTypeError];
+                EntityType[SqlServerMetadataModelProvider.AnnotationNameEntityTypeError] as string;
+
             if (errorMessageAnnotation != null)
             {
                 GenerateCommentHeader(sb);
@@ -105,8 +106,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 foreach (var foreignKey in otherEntityType
                     .ForeignKeys.Where(fk => fk.ReferencedEntityType == EntityType))
                 {
-                    var navigationPropertyName =
-                        foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
+                    var navigationPropertyName 
+                        = (string)foreignKey.GetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName).Value;
+
                     if (((EntityType)otherEntityType)
                         .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) != null)
                     {
@@ -141,8 +143,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             foreach (var foreignKey in EntityType.ForeignKeys)
             {
                 // set up the navigation property on this end of foreign keys owned by this EntityType
-                var navigationPropertyName =
-                    foreignKey[SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName];
+                var navigationPropertyName 
+                    = (string)foreignKey.GetAnnotation(SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName).Value;
+
                 Generator.CSharpCodeGeneratorHelper.AddProperty(
                     AccessModifier.Public,
                     VirtualModifier.Virtual,

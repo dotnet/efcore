@@ -18,13 +18,11 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         }
 
         public override string Table
-        {
-            get { return EntityType[SqlServerTableAnnotation] ?? base.Table; }
-        }
+            => EntityType[SqlServerTableAnnotation] as string
+               ?? base.Table;
 
         public override string Schema
-        {
-            get { return EntityType[SqlServerSchemaAnnotation] ?? base.Schema; }
-        }
+            => EntityType[SqlServerSchemaAnnotation] as string
+               ?? base.Schema;
     }
 }

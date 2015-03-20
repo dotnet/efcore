@@ -20,14 +20,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             _foreignKey = foreignKey;
         }
 
-        public virtual string Name
-        {
-            get { return _foreignKey[NameAnnotation]; }
-        }
+        public virtual string Name => _foreignKey[NameAnnotation] as string;
 
-        protected virtual IForeignKey ForeignKey
-        {
-            get { return _foreignKey; }
-        }
+        protected virtual IForeignKey ForeignKey => _foreignKey;
     }
 }

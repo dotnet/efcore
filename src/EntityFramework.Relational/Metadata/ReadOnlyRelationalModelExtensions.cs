@@ -22,21 +22,18 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             _model = model;
         }
 
-        protected virtual IModel Model
-        {
-            get { return _model; }
-        }
+        protected virtual IModel Model => _model;
 
         public virtual IReadOnlyList<Sequence> Sequences => (
-            from a in _model.Annotations
-            where a.Name.StartsWith(RelationalSequenceAnnotation)
-            select Sequence.Deserialize(a.Value))
-            .ToList();
+                from a in _model.Annotations
+                where a.Name.StartsWith(RelationalSequenceAnnotation)
+                select Sequence.Deserialize((string)a.Value))
+                .ToList();
 
         public virtual Sequence TryGetSequence(string name, string schema = null)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, "schema");
+            Check.NullButNotEmpty(schema, nameof(schema));
 
             return FindSequence(RelationalSequenceAnnotation + schema + "." + name);
         }
@@ -51,7 +48,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
                 return null;
             }
 
-            var sequence = Sequence.Deserialize(value);
+            var sequence = Sequence.Deserialize((string)value);
             sequence.Model = _model;
             return sequence;
         }
