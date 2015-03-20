@@ -403,7 +403,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(key, nameof(key));
             ThrowIfDerivedEntity();
-            
+
             Key removedKey;
             if (_keys.HasValue
                 && _keys.Value.TryGetValue(key.Properties, out removedKey))
@@ -962,7 +962,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             UpdateIndexes();
             UpdateShadowIndexes();
-            UpdateOriginalValueIndexes(property);
+            UpdateOriginalValueIndexes();
 
             PropertyMetadataChanged?.Invoke(this, property);
         }
@@ -987,14 +987,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             _shadowPropertyCount = shadowIndex;
-        }
-
-        private void UpdateOriginalValueIndexes(Property addedOrRemovedProperty)
-        {
-            if (RequiresOriginalValue(addedOrRemovedProperty))
-            {
-                UpdateOriginalValueIndexes();
-            }
         }
 
         private void UpdateOriginalValueIndexes()
