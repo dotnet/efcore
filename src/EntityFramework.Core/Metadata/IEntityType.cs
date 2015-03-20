@@ -15,7 +15,6 @@ namespace Microsoft.Data.Entity.Metadata
         string Name { get; }
 
         bool IsAbstract { get; }
-        bool UseEagerSnapshots { get; }
         bool HasDerivedTypes { get; }
 
         [CanBeNull]

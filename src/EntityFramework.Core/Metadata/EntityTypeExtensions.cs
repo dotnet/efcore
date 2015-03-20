@@ -26,6 +26,13 @@ namespace Microsoft.Data.Entity.Metadata
             return lastDot > 0 ? entityType.Name.Substring(lastDot + 1) : entityType.Name;
         }
 
+        public static bool UseEagerSnapshots([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+             return (entityType as EntityType)?.UseEagerSnapshots ?? false;
+        }
+
         public static int OriginalValueCount([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

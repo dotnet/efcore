@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             var entityType = entry.EntityType;
 
-            if (entityType.UseEagerSnapshots)
+            if (entityType.UseEagerSnapshots())
             {
                 entry.OriginalValues.TakeSnapshot();
                 entry.RelationshipsSnapshot.TakeSnapshot();

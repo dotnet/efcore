@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
             var entry = CreateInternalEntry<Product>(contextServices);
 
-            Assert.True(entry.EntityType.UseEagerSnapshots);
+            Assert.True(entry.EntityType.UseEagerSnapshots());
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
 
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
             var entry = CreateInternalEntry(contextServices, new ProductWithChanging { DependentId = 77 });
 
-            Assert.False(entry.EntityType.UseEagerSnapshots);
+            Assert.False(entry.EntityType.UseEagerSnapshots());
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
 
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
             var entry = CreateInternalEntry<ProductWithChanging>(contextServices);
 
-            Assert.False(entry.EntityType.UseEagerSnapshots);
+            Assert.False(entry.EntityType.UseEagerSnapshots());
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
 
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var category = new CategoryWithChanging();
             var entry = CreateInternalEntry(contextServices, new ProductWithChanging { Category = category });
 
-            Assert.False(entry.EntityType.UseEagerSnapshots);
+            Assert.False(entry.EntityType.UseEagerSnapshots());
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
 
@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
             var entry = CreateInternalEntry(contextServices, new ProductWithChanging { Id = 77 });
 
-            Assert.False(entry.EntityType.UseEagerSnapshots);
+            Assert.False(entry.EntityType.UseEagerSnapshots());
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
 
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
             var entry = CreateInternalEntry<CategoryWithChanging>(contextServices);
 
-            Assert.False(entry.EntityType.UseEagerSnapshots);
+            Assert.False(entry.EntityType.UseEagerSnapshots());
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
 

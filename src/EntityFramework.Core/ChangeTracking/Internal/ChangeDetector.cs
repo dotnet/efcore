@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void PropertyChanging(InternalEntityEntry entry, IPropertyBase propertyBase)
         {
-            if (!entry.EntityType.UseEagerSnapshots)
+            if (!entry.EntityType.UseEagerSnapshots())
             {
                 var property = propertyBase as IProperty;
                 if (property != null
