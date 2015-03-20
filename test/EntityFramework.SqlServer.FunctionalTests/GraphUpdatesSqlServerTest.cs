@@ -15,13 +15,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             protected override string DatabaseName => "GraphUpdatesTest";
 
             public override int IntSentinel => 0;
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                base.OnModelCreating(modelBuilder);
-
-                modelBuilder.ForSqlServer().UseSequence();
-            }
         }
     }
 }

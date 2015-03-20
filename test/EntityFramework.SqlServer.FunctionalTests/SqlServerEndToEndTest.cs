@@ -167,21 +167,22 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                             Away = 0.12345f,
                             AndChew = new byte[16]
                         }).Entity;
+                    var addedId = toAdd.Id;
 
                     await db.SaveChangesAsync();
 
-                    Assert.NotEqual(0, toAdd.Id);
+                    Assert.NotEqual(0, addedId);
 
                     Assert.Equal(EntityState.Unchanged, db.Entry(toUpdate).State);
                     Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
-                    Assert.Equal(3, TestSqlLoggerFactory.SqlStatements.Count);
+                    Assert.Equal(4, TestSqlLoggerFactory.SqlStatements.Count);
                     Assert.True(TestSqlLoggerFactory.SqlStatements[0].Contains("SELECT"));
                     Assert.True(TestSqlLoggerFactory.SqlStatements[1].Contains("SELECT"));
-                    Assert.True(TestSqlLoggerFactory.SqlStatements[2].Contains("DELETE"));
-                    Assert.True(TestSqlLoggerFactory.SqlStatements[2].Contains("UPDATE"));
-                    Assert.True(TestSqlLoggerFactory.SqlStatements[2].Contains("INSERT"));
+                    Assert.True(TestSqlLoggerFactory.SqlStatements[3].Contains("DELETE"));
+                    Assert.True(TestSqlLoggerFactory.SqlStatements[3].Contains("UPDATE"));
+                    Assert.True(TestSqlLoggerFactory.SqlStatements[3].Contains("INSERT"));
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
                         string.Format(@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {0} AND Name = 'Blog is Updated'", updatedId),
@@ -196,7 +197,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.Equal(0, rows);
 
                     rows = await testDatabase.ExecuteScalarAsync<int>(
-                        @"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = 3 AND Name = 'Blog to Insert'",
+                        string.Format(@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {0} AND Name = 'Blog to Insert'", addedId),
                         CancellationToken.None);
 
                     Assert.Equal(1, rows);
@@ -217,6 +218,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 int addedId;
                 using (var db = new BloggingContext(_fixture.ServiceProvider, optionsBuilder.Options))
                 {
+                    var blogs = await CreateBlogDatabaseAsync<Blog>(db);
+
                     var toAdd = db.Blogs.Add(new Blog
                         {
                             Name = "Blog to Insert",
@@ -231,8 +234,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                             AndChew = new byte[16]
                         }).Entity;
                     db.Entry(toAdd).State = EntityState.Detached;
-
-                    var blogs = await CreateBlogDatabaseAsync<Blog>(db);
 
                     var toUpdate = blogs[0];
                     toUpdate.Name = "Blog is Updated";

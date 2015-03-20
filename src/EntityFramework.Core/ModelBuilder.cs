@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(conventions, nameof(conventions));
 
-            _builder = new InternalModelBuilder(new Model(), conventions);
+            _builder = new InternalModelBuilder(new Model(), conventions).Initialize();
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(model, nameof(model));
             Check.NotNull(conventions, nameof(conventions));
 
-            _builder = new InternalModelBuilder(model, conventions);
+            _builder = new InternalModelBuilder(model, conventions).Initialize();
         }
 
         /// <summary>

@@ -185,5 +185,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return roots;
         }
+
+        public virtual InternalModelBuilder Initialize()
+        {
+            return ConventionDispatcher.InitializingModel(this);
+        }
     }
 }

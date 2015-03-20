@@ -64,11 +64,5 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             return new DbContext(_serviceProvider, optionsBuilder.Options);
         }
-
-        public override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<TransactionCustomer>().Property(c => c.Id).ForSqlServer(b => b.UseNoValueGeneration());
-        }
     }
 }

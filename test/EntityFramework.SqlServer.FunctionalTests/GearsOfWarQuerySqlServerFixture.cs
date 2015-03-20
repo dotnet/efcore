@@ -59,12 +59,5 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             context.Database.AsRelational().Connection.UseTransaction(testStore.Transaction);
             return context;
         }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.ForSqlServer().UseSequence();
-        }
     }
 }

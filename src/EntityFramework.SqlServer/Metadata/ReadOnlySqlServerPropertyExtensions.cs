@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 var value = Property[SqlServerValueGenerationAnnotation];
                 var strategy = value == null ? null : (SqlServerValueGenerationStrategy?)Enum.Parse(typeof(SqlServerValueGenerationStrategy), value);
                 return strategy == SqlServerValueGenerationStrategy.Default
-                    ? (Property.EntityType.Model.SqlServer().ValueGenerationStrategy ?? SqlServerValueGenerationStrategy.Identity)
+                    ? Property.EntityType.Model.SqlServer().ValueGenerationStrategy
                     : strategy;
             }
         }

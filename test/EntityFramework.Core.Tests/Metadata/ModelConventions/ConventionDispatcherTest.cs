@@ -153,6 +153,46 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.True(foreignKeyRemoved);
         }
 
+        [Fact]
+        public void InitializingModel_calls_apply_on_conventions_in_order()
+        {
+            var conventions = new ConventionSet();
+
+            var nullConventionCalled = false;
+
+            InternalModelBuilder modelBuilder = null;
+            var convention = new Mock<IModelConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
+            {
+                Assert.NotNull(b);
+                modelBuilder = new InternalModelBuilder(b.Metadata, new ConventionSet());
+                return b;
+            });
+            conventions.ModelConventions.Add(convention.Object);
+
+            var nullConvention = new Mock<IModelConvention>();
+            nullConvention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
+            {
+                nullConventionCalled = true;
+                return null;
+            });
+            conventions.ModelConventions.Add(nullConvention.Object);
+
+            var extraConvention = new Mock<IModelConvention>();
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
+            {
+                Assert.False(true);
+                return null;
+            });
+            conventions.ModelConventions.Add(extraConvention.Object);
+
+            var builder = new ModelBuilder(conventions);
+
+            Assert.NotNull(builder);
+            Assert.True(nullConventionCalled);
+            Assert.NotNull(modelBuilder);
+        }
+
         private class Order
         {
             public int OrderId { get; set; }

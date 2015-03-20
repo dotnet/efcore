@@ -76,5 +76,21 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
             return relationshipBuilder;
         }
+
+        public virtual InternalModelBuilder InitializingModel([NotNull] InternalModelBuilder modelBuilder)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+
+            foreach (var modelConvention in _conventionSet.ModelConventions)
+            {
+                modelBuilder = modelConvention.Apply(modelBuilder);
+                if (modelBuilder == null)
+                {
+                    break;
+                }
+            }
+
+            return modelBuilder;
+        }
     }
 }

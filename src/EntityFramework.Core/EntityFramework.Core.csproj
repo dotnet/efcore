@@ -148,6 +148,7 @@
     <Compile Include="DbContext.cs" />
     <Compile Include="DbContextOptionsBuilder.cs" />
     <Compile Include="DbContextOptionsBuilder`.cs" />
+    <Compile Include="Metadata\ModelConventions\IModelConvention.cs" />
     <Compile Include="Query\AnnotateQueryExtensions.cs" />
     <Compile Include="Infrastructure\CoreOptionsExtension.cs" />
     <Compile Include="Infrastructure\DbContextOptions.cs" />

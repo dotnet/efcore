@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.ModelConventions
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
 
             var keyBuilder = entityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
-            keyBuilder.Metadata.Properties.First().SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;;
+            keyBuilder.Metadata.Properties.First().SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
 
             Assert.Same(keyBuilder, new SqlServerValueGenerationStrategyConvention().Apply(keyBuilder));
 
@@ -180,6 +180,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.ModelConventions
 
             Assert.Equal(1, keyProperties[0].Annotations.Count());
             Assert.Equal(SqlServerValueGenerationStrategy.Default.ToString(), keyProperties[0].Annotations.First().Value);
+
+        }
+
+        [Fact]
+        public void Annotation_is_added_when_conventional_model_builder_is_used()
+        {
+            var model = new SqlServerModelBuilderFactory().CreateConventionBuilder(new Model()).Model;
+
+            Assert.Equal(1, model.Annotations.Count());
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence.ToString(), model.Annotations.First().Value);
 
         }
 

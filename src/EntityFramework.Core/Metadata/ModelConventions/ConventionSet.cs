@@ -14,5 +14,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         public virtual IList<IRelationshipConvention> ForeignKeyAddedConventions { get; } = new List<IRelationshipConvention>();
 
         public virtual IList<IForeignKeyRemovedConvention> ForeignKeyRemovedConventions { get; } = new List<IForeignKeyRemovedConvention>();
+
+        public virtual IList<IModelConvention> ModelConventions { get; } = new List<IModelConvention>();
     }
 }

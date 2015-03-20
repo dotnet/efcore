@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
 {
-    public class SqlServerValueGenerationStrategyConvention : IKeyConvention, IForeignKeyRemovedConvention, IRelationshipConvention
+    public class SqlServerValueGenerationStrategyConvention : IKeyConvention, IForeignKeyRemovedConvention, IRelationshipConvention, IModelConvention
     {
         public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
         {
@@ -66,6 +66,15 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
                 false);
 
             return relationshipBuilder;
+        }
+
+        public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
+        {
+            modelBuilder.Annotation(
+                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration,
+                SqlServerValueGenerationStrategy.Sequence.ToString(),
+                ConfigurationSource.Convention);
+            return modelBuilder;
         }
     }
 }

@@ -45,7 +45,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             modelBuilder.Entity<BuiltInNonNullableDataTypes>(b =>
                 {
-                    b.Property(dt => dt.Id).GenerateValueOnAdd(false).ForSqlServer(p => p.UseNoValueGeneration());
                     b.Ignore(dt => dt.TestUnsignedInt16);
                     b.Ignore(dt => dt.TestUnsignedInt32);
                     b.Ignore(dt => dt.TestUnsignedInt64);
@@ -55,7 +54,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             modelBuilder.Entity<BuiltInNullableDataTypes>(b =>
                 {
-                    b.Property(dt => dt.Id).GenerateValueOnAdd(false).ForSqlServer(p => p.UseNoValueGeneration());
                     b.Ignore(dt => dt.TestNullableUnsignedInt16);
                     b.Ignore(dt => dt.TestNullableUnsignedInt32);
                     b.Ignore(dt => dt.TestNullableUnsignedInt64);

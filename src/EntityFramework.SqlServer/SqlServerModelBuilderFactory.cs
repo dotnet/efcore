@@ -20,6 +20,8 @@ namespace Microsoft.Data.Entity.SqlServer
 
             conventions.ForeignKeyRemovedConventions.Add(sqlServerValueGenerationStrategyConvention);
 
+            conventions.ModelConventions.Add(sqlServerValueGenerationStrategyConvention);
+
             return conventions;
         }
     }

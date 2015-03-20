@@ -40,13 +40,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 return new DbContext(_serviceProvider, _options);
             }
-
-            public override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                base.OnModelCreating(modelBuilder);
-
-                modelBuilder.ForSqlServer().UseSequence();
-            }
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 for (var i = 1; i < 1101; i++)
                 {
                     var blog = new Blog { Id = i, Name = "Foo" + i };
-                    context.Set<Blog>().Add(blog);
+                    context.Blogs.Add(blog);
                 }
 
                 context.SaveChanges();
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             using (var context = new BloggingContext(_serviceProvider, optionsBuilder.Options))
             {
-                Assert.Equal(1100, context.Set<Blog>().Count());
+                Assert.Equal(1100, context.Blogs.Count());
             }
         }
 
@@ -45,10 +45,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Blog>().Property(b => b.Id).GenerateValueOnAdd(generateValue: false).ForSqlServer(b => b.UseNoValueGeneration());
-            }
+            public DbSet<Blog> Blogs { get; set; }
         }
 
         public class Blog

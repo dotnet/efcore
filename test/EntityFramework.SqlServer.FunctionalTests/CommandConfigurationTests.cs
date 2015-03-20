@@ -411,11 +411,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 base.OnConfiguring(optionsBuilder);
             }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.ForSqlServer().UseSequence();
-            }
         }
 
         private static string Sql
