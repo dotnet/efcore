@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Metadata
         public event EventHandler<Property> PropertyMetadataChanged;
 
         private int _shadowPropertyCount;
-        private int _originalValueCount;
+
         private bool _useEagerSnapshots;
 
         /// <summary>
@@ -213,8 +213,6 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual int ShadowPropertyCount => _shadowPropertyCount;
-
-        public virtual int OriginalValueCount => _originalValueCount;
 
         public virtual int PropertyCount => (BaseType?.PropertyCount ?? 0) + _properties.Count;
 
@@ -1001,15 +999,13 @@ namespace Microsoft.Data.Entity.Metadata
 
         private void UpdateOriginalValueIndexes()
         {
-            var originalValueIndex = BaseType?.OriginalValueCount ?? 0;
+            var originalValueIndex = BaseType?.OriginalValueCount() ?? 0;
 
             foreach (var property in _properties.Values)
             {
                 property.OriginalValueIndex
                     = RequiresOriginalValue(property) ? originalValueIndex++ : -1;
             }
-
-            _originalValueCount = originalValueIndex;
         }
 
         private bool RequiresOriginalValue(Property addedOrRemovedProperty)

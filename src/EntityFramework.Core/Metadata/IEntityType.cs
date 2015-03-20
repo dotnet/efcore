@@ -16,7 +16,6 @@ namespace Microsoft.Data.Entity.Metadata
         string SimpleName { get; }
         int PropertyCount { get; }
         int ShadowPropertyCount { get; }
-        int OriginalValueCount { get; }
         bool IsAbstract { get; }
         bool UseEagerSnapshots { get; }
         bool HasDerivedTypes { get; }

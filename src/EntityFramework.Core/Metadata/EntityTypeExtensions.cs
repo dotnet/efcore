@@ -12,6 +12,13 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class EntityTypeExtensions
     {
+        public static int OriginalValueCount([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return entityType.Properties.Count(p => p.OriginalValueIndex >= 0);
+        }
+
         public static bool HasClrType([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

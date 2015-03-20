@@ -1369,7 +1369,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(-1, entityType.GetProperty("Name").OriginalValueIndex);
 
             Assert.Equal(1, entityType.ShadowPropertyCount);
-            Assert.Equal(1, entityType.OriginalValueCount);
+            Assert.Equal(1, entityType.OriginalValueCount());
 
             var gameProperty = entityType.GetOrAddProperty("Game", typeof(int), shadowProperty: true);
             gameProperty.IsConcurrencyToken = true;
@@ -1393,7 +1393,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(-1, entityType.GetProperty("Name").OriginalValueIndex);
 
             Assert.Equal(3, entityType.ShadowPropertyCount);
-            Assert.Equal(3, entityType.OriginalValueCount);
+            Assert.Equal(3, entityType.OriginalValueCount());
 
             gameProperty.IsConcurrencyToken = false;
             nameProperty.IsConcurrencyToken = true;
@@ -1414,7 +1414,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(2, entityType.GetProperty("Name").OriginalValueIndex);
 
             Assert.Equal(3, entityType.ShadowPropertyCount);
-            Assert.Equal(3, entityType.OriginalValueCount);
+            Assert.Equal(3, entityType.OriginalValueCount());
 
             gameProperty.IsShadowProperty = false;
             nameProperty.IsShadowProperty = true;
@@ -1435,7 +1435,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(2, entityType.GetProperty("Name").OriginalValueIndex);
 
             Assert.Equal(3, entityType.ShadowPropertyCount);
-            Assert.Equal(3, entityType.OriginalValueCount);
+            Assert.Equal(3, entityType.OriginalValueCount());
         }
 
         [Fact]
@@ -1507,7 +1507,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(0, entityType.GetProperty("Id").OriginalValueIndex);
             Assert.Equal(1, entityType.GetProperty("Name").OriginalValueIndex);
 
-            Assert.Equal(2, entityType.OriginalValueCount);
+            Assert.Equal(2, entityType.OriginalValueCount());
         }
 
         [Fact]
@@ -1521,7 +1521,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(-1, entityType.GetProperty("Id").OriginalValueIndex);
             Assert.Equal(0, entityType.GetProperty("Name").OriginalValueIndex);
 
-            Assert.Equal(1, entityType.OriginalValueCount);
+            Assert.Equal(1, entityType.OriginalValueCount());
         }
 
         [Fact]

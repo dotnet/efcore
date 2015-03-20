@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public OriginalValues([NotNull] InternalEntityEntry entry)
-            : base(entry, entry.EntityType.OriginalValueCount)
+            : base(entry, entry.EntityType.OriginalValueCount())
         {
         }
 
