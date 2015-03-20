@@ -15,11 +15,11 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
             var model = new Entity.Metadata.Model();
 
             var firstType = model.AddEntityType("First");
-            var firstKey = firstType.AddKey(firstType.AddProperty("ID", typeof(int), true));
+            var firstKey = firstType.SetPrimaryKey(firstType.AddProperty("ID", typeof(int), true));
             var firstFk = firstType.AddProperty("FK", typeof(int), true);
 
             var secondType = model.AddEntityType("Second");
-            var secondKey = secondType.AddKey(secondType.AddProperty("ID", typeof(int), true));
+            var secondKey = secondType.SetPrimaryKey(secondType.AddProperty("ID", typeof(int), true));
             var secondFk = secondType.AddProperty("FK", typeof(int), true);
 
             firstType.AddForeignKey(firstFk, secondKey);

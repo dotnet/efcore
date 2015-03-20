@@ -1013,11 +1013,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         IModel IEntityType.Model => Model;
 
-        IKey IEntityType.TryGetPrimaryKey()
-        {
-            return TryGetPrimaryKey();
-        }
-
         IKey IEntityType.GetPrimaryKey()
         {
             return GetPrimaryKey();

@@ -206,8 +206,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     target.Relational().Table);
             }
 
-            var sourcePrimaryKey = source.TryGetPrimaryKey();
-            var targetPrimaryKey = target.TryGetPrimaryKey();
+            var sourcePrimaryKey = source.GetPrimaryKey();
+            var targetPrimaryKey = target.GetPrimaryKey();
 
             var operations = Diff(source.GetProperties(), target.GetProperties())
                 .Concat(Diff(sourcePrimaryKey, targetPrimaryKey))
@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             // TODO: Build ColumnModel objects directly
             createTableOperation.Columns.AddRange(target.GetProperties().SelectMany(Add).Cast<AddColumnOperation>().Select(o => o.Column));
 
-            var primaryKey = target.TryGetPrimaryKey();
+            var primaryKey = target.GetPrimaryKey();
             if (primaryKey != null)
             {
                 createTableOperation.PrimaryKey = Add(primaryKey).Cast<AddPrimaryKeyOperation>().Single();

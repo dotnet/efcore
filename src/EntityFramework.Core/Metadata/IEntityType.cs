@@ -10,11 +10,14 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IEntityType : IAnnotatable
     {
+        [NotNull]
         IModel Model { get; }
 
+        [NotNull]
         string Name { get; }
 
         bool IsAbstract { get; }
+
         bool HasDerivedTypes { get; }
 
         [CanBeNull]
@@ -23,9 +26,7 @@ namespace Microsoft.Data.Entity.Metadata
         [CanBeNull]
         Type ClrType { get; }
 
-        [CanBeNull]
-        IKey TryGetPrimaryKey();
-
+        [NotNull]
         IKey GetPrimaryKey();
 
         [CanBeNull]
@@ -40,10 +41,19 @@ namespace Microsoft.Data.Entity.Metadata
         [NotNull]
         INavigation GetNavigation([NotNull] string name);
 
+        [NotNull]
         IEnumerable<IProperty> GetProperties();
+
+        [NotNull]
         IEnumerable<IForeignKey> GetForeignKeys();
+
+        [NotNull]
         IEnumerable<INavigation> GetNavigations();
+
+        [NotNull]
         IEnumerable<IIndex> GetIndexes();
+
+        [NotNull]
         IEnumerable<IKey> GetKeys();
 
         IEnumerable<IEntityType> GetDerivedTypes();

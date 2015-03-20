@@ -41,8 +41,8 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
             Check.NotNull(entityType, nameof(entityType));
 
             var primaryKeyProperties =
-                entityType.TryGetPrimaryKey()?.Properties.ToList()
-                ?? new List<IProperty>();
+                entityType.GetPrimaryKey().Properties.ToList();
+
             foreach (var property in primaryKeyProperties)
             {
                 yield return property;

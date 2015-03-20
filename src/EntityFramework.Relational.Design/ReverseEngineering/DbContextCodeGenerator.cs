@@ -207,8 +207,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 sb.Append("{");
                 using (sb.Indent())
                 {
-                    var key = entityType.TryGetPrimaryKey();
-                    if (key != null && key.Properties.Count > 0)
+                    var key = entityType.GetPrimaryKey();
+                    if (key.Properties.Count > 0)
                     {
                         GenerateEntityKeyConfiguration(key, sb);
                     }

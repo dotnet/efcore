@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(key, nameof(key));
 
-            return key.EntityType?.TryGetPrimaryKey() == key;
+            return key.EntityType.GetPrimaryKey() == key;
         }
     }
 }
