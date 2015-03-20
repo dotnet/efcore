@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         concreteEntityTypes[0], valueReaderParameter, indexMap);
 
             if (concreteEntityTypes.Length == 1
-                && concreteEntityTypes[0].RootType == concreteEntityTypes[0])
+                && concreteEntityTypes[0].RootType() == concreteEntityTypes[0])
             {
                 return Expression.Lambda<Func<IValueReader, object>>(materializer, valueReaderParameter);
             }

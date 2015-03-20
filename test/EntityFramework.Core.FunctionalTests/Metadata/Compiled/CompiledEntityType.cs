@@ -53,8 +53,6 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         public bool HasDerivedTypes => false;
 
         public IEntityType BaseType => null;
-
-        public IEntityType RootType => null;
         
         public string SimpleName => typeof(TEntity).Name;
 
@@ -105,15 +103,9 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         private IProperty[] EnsurePropertiesInitialized() 
             => LazyInitializer.EnsureInitialized(ref _properties, LoadProperties);
         
-        public int PropertyCount  => 0;
-
         public int ShadowPropertyCount => 0;
 
-        public int OriginalValueCount => 0;
-
         public bool UseEagerSnapshots => false;
-
-        public bool HasClrType => true;
 
         public IModel Model { get; }
     }

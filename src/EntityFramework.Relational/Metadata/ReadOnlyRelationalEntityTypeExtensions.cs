@@ -24,16 +24,16 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         }
 
         public virtual string Table 
-            => _entityType.RootType[RelationalTableAnnotation] as string
-                ?? _entityType.RootType.SimpleName;
+            => _entityType.RootType()[RelationalTableAnnotation] as string
+                ?? _entityType.RootType().SimpleName;
 
         public virtual string Schema 
-            => _entityType.RootType[RelationalSchemaAnnotation] as string;
+            => _entityType.RootType()[RelationalSchemaAnnotation] as string;
 
         public virtual IProperty DiscriminatorProperty
-            => _entityType.RootType
+            => _entityType.RootType()
                 .GetProperty(
-                    (string)_entityType.RootType
+                    (string)_entityType.RootType()
                         .GetAnnotation(DiscriminatorPropertyAnnotation).Value);
 
         public virtual string DiscriminatorValue 

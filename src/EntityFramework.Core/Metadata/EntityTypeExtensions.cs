@@ -26,6 +26,13 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType.Type != null;
         }
 
+        public static IEntityType RootType([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return entityType.BaseType?.RootType() ?? entityType;
+        }
+
         public static IEnumerable<IPropertyBase> GetPropertiesAndNavigations(
             [NotNull] this IEntityType entityType)
         {

@@ -193,8 +193,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual bool IsAbstract => Type?.GetTypeInfo().IsAbstract ?? false;
 
-        public virtual EntityType RootType => BaseType?.RootType ?? this;
-
         public virtual string Name => Type?.FullName ?? (string)_typeOrName;
 
         public virtual string SimpleName => Type?.Name ?? ParseSimpleName();
@@ -1012,8 +1010,6 @@ namespace Microsoft.Data.Entity.Metadata
         #region Explicit interface implementations
 
         IEntityType IEntityType.BaseType => BaseType;
-
-        IEntityType IEntityType.RootType => RootType;
 
         IModel IEntityType.Model => Model;
 

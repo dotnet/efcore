@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             {
                 if (value != null)
                 {
-                    if (EntityType != EntityType.RootType)
+                    if (EntityType != EntityType.RootType())
                     {
                         throw new InvalidOperationException(
                             Strings.DiscriminatorPropertyMustBeOnRoot(EntityType));

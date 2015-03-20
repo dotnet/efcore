@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors;
@@ -271,7 +272,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 = entityType.GetConcreteTypesInHierarchy().ToArray();
 
             if (concreteEntityTypes.Length != 1
-                || concreteEntityTypes[0].RootType != concreteEntityTypes[0])
+                || concreteEntityTypes[0].RootType() != concreteEntityTypes[0])
             {
                 var discriminatorProperty
                     = concreteEntityTypes[0].Relational().DiscriminatorProperty;

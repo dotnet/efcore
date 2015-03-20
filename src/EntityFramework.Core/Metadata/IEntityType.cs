@@ -23,9 +23,6 @@ namespace Microsoft.Data.Entity.Metadata
         [CanBeNull]
         IEntityType BaseType { get; }
 
-        [NotNull]
-        IEntityType RootType { get; }
-
         [CanBeNull]
         Type Type { get; }
 
