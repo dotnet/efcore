@@ -162,7 +162,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var foreignKeyProperties = new List<Property>();
             foreach (var referencedProperty in propertiesToReference)
             {
-                var property = TryGetProperty(entityType, baseName + referencedProperty.Name, referencedProperty.UnderlyingType);
+                var property = TryGetProperty(entityType, baseName 
+                    + referencedProperty.Name, referencedProperty.ClrType.UnwrapNullableType());
 
                 if (property != null)
                 {
@@ -173,7 +174,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             if (propertiesToReference.Count == 1
                 && foreignKeyProperties.Count == 0)
             {
-                var property = TryGetProperty(entityType, baseName + "Id", propertiesToReference.Single().UnderlyingType);
+                var property = TryGetProperty(entityType, baseName + "Id", propertiesToReference.Single().ClrType.UnwrapNullableType());
 
                 if (property != null)
                 {
@@ -210,7 +211,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             {
                 if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
                         && !property.IsShadowProperty
-                        && property.UnderlyingType == type)
+                        && property.ClrType.UnwrapNullableType() == type)
                 {
                     return property;
                 }

@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational
             GetTypeMapping(
                 property.Relational().ColumnType,
                 property.Relational().Column,
-                property.UnderlyingType,
+                property.ClrType.UnwrapNullableType(),
                 property.IsKey() || property.IsForeignKey(),
                 property.IsConcurrencyToken);
 

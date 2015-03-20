@@ -68,8 +68,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void UnderlyingType_returns_correct_underlying_type()
         {
-            Assert.Equal(typeof(int), new Property("Name", typeof(int?), new Model().AddEntityType(typeof(object))).UnderlyingType);
-            Assert.Equal(typeof(int), new Property("Name", typeof(int), new Model().AddEntityType(typeof(object))).UnderlyingType);
+            Assert.Equal(typeof(int), new Property("Name", typeof(int?), new Model().AddEntityType(typeof(object))).ClrType.UnwrapNullableType());
+            Assert.Equal(typeof(int), new Property("Name", typeof(int), new Model().AddEntityType(typeof(object))).ClrType.UnwrapNullableType());
         }
 
         [Fact]

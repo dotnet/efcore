@@ -37,8 +37,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         public override EntityType EntityType { get; }
 
-        public virtual Type UnderlyingType => ClrType.UnwrapNullableType();
-
         public virtual bool? IsNullable
         {
             get { return GetFlag(PropertyFlags.IsNullable); }
@@ -247,7 +245,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         private static bool ArePropertyTypesCompatible(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties)
         {
-            return principalProperties.Select(p => p.UnderlyingType).SequenceEqual(dependentProperties.Select(p => p.UnderlyingType));
+            return principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
         }
 
         bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;

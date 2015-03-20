@@ -8,7 +8,6 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IProperty : IPropertyBase
     {
         Type ClrType { get; }
-        Type UnderlyingType { get; }
         bool IsNullable { get; }
         bool IsReadOnly { get; }
         bool UseStoreDefault { get; }
