@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
 {
-    public class SqlServerValueGenerationStrategyConvention : IKeyConvention, IForeignKeyRemovedConvention, IRelationshipConvention, IModelConvention
+    public class SqlServerValueGenerationStrategyConvention : IKeyConvention, IForeignKeyRemovedConvention, IForeignKeyConvention, IModelConvention
     {
         public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
         {

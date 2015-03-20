@@ -148,6 +148,7 @@
     <Compile Include="DbContext.cs" />
     <Compile Include="DbContextOptionsBuilder.cs" />
     <Compile Include="DbContextOptionsBuilder`.cs" />
+    <Compile Include="Metadata\ModelConventions\IPropertyConvention.cs" />
     <Compile Include="Metadata\ModelConventions\IModelConvention.cs" />
     <Compile Include="Query\AnnotateQueryExtensions.cs" />
     <Compile Include="Infrastructure\CoreOptionsExtension.cs" />
@@ -202,7 +203,7 @@
     <Compile Include="Metadata\KeyExtensions.cs" />
     <Compile Include="Metadata\ModelConventions\ConventionDispatcher.cs" />
     <Compile Include="Metadata\ModelConventions\ConventionSet.cs" />
-    <Compile Include="Metadata\ModelConventions\IRelationshipConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\IForeignKeyConvention.cs" />
     <Compile Include="Metadata\NullableEnumClrPropertySetter.cs" />
     <Compile Include="Metadata\CollectionTypeFactory.cs" />
     <Compile Include="Metadata\ForeignKeyExtensions.cs" />
@@ -325,7 +326,7 @@
     <Compile Include="Metadata\Property.cs" />
     <Compile Include="Metadata\ModelConventions\IEntityTypeConvention.cs" />
     <Compile Include="Metadata\ModelConventions\KeyDiscoveryConvention.cs" />
-    <Compile Include="Metadata\ModelConventions\PropertiesConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\PropertyDiscoveryConvention.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="Properties\Strings.Designer.cs">

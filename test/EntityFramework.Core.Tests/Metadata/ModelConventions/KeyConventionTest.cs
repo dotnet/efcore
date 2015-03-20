@@ -208,7 +208,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         private static InternalModelBuilder createInternalModelBuilder()
         {
             var conventions = new ConventionSet();
-            conventions.EntityTypeAddedConventions.Add(new PropertiesConvention());
+            conventions.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention());
             conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention());
             conventions.ForeignKeyRemovedConventions.Add(new KeyConvention());
 

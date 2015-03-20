@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 {
-    public class PropertiesConventionTest
+    public class PropertyDiscoveryConventionTest
     {
         private class EntityWithInvalidProperties
         {
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithInvalidProperties>();
 
-            Assert.Same(entityBuilder, new PropertiesConvention().Apply(entityBuilder));
+            Assert.Same(entityBuilder, new PropertyDiscoveryConvention().Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.Properties);
         }
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithEveryPrimitive>();
 
-            Assert.Same(entityBuilder, new PropertiesConvention().Apply(entityBuilder));
+            Assert.Same(entityBuilder, new PropertyDiscoveryConvention().Apply(entityBuilder));
 
             Assert.Equal(
                 typeof(EntityWithEveryPrimitive)
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoPrimitives>();
 
-            Assert.Same(entityBuilder, new PropertiesConvention().Apply(entityBuilder));
+            Assert.Same(entityBuilder, new PropertyDiscoveryConvention().Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.Properties);
         }

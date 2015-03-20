@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
 
-            new PropertiesConvention().Apply(entityBuilder);
+            new PropertyDiscoveryConvention().Apply(entityBuilder);
 
             return entityBuilder;
         }

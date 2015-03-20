@@ -51,12 +51,52 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         }
 
         [Fact]
-        public void OnRelationshipAdded_calls_apply_on_conventions_in_order()
+        public void OnPropertyAdded_calls_apply_on_conventions_in_order()
+        {
+            var conventions = new ConventionSet();
+
+            InternalPropertyBuilder propertyBuilder = null;
+            var convention = new Mock<IPropertyConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalPropertyBuilder>())).Returns<InternalPropertyBuilder>(b =>
+                {
+                    Assert.NotNull(b);
+                    propertyBuilder = new InternalPropertyBuilder(b.Metadata, b.ModelBuilder, ConfigurationSource.Convention);
+                    return propertyBuilder;
+                });
+            conventions.PropertyAddedConventions.Add(convention.Object);
+
+            var nullConvention = new Mock<IPropertyConvention>();
+            nullConvention.Setup(c => c.Apply(It.IsAny<InternalPropertyBuilder>())).Returns<InternalPropertyBuilder>(b =>
+                {
+                    Assert.Same(propertyBuilder, b);
+                    return null;
+                });
+            conventions.PropertyAddedConventions.Add(nullConvention.Object);
+
+            var extraConvention = new Mock<IPropertyConvention>();
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalPropertyBuilder>())).Returns<InternalPropertyBuilder>(b =>
+                {
+                    Assert.False(true);
+                    return null;
+                });
+            conventions.PropertyAddedConventions.Add(extraConvention.Object);
+
+            var builder = new InternalModelBuilder(new Model(), conventions);
+
+            var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var explicitKeyBuilder = entityBuilder.Property(typeof(int), "OrderId", ConfigurationSource.Convention);
+
+            Assert.Null(explicitKeyBuilder);
+            Assert.NotNull(propertyBuilder);
+        }
+
+        [Fact]
+        public void OnForeignKeyAdded_calls_apply_on_conventions_in_order()
         {
             var conventions = new ConventionSet();
 
             InternalRelationshipBuilder relationsipBuilder = null;
-            var convention = new Mock<IRelationshipConvention>();
+            var convention = new Mock<IForeignKeyConvention>();
             convention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
                 {
                     Assert.NotNull(b);
@@ -65,7 +105,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 });
             conventions.ForeignKeyAddedConventions.Add(convention.Object);
 
-            var nullConvention = new Mock<IRelationshipConvention>();
+            var nullConvention = new Mock<IForeignKeyConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
                 {
                     Assert.Same(relationsipBuilder, b);
@@ -73,7 +113,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 });
             conventions.ForeignKeyAddedConventions.Add(nullConvention.Object);
 
-            var extraConvention = new Mock<IRelationshipConvention>();
+            var extraConvention = new Mock<IForeignKeyConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
                 {
                     Assert.False(true);

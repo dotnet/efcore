@@ -152,7 +152,7 @@
     <Compile Include="Metadata\ObjectArrayValueReaderTest.cs" />
     <Compile Include="Metadata\PropertyTest.cs" />
     <Compile Include="Metadata\ModelConventions\KeyDiscoveryConventionTest.cs" />
-    <Compile Include="Metadata\ModelConventions\PropertiesConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\PropertyDiscoveryConventionTest.cs" />
     <Compile Include="Query\TaskResultAsyncEnumerableTest.cs" />
     <Compile Include="Storage\DataStoreSelectorTest.cs" />
     <Compile Include="TestExtensions.cs" />

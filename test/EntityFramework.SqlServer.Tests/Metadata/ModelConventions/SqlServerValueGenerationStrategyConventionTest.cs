@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.ModelConventions
         {
             var conventions = new ConventionSet();
 
-            conventions.EntityTypeAddedConventions.Add(new PropertiesConvention());
+            conventions.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention());
             conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention());
 
             var keyConvention = new KeyConvention();

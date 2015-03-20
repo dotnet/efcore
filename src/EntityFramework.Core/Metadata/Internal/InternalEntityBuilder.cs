@@ -79,8 +79,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 () => newPrimaryKey,
                 () => Metadata.SetPrimaryKey(properties),
                 key => new InternalKeyBuilder(key, ModelBuilder),
-                onNewKeyAdded: ModelBuilder.ConventionDispatcher.OnKeyAdded,
-                configurationSource: configurationSource);
+                ModelBuilder.ConventionDispatcher.OnKeyAdded,
+                configurationSource);
 
             ReplaceConventionShadowKeys(keyBuilder.Metadata);
 
@@ -151,8 +151,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 () => Metadata.TryGetKey(properties),
                 () => Metadata.AddKey(properties),
                 key => new InternalKeyBuilder(key, ModelBuilder),
-                onNewKeyAdded: ModelBuilder.ConventionDispatcher.OnKeyAdded,
-                configurationSource: configurationSource);
+                ModelBuilder.ConventionDispatcher.OnKeyAdded,
+                configurationSource);
         }
 
         public virtual ConfigurationSource? RemoveKey([NotNull] Key key, ConfigurationSource configurationSource)
@@ -208,6 +208,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     () => Metadata.TryGetProperty(propertyName),
                     () => Metadata.AddProperty(propertyName, propertyType, shadowProperty),
                     property => new InternalPropertyBuilder(property, ModelBuilder, configurationSource),
+                    ModelBuilder.ConventionDispatcher.OnPropertyAdded,
                     configurationSource);
             }
 
@@ -969,7 +970,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             if (!existingForeignKey)
             {
-                builder = ModelBuilder.ConventionDispatcher.OnRelationshipAdded(builder);
+                builder = ModelBuilder.ConventionDispatcher.OnForeignKeyAdded(builder);
             }
 
             return builder;

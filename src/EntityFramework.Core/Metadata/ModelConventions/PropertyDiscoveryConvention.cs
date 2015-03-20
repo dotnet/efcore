@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
-    public class PropertiesConvention : IEntityTypeConvention
+    public class PropertyDiscoveryConvention : IEntityTypeConvention
     {
         public virtual InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
         {

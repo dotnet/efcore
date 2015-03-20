@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
-    public class ForeignKeyPropertyDiscoveryConvention : IRelationshipConvention
+    public class ForeignKeyPropertyDiscoveryConvention : IForeignKeyConvention
     {
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {

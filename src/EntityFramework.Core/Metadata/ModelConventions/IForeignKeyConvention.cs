@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
-    public interface IRelationshipConvention
+    public interface IForeignKeyConvention
     {
         InternalRelationshipBuilder Apply([NotNull] InternalRelationshipBuilder relationshipBuilder);
     }
