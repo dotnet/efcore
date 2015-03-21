@@ -12,6 +12,20 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class EntityTypeExtensions
     {
+        public static string DisplayName([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            if (entityType.Type != null)
+            {
+                return entityType.Type.Name;
+            }
+
+            var lastDot = entityType.Name.LastIndexOfAny(new[] { '.', '+' });
+
+            return lastDot > 0 ? entityType.Name.Substring(lastDot + 1) : entityType.Name;
+        }
+
         public static int OriginalValueCount([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

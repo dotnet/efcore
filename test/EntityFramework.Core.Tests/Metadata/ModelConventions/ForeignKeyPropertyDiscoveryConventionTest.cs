@@ -412,7 +412,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             var fk = (IForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fk, DependentType.Metadata.ForeignKeys.Single());
-            Assert.Equal(PrincipalType.Metadata.SimpleName + PrimaryKey.Name, fk.Properties.Single().Name);
+            Assert.Equal(PrincipalType.Metadata.DisplayName() + PrimaryKey.Name, fk.Properties.Single().Name);
             Assert.False(fk.IsUnique);
             Assert.False(fk.IsRequired);
         }
@@ -460,7 +460,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             var fk = (IForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fk, PrincipalType.Metadata.ForeignKeys.Single());
-            Assert.Equal(PrincipalType.Metadata.SimpleName + PrimaryKey.Name, fk.Properties.Single().Name);
+            Assert.Equal(PrincipalType.Metadata.DisplayName() + PrimaryKey.Name, fk.Properties.Single().Name);
             Assert.True(fk.IsUnique);
             Assert.False(fk.IsRequired);
         }

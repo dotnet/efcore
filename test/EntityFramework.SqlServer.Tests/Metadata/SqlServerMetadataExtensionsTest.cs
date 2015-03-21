@@ -68,8 +68,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             entityType.Relational().Table = "Customizer";
 
-            Assert.Equal("Customer", entityType.SimpleName);
-            Assert.Equal("Customer", ((IEntityType)entityType).SimpleName);
+            Assert.Equal("Customer", entityType.DisplayName());
+            Assert.Equal("Customer", ((IEntityType)entityType).DisplayName());
             Assert.Equal("Customizer", entityType.Relational().Table);
             Assert.Equal("Customizer", ((IEntityType)entityType).Relational().Table);
             Assert.Equal("Customizer", entityType.SqlServer().Table);
@@ -77,8 +77,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             entityType.SqlServer().Table = "Custardizer";
 
-            Assert.Equal("Customer", entityType.SimpleName);
-            Assert.Equal("Customer", ((IEntityType)entityType).SimpleName);
+            Assert.Equal("Customer", entityType.DisplayName());
+            Assert.Equal("Customer", ((IEntityType)entityType).DisplayName());
             Assert.Equal("Customizer", entityType.Relational().Table);
             Assert.Equal("Customizer", ((IEntityType)entityType).Relational().Table);
             Assert.Equal("Custardizer", entityType.SqlServer().Table);
@@ -86,8 +86,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             entityType.SqlServer().Table = null;
 
-            Assert.Equal("Customer", entityType.SimpleName);
-            Assert.Equal("Customer", ((IEntityType)entityType).SimpleName);
+            Assert.Equal("Customer", entityType.DisplayName());
+            Assert.Equal("Customer", ((IEntityType)entityType).DisplayName());
             Assert.Equal("Customizer", entityType.Relational().Table);
             Assert.Equal("Customizer", ((IEntityType)entityType).Relational().Table);
             Assert.Equal("Customizer", entityType.SqlServer().Table);

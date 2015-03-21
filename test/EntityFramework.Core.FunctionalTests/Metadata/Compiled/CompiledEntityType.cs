@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEntityType BaseType => null;
         
-        public string SimpleName => typeof(TEntity).Name;
+        public string DisplayName() => typeof(TEntity).Name;
 
         protected abstract IKey LoadKey();
 

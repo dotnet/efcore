@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
             }
 
             throw new ArgumentException(Strings.InvalidValueGeneratorFactoryProperty(
-                nameof(TemporaryIntegerValueGeneratorFactory), property.Name, property.EntityType.SimpleName));
+                nameof(TemporaryIntegerValueGeneratorFactory), property.Name, property.EntityType.DisplayName()));
         }
     }
 }

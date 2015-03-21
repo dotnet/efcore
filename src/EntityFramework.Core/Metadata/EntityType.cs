@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual string Name => Type?.FullName ?? (string)_typeOrName;
 
-        public virtual string SimpleName => Type?.Name ?? ParseSimpleName();
+        public virtual string DisplayName() => Type?.Name ?? ParseSimpleName();
 
         private string ParseSimpleName()
         {

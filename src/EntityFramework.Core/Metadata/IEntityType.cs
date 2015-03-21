@@ -13,7 +13,6 @@ namespace Microsoft.Data.Entity.Metadata
         IModel Model { get; }
 
         string Name { get; }
-        string SimpleName { get; }
 
         bool IsAbstract { get; }
         bool UseEagerSnapshots { get; }

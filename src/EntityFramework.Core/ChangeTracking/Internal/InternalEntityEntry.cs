@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 var hasTempValue = EntityType.GetProperties().FirstOrDefault(p => _stateData.IsPropertyFlagged(p.Index));
                 if (hasTempValue != null)
                 {
-                    throw new InvalidOperationException(Strings.TempValuePersists(hasTempValue.Name, EntityType.SimpleName, newState));
+                    throw new InvalidOperationException(Strings.TempValuePersists(hasTempValue.Name, EntityType.DisplayName(), newState));
                 }
             }
 

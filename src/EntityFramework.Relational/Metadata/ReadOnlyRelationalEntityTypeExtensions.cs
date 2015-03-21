@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual string Table 
             => _entityType.RootType()[RelationalTableAnnotation] as string
-                ?? _entityType.RootType().SimpleName;
+                ?? _entityType.RootType().DisplayName();
 
         public virtual string Schema 
             => _entityType.RootType()[RelationalSchemaAnnotation] as string;
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual string DiscriminatorValue 
             => _entityType[DiscriminatorValueAnnotation] as string
-                ?? _entityType.SimpleName;
+                ?? _entityType.DisplayName();
 
         protected virtual IEntityType EntityType => _entityType;
     }

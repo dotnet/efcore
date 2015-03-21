@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Internal
                             {
                                 ShowError(Strings.ForeignKeyValueGenerationOnAdd(
                                     principalProperty.Name,
-                                    principalProperty.EntityType.SimpleName,
+                                    principalProperty.EntityType.DisplayName(),
                                     Property.Format(foreignKey.Properties)));
                                 return principalProperty;
                             }
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.Internal
 
                 if (!principalProperty.GenerateValueOnAdd)
                 {
-                    ShowError(Strings.PrincipalKeyNoValueGenerationOnAdd(principalProperty.Name, principalProperty.EntityType.SimpleName));
+                    ShowError(Strings.PrincipalKeyNoValueGenerationOnAdd(principalProperty.Name, principalProperty.EntityType.DisplayName()));
                     return null;
                 }
 
@@ -146,12 +146,12 @@ namespace Microsoft.Data.Entity.Internal
                 var firstRoot = rootPrincipals.Keys.ElementAt(0);
                 var secondRoot = rootPrincipals.Keys.ElementAt(1);
                 ShowWarning(Strings.MultipleRootPrincipals(
-                    rootPrincipals[firstRoot].EntityType.SimpleName,
+                    rootPrincipals[firstRoot].EntityType.DisplayName(),
                     Property.Format(rootPrincipals[firstRoot].Properties),
-                    firstRoot.EntityType.SimpleName,
+                    firstRoot.EntityType.DisplayName(),
                     firstRoot.Name,
                     Property.Format(rootPrincipals[secondRoot].Properties),
-                    secondRoot.EntityType.SimpleName,
+                    secondRoot.EntityType.DisplayName(),
                     secondRoot.Name));
 
                 return firstRoot;

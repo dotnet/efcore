@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var entityTypeToReference = onDependent
                 ? foreignKey.ReferencedEntityType
                 : foreignKey.EntityType;
-            baseNames.Add(entityTypeToReference.SimpleName);
+            baseNames.Add(entityTypeToReference.DisplayName());
 
             baseNames.Add("");
 

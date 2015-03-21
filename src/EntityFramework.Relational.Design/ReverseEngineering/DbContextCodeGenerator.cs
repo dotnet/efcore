@@ -312,7 +312,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
 
             if (entityType.Relational().Table != null
-                && entityType.Relational().Table != entityType.SimpleName)
+                && entityType.Relational().Table != entityType.DisplayName())
             {
                 return string.Format(CultureInfo.InvariantCulture, ".Table({0})",
                     CSharpUtilities.Instance.DelimitString(entityType.Relational().Table));

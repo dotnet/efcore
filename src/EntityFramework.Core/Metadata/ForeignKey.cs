@@ -123,9 +123,9 @@ namespace Microsoft.Data.Entity.Metadata
             return string.Format(
                 CultureInfo.CurrentCulture,
                 "'{0}' {1} -> '{2}' {3}",
-                EntityType.SimpleName,
+                EntityType.DisplayName(),
                 Property.Format(Properties),
-                ReferencedEntityType.SimpleName,
+                ReferencedEntityType.DisplayName(),
                 Property.Format(ReferencedProperties));
         }
     }

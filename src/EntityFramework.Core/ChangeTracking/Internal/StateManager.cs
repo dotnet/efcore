@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (keyValue == EntityKey.InvalidEntityKey)
             {
-                throw new InvalidOperationException(Strings.InvalidPrimaryKey(entityType.SimpleName));
+                throw new InvalidOperationException(Strings.InvalidPrimaryKey(entityType.DisplayName()));
             }
 
             var existingEntry = TryGetEntry(keyValue);
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 if (existingEntry.Entity != entity)
                 {
-                    throw new InvalidOperationException(Strings.IdentityConflict(entityType.SimpleName));
+                    throw new InvalidOperationException(Strings.IdentityConflict(entityType.DisplayName()));
                 }
 
                 return existingEntry;
