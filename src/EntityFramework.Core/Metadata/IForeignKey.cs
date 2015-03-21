@@ -11,8 +11,8 @@ namespace Microsoft.Data.Entity.Metadata
         IEntityType EntityType { get; }
         IReadOnlyList<IProperty> Properties { get; }
         IReadOnlyList<IProperty> ReferencedProperties { get; }
-        IEntityType ReferencedEntityType { get; }
-        IKey ReferencedKey { get; }
+        IEntityType PrincipalEntityType { get; }
+        IKey PrincipalKey { get; }
         bool IsUnique { get; }
         bool IsRequired { get; }
     }

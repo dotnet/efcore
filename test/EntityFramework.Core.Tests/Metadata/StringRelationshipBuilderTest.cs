@@ -838,8 +838,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -978,8 +978,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -1028,8 +1028,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -1078,8 +1078,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -1128,8 +1128,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -1958,8 +1958,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -2098,8 +2098,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -2148,8 +2148,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -2198,8 +2198,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -2248,8 +2248,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -3244,8 +3244,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -3384,8 +3384,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -3434,8 +3434,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -3878,8 +3878,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -3937,8 +3937,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -4206,8 +4206,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -4265,8 +4265,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -4535,8 +4535,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -4594,8 +4594,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());

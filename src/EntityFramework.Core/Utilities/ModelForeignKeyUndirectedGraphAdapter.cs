@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public override IEnumerable<EntityType> GetOutgoingNeighbours(EntityType from)
         {
-            return from.ForeignKeys.Select(fk => fk.ReferencedEntityType)
+            return from.ForeignKeys.Select(fk => fk.PrincipalEntityType)
                 .Union(_model.GetReferencingForeignKeys(from).Select(fk => fk.EntityType));
         }
 

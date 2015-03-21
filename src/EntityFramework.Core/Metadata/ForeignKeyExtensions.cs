@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            return foreignKey.ReferencedEntityType.GetNavigations().SingleOrDefault(
+            return foreignKey.PrincipalEntityType.GetNavigations().SingleOrDefault(
                 navigation => navigation.ForeignKey == foreignKey && !navigation.PointsToPrincipal);
         }
 
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            return foreignKey.EntityType == foreignKey.ReferencedEntityType;
+            return foreignKey.EntityType == foreignKey.PrincipalEntityType;
         }
 
         public static bool IsCompatible(
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(dependentType, nameof(dependentType));
 
             return (isUnique == null || ((IForeignKey)foreignKey).IsUnique == isUnique)
-                   && foreignKey.ReferencedEntityType == principalType
+                   && foreignKey.PrincipalEntityType == principalType
                    && foreignKey.EntityType == dependentType;
         }
 
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Metadata
                        || foreignKey.Properties.SequenceEqual(foreignKeyProperties))
                    && (referencedProperties == null
                        || !referencedProperties.Any()
-                       || foreignKey.ReferencedKey.Properties.SequenceEqual(referencedProperties));
+                       || foreignKey.PrincipalKey.Properties.SequenceEqual(referencedProperties));
         }
 
         public static bool IsCompatible(

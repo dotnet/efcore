@@ -89,9 +89,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected InternalRelationshipBuilder WithManyBuilder(string collection)
         {
-            var needToInvert = Metadata.ReferencedEntityType != RelatedEntityType;
+            var needToInvert = Metadata.PrincipalEntityType != RelatedEntityType;
             Debug.Assert((needToInvert && Metadata.EntityType == RelatedEntityType)
-                         || Metadata.ReferencedEntityType == RelatedEntityType);
+                         || Metadata.PrincipalEntityType == RelatedEntityType);
 
             var builder = Builder;
             if (needToInvert)
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                                      && foreignKey.GetNavigationToDependent()?.Name == ReferenceName;
 
             Debug.Assert(inverseToPrincipal
-                         || (foreignKey.ReferencedEntityType == RelatedEntityType
+                         || (foreignKey.PrincipalEntityType == RelatedEntityType
                              && foreignKey.GetNavigationToPrincipal()?.Name == ReferenceName));
             builder = inverseToPrincipal
                 ? builder.NavigationToPrincipal(inverseReferenceName, ConfigurationSource.Explicit, strictPreferExisting: false)

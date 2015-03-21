@@ -441,7 +441,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     {
                         // set up the name of the navigation property on the principal end of the foreign key
                         var principalEndExistingIdentifiers =
-                            entityTypeToExistingIdentifiers[foreignKey.ReferencedEntityType];
+                            entityTypeToExistingIdentifiers[foreignKey.PrincipalEntityType];
                         var principalEndNavigationPropertyCandidateName =
                             _modelUtilities.GetPrincipalEndCandidateNavigationPropertyName(foreignKey);
                         var principalEndNavigationPropertyName =

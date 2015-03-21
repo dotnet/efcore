@@ -14,37 +14,37 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class ForeignKey : Annotatable, IForeignKey
     {
-        private readonly Key _referencedKey;
+        private readonly Key _principalKey;
 
         private bool _isRequiredSet;
         
         public ForeignKey(
             [NotNull] IReadOnlyList<Property> dependentProperties,
-            [NotNull] Key referencedKey,
-            [CanBeNull] EntityType referencedEntityType = null)
+            [NotNull] Key principalKey,
+            [CanBeNull] EntityType principalEntityType = null)
         {
             Check.NotEmpty(dependentProperties, nameof(dependentProperties));
             Check.HasNoNulls(dependentProperties, nameof(dependentProperties));
             MetadataHelper.CheckSameEntityType(dependentProperties, nameof(dependentProperties));
-            Check.NotNull(referencedKey, nameof(referencedKey));
+            Check.NotNull(principalKey, nameof(principalKey));
 
             Properties = dependentProperties;
 
-            var principalProperties = referencedKey.Properties;
+            var principalProperties = principalKey.Properties;
 
             Property.EnsureCompatible(principalProperties, dependentProperties);
 
-            if (referencedEntityType?.Keys.Contains(referencedKey) == false)
+            if (principalEntityType?.Keys.Contains(principalKey) == false)
             {
                 throw new ArgumentException(
                     Strings.ForeignKeyReferencedEntityKeyMismatch(
-                        referencedKey,
-                        referencedEntityType));
+                        principalKey,
+                        principalEntityType));
             }
 
-            _referencedKey = referencedKey;
+            _principalKey = principalKey;
 
-            ReferencedEntityType = referencedEntityType ?? _referencedKey.EntityType;
+            PrincipalEntityType = principalEntityType ?? _principalKey.EntityType;
         }
 
         [NotNull]
@@ -53,12 +53,12 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual EntityType EntityType => Properties[0].EntityType;
 
         [NotNull]
-        public virtual IReadOnlyList<Property> ReferencedProperties => _referencedKey.Properties;
+        public virtual IReadOnlyList<Property> ReferencedProperties => _principalKey.Properties;
 
         [NotNull]
-        public virtual Key ReferencedKey => _referencedKey;
+        public virtual Key PrincipalKey => _principalKey;
 
-        public virtual EntityType ReferencedEntityType { get; }
+        public virtual EntityType PrincipalEntityType { get; }
 
         public virtual bool? IsUnique { get; set; }
 
@@ -110,9 +110,9 @@ namespace Microsoft.Data.Entity.Metadata
 
         IReadOnlyList<IProperty> IForeignKey.ReferencedProperties => ReferencedProperties;
 
-        IEntityType IForeignKey.ReferencedEntityType => ReferencedEntityType;
+        IEntityType IForeignKey.PrincipalEntityType => PrincipalEntityType;
 
-        IKey IForeignKey.ReferencedKey => ReferencedKey;
+        IKey IForeignKey.PrincipalKey => PrincipalKey;
 
         bool IForeignKey.IsUnique => IsUnique ?? DefaultIsUnique;
 
@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Metadata
                 "'{0}' {1} -> '{2}' {3}",
                 EntityType.DisplayName(),
                 Property.Format(Properties),
-                ReferencedEntityType.DisplayName(),
+                PrincipalEntityType.DisplayName(),
                 Property.Format(ReferencedProperties));
         }
     }

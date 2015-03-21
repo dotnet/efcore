@@ -211,7 +211,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.ClrType));
-            Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.ForeignKeys.Single().ReferencedEntityType.ClrType);
+            Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.ForeignKeys.Single().PrincipalEntityType.ClrType);
         }
 
         [Fact]
@@ -232,7 +232,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.ClrType));
-            Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.ForeignKeys.Single().ReferencedEntityType.ClrType);
+            Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.ForeignKeys.Single().PrincipalEntityType.ClrType);
         }
 
         protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)

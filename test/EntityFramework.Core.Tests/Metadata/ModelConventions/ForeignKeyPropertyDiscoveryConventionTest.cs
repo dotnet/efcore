@@ -488,7 +488,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty1, fk.Properties[0]);
             Assert.Same(fkProperty2, fk.Properties[1]);
-            Assert.Same(PrincipalTypeWithCompositeKey.Metadata.GetPrimaryKey(), fk.ReferencedKey);
+            Assert.Same(PrincipalTypeWithCompositeKey.Metadata.GetPrimaryKey(), fk.PrincipalKey);
             Assert.True(fk.IsUnique);
             Assert.True(fk.IsRequired);
         }
@@ -761,7 +761,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
 
             var fk = (IForeignKey)newRelationshipBuilder.Metadata;
-            Assert.Same(DependentType.Metadata.GetPrimaryKey(), fk.ReferencedKey);
+            Assert.Same(DependentType.Metadata.GetPrimaryKey(), fk.PrincipalKey);
             Assert.True(fk.IsUnique);
             Assert.False(fk.IsRequired);
         }
@@ -792,7 +792,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var fk = (IForeignKey)PrincipalType.Metadata.ForeignKeys.Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(DependentType.Metadata.GetPrimaryKey(), fk.ReferencedKey);
+            Assert.Same(DependentType.Metadata.GetPrimaryKey(), fk.PrincipalKey);
             Assert.True(fk.IsUnique);
             Assert.False(fk.IsRequired);
             Assert.Empty(DependentType.Metadata.ForeignKeys);
@@ -873,7 +873,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             var fk = (IForeignKey)PrincipalType.Metadata.ForeignKeys.Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
-            Assert.Same(DependentType.Metadata.GetPrimaryKey(), fk.ReferencedKey);
+            Assert.Same(DependentType.Metadata.GetPrimaryKey(), fk.PrincipalKey);
             Assert.True(fk.IsUnique);
             Assert.True(fk.IsRequired);
             Assert.Empty(DependentType.Metadata.ForeignKeys);
@@ -933,7 +933,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
 
             var fk = (IForeignKey)newRelationshipBuilder.Metadata;
-            Assert.Same(DependentType.Metadata.GetPrimaryKey(), fk.ReferencedKey);
+            Assert.Same(DependentType.Metadata.GetPrimaryKey(), fk.PrincipalKey);
             Assert.True(fk.IsUnique);
             Assert.True(fk.IsRequired);
         }

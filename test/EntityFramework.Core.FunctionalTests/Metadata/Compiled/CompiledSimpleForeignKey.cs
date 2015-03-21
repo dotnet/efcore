@@ -19,11 +19,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IReadOnlyList<IProperty> Properties => new[] { EntityType.GetProperties().ElementAt(Definition.DependentPropertyIndex) };
 
-        public IReadOnlyList<IProperty> ReferencedProperties => ReferencedEntityType.GetPrimaryKey().Properties;
+        public IReadOnlyList<IProperty> ReferencedProperties => PrincipalEntityType.GetPrimaryKey().Properties;
 
-        public IKey ReferencedKey => ReferencedEntityType.GetPrimaryKey();
+        public IKey PrincipalKey => PrincipalEntityType.GetPrimaryKey();
 
-        public IEntityType ReferencedEntityType => _model.EntityTypes[Definition.PrincipalIndex];
+        public IEntityType PrincipalEntityType => _model.EntityTypes[Definition.PrincipalIndex];
 
         public IEntityType EntityType => _model.EntityTypes[Definition.DependentIndex];
 

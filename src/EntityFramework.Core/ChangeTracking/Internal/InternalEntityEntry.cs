@@ -343,15 +343,18 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IPropertyAccessor propertyAccessor) => MetadataServices.CreateKey(entityType, properties, propertyAccessor);
 
         public virtual EntityKey GetDependentKeySnapshot([NotNull] IForeignKey foreignKey)
-            => CreateKey(foreignKey.ReferencedEntityType, foreignKey.Properties, RelationshipsSnapshot);
+            => CreateKey(foreignKey.PrincipalEntityType, foreignKey.Properties, RelationshipsSnapshot);
 
-        public virtual EntityKey GetPrincipalKey([NotNull] IForeignKey foreignKey, [NotNull] IEntityType referencedEntityType, [NotNull] IReadOnlyList<IProperty> referencedProperties)
+        public virtual EntityKey GetPrincipalKey(
+            [NotNull] IForeignKey foreignKey, 
+            [NotNull] IEntityType principalEntityType, 
+            [NotNull] IReadOnlyList<IProperty> referencedProperties)
         {
             EntityKey result;
             if (!_principalKeys.TryGetValue(foreignKey, out result))
             {
                 _principalKeys.Add(foreignKey,
-                    result = CreateKey(referencedEntityType, referencedProperties, this));
+                    result = CreateKey(principalEntityType, referencedProperties, this));
             }
 
             return result;

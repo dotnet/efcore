@@ -459,7 +459,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             if (Name(source) != Name(target)
                 || !source.Properties.Select(p => p.Relational().Column).SequenceEqual(
                     target.Properties.Select(p => p.Relational().Column))
-                || source.ReferencedEntityType.Relational().Table != target.ReferencedEntityType.Relational().Table
+                || source.PrincipalEntityType.Relational().Table != target.PrincipalEntityType.Relational().Table
                 || !source.ReferencedProperties.Select(p => p.Relational().Column).SequenceEqual(
                     target.ReferencedProperties.Select(p => p.Relational().Column)))
             {
@@ -491,8 +491,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 target.EntityType.Relational().Schema,
                 Name(target),
                 target.Properties.Select(p => p.Relational().Column).ToArray(),
-                target.ReferencedEntityType.Relational().Table,
-                target.ReferencedEntityType.Relational().Schema,
+                target.PrincipalEntityType.Relational().Table,
+                target.PrincipalEntityType.Relational().Schema,
                 target.ReferencedProperties.Select(p => p.Relational().Column).ToArray(),
                 cascadeDelete: false);
         }
@@ -745,7 +745,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             return foreignKey.Relational().Name
-                   ?? "FK_" + Name(foreignKey.EntityType) + "_" + Name(foreignKey.ReferencedEntityType) + "_" +
+                   ?? "FK_" + Name(foreignKey.EntityType) + "_" + Name(foreignKey.PrincipalEntityType) + "_" +
                    Name(foreignKey.Properties);
         }
 

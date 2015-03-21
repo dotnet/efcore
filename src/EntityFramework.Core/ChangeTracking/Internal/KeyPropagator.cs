@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         object valueToPropagte = null;
 
                         foreach (var navigation in entityType.GetNavigations()
-                            .Concat(foreignKey.ReferencedEntityType.GetNavigations())
+                            .Concat(foreignKey.PrincipalEntityType.GetNavigations())
                             .Where(n => n.ForeignKey == foreignKey)
                             .Distinct())
                         {
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             // TODO: Perf
             foreach (var principalEntry in stateManager.Entries
-                .Where(e => e.EntityType == navigation.ForeignKey.ReferencedEntityType))
+                .Where(e => e.EntityType == navigation.ForeignKey.PrincipalEntityType))
             {
                 if (navigation.IsCollection())
                 {

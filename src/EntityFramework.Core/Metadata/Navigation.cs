@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Metadata
         public override EntityType EntityType
             => PointsToPrincipal
                 ? ForeignKey.EntityType
-                : ForeignKey.ReferencedEntityType;
+                : ForeignKey.PrincipalEntityType;
 
         IForeignKey INavigation.ForeignKey => ForeignKey;
 

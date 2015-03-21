@@ -227,7 +227,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(1, entityType.Keys.Count);
             Assert.Same(customerPk, entityType.FindKey(idProperty));
             Assert.Null(entityType.FindPrimaryKey());
-            Assert.Same(customerPk, fk.ReferencedKey);
+            Assert.Same(customerPk, fk.PrincipalKey);
         }
 
         [Fact]
@@ -246,7 +246,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(2, entityType.Keys.Count);
             Assert.Same(customerPk, entityType.FindKey(idProperty));
             Assert.NotSame(customerPk, entityType.GetPrimaryKey());
-            Assert.Same(customerPk, fk.ReferencedKey);
+            Assert.Same(customerPk, fk.PrincipalKey);
         }
 
         [Fact]
@@ -999,14 +999,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(SelfRef), new Model());
             var fkProperty = entityType.AddProperty("ForeignKey", typeof(int));
-            var referencedEntityType = entityType;
-            var referencedKeyProperty = referencedEntityType.AddProperty("Id", typeof(int));
-            var referencedKey = referencedEntityType.SetPrimaryKey(referencedKeyProperty);
+            var principalEntityType = entityType;
+            var referencedKeyProperty = principalEntityType.AddProperty("Id", typeof(int));
+            var referencedKey = principalEntityType.SetPrimaryKey(referencedKeyProperty);
             var fk = entityType.AddForeignKey(fkProperty, referencedKey);
             fk.IsUnique = true;
 
-            var navigationToDependent = referencedEntityType.AddNavigation("SelfRef1", fk, pointsToPrincipal: false);
-            var navigationToPrincipal = referencedEntityType.AddNavigation("SelfRef2", fk, pointsToPrincipal: true);
+            var navigationToDependent = principalEntityType.AddNavigation("SelfRef1", fk, pointsToPrincipal: false);
+            var navigationToPrincipal = principalEntityType.AddNavigation("SelfRef2", fk, pointsToPrincipal: true);
 
             Assert.Same(fk.GetNavigationToDependent(), navigationToDependent);
             Assert.Same(fk.GetNavigationToPrincipal(), navigationToPrincipal);

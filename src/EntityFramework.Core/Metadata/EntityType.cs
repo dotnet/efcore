@@ -393,7 +393,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         private void CheckKeyNotInUse(Key key)
         {
-            var foreignKey = Model?.EntityTypes.SelectMany(e => e.ForeignKeys).FirstOrDefault(k => k.ReferencedKey == key);
+            var foreignKey = Model?.EntityTypes.SelectMany(e => e.ForeignKeys).FirstOrDefault(k => k.PrincipalKey == key);
 
             if (foreignKey != null)
             {
@@ -428,26 +428,26 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual ForeignKey AddForeignKey(
             [NotNull] Property property,
-            [NotNull] Key referencedKey,
-            [CanBeNull] EntityType referencedEntityType = null)
+            [NotNull] Key principalKey,
+            [CanBeNull] EntityType principalEntityType = null)
         {
-            return AddForeignKey(new[] { property }, referencedKey, referencedEntityType);
+            return AddForeignKey(new[] { property }, principalKey, principalEntityType);
         }
 
         public virtual ForeignKey AddForeignKey(
             [NotNull] IReadOnlyList<Property> properties,
-            [NotNull] Key referencedKey,
-            [CanBeNull] EntityType referencedEntityType = null)
+            [NotNull] Key principalKey,
+            [CanBeNull] EntityType principalEntityType = null)
         {
             Check.NotEmpty(properties, nameof(properties));
-            Check.NotNull(referencedKey, nameof(referencedKey));
+            Check.NotNull(principalKey, nameof(principalKey));
 
             if (_foreignKeys.Value.ContainsKey(properties))
             {
                 throw new InvalidOperationException(Strings.DuplicateForeignKey(Property.Format(properties), Name));
             }
 
-            var foreignKey = new ForeignKey(properties, referencedKey, referencedEntityType);
+            var foreignKey = new ForeignKey(properties, principalKey, principalEntityType);
 
             if (foreignKey.EntityType != this)
             {
@@ -462,17 +462,17 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual ForeignKey GetOrAddForeignKey(
-            [NotNull] Property property, [NotNull] Key referencedKey)
+            [NotNull] Property property, [NotNull] Key principalKey)
         {
-            return GetOrAddForeignKey(new[] { property }, referencedKey);
+            return GetOrAddForeignKey(new[] { property }, principalKey);
         }
 
         public virtual ForeignKey GetOrAddForeignKey(
-            [NotNull] IReadOnlyList<Property> properties, [NotNull] Key referencedKey)
+            [NotNull] IReadOnlyList<Property> properties, [NotNull] Key principalKey)
         {
             // Note: this will return an existing foreign key even if it doesn't have the same referenced key
             return FindForeignKey(properties)
-                   ?? AddForeignKey(properties, referencedKey);
+                   ?? AddForeignKey(properties, principalKey);
         }
 
         [CanBeNull]

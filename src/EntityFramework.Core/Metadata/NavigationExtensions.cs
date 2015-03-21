@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(navigation, nameof(navigation));
 
             return navigation.PointsToPrincipal
-                ? navigation.ForeignKey.ReferencedEntityType
+                ? navigation.ForeignKey.PrincipalEntityType
                 : navigation.ForeignKey.EntityType;
         }
 
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(navigation, nameof(navigation));
 
             return navigation.PointsToPrincipal
-                ? navigation.ForeignKey.ReferencedEntityType
+                ? navigation.ForeignKey.PrincipalEntityType
                 : navigation.ForeignKey.EntityType;
         }
 

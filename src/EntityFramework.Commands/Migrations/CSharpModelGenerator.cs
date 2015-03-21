@@ -292,7 +292,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             stringBuilder
                 .AppendLine()
                 .Append("b.ForeignKey(")
-                .Append(_code.Literal(foreignKey.ReferencedEntityType.Name))
+                .Append(_code.Literal(foreignKey.PrincipalEntityType.Name))
                 .Append(", ")
                 .Append(string.Join(", ", foreignKey.Properties.Select(p => _code.Literal(p.Name))))
                 .Append(")");

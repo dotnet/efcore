@@ -815,9 +815,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Empty(dependentEntityBuilder.Metadata.Properties.Where(p => p.Name == Order.CustomerIdProperty.Name));
             var newFk = dependentEntityBuilder.Metadata.ForeignKeys.Single();
             Assert.Same(fk.EntityType, newFk.EntityType);
-            Assert.Same(fk.ReferencedEntityType, newFk.ReferencedEntityType);
+            Assert.Same(fk.PrincipalEntityType, newFk.PrincipalEntityType);
             Assert.NotEqual(fk.Properties, newFk.EntityType.Properties);
-            Assert.Same(fk.ReferencedKey, newFk.ReferencedKey);
+            Assert.Same(fk.PrincipalKey, newFk.PrincipalKey);
             Assert.Equal(Order.CustomerProperty.Name, newFk.GetNavigationToPrincipal().Name);
             Assert.Equal(Customer.OrdersProperty.Name, newFk.GetNavigationToDependent().Name);
         }
@@ -918,9 +918,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Empty(principalEntityBuilder.Metadata.Properties.Where(p => p.Name == Customer.UniqueProperty.Name));
             var newFk = dependentEntityBuilder.Metadata.ForeignKeys.Single();
             Assert.Same(fk.EntityType, newFk.EntityType);
-            Assert.Same(fk.ReferencedEntityType, newFk.ReferencedEntityType);
+            Assert.Same(fk.PrincipalEntityType, newFk.PrincipalEntityType);
             Assert.Equal(fk.Properties, newFk.EntityType.Properties);
-            Assert.NotSame(fk.ReferencedKey, newFk.ReferencedKey);
+            Assert.NotSame(fk.PrincipalKey, newFk.PrincipalKey);
             Assert.Equal(Order.CustomerProperty.Name, newFk.GetNavigationToPrincipal().Name);
             Assert.Equal(Customer.OrdersProperty.Name, newFk.GetNavigationToDependent().Name);
         }

@@ -16,14 +16,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
 
-            var referencedEntityType = model.AddEntityType("R");
+            var principalEntityType = model.AddEntityType("R");
             var dependentEntityType = model.AddEntityType("D");
             var fk = dependentEntityType.AddProperty("Fk", typeof(int), shadowProperty: true);
 
             var referencedKey = dependentEntityType.SetPrimaryKey(fk);
 
             Assert.Throws<ArgumentException>(() =>
-                new ForeignKey(new[] { fk }, referencedKey, referencedEntityType));
+                new ForeignKey(new[] { fk }, referencedKey, principalEntityType));
         }
 
         [Fact]
@@ -40,11 +40,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                         IsUnique = true
                     };
 
-            Assert.Same(entityType, foreignKey.ReferencedEntityType);
+            Assert.Same(entityType, foreignKey.PrincipalEntityType);
             Assert.Same(principalProp, foreignKey.ReferencedProperties.Single());
             Assert.Same(dependentProp, foreignKey.Properties.Single());
             Assert.True(foreignKey.IsUnique.Value);
-            Assert.Same(entityType.GetPrimaryKey(), foreignKey.ReferencedKey);
+            Assert.Same(entityType.GetPrimaryKey(), foreignKey.PrincipalKey);
         }
 
         [Fact]
@@ -104,11 +104,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                         IsUnique = false
                     };
 
-            Assert.Same(entityType, foreignKey.ReferencedEntityType);
+            Assert.Same(entityType, foreignKey.PrincipalEntityType);
             Assert.Same(principalProp, foreignKey.ReferencedProperties.Single());
             Assert.Same(dependentProp, foreignKey.Properties.Single());
             Assert.False(foreignKey.IsUnique.Value);
-            Assert.Same(referencedKey, foreignKey.ReferencedKey);
+            Assert.Same(referencedKey, foreignKey.PrincipalKey);
         }
 
         [Fact]
@@ -260,7 +260,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = CreateOneToManyFK();
 
             Assert.True(fk.IsCompatible(
-                fk.ReferencedEntityType,
+                fk.PrincipalEntityType,
                 fk.EntityType,
                 null,
                 null,
@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = CreateOneToManyFK();
 
             Assert.True(fk.IsCompatible(
-                fk.ReferencedEntityType,
+                fk.PrincipalEntityType,
                 fk.EntityType,
                 "Nav",
                 "Nav",
@@ -299,8 +299,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 false));
 
             Assert.False(fk.IsCompatible(
-                fk.ReferencedEntityType,
-                fk.ReferencedEntityType,
+                fk.PrincipalEntityType,
+                fk.PrincipalEntityType,
                 null,
                 null,
                 fk.Properties,
@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 false));
 
             Assert.False(fk.IsCompatible(
-                fk.ReferencedEntityType,
+                fk.PrincipalEntityType,
                 fk.EntityType,
                 null,
                 null,
@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 false));
 
             Assert.False(fk.IsCompatible(
-                fk.ReferencedEntityType,
+                fk.PrincipalEntityType,
                 fk.EntityType,
                 null,
                 null,
@@ -326,7 +326,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 false));
 
             Assert.False(fk.IsCompatible(
-                fk.ReferencedEntityType,
+                fk.PrincipalEntityType,
                 fk.EntityType,
                 null,
                 null,
@@ -361,7 +361,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = CreateSelfRefFK();
 
             Assert.True(fk.IsCompatible(
-                fk.ReferencedEntityType,
+                fk.PrincipalEntityType,
                 fk.EntityType,
                 "SelfRefPrincipal",
                 "SelfRefDependent",
@@ -376,7 +376,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = CreateSelfRefFK();
 
             Assert.False(fk.IsCompatible(
-                fk.ReferencedEntityType,
+                fk.PrincipalEntityType,
                 fk.EntityType,
                 "SelfRefDependent",
                 "SelfRefPrincipal",
@@ -385,7 +385,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 true));
 
             Assert.False(fk.IsCompatible(
-                fk.ReferencedEntityType,
+                fk.PrincipalEntityType,
                 fk.EntityType,
                 null,
                 null,
@@ -394,7 +394,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 true));
 
             Assert.False(fk.IsCompatible(
-                fk.ReferencedEntityType,
+                fk.PrincipalEntityType,
                 fk.EntityType,
                 "SelfRefPrincipal",
                 "SelfRefDependent",
@@ -403,7 +403,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 true));
 
             Assert.False(fk.IsCompatible(
-                fk.ReferencedEntityType,
+                fk.PrincipalEntityType,
                 fk.EntityType,
                 "SelfRefPrincipal",
                 "SelfRefDependent",

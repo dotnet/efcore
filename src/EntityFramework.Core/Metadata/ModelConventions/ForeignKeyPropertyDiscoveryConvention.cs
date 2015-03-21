@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     if (foreignKeyProperties == null
                         && foreignKey.IsRequired != false)
                     {
-                        foreignKeyProperties = GetCompatiblePrimaryKeyProperties(foreignKey.EntityType, foreignKey.ReferencedKey.Properties);
+                        foreignKeyProperties = GetCompatiblePrimaryKeyProperties(foreignKey.EntityType, foreignKey.PrincipalKey.Properties);
                     }
                 }
 
@@ -82,8 +82,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             }
 
             var model = foreignKey.EntityType.Model;
-            var principalPk = foreignKey.ReferencedEntityType.FindPrimaryKey();
-            var principalPkReferenceThreshold = foreignKey.ReferencedKey == principalPk? 1 : 0;
+            var principalPk = foreignKey.PrincipalEntityType.FindPrimaryKey();
+            var principalPkReferenceThreshold = foreignKey.PrincipalKey == principalPk? 1 : 0;
             var isPrincipalKeyReferenced = principalPk != null && model.GetReferencingForeignKeys(principalPk).Count > principalPkReferenceThreshold;
             var dependentPk = foreignKey.EntityType.FindPrimaryKey();
             var isDependentPrimaryKeyReferenced = dependentPk != null && model.GetReferencingForeignKeys(dependentPk).Count > 0;
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 return true;
             }
             
-            return StringComparer.Ordinal.Compare(foreignKey.ReferencedEntityType.Name, foreignKey.EntityType.Name) > 0;
+            return StringComparer.Ordinal.Compare(foreignKey.PrincipalEntityType.Name, foreignKey.EntityType.Name) > 0;
         }
 
         private IReadOnlyList<Property> GetCandidateForeignKeyProperties(ForeignKey foreignKey, bool onDependent)
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             }
 
             var entityTypeToReference = onDependent
-                ? foreignKey.ReferencedEntityType
+                ? foreignKey.PrincipalEntityType
                 : foreignKey.EntityType;
             baseNames.Add(entityTypeToReference.DisplayName());
 
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         {
             var entityType = onDependent
                 ? foreignKey.EntityType
-                : foreignKey.ReferencedEntityType;
+                : foreignKey.PrincipalEntityType;
             var propertiesToReference = onDependent
                 ? foreignKey.ReferencedProperties
                 : foreignKey.EntityType.FindPrimaryKey()?.Properties;

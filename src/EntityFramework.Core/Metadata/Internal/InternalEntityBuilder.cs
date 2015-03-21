@@ -469,13 +469,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return ForeignKey(principalType.Metadata, GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
         }
 
-        public virtual InternalRelationshipBuilder ForeignKey([NotNull] Type referencedType, [NotNull] IReadOnlyList<PropertyInfo> clrProperties,
+        public virtual InternalRelationshipBuilder ForeignKey(
+            [NotNull] Type principalClrType, [NotNull] IReadOnlyList<PropertyInfo> clrProperties,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(referencedType, nameof(referencedType));
+            Check.NotNull(principalClrType, nameof(principalClrType));
             Check.NotNull(clrProperties, nameof(clrProperties));
 
-            var principalType = ModelBuilder.Entity(referencedType, configurationSource);
+            var principalType = ModelBuilder.Entity(principalClrType, configurationSource);
             if (principalType == null)
             {
                 return null;
@@ -549,7 +550,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            var principalEntityBuilder = ModelBuilder.Entity(foreignKey.ReferencedEntityType.Name, ConfigurationSource.Convention);
+            var principalEntityBuilder = ModelBuilder.Entity(foreignKey.PrincipalEntityType.Name, ConfigurationSource.Convention);
 
             var navigationToDependent = foreignKey.GetNavigationToDependent();
             navigationToDependent?.EntityType.RemoveNavigation(navigationToDependent);
@@ -560,7 +561,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Metadata.RemoveForeignKey(foreignKey);
             ModelBuilder.ConventionDispatcher.OnForeignKeyRemoved(this, foreignKey);
             RemoveShadowPropertiesIfUnused(foreignKey.Properties);
-            principalEntityBuilder.RemoveKeyIfUnused(foreignKey.ReferencedKey);
+            principalEntityBuilder.RemoveKeyIfUnused(foreignKey.PrincipalKey);
 
             return removedConfigurationSource;
         }

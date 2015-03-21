@@ -1027,7 +1027,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(1, dependentType.ForeignKeys.Count());
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
-            Assert.Same(fk.ReferencedKey, principalType.Navigations.Single().ForeignKey.ReferencedKey);
+            Assert.Same(fk.PrincipalKey, principalType.Navigations.Single().ForeignKey.PrincipalKey);
             Assert.Equal(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.Properties.Select(p => p.Name));
             Assert.Equal(new[] { "AnotherCustomerId", fk.Properties.Single().Name, dependentKey.Properties.Single().Name }, dependentType.Properties.Select(p => p.Name));
             Assert.Empty(principalType.ForeignKeys);
@@ -1773,8 +1773,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Equal(1, dependentType.Keys.Count);
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -1902,8 +1902,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Equal(1, dependentType.Keys.Count);
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -1949,8 +1949,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Equal(1, dependentType.Keys.Count);
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -1999,8 +1999,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -2044,8 +2044,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -2088,7 +2088,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var principalKey = principalType.Keys.Single();
             Assert.Same(principalProperty, principalKey.Properties.Single());
-            Assert.Same(principalKey, fk.ReferencedKey);
+            Assert.Same(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.SingleOrDefault());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -2120,7 +2120,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Equal(2, fk.Properties.Count);
-            Assert.Same(nonPrimaryPrincipalKey, fk.ReferencedKey);
+            Assert.Same(nonPrimaryPrincipalKey, fk.PrincipalKey);
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
             Assert.Equal("Pickles", principalType.Navigations.Single().Name);
@@ -2163,7 +2163,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             modelBuilder.Entity<BigMak>().Key(e => e.AlternateKey);
 
             var fk = dependentType.ForeignKeys.Single();
-            Assert.Same(nonPrimaryPrincipalKey, fk.ReferencedKey);
+            Assert.Same(nonPrimaryPrincipalKey, fk.PrincipalKey);
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
             Assert.Equal("Pickles", principalType.Navigations.Single().Name);
@@ -2244,7 +2244,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(1, dependentType.ForeignKeys.Count());
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
-            Assert.Same(fk.ReferencedKey, principalType.Navigations.Single().ForeignKey.ReferencedKey);
+            Assert.Same(fk.PrincipalKey, principalType.Navigations.Single().ForeignKey.PrincipalKey);
             Assert.Equal(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.Properties.Select(p => p.Name));
             Assert.Equal(new[] { "AnotherCustomerId", fk.Properties.Single().Name, dependentKey.Properties.Single().Name }, dependentType.Properties.Select(p => p.Name));
             Assert.Empty(principalType.ForeignKeys);
@@ -2987,8 +2987,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Empty(principalType.ForeignKeys);
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Equal(1, dependentType.Keys.Count);
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -3116,8 +3116,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Equal(1, dependentType.Keys.Count);
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -3163,8 +3163,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Equal(1, dependentType.Keys.Count);
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -3213,8 +3213,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -3258,8 +3258,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -3292,7 +3292,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(1, dependentType.ForeignKeys.Count());
             Assert.Same(navToPrincipal, dependentType.Navigations.Single());
             Assert.Same(navToDependent, principalType.Navigations.Single());
-            Assert.Same(fk.ReferencedKey, principalType.Navigations.Single().ForeignKey.ReferencedKey);
+            Assert.Same(fk.PrincipalKey, principalType.Navigations.Single().ForeignKey.PrincipalKey);
             Assert.Equal(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.Properties.Select(p => p.Name));
             Assert.Equal(new[] { dependentKey.Properties.Single().Name }, dependentType.Properties.Select(p => p.Name));
             Assert.Empty(principalType.ForeignKeys);
@@ -3355,7 +3355,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(1, dependentType.ForeignKeys.Count);
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
-            Assert.Same(fk.ReferencedKey, principalType.Navigations.Single().ForeignKey.ReferencedKey);
+            Assert.Same(fk.PrincipalKey, principalType.Navigations.Single().ForeignKey.PrincipalKey);
             Assert.Equal(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.Properties.Select(p => p.Name));
             Assert.Equal(new[] { dependentKey.Properties.Single().Name }, dependentType.Properties.Select(p => p.Name));
             Assert.Empty(principalType.ForeignKeys);
@@ -4370,8 +4370,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Equal(1, dependentType.Keys.Count);
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -4504,8 +4504,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -4549,8 +4549,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -4672,7 +4672,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             expectedDependentProperties.Add(fk.Properties.Single());
             AssertEqual(expectedDependentProperties, dependentType.Properties);
             Assert.Empty(principalType.ForeignKeys);
-            Assert.Same(fk.ReferencedKey, principalType.Keys.Single(k => k != principalKey));
+            Assert.Same(fk.PrincipalKey, principalType.Keys.Single(k => k != principalKey));
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
             Assert.Same(dependentKey, dependentType.GetPrimaryKey());
@@ -4795,7 +4795,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(expectedPrincipalProperties, principalType.Properties);
             Assert.Equal(expectedDependentProperties, dependentType.Properties);
             Assert.Empty(principalType.ForeignKeys);
-            Assert.Same(fk.ReferencedKey, principalType.Keys.Single(k => k != principalKey));
+            Assert.Same(fk.PrincipalKey, principalType.Keys.Single(k => k != principalKey));
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
             Assert.Same(dependentKey, dependentType.GetPrimaryKey());
@@ -5105,7 +5105,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(1, dependentType.ForeignKeys.Count());
             Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
             Assert.Equal("Tomatoes", principalType.Navigations.Single().Name);
-            Assert.Same(fk.ReferencedKey, principalType.Navigations.Single().ForeignKey.ReferencedKey);
+            Assert.Same(fk.PrincipalKey, principalType.Navigations.Single().ForeignKey.PrincipalKey);
             Assert.Equal(new[] { "AlternateKey1", "AlternateKey2", principalKey.Properties[0].Name, principalKey.Properties[1].Name }, principalType.Properties.Select(p => p.Name));
             Assert.Equal(new[] { fk.Properties[0].Name, fk.Properties[1].Name, dependentKey.Properties.Single().Name }, dependentType.Properties.Select(p => p.Name));
             Assert.Empty(principalType.ForeignKeys);
@@ -5197,8 +5197,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -5247,8 +5247,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -5497,8 +5497,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -5547,8 +5547,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -5796,8 +5796,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -5846,8 +5846,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
-            Assert.Contains(fk.ReferencedKey, principalType.Keys);
-            Assert.NotSame(principalKey, fk.ReferencedKey);
+            Assert.Contains(fk.PrincipalKey, principalType.Keys);
+            Assert.NotSame(principalKey, fk.PrincipalKey);
 
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -6771,7 +6771,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var newFk = entityType.ForeignKeys.Single();
 
             Assert.Equal(fk.Properties, newFk.Properties);
-            Assert.Equal(fk.ReferencedKey, newFk.ReferencedKey);
+            Assert.Equal(fk.PrincipalKey, newFk.PrincipalKey);
             Assert.Equal(navigationToPrincipal.Name, newFk.GetNavigationToDependent().Name);
             Assert.Equal(navigationToDependent.Name, newFk.GetNavigationToPrincipal().Name);
             Assert.True(((IForeignKey)newFk).IsRequired);
@@ -6797,7 +6797,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var navigationToDependent = fk.GetNavigationToDependent();
 
             Assert.NotEqual(fk.Properties, entityType.GetPrimaryKey().Properties);
-            Assert.Equal(fk.ReferencedKey, entityType.GetPrimaryKey());
+            Assert.Equal(fk.PrincipalKey, entityType.GetPrimaryKey());
             Assert.Equal(null, navigationToDependent?.Name);
             Assert.Equal("SelfRef1", navigationToPrincipal?.Name);
             Assert.Same(navigationToPrincipal, entityType.Navigations.Single());
@@ -6825,7 +6825,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var navigationToDependent = fk.GetNavigationToDependent();
 
             Assert.NotEqual(fk.Properties, entityType.GetPrimaryKey().Properties);
-            Assert.Equal(fk.ReferencedKey, entityType.GetPrimaryKey());
+            Assert.Equal(fk.PrincipalKey, entityType.GetPrimaryKey());
             Assert.Equal("SelfRef1", navigationToDependent?.Name);
             Assert.Equal(null, navigationToPrincipal?.Name);
             Assert.Same(navigationToDependent, entityType.Navigations.Single());

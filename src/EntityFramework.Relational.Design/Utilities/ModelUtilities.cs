@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
                 return candidateName;
             }
 
-            return foreignKey.ReferencedEntityType.DisplayName();
+            return foreignKey.PrincipalEntityType.DisplayName();
         }
 
         public virtual string GetPrincipalEndCandidateNavigationPropertyName([NotNull] ForeignKey foreignKey)
