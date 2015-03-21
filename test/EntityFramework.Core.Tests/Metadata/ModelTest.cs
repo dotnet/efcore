@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = model.AddEntityType(typeof(Customer));
 
-            Assert.Equal(typeof(Customer), entityType.Type);
+            Assert.Equal(typeof(Customer), entityType.ClrType);
             Assert.NotNull(model.TryGetEntityType(typeof(Customer)));
             Assert.Same(model, entityType.Model);
 
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = model.AddEntityType(typeof(Customer).FullName);
 
-            Assert.Null(entityType.Type);
+            Assert.Null(entityType.ClrType);
             Assert.Equal(typeof(Customer).FullName, entityType.Name);
             Assert.NotNull(model.TryGetEntityType(typeof(Customer).FullName));
             Assert.Same(model, entityType.Model);

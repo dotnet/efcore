@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
         IEntityType BaseType { get; }
 
         [CanBeNull]
-        Type Type { get; }
+        Type ClrType { get; }
 
         [CanBeNull]
         IKey TryGetPrimaryKey();

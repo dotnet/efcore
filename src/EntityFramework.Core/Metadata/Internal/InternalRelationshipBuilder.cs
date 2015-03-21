@@ -584,12 +584,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private EntityType ResolveType(Type type)
         {
-            if (type == Metadata.EntityType.Type)
+            if (type == Metadata.EntityType.ClrType)
             {
                 return Metadata.EntityType;
             }
 
-            if (type == Metadata.ReferencedEntityType.Type)
+            if (type == Metadata.ReferencedEntityType.ClrType)
             {
                 return Metadata.ReferencedEntityType;
             }

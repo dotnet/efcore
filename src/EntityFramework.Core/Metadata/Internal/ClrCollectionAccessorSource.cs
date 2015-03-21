@@ -52,13 +52,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             return _cache.GetOrAdd(
-                Tuple.Create(navigation.EntityType.Type, navigation.Name),
+                Tuple.Create(navigation.EntityType.ClrType, navigation.Name),
                 k => Create(navigation));
         }
 
         private IClrCollectionAccessor Create(INavigation navigation)
         {
-            var property = navigation.EntityType.Type.GetAnyProperty(navigation.Name);
+            var property = navigation.EntityType.ClrType.GetAnyProperty(navigation.Name);
             var elementType = property.PropertyType.TryGetElementType(typeof(ICollection<>));
 
             // TODO: Only ICollections supported; add support for enumerables with add/remove methods

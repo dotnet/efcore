@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             // Issue #107
             if (entityType.HasClrType)
             {
-                var primitiveProperties = entityType.Type.GetRuntimeProperties().Where(ConventionsPropertyInfoExtensions.IsCandidatePrimitiveProperty);
+                var primitiveProperties = entityType.ClrType.GetRuntimeProperties().Where(ConventionsPropertyInfoExtensions.IsCandidatePrimitiveProperty);
                 foreach (var propertyInfo in primitiveProperties)
                 {
                     entityBuilder.Property(propertyInfo, ConfigurationSource.Convention);

@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            if (entityType.Type != null)
+            if (entityType.ClrType != null)
             {
-                return entityType.Type.Name;
+                return entityType.ClrType.Name;
             }
 
             var lastDot = entityType.Name.LastIndexOfAny(new[] { '.', '+' });
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.Type != null;
+            return entityType.ClrType != null;
         }
 
         public static IEntityType RootType([NotNull] this IEntityType entityType)
@@ -74,16 +74,16 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.Type == null
-                   || typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(entityType.Type.GetTypeInfo());
+            return entityType.ClrType == null
+                   || typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo());
         }
 
         public static bool HasPropertyChangedNotifications([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.Type == null
-                   || typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.Type.GetTypeInfo());
+            return entityType.ClrType == null
+                   || typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo());
         }
     }
 }

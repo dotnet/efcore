@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotNull(property, nameof(property));
 
-            return property as TAccessor ?? GetAccessor(property.EntityType.Type, property.Name);
+            return property as TAccessor ?? GetAccessor(property.EntityType.ClrType, property.Name);
         }
 
         public virtual TAccessor GetAccessor(Type declaringType, string propertyName)

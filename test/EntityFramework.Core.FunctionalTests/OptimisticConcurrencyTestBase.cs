@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public static Dictionary<IProperty, object> GetDatabaseValues(this InternalEntityEntry internalEntry, DbContext context)
         {
-            if (internalEntry.EntityType.Type == typeof(Driver))
+            if (internalEntry.EntityType.ClrType == typeof(Driver))
             {
                 var id = (int)internalEntry.GetPrimaryKeyValue().Value;
                 return context.Set<Driver>()
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .SingleOrDefault();
             }
 
-            if (internalEntry.EntityType.Type == typeof(Engine))
+            if (internalEntry.EntityType.ClrType == typeof(Engine))
             {
                 var id = (int)internalEntry.GetPrimaryKeyValue().Value;
                 return context.Set<Engine>()

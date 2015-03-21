@@ -100,14 +100,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 throw new InvalidOperationException(Strings.CannotMaterializeAbstractType(entityType));
             }
 
-            var instanceVariable = Expression.Variable(entityType.Type, "instance");
+            var instanceVariable = Expression.Variable(entityType.ClrType, "instance");
 
             var blockExpressions
                 = new List<Expression>
                     {
                         Expression.Assign(
                             instanceVariable,
-                            Expression.New(entityType.Type.GetDeclaredConstructor(null)))
+                            Expression.New(entityType.ClrType.GetDeclaredConstructor(null)))
                     };
 
             blockExpressions.AddRange(

@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             // TODO: Consider entities without parameterless constructor--use o/c mapping info?
             // Issue #240
-            var entity = entityType.HasClrType() ? Activator.CreateInstance(entityType.Type) : null;
+            var entity = entityType.HasClrType() ? Activator.CreateInstance(entityType.ClrType) : null;
 
             return _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity));
         }

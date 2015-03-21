@@ -35,8 +35,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 compiledModel.EntityTypes.Select(e => e.Name)
                     .SequenceEqual(builtModel.EntityTypes.Select(a => a.Name)));
             Assert.True(
-                compiledModel.EntityTypes.Select(e => e.Type)
-                    .SequenceEqual(builtModel.EntityTypes.Select(a => a.Type)));
+                compiledModel.EntityTypes.Select(e => e.ClrType)
+                    .SequenceEqual(builtModel.EntityTypes.Select(a => a.ClrType)));
 
             Assert.True(
                 compiledModel.EntityTypes.First().GetPrimaryKey().Properties.Select(p => p.Name)
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             var entities = models.SelectMany(m => m.EntityTypes).ToList();
             memory.Add(Tuple.Create(entities.Count(), GetMemory(), "All entity types"));
 
-            var propertiesOneEntity = entities.Where(e => e.Type == typeof(KoolEntity9)).SelectMany(e => e.GetProperties());
+            var propertiesOneEntity = entities.Where(e => e.ClrType == typeof(KoolEntity9)).SelectMany(e => e.GetProperties());
             memory.Add(Tuple.Create(propertiesOneEntity.Count(), GetMemory(), "Properties one entity"));
 
             var fks = entities.SelectMany(e => e.GetForeignKeys());
@@ -376,7 +376,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 var type = Type.GetType("Microsoft.Data.Entity.FunctionalTests.Metadata.KoolEntity" + i);
 
                 var entityType = model.GetEntityType(type);
-                var id = entityType.GetOrAddProperty(entityType.Type.GetProperty("Id"));
+                var id = entityType.GetOrAddProperty(entityType.ClrType.GetProperty("Id"));
                 entityType.GetOrSetPrimaryKey(id);
             }
 
@@ -389,12 +389,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 entityType["Annotation1"] = "Value1";
                 entityType["Annotation2"] = "Value2";
 
-                var foo = entityType.GetOrAddProperty(entityType.Type.GetProperty("Foo" + i));
+                var foo = entityType.GetOrAddProperty(entityType.ClrType.GetProperty("Foo" + i));
 
                 foo["Foo" + i + "Annotation1"] = "Foo" + i + "Value1";
                 foo["Foo" + i + "Annotation2"] = "Foo" + i + "Value2";
 
-                var goo = entityType.GetOrAddProperty(entityType.Type.GetProperty("Goo" + i));
+                var goo = entityType.GetOrAddProperty(entityType.ClrType.GetProperty("Goo" + i));
             }
 
             var fk11 = entityType1.GetOrAddForeignKey(new[] { entityType1.GetProperty("KoolEntity2Id") }, entityType2.GetPrimaryKey());

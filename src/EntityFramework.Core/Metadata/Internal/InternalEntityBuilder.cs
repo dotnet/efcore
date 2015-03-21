@@ -1138,12 +1138,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 var property = Metadata.TryGetProperty(propertyName);
                 if (property == null)
                 {
-                    if (Metadata.Type == null)
+                    if (Metadata.ClrType == null)
                     {
                         throw new ModelItemNotFoundException(Strings.PropertyNotFound(propertyName, Metadata.Name));
                     }
 
-                    var clrProperty = Metadata.Type.GetPropertiesInHierarchy(propertyName).FirstOrDefault();
+                    var clrProperty = Metadata.ClrType.GetPropertiesInHierarchy(propertyName).FirstOrDefault();
                     if (clrProperty == null)
                     {
                         throw new InvalidOperationException(Strings.NoClrProperty(propertyName, Metadata.Name));

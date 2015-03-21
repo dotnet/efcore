@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var navigationPairCandidates = new Dictionary<InternalEntityBuilder, Tuple<List<PropertyInfo>, List<PropertyInfo>>>();
             if (entityType.HasClrType)
             {
-                foreach (var navigationPropertyInfo in entityType.Type.GetRuntimeProperties().OrderBy(p => p.Name))
+                foreach (var navigationPropertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                 {
                     Type entityClrType;
                     if (!navigationPropertyInfo.IsCandidateNavigationProperty(out entityClrType)
@@ -57,12 +57,12 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
                     navigationPairCandidates[targetEntityTypeBuilder] =
                         new Tuple<List<PropertyInfo>, List<PropertyInfo>>(navigations, reverseNavigations);
-                    foreach (var reversePropertyInfo in targetEntityTypeBuilder.Metadata.Type.GetRuntimeProperties().OrderBy(p => p.Name))
+                    foreach (var reversePropertyInfo in targetEntityTypeBuilder.Metadata.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                     {
                         Type reverseEntityClrType;
                         if (!reversePropertyInfo.IsCandidateNavigationProperty(out reverseEntityClrType)
                             || !targetEntityTypeBuilder.CanAddNavigation(reversePropertyInfo.Name, ConfigurationSource.Convention)
-                            || entityType.Type != reverseEntityClrType
+                            || entityType.ClrType != reverseEntityClrType
                             || navigationPropertyInfo == reversePropertyInfo)
                         {
                             continue;

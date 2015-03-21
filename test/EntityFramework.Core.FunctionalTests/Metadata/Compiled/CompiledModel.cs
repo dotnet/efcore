@@ -12,9 +12,9 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
     {
         private IEntityType[] _entityTypes;
 
-        public IEntityType TryGetEntityType(Type type) => EntityTypes.FirstOrDefault(e => e.Type == type);
+        public IEntityType TryGetEntityType(Type type) => EntityTypes.FirstOrDefault(e => e.ClrType == type);
 
-        public IEntityType GetEntityType(Type type) => EntityTypes.First(e => e.Type == type);
+        public IEntityType GetEntityType(Type type) => EntityTypes.First(e => e.ClrType == type);
 
         public IEntityType TryGetEntityType(string name) => EntityTypes.FirstOrDefault(e => e.Name == name);
 

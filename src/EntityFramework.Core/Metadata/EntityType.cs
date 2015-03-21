@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Metadata
             Model = model;
         }
 
-        public virtual Type Type => _typeOrName as Type;
+        public virtual Type ClrType => _typeOrName as Type;
 
         public virtual Model Model { get; }
 
@@ -191,11 +191,11 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual bool IsAbstract => Type?.GetTypeInfo().IsAbstract ?? false;
+        public virtual bool IsAbstract => ClrType?.GetTypeInfo().IsAbstract ?? false;
 
-        public virtual string Name => Type?.FullName ?? (string)_typeOrName;
+        public virtual string Name => ClrType?.FullName ?? (string)_typeOrName;
 
-        public virtual string DisplayName() => Type?.Name ?? ParseSimpleName();
+        public virtual string DisplayName() => ClrType?.Name ?? ParseSimpleName();
 
         private string ParseSimpleName()
         {
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual int PropertyCount => (BaseType?.PropertyCount ?? 0) + _properties.Count;
 
-        public virtual bool HasClrType => Type != null;
+        public virtual bool HasClrType => ClrType != null;
 
         public virtual bool UseEagerSnapshots
         {
@@ -621,7 +621,7 @@ namespace Microsoft.Data.Entity.Metadata
                 throw new InvalidOperationException(Strings.NavigationOnShadowEntity(navigation.Name, Name));
             }
 
-            var clrProperty = Type.GetPropertiesInHierarchy(navigation.Name).FirstOrDefault();
+            var clrProperty = ClrType.GetPropertiesInHierarchy(navigation.Name).FirstOrDefault();
             if (clrProperty == null)
             {
                 throw new InvalidOperationException(Strings.NoClrNavigation(navigation.Name, Name));
@@ -633,7 +633,7 @@ namespace Microsoft.Data.Entity.Metadata
                 throw new InvalidOperationException(Strings.NavigationToShadowEntity(navigation.Name, Name, targetType.Name));
             }
 
-            var targetClrType = targetType.Type;
+            var targetClrType = targetType.ClrType;
             Debug.Assert(targetClrType != null, "targetClrType != null");
             if (navigation.IsCollection())
             {
@@ -930,7 +930,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (HasClrType)
                 {
-                    var clrProperty = Type.GetPropertiesInHierarchy(property.Name).FirstOrDefault();
+                    var clrProperty = ClrType.GetPropertiesInHierarchy(property.Name).FirstOrDefault();
 
                     if (clrProperty == null)
                     {

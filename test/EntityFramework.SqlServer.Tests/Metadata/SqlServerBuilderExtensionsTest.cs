@@ -537,7 +537,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForSqlServer()
                 .Name("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -568,7 +568,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForSqlServer()
                 .Name("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -584,7 +584,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForRelational(b => { b.Name("LemonSupreme"); })
                 .ForSqlServer(b => { b.Name("ChocolateLimes"); });
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -601,7 +601,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForRelational(b => { b.Name("LemonSupreme"); })
                 .ForSqlServer(b => { b.Name("ChocolateLimes"); });
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -622,7 +622,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForSqlServer()
                 .Name("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -653,7 +653,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForSqlServer()
                 .Name("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -669,7 +669,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForRelational(b => { b.Name("LemonSupreme"); })
                 .ForSqlServer(b => { b.Name("ChocolateLimes"); });
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -686,7 +686,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForRelational(b => { b.Name("LemonSupreme"); })
                 .ForSqlServer(b => { b.Name("ChocolateLimes"); });
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);

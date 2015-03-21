@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.Empty(entityBuilder.Metadata.Properties);
             Assert.Empty(entityBuilder.Metadata.ForeignKeys);
             Assert.Empty(entityBuilder.Metadata.Navigations);
-            Assert.Equal(entityBuilder.Metadata.Type, entityBuilder.Metadata.Model.EntityTypes.Single().Type);
+            Assert.Equal(entityBuilder.Metadata.ClrType, entityBuilder.Metadata.Model.EntityTypes.Single().ClrType);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.Empty(entityBuilder.Metadata.Properties);
             Assert.Empty(entityBuilder.Metadata.ForeignKeys);
             Assert.Empty(entityBuilder.Metadata.Navigations);
-            Assert.Equal(entityBuilder.Metadata.Type, entityBuilder.Metadata.Model.EntityTypes.Single().Type);
+            Assert.Equal(entityBuilder.Metadata.ClrType, entityBuilder.Metadata.Model.EntityTypes.Single().ClrType);
         }
 
         [Fact]
@@ -194,8 +194,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             var model = (IModel)entityBuilder.Metadata.Model;
             Assert.Equal(2, model.EntityTypes.Count);
-            var firstEntityType = model.EntityTypes.Single(e => e.Type == typeof(MultipleNavigationsFirst));
-            var secondEntityType = model.EntityTypes.Single(e => e.Type == typeof(MultipleNavigationsSecond));
+            var firstEntityType = model.EntityTypes.Single(e => e.ClrType == typeof(MultipleNavigationsFirst));
+            var secondEntityType = model.EntityTypes.Single(e => e.ClrType == typeof(MultipleNavigationsSecond));
 
             Assert.Equal(2, firstEntityType.GetProperties().Count());
             Assert.Equal(1, firstEntityType.GetKeys().Count());
@@ -293,8 +293,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         private static void VerifyOneToOne(IModel model)
         {
             Assert.Equal(2, model.EntityTypes.Count);
-            var principalEntityType = model.EntityTypes.Single(e => e.Type == typeof(OneToOnePrincipal));
-            var dependentEntityType = model.EntityTypes.Single(e => e.Type == typeof(OneToOneDependent));
+            var principalEntityType = model.EntityTypes.Single(e => e.ClrType == typeof(OneToOnePrincipal));
+            var dependentEntityType = model.EntityTypes.Single(e => e.ClrType == typeof(OneToOneDependent));
 
             Assert.Equal(1, principalEntityType.GetProperties().Count());
             Assert.Equal(1, principalEntityType.GetKeys().Count());
@@ -327,8 +327,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             bool hasNavigationToPrincipal)
         {
             Assert.Equal(2, model.EntityTypes.Count);
-            var principalEntityType = model.EntityTypes.Single(e => e.Type == typeof(OneToManyPrincipal));
-            var dependentEntityType = model.EntityTypes.Single(e => e.Type == typeof(OneToManyDependent));
+            var principalEntityType = model.EntityTypes.Single(e => e.ClrType == typeof(OneToManyPrincipal));
+            var dependentEntityType = model.EntityTypes.Single(e => e.ClrType == typeof(OneToManyDependent));
 
             Assert.Equal(dependentHasPK ? 2 : 1, dependentEntityType.GetProperties().Count());
             Assert.Equal(dependentHasPK ? 1 : 0, dependentEntityType.GetKeys().Count());
@@ -424,7 +424,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             public static void IgnoreNavigation(InternalEntityBuilder entityBuilder)
             {
-                if (entityBuilder.Metadata.Type == typeof(OneToManyPrincipal))
+                if (entityBuilder.Metadata.ClrType == typeof(OneToManyPrincipal))
                 {
                     entityBuilder.Ignore(NavigationProperty.Name, ConfigurationSource.DataAnnotation);
                 }
@@ -442,7 +442,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             public static void IgnoreNavigation(InternalEntityBuilder entityBuilder)
             {
-                if (entityBuilder.Metadata.Type == typeof(OneToManyDependent))
+                if (entityBuilder.Metadata.ClrType == typeof(OneToManyDependent))
                 {
                     entityBuilder.Ignore(NavigationProperty.Name, ConfigurationSource.DataAnnotation);
                 }
@@ -496,7 +496,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             public static void IgnoreCollectionNavigation(InternalEntityBuilder entityBuilder)
             {
-                if (entityBuilder.Metadata.Type == typeof(MultipleNavigationsSecond))
+                if (entityBuilder.Metadata.ClrType == typeof(MultipleNavigationsSecond))
                 {
                     entityBuilder.Ignore(CollectionNavigationProperty.Name, ConfigurationSource.DataAnnotation);
                 }
@@ -504,7 +504,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             public static void IgnoreNonCollectionNavigation(InternalEntityBuilder entityBuilder)
             {
-                if (entityBuilder.Metadata.Type == typeof(MultipleNavigationsSecond))
+                if (entityBuilder.Metadata.ClrType == typeof(MultipleNavigationsSecond))
                 {
                     entityBuilder.Ignore(NonCollectionNavigationProperty.Name, ConfigurationSource.DataAnnotation);
                 }

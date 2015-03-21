@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return navigation;
         }
 
-        public Type Type => typeof(TEntity);
+        public Type ClrType => typeof(TEntity);
 
         public bool IsAbstract => false;
 

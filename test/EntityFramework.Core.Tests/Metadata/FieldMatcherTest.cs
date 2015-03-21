@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSideOfTheMoon));
             var property = entityType.GetOrAddProperty(propertyName, typeof(int));
-            var propertyInfo = entityType.Type.GetAnyProperty(propertyName);
+            var propertyInfo = entityType.ClrType.GetAnyProperty(propertyName);
             var fields = propertyInfo.DeclaringType.GetRuntimeFields().ToDictionary(f => f.Name);
 
             var matchedField = new FieldMatcher().TryMatchFieldName(property, propertyInfo, fields);
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSideOfTheMoon));
             var property = entityType.GetOrAddProperty("SpeakToMe", typeof(int));
-            var propertyInfo = entityType.Type.GetAnyProperty("SpeakToMe");
+            var propertyInfo = entityType.ClrType.GetAnyProperty("SpeakToMe");
             var fields = propertyInfo.DeclaringType.GetRuntimeFields().ToDictionary(f => f.Name);
 
             Assert.Null(new FieldMatcher().TryMatchFieldName(property, propertyInfo, fields));

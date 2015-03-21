@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 var propertyName = property.Name;
 
                 MemberInfo memberInfo = null;
-                foreach (var propertyInfo in entityType.Type.GetPropertiesInHierarchy(propertyName))
+                foreach (var propertyInfo in entityType.ClrType.GetPropertiesInHierarchy(propertyName))
                 {
                     // TODO: Handle cases where backing field is declared in a different class than the property
                     // Issue #758
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 if (memberInfo == null)
                 {
-                    memberInfo = entityType.Type.GetPropertiesInHierarchy(propertyName).FirstOrDefault(p => p.SetMethod != null);
+                    memberInfo = entityType.ClrType.GetPropertiesInHierarchy(propertyName).FirstOrDefault(p => p.SetMethod != null);
                 }
 
                 if (memberInfo == null)
