@@ -504,7 +504,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = (IEntityType)modelBuilder.Entity<Quarks>().Metadata;
 
-            Assert.Equal(7, entityType.PropertyCount);
+            Assert.Equal(7, entityType.GetProperties().Count());
 
             modelBuilder.Entity<Quarks>(b =>
                 {

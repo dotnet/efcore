@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             StateManager = stateManager;
             MetadataServices = metadataServices;
             EntityType = entityType;
-            _stateData = new StateData(EntityType.PropertyCount);
+            _stateData = new StateData(EntityType.GetProperties().Count());
         }
 
         [CanBeNull]

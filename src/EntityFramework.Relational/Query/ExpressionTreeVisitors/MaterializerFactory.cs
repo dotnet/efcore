@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var concreteEntityTypes
                 = entityType.GetConcreteTypesInHierarchy().ToArray();
 
-            var indexMap = new int[concreteEntityTypes[0].PropertyCount];
+            var indexMap = new int[concreteEntityTypes[0].GetProperties().Count()];
             var propertyIndex = 0;
 
             foreach (var property in concreteEntityTypes[0].GetProperties())
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             foreach (var concreteEntityType in concreteEntityTypes.Skip(1))
             {
-                indexMap = new int[concreteEntityType.PropertyCount];
+                indexMap = new int[concreteEntityType.GetProperties().Count()];
                 propertyIndex = 0;
 
                 foreach (var property in concreteEntityType.GetProperties())
