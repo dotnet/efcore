@@ -4,6 +4,8 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Storage;
 using Moq;
 using Xunit;
 

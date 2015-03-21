@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Builders;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Builders;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata

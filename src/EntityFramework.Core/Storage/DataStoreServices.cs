@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.ValueGeneration;
 
