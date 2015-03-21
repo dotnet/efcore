@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _propertyValues = new object[valueReader.Count];
 
             var index = 0;
-            foreach (var property in entityType.Properties)
+            foreach (var property in entityType.GetProperties())
             {
                 _propertyValues[index++] = metadataServices.ReadValueFromReader(valueReader, property);
             }

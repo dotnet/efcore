@@ -1426,19 +1426,19 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal("Id", categoryType.GetPrimaryKey().Properties.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "Name" },
-                    categoryType.Properties.Select(p => p.Name).ToArray());
+                    categoryType.GetProperties().Select(p => p.Name).ToArray());
 
                 var productType = context.Model.GetEntityType(typeof(Product));
                 Assert.Equal("Id", productType.GetPrimaryKey().Properties.Single().Name);
                 Assert.Equal(
                     new[] { "CategoryId", "Id", "Name", "Price" },
-                    productType.Properties.Select(p => p.Name).ToArray());
+                    productType.GetProperties().Select(p => p.Name).ToArray());
 
                 var guType = context.Model.GetEntityType(typeof(TheGu));
                 Assert.Equal("Id", guType.GetPrimaryKey().Properties.Single().Name);
                 Assert.Equal(
                     new[] { "Id", "ShirtColor" },
-                    guType.Properties.Select(p => p.Name).ToArray());
+                    guType.GetProperties().Select(p => p.Name).ToArray());
             }
         }
 

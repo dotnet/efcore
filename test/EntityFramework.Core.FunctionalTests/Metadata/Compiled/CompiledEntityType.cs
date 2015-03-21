@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             Model = model;
         }
 
-        public IProperty TryGetProperty(string name) => Properties.FirstOrDefault(p => p.Name == name);
+        public IProperty TryGetProperty(string name) => GetProperties().FirstOrDefault(p => p.Name == name);
 
         public IProperty GetProperty(string name)
         {
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return property;
         }
 
-        public INavigation TryGetNavigation(string name) => Navigations.FirstOrDefault(p => p.Name == name);
+        public INavigation TryGetNavigation(string name) => GetNavigations().FirstOrDefault(p => p.Name == name);
 
         public INavigation GetNavigation(string name)
         {
@@ -80,15 +80,17 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IKey GetPrimaryKey() => LazyInitializer.EnsureInitialized(ref _key, LoadKey);
 
-        public IReadOnlyList<IKey> Keys => new[] { GetPrimaryKey() };
+        public IEnumerable<IKey> GetKeys() => new[] { GetPrimaryKey() };
 
-        public IReadOnlyList<IForeignKey> ForeignKeys => LazyInitializer.EnsureInitialized(ref _foreignKeys, LoadForeignKeys);
+        public IEnumerable<IForeignKey> GetForeignKeys() 
+            => LazyInitializer.EnsureInitialized(ref _foreignKeys, LoadForeignKeys);
 
-        public IReadOnlyList<INavigation> Navigations => LazyInitializer.EnsureInitialized(ref _navigations, LoadNavigations);
+        public IEnumerable<INavigation> GetNavigations() 
+            => LazyInitializer.EnsureInitialized(ref _navigations, LoadNavigations);
 
-        public IReadOnlyList<IIndex> Indexes => LazyInitializer.EnsureInitialized(ref _indexes, LoadIndexes);
+        public IEnumerable<IIndex> GetIndexes() => LazyInitializer.EnsureInitialized(ref _indexes, LoadIndexes);
 
-        public IEnumerable<IProperty> Properties => EnsurePropertiesInitialized();
+        public IEnumerable<IProperty> GetProperties() => EnsurePropertiesInitialized();
 
         public IEnumerable<IEntityType> GetDerivedTypes()
         {
@@ -100,7 +102,8 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return Enumerable.Empty<IEntityType>();
         }
 
-        private IProperty[] EnsurePropertiesInitialized() => LazyInitializer.EnsureInitialized(ref _properties, LoadProperties);
+        private IProperty[] EnsurePropertiesInitialized() 
+            => LazyInitializer.EnsureInitialized(ref _properties, LoadProperties);
         
         public int PropertyCount  => 0;
 

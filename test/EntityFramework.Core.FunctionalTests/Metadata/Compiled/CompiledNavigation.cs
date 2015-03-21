@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
+
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {
     public abstract class CompiledNavigation : NoAnnotations
@@ -16,7 +18,9 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEntityType EntityType => _model.EntityTypes[Definition.EntityTypeIndex];
 
-        public IForeignKey ForeignKey => _model.EntityTypes[Definition.ForeignKeyTypeIndex].ForeignKeys[Definition.ForeignKeyIndex];
+        public IForeignKey ForeignKey 
+            => _model.EntityTypes[Definition.ForeignKeyTypeIndex]
+                .GetForeignKeys().ElementAt(Definition.ForeignKeyIndex);
 
         public bool PointsToPrincipal => ForeignKey.EntityType == EntityType;
 

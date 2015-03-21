@@ -24,10 +24,10 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IReadOnlyList<IEntityType> EntityTypes => LazyInitializer.EnsureInitialized(ref _entityTypes, LoadEntityTypes);
 
-        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IEntityType entityType) => EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedEntityType == entityType);
+        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IEntityType entityType) => EntityTypes.SelectMany(et => et.GetForeignKeys()).Where(fk => fk.ReferencedEntityType == entityType);
 
-        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IKey key) => EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedKey == key);
+        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IKey key) => EntityTypes.SelectMany(et => et.GetForeignKeys()).Where(fk => fk.ReferencedKey == key);
 
-        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IProperty property) => EntityTypes.SelectMany(e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))).ToArray();
+        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IProperty property) => EntityTypes.SelectMany(e => e.GetForeignKeys().Where(f => f.ReferencedProperties.Contains(property))).ToArray();
     }
 }

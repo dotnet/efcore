@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] this IModel model, [NotNull] IForeignKey foreignKey)
         {
             // TODO: Perf: consider not needing to do a full scan here
-            return model.EntityTypes.SelectMany(e => e.Navigations).Where(n => n.ForeignKey == foreignKey);
+            return model.EntityTypes.SelectMany(e => e.GetNavigations()).Where(n => n.ForeignKey == foreignKey);
         }
     }
 }

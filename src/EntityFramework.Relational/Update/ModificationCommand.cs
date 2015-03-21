@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             {
                 var entityType = entry.EntityType;
 
-                foreach (var property in entityType.Properties)
+                foreach (var property in entityType.GetProperties())
                 {
                     var isKey = property.IsPrimaryKey();
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);

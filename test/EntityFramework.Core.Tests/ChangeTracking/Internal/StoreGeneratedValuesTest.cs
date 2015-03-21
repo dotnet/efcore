@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             entry = entry ?? CreateInternalEntry();
             var properties = entry.EntityType.GetPrimaryKey().Properties
-                .Concat(entry.EntityType.ForeignKeys.SelectMany(fk => fk.Properties))
+                .Concat(entry.EntityType.GetForeignKeys().SelectMany(fk => fk.Properties))
                 .ToList();
 
             return new StoreGeneratedValuesFactory().Create(entry, properties);

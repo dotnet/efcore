@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var fieldCache = new Dictionary<Type, Dictionary<string, FieldInfo>>();
             var propertyMappings = new List<Tuple<IProperty, MemberInfo>>();
 
-            foreach (var property in entityType.Properties.Where(p => !p.IsShadowProperty))
+            foreach (var property in entityType.GetProperties().Where(p => !p.IsShadowProperty))
             {
                 var propertyName = property.Name;
 

@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (EntityState == EntityState.Modified)
             {
-                _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: false);
+                _stateData.FlagAllProperties(EntityType.GetProperties().Count(), isFlagged: false);
             }
 
             // Temporarily change the internal state to unknown so that key generation, including setting key values
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 && newState != EntityState.Added
                 && newState != EntityState.Detached)
             {
-                var hasTempValue = EntityType.Properties.FirstOrDefault(p => _stateData.IsPropertyFlagged(p.Index));
+                var hasTempValue = EntityType.GetProperties().FirstOrDefault(p => _stateData.IsPropertyFlagged(p.Index));
                 if (hasTempValue != null)
                 {
                     throw new InvalidOperationException(Strings.TempValuePersists(hasTempValue.Name, EntityType.SimpleName, newState));
@@ -144,9 +144,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             // set all properties to modified if the entity state is explicitly set to Modified.
             if (newState == EntityState.Modified)
             {
-                _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: true);
+                _stateData.FlagAllProperties(EntityType.GetProperties().Count(), isFlagged: true);
 
-                foreach (var keyProperty in EntityType.Properties.Where(
+                foreach (var keyProperty in EntityType.GetProperties().Where(
                     p => p.IsReadOnly
                          || p.IsStoreComputed))
                 {
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (newState == EntityState.Unchanged)
             {
-                _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: false);
+                _stateData.FlagAllProperties(EntityType.GetProperties().Count(), isFlagged: false);
             }
 
             StateManager.Notify.StateChanging(this, newState);
@@ -188,12 +188,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 if (oldState == EntityState.Added)
                 {
-                    foreach (var property in EntityType.Properties.Where(p => _stateData.IsPropertyFlagged(p.Index)))
+                    foreach (var property in EntityType.GetProperties().Where(p => _stateData.IsPropertyFlagged(p.Index)))
                     {
                         this[property] = property.SentinelValue;
                     }
                 }
-                _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: false);
+                _stateData.FlagAllProperties(EntityType.GetProperties().Count(), isFlagged: false);
 
                 StateManager.StopTracking(this);
             }
@@ -357,7 +357,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return result;
         }
 
-        public virtual object[] GetValueBuffer() => EntityType.Properties.Select(p => this[p]).ToArray();
+        public virtual object[] GetValueBuffer() => EntityType.GetProperties().Select(p => this[p]).ToArray();
 
         public virtual void AcceptChanges()
         {
@@ -408,9 +408,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private IReadOnlyList<IProperty> MayGetStoreValue()
         {
-            var properties = EntityType.Properties.Where(MayGetStoreValue).ToList();
+            var properties = EntityType.GetProperties().Where(MayGetStoreValue).ToList();
 
-            foreach (var foreignKey in EntityType.ForeignKeys)
+            foreach (var foreignKey in EntityType.GetForeignKeys())
             {
                 foreach (var property in foreignKey.Properties)
                 {
@@ -454,7 +454,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return;
             }
 
-            foreach (var property in entityType.Properties)
+            foreach (var property in entityType.GetProperties())
             {
                 if (originalValues.HasValue(property)
                     && !Equals(originalValues[property], this[property]))
@@ -474,7 +474,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return;
             }
 
-            foreach (var property in entityType.Properties)
+            foreach (var property in entityType.GetProperties())
             {
                 if (!Equals(this[property], originalValues[property]))
                 {

@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var property = entry.EntityType.GetProperty("PrincipalId");
             var sidecar = entry.AddSidecar(contextServices.GetRequiredService<IStoreGeneratedValuesFactory>()
-                .Create(entry, entry.EntityType.Properties));
+                .Create(entry, entry.EntityType.GetProperties()));
             sidecar.TakeSnapshot();
 
             sidecar[property] = 78;
@@ -328,7 +328,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, -1)));
 
             var property = entry.EntityType.GetProperty("Id");
-            var sidecar = entry.AddSidecar(storeGeneratedValuesFactory.Create(entry, entry.EntityType.Properties));
+            var sidecar = entry.AddSidecar(storeGeneratedValuesFactory.Create(entry, entry.EntityType.GetProperties()));
             sidecar.TakeSnapshot();
 
             sidecar[property] = 78;
@@ -394,7 +394,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var property = entry.EntityType.GetProperty("PrincipalId");
             var sidecar = entry.AddSidecar(contextServices.GetRequiredService<IStoreGeneratedValuesFactory>()
-                .Create(entry, entry.EntityType.Properties));
+                .Create(entry, entry.EntityType.GetProperties()));
             sidecar.TakeSnapshot();
 
             sidecar[property] = 77;
@@ -497,7 +497,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var property = entry.EntityType.GetProperty("DependentId");
             var sidecar = entry.AddSidecar(contextServices.GetRequiredService<IStoreGeneratedValuesFactory>()
-                .Create(entry, entry.EntityType.Properties));
+                .Create(entry, entry.EntityType.GetProperties()));
             sidecar.TakeSnapshot();
 
             sidecar[property] = 78;
@@ -564,7 +564,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var property = entry.EntityType.GetProperty("DependentId");
             var sidecar = entry.AddSidecar(contextServices.GetRequiredService<IStoreGeneratedValuesFactory>()
-                .Create(entry, entry.EntityType.Properties));
+                .Create(entry, entry.EntityType.GetProperties()));
             sidecar.TakeSnapshot();
 
             sidecar[property] = 77;

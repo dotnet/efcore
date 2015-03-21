@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 GenerateEntityType(entityType, stringBuilder, GenerateEntityTypeOptions.Primary);
             }
 
-            foreach (var entityType in entityTypes.Where(e => e.ForeignKeys.Count > 0))
+            foreach (var entityType in entityTypes.Where(e => e.GetForeignKeys().Any()))
             {
                 stringBuilder.AppendLine();
 
@@ -99,14 +99,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 {
                     if ((options & GenerateEntityTypeOptions.Primary) != 0)
                     {
-                        GenerateProperties(entityType.Properties, stringBuilder);
+                        GenerateProperties(entityType.GetProperties(), stringBuilder);
 
                         GenerateKey(entityType.GetPrimaryKey(), stringBuilder);
                     }
 
                     if ((options & GenerateEntityTypeOptions.Secondary) != 0)
                     {
-                        GenerateForeignKeys(entityType.ForeignKeys, stringBuilder);
+                        GenerateForeignKeys(entityType.GetForeignKeys(), stringBuilder);
                     }
 
                     if ((options & GenerateEntityTypeOptions.Primary) != 0)
@@ -272,7 +272,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         }
 
         protected virtual void GenerateForeignKeys(
-            [NotNull] IReadOnlyList<IForeignKey> foreignKeys, [NotNull] IndentedStringBuilder stringBuilder)
+            [NotNull] IEnumerable<IForeignKey> foreignKeys, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(foreignKeys, nameof(foreignKeys));
             Check.NotNull(stringBuilder, nameof(stringBuilder));

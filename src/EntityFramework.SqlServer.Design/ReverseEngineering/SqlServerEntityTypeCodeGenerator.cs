@@ -52,8 +52,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             foreach (var otherEntityType in EntityType.Model.EntityTypes.Where(et => et != EntityType))
             {
                 // find navigation properties for foreign keys from another EntityType which reference this EntityType
-                foreach (var foreignKey in otherEntityType
-                    .ForeignKeys.Where(fk => fk.ReferencedEntityType == EntityType))
+                foreach (var foreignKey in otherEntityType.GetForeignKeys().Where(fk => fk.ReferencedEntityType == EntityType))
                 {
                     var navigationPropertyName =
                         foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
@@ -103,8 +102,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             foreach (var otherEntityType in EntityType.Model.EntityTypes.Where(et => et != EntityType))
             {
                 // set up the navigation properties for foreign keys from another EntityType which reference this EntityType
-                foreach (var foreignKey in otherEntityType
-                    .ForeignKeys.Where(fk => fk.ReferencedEntityType == EntityType))
+                foreach (var foreignKey in otherEntityType.GetForeignKeys().Where(fk => fk.ReferencedEntityType == EntityType))
                 {
                     var navigationPropertyName 
                         = (string)foreignKey.GetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName).Value;
@@ -140,7 +138,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 }
             }
 
-            foreach (var foreignKey in EntityType.ForeignKeys)
+            foreach (var foreignKey in EntityType.GetForeignKeys())
             {
                 // set up the navigation property on this end of foreign keys owned by this EntityType
                 var navigationPropertyName 

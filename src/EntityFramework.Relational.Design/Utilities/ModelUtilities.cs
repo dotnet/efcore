@@ -48,10 +48,9 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
                 yield return property;
             }
 
-            var foreignKeyProperties = entityType.ForeignKeys.SelectMany(fk => fk.Properties).Distinct().ToList();
+            var foreignKeyProperties = entityType.GetForeignKeys().SelectMany(fk => fk.Properties).Distinct().ToList();
             foreach (var property in
-                entityType
-                .Properties
+                entityType.GetProperties()
                 .Except(primaryKeyProperties)
                 .Except(foreignKeyProperties)
                 .OrderBy(p => p.Name))

@@ -727,32 +727,32 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var dependentType = (IEntityType)model.GetEntityType(typeof(Pickle).FullName);
             var principalType = model.GetEntityType(typeof(BigMak).FullName);
-            var fk = dependentType.ForeignKeys.Single();
+            var fk = dependentType.GetForeignKeys().Single();
 
             var principalPropertyCount = principalType.PropertyCount;
             var dependentPropertyCount = dependentType.PropertyCount;
             var principalKey = principalType.Keys.Single();
-            var dependentKey = dependentType.Keys.Single();
+            var dependentKey = dependentType.GetKeys().Single();
 
             modelBuilder
                 .Entity(typeof(BigMak).FullName).HasMany(typeof(Pickle).FullName, "Pickles").WithOne("BigMak")
                 .ForeignKey("BurgerId");
 
-            Assert.Equal(2, dependentType.ForeignKeys.Count);
-            var newFk = dependentType.ForeignKeys.Single(k => k != fk);
+            Assert.Equal(2, dependentType.GetForeignKeys().Count());
+            var newFk = dependentType.GetForeignKeys().Single(k => k != fk);
 
             Assert.True(fk.IsUnique);
             Assert.False(newFk.IsUnique);
 
-            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Equal("BigMak", dependentType.GetNavigations().Single().Name);
             Assert.Equal("Pickles", principalType.Navigations.Single().Name);
-            Assert.Same(newFk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(newFk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(newFk, principalType.Navigations.Single().ForeignKey);
             Assert.Equal(principalPropertyCount, principalType.PropertyCount);
             Assert.Equal(dependentPropertyCount + 1, dependentType.PropertyCount);
             Assert.Empty(principalType.ForeignKeys);
             Assert.Same(principalKey, principalType.Keys.Single());
-            Assert.Same(dependentKey, dependentType.Keys.Single());
+            Assert.Same(dependentKey, dependentType.GetKeys().Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
             Assert.Same(dependentKey, dependentType.GetPrimaryKey());
         }
@@ -1847,32 +1847,32 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var dependentType = (IEntityType)model.GetEntityType(typeof(Pickle).FullName);
             var principalType = model.GetEntityType(typeof(BigMak).FullName);
-            var fk = dependentType.ForeignKeys.Single();
+            var fk = dependentType.GetForeignKeys().Single();
 
             var principalPropertyCount = principalType.PropertyCount;
             var dependentPropertyCount = dependentType.PropertyCount;
             var principalKey = principalType.Keys.Single();
-            var dependentKey = dependentType.Keys.Single();
+            var dependentKey = dependentType.GetKeys().Single();
 
             modelBuilder
                 .Entity(typeof(Pickle).FullName).HasOne(typeof(BigMak).FullName, "BigMak").WithMany("Pickles")
                 .ForeignKey("BurgerId");
 
-            Assert.Equal(2, dependentType.ForeignKeys.Count);
-            var newFk = dependentType.ForeignKeys.Single(k => k != fk);
+            Assert.Equal(2, dependentType.GetForeignKeys().Count());
+            var newFk = dependentType.GetForeignKeys().Single(k => k != fk);
 
             Assert.True(fk.IsUnique);
             Assert.False(newFk.IsUnique);
 
-            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Equal("BigMak", dependentType.GetNavigations().Single().Name);
             Assert.Equal("Pickles", principalType.Navigations.Single().Name);
-            Assert.Same(newFk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(newFk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(newFk, principalType.Navigations.Single().ForeignKey);
             Assert.Equal(principalPropertyCount, principalType.PropertyCount);
             Assert.Equal(dependentPropertyCount + 1, dependentType.PropertyCount);
             Assert.Empty(principalType.ForeignKeys);
             Assert.Same(principalKey, principalType.Keys.Single());
-            Assert.Same(dependentKey, dependentType.Keys.Single());
+            Assert.Same(dependentKey, dependentType.GetKeys().Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
             Assert.Same(dependentKey, dependentType.GetPrimaryKey());
         }
@@ -2904,32 +2904,32 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var dependentType = (IEntityType)model.GetEntityType(typeof(Bun).FullName);
             var principalType = model.GetEntityType(typeof(BigMak).FullName);
-            var fk = dependentType.ForeignKeys.Single();
+            var fk = dependentType.GetForeignKeys().Single();
 
             var principalPropertyCount = principalType.PropertyCount;
             var dependentPropertyCount = dependentType.PropertyCount;
             var principalKey = principalType.Keys.Single();
-            var dependentKey = dependentType.Keys.Single();
+            var dependentKey = dependentType.GetKeys().Single();
 
             modelBuilder
                 .Entity(typeof(BigMak).FullName).HasOne(typeof(Bun).FullName, "Bun").WithOne("BigMak")
                 .ForeignKey(typeof(Bun).FullName, "BurgerId");
 
-            Assert.Equal(2, dependentType.ForeignKeys.Count);
-            var newFk = dependentType.ForeignKeys.Single(k => k != fk);
+            Assert.Equal(2, dependentType.GetForeignKeys().Count());
+            var newFk = dependentType.GetForeignKeys().Single(k => k != fk);
 
             Assert.False(fk.IsUnique);
             Assert.True(newFk.IsUnique);
 
-            Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
+            Assert.Equal("BigMak", dependentType.GetNavigations().Single().Name);
             Assert.Equal("Bun", principalType.Navigations.Single().Name);
-            Assert.Same(newFk, dependentType.Navigations.Single().ForeignKey);
+            Assert.Same(newFk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(newFk, principalType.Navigations.Single().ForeignKey);
             Assert.Equal(principalPropertyCount, principalType.PropertyCount);
             Assert.Equal(dependentPropertyCount + 1, dependentType.PropertyCount);
             Assert.Empty(principalType.ForeignKeys);
             Assert.Same(principalKey, principalType.Keys.Single());
-            Assert.Same(dependentKey, dependentType.Keys.Single());
+            Assert.Same(dependentKey, dependentType.GetKeys().Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
             Assert.Same(dependentKey, dependentType.GetPrimaryKey());
         }
@@ -4957,7 +4957,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.True(entityType.GetProperty("HobId1").IsNullable);
             Assert.True(entityType.GetProperty("HobId1").IsNullable);
-            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+            Assert.False(entityType.GetForeignKeys().Single().IsRequired);
         }
 
         [Fact]
@@ -4973,7 +4973,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
-            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+            Assert.True(entityType.GetForeignKeys().Single().IsRequired);
         }
 
         [Fact]
@@ -4989,7 +4989,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.True(entityType.GetProperty("HobId1").IsNullable);
             Assert.True(entityType.GetProperty("HobId1").IsNullable);
-            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+            Assert.False(entityType.GetForeignKeys().Single().IsRequired);
         }
 
         [Fact]
@@ -5005,7 +5005,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
-            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+            Assert.True(entityType.GetForeignKeys().Single().IsRequired);
         }
 
         [Fact]
@@ -5021,7 +5021,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.True(entityType.GetProperty("HobId1").IsNullable);
             Assert.True(entityType.GetProperty("HobId1").IsNullable);
-            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+            Assert.False(entityType.GetForeignKeys().Single().IsRequired);
         }
 
         [Fact]
@@ -5037,7 +5037,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
-            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+            Assert.True(entityType.GetForeignKeys().Single().IsRequired);
         }
 
         [Fact]
@@ -5054,7 +5054,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.False(entityType.GetProperty("HobId1").IsNullable);
             Assert.False(entityType.GetProperty("HobId1").IsNullable);
-            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+            Assert.True(entityType.GetForeignKeys().Single().IsRequired);
         }
 
         [Fact]
@@ -5073,7 +5073,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
-            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+            Assert.True(entityType.GetForeignKeys().Single().IsRequired);
         }
 
         [Fact]
@@ -5090,7 +5090,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.False(entityType.GetProperty("HobId1").IsNullable);
             Assert.False(entityType.GetProperty("HobId1").IsNullable);
-            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+            Assert.True(entityType.GetForeignKeys().Single().IsRequired);
         }
 
         [Fact]
@@ -5109,7 +5109,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
-            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+            Assert.True(entityType.GetForeignKeys().Single().IsRequired);
         }
 
         [Fact]
@@ -5126,7 +5126,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.False(entityType.GetProperty("HobId1").IsNullable);
             Assert.False(entityType.GetProperty("HobId1").IsNullable);
-            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+            Assert.True(entityType.GetForeignKeys().Single().IsRequired);
         }
 
         [Fact]
@@ -5145,7 +5145,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
-            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+            Assert.True(entityType.GetForeignKeys().Single().IsRequired);
         }
 
         private class Hob

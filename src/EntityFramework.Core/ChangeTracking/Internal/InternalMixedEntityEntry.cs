@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             var shadowValues = new object[EntityType.ShadowPropertyCount];
 
-            foreach (var property in EntityType.Properties.Where(property => property.IsShadowProperty))
+            foreach (var property in EntityType.GetProperties().Where(property => property.IsShadowProperty))
             {
                 shadowValues[property.ShadowIndex] = MetadataServices.ReadValueFromReader(valueReader, property);
             }

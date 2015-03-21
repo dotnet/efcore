@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
             else
             {
-                foreach (var navigation in entityType.Navigations.Where(n => n.IsNonNotifyingCollection(entry)))
+                foreach (var navigation in entityType.GetNavigations().Where(n => n.IsNonNotifyingCollection(entry)))
                 {
                     entry.RelationshipsSnapshot.TakeSnapshot(navigation);
                 }
@@ -67,6 +67,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         // Issue #635
         private static IPropertyBase TryGetPropertyBase(IEntityType entityType, string propertyName)
             => (IPropertyBase)entityType.TryGetProperty(propertyName)
-               ?? entityType.Navigations.FirstOrDefault(n => n.Name == propertyName);
+               ?? entityType.GetNavigations().FirstOrDefault(n => n.Name == propertyName);
     }
 }

@@ -43,11 +43,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                     .SequenceEqual(builtModel.EntityTypes.First().GetPrimaryKey().Properties.Select(p => p.Name)));
 
             Assert.True(
-                compiledModel.EntityTypes.First().Properties.Select(p => p.Name)
-                    .SequenceEqual(builtModel.EntityTypes.First().Properties.Select(p => p.Name)));
+                compiledModel.EntityTypes.First().GetProperties().Select(p => p.Name)
+                    .SequenceEqual(builtModel.EntityTypes.First().GetProperties().Select(p => p.Name)));
             Assert.True(
-                compiledModel.EntityTypes.First().Properties.Select(p => p.PropertyType)
-                    .SequenceEqual(builtModel.EntityTypes.First().Properties.Select(p => p.PropertyType)));
+                compiledModel.EntityTypes.First().GetProperties().Select(p => p.PropertyType)
+                    .SequenceEqual(builtModel.EntityTypes.First().GetProperties().Select(p => p.PropertyType)));
 
             Assert.True(
                 compiledModel.EntityTypes.SelectMany(p => p.Annotations).Select(p => p.Name)
@@ -57,11 +57,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                     .SequenceEqual(builtModel.EntityTypes.SelectMany(p => p.Annotations).Select(p => p.Value)));
 
             Assert.True(
-                compiledModel.EntityTypes.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Name)
-                    .SequenceEqual(builtModel.EntityTypes.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Name)));
+                compiledModel.EntityTypes.First().GetProperties().SelectMany(p => p.Annotations).Select(p => p.Name)
+                    .SequenceEqual(builtModel.EntityTypes.First().GetProperties().SelectMany(p => p.Annotations).Select(p => p.Name)));
             Assert.True(
-                compiledModel.EntityTypes.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Value)
-                    .SequenceEqual(builtModel.EntityTypes.First().Properties.SelectMany(p => p.Annotations).Select(p => p.Value)));
+                compiledModel.EntityTypes.First().GetProperties().SelectMany(p => p.Annotations).Select(p => p.Value)
+                    .SequenceEqual(builtModel.EntityTypes.First().GetProperties().SelectMany(p => p.Annotations).Select(p => p.Value)));
 
             Assert.Equal(compiledModel.EntityTypes.Select(e => compiledModel.GetReferencingForeignKeys(e).Select(fk => fk.EntityType.Name)),
                 builtModel.EntityTypes.Select(e => builtModel.GetReferencingForeignKeys(e).Select(fk => fk.EntityType.Name)));
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
             var compiledModel = new _OneTwoThreeContextModel();
 
-            var indexes = compiledModel.EntityTypes.First().Indexes;
+            var indexes = compiledModel.EntityTypes.First().GetIndexes().ToList();
 
             Assert.Equal(2, indexes.Count);
             Assert.Equal(new[] { "Goo1" }, indexes[0].Properties.Select(p => p.Name));
@@ -297,19 +297,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             var entities = models.SelectMany(m => m.EntityTypes).ToList();
             memory.Add(Tuple.Create(entities.Count(), GetMemory(), "All entity types"));
 
-            var propertiesOneEntity = entities.Where(e => e.Type == typeof(KoolEntity9)).SelectMany(e => e.Properties);
+            var propertiesOneEntity = entities.Where(e => e.Type == typeof(KoolEntity9)).SelectMany(e => e.GetProperties());
             memory.Add(Tuple.Create(propertiesOneEntity.Count(), GetMemory(), "Properties one entity"));
 
-            var fks = entities.SelectMany(e => e.ForeignKeys);
+            var fks = entities.SelectMany(e => e.GetForeignKeys());
             memory.Add(Tuple.Create(fks.Count(), GetMemory(), "All FKs"));
 
-            var navigations = entities.SelectMany(e => e.Navigations);
+            var navigations = entities.SelectMany(e => e.GetNavigations());
             memory.Add(Tuple.Create(navigations.Count(), GetMemory(), "All navigations"));
 
             var keys = entities.SelectMany(e => e.GetPrimaryKey().Properties);
             memory.Add(Tuple.Create(keys.Count(), GetMemory(), "All keys"));
 
-            var properties = entities.SelectMany(e => e.Properties).ToList();
+            var properties = entities.SelectMany(e => e.GetProperties()).ToList();
             memory.Add(Tuple.Create(properties.Count(), GetMemory(), "All properties"));
 
             var entityAnnotations = entities.SelectMany(e => e.Annotations);

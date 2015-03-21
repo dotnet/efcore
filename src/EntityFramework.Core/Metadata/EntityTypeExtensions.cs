@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.Properties.Count(p => p.OriginalValueIndex >= 0);
+            return entityType.GetProperties().Count(p => p.OriginalValueIndex >= 0);
         }
 
         public static bool HasClrType([NotNull] this IEntityType entityType)
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.Properties.Concat<IPropertyBase>(entityType.Navigations);
+            return entityType.GetProperties().Concat<IPropertyBase>(entityType.GetNavigations());
         }
 
         [NotNull]

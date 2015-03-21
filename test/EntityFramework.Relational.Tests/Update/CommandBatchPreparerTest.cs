@@ -250,8 +250,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             Assert.Equal(
                 CoreStrings.CircularDependency(
                     string.Join(", ",
-                        model.GetEntityType(typeof(RelatedFakeEntity)).ForeignKeys.First(),
-                        model.GetEntityType(typeof(FakeEntity)).ForeignKeys.First())),
+                        model.GetEntityType(typeof(RelatedFakeEntity)).GetForeignKeys().First(),
+                        model.GetEntityType(typeof(FakeEntity)).GetForeignKeys().First())),
                 Assert.Throws<InvalidOperationException>(
                     () => { var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { fakeEntry, relatedFakeEntry }, new DbContextOptions<DbContext>()).ToArray(); }).Message);
         }

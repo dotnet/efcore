@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private void ForeignKeyPropertyChangedAction(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
         {
-            foreach (var foreignKey in entry.EntityType.ForeignKeys.Where(p => p.Properties.Contains(property)).Distinct())
+            foreach (var foreignKey in entry.EntityType.GetForeignKeys().Where(p => p.Properties.Contains(property)).Distinct())
             {
                 var navigations = _model.GetNavigations(foreignKey).ToList();
 
@@ -167,7 +167,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
 
             foreach (var foreignKey in _model.EntityTypes.SelectMany(
-                e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))))
+                e => e.GetForeignKeys().Where(f => f.ReferencedProperties.Contains(property))))
             {
                 var newKeyValues = foreignKey.ReferencedProperties.Select(p => entry[p]).ToList();
                 var oldKey = entry.RelationshipsSnapshot.GetPrincipalKeyValue(foreignKey);
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             var entityType = entry.EntityType;
 
-            foreach (var navigation in entityType.Navigations)
+            foreach (var navigation in entityType.GetNavigations())
             {
                 var navigationValue = entry[navigation];
 
@@ -231,7 +231,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             // TODO: Perf on this state manager query
             foreach (var navigation in _model.EntityTypes
-                .SelectMany(e => e.Navigations)
+                .SelectMany(e => e.GetNavigations())
                 .Where(n => n.GetTargetType() == entityType))
             {
                 IClrCollectionAccessor collectionAccessor = null;
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 }
             }
 
-            foreach (var foreignKey in entityType.ForeignKeys)
+            foreach (var foreignKey in entityType.GetForeignKeys())
             {
                 var principalEntry = entry.StateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
                 if (principalEntry != null)
@@ -397,7 +397,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private void StealReference(IForeignKey foreignKey, InternalEntityEntry dependentEntry)
         {
-            foreach (var navigation in dependentEntry.EntityType.Navigations.Where(n => n.ForeignKey == foreignKey))
+            foreach (var navigation in dependentEntry.EntityType.GetNavigations().Where(n => n.ForeignKey == foreignKey))
             {
                 if (navigation.PointsToPrincipal)
                 {

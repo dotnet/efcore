@@ -17,9 +17,9 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         protected abstract ForeignKeyDefinition Definition { get; }
 
-        public IReadOnlyList<IProperty> Properties => Definition.DependentPropertyIndexes.Select(i => EntityType.Properties.ElementAt(i)).ToArray();
+        public IReadOnlyList<IProperty> Properties => Definition.DependentPropertyIndexes.Select(i => EntityType.GetProperties().ElementAt(i)).ToArray();
 
-        public IReadOnlyList<IProperty> ReferencedProperties => Definition.PrincipalPropertyIndexes.Select(i => ReferencedEntityType.Properties.ElementAt(i)).ToArray();
+        public IReadOnlyList<IProperty> ReferencedProperties => Definition.PrincipalPropertyIndexes.Select(i => ReferencedEntityType.GetProperties().ElementAt(i)).ToArray();
 
         public IKey ReferencedKey => ReferencedEntityType.GetPrimaryKey();
 

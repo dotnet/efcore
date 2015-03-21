@@ -198,20 +198,20 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var secondEntityType = model.EntityTypes.Single(e => e.Type == typeof(MultipleNavigationsSecond));
 
             Assert.Equal(2, firstEntityType.PropertyCount);
-            Assert.Equal(1, firstEntityType.Keys.Count);
-            var firstFK = firstEntityType.ForeignKeys.Single();
+            Assert.Equal(1, firstEntityType.GetKeys().Count());
+            var firstFK = firstEntityType.GetForeignKeys().Single();
             Assert.False(firstFK.IsRequired);
             Assert.False(firstFK.IsUnique);
             Assert.Equal(
                 new[] { MultipleNavigationsFirst.NonCollectionNavigationProperty.Name, MultipleNavigationsFirst.CollectionNavigationProperty.Name },
-                firstEntityType.Navigations.Select(n => n.Name));
+                firstEntityType.GetNavigations().Select(n => n.Name));
 
             Assert.Equal(2, secondEntityType.PropertyCount);
-            Assert.Equal(1, secondEntityType.Keys.Count);
-            var secondFK = firstEntityType.ForeignKeys.Single();
+            Assert.Equal(1, secondEntityType.GetKeys().Count());
+            var secondFK = firstEntityType.GetForeignKeys().Single();
             Assert.False(secondFK.IsRequired);
             Assert.False(secondFK.IsUnique);
-            Assert.Empty(secondEntityType.Navigations);
+            Assert.Empty(secondEntityType.GetNavigations());
         }
 
         [Fact]
@@ -237,13 +237,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var entityType = model.EntityTypes.Single();
 
             Assert.Equal(2, entityType.PropertyCount);
-            Assert.Equal(1, entityType.Keys.Count);
+            Assert.Equal(1, entityType.GetKeys().Count());
             
-            var fk = entityType.ForeignKeys.Single();
+            var fk = entityType.GetForeignKeys().Single();
             Assert.False(fk.IsRequired);
             Assert.True(fk.IsUnique);
             Assert.NotSame(fk.Properties.Single(), entityType.GetPrimaryKey().Properties.Single());
-            Assert.Equal(2, entityType.Navigations.Count);
+            Assert.Equal(2, entityType.GetNavigations().Count());
             Assert.Equal(SelfRef.SelfRef1NavigationProperty.Name, fk.GetNavigationToDependent()?.Name);
             Assert.Equal(SelfRef.SelfRef2NavigationProperty.Name, fk.GetNavigationToPrincipal()?.Name);
         }
@@ -297,17 +297,17 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var dependentEntityType = model.EntityTypes.Single(e => e.Type == typeof(OneToOneDependent));
 
             Assert.Equal(1, principalEntityType.PropertyCount);
-            Assert.Equal(1, principalEntityType.Keys.Count);
-            Assert.Empty(principalEntityType.ForeignKeys);
-            Assert.Equal(OneToOnePrincipal.NavigationProperty.Name, principalEntityType.Navigations.Single().Name);
+            Assert.Equal(1, principalEntityType.GetKeys().Count());
+            Assert.Empty(principalEntityType.GetForeignKeys());
+            Assert.Equal(OneToOnePrincipal.NavigationProperty.Name, principalEntityType.GetNavigations().Single().Name);
 
             Assert.Equal(2, dependentEntityType.PropertyCount);
-            Assert.Equal(1, dependentEntityType.Keys.Count);
-            var fk = dependentEntityType.ForeignKeys.Single();
+            Assert.Equal(1, dependentEntityType.GetKeys().Count());
+            var fk = dependentEntityType.GetForeignKeys().Single();
             Assert.False(fk.IsRequired);
             Assert.True(fk.IsUnique);
             Assert.NotSame(fk.Properties.Single(), dependentEntityType.GetPrimaryKey().Properties.Single());
-            Assert.Equal(OneToOneDependent.NavigationProperty.Name, dependentEntityType.Navigations.Single().Name);
+            Assert.Equal(OneToOneDependent.NavigationProperty.Name, dependentEntityType.GetNavigations().Single().Name);
         }
 
         private static void VerifyOneToManyPrincipal(InternalEntityBuilder entityBuilder, bool unidirectional, bool dependentHasPK = true)
@@ -331,29 +331,29 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var dependentEntityType = model.EntityTypes.Single(e => e.Type == typeof(OneToManyDependent));
 
             Assert.Equal(dependentHasPK ? 2 : 1, dependentEntityType.PropertyCount);
-            Assert.Equal(dependentHasPK ? 1 : 0, dependentEntityType.Keys.Count);
-            var fk = dependentEntityType.ForeignKeys.Single();
+            Assert.Equal(dependentHasPK ? 1 : 0, dependentEntityType.GetKeys().Count());
+            var fk = dependentEntityType.GetForeignKeys().Single();
             Assert.False(fk.IsRequired);
             Assert.False(fk.IsUnique);
             if (hasNavigationToPrincipal)
             {
-                Assert.Equal(OneToManyDependent.NavigationProperty.Name, dependentEntityType.Navigations.Single().Name);
+                Assert.Equal(OneToManyDependent.NavigationProperty.Name, dependentEntityType.GetNavigations().Single().Name);
             }
             else
             {
-                Assert.Empty(dependentEntityType.Navigations);
+                Assert.Empty(dependentEntityType.GetNavigations());
             }
 
             Assert.Equal(1, principalEntityType.PropertyCount);
-            Assert.Equal(1, principalEntityType.Keys.Count);
-            Assert.Empty(principalEntityType.ForeignKeys);
+            Assert.Equal(1, principalEntityType.GetKeys().Count());
+            Assert.Empty(principalEntityType.GetForeignKeys());
             if (hasNavigationToDependent)
             {
-                Assert.Equal(OneToManyPrincipal.NavigationProperty.Name, principalEntityType.Navigations.Single().Name);
+                Assert.Equal(OneToManyPrincipal.NavigationProperty.Name, principalEntityType.GetNavigations().Single().Name);
             }
             else
             {
-                Assert.Empty(principalEntityType.Navigations);
+                Assert.Empty(principalEntityType.GetNavigations());
             }
         }
 

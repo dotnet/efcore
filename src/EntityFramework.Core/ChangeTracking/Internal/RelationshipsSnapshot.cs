@@ -33,10 +33,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             var entityType = entry.EntityType;
 
-            return entityType.Keys.SelectMany(k => k.Properties)
-                .Concat(entityType.ForeignKeys.SelectMany(fk => fk.Properties))
+            return entityType.GetKeys().SelectMany(k => k.Properties)
+                .Concat(entityType.GetForeignKeys().SelectMany(fk => fk.Properties))
                 .Distinct()
-                .Concat<IPropertyBase>(entityType.Navigations);
+                .Concat<IPropertyBase>(entityType.GetNavigations());
         }
 
         protected override object CopyValueFromEntry(IPropertyBase property)

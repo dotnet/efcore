@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            return foreignKey.EntityType.Navigations.SingleOrDefault(
+            return foreignKey.EntityType.GetNavigations().SingleOrDefault(
                 navigation => navigation.ForeignKey == foreignKey && navigation.PointsToPrincipal);
         }
 
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            return foreignKey.ReferencedEntityType.Navigations.SingleOrDefault(
+            return foreignKey.ReferencedEntityType.GetNavigations().SingleOrDefault(
                 navigation => navigation.ForeignKey == foreignKey && !navigation.PointsToPrincipal);
         }
 

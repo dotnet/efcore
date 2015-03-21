@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void Generate(InternalEntityEntry entry)
         {
-            foreach (var property in entry.EntityType.Properties)
+            foreach (var property in entry.EntityType.GetProperties())
             {
                 var isForeignKey = property.IsForeignKey();
 

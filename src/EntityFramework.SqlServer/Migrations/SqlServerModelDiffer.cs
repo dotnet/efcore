@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             model != null
             && model.SqlServer().DefaultSequenceName == null
             && (model.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.Sequence
-                || model.EntityTypes.SelectMany(t => t.Properties).Any(
+                || model.EntityTypes.SelectMany(t => t.GetProperties()).Any(
                     p => p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.Sequence
                          && p.SqlServer().SequenceName == null));
 

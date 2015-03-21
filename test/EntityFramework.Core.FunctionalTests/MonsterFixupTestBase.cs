@@ -230,13 +230,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var stateManager = ((IAccessor<IStateManager>)context.ChangeTracker).Service;
 
-                var beforeSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.Properties.Select(p => e[p])).ToList();
+                var beforeSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.GetProperties().Select(p => e[p])).ToList();
 
                 Assert.Equal(
                     "Aborting.",
                     (await Assert.ThrowsAsync<Exception>(async () => await context.SaveChangesAsync())).Message);
 
-                var afterSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.Properties.Select(p => e[p])).ToList();
+                var afterSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.GetProperties().Select(p => e[p])).ToList();
 
                 Assert.Equal(beforeSnapshot, afterSnapshot);
             }

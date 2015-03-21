@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 {
                     foreach (var entry in command.Entries)
                     {
-                        foreach (var foreignKey in entry.EntityType.ForeignKeys)
+                        foreach (var foreignKey in entry.EntityType.GetForeignKeys())
                         {
                             var currentForeignKey = foreignKey;
                             var foreignKeyValueColumnModifications =
@@ -205,7 +205,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 {
                     foreach (var entry in command.Entries)
                     {
-                        foreach (var foreignKey in entry.EntityType.ForeignKeys)
+                        foreach (var foreignKey in entry.EntityType.GetForeignKeys())
                         {
                             var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueType.Current);
 

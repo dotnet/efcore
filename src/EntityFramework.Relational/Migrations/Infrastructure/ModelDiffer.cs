@@ -209,11 +209,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             var sourcePrimaryKey = source.TryGetPrimaryKey();
             var targetPrimaryKey = target.TryGetPrimaryKey();
 
-            var operations = Diff(source.Properties, target.Properties)
+            var operations = Diff(source.GetProperties(), target.GetProperties())
                 .Concat(Diff(sourcePrimaryKey, targetPrimaryKey))
-                .Concat(Diff(source.Keys.Where(k => k != sourcePrimaryKey), target.Keys.Where(k => k != targetPrimaryKey)))
-                .Concat(Diff(source.ForeignKeys, target.ForeignKeys))
-                .Concat(Diff(source.Indexes, target.Indexes));
+                .Concat(Diff(source.GetKeys().Where(k => k != sourcePrimaryKey), target.GetKeys().Where(k => k != targetPrimaryKey)))
+                .Concat(Diff(source.GetForeignKeys(), target.GetForeignKeys()))
+                .Concat(Diff(source.GetIndexes(), target.GetIndexes()));
             foreach (var operation in operations)
             {
                 yield return operation;
@@ -256,7 +256,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             var createTableOperation = new CreateTableOperation(target.Relational().Table, target.Relational().Schema);
 
             // TODO: Build ColumnModel objects directly
-            createTableOperation.Columns.AddRange(target.Properties.SelectMany(Add).Cast<AddColumnOperation>().Select(o => o.Column));
+            createTableOperation.Columns.AddRange(target.GetProperties().SelectMany(Add).Cast<AddColumnOperation>().Select(o => o.Column));
 
             var primaryKey = target.TryGetPrimaryKey();
             if (primaryKey != null)
@@ -265,12 +265,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             }
 
             createTableOperation.UniqueConstraints.AddRange(
-                target.Keys.Where(k => k != primaryKey).SelectMany(Add).Cast<AddUniqueConstraintOperation>());
-            createTableOperation.ForeignKeys.AddRange(target.ForeignKeys.SelectMany(Add).Cast<AddForeignKeyOperation>());
+                target.GetKeys().Where(k => k != primaryKey).SelectMany(Add).Cast<AddUniqueConstraintOperation>());
+            createTableOperation.ForeignKeys.AddRange(target.GetForeignKeys().SelectMany(Add).Cast<AddForeignKeyOperation>());
 
             yield return createTableOperation;
 
-            foreach (var operation in target.Indexes.SelectMany(Add))
+            foreach (var operation in target.GetIndexes().SelectMany(Add))
             {
                 yield return operation;
             }

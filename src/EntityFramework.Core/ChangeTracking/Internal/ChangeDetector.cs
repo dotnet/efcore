@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return;
             }
 
-            foreach (var property in entityType.Properties)
+            foreach (var property in entityType.GetProperties())
             {
                 if (property.OriginalValueIndex >= 0
                     && !Equals(entry[property], snapshot[property]))
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (!entityType.HasPropertyChangedNotifications())
             {
-                foreach (var property in entityType.Properties)
+                foreach (var property in entityType.GetProperties())
                 {
                     DetectKeyChange(entry, property, snapshot);
                 }
@@ -143,9 +143,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             var entityType = entry.EntityType;
 
             if (!entityType.HasPropertyChangedNotifications()
-                || entityType.Navigations.Any(n => n.IsNonNotifyingCollection(entry)))
+                || entityType.GetNavigations().Any(n => n.IsNonNotifyingCollection(entry)))
             {
-                foreach (var navigation in entityType.Navigations)
+                foreach (var navigation in entityType.GetNavigations())
                 {
                     DetectNavigationChange(entry, navigation, snapshot);
                 }

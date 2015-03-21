@@ -46,12 +46,11 @@ namespace Microsoft.Data.Entity.Metadata
         [NotNull]
         INavigation GetNavigation([NotNull] string name);
 
-        IEnumerable<IProperty> Properties { get; }
-
-        IReadOnlyList<IForeignKey> ForeignKeys { get; }
-        IReadOnlyList<INavigation> Navigations { get; }
-        IReadOnlyList<IIndex> Indexes { get; }
-        IReadOnlyList<IKey> Keys { get; }
+        IEnumerable<IProperty> GetProperties();
+        IEnumerable<IForeignKey> GetForeignKeys();
+        IEnumerable<INavigation> GetNavigations();
+        IEnumerable<IIndex> GetIndexes();
+        IEnumerable<IKey> GetKeys();
 
         IEnumerable<IEntityType> GetDerivedTypes();
         IEnumerable<IEntityType> GetConcreteTypesInHierarchy();

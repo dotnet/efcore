@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             if (entry.State != EntityState.Detached)
             {
                 var internalEntry = ((IAccessor<InternalEntityEntry>)entry).Service;
-                var navigations = internalEntry.EntityType.Navigations;
+                var navigations = internalEntry.EntityType.GetNavigations();
 
                 foreach (var navigation in navigations)
                 {

@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             // Also name of Property cannot be the same as the name of the enclosing EntityType.
             var entityTypeName = new string[] { _entityTypeToClassNameMap[entityType] };
             var propertyToPropertyNameMap = new Dictionary<IProperty, string>();
-            foreach (var property in entityType.Properties)
+            foreach (var property in entityType.GetProperties())
             {
                 var existingNames = propertyToPropertyNameMap.Values
                                         .Concat(entityTypeName).ToList();

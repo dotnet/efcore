@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             var entityType = property.EntityType;
             var stateManager = entry.StateManager;
 
-            foreach (var foreignKey in entityType.ForeignKeys)
+            foreach (var foreignKey in entityType.GetForeignKeys())
             {
                 for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
                 {
@@ -55,8 +55,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     {
                         object valueToPropagte = null;
 
-                        foreach (var navigation in entityType.Navigations
-                            .Concat(foreignKey.ReferencedEntityType.Navigations)
+                        foreach (var navigation in entityType.GetNavigations()
+                            .Concat(foreignKey.ReferencedEntityType.GetNavigations())
                             .Where(n => n.ForeignKey == foreignKey)
                             .Distinct())
                         {

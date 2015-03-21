@@ -789,8 +789,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Order));
 
-            Assert.Equal(2, entityType.ForeignKeys.Count());
-            Assert.Equal(1, entityType.ForeignKeys.Count(fk => fk.IsUnique));
+            Assert.Equal(2, entityType.GetForeignKeys().Count());
+            Assert.Equal(1, entityType.GetForeignKeys().Count(fk => fk.IsUnique));
         }
 
         [Fact]
@@ -811,8 +811,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Order));
 
-            Assert.Equal(2, entityType.ForeignKeys.Count());
-            Assert.Equal(1, entityType.ForeignKeys.Count(fk => fk.IsUnique));
+            Assert.Equal(2, entityType.GetForeignKeys().Count());
+            Assert.Equal(1, entityType.GetForeignKeys().Count(fk => fk.IsUnique));
         }
 
         [Fact]
@@ -834,8 +834,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Order));
 
-            Assert.Equal(2, entityType.ForeignKeys.Count());
-            Assert.Equal(1, entityType.ForeignKeys.Count(fk => fk.IsUnique));
+            Assert.Equal(2, entityType.GetForeignKeys().Count());
+            Assert.Equal(1, entityType.GetForeignKeys().Count(fk => fk.IsUnique));
         }
 
         [Fact]
@@ -860,8 +860,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Order));
 
-            Assert.Equal(2, entityType.ForeignKeys.Count());
-            Assert.Equal(1, entityType.ForeignKeys.Count(fk => fk.IsUnique));
+            Assert.Equal(2, entityType.GetForeignKeys().Count());
+            Assert.Equal(1, entityType.GetForeignKeys().Count(fk => fk.IsUnique));
         }
 
         [Fact]
@@ -910,10 +910,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(2, entityType.Indexes.Count());
-            Assert.True(entityType.Indexes.First().IsUnique);
-            Assert.False(entityType.Indexes.Last().IsUnique);
-            Assert.Equal("V1", entityType.Indexes.Last()["A1"]);
+            Assert.Equal(2, entityType.GetIndexes().Count());
+            Assert.True(entityType.GetIndexes().First().IsUnique);
+            Assert.False(entityType.GetIndexes().Last().IsUnique);
+            Assert.Equal("V1", entityType.GetIndexes().Last()["A1"]);
         }
 
         [Fact]
@@ -932,10 +932,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(2, entityType.Indexes.Count());
-            Assert.True(entityType.Indexes.First().IsUnique);
-            Assert.False(entityType.Indexes.Last().IsUnique);
-            Assert.Equal("V1", entityType.Indexes.Last()["A1"]);
+            Assert.Equal(2, entityType.GetIndexes().Count());
+            Assert.True(entityType.GetIndexes().First().IsUnique);
+            Assert.False(entityType.GetIndexes().Last().IsUnique);
+            Assert.Equal("V1", entityType.GetIndexes().Last()["A1"]);
         }
 
         private class Customer

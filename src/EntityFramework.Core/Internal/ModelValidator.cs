@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Internal
         {
             foreach (var entityType in model.EntityTypes)
             {
-                foreach (var key in entityType.Keys)
+                foreach (var key in entityType.GetKeys())
                 {
                     if (key.Properties.Any(p => p.IsShadowProperty))
                     {
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Internal
             var verifiedProperties = new Dictionary<IProperty, IProperty>();
             foreach (var entityType in model.EntityTypes)
             {
-                foreach (var foreignKey in entityType.ForeignKeys)
+                foreach (var foreignKey in entityType.GetForeignKeys())
                 {
                     foreach (var referencedProperty in foreignKey.Properties)
                     {
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Internal
             }
 
             var rootPrincipals = new Dictionary<IProperty, IForeignKey>();
-            foreach (var foreignKey in principalProperty.EntityType.ForeignKeys)
+            foreach (var foreignKey in principalProperty.EntityType.GetForeignKeys())
             {
                 for (var index = 0; index < foreignKey.Properties.Count; index++)
                 {

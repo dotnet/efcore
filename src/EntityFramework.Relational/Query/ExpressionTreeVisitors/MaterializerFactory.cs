@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var indexMap = new int[concreteEntityTypes[0].PropertyCount];
             var propertyIndex = 0;
 
-            foreach (var property in concreteEntityTypes[0].Properties)
+            foreach (var property in concreteEntityTypes[0].GetProperties())
             {
                 indexMap[propertyIndex++]
                     = projectionAdder(property, selectExpression);
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 indexMap = new int[concreteEntityType.PropertyCount];
                 propertyIndex = 0;
 
-                foreach (var property in concreteEntityType.Properties)
+                foreach (var property in concreteEntityType.GetProperties())
                 {
                     indexMap[propertyIndex++]
                         = projectionAdder(property, selectExpression);

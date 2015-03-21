@@ -36,8 +36,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var model = context.Model;
                 var entityType = model.EntityTypes.First();
 
-                Assert.Equal("'Person' {'LoverId'} -> 'Person' {'Id'}", entityType.ForeignKeys.First().ToString());
-                Assert.Equal("'Person' {'SiblingReverseId'} -> 'Person' {'Id'}", entityType.ForeignKeys.Skip(1).First().ToString());
+                Assert.Equal("'Person' {'LoverId'} -> 'Person' {'Id'}", entityType.GetForeignKeys().First().ToString());
+                Assert.Equal("'Person' {'SiblingReverseId'} -> 'Person' {'Id'}", entityType.GetForeignKeys().Skip(1).First().ToString());
             }
         }
 
@@ -64,8 +64,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var model = context.Model;
                 var entityType = model.EntityTypes.First();
 
-                Assert.Equal("'Person' {'LoverId'} -> 'Person' {'Id'}", entityType.ForeignKeys.First().ToString());
-                Assert.Equal("'Person' {'SiblingReverseId'} -> 'Person' {'Id'}", entityType.ForeignKeys.Skip(1).First().ToString());
+                Assert.Equal("'Person' {'LoverId'} -> 'Person' {'Id'}", entityType.GetForeignKeys().First().ToString());
+                Assert.Equal("'Person' {'SiblingReverseId'} -> 'Person' {'Id'}", entityType.GetForeignKeys().Skip(1).First().ToString());
             }
         }
     }

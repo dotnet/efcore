@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             Check.NotNull(sb, nameof(sb));
 
             var first = true;
-            foreach (var foreignKey in entityType.ForeignKeys)
+            foreach (var foreignKey in entityType.GetForeignKeys())
             {
                 var dependentEndNavigationPropertyName =
                     foreignKey[SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName];

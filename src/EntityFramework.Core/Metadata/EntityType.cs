@@ -1057,15 +1057,15 @@ namespace Microsoft.Data.Entity.Metadata
             return GetConcreteTypesInHierarchy();
         }
 
-        IEnumerable<IProperty> IEntityType.Properties => Properties;
+        IEnumerable<IProperty> IEntityType.GetProperties() => Properties;
 
-        IReadOnlyList<IForeignKey> IEntityType.ForeignKeys => ForeignKeys;
+        IEnumerable<IForeignKey> IEntityType.GetForeignKeys() => ForeignKeys;
 
-        IReadOnlyList<INavigation> IEntityType.Navigations => Navigations;
+        IEnumerable<INavigation> IEntityType.GetNavigations() => Navigations;
 
-        IReadOnlyList<IIndex> IEntityType.Indexes => Indexes;
+        IEnumerable<IIndex> IEntityType.GetIndexes() => Indexes;
 
-        IReadOnlyList<IKey> IEntityType.Keys => Keys;
+        IEnumerable<IKey> IEntityType.GetKeys() => Keys;
 
         #endregion
 

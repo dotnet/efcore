@@ -423,7 +423,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             foreach (var entityType in codeGenModel.EntityTypes)
             {
                 var dependentEndExistingIdentifiers = entityTypeToExistingIdentifiers[entityType];
-                foreach (var foreignKey in entityType.ForeignKeys.Cast<ForeignKey>())
+                foreach (var foreignKey in entityType.GetForeignKeys().Cast<ForeignKey>())
                 {
                     // set up the name of the navigation property on the dependent end of the foreign key
                     var dependentEndNavigationPropertyCandidateName =

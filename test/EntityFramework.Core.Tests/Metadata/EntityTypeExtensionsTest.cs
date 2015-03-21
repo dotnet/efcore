@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var navigation1 = Mock.Of<INavigation>();
             var navigation2 = Mock.Of<INavigation>();
 
-            typeMock.Setup(m => m.Properties).Returns(new List<IProperty> { property1, property2 });
-            typeMock.Setup(m => m.Navigations).Returns(new List<INavigation> { navigation1, navigation2 });
+            typeMock.Setup(m => m.GetProperties()).Returns(new List<IProperty> { property1, property2 });
+            typeMock.Setup(m => m.GetNavigations()).Returns(new List<INavigation> { navigation1, navigation2 });
 
             Assert.Equal(
                 new IPropertyBase[] { property1, property2, navigation1, navigation2 },
