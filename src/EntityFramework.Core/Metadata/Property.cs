@@ -18,7 +18,6 @@ namespace Microsoft.Data.Entity.Metadata
         // TODO: Remove this once the model is readonly Issue #868
         private PropertyFlags _setFlags;
         private int _shadowIndex;
-        private int _originalValueIndex = -1;
         private int _index;
 
         public Property([NotNull] string name, [NotNull] Type clrType, [NotNull] EntityType entityType, bool shadowProperty = false)
@@ -150,20 +149,6 @@ namespace Microsoft.Data.Entity.Metadata
                 }
 
                 _shadowIndex = value;
-            }
-        }
-
-        public virtual int OriginalValueIndex
-        {
-            get { return _originalValueIndex; }
-            set
-            {
-                if (value < -1)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value));
-                }
-
-                _originalValueIndex = value;
             }
         }
 

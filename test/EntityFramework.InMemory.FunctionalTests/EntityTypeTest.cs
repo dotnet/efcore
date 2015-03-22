@@ -34,8 +34,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var b = root.AddProperty("B", typeof(int), shadowProperty: true);
 
-            Assert.Equal(0, b.OriginalValueIndex);
-            Assert.Equal(1, a.OriginalValueIndex);
+            Assert.Equal(0, b.GetOriginalValueIndex());
+            Assert.Equal(1, a.GetOriginalValueIndex());
         }
 
         [Fact]

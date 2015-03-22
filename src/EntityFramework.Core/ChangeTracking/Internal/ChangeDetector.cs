@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 var property = propertyBase as IProperty;
                 if (property != null
-                    && property.OriginalValueIndex >= 0)
+                    && property.GetOriginalValueIndex() >= 0)
                 {
                     entry.OriginalValues.EnsureSnapshot(property);
                 }
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             foreach (var property in entityType.GetProperties())
             {
-                if (property.OriginalValueIndex >= 0
+                if (property.GetOriginalValueIndex() >= 0
                     && !Equals(entry[property], snapshot[property]))
                 {
                     entry.SetPropertyModified(property);

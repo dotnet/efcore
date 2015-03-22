@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
@@ -12,6 +13,27 @@ namespace Microsoft.Data.Entity.Metadata
     public static class PropertyExtensions
     {
         private const string MaxLengthAnnotation = "MaxLength";
+        private const string OriginalValueIndexAnnotation = "OriginalValueIndex";
+
+        public static int GetOriginalValueIndex([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+            Debug.Assert(property[OriginalValueIndexAnnotation] != null);
+
+            return (int)property[OriginalValueIndexAnnotation];
+        }
+
+        public static void SetOriginalValueIndex([NotNull] this Property property, int index)
+        {
+            Check.NotNull(property, nameof(property));
+
+            if (index < -1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            property[OriginalValueIndexAnnotation] = index;
+        }
 
         public static int? GetMaxLength([NotNull] this IProperty property)
         {
@@ -20,16 +42,16 @@ namespace Microsoft.Data.Entity.Metadata
             return (int?)property[MaxLengthAnnotation];
         }
 
-        public static void SetMaxLength([NotNull] this Property property, int? value)
+        public static void SetMaxLength([NotNull] this Property property, int? maxLength)
         {
             Check.NotNull(property, nameof(property));
 
-            if (value != null && value < 0)
+            if (maxLength != null && maxLength < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(value));
+                throw new ArgumentOutOfRangeException(nameof(maxLength));
             }
 
-            property[MaxLengthAnnotation] = value;
+            property[MaxLengthAnnotation] = maxLength;
         }
 
         public static bool IsForeignKey([NotNull] this IProperty property)

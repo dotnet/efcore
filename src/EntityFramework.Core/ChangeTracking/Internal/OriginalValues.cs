@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
         }
 
-        protected override int Index(IPropertyBase property) => (property as IProperty)?.OriginalValueIndex ?? -1;
+        protected override int Index(IPropertyBase property) => (property as IProperty)?.GetOriginalValueIndex() ?? -1;
 
         protected override void ThrowInvalidIndexException(IPropertyBase property)
         {

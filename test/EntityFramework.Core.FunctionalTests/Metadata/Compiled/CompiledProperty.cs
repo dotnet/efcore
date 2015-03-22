@@ -32,8 +32,6 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public bool IsReadOnly => false;
 
-        public int MaxLength => 0;
-
         public bool UseStoreDefault => false;
 
         public IEntityType EntityType { get; }
@@ -41,8 +39,6 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
         public bool IsShadowProperty => false;
 
         public bool IsConcurrencyToken => true;
-
-        public int OriginalValueIndex => -1;
 
         public object SentinelValue => null;
     }

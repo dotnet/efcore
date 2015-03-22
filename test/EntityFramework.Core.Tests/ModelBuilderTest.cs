@@ -755,13 +755,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.True(entityType.GetProperty("Top").IsConcurrencyToken);
             Assert.False(entityType.GetProperty("Bottom").IsConcurrencyToken);
 
-            Assert.Equal(-1, entityType.GetProperty(Customer.IdProperty.Name).OriginalValueIndex);
-            Assert.Equal(2, entityType.GetProperty("Up").OriginalValueIndex);
-            Assert.Equal(-1, entityType.GetProperty("Down").OriginalValueIndex);
-            Assert.Equal(0, entityType.GetProperty("Charm").OriginalValueIndex);
-            Assert.Equal(-1, entityType.GetProperty("Strange").OriginalValueIndex);
-            Assert.Equal(1, entityType.GetProperty("Top").OriginalValueIndex);
-            Assert.Equal(-1, entityType.GetProperty("Bottom").OriginalValueIndex);
+            Assert.Equal(-1, entityType.GetProperty(Customer.IdProperty.Name).GetOriginalValueIndex());
+            Assert.Equal(2, entityType.GetProperty("Up").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.GetProperty("Down").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.GetProperty("Charm").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.GetProperty("Strange").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.GetProperty("Top").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.GetProperty("Bottom").GetOriginalValueIndex());
         }
 
         [Fact]

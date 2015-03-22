@@ -1366,8 +1366,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(0, entityType.GetProperty("Id").ShadowIndex);
             Assert.Equal(-1, entityType.GetProperty("Name").ShadowIndex);
 
-            Assert.Equal(0, entityType.GetProperty("Id").OriginalValueIndex);
-            Assert.Equal(-1, entityType.GetProperty("Name").OriginalValueIndex);
+            Assert.Equal(0, entityType.GetProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.GetProperty("Name").GetOriginalValueIndex());
 
             Assert.Equal(1, entityType.ShadowPropertyCount());
             Assert.Equal(1, entityType.OriginalValueCount());
@@ -1388,10 +1388,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(2, entityType.GetProperty("Mane").ShadowIndex);
             Assert.Equal(-1, entityType.GetProperty("Name").ShadowIndex);
 
-            Assert.Equal(0, entityType.GetProperty("Game").OriginalValueIndex);
-            Assert.Equal(1, entityType.GetProperty("Id").OriginalValueIndex);
-            Assert.Equal(2, entityType.GetProperty("Mane").OriginalValueIndex);
-            Assert.Equal(-1, entityType.GetProperty("Name").OriginalValueIndex);
+            Assert.Equal(0, entityType.GetProperty("Game").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.GetProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.GetProperty("Mane").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.GetProperty("Name").GetOriginalValueIndex());
 
             Assert.Equal(3, entityType.ShadowPropertyCount());
             Assert.Equal(3, entityType.OriginalValueCount());
@@ -1409,10 +1409,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(2, entityType.GetProperty("Mane").ShadowIndex);
             Assert.Equal(-1, entityType.GetProperty("Name").ShadowIndex);
 
-            Assert.Equal(-1, entityType.GetProperty("Game").OriginalValueIndex);
-            Assert.Equal(0, entityType.GetProperty("Id").OriginalValueIndex);
-            Assert.Equal(1, entityType.GetProperty("Mane").OriginalValueIndex);
-            Assert.Equal(2, entityType.GetProperty("Name").OriginalValueIndex);
+            Assert.Equal(-1, entityType.GetProperty("Game").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.GetProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.GetProperty("Mane").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.GetProperty("Name").GetOriginalValueIndex());
 
             Assert.Equal(3, entityType.ShadowPropertyCount());
             Assert.Equal(3, entityType.OriginalValueCount());
@@ -1430,10 +1430,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(1, entityType.GetProperty("Mane").ShadowIndex);
             Assert.Equal(2, entityType.GetProperty("Name").ShadowIndex);
 
-            Assert.Equal(-1, entityType.GetProperty("Game").OriginalValueIndex);
-            Assert.Equal(0, entityType.GetProperty("Id").OriginalValueIndex);
-            Assert.Equal(1, entityType.GetProperty("Mane").OriginalValueIndex);
-            Assert.Equal(2, entityType.GetProperty("Name").OriginalValueIndex);
+            Assert.Equal(-1, entityType.GetProperty("Game").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.GetProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.GetProperty("Mane").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.GetProperty("Name").GetOriginalValueIndex());
 
             Assert.Equal(3, entityType.ShadowPropertyCount());
             Assert.Equal(3, entityType.OriginalValueCount());
@@ -1505,8 +1505,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.GetOrAddProperty("Name", typeof(string));
             entityType.GetOrAddProperty("Id", typeof(int));
 
-            Assert.Equal(0, entityType.GetProperty("Id").OriginalValueIndex);
-            Assert.Equal(1, entityType.GetProperty("Name").OriginalValueIndex);
+            Assert.Equal(0, entityType.GetProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.GetProperty("Name").GetOriginalValueIndex());
 
             Assert.Equal(2, entityType.OriginalValueCount());
         }
@@ -1519,8 +1519,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
             entityType.GetOrAddProperty("Id", typeof(int));
 
-            Assert.Equal(-1, entityType.GetProperty("Id").OriginalValueIndex);
-            Assert.Equal(0, entityType.GetProperty("Name").OriginalValueIndex);
+            Assert.Equal(-1, entityType.GetProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.GetProperty("Name").GetOriginalValueIndex());
 
             Assert.Equal(1, entityType.OriginalValueCount());
         }
@@ -1531,11 +1531,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(FullNotificationEntity), new Model());
             entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int)));
 
-            Assert.Equal(-1, entityType.GetProperty("Id").OriginalValueIndex);
+            Assert.Equal(-1, entityType.GetProperty("Id").GetOriginalValueIndex());
 
             entityType.GetOrAddForeignKey(new[] { entityType.GetOrAddProperty("Id", typeof(int)) }, entityType.GetPrimaryKey());
 
-            Assert.Equal(0, entityType.GetProperty("Id").OriginalValueIndex);
+            Assert.Equal(0, entityType.GetProperty("Id").GetOriginalValueIndex());
         }
 
         private class Customer

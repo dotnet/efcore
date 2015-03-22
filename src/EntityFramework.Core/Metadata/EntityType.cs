@@ -965,8 +965,8 @@ namespace Microsoft.Data.Entity.Metadata
 
             foreach (var property in _properties.Values)
             {
-                property.OriginalValueIndex
-                    = RequiresOriginalValue(property) ? originalValueIndex++ : -1;
+                property.SetOriginalValueIndex(
+                    RequiresOriginalValue(property) ? originalValueIndex++ : -1);
             }
         }
 
