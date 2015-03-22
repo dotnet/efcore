@@ -953,7 +953,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             foreach (var property in _properties.Values.Where(p => p.IsShadowProperty))
             {
-                property.ShadowIndex = shadowIndex++;
+                property.SetShadowIndex(shadowIndex++);
             }
 
             _shadowPropertyCount = shadowIndex;

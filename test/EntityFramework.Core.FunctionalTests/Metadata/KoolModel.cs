@@ -905,7 +905,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity1Id2Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -919,7 +919,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 3;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity1Foo1Property : CompiledProperty<string>, IProperty
@@ -937,7 +937,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity1Goo1Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -951,7 +951,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity1KoolEntity2IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -965,7 +965,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 4;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity2IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -979,7 +979,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity2Foo2Property : CompiledProperty<string>, IProperty
@@ -997,7 +997,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity2Goo2Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1011,7 +1011,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity2KoolEntity1Id1Property : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1025,7 +1025,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 3;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity2KoolEntity1Id2operty : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1039,7 +1039,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 4;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity2KoolEntity3IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1053,7 +1053,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 5;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity3IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1067,7 +1067,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity3Foo3Property : CompiledProperty<string>, IProperty
@@ -1085,7 +1085,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity3Goo3Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1099,7 +1099,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity3KoolEntity4IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1113,7 +1113,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 3;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity4IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1127,7 +1127,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity4Foo4Property : CompiledProperty<string>, IProperty
@@ -1145,7 +1145,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity4Goo4Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1159,7 +1159,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity5IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1173,7 +1173,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity5Foo5Property : CompiledProperty<string>, IProperty
@@ -1191,7 +1191,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity5Goo5Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1205,7 +1205,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity6IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1221,7 +1221,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity6Foo6Property : CompiledProperty<string>, IProperty
@@ -1239,7 +1239,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity6Goo6Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1253,7 +1253,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity6Kool5IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1267,7 +1267,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 3;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity7IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1281,7 +1281,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity7Foo7Property : CompiledProperty<string>, IProperty
@@ -1299,7 +1299,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity7Goo7Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1313,7 +1313,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity8IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1327,7 +1327,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity8Foo8Property : CompiledProperty<string>, IProperty
@@ -1345,7 +1345,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity8Goo8Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1359,7 +1359,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity9IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1373,7 +1373,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity9Foo9Property : CompiledProperty<string>, IProperty
@@ -1391,7 +1391,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity9Goo9Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1405,7 +1405,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity10IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1419,7 +1419,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity10Foo10Property : CompiledProperty<string>, IProperty
@@ -1437,7 +1437,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity10Goo10Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1451,7 +1451,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity11IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1465,7 +1465,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity11Foo11Property : CompiledProperty<string>, IProperty
@@ -1483,7 +1483,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity11Goo11Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1497,7 +1497,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity12IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1511,7 +1511,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity12Foo12Property : CompiledProperty<string>, IProperty
@@ -1529,7 +1529,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity12Goo12Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1543,7 +1543,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity13IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1557,7 +1557,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity13Foo13Property : CompiledProperty<string>, IProperty
@@ -1575,7 +1575,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity13Goo13Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1589,7 +1589,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity14IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1603,7 +1603,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity14Foo14Property : CompiledProperty<string>, IProperty
@@ -1621,7 +1621,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity14Goo14Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1635,7 +1635,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity15IdProperty : CompiledPropertyNoAnnotations<int>, IProperty, IClrPropertyGetter, IClrPropertySetter
@@ -1649,7 +1649,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
 
         public bool GetterCalled { get; set; }
         public bool SetterCalled { get; set; }
@@ -1682,7 +1682,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity15Goo15Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1696,7 +1696,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity16IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1710,7 +1710,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity16Foo16Property : CompiledProperty<string>, IProperty
@@ -1728,7 +1728,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity16Goo16Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1744,7 +1744,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity17IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1760,7 +1760,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity17Foo17Property : CompiledProperty<string>, IProperty
@@ -1778,7 +1778,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity17Goo17Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1792,7 +1792,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity18IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1806,7 +1806,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity18Foo18Property : CompiledProperty<string>, IProperty
@@ -1824,7 +1824,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity18Goo18Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1838,7 +1838,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity19IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1852,7 +1852,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity19Foo19Property : CompiledProperty<string>, IProperty
@@ -1870,7 +1870,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity19Goo19Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1884,7 +1884,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity20IdProperty : CompiledPropertyNoAnnotations<int>, IProperty
@@ -1898,7 +1898,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 2;
 
-        public int ShadowIndex => -2;
+        public int GetShadowIndex() => -2;
     }
 
     public class _KoolEntity20Foo20Property : CompiledProperty<string>, IProperty
@@ -1916,7 +1916,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 0;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity20Goo20Property : CompiledPropertyNoAnnotations<Guid>, IProperty
@@ -1930,7 +1930,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public int Index => 1;
 
-        public int ShadowIndex => -1;
+        public int GetShadowIndex() => -1;
     }
 
     public class _KoolEntity1Fk1 : CompiledSimpleForeignKey, IForeignKey

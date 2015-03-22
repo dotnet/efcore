@@ -140,9 +140,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_can_be_marked_as_read_only()
         {
-            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+            var property 
+                = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)))
+                {
+                    IsReadOnly = true
+                };
 
-            property.IsReadOnly = true;
             Assert.True(property.IsReadOnly.Value);
 
             property.IsReadOnly = false;
@@ -158,24 +161,24 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property = new Property("Kake", typeof(int), new Model().AddEntityType(typeof(object)));
 
             Assert.Equal(0, property.Index);
-            Assert.Equal(-1, property.ShadowIndex);
+            Assert.Equal(-1, property.GetShadowIndex());
 
             property.Index = 1;
 
             Assert.Equal(1, property.Index);
-            Assert.Equal(-1, property.ShadowIndex);
+            Assert.Equal(-1, property.GetShadowIndex());
 
             Assert.Equal(
                 "value",
                 Assert.Throws<ArgumentOutOfRangeException>(() => property.Index = -1).ParamName);
 
             Assert.Equal(
-                "value",
-                Assert.Throws<ArgumentOutOfRangeException>(() => property.ShadowIndex = -1).ParamName);
+                "index",
+                Assert.Throws<ArgumentOutOfRangeException>(() => property.SetShadowIndex(-1)).ParamName);
 
             Assert.Equal(
-                "value",
-                Assert.Throws<ArgumentOutOfRangeException>(() => property.ShadowIndex = 1).ParamName);
+                "index",
+                Assert.Throws<ArgumentOutOfRangeException>(() => property.SetShadowIndex(1)).ParamName);
         }
 
         [Fact]
@@ -184,21 +187,21 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property = new Property("Kake", typeof(int), new Model().AddEntityType(typeof(object)), shadowProperty: true);
 
             Assert.Equal(0, property.Index);
-            Assert.Equal(0, property.ShadowIndex);
+            Assert.Equal(0, property.GetShadowIndex());
 
             property.Index = 1;
-            property.ShadowIndex = 2;
+            property.SetShadowIndex(2);
 
             Assert.Equal(1, property.Index);
-            Assert.Equal(2, property.ShadowIndex);
+            Assert.Equal(2, property.GetShadowIndex());
 
             Assert.Equal(
                 "value",
                 Assert.Throws<ArgumentOutOfRangeException>(() => property.Index = -1).ParamName);
 
             Assert.Equal(
-                "value",
-                Assert.Throws<ArgumentOutOfRangeException>(() => property.ShadowIndex = -1).ParamName);
+                "index",
+                Assert.Throws<ArgumentOutOfRangeException>(() => property.SetShadowIndex(-1)).ParamName);
         }
 
         [Fact]

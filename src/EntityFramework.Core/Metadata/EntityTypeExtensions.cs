@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.GetProperties().Count(p => p.ShadowIndex >= 0);
+            return entityType.GetProperties().Count(p => p.IsShadowProperty);
         }
 
         public static bool HasClrType([NotNull] this IEntityType entityType)

@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             return property == null || !property.IsShadowProperty
                 ? base.ReadPropertyValue(propertyBase)
-                : _shadowValues[property.ShadowIndex];
+                : _shadowValues[property.GetShadowIndex()];
         }
 
         protected override void WritePropertyValue(IPropertyBase propertyBase, object value)
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
             else
             {
-                _shadowValues[property.ShadowIndex] = value;
+                _shadowValues[property.GetShadowIndex()] = value;
             }
         }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             foreach (var property in EntityType.GetProperties().Where(property => property.IsShadowProperty))
             {
-                shadowValues[property.ShadowIndex] = MetadataServices.ReadValueFromReader(valueReader, property);
+                shadowValues[property.GetShadowIndex()] = MetadataServices.ReadValueFromReader(valueReader, property);
             }
 
             return shadowValues;

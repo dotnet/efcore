@@ -15,9 +15,10 @@ namespace Microsoft.Data.Entity.Metadata
     public class Property : PropertyBase, IProperty
     {
         private PropertyFlags _flags;
+
         // TODO: Remove this once the model is readonly Issue #868
         private PropertyFlags _setFlags;
-        private int _shadowIndex;
+
         private int _index;
 
         public Property([NotNull] string name, [NotNull] Type clrType, [NotNull] EntityType entityType, bool shadowProperty = false)
@@ -28,7 +29,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             ClrType = clrType;
             EntityType = entityType;
-            _shadowIndex = shadowProperty ? 0 : -1;
+            IsShadowProperty = shadowProperty;
         }
 
         public virtual Type ClrType { get; }
@@ -96,15 +97,17 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual bool IsShadowProperty
         {
-            get { return _shadowIndex >= 0; }
+            get { return GetRequiredFlag(PropertyFlags.IsShadowProperty); }
             set
             {
                 if (IsShadowProperty != value)
                 {
-                    _shadowIndex = value ? 0 : -1;
+                    SetRequiredFlag(value, PropertyFlags.IsShadowProperty);
 
                     EntityType.OnPropertyMetadataChanged(this, this);
                 }
+
+                SetRequiredFlag(value, PropertyFlags.IsShadowProperty);
             }
         }
 
@@ -137,24 +140,11 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual int ShadowIndex
-        {
-            get { return _shadowIndex; }
-            set
-            {
-                if (value < 0
-                    || !IsShadowProperty)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value));
-                }
-
-                _shadowIndex = value;
-            }
-        }
-
         public virtual object SentinelValue { get; [param: CanBeNull] set; }
 
         private bool? GetFlag(PropertyFlags flag) => (_setFlags & flag) != 0 ? (_flags & flag) != 0 : (bool?)null;
+
+        private bool GetRequiredFlag(PropertyFlags flag) => (_flags & flag) != 0;
 
         private void SetFlag(bool? value, PropertyFlags flag)
         {
@@ -162,7 +152,13 @@ namespace Microsoft.Data.Entity.Metadata
             _flags = value.HasValue && value.Value ? (_flags | flag) : (_flags & ~flag);
         }
 
-        internal static string Format(IEnumerable<IProperty> properties) => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
+        private void SetRequiredFlag(bool value, PropertyFlags flag)
+        {
+            _flags = value ? (_flags | flag) : (_flags & ~flag);
+        }
+
+        internal static string Format(IEnumerable<IProperty> properties)
+            => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
 
         public static bool AreCompatible([NotNull] IReadOnlyList<Property> principalProperties,
             [NotNull] IReadOnlyList<Property> dependentProperties)
@@ -226,7 +222,8 @@ namespace Microsoft.Data.Entity.Metadata
             IsReadOnly = 4,
             UseStoreDefault = 8,
             IsStoreComputed = 16,
-            GenerateValueOnAdd = 32
+            GenerateValueOnAdd = 32,
+            IsShadowProperty = 64
         }
     }
 }

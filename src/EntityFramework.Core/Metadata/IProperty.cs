@@ -14,7 +14,6 @@ namespace Microsoft.Data.Entity.Metadata
         bool IsStoreComputed { get; }
         bool IsValueGeneratedOnAdd { get; }
         int Index { get; }
-        int ShadowIndex { get; }
         bool IsShadowProperty { get; }
         bool IsConcurrencyToken { get; }
         object SentinelValue { get; }

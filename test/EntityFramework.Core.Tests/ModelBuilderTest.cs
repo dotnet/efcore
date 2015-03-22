@@ -692,11 +692,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.True(entityType.GetProperty("Gluon").IsShadowProperty);
             Assert.True(entityType.GetProperty("Photon").IsShadowProperty);
 
-            Assert.Equal(-1, entityType.GetProperty("Up").ShadowIndex);
-            Assert.Equal(-1, entityType.GetProperty("Charm").ShadowIndex);
-            Assert.Equal(-1, entityType.GetProperty("Top").ShadowIndex);
-            Assert.Equal(0, entityType.GetProperty("Gluon").ShadowIndex);
-            Assert.Equal(1, entityType.GetProperty("Photon").ShadowIndex);
+            Assert.Equal(-1, entityType.GetProperty("Up").GetShadowIndex());
+            Assert.Equal(-1, entityType.GetProperty("Charm").GetShadowIndex());
+            Assert.Equal(-1, entityType.GetProperty("Top").GetShadowIndex());
+            Assert.Equal(0, entityType.GetProperty("Gluon").GetShadowIndex());
+            Assert.Equal(1, entityType.GetProperty("Photon").GetShadowIndex());
         }
 
         [Fact]
@@ -722,11 +722,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.True(entityType.GetProperty("Gluon").IsShadowProperty);
             Assert.True(entityType.GetProperty("Photon").IsShadowProperty);
 
-            Assert.Equal(4, entityType.GetProperty("Up").ShadowIndex);
-            Assert.Equal(0, entityType.GetProperty("Charm").ShadowIndex);
-            Assert.Equal(3, entityType.GetProperty("Top").ShadowIndex);
-            Assert.Equal(1, entityType.GetProperty("Gluon").ShadowIndex);
-            Assert.Equal(2, entityType.GetProperty("Photon").ShadowIndex);
+            Assert.Equal(4, entityType.GetProperty("Up").GetShadowIndex());
+            Assert.Equal(0, entityType.GetProperty("Charm").GetShadowIndex());
+            Assert.Equal(3, entityType.GetProperty("Top").GetShadowIndex());
+            Assert.Equal(1, entityType.GetProperty("Gluon").GetShadowIndex());
+            Assert.Equal(2, entityType.GetProperty("Photon").GetShadowIndex());
         }
 
         [Fact]

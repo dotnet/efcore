@@ -14,6 +14,37 @@ namespace Microsoft.Data.Entity.Metadata
     {
         private const string MaxLengthAnnotation = "MaxLength";
         private const string OriginalValueIndexAnnotation = "OriginalValueIndex";
+        private const string ShadowIndexAnnotation = "ShadowIndex";
+
+        public static int GetShadowIndex([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            if (!property.IsShadowProperty)
+            {
+                return -1;
+            }
+
+            if (property[ShadowIndexAnnotation] == null)
+            {
+                return 0;
+            }
+
+            return (int)property[ShadowIndexAnnotation];
+        }
+
+        public static void SetShadowIndex([NotNull] this Property property, int index)
+        {
+            Check.NotNull(property, nameof(property));
+
+            if (index < 0
+                || !property.IsShadowProperty)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            property[ShadowIndexAnnotation] = index;
+        }
 
         public static int GetOriginalValueIndex([NotNull] this IProperty property)
         {
@@ -46,7 +77,8 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(property, nameof(property));
 
-            if (maxLength != null && maxLength < 0)
+            if (maxLength != null
+                && maxLength < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(maxLength));
             }
