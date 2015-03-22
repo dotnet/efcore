@@ -55,11 +55,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool MaxLength(int maxLength, ConfigurationSource configurationSource)
         {
-            if (configurationSource.CanSet(_maxLengthConfigurationSource, Metadata.MaxLength.HasValue)
-                || Metadata.MaxLength.Value == maxLength)
+            if (configurationSource.CanSet(_maxLengthConfigurationSource, Metadata.GetMaxLength().HasValue)
+                || Metadata.GetMaxLength().Value == maxLength)
             {
                 if (_maxLengthConfigurationSource == null
-                    && Metadata.MaxLength != null)
+                    && Metadata.GetMaxLength() != null)
                 {
                     _maxLengthConfigurationSource = ConfigurationSource.Explicit;
                 }
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     _maxLengthConfigurationSource = configurationSource.Max(_maxLengthConfigurationSource);
                 }
 
-                Metadata.MaxLength = maxLength;
+                Metadata.SetMaxLength(maxLength);
                 return true;
             }
 

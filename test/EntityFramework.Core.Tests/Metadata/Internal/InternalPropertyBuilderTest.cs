@@ -111,10 +111,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(builder.MaxLength(1, ConfigurationSource.Convention));
             Assert.True(builder.MaxLength(2, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(2, metadata.MaxLength.Value);
+            Assert.Equal(2, metadata.GetMaxLength().Value);
 
             Assert.False(builder.MaxLength(1, ConfigurationSource.Convention));
-            Assert.Equal(2, metadata.MaxLength.Value);
+            Assert.Equal(2, metadata.GetMaxLength().Value);
         }
 
         [Fact]
@@ -122,15 +122,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
-            metadata.MaxLength = 1;
+            metadata.SetMaxLength(1);
 
             Assert.True(builder.MaxLength(1, ConfigurationSource.DataAnnotation));
             Assert.False(builder.MaxLength(2, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(1, metadata.MaxLength.Value);
+            Assert.Equal(1, metadata.GetMaxLength().Value);
 
             Assert.True(builder.MaxLength(2, ConfigurationSource.Explicit));
-            Assert.Equal(2, metadata.MaxLength.Value);
+            Assert.Equal(2, metadata.GetMaxLength().Value);
         }
 
         [Fact]

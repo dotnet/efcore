@@ -432,12 +432,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(property, nameof(property));
 
-            if (((Property)property).MaxLength.HasValue)
+            if (((Property)property).GetMaxLength().HasValue)
             {
                 return string.Format(CultureInfo.InvariantCulture,
                     ".MaxLength({0})",
                     CSharpUtilities.Instance.GenerateLiteral(
-                        ((Property)property).MaxLength.Value));
+                        ((Property)property).GetMaxLength().Value));
             }
 
             return null;

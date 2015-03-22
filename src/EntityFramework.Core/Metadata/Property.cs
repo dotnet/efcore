@@ -20,7 +20,6 @@ namespace Microsoft.Data.Entity.Metadata
         private int _shadowIndex;
         private int _originalValueIndex = -1;
         private int _index;
-        private int _maxLength = -1;
 
         public Property([NotNull] string name, [NotNull] Type clrType, [NotNull] EntityType entityType, bool shadowProperty = false)
             : base(name)
@@ -62,34 +61,6 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         protected virtual bool DefaultUseStoreDefault => false;
-
-        public virtual int? MaxLength
-        {
-            get
-            {
-                return _maxLength >= 0
-                    ? (int?)_maxLength
-                    : null;
-            }
-            set
-            {
-                if (!value.HasValue)
-                {
-                    _maxLength = -1;
-                }
-                else
-                {
-                    if (value < 0)
-                    {
-                        throw new ArgumentOutOfRangeException("value");
-                    }
-
-                    _maxLength = value.Value;
-                }
-            }
-        }
-
-        protected virtual int DefaultMaxLength => 0;
 
         public virtual bool? IsReadOnly
         {
@@ -251,8 +222,6 @@ namespace Microsoft.Data.Entity.Metadata
         bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;
 
         bool IProperty.UseStoreDefault => UseStoreDefault ?? DefaultUseStoreDefault;
-
-        int IProperty.MaxLength => MaxLength ?? DefaultMaxLength;
 
         bool IProperty.IsReadOnly => IsReadOnly ?? DefaultIsReadOnly;
 

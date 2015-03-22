@@ -665,15 +665,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property(typeof(string), "Bottom").MaxLength(100);
                 });
 
-            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
+            var entityType = model.GetEntityType(typeof(Quarks));
 
-            Assert.Equal(0, entityType.GetProperty("Id").MaxLength);
-            Assert.Equal(0, entityType.GetProperty("Up").MaxLength);
-            Assert.Equal(100, entityType.GetProperty("Down").MaxLength);
-            Assert.Equal(0, entityType.GetProperty("Charm").MaxLength);
-            Assert.Equal(100, entityType.GetProperty("Strange").MaxLength);
-            Assert.Equal(0, entityType.GetProperty("Top").MaxLength);
-            Assert.Equal(100, entityType.GetProperty("Bottom").MaxLength);
+            Assert.Null(entityType.GetProperty("Id").GetMaxLength());
+            Assert.Equal(0, entityType.GetProperty("Up").GetMaxLength());
+            Assert.Equal(100, entityType.GetProperty("Down").GetMaxLength());
+            Assert.Equal(0, entityType.GetProperty("Charm").GetMaxLength());
+            Assert.Equal(100, entityType.GetProperty("Strange").GetMaxLength());
+            Assert.Equal(0, entityType.GetProperty("Top").GetMaxLength());
+            Assert.Equal(100, entityType.GetProperty("Bottom").GetMaxLength());
         }
 
         [Fact]

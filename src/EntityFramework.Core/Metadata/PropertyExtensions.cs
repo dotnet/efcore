@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -10,6 +11,27 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class PropertyExtensions
     {
+        private const string MaxLengthAnnotation = "MaxLength";
+
+        public static int? GetMaxLength([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return (int?)property[MaxLengthAnnotation];
+        }
+
+        public static void SetMaxLength([NotNull] this Property property, int? value)
+        {
+            Check.NotNull(property, nameof(property));
+
+            if (value != null && value < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value));
+            }
+
+            property[MaxLengthAnnotation] = value;
+        }
+
         public static bool IsForeignKey([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
