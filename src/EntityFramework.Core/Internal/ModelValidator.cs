@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Internal
                 {
                     if (principalProperty == foreignKey.Properties[index])
                     {
-                        var nextPrincipalProperty = foreignKey.ReferencedProperties[index];
+                        var nextPrincipalProperty = foreignKey.PrincipalKey.Properties[index];
                         if (visitedForeignKeys.Contains(foreignKey))
                         {
                             var cycleStart = visitedForeignKeys.IndexOf(foreignKey);

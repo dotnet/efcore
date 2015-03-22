@@ -1950,7 +1950,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         {
         }
 
-        protected override ForeignKeyDefinition Definition => new ForeignKeyDefinition(11, new short[] { 3, 4 }, 0, new short[] { 2, 3 });
+        protected override ForeignKeyDefinition Definition 
+            => new ForeignKeyDefinition(11, new short[] { 3, 4 }, 0, new short[] { 2, 3 });
     }
 
     public class _KoolEntity2Fk2 : CompiledSimpleForeignKey, IForeignKey

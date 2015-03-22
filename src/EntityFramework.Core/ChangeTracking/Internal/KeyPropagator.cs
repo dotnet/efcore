@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                             if (principal != null)
                             {
                                 var principalEntry = stateManager.GetOrCreateEntry(principal);
-                                var principalProperty = foreignKey.ReferencedProperties[propertyIndex];
+                                var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
 
                                 var principalValue = principalEntry[principalProperty];
                                 if (!principalProperty.IsSentinelValue(principalValue))

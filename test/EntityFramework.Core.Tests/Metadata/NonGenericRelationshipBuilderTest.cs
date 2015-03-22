@@ -782,7 +782,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
@@ -826,7 +826,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
@@ -876,7 +876,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
@@ -921,7 +921,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
@@ -966,7 +966,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
@@ -1016,7 +1016,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
@@ -1066,7 +1066,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
             Assert.Equal("Pickles", principalType.Navigations.Single().Name);
@@ -1116,7 +1116,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
             Assert.Equal("Pickles", principalType.Navigations.Single().Name);
@@ -1902,7 +1902,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
@@ -1946,7 +1946,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
@@ -1996,7 +1996,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
@@ -2041,7 +2041,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
@@ -2086,7 +2086,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
@@ -2136,7 +2136,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Orders", principalType.Navigations.Single().Name);
@@ -2186,7 +2186,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
             Assert.Equal("Pickles", principalType.Navigations.Single().Name);
@@ -2236,7 +2236,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
             Assert.Equal("Pickles", principalType.Navigations.Single().Name);
@@ -3188,7 +3188,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Details", principalType.Navigations.Single().Name);
@@ -3232,7 +3232,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
             Assert.Equal("Details", principalType.Navigations.Single().Name);
@@ -3282,7 +3282,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Order", dependentType.Navigations.Single().Name);
             Assert.Equal("Details", principalType.Navigations.Single().Name);
@@ -3327,7 +3327,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("Order", dependentType.Navigations.Single().Name);
             Assert.Equal("Details", principalType.Navigations.Single().Name);
@@ -3372,7 +3372,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
             Assert.Equal("Bun", principalType.Navigations.Single().Name);
@@ -3422,7 +3422,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.ReferencedProperties.Single());
+            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
             Assert.Equal("Bun", principalType.Navigations.Single().Name);
@@ -3865,8 +3865,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty1, fk.Properties[0]);
             Assert.Same(fkProperty2, fk.Properties[1]);
-            Assert.Same(principalProperty1, fk.ReferencedProperties[0]);
-            Assert.Same(principalProperty2, fk.ReferencedProperties[1]);
+            Assert.Same(principalProperty1, fk.PrincipalKey.Properties[0]);
+            Assert.Same(principalProperty2, fk.PrincipalKey.Properties[1]);
 
             Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
             Assert.Equal("Tomatoes", principalType.Navigations.Single().Name);
@@ -3924,8 +3924,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty1, fk.Properties[0]);
             Assert.Same(fkProperty2, fk.Properties[1]);
-            Assert.Same(principalProperty1, fk.ReferencedProperties[0]);
-            Assert.Same(principalProperty2, fk.ReferencedProperties[1]);
+            Assert.Same(principalProperty1, fk.PrincipalKey.Properties[0]);
+            Assert.Same(principalProperty2, fk.PrincipalKey.Properties[1]);
 
             Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
             Assert.Equal("Tomatoes", principalType.Navigations.Single().Name);
@@ -4193,8 +4193,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty1, fk.Properties[0]);
             Assert.Same(fkProperty2, fk.Properties[1]);
-            Assert.Same(principalProperty1, fk.ReferencedProperties[0]);
-            Assert.Same(principalProperty2, fk.ReferencedProperties[1]);
+            Assert.Same(principalProperty1, fk.PrincipalKey.Properties[0]);
+            Assert.Same(principalProperty2, fk.PrincipalKey.Properties[1]);
 
             Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
             Assert.Equal("Tomatoes", principalType.Navigations.Single().Name);
@@ -4252,8 +4252,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty1, fk.Properties[0]);
             Assert.Same(fkProperty2, fk.Properties[1]);
-            Assert.Same(principalProperty1, fk.ReferencedProperties[0]);
-            Assert.Same(principalProperty2, fk.ReferencedProperties[1]);
+            Assert.Same(principalProperty1, fk.PrincipalKey.Properties[0]);
+            Assert.Same(principalProperty2, fk.PrincipalKey.Properties[1]);
 
             Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
             Assert.Equal("Tomatoes", principalType.Navigations.Single().Name);
@@ -4522,8 +4522,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty1, fk.Properties[0]);
             Assert.Same(fkProperty2, fk.Properties[1]);
-            Assert.Same(principalProperty1, fk.ReferencedProperties[0]);
-            Assert.Same(principalProperty2, fk.ReferencedProperties[1]);
+            Assert.Same(principalProperty1, fk.PrincipalKey.Properties[0]);
+            Assert.Same(principalProperty2, fk.PrincipalKey.Properties[1]);
 
             Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
             Assert.Equal("ToastedBun", principalType.Navigations.Single().Name);
@@ -4581,8 +4581,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk = dependentType.ForeignKeys.Single();
             Assert.Same(fkProperty1, fk.Properties[0]);
             Assert.Same(fkProperty2, fk.Properties[1]);
-            Assert.Same(principalProperty1, fk.ReferencedProperties[0]);
-            Assert.Same(principalProperty2, fk.ReferencedProperties[1]);
+            Assert.Same(principalProperty1, fk.PrincipalKey.Properties[0]);
+            Assert.Same(principalProperty2, fk.PrincipalKey.Properties[1]);
 
             Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
             Assert.Equal("ToastedBun", principalType.Navigations.Single().Name);

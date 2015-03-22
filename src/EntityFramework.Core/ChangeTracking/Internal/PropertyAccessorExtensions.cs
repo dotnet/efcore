@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         [NotNull]
         public static EntityKey GetPrincipalKeyValue([NotNull] this IPropertyAccessor propertyAccessor, [NotNull] IForeignKey foreignKey)
-            => propertyAccessor.InternalEntityEntry.CreateKey(foreignKey.PrincipalEntityType, foreignKey.ReferencedProperties, propertyAccessor);
+            => propertyAccessor.InternalEntityEntry.CreateKey(foreignKey.PrincipalEntityType, foreignKey.PrincipalKey.Properties, propertyAccessor);
 
         [NotNull]
         public static EntityKey GetPrimaryKeyValue([NotNull] this IPropertyAccessor propertyAccessor)

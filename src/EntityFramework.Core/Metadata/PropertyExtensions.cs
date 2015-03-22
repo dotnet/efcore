@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Metadata
                     {
                         if (currentProperty == foreignKey.Properties[propertyIndex])
                         {
-                            var nextProperty = foreignKey.ReferencedProperties[propertyIndex];
+                            var nextProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
                             if (!traversalList.Contains(nextProperty))
                             {
                                 traversalList.Add(nextProperty);

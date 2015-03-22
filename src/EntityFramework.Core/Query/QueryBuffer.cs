@@ -305,7 +305,7 @@ namespace Microsoft.Data.Entity.Query
         {
             var primaryKeyFactory
                 = _entityKeyFactorySource
-                    .GetKeyFactory(navigation.ForeignKey.ReferencedProperties);
+                    .GetKeyFactory(navigation.ForeignKey.PrincipalKey.Properties);
 
             var foreignKeyFactory
                 = _entityKeyFactorySource
@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.Query
                             : primaryKeyFactory
                                 .Create(
                                     navigation.EntityType,
-                                    navigation.ForeignKey.ReferencedProperties,
+                                    navigation.ForeignKey.PrincipalKey.Properties,
                                     bufferedEntities[0].ValueReader);
                 }
             }
@@ -365,7 +365,7 @@ namespace Microsoft.Data.Entity.Query
                         primaryKeyFactory
                             .Create(
                                 targetEntityType,
-                                navigation.ForeignKey.ReferencedProperties,
+                                navigation.ForeignKey.PrincipalKey.Properties,
                                 valueReader);
             }
             else

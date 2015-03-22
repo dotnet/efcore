@@ -502,7 +502,7 @@ namespace Microsoft.Data.Entity.Metadata
             [CanBeNull] string navigationToPrincipal,
             [CanBeNull] string navigationToDependent,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
-            [CanBeNull] IReadOnlyList<Property> referencedProperties,
+            [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? isUnique)
         {
             Check.NotNull(principalType, nameof(principalType));
@@ -514,7 +514,7 @@ namespace Microsoft.Data.Entity.Metadata
                     navigationToPrincipal,
                     navigationToDependent,
                     foreignKeyProperties,
-                    referencedProperties,
+                    principalProperties,
                     isUnique));
         }
 

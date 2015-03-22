@@ -836,7 +836,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] string navigationToPrincipalName,
             [CanBeNull] string navigationToDependentName,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
-            [CanBeNull] IReadOnlyList<Property> referencedProperties,
+            [CanBeNull] IReadOnlyList<Property> principalProperties,
             ConfigurationSource configurationSource,
             bool? isUnique = null,
             bool? isRequired = null,
@@ -851,10 +851,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 foreignKeyProperties = null;
             }
 
-            if (referencedProperties != null
-                && referencedProperties.Count == 0)
+            if (principalProperties != null
+                && principalProperties.Count == 0)
             {
-                referencedProperties = null;
+                principalProperties = null;
             }
 
             var foreignKey = foreignKeyProperties == null
@@ -864,7 +864,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     null,
                     null,
                     foreignKeyProperties,
-                    referencedProperties,
+                    principalProperties,
                     isUnique);
 
             var existingForeignKey = foreignKey != null;
@@ -885,7 +885,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     dependentEntityTypeBuilder,
                     navigationToPrincipalName,
                     foreignKeyProperties,
-                    referencedProperties,
+                    principalProperties,
                     isUnique,
                     isRequired,
                     configurationSource);
@@ -963,9 +963,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     builder = builder.ForeignKey(foreignKeyProperties, configurationSource);
                 }
-                if (referencedProperties != null)
+                if (principalProperties != null)
                 {
-                    builder = builder.ReferencedKey(referencedProperties, configurationSource);
+                    builder = builder.ReferencedKey(principalProperties, configurationSource);
                 }
             }
 
@@ -982,7 +982,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] InternalEntityBuilder dependentEntityTypeBuilder,
             [CanBeNull] string navigationToPrincipal,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
-            [CanBeNull] IReadOnlyList<Property> referencedProperties,
+            [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? isUnique,
             bool? isRequired,
             ConfigurationSource configurationSource)
@@ -997,15 +997,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             if (foreignKeyProperties != null
-                && referencedProperties != null)
+                && principalProperties != null)
             {
-                Entity.Metadata.Property.EnsureCompatible(referencedProperties, foreignKeyProperties);
+                Entity.Metadata.Property.EnsureCompatible(principalProperties, foreignKeyProperties);
             }
 
             Key principalKey;
-            if (referencedProperties != null)
+            if (principalProperties != null)
             {
-                var keyBuilder = principalEntityTypeBuilder.Key(referencedProperties, configurationSource);
+                var keyBuilder = principalEntityTypeBuilder.Key(principalProperties, configurationSource);
                 if (keyBuilder == null)
                 {
                     return null;

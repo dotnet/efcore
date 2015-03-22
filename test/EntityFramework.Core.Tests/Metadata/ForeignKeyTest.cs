@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     };
 
             Assert.Same(entityType, foreignKey.PrincipalEntityType);
-            Assert.Same(principalProp, foreignKey.ReferencedProperties.Single());
+            Assert.Same(principalProp, foreignKey.PrincipalKey.Properties.Single());
             Assert.Same(dependentProp, foreignKey.Properties.Single());
             Assert.True(foreignKey.IsUnique.Value);
             Assert.Same(entityType.GetPrimaryKey(), foreignKey.PrincipalKey);
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     };
 
             Assert.Same(entityType, foreignKey.PrincipalEntityType);
-            Assert.Same(principalProp, foreignKey.ReferencedProperties.Single());
+            Assert.Same(principalProp, foreignKey.PrincipalKey.Properties.Single());
             Assert.Same(dependentProp, foreignKey.Properties.Single());
             Assert.False(foreignKey.IsUnique.Value);
             Assert.Same(referencedKey, foreignKey.PrincipalKey);
@@ -265,7 +265,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 null,
                 null,
                 fk.Properties,
-                fk.ReferencedProperties,
+                fk.PrincipalKey.Properties,
                 false));
         }
 
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 "Nav",
                 "Nav",
                 fk.Properties,
-                fk.ReferencedProperties,
+                fk.PrincipalKey.Properties,
                 false));
         }
 
@@ -295,7 +295,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 null,
                 null,
                 fk.Properties,
-                fk.ReferencedProperties,
+                fk.PrincipalKey.Properties,
                 false));
 
             Assert.False(fk.IsCompatible(
@@ -304,16 +304,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 null,
                 null,
                 fk.Properties,
-                fk.ReferencedProperties,
-                false));
-
-            Assert.False(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.EntityType,
-                null,
-                null,
-                fk.ReferencedProperties,
-                fk.ReferencedProperties,
+                fk.PrincipalKey.Properties,
                 false));
 
             Assert.False(fk.IsCompatible(
@@ -321,8 +312,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 fk.EntityType,
                 null,
                 null,
-                fk.Properties,
-                fk.Properties,
+                fk.PrincipalKey.Properties,
+                fk.PrincipalKey.Properties,
                 false));
 
             Assert.False(fk.IsCompatible(
@@ -331,7 +322,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 null,
                 null,
                 fk.Properties,
-                fk.ReferencedProperties,
+                fk.Properties,
+                false));
+
+            Assert.False(fk.IsCompatible(
+                fk.PrincipalEntityType,
+                fk.EntityType,
+                null,
+                null,
+                fk.Properties,
+                fk.PrincipalKey.Properties,
                 true));
         }
 
@@ -366,7 +366,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 "SelfRefPrincipal",
                 "SelfRefDependent",
                 fk.Properties,
-                fk.ReferencedProperties,
+                fk.PrincipalKey.Properties,
                 true));
         }
 
@@ -381,7 +381,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 "SelfRefDependent",
                 "SelfRefPrincipal",
                 fk.Properties,
-                fk.ReferencedProperties,
+                fk.PrincipalKey.Properties,
                 true));
 
             Assert.False(fk.IsCompatible(
@@ -390,7 +390,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 null,
                 null,
                 fk.Properties,
-                fk.ReferencedProperties,
+                fk.PrincipalKey.Properties,
                 true));
 
             Assert.False(fk.IsCompatible(
@@ -398,7 +398,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 fk.EntityType,
                 "SelfRefPrincipal",
                 "SelfRefDependent",
-                fk.ReferencedProperties,
+                fk.PrincipalKey.Properties,
                 fk.Properties,
                 true));
 
@@ -408,7 +408,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 "SelfRefPrincipal",
                 "SelfRefDependent",
                 fk.Properties,
-                fk.ReferencedProperties,
+                fk.PrincipalKey.Properties,
                 false));
         }
 

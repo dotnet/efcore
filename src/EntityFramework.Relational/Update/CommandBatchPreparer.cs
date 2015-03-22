@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         {
                             var candidateKeyValueColumnModifications =
                                 command.ColumnModifications.Where(cm =>
-                                    foreignKey.ReferencedProperties.Contains(cm.Property)
+                                    foreignKey.PrincipalKey.Properties.Contains(cm.Property)
                                     && (cm.IsWrite || cm.IsRead)).ToList();
 
                             if (command.EntityState == EntityState.Added

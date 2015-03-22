@@ -193,13 +193,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
 
             var principalEntityType = foreignKey.PrincipalEntityType;
-            var referencedProperties = foreignKey.ReferencedProperties;
+            var principalProperties = foreignKey.PrincipalKey.Properties;
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             var principals = Entries.Where(
                 e => e.EntityType == principalEntityType
                      && dependentKeyValue.Equals(
-                         e.GetPrincipalKey(foreignKey, principalEntityType, referencedProperties))).ToList();
+                         e.GetPrincipalKey(foreignKey, principalEntityType, principalProperties))).ToList();
 
             if (principals.Count > 1)
             {

@@ -53,9 +53,6 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual EntityType EntityType => Properties[0].EntityType;
 
         [NotNull]
-        public virtual IReadOnlyList<Property> ReferencedProperties => _principalKey.Properties;
-
-        [NotNull]
         public virtual Key PrincipalKey => _principalKey;
 
         public virtual EntityType PrincipalEntityType { get; }
@@ -108,8 +105,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         IEntityType IForeignKey.EntityType => EntityType;
 
-        IReadOnlyList<IProperty> IForeignKey.ReferencedProperties => ReferencedProperties;
-
         IEntityType IForeignKey.PrincipalEntityType => PrincipalEntityType;
 
         IKey IForeignKey.PrincipalKey => PrincipalKey;
@@ -126,7 +121,7 @@ namespace Microsoft.Data.Entity.Metadata
                 EntityType.DisplayName(),
                 Property.Format(Properties),
                 PrincipalEntityType.DisplayName(),
-                Property.Format(ReferencedProperties));
+                Property.Format(PrincipalKey.Properties));
         }
     }
 }

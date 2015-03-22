@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 ? foreignKey.EntityType
                 : foreignKey.PrincipalEntityType;
             var propertiesToReference = onDependent
-                ? foreignKey.ReferencedProperties
+                ? foreignKey.PrincipalKey.Properties
                 : foreignKey.EntityType.FindPrimaryKey()?.Properties;
 
             if (propertiesToReference == null)

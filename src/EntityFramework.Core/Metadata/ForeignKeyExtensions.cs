@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] EntityType principalType,
             [NotNull] EntityType dependentType,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
-            [CanBeNull] IReadOnlyList<Property> referencedProperties,
+            [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? isUnique)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -75,9 +75,9 @@ namespace Microsoft.Data.Entity.Metadata
                    && (foreignKeyProperties == null
                        || !foreignKeyProperties.Any()
                        || foreignKey.Properties.SequenceEqual(foreignKeyProperties))
-                   && (referencedProperties == null
-                       || !referencedProperties.Any()
-                       || foreignKey.PrincipalKey.Properties.SequenceEqual(referencedProperties));
+                   && (principalProperties == null
+                       || !principalProperties.Any()
+                       || foreignKey.PrincipalKey.Properties.SequenceEqual(principalProperties));
         }
 
         public static bool IsCompatible(
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Metadata
             [CanBeNull] string navigationToPrincipal,
             [CanBeNull] string navigationToDependent,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
-            [CanBeNull] IReadOnlyList<Property> referencedProperties,
+            [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? isUnique)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             var existingNavigationToPrincipal = foreignKey.GetNavigationToPrincipal();
             var existingNavigationToDependent = foreignKey.GetNavigationToDependent();
-            return foreignKey.IsCompatible(principalType, dependentType, foreignKeyProperties, referencedProperties, isUnique)
+            return foreignKey.IsCompatible(principalType, dependentType, foreignKeyProperties, principalProperties, isUnique)
                    && (existingNavigationToPrincipal == null || existingNavigationToPrincipal.Name == navigationToPrincipal)
                    && (existingNavigationToDependent == null || existingNavigationToDependent.Name == navigationToDependent);
         }

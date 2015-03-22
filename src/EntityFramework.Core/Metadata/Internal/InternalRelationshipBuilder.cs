@@ -326,7 +326,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource)
         {
             if (properties != null
-                && Metadata.ReferencedProperties.SequenceEqual(properties))
+                && Metadata.PrincipalKey.Properties.SequenceEqual(properties))
             {
                 var principalEntityTypeBuilder = ModelBuilder.Entity(Metadata.PrincipalEntityType.Name, configurationSource);
                 principalEntityTypeBuilder.Key(properties, configurationSource);
@@ -357,7 +357,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder UpdateReferencedKey([NotNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource)
         {
-            if (Metadata.ReferencedProperties.SequenceEqual(properties))
+            if (Metadata.PrincipalKey.Properties.SequenceEqual(properties))
             {
                 return this;
             }
@@ -434,7 +434,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             principalProperties = principalProperties ??
                                   (_referencedKeyConfigurationSource.HasValue
                                    && _referencedKeyConfigurationSource.Value.Overrides(configurationSource)
-                                      ? Metadata.ReferencedProperties
+                                      ? Metadata.PrincipalKey.Properties
                                       : null);
 
             var navigationToDependentName = Metadata.GetNavigationToDependent()?.Name;
@@ -474,7 +474,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] string navigationToPrincipalName,
             [CanBeNull] string navigationToDependentName,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
-            [CanBeNull] IReadOnlyList<Property> referencedProperties,
+            [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? isUnique,
             bool? isRequired,
             ConfigurationSource configurationSource)
@@ -486,7 +486,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            return AddRelationship(principalType, dependentType, navigationToPrincipalName, navigationToDependentName, foreignKeyProperties, referencedProperties, isUnique, isRequired, configurationSource, replacedConfigurationSource);
+            return AddRelationship(principalType, dependentType, navigationToPrincipalName, navigationToDependentName, foreignKeyProperties, principalProperties, isUnique, isRequired, configurationSource, replacedConfigurationSource);
         }
 
         private InternalRelationshipBuilder AddRelationship(
@@ -495,7 +495,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             string navigationToPrincipalName,
             string navigationToDependentName,
             IReadOnlyList<Property> foreignKeyProperties,
-            IReadOnlyList<Property> referencedProperties,
+            IReadOnlyList<Property> principalProperties,
             bool? isUnique,
             bool? isRequired,
             ConfigurationSource configurationSource,
@@ -510,7 +510,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 navigationToPrincipalName,
                 navigationToDependentName,
                 foreignKeyProperties,
-                referencedProperties,
+                principalProperties,
                 configurationSource,
                 isUnique,
                 isRequired,
@@ -534,7 +534,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             var principalPropertiesExist = true;
-            foreach (var dependentProperty in Metadata.ReferencedProperties)
+            foreach (var dependentProperty in Metadata.PrincipalKey.Properties)
             {
                 principalPropertiesExist &= Metadata.PrincipalEntityType.FindProperty(dependentProperty.Name) != null;
             }
@@ -545,7 +545,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 null,
                 dependentPropertiesExist && _foreignKeyPropertiesConfigurationSource.HasValue ? Metadata.Properties : null,
-                principalPropertiesExist && _referencedKeyConfigurationSource.HasValue ? Metadata.ReferencedProperties : null,
+                principalPropertiesExist && _referencedKeyConfigurationSource.HasValue ? Metadata.PrincipalKey.Properties : null,
                 _isUniqueConfigurationSource.HasValue ? Metadata.IsUnique : null,
                 _isRequiredConfigurationSource.HasValue ? Metadata.IsRequired : null,
                 configurationSource,

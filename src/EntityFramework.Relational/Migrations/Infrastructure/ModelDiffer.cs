@@ -460,8 +460,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 || !source.Properties.Select(p => p.Relational().Column).SequenceEqual(
                     target.Properties.Select(p => p.Relational().Column))
                 || source.PrincipalEntityType.Relational().Table != target.PrincipalEntityType.Relational().Table
-                || !source.ReferencedProperties.Select(p => p.Relational().Column).SequenceEqual(
-                    target.ReferencedProperties.Select(p => p.Relational().Column)))
+                || !source.PrincipalKey.Properties.Select(p => p.Relational().Column).SequenceEqual(
+                    target.PrincipalKey.Properties.Select(p => p.Relational().Column)))
             {
                 return Remove(source)
                     .Concat(Add(target));
@@ -493,7 +493,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 target.Properties.Select(p => p.Relational().Column).ToArray(),
                 target.PrincipalEntityType.Relational().Table,
                 target.PrincipalEntityType.Relational().Schema,
-                target.ReferencedProperties.Select(p => p.Relational().Column).ToArray(),
+                target.PrincipalKey.Properties.Select(p => p.Relational().Column).ToArray(),
                 cascadeDelete: false);
         }
 

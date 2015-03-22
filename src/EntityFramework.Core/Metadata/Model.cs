@@ -156,7 +156,10 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
-            return EntityTypes.SelectMany(e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))).ToList();
+            return EntityTypes
+                .SelectMany(e => e.ForeignKeys
+                    .Where(f => f.PrincipalKey.Properties.Contains(property)))
+                .ToList();
         }
 
         public virtual string StorageName { get; [param: CanBeNull] set; }

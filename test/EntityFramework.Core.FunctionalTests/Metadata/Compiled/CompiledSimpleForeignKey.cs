@@ -19,8 +19,6 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IReadOnlyList<IProperty> Properties => new[] { EntityType.GetProperties().ElementAt(Definition.DependentPropertyIndex) };
 
-        public IReadOnlyList<IProperty> ReferencedProperties => PrincipalEntityType.GetPrimaryKey().Properties;
-
         public IKey PrincipalKey => PrincipalEntityType.GetPrimaryKey();
 
         public IEntityType PrincipalEntityType => _model.EntityTypes[Definition.PrincipalIndex];

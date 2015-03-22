@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             var foreignKey = navigation.ForeignKey;
             var dependentProperties = foreignKey.Properties;
-            var principalProperties = foreignKey.ReferencedProperties;
+            var principalProperties = foreignKey.PrincipalKey.Properties;
 
             // TODO: What if the other entry is not yet being tracked?
             // Issue #323
@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private void NavigationCollectionChangedAction(
             InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
         {
-            var principalProperties = navigation.ForeignKey.ReferencedProperties;
+            var principalProperties = navigation.ForeignKey.PrincipalKey.Properties;
             var dependentProperties = navigation.ForeignKey.Properties;
             var principalValues = principalProperties.Select(p => entry[p]).ToList();
 
@@ -167,9 +167,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
 
             foreach (var foreignKey in _model.EntityTypes.SelectMany(
-                e => e.GetForeignKeys().Where(f => f.ReferencedProperties.Contains(property))))
+                e => e.GetForeignKeys().Where(f => f.PrincipalKey.Properties.Contains(property))))
             {
-                var newKeyValues = foreignKey.ReferencedProperties.Select(p => entry[p]).ToList();
+                var newKeyValues = foreignKey.PrincipalKey.Properties.Select(p => entry[p]).ToList();
                 var oldKey = entry.RelationshipsSnapshot.GetPrincipalKeyValue(foreignKey);
 
                 if (oldKey != EntityKey.InvalidEntityKey)
@@ -420,7 +420,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             IForeignKey foreignKey,
             InternalEntityEntry dependentEntry,
             InternalEntityEntry principalEntry)
-            => SetForeignKeyValue(foreignKey, dependentEntry, foreignKey.ReferencedProperties.Select(p => principalEntry[p]).ToList());
+            => SetForeignKeyValue(foreignKey, dependentEntry, foreignKey.PrincipalKey.Properties.Select(p => principalEntry[p]).ToList());
 
         private static void SetForeignKeyValue(IForeignKey foreignKey, InternalEntityEntry dependentEntry, IReadOnlyList<object> principalValues)
         {
@@ -428,7 +428,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
                 if (foreignKey.Properties[i].GetGenerationProperty() == null
-                    || !foreignKey.ReferencedProperties[i].IsSentinelValue(principalValues[i]))
+                    || !foreignKey.PrincipalKey.Properties[i].IsSentinelValue(principalValues[i]))
                 {
                     var dependentProperty = foreignKey.Properties[i];
                     dependentEntry[dependentProperty] = principalValues[i];

@@ -348,13 +348,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual EntityKey GetPrincipalKey(
             [NotNull] IForeignKey foreignKey, 
             [NotNull] IEntityType principalEntityType, 
-            [NotNull] IReadOnlyList<IProperty> referencedProperties)
+            [NotNull] IReadOnlyList<IProperty> principalProperties)
         {
             EntityKey result;
             if (!_principalKeys.TryGetValue(foreignKey, out result))
             {
                 _principalKeys.Add(foreignKey,
-                    result = CreateKey(principalEntityType, referencedProperties, this));
+                    result = CreateKey(principalEntityType, principalProperties, this));
             }
 
             return result;

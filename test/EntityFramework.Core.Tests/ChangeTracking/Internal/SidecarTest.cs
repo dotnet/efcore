@@ -316,7 +316,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = CreateInternalEntry();
             var sidecar = CreateSidecar(entry);
-            sidecar[foreignKey.ReferencedProperties.Single()] = 42;
+            sidecar[foreignKey.PrincipalKey.Properties.Single()] = 42;
 
             var keyValue = sidecar.GetPrincipalKeyValue(foreignKey);
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
@@ -359,8 +359,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = TestHelpers.Instance.CreateInternalEntry<SomeDependentEntity>(_model);
             var sidecar = CreateSidecar(entry);
-            sidecar[foreignKey.ReferencedProperties[0]] = 77;
-            sidecar[foreignKey.ReferencedProperties[1]] = "PrawnCocktail";
+            sidecar[foreignKey.PrincipalKey.Properties[0]] = 77;
+            sidecar[foreignKey.PrincipalKey.Properties[1]] = "PrawnCocktail";
 
             var keyValue = (CompositeEntityKey)sidecar.GetPrincipalKeyValue(foreignKey);
             Assert.Equal(77, keyValue.Value[0]);
