@@ -13,29 +13,33 @@ namespace Microsoft.Data.Entity.SqlServer
     public class SqlServerSequenceValueGenerator<TValue> : HiLoValueGenerator<TValue>
     {
         private readonly SqlStatementExecutor _executor;
+        private readonly ISqlServerSqlGenerator _sqlGenerator;
         private readonly ISqlServerConnection _connection;
         private readonly string _sequenceName;
 
         public SqlServerSequenceValueGenerator(
             [NotNull] SqlStatementExecutor executor,
+            [NotNull] ISqlServerSqlGenerator sqlGenerator,
             [NotNull] SqlServerSequenceValueGeneratorState generatorState,
             [NotNull] ISqlServerConnection connection)
-            : base(generatorState)
+            : base(Check.NotNull(generatorState, nameof(generatorState)))
         {
             Check.NotNull(executor, nameof(executor));
-            Check.NotNull(generatorState, nameof(generatorState));
+            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
             Check.NotNull(connection, nameof(connection));
 
             _sequenceName = generatorState.SequenceName;
             _executor = executor;
+            _sqlGenerator = sqlGenerator;
             _connection = connection;
         }
 
         protected override long GetNewLowValue()
         {
-            // TODO: Parameterize query and/or delimit identifier without using SqlServerMigrationOperationSqlGenerator
-            var sql = string.Format(CultureInfo.InvariantCulture, "SELECT NEXT VALUE FOR {0}", _sequenceName);
-            var nextValue = _executor.ExecuteScalar(_connection, _connection.DbTransaction, sql);
+            var nextValue = _executor.ExecuteScalar(
+                _connection,
+                _connection.DbTransaction,
+                _sqlGenerator.GenerateNextSequenceValueOperation(_sequenceName));
 
             return (long)Convert.ChangeType(nextValue, typeof(long), CultureInfo.InvariantCulture);
         }

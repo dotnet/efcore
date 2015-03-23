@@ -21,6 +21,7 @@ namespace Microsoft.Data.Entity.Relational
         string GenerateLiteral(DateTime literal);
         string GenerateLiteral(DateTimeOffset literal);
         string GenerateLiteral<T>([CanBeNull] T? literal) where T : struct;
+        string GenerateNextSequenceValueOperation([NotNull] string sequenceName);
         void AppendBatchHeader([NotNull] StringBuilder commandStringBuilder);
         void AppendDeleteOperation([NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command);
         void AppendInsertOperation([NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command);

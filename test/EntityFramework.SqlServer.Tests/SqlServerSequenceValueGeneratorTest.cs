@@ -72,7 +72,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             const int poolSize = 3;
 
             var state = new SqlServerSequenceValueGeneratorState("Foo", blockSize, poolSize);
-            var generator = new SqlServerSequenceValueGenerator<TValue>(new FakeSqlStatementExecutor(blockSize), state, CreateConnection());
+            var generator = new SqlServerSequenceValueGenerator<TValue>(
+                new FakeSqlStatementExecutor(blockSize),
+                new SqlServerSqlGenerator(),
+                state,
+                CreateConnection());
 
             var generatedValues = new List<TValue>();
             for (var i = 0; i < 27; i++)
@@ -137,6 +141,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
             var state = new SqlServerSequenceValueGeneratorState("Foo", blockSize, poolSize);
             var executor = new FakeSqlStatementExecutor(blockSize);
+            var sqlGenerator = new SqlServerSqlGenerator();
 
             var tests = new Action[threadCount];
             var generatedValues = new List<long>[threadCount];
@@ -149,7 +154,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         for (var j = 0; j < valueCount; j++)
                         {
                             var connection = CreateConnection(serviceProvider);
-                            var generator = new SqlServerSequenceValueGenerator<long>(executor, state, connection);
+                            var generator = new SqlServerSequenceValueGenerator<long>(executor, sqlGenerator, state, connection);
 
                             generatedValues[testNumber].Add(generator.Next());
                         }
@@ -165,7 +170,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_not_generate_temp_values()
         {
             var state = new SqlServerSequenceValueGeneratorState("Foo", 4, 3);
-            var generator = new SqlServerSequenceValueGenerator<int>(new FakeSqlStatementExecutor(4), state, CreateConnection());
+            var generator = new SqlServerSequenceValueGenerator<int>(
+                new FakeSqlStatementExecutor(4),
+                new SqlServerSqlGenerator(),
+                state,
+                CreateConnection());
 
             Assert.False(generator.GeneratesTemporaryValues);
         }

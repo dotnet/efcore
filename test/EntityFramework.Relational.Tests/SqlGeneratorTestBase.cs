@@ -343,6 +343,16 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Equal("42", literal);
         }
 
+        [Fact]
+        public virtual void GenerateNextSequenceValueOperation_returns_statement_with_sanatized_sequence()
+        {
+            var statement = CreateSqlGenerator().GenerateNextSequenceValueOperation("sequence" + CloseDelimeter + "; --");
+
+            Assert.Equal(
+                "SELECT NEXT VALUE FOR " + OpenDelimeter + "sequence" + CloseDelimeter + CloseDelimeter + "; --" + CloseDelimeter,
+                statement);
+        }
+
         protected abstract ISqlGenerator CreateSqlGenerator();
 
         protected abstract string RowsAffected { get; }

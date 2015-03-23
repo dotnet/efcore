@@ -414,5 +414,11 @@ namespace Microsoft.Data.Entity.Relational
             literal != null
                 ? string.Format(CultureInfo.InvariantCulture, "{0}", literal)
                 : "NULL";
+        public virtual string GenerateNextSequenceValueOperation(string sequenceName)
+        {
+            Check.NotNull(sequenceName, nameof(sequenceName));
+
+            return "SELECT NEXT VALUE FOR " + DelimitIdentifier(sequenceName);
+        }
     }
 }
