@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -16,8 +17,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class IndexBuilder : IIndexBuilder<IndexBuilder>
+    public class IndexBuilder : IIndexBuilder<IndexBuilder>, IAccessor<InternalIndexBuilder>
     {
+        private readonly InternalIndexBuilder _builder;
+
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="IndexBuilder" /> class to configure a given index.
@@ -32,13 +35,13 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotNull(builder, nameof(builder));
 
-            Builder = builder;
+            _builder = builder;
         }
 
         /// <summary>
         ///     The internal builder being used to configure the index.
         /// </summary>
-        protected virtual InternalIndexBuilder Builder { get; }
+        InternalIndexBuilder IAccessor<InternalIndexBuilder>.Service => _builder;
 
         /// <summary>
         ///     The index being configured.
@@ -79,5 +82,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             return this;
         }
+
+        private InternalIndexBuilder Builder => ((IAccessor<InternalIndexBuilder>)this).Service;
     }
 }

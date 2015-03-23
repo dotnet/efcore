@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 (entityBuilder, property) => entityBuilder.Property(typeof(Guid), "Shadow", ConfigurationSource.Explicit));
         }
 
-        private void Test_removing_relationship_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(Func<InternalEntityBuilder, Property, object> shadowConfig)
+        private void Test_removing_relationship_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(Func<InternalEntityTypeBuilder, Property, object> shadowConfig)
         {
             var modelBuilder = CreateModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
@@ -318,7 +318,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 (entityBuilder, property) => entityBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Explicit));
         }
 
-        private void Test_removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(Func<InternalEntityBuilder, Property, object> shadowConfig)
+        private void Test_removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(Func<InternalEntityTypeBuilder, Property, object> shadowConfig)
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder
@@ -482,7 +482,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 (entityBuilder, property) => entityBuilder.Property(typeof(Guid), "Shadow", ConfigurationSource.Explicit));
         }
 
-        private void Test_removing_key_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(Func<InternalEntityBuilder, Property, object> shadowConfig)
+        private void Test_removing_key_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(Func<InternalEntityTypeBuilder, Property, object> shadowConfig)
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder
@@ -854,7 +854,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var modelBuilder = CreateModelBuilder();
             var entityType = modelBuilder.Metadata.AddEntityType(typeof(Order));
-            var entityBuilder = new InternalEntityBuilder(entityType, modelBuilder);
+            var entityBuilder = new InternalEntityTypeBuilder(entityType, modelBuilder);
 
             Assert.NotNull(entityBuilder.Index(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
 

@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
     public interface IEntityTypeConvention
     {
-        InternalEntityBuilder Apply([NotNull] InternalEntityBuilder entityBuilder);
+        InternalEntityTypeBuilder Apply([NotNull] InternalEntityTypeBuilder entityTypeBuilder);
     }
 }

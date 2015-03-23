@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
@@ -17,8 +18,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class PropertyBuilder : IPropertyBuilder<PropertyBuilder>
+    public class PropertyBuilder : IPropertyBuilder<PropertyBuilder>, IAccessor<InternalPropertyBuilder>
     {
+        private readonly InternalPropertyBuilder _builder;
+
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="PropertyBuilder" /> class to configure a given
@@ -34,13 +37,13 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotNull(builder, nameof(builder));
 
-            Builder = builder;
+            _builder = builder;
         }
 
         /// <summary>
         ///     The internal builder being used to configure the property.
         /// </summary>
-        protected virtual InternalPropertyBuilder Builder { get; }
+        InternalPropertyBuilder IAccessor<InternalPropertyBuilder>.Service => _builder;
 
         /// <summary>
         ///     The property being configured.
@@ -154,5 +157,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             return this;
         }
+
+        private InternalPropertyBuilder Builder => ((IAccessor<InternalPropertyBuilder>)this).Service;
     }
 }

@@ -54,11 +54,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             public bool Applied { get; set; }
 
-            public InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
+            public InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
             {
                 Applied = true;
 
-                return entityBuilder;
+                return entityTypeBuilder;
             }
         }
 

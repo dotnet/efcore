@@ -7,30 +7,30 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public class SqlServerEntityBuilder
+    public class SqlServerEntityTypeBuilder
     {
         private readonly EntityType _entityType;
 
-        public SqlServerEntityBuilder([NotNull] EntityType entityType)
+        public SqlServerEntityTypeBuilder([NotNull] EntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
             _entityType = entityType;
         }
 
-        public virtual SqlServerEntityBuilder Table([CanBeNull] string tableName)
+        public virtual SqlServerEntityTypeBuilder Table([CanBeNull] string tableName)
         {
-            Check.NullButNotEmpty(tableName, "tableName");
+            Check.NullButNotEmpty(tableName, nameof(tableName));
 
             _entityType.SqlServer().Table = tableName;
 
             return this;
         }
 
-        public virtual SqlServerEntityBuilder Table([CanBeNull] string tableName, [CanBeNull] string schemaName)
+        public virtual SqlServerEntityTypeBuilder Table([CanBeNull] string tableName, [CanBeNull] string schemaName)
         {
-            Check.NullButNotEmpty(tableName, "tableName");
-            Check.NullButNotEmpty(schemaName, "schemaName");
+            Check.NullButNotEmpty(tableName, nameof(tableName));
+            Check.NullButNotEmpty(schemaName, nameof(schemaName));
 
             _entityType.SqlServer().Table = tableName;
             _entityType.SqlServer().Schema = schemaName;

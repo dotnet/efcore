@@ -310,14 +310,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.Equal(OneToOneDependent.NavigationProperty.Name, dependentEntityType.GetNavigations().Single().Name);
         }
 
-        private static void VerifyOneToManyPrincipal(InternalEntityBuilder entityBuilder, bool unidirectional, bool dependentHasPK = true)
+        private static void VerifyOneToManyPrincipal(InternalEntityTypeBuilder entityTypeBuilder, bool unidirectional, bool dependentHasPK = true)
         {
-            VerifyOneToMany(entityBuilder.Metadata.Model, dependentHasPK, hasNavigationToDependent: true, hasNavigationToPrincipal: !unidirectional);
+            VerifyOneToMany(entityTypeBuilder.Metadata.Model, dependentHasPK, hasNavigationToDependent: true, hasNavigationToPrincipal: !unidirectional);
         }
 
-        private static void VerifyOneToManyDependent(InternalEntityBuilder entityBuilder, bool unidirectional, bool dependentHasPK = true)
+        private static void VerifyOneToManyDependent(InternalEntityTypeBuilder entityTypeBuilder, bool unidirectional, bool dependentHasPK = true)
         {
-            VerifyOneToMany(entityBuilder.Metadata.Model, dependentHasPK, hasNavigationToDependent: !unidirectional, hasNavigationToPrincipal: true);
+            VerifyOneToMany(entityTypeBuilder.Metadata.Model, dependentHasPK, hasNavigationToDependent: !unidirectional, hasNavigationToPrincipal: true);
         }
 
         private static void VerifyOneToMany(
@@ -357,7 +357,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             }
         }
 
-        private static InternalEntityBuilder CreateInternalEntityBuilder<T>(params Action<InternalEntityBuilder>[] onEntityAdded)
+        private static InternalEntityTypeBuilder CreateInternalEntityBuilder<T>(params Action<InternalEntityTypeBuilder>[] onEntityAdded)
         {
             var conventions = new ConventionSet();
             if (onEntityAdded != null)
@@ -370,28 +370,28 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             return entityBuilder;
         }
 
-        private static void ConfigureKeys(InternalEntityBuilder entityBuilder)
+        private static void ConfigureKeys(InternalEntityTypeBuilder entityTypeBuilder)
         {
-            entityBuilder.PrimaryKey(new[] { "Id" }, ConfigurationSource.Convention);
+            entityTypeBuilder.PrimaryKey(new[] { "Id" }, ConfigurationSource.Convention);
         }
 
         private class TestModelChangeListener : IEntityTypeConvention
         {
-            private readonly Action<InternalEntityBuilder>[] _onEntityAdded;
+            private readonly Action<InternalEntityTypeBuilder>[] _onEntityAdded;
 
-            public TestModelChangeListener(Action<InternalEntityBuilder>[] onEntityAdded)
+            public TestModelChangeListener(Action<InternalEntityTypeBuilder>[] onEntityAdded)
             {
                 _onEntityAdded = onEntityAdded;
             }
 
-            public InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
+            public InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
             {
                 foreach (var action in _onEntityAdded)
                 {
-                    action(entityBuilder);
+                    action(entityTypeBuilder);
                 }
 
-                return entityBuilder;
+                return entityTypeBuilder;
             }
         }
 
@@ -422,11 +422,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             public IEnumerable<OneToManyDependent> OneToManyDependents { get; set; }
 
-            public static void IgnoreNavigation(InternalEntityBuilder entityBuilder)
+            public static void IgnoreNavigation(InternalEntityTypeBuilder entityTypeBuilder)
             {
-                if (entityBuilder.Metadata.ClrType == typeof(OneToManyPrincipal))
+                if (entityTypeBuilder.Metadata.ClrType == typeof(OneToManyPrincipal))
                 {
-                    entityBuilder.Ignore(NavigationProperty.Name, ConfigurationSource.DataAnnotation);
+                    entityTypeBuilder.Ignore(NavigationProperty.Name, ConfigurationSource.DataAnnotation);
                 }
             }
         }
@@ -440,11 +440,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             private OneToManyPrincipal OneToManyPrincipal { get; set; }
 
-            public static void IgnoreNavigation(InternalEntityBuilder entityBuilder)
+            public static void IgnoreNavigation(InternalEntityTypeBuilder entityTypeBuilder)
             {
-                if (entityBuilder.Metadata.ClrType == typeof(OneToManyDependent))
+                if (entityTypeBuilder.Metadata.ClrType == typeof(OneToManyDependent))
                 {
-                    entityBuilder.Ignore(NavigationProperty.Name, ConfigurationSource.DataAnnotation);
+                    entityTypeBuilder.Ignore(NavigationProperty.Name, ConfigurationSource.DataAnnotation);
                 }
             }
         }
@@ -494,19 +494,19 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             public IEnumerable<MultipleNavigationsFirst> MultipleNavigationsFirsts { get; set; }
             public MultipleNavigationsFirst MultipleNavigationsFirst { get; set; }
 
-            public static void IgnoreCollectionNavigation(InternalEntityBuilder entityBuilder)
+            public static void IgnoreCollectionNavigation(InternalEntityTypeBuilder entityTypeBuilder)
             {
-                if (entityBuilder.Metadata.ClrType == typeof(MultipleNavigationsSecond))
+                if (entityTypeBuilder.Metadata.ClrType == typeof(MultipleNavigationsSecond))
                 {
-                    entityBuilder.Ignore(CollectionNavigationProperty.Name, ConfigurationSource.DataAnnotation);
+                    entityTypeBuilder.Ignore(CollectionNavigationProperty.Name, ConfigurationSource.DataAnnotation);
                 }
             }
 
-            public static void IgnoreNonCollectionNavigation(InternalEntityBuilder entityBuilder)
+            public static void IgnoreNonCollectionNavigation(InternalEntityTypeBuilder entityTypeBuilder)
             {
-                if (entityBuilder.Metadata.ClrType == typeof(MultipleNavigationsSecond))
+                if (entityTypeBuilder.Metadata.ClrType == typeof(MultipleNavigationsSecond))
                 {
-                    entityBuilder.Ignore(NonCollectionNavigationProperty.Name, ConfigurationSource.DataAnnotation);
+                    entityTypeBuilder.Ignore(NonCollectionNavigationProperty.Name, ConfigurationSource.DataAnnotation);
                 }
             }
         }

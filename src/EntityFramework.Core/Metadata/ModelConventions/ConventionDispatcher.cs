@@ -18,20 +18,20 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             _conventionSet = conventionSet;
         }
 
-        public virtual InternalEntityBuilder OnEntityTypeAdded([NotNull] InternalEntityBuilder entityBuilder)
+        public virtual InternalEntityTypeBuilder OnEntityTypeAdded([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
         {
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             foreach (var entityTypeConvention in _conventionSet.EntityTypeAddedConventions)
             {
-                entityBuilder = entityTypeConvention.Apply(entityBuilder);
-                if (entityBuilder == null)
+                entityTypeBuilder = entityTypeConvention.Apply(entityTypeBuilder);
+                if (entityTypeBuilder == null)
                 {
                     break;
                 }
             }
 
-            return entityBuilder;
+            return entityTypeBuilder;
         }
 
         public virtual InternalPropertyBuilder OnPropertyAdded([NotNull] InternalPropertyBuilder propertyBuilder)
@@ -66,14 +66,14 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             return keyBuilder;
         }
 
-        public virtual void OnForeignKeyRemoved([NotNull] InternalEntityBuilder entityBuilder, [NotNull] ForeignKey foreignKey)
+        public virtual void OnForeignKeyRemoved([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] ForeignKey foreignKey)
         {
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             foreach (var foreignKeyConvention in _conventionSet.ForeignKeyRemovedConventions)
             {
-                foreignKeyConvention.Apply(entityBuilder, foreignKey);
+                foreignKeyConvention.Apply(entityTypeBuilder, foreignKey);
             }
         }
 

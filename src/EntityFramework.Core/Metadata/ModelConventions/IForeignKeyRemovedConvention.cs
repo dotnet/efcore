@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
     public interface IForeignKeyRemovedConvention
     {
-        void Apply([NotNull] InternalEntityBuilder entityBuilder, [NotNull] ForeignKey foreignKey);
+        void Apply([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] ForeignKey foreignKey);
     }
 }

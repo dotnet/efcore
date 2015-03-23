@@ -14,18 +14,18 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
     {
         private const string KeySuffix = "Id";
 
-        public virtual InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
+        public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
         {
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
-            var entityType = entityBuilder.Metadata;
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            var entityType = entityTypeBuilder.Metadata;
 
             var keyProperties = DiscoverKeyProperties(entityType);
             if (keyProperties.Count != 0)
             {
-                entityBuilder.PrimaryKey(keyProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+                entityTypeBuilder.PrimaryKey(keyProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
             }
 
-            return entityBuilder;
+            return entityTypeBuilder;
         }
 
         public virtual IReadOnlyList<Property> DiscoverKeyProperties([NotNull] EntityType entityType)

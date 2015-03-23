@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -34,7 +35,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <param name="builder"> Internal typeBuilder for the entity type being configured. </param>
-        public EntityTypeBuilder([NotNull] InternalEntityBuilder builder)
+        public EntityTypeBuilder([NotNull] InternalEntityTypeBuilder builder)
             : base(builder)
         {
         }
@@ -195,8 +196,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             var navigationName = collection?.GetPropertyAccess().Name;
 
             return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(
-                navigationName,
                 CollectionBuilder(relatedEntityType, navigationName));
         }
+
+        private InternalEntityTypeBuilder Builder => ((IAccessor<InternalEntityTypeBuilder>)this).Service;
     }
 }

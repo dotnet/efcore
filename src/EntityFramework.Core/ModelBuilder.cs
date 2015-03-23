@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity
     ///         constructor.
     ///     </para>
     /// </summary>
-    public class ModelBuilder : IModelBuilder<ModelBuilder>
+    public class ModelBuilder : IModelBuilder<ModelBuilder>, IAccessor<InternalModelBuilder>
     {
         private readonly InternalModelBuilder _builder;
 
@@ -64,12 +64,12 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     The model being configured.
         /// </summary>
-        public virtual Model Metadata => Builder.Metadata;
+        Model IMetadataBuilder<Model, ModelBuilder>.Metadata => Builder.Metadata;
 
         /// <summary>
         ///     The model being configured.
         /// </summary>
-        public virtual Model Model => Metadata;
+        public virtual Model Model => Builder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the model. If an annotation with the key specified in
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotEmpty(value, nameof(value));
 
-            _builder.Annotation(annotation, value, ConfigurationSource.Explicit);
+            Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     The internal typeBuilder being used to configure this model.
         /// </summary>
-        protected virtual InternalModelBuilder Builder => _builder;
+        InternalModelBuilder IAccessor<InternalModelBuilder>.Service => _builder;
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
@@ -189,5 +189,7 @@ namespace Microsoft.Data.Entity
 
             Builder.Ignore(type, ConfigurationSource.Explicit);
         }
+
+        private InternalModelBuilder Builder => ((IAccessor<InternalModelBuilder>)this).Service;
     }
 }

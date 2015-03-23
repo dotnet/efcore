@@ -13,31 +13,31 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
     public class RelationshipDiscoveryConvention : IEntityTypeConvention
     {
-        public virtual InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
+        public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
         {
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
-            var entityType = entityBuilder.Metadata;
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            var entityType = entityTypeBuilder.Metadata;
 
-            var navigationPairCandidates = new Dictionary<InternalEntityBuilder, Tuple<List<PropertyInfo>, List<PropertyInfo>>>();
+            var navigationPairCandidates = new Dictionary<InternalEntityTypeBuilder, Tuple<List<PropertyInfo>, List<PropertyInfo>>>();
             if (entityType.HasClrType)
             {
                 foreach (var navigationPropertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                 {
                     Type entityClrType;
                     if (!navigationPropertyInfo.IsCandidateNavigationProperty(out entityClrType)
-                        || !entityBuilder.CanAddNavigation(navigationPropertyInfo.Name, ConfigurationSource.Convention))
+                        || !entityTypeBuilder.CanAddNavigation(navigationPropertyInfo.Name, ConfigurationSource.Convention))
                     {
                         continue;
                     }
 
-                    var targetEntityTypeBuilder = entityBuilder.ModelBuilder.Entity(entityClrType, ConfigurationSource.Convention);
+                    var targetEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(entityClrType, ConfigurationSource.Convention);
                     if (targetEntityTypeBuilder == null)
                     {
                         continue;
                     }
 
                     // The navigation could have been added when the target entity type was added
-                    if (!entityBuilder.CanAddNavigation(navigationPropertyInfo.Name, ConfigurationSource.Convention))
+                    if (!entityTypeBuilder.CanAddNavigation(navigationPropertyInfo.Name, ConfigurationSource.Convention))
                     {
                         continue;
                     }
@@ -82,28 +82,28 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                         && reverseNavigationCandidates.Count > 0)
                     {
                         // Ambiguous navigations
-                        return entityBuilder;
+                        return entityTypeBuilder;
                     }
 
                     if (reverseNavigationCandidates.Count > 1)
                     {
                         // Ambiguous navigations
-                        return entityBuilder;
+                        return entityTypeBuilder;
                     }
 
                     foreach (var navigationCandidate in navigationCandidates)
                     {
-                        TryBuildRelationship(entityBuilder, targetEntityTypeBuilder, navigationCandidate, reverseNavigationCandidates.SingleOrDefault());
+                        TryBuildRelationship(entityTypeBuilder, targetEntityTypeBuilder, navigationCandidate, reverseNavigationCandidates.SingleOrDefault());
                     }
                 }
             }
 
-            return entityBuilder;
+            return entityTypeBuilder;
         }
 
         private static void TryBuildRelationship(
-            [NotNull] InternalEntityBuilder sourceBuilder,
-            [NotNull] InternalEntityBuilder targetBuilder,
+            [NotNull] InternalEntityTypeBuilder sourceBuilder,
+            [NotNull] InternalEntityTypeBuilder targetBuilder,
             [NotNull] PropertyInfo navigationToTarget,
             [CanBeNull] PropertyInfo navigationToSource)
         {

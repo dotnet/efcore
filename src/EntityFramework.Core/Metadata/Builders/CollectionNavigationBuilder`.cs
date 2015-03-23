@@ -32,13 +32,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///         and it is not designed to be directly constructed in your application code.
         ///     </para>
         /// </summary>
-        /// <param name="collection">
-        ///     The name of the collection navigation property on the end of the relationship that configuration began
-        ///     on. If null, there is no navigation property on this end of the relationship.
-        /// </param>
         /// <param name="builder"> The internal builder being used to configure the relationship. </param>
         public CollectionNavigationBuilder(
-            [CanBeNull] string collection,
             [NotNull] InternalRelationshipBuilder builder)
             : base(builder)
         {

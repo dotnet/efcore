@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -18,8 +19,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class ReferenceNavigationBuilder
+    public class ReferenceNavigationBuilder : IAccessor<InternalRelationshipBuilder>
     {
+        private readonly InternalRelationshipBuilder _builder;
+
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="ReferenceNavigationBuilder" /> class.
@@ -45,30 +48,25 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             RelatedEntityType = relatedEntityType;
             ReferenceName = navigationName;
-            Builder = builder;
+            _builder = builder;
         }
 
         /// <summary>
-        ///     Gets or sets the name of the reference navigation property on the end of the relationship that
+        ///     Gets the name of the reference navigation property on the end of the relationship that
         ///     configuration began on. If null, there is no navigation property on this end of the relationship.
         /// </summary>
-        protected string ReferenceName { get; set; }
+        protected virtual string ReferenceName { get; }
 
         /// <summary>
-        ///     Gets or sets the entity type that the reference points to.
+        ///     Gets the entity type that the reference points to.
         /// </summary>
-        protected EntityType RelatedEntityType { get; set; }
-
-        /// <summary>
-        ///     The foreign key that represents this relationship.
-        /// </summary>
-        public virtual ForeignKey Metadata => Builder.Metadata;
+        protected virtual EntityType RelatedEntityType { get; }
 
         /// <summary>
         ///     Gets the internal builder being used to configure the relationship.
         /// </summary>
-        protected virtual InternalRelationshipBuilder Builder { get; }
-
+        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => _builder;
+        
         /// <summary>
         ///     Configures this as a one-to-many relationship.
         /// </summary>
@@ -89,9 +87,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder InverseCollectionBuilder(string collection)
         {
-            var needToInvert = Metadata.PrincipalEntityType != RelatedEntityType;
-            Debug.Assert((needToInvert && Metadata.EntityType == RelatedEntityType)
-                         || Metadata.PrincipalEntityType == RelatedEntityType);
+            var needToInvert = _builder.Metadata.PrincipalEntityType != RelatedEntityType;
+            Debug.Assert((needToInvert && _builder.Metadata.EntityType == RelatedEntityType)
+                         || _builder.Metadata.PrincipalEntityType == RelatedEntityType);
 
             var builder = Builder;
             if (needToInvert)
@@ -99,7 +97,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 builder = builder.Invert(ConfigurationSource.Explicit);
             }
 
-            if (((IForeignKey)Metadata).IsUnique)
+            if (((IForeignKey)_builder.Metadata).IsUnique)
             {
                 builder = builder.NavigationToDependent(null, ConfigurationSource.Explicit);
             }
@@ -130,9 +128,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         protected virtual InternalRelationshipBuilder InverseReferenceBuilder(string inverseReferenceName)
         {
             var builder = Builder;
-            if (!((IForeignKey)Metadata).IsUnique)
+            if (!((IForeignKey)_builder.Metadata).IsUnique)
             {
-                Debug.Assert(Metadata.GetNavigationToPrincipal()?.Name == ReferenceName);
+                Debug.Assert(_builder.Metadata.GetNavigationToPrincipal()?.Name == ReferenceName);
 
                 builder = builder.NavigationToDependent(null, ConfigurationSource.Explicit);
             }
@@ -153,5 +151,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             return builder;
         }
+
+        private InternalRelationshipBuilder Builder => ((IAccessor<InternalRelationshipBuilder>)this).Service;
     }
 }

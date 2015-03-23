@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -20,8 +21,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         entity type.
     ///     </para>
     /// </summary>
-    public class ReferenceReferenceBuilder : IReferenceReferenceBuilder<ReferenceReferenceBuilder>
+    public class ReferenceReferenceBuilder : IReferenceReferenceBuilder<ReferenceReferenceBuilder>, IAccessor<InternalRelationshipBuilder>
     {
+        private readonly InternalRelationshipBuilder _builder;
+
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="ReferenceReferenceBuilder" /> class.
@@ -36,13 +39,13 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotNull(builder, nameof(builder));
 
-            Builder = builder;
+            _builder = builder;
         }
 
         /// <summary>
         ///     Gets the internal builder being used to configure this relationship.
         /// </summary>
-        protected virtual InternalRelationshipBuilder Builder { get; }
+        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => _builder;
 
         /// <summary>
         ///     The foreign key that represents this relationship.
@@ -202,9 +205,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder Required(bool required = true)
-        {
-            return new ReferenceReferenceBuilder(Builder.Required(required, ConfigurationSource.Explicit));
-        }
+        public virtual ReferenceReferenceBuilder Required(bool required = true) 
+            => new ReferenceReferenceBuilder(Builder.Required(required, ConfigurationSource.Explicit));
+
+        private InternalRelationshipBuilder Builder => ((IAccessor<InternalRelationshipBuilder>)this).Service;
     }
 }

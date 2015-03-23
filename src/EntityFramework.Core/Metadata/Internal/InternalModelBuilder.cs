@@ -14,8 +14,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class InternalModelBuilder : InternalMetadataBuilder<Model>
     {
-        private readonly MetadataDictionary<EntityType, InternalEntityBuilder> _entityBuilders =
-            new MetadataDictionary<EntityType, InternalEntityBuilder>();
+        private readonly MetadataDictionary<EntityType, InternalEntityTypeBuilder> _entityTypeBuilders =
+            new MetadataDictionary<EntityType, InternalEntityTypeBuilder>();
 
         private readonly LazyRef<Dictionary<string, ConfigurationSource>> _ignoredEntityTypeNames =
             new LazyRef<Dictionary<string, ConfigurationSource>>(() => new Dictionary<string, ConfigurationSource>());
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual ConventionDispatcher ConventionDispatcher { get; }
 
-        public virtual InternalEntityBuilder Entity([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual InternalEntityTypeBuilder Entity([NotNull] string name, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -41,15 +41,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            return _entityBuilders.GetOrAdd(
+            return _entityTypeBuilders.GetOrAdd(
                 () => Metadata.FindEntityType(name),
                 () => Metadata.AddEntityType(name),
-                entityType => new InternalEntityBuilder(entityType, ModelBuilder),
+                entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
                 ConventionDispatcher.OnEntityTypeAdded,
                 configurationSource);
         }
 
-        public virtual InternalEntityBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
+        public virtual InternalEntityTypeBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
         {
             Check.NotNull(type, nameof(type));
 
@@ -58,10 +58,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            return _entityBuilders.GetOrAdd(
+            return _entityTypeBuilders.GetOrAdd(
                 () => Metadata.FindEntityType(type),
                 () => Metadata.AddEntityType(type),
-                entityType => new InternalEntityBuilder(entityType, ModelBuilder),
+                entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
                 ConventionDispatcher.OnEntityTypeAdded,
                 configurationSource);
         }
@@ -131,21 +131,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private bool Remove(EntityType entityType, ConfigurationSource configurationSource, bool canOverrideSameSource = true)
         {
-            var entityBuilder = _entityBuilders.TryGetValue(entityType, ConfigurationSource.Convention);
-            if (!_entityBuilders.Remove(entityType, configurationSource, canOverrideSameSource).HasValue)
+            var entityTypeBuilder = _entityTypeBuilders.TryGetValue(entityType, ConfigurationSource.Convention);
+            if (!_entityTypeBuilders.Remove(entityType, configurationSource, canOverrideSameSource).HasValue)
             {
                 return false;
             }
 
             foreach (var foreignKey in entityType.ForeignKeys.ToList())
             {
-                var removed = entityBuilder.RemoveRelationship(foreignKey, configurationSource);
+                var removed = entityTypeBuilder.RemoveRelationship(foreignKey, configurationSource);
                 Debug.Assert(removed.HasValue);
             }
 
             foreach (var foreignKey in Metadata.GetReferencingForeignKeys(entityType).ToList())
             {
-                var removed = entityBuilder.RemoveRelationship(foreignKey, configurationSource);
+                var removed = entityTypeBuilder.RemoveRelationship(foreignKey, configurationSource);
                 Debug.Assert(removed.HasValue);
             }
 
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var entityType in Metadata.EntityTypes)
             {
-                var currentConfigurationSource = _entityBuilders.GetConfigurationSource(entityType);
+                var currentConfigurationSource = _entityTypeBuilders.GetConfigurationSource(entityType);
                 if (currentConfigurationSource.Overrides(configurationSource))
                 {
                     roots.Add(entityType);

@@ -36,48 +36,48 @@ namespace Microsoft.Data.Entity
             return (TPropertyBuilder)propertyBuilder;
         }
 
-        public static SqlServerEntityBuilder ForSqlServer<TEntityBuilder>(
-            [NotNull] this IEntityTypeBuilder<TEntityBuilder> entityTypeBuilder)
-            where TEntityBuilder : IEntityTypeBuilder<TEntityBuilder>
+        public static SqlServerEntityTypeBuilder ForSqlServer<TEntityTypeBuilder>(
+            [NotNull] this IEntityTypeBuilder<TEntityTypeBuilder> entityTypeBuilder)
+            where TEntityTypeBuilder : IEntityTypeBuilder<TEntityTypeBuilder>
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            return new SqlServerEntityBuilder(entityTypeBuilder.Metadata);
+            return new SqlServerEntityTypeBuilder(entityTypeBuilder.Metadata);
         }
 
-        public static TEntityBuilder ForSqlServer<TEntityBuilder>(
-            [NotNull] this IEntityTypeBuilder<TEntityBuilder> entityTypeBuilder,
-            [NotNull] Action<SqlServerEntityBuilder> relationalEntityBuilder)
-            where TEntityBuilder : IEntityTypeBuilder<TEntityBuilder>
+        public static TEntityTypeBuilder ForSqlServer<TEntityTypeBuilder>(
+            [NotNull] this IEntityTypeBuilder<TEntityTypeBuilder> entityTypeBuilder,
+            [NotNull] Action<SqlServerEntityTypeBuilder> relationalEntityTypeBuilder)
+            where TEntityTypeBuilder : IEntityTypeBuilder<TEntityTypeBuilder>
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            relationalEntityBuilder(ForSqlServer(entityTypeBuilder));
+            relationalEntityTypeBuilder(ForSqlServer(entityTypeBuilder));
 
-            return (TEntityBuilder)entityTypeBuilder;
+            return (TEntityTypeBuilder)entityTypeBuilder;
         }
 
-        public static SqlServerEntityBuilder ForSqlServer<TEntity, TEntityBuilder>(
-            [NotNull] this IEntityTypeBuilder<TEntity, TEntityBuilder> entityTypeBuilder)
+        public static SqlServerEntityTypeBuilder ForSqlServer<TEntity, TEntityTypeBuilder>(
+            [NotNull] this IEntityTypeBuilder<TEntity, TEntityTypeBuilder> entityTypeBuilder)
             where TEntity : class
-            where TEntityBuilder : IEntityTypeBuilder<TEntity, TEntityBuilder>
+            where TEntityTypeBuilder : IEntityTypeBuilder<TEntity, TEntityTypeBuilder>
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            return new SqlServerEntityBuilder(entityTypeBuilder.Metadata);
+            return new SqlServerEntityTypeBuilder(entityTypeBuilder.Metadata);
         }
 
-        public static TEntityBuilder ForSqlServer<TEntity, TEntityBuilder>(
-            [NotNull] this IEntityTypeBuilder<TEntity, TEntityBuilder> entityTypeBuilder,
-            [NotNull] Action<SqlServerEntityBuilder> relationalEntityBuilder)
+        public static TEntityTypeBuilder ForSqlServer<TEntity, TEntityTypeBuilder>(
+            [NotNull] this IEntityTypeBuilder<TEntity, TEntityTypeBuilder> entityTypeBuilder,
+            [NotNull] Action<SqlServerEntityTypeBuilder> relationalEntityTypeBuilder)
             where TEntity : class
-            where TEntityBuilder : IEntityTypeBuilder<TEntity, TEntityBuilder>
+            where TEntityTypeBuilder : IEntityTypeBuilder<TEntity, TEntityTypeBuilder>
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            relationalEntityBuilder(ForSqlServer(entityTypeBuilder));
+            relationalEntityTypeBuilder(ForSqlServer(entityTypeBuilder));
 
-            return (TEntityBuilder)entityTypeBuilder;
+            return (TEntityTypeBuilder)entityTypeBuilder;
         }
 
         public static SqlServerKeyBuilder ForSqlServer<TKeyBuilder>(

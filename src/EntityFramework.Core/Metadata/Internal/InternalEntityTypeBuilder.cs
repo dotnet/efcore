@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class InternalEntityBuilder : InternalMetadataItemBuilder<EntityType>
+    public class InternalEntityTypeBuilder : InternalMetadataItemBuilder<EntityType>
     {
         private readonly LazyRef<MetadataDictionary<Index, InternalIndexBuilder>> _indexBuilders =
             new LazyRef<MetadataDictionary<Index, InternalIndexBuilder>>(() => new MetadataDictionary<Index, InternalIndexBuilder>());
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private readonly LazyRef<MetadataDictionary<ForeignKey, InternalRelationshipBuilder>> _relationshipBuilders =
             new LazyRef<MetadataDictionary<ForeignKey, InternalRelationshipBuilder>>(() => new MetadataDictionary<ForeignKey, InternalRelationshipBuilder>());
 
-        public InternalEntityBuilder([NotNull] EntityType metadata, [NotNull] InternalModelBuilder modelBuilder)
+        public InternalEntityTypeBuilder([NotNull] EntityType metadata, [NotNull] InternalModelBuilder modelBuilder)
             : base(metadata, modelBuilder)
         {
         }
@@ -550,7 +550,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            var principalEntityBuilder = ModelBuilder.Entity(foreignKey.PrincipalEntityType.Name, ConfigurationSource.Convention);
+            var principalEntityTypeBuilder = ModelBuilder.Entity(foreignKey.PrincipalEntityType.Name, ConfigurationSource.Convention);
 
             var navigationToDependent = foreignKey.GetNavigationToDependent();
             navigationToDependent?.EntityType.RemoveNavigation(navigationToDependent);
@@ -561,7 +561,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Metadata.RemoveForeignKey(foreignKey);
             ModelBuilder.ConventionDispatcher.OnForeignKeyRemoved(this, foreignKey);
             RemoveShadowPropertiesIfUnused(foreignKey.Properties);
-            principalEntityBuilder.RemoveKeyIfUnused(foreignKey.PrincipalKey);
+            principalEntityTypeBuilder.RemoveKeyIfUnused(foreignKey.PrincipalKey);
 
             return removedConfigurationSource;
         }
@@ -753,8 +753,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual InternalRelationshipBuilder Relationship(
-            [NotNull] InternalEntityBuilder principalEntityTypeBuilder,
-            [NotNull] InternalEntityBuilder dependentEntityTypeBuilder,
+            [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
+            [NotNull] InternalEntityTypeBuilder dependentEntityTypeBuilder,
             [CanBeNull] string navigationToPrincipalName,
             [CanBeNull] string navigationToDependentName,
             ConfigurationSource configurationSource,
@@ -831,8 +831,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual InternalRelationshipBuilder Relationship(
-            [NotNull] InternalEntityBuilder principalEntityTypeBuilder,
-            [NotNull] InternalEntityBuilder dependentEntityTypeBuilder,
+            [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
+            [NotNull] InternalEntityTypeBuilder dependentEntityTypeBuilder,
             [CanBeNull] string navigationToPrincipalName,
             [CanBeNull] string navigationToDependentName,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
@@ -978,8 +978,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         private ForeignKey CreateForeignKey(
-            [NotNull] InternalEntityBuilder principalEntityTypeBuilder,
-            [NotNull] InternalEntityBuilder dependentEntityTypeBuilder,
+            [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
+            [NotNull] InternalEntityTypeBuilder dependentEntityTypeBuilder,
             [CanBeNull] string navigationToPrincipal,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
             [CanBeNull] IReadOnlyList<Property> principalProperties,
@@ -1079,7 +1079,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return newForeignKey;
         }
 
-        private Property CreateUniqueProperty(string baseName, Type propertyType, InternalEntityBuilder entityTypeBuilder, bool? isRequired = null)
+        private Property CreateUniqueProperty(string baseName, Type propertyType, InternalEntityTypeBuilder entityTypeBuilder, bool? isRequired = null)
         {
             var index = -1;
             while (true)

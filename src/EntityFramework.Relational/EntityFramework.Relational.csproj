@@ -95,7 +95,7 @@
     <Compile Include="Metadata\ReadOnlyRelationalModelExtensions.cs" />
     <Compile Include="Metadata\ReadOnlyRelationalPropertyExtensions.cs" />
     <Compile Include="Metadata\RelationalAnnotationNames.cs" />
-    <Compile Include="Metadata\RelationalEntityBuilder.cs" />
+    <Compile Include="Metadata\RelationalEntityTypeBuilder.cs" />
     <Compile Include="Metadata\RelationalEntityTypeExtensions.cs" />
     <Compile Include="Metadata\RelationalForeignKeyExtensions.cs" />
     <Compile Include="Metadata\RelationalForeignKeyBuilder.cs" />

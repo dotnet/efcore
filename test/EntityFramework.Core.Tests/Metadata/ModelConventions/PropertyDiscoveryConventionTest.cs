@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.Empty(entityBuilder.Metadata.Properties);
         }
 
-        private static InternalEntityBuilder CreateInternalEntityBuilder<T>()
+        private static InternalEntityTypeBuilder CreateInternalEntityBuilder<T>()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);

@@ -964,18 +964,18 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             get { return PrincipalType.Metadata.GetPrimaryKey().Properties.Single(); }
         }
 
-        private InternalEntityBuilder PrincipalType => _model.Entity(typeof(PrincipalEntity), ConfigurationSource.Convention);
+        private InternalEntityTypeBuilder PrincipalType => _model.Entity(typeof(PrincipalEntity), ConfigurationSource.Convention);
 
-        private InternalEntityBuilder DependentType => _model.Entity(typeof(DependentEntity), ConfigurationSource.Convention);
+        private InternalEntityTypeBuilder DependentType => _model.Entity(typeof(DependentEntity), ConfigurationSource.Convention);
 
         private IReadOnlyList<Property> CompositePrimaryKey
         {
             get { return PrincipalTypeWithCompositeKey.Metadata.GetPrimaryKey().Properties; }
         }
 
-        private InternalEntityBuilder PrincipalTypeWithCompositeKey => _model.Entity(typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Convention);
+        private InternalEntityTypeBuilder PrincipalTypeWithCompositeKey => _model.Entity(typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Convention);
 
-        private InternalEntityBuilder DependentTypeWithCompositeKey => _model.Entity(typeof(DependentEntityWithCompositeKey), ConfigurationSource.Convention);
+        private InternalEntityTypeBuilder DependentTypeWithCompositeKey => _model.Entity(typeof(DependentEntityWithCompositeKey), ConfigurationSource.Convention);
 
         private class PrincipalEntity
         {

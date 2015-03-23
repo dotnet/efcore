@@ -36,48 +36,48 @@ namespace Microsoft.Data.Entity
             return (TPropertyBuilder)propertyBuilder;
         }
 
-        public static RelationalEntityBuilder ForRelational<TEntityBuilder>(
-            [NotNull] this IEntityTypeBuilder<TEntityBuilder> entityTypeBuilder)
-            where TEntityBuilder : IEntityTypeBuilder<TEntityBuilder>
+        public static RelationalEntityTypeBuilder ForRelational<TEntityTypeBuilder>(
+            [NotNull] this IEntityTypeBuilder<TEntityTypeBuilder> entityTypeBuilder)
+            where TEntityTypeBuilder : IEntityTypeBuilder<TEntityTypeBuilder>
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            return new RelationalEntityBuilder(entityTypeBuilder.Metadata);
+            return new RelationalEntityTypeBuilder(entityTypeBuilder.Metadata);
         }
 
-        public static TEntityBuilder ForRelational<TEntityBuilder>(
-            [NotNull] this IEntityTypeBuilder<TEntityBuilder> entityTypeBuilder,
-            [NotNull] Action<RelationalEntityBuilder> relationalEntityBuilder)
-            where TEntityBuilder : IEntityTypeBuilder<TEntityBuilder>
+        public static TEntityTypeBuilder ForRelational<TEntityTypeBuilder>(
+            [NotNull] this IEntityTypeBuilder<TEntityTypeBuilder> entityTypeBuilder,
+            [NotNull] Action<RelationalEntityTypeBuilder> relationalEntityTypeBuilder)
+            where TEntityTypeBuilder : IEntityTypeBuilder<TEntityTypeBuilder>
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            relationalEntityBuilder(ForRelational(entityTypeBuilder));
+            relationalEntityTypeBuilder(ForRelational(entityTypeBuilder));
 
-            return (TEntityBuilder)entityTypeBuilder;
+            return (TEntityTypeBuilder)entityTypeBuilder;
         }
 
-        public static RelationalEntityBuilder ForRelational<TEntity, TEntityBuilder>(
-            [NotNull] this IEntityTypeBuilder<TEntity, TEntityBuilder> entityTypeBuilder)
+        public static RelationalEntityTypeBuilder ForRelational<TEntity, TEntityTypeBuilder>(
+            [NotNull] this IEntityTypeBuilder<TEntity, TEntityTypeBuilder> entityTypeBuilder)
             where TEntity : class
-            where TEntityBuilder : IEntityTypeBuilder<TEntity, TEntityBuilder>
+            where TEntityTypeBuilder : IEntityTypeBuilder<TEntity, TEntityTypeBuilder>
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            return new RelationalEntityBuilder(entityTypeBuilder.Metadata);
+            return new RelationalEntityTypeBuilder(entityTypeBuilder.Metadata);
         }
 
-        public static TEntityBuilder ForRelational<TEntity, TEntityBuilder>(
-            [NotNull] this IEntityTypeBuilder<TEntity, TEntityBuilder> entityTypeBuilder,
-            [NotNull] Action<RelationalEntityBuilder> relationalEntityBuilder)
+        public static TEntityTypeBuilder ForRelational<TEntity, TEntityTypeBuilder>(
+            [NotNull] this IEntityTypeBuilder<TEntity, TEntityTypeBuilder> entityTypeBuilder,
+            [NotNull] Action<RelationalEntityTypeBuilder> relationalEntityTypeBuilder)
             where TEntity : class
-            where TEntityBuilder : IEntityTypeBuilder<TEntity, TEntityBuilder>
+            where TEntityTypeBuilder : IEntityTypeBuilder<TEntity, TEntityTypeBuilder>
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            relationalEntityBuilder(ForRelational(entityTypeBuilder));
+            relationalEntityTypeBuilder(ForRelational(entityTypeBuilder));
 
-            return (TEntityBuilder)entityTypeBuilder;
+            return (TEntityTypeBuilder)entityTypeBuilder;
         }
 
         public static RelationalKeyBuilder ForRelational<TKeyBuilder>(

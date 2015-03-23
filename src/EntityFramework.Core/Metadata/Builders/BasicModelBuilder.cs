@@ -101,14 +101,14 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
         public class EntityTypeBuilder : IEntityTypeBuilder<EntityTypeBuilder>
         {
-            public EntityTypeBuilder([NotNull] InternalEntityBuilder builder)
+            public EntityTypeBuilder([NotNull] InternalEntityTypeBuilder builder)
             {
                 Check.NotNull(builder, nameof(builder));
 
                 Builder = builder;
             }
 
-            protected virtual InternalEntityBuilder Builder { get; }
+            protected virtual InternalEntityTypeBuilder Builder { get; }
 
             public virtual EntityTypeBuilder Annotation(string annotation, string value)
             {
@@ -360,7 +360,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         public class EntityTypeBuilder<TEntity> : EntityTypeBuilder, IEntityTypeBuilder<TEntity, EntityTypeBuilder<TEntity>>
             where TEntity : class
         {
-            public EntityTypeBuilder([NotNull] InternalEntityBuilder builder)
+            public EntityTypeBuilder([NotNull] InternalEntityTypeBuilder builder)
                 : base(builder)
             {
             }

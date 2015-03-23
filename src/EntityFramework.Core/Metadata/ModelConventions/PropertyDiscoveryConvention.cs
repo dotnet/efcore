@@ -10,10 +10,10 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
     public class PropertyDiscoveryConvention : IEntityTypeConvention
     {
-        public virtual InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
+        public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
         {
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
-            var entityType = entityBuilder.Metadata;
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            var entityType = entityTypeBuilder.Metadata;
 
             // TODO: Honor [NotMapped]
             // Issue #107
@@ -22,11 +22,11 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 var primitiveProperties = entityType.ClrType.GetRuntimeProperties().Where(ConventionsPropertyInfoExtensions.IsCandidatePrimitiveProperty);
                 foreach (var propertyInfo in primitiveProperties)
                 {
-                    entityBuilder.Property(propertyInfo, ConfigurationSource.Convention);
+                    entityTypeBuilder.Property(propertyInfo, ConfigurationSource.Convention);
                 }
             }
 
-            return entityBuilder;
+            return entityTypeBuilder;
         }
     }
 }

@@ -28,33 +28,33 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
             return keyBuilder;
         }
 
-        protected virtual void ConfigureValueGenerationStrategy([NotNull] InternalEntityBuilder entityBuilder, [NotNull] IReadOnlyList<Property> properties, bool generateValue)
+        protected virtual void ConfigureValueGenerationStrategy([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] IReadOnlyList<Property> properties, bool generateValue)
         {
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(properties, nameof(properties));
 
-            if (entityBuilder.Metadata.FindPrimaryKey(properties) != null
+            if (entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null
                 && properties.Count == 1
                 && properties.First().ClrType.IsInteger()
                 && properties.First().GenerateValueOnAdd == generateValue)
             {
-                entityBuilder.Property(properties.First().ClrType, properties.First().Name, ConfigurationSource.Convention)
+                entityTypeBuilder.Property(properties.First().ClrType, properties.First().Name, ConfigurationSource.Convention)
                     .Annotation(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration,
                         generateValue ? SqlServerValueGenerationStrategy.Default.ToString() : null,
                         ConfigurationSource.Convention);
             }
         }
 
-        public virtual void Apply(InternalEntityBuilder entityBuilder, ForeignKey foreignKey)
+        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
         {
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             var properties = foreignKey.Properties;
 
             if (properties.Any(e => e.GenerateValueOnAdd == true))
             {
-                ConfigureValueGenerationStrategy(entityBuilder, properties, true);
+                ConfigureValueGenerationStrategy(entityTypeBuilder, properties, true);
             }
         }
 

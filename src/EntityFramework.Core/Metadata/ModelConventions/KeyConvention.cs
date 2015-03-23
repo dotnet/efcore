@@ -21,25 +21,25 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             return keyBuilder;
         }
 
-        protected virtual void ConfigureKeyProperties([NotNull] InternalEntityBuilder entityBuilder, [NotNull] IReadOnlyList<Property> properties)
+        protected virtual void ConfigureKeyProperties([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] IReadOnlyList<Property> properties)
         {
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(properties, nameof(properties));
-            foreach (var property in properties.Where(property => !entityBuilder.Metadata.ForeignKeys.SelectMany(fk => fk.Properties).Contains(property)))
+            foreach (var property in properties.Where(property => !entityTypeBuilder.Metadata.ForeignKeys.SelectMany(fk => fk.Properties).Contains(property)))
             {
-                entityBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
                     ?.GenerateValueOnAdd(true, ConfigurationSource.Convention);
             }
             // TODO: Nullable, Sequence
             // Issue #213
         }
 
-        public virtual void Apply(InternalEntityBuilder entityBuilder, ForeignKey foreignKey)
+        public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
         {
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            ConfigureKeyProperties(entityBuilder, foreignKey.Properties);
+            ConfigureKeyProperties(entityTypeBuilder, foreignKey.Properties);
         }
     }
 }

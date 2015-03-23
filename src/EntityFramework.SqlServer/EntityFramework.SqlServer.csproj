@@ -84,7 +84,7 @@
     <Compile Include="Metadata\ReadOnlySqlServerModelExtensions.cs" />
     <Compile Include="Metadata\ReadOnlySqlServerPropertyExtensions.cs" />
     <Compile Include="Metadata\SqlServerAnnotationNames.cs" />
-    <Compile Include="Metadata\SqlServerEntityBuilder.cs" />
+    <Compile Include="Metadata\SqlServerEntityTypeBuilder.cs" />
     <Compile Include="Metadata\SqlServerEntityTypeExtensions.cs" />
     <Compile Include="Metadata\SqlServerForeignKeyBuilder.cs" />
     <Compile Include="Metadata\SqlServerForeignKeyExtensions.cs" />

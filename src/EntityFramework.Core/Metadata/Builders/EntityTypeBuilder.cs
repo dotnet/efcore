@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -18,8 +19,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class EntityTypeBuilder : IEntityTypeBuilder<EntityTypeBuilder>
+    public class EntityTypeBuilder : IEntityTypeBuilder<EntityTypeBuilder>, IAccessor<InternalEntityTypeBuilder>
     {
+        private readonly InternalEntityTypeBuilder _builder;
+
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="EntityTypeBuilder" /> class to configure a given entity
@@ -31,17 +34,17 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <param name="builder"> Internal builder for the entity type being configured. </param>
-        public EntityTypeBuilder([NotNull] InternalEntityBuilder builder)
+        public EntityTypeBuilder([NotNull] InternalEntityTypeBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
 
-            Builder = builder;
+            _builder = builder;
         }
 
         /// <summary>
         ///     The internal builder being used to configure the entity type.
         /// </summary>
-        protected virtual InternalEntityBuilder Builder { get; }
+        InternalEntityTypeBuilder IAccessor<InternalEntityTypeBuilder>.Service => _builder;
 
         /// <summary>
         ///     The entity type being configured.
@@ -239,5 +242,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 configurationSource: ConfigurationSource.Explicit,
                 isUnique: false);
         }
+
+        private InternalEntityTypeBuilder Builder => ((IAccessor<InternalEntityTypeBuilder>)this).Service;
     }
 }
