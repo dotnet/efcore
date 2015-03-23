@@ -914,28 +914,28 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             builder.Entity<Product>(b =>
                 {
-                    b.HasOne(e => e.AlternateProduct).WithOne(e => e.OriginalProduct)
+                    b.Reference(e => e.AlternateProduct).InverseReference(e => e.OriginalProduct)
                         .ForeignKey<Product>(e => e.AlternateProductId);
 
-                    b.HasOne(e => e.Detail).WithOne(e => e.Product)
+                    b.Reference(e => e.Detail).InverseReference(e => e.Product)
                         .ForeignKey<ProductDetail>(e => e.Id);
                 });
 
-            builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
+            builder.Entity<Category>().Collection(e => e.Products).InverseReference(e => e.Category);
 
             builder.Entity<ProductDetail>();
 
             builder.Entity<ProductPhoto>(b =>
                 {
                     b.Key(e => new { e.ProductId, e.PhotoId });
-                    b.HasMany(e => e.ProductTags).WithOne(e => e.Photo)
+                    b.Collection(e => e.ProductTags).InverseReference(e => e.Photo)
                         .ForeignKey(e => new { e.ProductId, e.PhotoId });
                 });
 
             builder.Entity<ProductReview>(b =>
                 {
                     b.Key(e => new { e.ProductId, e.ReviewId });
-                    b.HasMany(e => e.ProductTags).WithOne(e => e.Review)
+                    b.Collection(e => e.ProductTags).InverseReference(e => e.Review)
                         .ForeignKey(e => new { e.ProductId, e.ReviewId });
                 });
 

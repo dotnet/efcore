@@ -1364,14 +1364,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             modelBuilder
                 .Entity<FirstDependent>()
-                .HasOne(e => e.Second)
-                .WithOne(e => e.First)
+                .Reference(e => e.Second)
+                .InverseReference(e => e.First)
                 .ForeignKey<SecondDependent>(e => e.Id);
 
             modelBuilder
                 .Entity<Root>()
-                .HasOne(e => e.First)
-                .WithOne(e => e.Root)
+                .Reference(e => e.First)
+                .InverseReference(e => e.Root)
                 .ForeignKey<FirstDependent>(e => e.Id);
 
             return modelBuilder.Model;

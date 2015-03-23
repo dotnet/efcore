@@ -8,14 +8,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .Entity<Address>(e => e.HasOne(a => a.Resident).WithOne(p => p.Address)
-                    .ReferencedKey<Person>(person => person.Id));
+                .Entity<Address>(e => e.Reference(a => a.Resident).InverseReference(p => p.Address)
+                    .PrincipalKey<Person>(person => person.Id));
 
             modelBuilder.Entity<Address2>().Property<int>("PersonId");
 
             modelBuilder
                 .Entity<Person2>(
-                    e => e.HasOne(p => p.Address).WithOne(a => a.Resident)
+                    e => e.Reference(p => p.Address).InverseReference(a => a.Resident)
                         .ForeignKey(typeof(Address2), "PersonId"));
         }
 

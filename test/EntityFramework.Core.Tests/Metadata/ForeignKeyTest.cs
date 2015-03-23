@@ -20,10 +20,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var dependentEntityType = model.AddEntityType("D");
             var fk = dependentEntityType.AddProperty("Fk", typeof(int), shadowProperty: true);
 
-            var referencedKey = dependentEntityType.SetPrimaryKey(fk);
+            var principalKey = dependentEntityType.SetPrimaryKey(fk);
 
             Assert.Throws<ArgumentException>(() =>
-                new ForeignKey(new[] { fk }, referencedKey, principalEntityType));
+                new ForeignKey(new[] { fk }, principalKey, principalEntityType));
         }
 
         [Fact]
@@ -96,10 +96,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var dependentProp = entityType.GetOrAddProperty("P", typeof(int), shadowProperty: true);
             var principalProp = entityType.GetOrAddProperty("U", typeof(int), shadowProperty: true);
             entityType.GetOrSetPrimaryKey(keyProp);
-            var referencedKey = new Key(new[] { principalProp });
+            var principalKey = new Key(new[] { principalProp });
 
             var foreignKey
-                = new ForeignKey(new[] { dependentProp }, referencedKey)
+                = new ForeignKey(new[] { dependentProp }, principalKey)
                     {
                         IsUnique = false
                     };
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(principalProp, foreignKey.PrincipalKey.Properties.Single());
             Assert.Same(dependentProp, foreignKey.Properties.Single());
             Assert.False(foreignKey.IsUnique.Value);
-            Assert.Same(referencedKey, foreignKey.PrincipalKey);
+            Assert.Same(principalKey, foreignKey.PrincipalKey);
         }
 
         [Fact]

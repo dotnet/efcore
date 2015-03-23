@@ -18,11 +18,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class EntityBuilder : IEntityBuilder<EntityBuilder>
+    public class EntityTypeBuilder : IEntityTypeBuilder<EntityTypeBuilder>
     {
         /// <summary>
         ///     <para>
-        ///         Initializes a new instance of the <see cref="EntityBuilder" /> class to configure a given entity
+        ///         Initializes a new instance of the <see cref="EntityTypeBuilder" /> class to configure a given entity
         ///         type.
         ///     </para>
         ///     <para>
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <param name="builder"> Internal builder for the entity type being configured. </param>
-        public EntityBuilder([NotNull] InternalEntityBuilder builder)
+        public EntityTypeBuilder([NotNull] InternalEntityBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
 
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The model that the entity type belongs to.
         /// </summary>
-        Model IMetadataBuilder<EntityType, EntityBuilder>.Model => Builder.ModelBuilder.Metadata;
+        Model IMetadataBuilder<EntityType, EntityTypeBuilder>.Model => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the entity type. If an annotation with the key specified in
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual EntityBuilder Annotation(string annotation, string value)
+        public virtual EntityTypeBuilder Annotation(string annotation, string value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotEmpty(value, nameof(value));
@@ -161,22 +161,22 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="ReferenceNavigationBuilder.WithMany(string)" />
-        ///         or <see cref="ReferenceNavigationBuilder.WithOne(string)" /> to fully configure
+        ///         <see cref="ReferenceNavigationBuilder.InverseCollection(string)" />
+        ///         or <see cref="ReferenceNavigationBuilder.InverseReference(string)" /> to fully configure
         ///         the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
         /// </summary>
         /// <param name="relatedType"> The entity type that this relationship targets. </param>
-        /// <param name="referenceName">
+        /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship. If
         ///     no property is specified, the relationship will be configured without a navigation property on this
         ///     end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual ReferenceNavigationBuilder HasOne(
+        public virtual ReferenceNavigationBuilder Reference(
             [NotNull] Type relatedType,
-            [CanBeNull] string referenceName = null)
+            [CanBeNull] string navigationName = null)
         {
             Check.NotNull(relatedType, nameof(relatedType));
 
@@ -184,8 +184,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             return new ReferenceNavigationBuilder(
                 relatedEntityType,
-                referenceName,
-                HasOneBuilder(relatedEntityType, referenceName));
+                navigationName,
+                ReferenceBuilder(relatedEntityType, navigationName));
         }
 
         /// <summary>
@@ -195,111 +195,47 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="CollectionNavigationBuilder.WithOne(string)" />
+        ///         <see cref="CollectionNavigationBuilder.InverseReference(string)" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
         /// </summary>
         /// <param name="relatedType"> The entity type that this relationship targets. </param>
-        /// <param name="collectionName">
+        /// <param name="navigationName">
         ///     The name of the collection navigation property on this entity type that represents the relationship. If
         ///     no property is specified, the relationship will be configured without a navigation property on this
         ///     end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual CollectionNavigationBuilder HasMany(
+        public virtual CollectionNavigationBuilder Collection(
             [NotNull] Type relatedType,
-            [CanBeNull] string collectionName = null)
+            [CanBeNull] string navigationName = null)
         {
             Check.NotNull(relatedType, nameof(relatedType));
 
             var relatedEntityType = Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
 
-            return new CollectionNavigationBuilder(HasManyBuilder(relatedEntityType, collectionName));
+            return new CollectionNavigationBuilder(CollectionBuilder(relatedEntityType, navigationName));
         }
 
-        /// <summary>
-        ///     <para>
-        ///         Configures a relationship where this entity type has a reference that points
-        ///         to a single instance of the other type in the relationship.
-        ///     </para>
-        ///     <para>
-        ///         After calling this method, you should chain a call to
-        ///         <see cref="ReferenceNavigationBuilder.WithMany(string)" />
-        ///         or <see cref="ReferenceNavigationBuilder.WithOne(string)" /> to fully configure
-        ///         the relationship. Calling just this method without the chained call will not
-        ///         produce a valid relationship.
-        ///     </para>
-        /// </summary>
-        /// <param name="relatedEntityTypeName"> The name of the entity type that this relationship targets. </param>
-        /// <param name="referenceName">
-        ///     The name of the reference navigation property on this entity type that represents the relationship. If
-        ///     no  property is specified, the relationship will be configured without a navigation property on this
-        ///     end.
-        /// </param>
-        /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual ReferenceNavigationBuilder HasOne(
-            [NotNull] string relatedEntityTypeName,
-            [CanBeNull] string referenceName = null)
-        {
-            Check.NotEmpty(relatedEntityTypeName, nameof(relatedEntityTypeName));
-
-            var relatedEntityType = Builder.ModelBuilder.Metadata.GetEntityType(relatedEntityTypeName);
-
-            return new ReferenceNavigationBuilder(
-                relatedEntityType,
-                referenceName,
-                HasOneBuilder(relatedEntityType, referenceName));
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Configures a relationship where this entity type has a collection that contains
-        ///         instances of the other type in the relationship.
-        ///     </para>
-        ///     <para>
-        ///         After calling this method, you should chain a call to
-        ///         <see cref="CollectionNavigationBuilder.WithOne(string)" />
-        ///         to fully configure the relationship. Calling just this method without the chained call will not
-        ///         produce a valid relationship.
-        ///     </para>
-        /// </summary>
-        /// <param name="relatedEntityTypeName"> The name of the entity type that this relationship targets. </param>
-        /// <param name="collectionName">
-        ///     The name of the collection navigation property on this entity type that represents the relationship. If
-        ///     no property is specified, the relationship will be configured without a navigation property on this
-        ///     end.
-        /// </param>
-        /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual CollectionNavigationBuilder HasMany(
-            [NotNull] string relatedEntityTypeName,
-            [CanBeNull] string collectionName = null)
-        {
-            Check.NotEmpty(relatedEntityTypeName, nameof(relatedEntityTypeName));
-
-            var relatedEntityType = Builder.ModelBuilder.Metadata.GetEntityType(relatedEntityTypeName);
-
-            return new CollectionNavigationBuilder(HasManyBuilder(relatedEntityType, collectionName));
-        }
-
-        protected InternalRelationshipBuilder HasOneBuilder(EntityType relatedEntityType, string referenceName)
+        protected virtual InternalRelationshipBuilder ReferenceBuilder(EntityType relatedEntityType, string navigationName)
         {
             return Builder.Relationship(
                 relatedEntityType,
                 Metadata,
-                navigationToPrincipalName: referenceName ?? "",
+                navigationToPrincipalName: navigationName ?? "",
                 navigationToDependentName: null,
                 configurationSource: ConfigurationSource.Explicit,
                 strictPrincipal: relatedEntityType == Metadata);
         }
 
-        protected InternalRelationshipBuilder HasManyBuilder(EntityType relatedEntityType, string collectionName)
+        protected virtual InternalRelationshipBuilder CollectionBuilder(EntityType relatedEntityType, string navigationName)
         {
             return Builder.Relationship(
                 Metadata,
                 relatedEntityType,
                 navigationToPrincipalName: null,
-                navigationToDependentName: collectionName ?? "",
+                navigationToDependentName: navigationName ?? "",
                 configurationSource: ConfigurationSource.Explicit,
                 isUnique: false);
         }

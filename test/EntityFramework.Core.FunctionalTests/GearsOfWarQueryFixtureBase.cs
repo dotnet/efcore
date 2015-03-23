@@ -20,10 +20,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     b.Key(g => new { g.Nickname, g.SquadId });
 
-                    b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).ForeignKey(g => g.CityOrBirthName).Required();
-                    b.HasMany(g => g.Reports).WithOne().ForeignKey(g => new { g.LeaderNickname, g.LeaderSquadId });
-                    b.HasOne(g => g.Tag).WithOne(t => t.Gear).ForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
-                    b.HasOne(g => g.AssignedCity).WithMany(c => c.StationedGears).Required(false);
+                    b.Reference(g => g.CityOfBirth).InverseCollection(c => c.BornGears).ForeignKey(g => g.CityOrBirthName).Required();
+                    b.Collection(g => g.Reports).InverseReference().ForeignKey(g => new { g.LeaderNickname, g.LeaderSquadId });
+                    b.Reference(g => g.Tag).InverseReference(t => t.Gear).ForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
+                    b.Reference(g => g.AssignedCity).InverseCollection(c => c.StationedGears).Required(false);
                 });
 
             modelBuilder.Entity<CogTag>(b =>
@@ -34,13 +34,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<Squad>(b =>
                 {
                     b.Key(s => s.Id);
-                    b.HasMany(s => s.Members).WithOne(g => g.Squad).ForeignKey(g => g.SquadId);
+                    b.Collection(s => s.Members).InverseReference(g => g.Squad).ForeignKey(g => g.SquadId);
                 });
 
             modelBuilder.Entity<Weapon>(b =>
                 {
-                    b.HasOne(w => w.SynergyWith).WithOne().ForeignKey<Weapon>(w => w.SynergyWithId);
-                    b.HasOne(w => w.Owner).WithMany(g => g.Weapons).ForeignKey(w => new { w.OwnerNickname, w.OwnerSquadId });
+                    b.Reference(w => w.SynergyWith).InverseReference().ForeignKey<Weapon>(w => w.SynergyWithId);
+                    b.Reference(w => w.Owner).InverseCollection(g => g.Weapons).ForeignKey(w => new { w.OwnerNickname, w.OwnerSquadId });
                 });
         }
     }

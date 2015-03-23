@@ -128,7 +128,6 @@
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
     <Compile Include="Extensions\QueryableExtensionsTest.cs" />
     <Compile Include="Metadata\NonGenericRelationshipBuilderTest.cs" />
-    <Compile Include="Metadata\StringRelationshipBuilderTest.cs" />
     <Compile Include="Metadata\TypedAnnotationTest.cs" />
     <Compile Include="ModelBuilderTest.cs" />
     <Compile Include="ModelSourceTest.cs" />

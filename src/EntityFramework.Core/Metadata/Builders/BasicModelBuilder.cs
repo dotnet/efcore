@@ -51,26 +51,26 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             get { return _builder; }
         }
 
-        public virtual EntityBuilder<TEntity> Entity<TEntity>() where TEntity : class
+        public virtual EntityTypeBuilder<TEntity> Entity<TEntity>() where TEntity : class
         {
-            return new EntityBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
+            return new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
         }
 
-        public virtual EntityBuilder Entity([NotNull] Type entityType)
+        public virtual EntityTypeBuilder Entity([NotNull] Type entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return new EntityBuilder(Builder.Entity(entityType, ConfigurationSource.Explicit));
+            return new EntityTypeBuilder(Builder.Entity(entityType, ConfigurationSource.Explicit));
         }
 
-        public virtual EntityBuilder Entity([NotNull] string name)
+        public virtual EntityTypeBuilder Entity([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
-            return new EntityBuilder(Builder.Entity(name, ConfigurationSource.Explicit));
+            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit));
         }
 
-        public virtual BasicModelBuilder Entity<TEntity>([NotNull] Action<EntityBuilder<TEntity>> entityBuilder) where TEntity : class
+        public virtual BasicModelBuilder Entity<TEntity>([NotNull] Action<EntityTypeBuilder<TEntity>> entityBuilder) where TEntity : class
         {
             Check.NotNull(entityBuilder, nameof(entityBuilder));
 
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
-        public virtual BasicModelBuilder Entity([NotNull] Type entityType, [NotNull] Action<EntityBuilder> entityBuilder)
+        public virtual BasicModelBuilder Entity([NotNull] Type entityType, [NotNull] Action<EntityTypeBuilder> entityBuilder)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(entityBuilder, nameof(entityBuilder));
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
-        public virtual BasicModelBuilder Entity([NotNull] string name, [NotNull] Action<EntityBuilder> entityBuilder)
+        public virtual BasicModelBuilder Entity([NotNull] string name, [NotNull] Action<EntityTypeBuilder> entityBuilder)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(entityBuilder, nameof(entityBuilder));
@@ -99,9 +99,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
-        public class EntityBuilder : IEntityBuilder<EntityBuilder>
+        public class EntityTypeBuilder : IEntityTypeBuilder<EntityTypeBuilder>
         {
-            public EntityBuilder([NotNull] InternalEntityBuilder builder)
+            public EntityTypeBuilder([NotNull] InternalEntityBuilder builder)
             {
                 Check.NotNull(builder, nameof(builder));
 
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             protected virtual InternalEntityBuilder Builder { get; }
 
-            public virtual EntityBuilder Annotation(string annotation, string value)
+            public virtual EntityTypeBuilder Annotation(string annotation, string value)
             {
                 Check.NotEmpty(annotation, nameof(annotation));
                 Check.NotEmpty(value, nameof(value));
@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 get { return Builder.Metadata; }
             }
 
-            Model IMetadataBuilder<EntityType, EntityBuilder>.Model
+            Model IMetadataBuilder<EntityType, EntityTypeBuilder>.Model
             {
                 get { return Builder.ModelBuilder.Metadata; }
             }
@@ -357,22 +357,22 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             }
         }
 
-        public class EntityBuilder<TEntity> : EntityBuilder, IEntityBuilder<TEntity, EntityBuilder<TEntity>>
+        public class EntityTypeBuilder<TEntity> : EntityTypeBuilder, IEntityTypeBuilder<TEntity, EntityTypeBuilder<TEntity>>
             where TEntity : class
         {
-            public EntityBuilder([NotNull] InternalEntityBuilder builder)
+            public EntityTypeBuilder([NotNull] InternalEntityBuilder builder)
                 : base(builder)
             {
             }
 
-            public new virtual EntityBuilder<TEntity> Annotation(string annotation, string value)
+            public new virtual EntityTypeBuilder<TEntity> Annotation(string annotation, string value)
             {
                 base.Annotation(annotation, value);
 
                 return this;
             }
 
-            Model IMetadataBuilder<EntityType, EntityBuilder<TEntity>>.Model
+            Model IMetadataBuilder<EntityType, EntityTypeBuilder<TEntity>>.Model
             {
                 get { return Builder.ModelBuilder.Metadata; }
             }

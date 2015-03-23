@@ -424,7 +424,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
+                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForRelational()
                 .Name("LemonSupreme");
 
@@ -433,7 +433,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
             modelBuilder
-                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
+                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForRelational()
                 .Name(null);
 
@@ -446,7 +446,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
+                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational()
                 .Name("LemonSupreme");
@@ -462,7 +462,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
+                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
@@ -476,7 +476,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
+                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
@@ -491,7 +491,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
+                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForRelational()
                 .Name("LemonSupreme");
 
@@ -500,7 +500,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
             modelBuilder
-                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
+                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForRelational()
                 .Name(null);
 
@@ -513,7 +513,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
+                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational()
                 .Name("LemonSupreme");
@@ -529,7 +529,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
+                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
@@ -543,7 +543,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
+                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
@@ -558,8 +558,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
-                .ReferencedKey<Order>(e => e.OrderId)
+                .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
+                .PrincipalKey<Order>(e => e.OrderId)
                 .ForRelational()
                 .Name("LemonSupreme");
 
@@ -568,7 +568,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
             modelBuilder
-                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
+                .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .ForRelational()
                 .Name(null);
 
@@ -581,7 +581,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
+                .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
                 .ForRelational()
                 .Name("LemonSupreme");
@@ -597,8 +597,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
-                .ReferencedKey<Order>(e => e.OrderId)
+                .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
+                .PrincipalKey<Order>(e => e.OrderId)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).ForeignKeys.Single();
@@ -612,7 +612,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
+                .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 

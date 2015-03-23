@@ -289,10 +289,10 @@
     <value>The navigation properties '{navigation1}' and '{navigation2}' on entity type '{entityType}' are both backed by the same foreign key and point in the same direction. Each foreign key can have at most one navigation property and one inverse navigation property.</value>
   </data>
   <data name="ForeignKeyCountMismatch" xml:space="preserve">
-    <value>The number of properties specified for the foreign key {foreignKey} on entity type '{dependentType}' does not match the number of properties in the referenced key {referencedKey} on entity type '{principalType}'.</value>
+    <value>The number of properties specified for the foreign key {foreignKey} on entity type '{dependentType}' does not match the number of properties in the principal key {principalKey} on entity type '{principalType}'.</value>
   </data>
   <data name="ForeignKeyTypeMismatch" xml:space="preserve">
-    <value>The types of the properties specified for the foreign key {foreignKey} on entity type '{dependentType}' do not match the types of the properties in the referenced key on entity type '{principalType}'.</value>
+    <value>The types of the properties specified for the foreign key {foreignKey} on entity type '{dependentType}' do not match the types of the properties in the principal key on entity type '{principalType}'.</value>
   </data>
   <data name="NavigationBadType" xml:space="preserve">
     <value>The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.</value>
@@ -406,7 +406,7 @@
     <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because it has been explicitly ignored.</value>
   </data>
   <data name="RelationshipCannotBeInverted" xml:space="preserve">
-    <value>The principal and dependent ends of the relationship cannot be flipped once foreign key or referenced key properties have been specified.</value>
+    <value>The principal and dependent ends of the relationship cannot be flipped once foreign key or principal key properties have been specified.</value>
   </data>
   <data name="NavigationAddedExplicitly" xml:space="preserve">
     <value>The navigation property '{navigation}' on entity type '{entityType}' could not be ignored because it has been explicitly added.</value>
@@ -439,7 +439,7 @@
     <value>The root principal property found by following to foreign key chain starting on entity type '{entityType}' with {firstForeignKey} is '{firstEntityType}'.'{firstRootProperty}', which is different from the root principal property found by following to foreign key chain starting with {secondForeignKey} - '{secondEntityType}'.'{secondRootProperty}'</value>
   </data>
   <data name="PrincipalKeyNoValueGenerationOnAdd" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' does not have value generation on add enabled and it is referenced by at least one foreign key. Properties referenced by foreign keys should have value generation on add enabled.</value>
+    <value>The property '{property}' on entity type '{entityType}' does not have value generation on add enabled and it is principal by at least one foreign key. Properties referenced by foreign keys should have value generation on add enabled.</value>
   </data>
   <data name="ExpressionParameterizationException" xml:space="preserve">
     <value>An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.</value>
@@ -463,7 +463,7 @@
     <value>Unable to create an instance of type entity type '{entityType}' because it is abstract. Either make it non-abstract or consider mapping at least one derived type.</value>
   </data>
   <data name="ForeignKeyReferencedEntityKeyMismatch" xml:space="preserve">
-    <value>The provided referenced entity key '{referencedKey}' is not a key on the entity type '{referencedEntityType}'.</value>
+    <value>The provided principal entity key '{principalKey}' is not a key on the entity type '{principalEntityType}'.</value>
   </data>
   <data name="NavigationToSelfDuplicate" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be used for both ends of the relationship. Either specify it on the principal side or the dependent side.</value>

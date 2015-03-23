@@ -34,16 +34,16 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <param name="relatedEntityType"> The entity type that the reference points to. </param>
-        /// <param name="referenceName">
+        /// <param name="navigationName">
         ///     The name of the reference navigation property on the end of the relationship that configuration began
         ///     on. If null, there is no navigation property on this end of the relationship.
         /// </param>
         /// <param name="builder"> The internal builder being used to configure the relationship. </param>
         public ReferenceNavigationBuilder(
             [NotNull] EntityType relatedEntityType,
-            [CanBeNull] string referenceName,
+            [CanBeNull] string navigationName,
             [NotNull] InternalRelationshipBuilder builder)
-            : base(relatedEntityType, referenceName, builder)
+            : base(relatedEntityType, navigationName, builder)
         {
         }
 
@@ -56,9 +56,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     configured without a navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ManyToOneBuilder<TEntity, TRelatedEntity> WithMany(
+        public virtual CollectionReferenceBuilder<TEntity, TRelatedEntity> InverseCollection(
             [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> collection = null)
-            => new ManyToOneBuilder<TEntity, TRelatedEntity>(WithManyBuilder(collection?.GetPropertyAccess().Name));
+            => new CollectionReferenceBuilder<TEntity, TRelatedEntity>(InverseCollectionBuilder(collection?.GetPropertyAccess().Name));
 
         /// <summary>
         ///     Configures this as a one-to-one relationship.
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     configured without a navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual OneToOneBuilder WithOne([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverseReference = null)
-            => new OneToOneBuilder(WithOneBuilder(inverseReference?.GetPropertyAccess().Name));
+        public virtual ReferenceReferenceBuilder InverseReference([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverseReference = null)
+            => new ReferenceReferenceBuilder(InverseReferenceBuilder(inverseReference?.GetPropertyAccess().Name));
     }
 }

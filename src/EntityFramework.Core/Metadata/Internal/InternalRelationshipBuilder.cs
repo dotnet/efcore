@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public class InternalRelationshipBuilder : InternalMetadataItemBuilder<ForeignKey>
     {
         private ConfigurationSource? _foreignKeyPropertiesConfigurationSource;
-        private ConfigurationSource? _referencedKeyConfigurationSource;
+        private ConfigurationSource? _principalKeyConfigurationSource;
         private ConfigurationSource? _isUniqueConfigurationSource;
         private ConfigurationSource? _isRequiredConfigurationSource;
         private ConfigurationSource? _principalEndConfigurationSource;
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(modelBuilder, nameof(modelBuilder));
 
             _foreignKeyPropertiesConfigurationSource = initialConfigurationSource;
-            _referencedKeyConfigurationSource = initialConfigurationSource;
+            _principalKeyConfigurationSource = initialConfigurationSource;
             _isUniqueConfigurationSource = initialConfigurationSource;
             _isRequiredConfigurationSource = initialConfigurationSource;
             _principalEndConfigurationSource = initialConfigurationSource;
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             if ((_foreignKeyPropertiesConfigurationSource != null && _foreignKeyPropertiesConfigurationSource.Value.Overrides(configurationSource))
-                || (_referencedKeyConfigurationSource != null && _referencedKeyConfigurationSource.Value.Overrides(configurationSource))
+                || (_principalKeyConfigurationSource != null && _principalKeyConfigurationSource.Value.Overrides(configurationSource))
                 || (_principalEndConfigurationSource != null && !configurationSource.Overrides(_principalEndConfigurationSource.Value)))
             {
                 if (configurationSource == ConfigurationSource.Explicit)
@@ -198,7 +198,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             _principalEndConfigurationSource = configurationSource.Max(_principalEndConfigurationSource);
             _foreignKeyPropertiesConfigurationSource = null;
-            _referencedKeyConfigurationSource = null;
+            _principalKeyConfigurationSource = null;
 
             return ReplaceForeignKey(
                 Metadata.EntityType,
@@ -285,17 +285,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 .ForeignKey(propertyNames, configurationSource);
         }
 
-        public virtual InternalRelationshipBuilder ForeignKey(
-            [NotNull] string specifiedDependentTypeName,
-            [CanBeNull] IReadOnlyList<string> propertyNames,
-            ConfigurationSource configurationSource)
-        {
-            Check.NotNull(specifiedDependentTypeName, nameof(specifiedDependentTypeName));
-
-            return ForeignInvertIfNeeded(ResolveType(specifiedDependentTypeName), configurationSource)
-                .ForeignKey(propertyNames, configurationSource);
-        }
-
         private InternalRelationshipBuilder ForeignInvertIfNeeded(EntityType entityType, ConfigurationSource configurationSource)
         {
             _principalEndConfigurationSource = configurationSource.Max(_principalEndConfigurationSource);
@@ -304,25 +293,25 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 : Invert(configurationSource);
         }
 
-        public virtual InternalRelationshipBuilder ReferencedKey([CanBeNull] IReadOnlyList<PropertyInfo> properties,
+        public virtual InternalRelationshipBuilder PrincipalKey([CanBeNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
         {
-            return ReferencedKey(
+            return PrincipalKey(
                 ModelBuilder.Entity(Metadata.PrincipalEntityType.Name, configurationSource)
                     .GetOrCreateProperties(properties, configurationSource),
                 configurationSource);
         }
 
-        public virtual InternalRelationshipBuilder ReferencedKey([CanBeNull] IReadOnlyList<string> propertyNames,
+        public virtual InternalRelationshipBuilder PrincipalKey([CanBeNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
         {
-            return ReferencedKey(
+            return PrincipalKey(
                 ModelBuilder.Entity(Metadata.PrincipalEntityType.Name, configurationSource)
                     .GetOrCreateProperties(propertyNames, configurationSource),
                 configurationSource);
         }
 
-        public virtual InternalRelationshipBuilder ReferencedKey([CanBeNull] IReadOnlyList<Property> properties,
+        public virtual InternalRelationshipBuilder PrincipalKey([CanBeNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource)
         {
             if (properties != null
@@ -330,12 +319,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 var principalEntityTypeBuilder = ModelBuilder.Entity(Metadata.PrincipalEntityType.Name, configurationSource);
                 principalEntityTypeBuilder.Key(properties, configurationSource);
-                _referencedKeyConfigurationSource = configurationSource.Max(_referencedKeyConfigurationSource);
+                _principalKeyConfigurationSource = configurationSource.Max(_principalKeyConfigurationSource);
                 return this;
             }
 
-            if (_referencedKeyConfigurationSource != null
-                && !configurationSource.Overrides(_referencedKeyConfigurationSource.Value))
+            if (_principalKeyConfigurationSource != null
+                && !configurationSource.Overrides(_principalKeyConfigurationSource.Value))
             {
                 return null;
             }
@@ -344,17 +333,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 || properties.Count == 0)
             {
                 properties = null;
-                _referencedKeyConfigurationSource = null;
+                _principalKeyConfigurationSource = null;
             }
             else
             {
-                _referencedKeyConfigurationSource = configurationSource.Max(_referencedKeyConfigurationSource);
+                _principalKeyConfigurationSource = configurationSource.Max(_principalKeyConfigurationSource);
             }
 
             return ReplaceForeignKey(configurationSource, principalProperties: properties);
         }
 
-        public virtual InternalRelationshipBuilder UpdateReferencedKey([NotNull] IReadOnlyList<Property> properties,
+        public virtual InternalRelationshipBuilder UpdatePrincipalKey([NotNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource)
         {
             if (Metadata.PrincipalKey.Properties.SequenceEqual(properties))
@@ -362,8 +351,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return this;
             }
 
-            if (_referencedKeyConfigurationSource != null
-                && _referencedKeyConfigurationSource.Value.Overrides(configurationSource))
+            if (_principalKeyConfigurationSource != null
+                && _principalKeyConfigurationSource.Value.Overrides(configurationSource))
             {
                 return null;
             }
@@ -378,7 +367,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return ReplaceForeignKey(configurationSource, principalProperties: properties);
         }
 
-        public virtual InternalRelationshipBuilder ReferencedKey(
+        public virtual InternalRelationshipBuilder PrincipalKey(
             [NotNull] Type specifiedPrincipalType,
             [CanBeNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
@@ -386,10 +375,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(specifiedPrincipalType, nameof(specifiedPrincipalType));
 
             return ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalType), configurationSource)
-                .ReferencedKey(properties, configurationSource);
+                .PrincipalKey(properties, configurationSource);
         }
 
-        public virtual InternalRelationshipBuilder ReferencedKey(
+        public virtual InternalRelationshipBuilder PrincipalKey(
             [NotNull] Type specifiedPrincipalType,
             [CanBeNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
@@ -397,18 +386,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(specifiedPrincipalType, nameof(specifiedPrincipalType));
 
             return ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalType), configurationSource)
-                .ReferencedKey(propertyNames, configurationSource);
-        }
-
-        public virtual InternalRelationshipBuilder ReferencedKey(
-            [NotNull] string specifiedPrincipalTypeName,
-            [CanBeNull] IReadOnlyList<string> propertyNames,
-            ConfigurationSource configurationSource)
-        {
-            Check.NotNull(specifiedPrincipalTypeName, nameof(specifiedPrincipalTypeName));
-
-            return ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalTypeName), configurationSource)
-                .ReferencedKey(propertyNames, configurationSource);
+                .PrincipalKey(propertyNames, configurationSource);
         }
 
         private InternalRelationshipBuilder ReferenceInvertIfNeeded(EntityType entityType, ConfigurationSource configurationSource)
@@ -432,8 +410,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                                       : null);
 
             principalProperties = principalProperties ??
-                                  (_referencedKeyConfigurationSource.HasValue
-                                   && _referencedKeyConfigurationSource.Value.Overrides(configurationSource)
+                                  (_principalKeyConfigurationSource.HasValue
+                                   && _principalKeyConfigurationSource.Value.Overrides(configurationSource)
                                       ? Metadata.PrincipalKey.Properties
                                       : null);
 
@@ -545,7 +523,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 null,
                 dependentPropertiesExist && _foreignKeyPropertiesConfigurationSource.HasValue ? Metadata.Properties : null,
-                principalPropertiesExist && _referencedKeyConfigurationSource.HasValue ? Metadata.PrincipalKey.Properties : null,
+                principalPropertiesExist && _principalKeyConfigurationSource.HasValue ? Metadata.PrincipalKey.Properties : null,
                 _isUniqueConfigurationSource.HasValue ? Metadata.IsUnique : null,
                 _isRequiredConfigurationSource.HasValue ? Metadata.IsRequired : null,
                 configurationSource,
@@ -563,17 +541,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                              && builder.Metadata.PrincipalEntityType == Metadata.EntityType));
 
             var targetForeignKeyPropertiesConfigurationSource = inverted
-                ? builder._referencedKeyConfigurationSource
+                ? builder._principalKeyConfigurationSource
                 : builder._foreignKeyPropertiesConfigurationSource;
-            var targetReferencedKeyConfigurationSource = inverted
+            var targetPrincipalKeyConfigurationSource = inverted
                 ? builder._foreignKeyPropertiesConfigurationSource
-                : builder._referencedKeyConfigurationSource;
+                : builder._principalKeyConfigurationSource;
 
             _foreignKeyPropertiesConfigurationSource =
                 targetForeignKeyPropertiesConfigurationSource?.Max(_foreignKeyPropertiesConfigurationSource) ?? _foreignKeyPropertiesConfigurationSource;
 
-            _referencedKeyConfigurationSource =
-                targetReferencedKeyConfigurationSource?.Max(_referencedKeyConfigurationSource) ?? _referencedKeyConfigurationSource;
+            _principalKeyConfigurationSource =
+                targetPrincipalKeyConfigurationSource?.Max(_principalKeyConfigurationSource) ?? _principalKeyConfigurationSource;
             _principalEndConfigurationSource = builder._principalEndConfigurationSource;
 
             _isUniqueConfigurationSource = builder._isUniqueConfigurationSource?.Max(_isUniqueConfigurationSource) ?? _isUniqueConfigurationSource;

@@ -1803,27 +1803,27 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             builder.Entity<Product>(b =>
                 {
-                    b.HasOne(e => e.Tag).WithOne(e => e.Product)
-                        .ReferencedKey<Product>(e => e.TagId)
+                    b.Reference(e => e.Tag).InverseReference(e => e.Product)
+                        .PrincipalKey<Product>(e => e.TagId)
                         .ForeignKey<ProductTag>(e => e.ProductId);
                     b.Property(e => e.TagId).GenerateValueOnAdd(false);
                 });
 
             builder.Entity<Category>(b =>
                 {
-                    b.HasMany(e => e.Products).WithOne(e => e.Category)
+                    b.Collection(e => e.Products).InverseReference(e => e.Category)
                         .ForeignKey(e => e.DependentId)
-                        .ReferencedKey(e => e.PrincipalId);
+                        .PrincipalKey(e => e.PrincipalId);
                     b.Property(e => e.PrincipalId).GenerateValueOnAdd(false);
 
-                    b.HasOne(e => e.Tag).WithOne(e => e.Category)
+                    b.Reference(e => e.Tag).InverseReference(e => e.Category)
                         .ForeignKey<CategoryTag>(e => e.CategoryId)
-                        .ReferencedKey<Category>(e => e.TagId);
+                        .PrincipalKey<Category>(e => e.TagId);
                     b.Property(e => e.TagId).GenerateValueOnAdd(false);
                 });
 
             builder.Entity<Person>()
-                .HasOne(e => e.Husband).WithOne(e => e.Wife)
+                .Reference(e => e.Husband).InverseReference(e => e.Wife)
                 .ForeignKey<Person>(e => e.HusbandId);
 
             return builder.Model;
@@ -2028,8 +2028,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             builder.Entity<NotifyingProduct>(b =>
                 {
-                    b.HasOne(e => e.Tag).WithOne(e => e.Product)
-                        .ReferencedKey<NotifyingProduct>(e => e.TagId)
+                    b.Reference(e => e.Tag).InverseReference(e => e.Product)
+                        .PrincipalKey<NotifyingProduct>(e => e.TagId)
                         .ForeignKey<NotifyingProductTag>(e => e.ProductId);
                     b.Property(e => e.TagId).GenerateValueOnAdd(false);
                 });
@@ -2037,19 +2037,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             builder.Entity<NotifyingCategory>(b =>
                 {
-                    b.HasMany(e => e.Products).WithOne(e => e.Category)
+                    b.Collection(e => e.Products).InverseReference(e => e.Category)
                         .ForeignKey(e => e.DependentId)
-                        .ReferencedKey(e => e.PrincipalId);
+                        .PrincipalKey(e => e.PrincipalId);
                     b.Property(e => e.PrincipalId).GenerateValueOnAdd(false);
 
-                    b.HasOne(e => e.Tag).WithOne(e => e.Category)
+                    b.Reference(e => e.Tag).InverseReference(e => e.Category)
                         .ForeignKey<NotifyingCategoryTag>(e => e.CategoryId)
-                        .ReferencedKey<NotifyingCategory>(e => e.TagId);
+                        .PrincipalKey<NotifyingCategory>(e => e.TagId);
                     b.Property(e => e.TagId).GenerateValueOnAdd(false);
                 });
 
             builder.Entity<NotifyingPerson>()
-                .HasOne(e => e.Husband).WithOne(e => e.Wife)
+                .Reference(e => e.Husband).InverseReference(e => e.Wife)
                 .ForeignKey<NotifyingPerson>(e => e.HusbandId);
 
             return builder.Model;
@@ -2088,7 +2088,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             builder.Entity<ProductWithChanging>();
             builder.Entity<CategoryWithChanging>()
-                .HasMany(e => e.Products).WithOne(e => e.Category)
+                .Collection(e => e.Products).InverseReference(e => e.Category)
                 .ForeignKey(e => e.DependentId);
 
             return builder.Model;
@@ -2127,7 +2127,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             builder.Entity<ProductWithChanged>();
             builder.Entity<CategoryWithChanged>()
-                .HasMany(e => e.Products).WithOne(e => e.Category)
+                .Collection(e => e.Products).InverseReference(e => e.Category)
                 .ForeignKey(e => e.DependentId);
 
             return builder.Model;

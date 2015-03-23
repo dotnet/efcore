@@ -30,21 +30,21 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <param name="relatedEntityType"> The entity type that the reference points to. </param>
-        /// <param name="referenceName">
+        /// <param name="navigationName">
         ///     The name of the reference navigation property on the end of the relationship that configuration began
         ///     on. If null, there is no navigation property on this end of the relationship.
         /// </param>
         /// <param name="builder"> The internal builder being used to configure the relationship. </param>
         public ReferenceNavigationBuilder(
             [NotNull] EntityType relatedEntityType,
-            [CanBeNull] string referenceName,
+            [CanBeNull] string navigationName,
             [NotNull] InternalRelationshipBuilder builder)
         {
             Check.NotNull(relatedEntityType, nameof(relatedEntityType));
             Check.NotNull(builder, nameof(builder));
 
             RelatedEntityType = relatedEntityType;
-            ReferenceName = referenceName;
+            ReferenceName = navigationName;
             Builder = builder;
         }
 
@@ -77,17 +77,17 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ManyToOneBuilder WithMany([CanBeNull] string collection = null) => new ManyToOneBuilder(WithManyBuilder(collection));
+        public virtual CollectionReferenceBuilder InverseCollection([CanBeNull] string collection = null) => new CollectionReferenceBuilder(InverseCollectionBuilder(collection));
 
         /// <summary>
-        ///     Returns the internal builder to be used when <see cref="WithMany" /> is called.
+        ///     Returns the internal builder to be used when <see cref="InverseCollection" /> is called.
         /// </summary>
         /// <param name="collection">
         ///     The name of the collection navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
-        protected InternalRelationshipBuilder WithManyBuilder(string collection)
+        protected virtual InternalRelationshipBuilder InverseCollectionBuilder(string collection)
         {
             var needToInvert = Metadata.PrincipalEntityType != RelatedEntityType;
             Debug.Assert((needToInvert && Metadata.EntityType == RelatedEntityType)
@@ -117,17 +117,17 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual OneToOneBuilder WithOne([CanBeNull] string inverseReference = null) => new OneToOneBuilder(WithOneBuilder(inverseReference));
+        public virtual ReferenceReferenceBuilder InverseReference([CanBeNull] string inverseReference = null) => new ReferenceReferenceBuilder(InverseReferenceBuilder(inverseReference));
 
         /// <summary>
-        ///     Returns the internal builder to be used when <see cref="WithOne" /> is called.
+        ///     Returns the internal builder to be used when <see cref="InverseReference" /> is called.
         /// </summary>
         /// <param name="inverseReferenceName">
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
-        protected InternalRelationshipBuilder WithOneBuilder(string inverseReferenceName)
+        protected virtual InternalRelationshipBuilder InverseReferenceBuilder(string inverseReferenceName)
         {
             var builder = Builder;
             if (!((IForeignKey)Metadata).IsUnique)

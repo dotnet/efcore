@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity
         /// </summary>
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <returns> The same typeBuilder instance so that multiple configuration calls can be chained. </returns>
         public virtual ModelBuilder Annotation(string annotation, string value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     The internal builder being used to configure this model.
+        ///     The internal typeBuilder being used to configure this model.
         /// </summary>
         protected virtual InternalModelBuilder Builder => _builder;
 
@@ -99,30 +99,22 @@ namespace Microsoft.Data.Entity
         /// </summary>
         /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
         /// <returns> An object that can be used to configure the entity type. </returns>
-        public virtual EntityBuilder<TEntity> Entity<TEntity>() where TEntity : class
+        public virtual EntityTypeBuilder<TEntity> Entity<TEntity>() where TEntity : class
         {
-            return new EntityBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
+            return new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
         }
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
         ///     If the entity type is not already part of the model, it will be added to the model.
         /// </summary>
-        /// <param name="entityType"> The entity type to be configured. </param>
+        /// <param name="type"> The entity type to be configured. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
-        public virtual EntityBuilder Entity([NotNull] Type entityType)
+        public virtual EntityTypeBuilder Entity([NotNull] Type type)
         {
-            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(type, nameof(type));
 
-            return new EntityBuilder(Builder.Entity(entityType, ConfigurationSource.Explicit));
-        }
-
-        // TODO Remove this constructor as part of #748
-        public virtual EntityBuilder Entity([NotNull] string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            return new EntityBuilder(Builder.Entity(name, ConfigurationSource.Explicit));
+            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -137,15 +129,15 @@ namespace Microsoft.Data.Entity
         ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
-        /// <param name="entityBuilder"> An action that performs configuration of the entity type. </param>
+        /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
         /// <returns>
-        ///     The same builder instance so that additional configuration calls can be chained.
+        ///     The same typeBuilder instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Entity<TEntity>([NotNull] Action<EntityBuilder<TEntity>> entityBuilder) where TEntity : class
+        public virtual ModelBuilder Entity<TEntity>([NotNull] Action<EntityTypeBuilder<TEntity>> buildAction) where TEntity : class
         {
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
+            Check.NotNull(buildAction, nameof(buildAction));
 
-            entityBuilder(Entity<TEntity>());
+            buildAction(Entity<TEntity>());
 
             return this;
         }
@@ -161,28 +153,17 @@ namespace Microsoft.Data.Entity
         ///         configuration at the model level to be chained after configuration for the entity type.
         ///     </para>
         /// </summary>
-        /// <param name="entityType"> The entity type to be configured. </param>
-        /// <param name="entityBuilder"> An action that performs configuration of the entity type. </param>
+        /// <param name="type"> The entity type to be configured. </param>
+        /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
         /// <returns>
-        ///     The same builder instance so that additional configuration calls can be chained.
+        ///     The same typeBuilder instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Entity([NotNull] Type entityType, [NotNull] Action<EntityBuilder> entityBuilder)
+        public virtual ModelBuilder Entity([NotNull] Type type, [NotNull] Action<EntityTypeBuilder> buildAction)
         {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
+            Check.NotNull(type, nameof(type));
+            Check.NotNull(buildAction, nameof(buildAction));
 
-            entityBuilder(Entity(entityType));
-
-            return this;
-        }
-
-        // TODO Remove this constructor as part of #748
-        public virtual ModelBuilder Entity([NotNull] string name, [NotNull] Action<EntityBuilder> entityBuilder)
-        {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
-
-            entityBuilder(Entity(name));
+            buildAction(Entity(type));
 
             return this;
         }
@@ -201,20 +182,12 @@ namespace Microsoft.Data.Entity
         ///     Excludes the given entity type from the model. This method is typically used to remove types from
         ///     the model that were added by convention.
         /// </summary>
-        /// <param name="entityType"> The entity type to be removed from the model. </param>
-        public virtual void Ignore([NotNull] Type entityType)
+        /// <param name="type"> The entity type to be removed from the model. </param>
+        public virtual void Ignore([NotNull] Type type)
         {
-            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(type, nameof(type));
 
-            Builder.Ignore(entityType, ConfigurationSource.Explicit);
-        }
-
-        // TODO Remove this constructor as part of #748
-        public virtual void Ignore([NotNull] string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            Builder.Ignore(name, ConfigurationSource.Explicit);
+            Builder.Ignore(type, ConfigurationSource.Explicit);
         }
     }
 }

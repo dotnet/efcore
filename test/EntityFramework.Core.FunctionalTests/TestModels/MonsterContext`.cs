@@ -234,28 +234,28 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             modelBuilder.Entity<TAnOrder>(b =>
                 {
-                    b.HasMany(e => (IEnumerable<TOrderLine>)e.OrderLines).WithOne(e => (TAnOrder)e.Order)
+                    b.Collection(e => (IEnumerable<TOrderLine>)e.OrderLines).InverseReference(e => (TAnOrder)e.Order)
                         .ForeignKey(e => e.OrderId);
 
-                    b.HasMany(e => (IEnumerable<TOrderNote>)e.Notes).WithOne(e => (TAnOrder)e.Order)
-                        .ReferencedKey(e => e.AlternateId);
+                    b.Collection(e => (IEnumerable<TOrderNote>)e.Notes).InverseReference(e => (TAnOrder)e.Order)
+                        .PrincipalKey(e => e.AlternateId);
                 });
 
             modelBuilder.Entity<TOrderQualityCheck>(b =>
                 {
                     b.Key(e => e.OrderId);
 
-                    b.HasOne(e => (TAnOrder)e.Order).WithOne()
+                    b.Reference(e => (TAnOrder)e.Order).InverseReference()
                         .ForeignKey<TOrderQualityCheck>(e => e.OrderId)
-                        .ReferencedKey<TAnOrder>(e => e.AlternateId);
+                        .PrincipalKey<TAnOrder>(e => e.AlternateId);
                 });
 
             modelBuilder.Entity<TProduct>(b =>
                 {
-                    b.HasMany(e => (IEnumerable<TProductReview>)e.Reviews).WithOne(e => (TProduct)e.Product);
-                    b.HasMany(e => (IEnumerable<TBarcode>)e.Barcodes).WithOne(e => (TProduct)e.Product);
-                    b.HasMany(e => (IEnumerable<TProductPhoto>)e.Photos).WithOne();
-                    b.HasOne(e => (TProductDetail)e.Detail).WithOne(e => (TProduct)e.Product)
+                    b.Collection(e => (IEnumerable<TProductReview>)e.Reviews).InverseReference(e => (TProduct)e.Product);
+                    b.Collection(e => (IEnumerable<TBarcode>)e.Barcodes).InverseReference(e => (TProduct)e.Product);
+                    b.Collection(e => (IEnumerable<TProductPhoto>)e.Photos).InverseReference();
+                    b.Reference(e => (TProductDetail)e.Detail).InverseReference(e => (TProduct)e.Product)
                         .ForeignKey<TProductDetail>(e => e.ProductId);
                 });
 
@@ -263,45 +263,45 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 {
                     b.Key(e => new { e.OrderId, e.ProductId });
 
-                    b.HasOne(e => (TProduct)e.Product).WithMany().ForeignKey(e => e.ProductId);
+                    b.Reference(e => (TProduct)e.Product).InverseCollection().ForeignKey(e => e.ProductId);
                 });
 
-            modelBuilder.Entity<TSupplier>().HasOne(e => (TSupplierLogo)e.Logo).WithOne().ForeignKey<TSupplierLogo>(e => e.SupplierId);
+            modelBuilder.Entity<TSupplier>().Reference(e => (TSupplierLogo)e.Logo).InverseReference().ForeignKey<TSupplierLogo>(e => e.SupplierId);
 
             modelBuilder.Entity<TCustomer>(b =>
                 {
-                    b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TCustomer)e.Customer);
-                    b.HasMany(e => (IEnumerable<TLogin>)e.Logins).WithOne(e => (TCustomer)e.Customer);
-                    b.HasOne(e => (TCustomerInfo)e.Info).WithOne().ForeignKey<TCustomerInfo>(e => e.CustomerInfoId);
+                    b.Collection(e => (IEnumerable<TAnOrder>)e.Orders).InverseReference(e => (TCustomer)e.Customer);
+                    b.Collection(e => (IEnumerable<TLogin>)e.Logins).InverseReference(e => (TCustomer)e.Customer);
+                    b.Reference(e => (TCustomerInfo)e.Info).InverseReference().ForeignKey<TCustomerInfo>(e => e.CustomerInfoId);
 
-                    b.HasOne(e => (TCustomer)e.Husband).WithOne(e => (TCustomer)e.Wife)
+                    b.Reference(e => (TCustomer)e.Husband).InverseReference(e => (TCustomer)e.Wife)
                         .ForeignKey<TCustomer>(e => e.HusbandId);
                 });
 
             modelBuilder.Entity<TComplaint>(b =>
                 {
-                    b.HasOne(e => (TCustomer)e.Customer)
-                        .WithMany()
+                    b.Reference(e => (TCustomer)e.Customer)
+                        .InverseCollection()
                         .ForeignKey(e => e.CustomerId);
 
-                    b.HasOne(e => (TResolution)e.Resolution).WithOne(e => (TComplaint)e.Complaint)
-                        .ReferencedKey<TComplaint>(e => e.AlternateId);
+                    b.Reference(e => (TResolution)e.Resolution).InverseReference(e => (TComplaint)e.Complaint)
+                        .PrincipalKey<TComplaint>(e => e.AlternateId);
                 });
 
             modelBuilder.Entity<TProductPhoto>(b =>
                 {
                     b.Key(e => new { e.PhotoId, e.ProductId });
 
-                    b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductPhoto)e.Photo)
+                    b.Collection(e => (IEnumerable<TProductWebFeature>)e.Features).InverseReference(e => (TProductPhoto)e.Photo)
                         .ForeignKey(e => new { e.PhotoId, e.ProductId })
-                        .ReferencedKey(e => new { e.PhotoId, e.ProductId });
+                        .PrincipalKey(e => new { e.PhotoId, e.ProductId });
                 });
 
             modelBuilder.Entity<TProductReview>(b =>
                 {
                     b.Key(e => new { e.ReviewId, e.ProductId });
 
-                    b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductReview)e.Review)
+                    b.Collection(e => (IEnumerable<TProductWebFeature>)e.Features).InverseReference(e => (TProductReview)e.Review)
                         .ForeignKey(e => new { e.ReviewId, e.ProductId });
                 });
 
@@ -309,20 +309,20 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 {
                     var key = b.Key(e => e.Username);
 
-                    b.HasMany(e => (IEnumerable<TMessage>)e.SentMessages).WithOne(e => (TLogin)e.Sender)
+                    b.Collection(e => (IEnumerable<TMessage>)e.SentMessages).InverseReference(e => (TLogin)e.Sender)
                         .ForeignKey(e => e.FromUsername);
 
-                    b.HasMany(e => (IEnumerable<TMessage>)e.ReceivedMessages).WithOne(e => (TLogin)e.Recipient)
+                    b.Collection(e => (IEnumerable<TMessage>)e.ReceivedMessages).InverseReference(e => (TLogin)e.Recipient)
                         .ForeignKey(e => e.ToUsername);
 
-                    b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TLogin)e.Login)
+                    b.Collection(e => (IEnumerable<TAnOrder>)e.Orders).InverseReference(e => (TLogin)e.Login)
                         .ForeignKey(e => e.Username);
 
                     var entityType = b.Metadata;
                     var activityEntityType = entityType.Model.GetEntityType(typeof(TSuspiciousActivity));
                     activityEntityType.AddForeignKey(activityEntityType.GetProperty("Username"), key.Metadata);
 
-                    b.HasOne(e => (TLastLogin)e.LastLogin).WithOne(e => (TLogin)e.Login)
+                    b.Reference(e => (TLastLogin)e.LastLogin).InverseReference(e => (TLogin)e.Login)
                         .ForeignKey<TLastLogin>(e => e.Username);
                 });
 
@@ -330,55 +330,55 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 {
                     b.Key(e => new { e.ResetNo, e.Username });
 
-                    b.HasOne(e => (TLogin)e.Login).WithMany()
+                    b.Reference(e => (TLogin)e.Login).InverseCollection()
                         .ForeignKey(e => e.Username)
-                        .ReferencedKey(e => e.AlternateUsername);
+                        .PrincipalKey(e => e.AlternateUsername);
                 });
 
-            modelBuilder.Entity<TPageView>().HasOne(e => (TLogin)e.Login).WithMany()
+            modelBuilder.Entity<TPageView>().Reference(e => (TLogin)e.Login).InverseCollection()
                 .ForeignKey(e => e.Username);
 
             modelBuilder.Entity<TBarcode>(b =>
                 {
                     b.Key(e => e.Code);
 
-                    b.HasMany(e => (IEnumerable<TIncorrectScan>)e.BadScans).WithOne(e => (TBarcode)e.ExpectedBarcode)
+                    b.Collection(e => (IEnumerable<TIncorrectScan>)e.BadScans).InverseReference(e => (TBarcode)e.ExpectedBarcode)
                         .ForeignKey(e => e.ExpectedCode);
 
-                    b.HasOne(e => (TBarcodeDetail)e.Detail).WithOne()
+                    b.Reference(e => (TBarcodeDetail)e.Detail).InverseReference()
                         .ForeignKey<TBarcodeDetail>(e => e.Code);
                 });
 
-            modelBuilder.Entity<TIncorrectScan>().HasOne(e => (TBarcode)e.ActualBarcode).WithMany()
+            modelBuilder.Entity<TIncorrectScan>().Reference(e => (TBarcode)e.ActualBarcode).InverseCollection()
                 .ForeignKey(e => e.ActualCode);
 
-            modelBuilder.Entity<TSupplierInfo>().HasOne(e => (TSupplier)e.Supplier).WithMany();
+            modelBuilder.Entity<TSupplierInfo>().Reference(e => (TSupplier)e.Supplier).InverseCollection();
 
-            modelBuilder.Entity<TComputer>().HasOne(e => (TComputerDetail)e.ComputerDetail).WithOne(e => (TComputer)e.Computer)
+            modelBuilder.Entity<TComputer>().Reference(e => (TComputerDetail)e.ComputerDetail).InverseReference(e => (TComputer)e.Computer)
                 .ForeignKey<TComputerDetail>(e => e.ComputerDetailId);
 
             modelBuilder.Entity<TDriver>(b =>
                 {
                     b.Key(e => e.Name);
-                    b.HasOne(e => (TLicense)e.License).WithOne(e => (TDriver)e.Driver)
-                        .ReferencedKey<TDriver>(e => e.Name);
+                    b.Reference(e => (TLicense)e.License).InverseReference(e => (TDriver)e.Driver)
+                        .PrincipalKey<TDriver>(e => e.Name);
                 });
 
             modelBuilder.Entity<TSmartCard>(b =>
                 {
                     b.Key(e => e.Username);
 
-                    b.HasOne(e => (TLogin)e.Login).WithOne()
+                    b.Reference(e => (TLogin)e.Login).InverseReference()
                         .ForeignKey<TSmartCard>(e => e.Username);
 
-                    b.HasOne(e => (TLastLogin)e.LastLogin).WithOne()
+                    b.Reference(e => (TLastLogin)e.LastLogin).InverseReference()
                         .ForeignKey<TLastLogin>(e => e.SmartcardUsername);
                 });
 
             modelBuilder.Entity<TRsaToken>(b =>
                 {
                     b.Key(e => e.Serial);
-                    b.HasOne(e => (TLogin)e.Login).WithOne()
+                    b.Reference(e => (TLogin)e.Login).InverseReference()
                         .ForeignKey<TRsaToken>(e => e.Username);
                 });
 

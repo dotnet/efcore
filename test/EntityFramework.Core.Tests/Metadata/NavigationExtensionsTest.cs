@@ -181,8 +181,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var builder = TestHelpers.Instance.CreateConventionBuilder();
 
-            builder.Entity<Principal>().HasMany(e => e.Dependents1).WithOne(e => e.Principal1);
-            builder.Entity<Principal>().HasMany(e => e.Dependents2).WithOne(e => e.Principal2);
+            builder.Entity<Principal>().Collection(e => e.Dependents1).InverseReference(e => e.Principal1);
+            builder.Entity<Principal>().Collection(e => e.Dependents2).InverseReference(e => e.Principal2);
 
             return builder.Model;
         }

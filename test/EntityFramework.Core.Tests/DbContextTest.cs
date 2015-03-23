@@ -1893,7 +1893,7 @@ namespace Microsoft.Data.Entity.Tests
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder
-                    .Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
+                    .Entity<Category>().Collection(e => e.Products).InverseReference(e => e.Category);
             }
         }
 

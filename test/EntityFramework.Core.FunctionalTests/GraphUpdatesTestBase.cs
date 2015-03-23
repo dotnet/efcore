@@ -2199,106 +2199,106 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 modelBuilder.Entity<Root>(b =>
                     {
-                        b.HasMany(e => e.RequiredChildren)
-                            .WithOne(e => e.Parent)
+                        b.Collection(e => e.RequiredChildren)
+                            .InverseReference(e => e.Parent)
                             .ForeignKey(e => e.ParentId);
 
-                        b.HasMany(e => e.OptionalChildren)
-                            .WithOne(e => e.Parent)
+                        b.Collection(e => e.OptionalChildren)
+                            .InverseReference(e => e.Parent)
                             .ForeignKey(e => e.ParentId);
 
-                        b.HasOne(e => e.RequiredSingle)
-                            .WithOne(e => e.Root)
+                        b.Reference(e => e.RequiredSingle)
+                            .InverseReference(e => e.Root)
                             .ForeignKey<RequiredSingle1>(e => e.Id);
 
-                        b.HasOne(e => e.OptionalSingle)
-                            .WithOne(e => e.Root)
+                        b.Reference(e => e.OptionalSingle)
+                            .InverseReference(e => e.Root)
                             .ForeignKey<OptionalSingle1>(e => e.RootId);
 
-                        b.HasOne(e => e.RequiredNonPkSingle)
-                            .WithOne(e => e.Root)
+                        b.Reference(e => e.RequiredNonPkSingle)
+                            .InverseReference(e => e.Root)
                             .ForeignKey<RequiredNonPkSingle1>(e => e.RootId);
 
-                        b.HasMany(e => e.RequiredChildrenAk)
-                            .WithOne(e => e.Parent)
-                            .ReferencedKey(e => e.AlternateId)
+                        b.Collection(e => e.RequiredChildrenAk)
+                            .InverseReference(e => e.Parent)
+                            .PrincipalKey(e => e.AlternateId)
                             .ForeignKey(e => e.ParentId);
 
-                        b.HasMany(e => e.OptionalChildrenAk)
-                            .WithOne(e => e.Parent)
-                            .ReferencedKey(e => e.AlternateId)
+                        b.Collection(e => e.OptionalChildrenAk)
+                            .InverseReference(e => e.Parent)
+                            .PrincipalKey(e => e.AlternateId)
                             .ForeignKey(e => e.ParentId);
 
-                        b.HasOne(e => e.RequiredSingleAk)
-                            .WithOne(e => e.Root)
-                            .ReferencedKey<Root>(e => e.AlternateId)
+                        b.Reference(e => e.RequiredSingleAk)
+                            .InverseReference(e => e.Root)
+                            .PrincipalKey<Root>(e => e.AlternateId)
                             .ForeignKey<RequiredSingleAk1>(e => e.AlternateId);
 
-                        b.HasOne(e => e.OptionalSingleAk)
-                            .WithOne(e => e.Root)
-                            .ReferencedKey<Root>(e => e.AlternateId)
+                        b.Reference(e => e.OptionalSingleAk)
+                            .InverseReference(e => e.Root)
+                            .PrincipalKey<Root>(e => e.AlternateId)
                             .ForeignKey<OptionalSingleAk1>(e => e.RootId);
 
-                        b.HasOne(e => e.RequiredNonPkSingleAk)
-                            .WithOne(e => e.Root)
-                            .ReferencedKey<Root>(e => e.AlternateId)
+                        b.Reference(e => e.RequiredNonPkSingleAk)
+                            .InverseReference(e => e.Root)
+                            .PrincipalKey<Root>(e => e.AlternateId)
                             .ForeignKey<RequiredNonPkSingleAk1>(e => e.RootId);
                     });
 
                 modelBuilder.Entity<Required1>()
-                    .HasMany(e => e.Children)
-                    .WithOne(e => e.Parent)
+                    .Collection(e => e.Children)
+                    .InverseReference(e => e.Parent)
                     .ForeignKey(e => e.ParentId);
 
                 modelBuilder.Entity<Optional1>()
-                    .HasMany(e => e.Children)
-                    .WithOne(e => e.Parent)
+                    .Collection(e => e.Children)
+                    .InverseReference(e => e.Parent)
                     .ForeignKey(e => e.ParentId);
 
                 modelBuilder.Entity<RequiredSingle1>()
-                    .HasOne(e => e.Single)
-                    .WithOne(e => e.Back)
+                    .Reference(e => e.Single)
+                    .InverseReference(e => e.Back)
                     .ForeignKey<RequiredSingle2>(e => e.Id);
 
                 modelBuilder.Entity<OptionalSingle1>()
-                    .HasOne(e => e.Single)
-                    .WithOne(e => e.Back)
+                    .Reference(e => e.Single)
+                    .InverseReference(e => e.Back)
                     .ForeignKey<OptionalSingle2>(e => e.BackId);
 
                 modelBuilder.Entity<RequiredNonPkSingle1>()
-                    .HasOne(e => e.Single)
-                    .WithOne(e => e.Back)
+                    .Reference(e => e.Single)
+                    .InverseReference(e => e.Back)
                     .ForeignKey<RequiredNonPkSingle2>(e => e.BackId);
 
                 modelBuilder.Entity<RequiredAk1>()
-                    .HasMany(e => e.Children)
-                    .WithOne(e => e.Parent)
-                    .ReferencedKey(e => e.AlternateId)
+                    .Collection(e => e.Children)
+                    .InverseReference(e => e.Parent)
+                    .PrincipalKey(e => e.AlternateId)
                     .ForeignKey(e => e.ParentId);
 
                 modelBuilder.Entity<OptionalAk1>()
-                    .HasMany(e => e.Children)
-                    .WithOne(e => e.Parent)
-                    .ReferencedKey(e => e.AlternateId)
+                    .Collection(e => e.Children)
+                    .InverseReference(e => e.Parent)
+                    .PrincipalKey(e => e.AlternateId)
                     .ForeignKey(e => e.ParentId);
 
                 modelBuilder.Entity<RequiredSingleAk1>()
-                    .HasOne(e => e.Single)
-                    .WithOne(e => e.Back)
+                    .Reference(e => e.Single)
+                    .InverseReference(e => e.Back)
                     .ForeignKey<RequiredSingleAk2>(e => e.AlternateId)
-                    .ReferencedKey<RequiredSingleAk1>(e => e.AlternateId);
+                    .PrincipalKey<RequiredSingleAk1>(e => e.AlternateId);
 
                 modelBuilder.Entity<OptionalSingleAk1>()
-                    .HasOne(e => e.Single)
-                    .WithOne(e => e.Back)
+                    .Reference(e => e.Single)
+                    .InverseReference(e => e.Back)
                     .ForeignKey<OptionalSingleAk2>(e => e.BackId)
-                    .ReferencedKey<OptionalSingleAk1>(e => e.AlternateId);
+                    .PrincipalKey<OptionalSingleAk1>(e => e.AlternateId);
 
                 modelBuilder.Entity<RequiredNonPkSingleAk1>()
-                    .HasOne(e => e.Single)
-                    .WithOne(e => e.Back)
+                    .Reference(e => e.Single)
+                    .InverseReference(e => e.Back)
                     .ForeignKey<RequiredNonPkSingleAk2>(e => e.BackId)
-                    .ReferencedKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
+                    .PrincipalKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
             }
 
             public abstract int IntSentinel { get; }

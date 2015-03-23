@@ -3,8 +3,8 @@
 
 namespace Microsoft.Data.Entity.Metadata.Builders
 {
-    public interface IEntityBuilder<out TMetadataBuilder> : IMetadataBuilder<EntityType, TMetadataBuilder>
-        where TMetadataBuilder : IMetadataBuilder<EntityType, TMetadataBuilder>
+    public interface IReferenceCollectionBuilder<out TMetadataBuilder> : IMetadataBuilder<ForeignKey, TMetadataBuilder>
+        where TMetadataBuilder : IMetadataBuilder<ForeignKey, TMetadataBuilder>
     {
     }
 }

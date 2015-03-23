@@ -37,11 +37,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         }
 
         /// <summary>
-        ///     The foreign key that represents this relationship.
-        /// </summary>
-        public virtual ForeignKey Metadata => Builder.Metadata;
-
-        /// <summary>
         ///     Gets the internal builder being used to configure the relationship.
         /// </summary>
         protected virtual InternalRelationshipBuilder Builder { get; }
@@ -54,17 +49,17 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual OneToManyBuilder WithOne([CanBeNull] string reference = null) => new OneToManyBuilder(WithOneBuilder(reference));
+        public virtual ReferenceCollectionBuilder InverseReference([CanBeNull] string reference = null) => new ReferenceCollectionBuilder(InverseReferenceBuilder(reference));
 
         /// <summary>
-        ///     Returns the internal builder to be used when <see cref="WithOne" /> is called.
+        ///     Returns the internal builder to be used when <see cref="InverseReference" /> is called.
         /// </summary>
         /// <param name="reference">
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
-        protected InternalRelationshipBuilder WithOneBuilder(string reference) => Builder.NavigationToPrincipal(
+        protected virtual InternalRelationshipBuilder InverseReferenceBuilder(string reference) => Builder.NavigationToPrincipal(
             reference,
             ConfigurationSource.Explicit,
             strictPreferExisting: true);

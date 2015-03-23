@@ -34,13 +34,13 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Customer>().HasMany(c => c.Orders).WithOne(o => o.Customer)
+            modelBuilder.Entity<Customer>().Collection(c => c.Orders).InverseReference(o => o.Customer)
                 .ForeignKey(o => o.CustomerId);
 
-            modelBuilder.Entity<Order>().HasMany(o => o.OrderLines).WithOne(ol => ol.Order)
+            modelBuilder.Entity<Order>().Collection(o => o.OrderLines).InverseReference(ol => ol.Order)
                 .ForeignKey(ol => ol.OrderId);
 
-            modelBuilder.Entity<Product>().HasMany(p => p.OrderLines).WithOne(ol => ol.Product)
+            modelBuilder.Entity<Product>().Collection(p => p.OrderLines).InverseReference(ol => ol.Product)
                 .ForeignKey(ol => ol.ProductId);
         }
     }

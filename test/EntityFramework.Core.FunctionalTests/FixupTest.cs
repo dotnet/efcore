@@ -246,12 +246,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 modelBuilder.Entity<Product>(b =>
                     {
-                        b.HasMany(e => e.SpecialOffers).WithOne(e => e.Product);
+                        b.Collection(e => e.SpecialOffers).InverseReference(e => e.Product);
                     });
 
                 modelBuilder.Entity<Category>(b =>
                     {
-                        b.HasMany(e => e.Products).WithOne(e => e.Category);
+                        b.Collection(e => e.Products).InverseReference(e => e.Category);
                     });
             }
 

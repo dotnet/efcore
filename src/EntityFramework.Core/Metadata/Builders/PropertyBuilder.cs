@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
@@ -109,20 +108,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         public virtual PropertyBuilder ConcurrencyToken(bool isConcurrencyToken = true)
         {
             Builder.ConcurrencyToken(isConcurrencyToken, ConfigurationSource.Explicit);
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Configures whether this is a shadow state property. A shadow state property is one that does not have a
-        ///     corresponding property in the entity class. The current value for the property is stored in
-        ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
-        /// </summary>
-        /// <param name="isShadowProperty"> A value indicating whether this is a shadow state property. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder Shadow(bool isShadowProperty = true)
-        {
-            Builder.Shadow(isShadowProperty, ConfigurationSource.Explicit);
 
             return this;
         }

@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     configured without a navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual OneToManyBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> reference = null)
-            => new OneToManyBuilder<TEntity, TRelatedEntity>(WithOneBuilder(reference?.GetPropertyAccess().Name));
+        public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> InverseReference([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> reference = null)
+            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(InverseReferenceBuilder(reference?.GetPropertyAccess().Name));
     }
 }

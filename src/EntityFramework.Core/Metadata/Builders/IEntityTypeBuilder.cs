@@ -3,8 +3,8 @@
 
 namespace Microsoft.Data.Entity.Metadata.Builders
 {
-    public interface IManyToOneBuilder<out TMetadataBuilder> : IMetadataBuilder<ForeignKey, TMetadataBuilder>
-        where TMetadataBuilder : IMetadataBuilder<ForeignKey, TMetadataBuilder>
+    public interface IEntityTypeBuilder<out TMetadataBuilder> : IMetadataBuilder<EntityType, TMetadataBuilder>
+        where TMetadataBuilder : IMetadataBuilder<EntityType, TMetadataBuilder>
     {
     }
 }

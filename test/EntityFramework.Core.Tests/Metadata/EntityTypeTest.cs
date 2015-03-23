@@ -1000,8 +1000,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(SelfRef), new Model());
             var fkProperty = entityType.AddProperty("ForeignKey", typeof(int));
             var principalEntityType = entityType;
-            var referencedKeyProperty = principalEntityType.AddProperty("Id", typeof(int));
-            var referencedKey = principalEntityType.SetPrimaryKey(referencedKeyProperty);
+            var principalKeyProperty = principalEntityType.AddProperty("Id", typeof(int));
+            var referencedKey = principalEntityType.SetPrimaryKey(principalKeyProperty);
             var fk = entityType.AddForeignKey(fkProperty, referencedKey);
             fk.IsUnique = true;
 

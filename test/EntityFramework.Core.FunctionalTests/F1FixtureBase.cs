@@ -79,8 +79,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .StoreComputed()
                         .ConcurrencyToken();
 
-                    b.HasOne(e => e.Gearbox).WithOne().ForeignKey<Team>(e => e.GearboxId);
-                    b.HasOne(e => e.Chassis).WithOne(e => e.Team).ForeignKey<Chassis>(e => e.TeamId);
+                    b.Reference(e => e.Gearbox).InverseReference().ForeignKey<Team>(e => e.GearboxId);
+                    b.Reference(e => e.Chassis).InverseReference(e => e.Team).ForeignKey<Chassis>(e => e.TeamId);
                 });
 
             modelBuilder.Entity<TestDriver>();

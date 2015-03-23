@@ -1041,25 +1041,25 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder
-                    .Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
+                    .Entity<Category>().Collection(e => e.Products).InverseReference(e => e.Category);
 
                 modelBuilder
-                    .Entity<ProductDetailsTag>().HasOne(e => e.TagDetails).WithOne(e => e.Tag)
+                    .Entity<ProductDetailsTag>().Reference(e => e.TagDetails).InverseReference(e => e.Tag)
                     .ForeignKey<ProductDetailsTagDetails>(e => e.Id);
 
                 modelBuilder
-                    .Entity<ProductDetails>().HasOne(e => e.Tag).WithOne(e => e.Details)
+                    .Entity<ProductDetails>().Reference(e => e.Tag).InverseReference(e => e.Details)
                     .ForeignKey<ProductDetailsTag>(e => e.Id);
 
                 modelBuilder
-                    .Entity<Product>().HasOne(e => e.Details).WithOne(e => e.Product)
+                    .Entity<Product>().Reference(e => e.Details).InverseReference(e => e.Product)
                     .ForeignKey<ProductDetails>(e => e.Id);
 
                 modelBuilder.Entity<OrderDetails>(b =>
                     {
                         b.Key(e => new { e.OrderId, e.ProductId });
-                        b.HasOne(e => e.Order).WithMany(e => e.OrderDetails).ForeignKey(e => e.OrderId);
-                        b.HasOne(e => e.Product).WithMany(e => e.OrderDetails).ForeignKey(e => e.ProductId);
+                        b.Reference(e => e.Order).InverseCollection(e => e.OrderDetails).ForeignKey(e => e.OrderId);
+                        b.Reference(e => e.Product).InverseCollection(e => e.OrderDetails).ForeignKey(e => e.ProductId);
                     });
             }
         }

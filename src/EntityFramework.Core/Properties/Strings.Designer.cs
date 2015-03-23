@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Internal
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
-    using JetBrains.Annotations;
+	using JetBrains.Annotations;
 
     public static class Strings
     {
@@ -469,15 +469,15 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The number of properties specified for the foreign key {foreignKey} on entity type '{dependentType}' does not match the number of properties in the referenced key {referencedKey} on entity type '{principalType}'.
+        /// The number of properties specified for the foreign key {foreignKey} on entity type '{dependentType}' does not match the number of properties in the principal key {principalKey} on entity type '{principalType}'.
         /// </summary>
-        public static string ForeignKeyCountMismatch([CanBeNull] object foreignKey, [CanBeNull] object dependentType, [CanBeNull] object referencedKey, [CanBeNull] object principalType)
+        public static string ForeignKeyCountMismatch([CanBeNull] object foreignKey, [CanBeNull] object dependentType, [CanBeNull] object principalKey, [CanBeNull] object principalType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyCountMismatch", "foreignKey", "dependentType", "referencedKey", "principalType"), foreignKey, dependentType, referencedKey, principalType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyCountMismatch", "foreignKey", "dependentType", "principalKey", "principalType"), foreignKey, dependentType, principalKey, principalType);
         }
 
         /// <summary>
-        /// The types of the properties specified for the foreign key {foreignKey} on entity type '{dependentType}' do not match the types of the properties in the referenced key on entity type '{principalType}'.
+        /// The types of the properties specified for the foreign key {foreignKey} on entity type '{dependentType}' do not match the types of the properties in the principal key on entity type '{principalType}'.
         /// </summary>
         public static string ForeignKeyTypeMismatch([CanBeNull] object foreignKey, [CanBeNull] object dependentType, [CanBeNull] object principalType)
         {
@@ -781,7 +781,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The principal and dependent ends of the relationship cannot be flipped once foreign key or referenced key properties have been specified.
+        /// The principal and dependent ends of the relationship cannot be flipped once foreign key or principal key properties have been specified.
         /// </summary>
         public static string RelationshipCannotBeInverted
         {
@@ -869,7 +869,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entityType}' does not have value generation on add enabled and it is referenced by at least one foreign key. Properties referenced by foreign keys should have value generation on add enabled.
+        /// The property '{property}' on entity type '{entityType}' does not have value generation on add enabled and it is principal by at least one foreign key. Properties referenced by foreign keys should have value generation on add enabled.
         /// </summary>
         public static string PrincipalKeyNoValueGenerationOnAdd([CanBeNull] object property, [CanBeNull] object entityType)
         {
@@ -933,11 +933,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The provided referenced entity key '{referencedKey}' is not a key on the entity type '{referencedEntityType}'.
+        /// The provided principal entity key '{principalKey}' is not a key on the entity type '{principalEntityType}'.
         /// </summary>
-        public static string ForeignKeyReferencedEntityKeyMismatch([CanBeNull] object referencedKey, [CanBeNull] object referencedEntityType)
+        public static string ForeignKeyReferencedEntityKeyMismatch([CanBeNull] object principalKey, [CanBeNull] object principalEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyReferencedEntityKeyMismatch", "referencedKey", "referencedEntityType"), referencedKey, referencedEntityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyReferencedEntityKeyMismatch", "principalKey", "principalEntityType"), principalKey, principalEntityType);
         }
 
         /// <summary>

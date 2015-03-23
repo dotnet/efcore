@@ -20,12 +20,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-    public class EntityBuilder<TEntity> : EntityBuilder, IEntityBuilder<TEntity, EntityBuilder<TEntity>>
+    public class EntityTypeBuilder<TEntity> : EntityTypeBuilder, IEntityTypeBuilder<TEntity, EntityTypeBuilder<TEntity>>
         where TEntity : class
     {
         /// <summary>
         ///     <para>
-        ///         Initializes a new instance of the <see cref="EntityBuilder{TEntity}" /> class to configure a given
+        ///         Initializes a new instance of the <see cref="EntityTypeBuilder{TEntity}" /> class to configure a given
         ///         entity type.
         ///     </para>
         ///     <para>
@@ -33,8 +33,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///         and it is not designed to be directly constructed in your application code.
         ///     </para>
         /// </summary>
-        /// <param name="builder"> Internal builder for the entity type being configured. </param>
-        public EntityBuilder([NotNull] InternalEntityBuilder builder)
+        /// <param name="builder"> Internal typeBuilder for the entity type being configured. </param>
+        public EntityTypeBuilder([NotNull] InternalEntityBuilder builder)
             : base(builder)
         {
         }
@@ -45,8 +45,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual EntityBuilder<TEntity> Annotation(string annotation, string value)
+        /// <returns> The same typeBuilder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual EntityTypeBuilder<TEntity> Annotation(string annotation, string value)
         {
             base.Annotation(annotation, value);
 
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The model that the entity type belongs to.
         /// </summary>
-        Model IMetadataBuilder<EntityType, EntityBuilder<TEntity>>.Model => Builder.ModelBuilder.Metadata;
+        Model IMetadataBuilder<EntityType, EntityTypeBuilder<TEntity>>.Model => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Sets the properties that make up the primary key for this entity type.
@@ -141,10 +141,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see
-        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithMany(Expression{Func{TRelatedEntity, IEnumerable{TEntity}}})" />
+        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.InverseCollection(Expression{Func{TRelatedEntity, IEnumerable{TEntity}}})" />
         ///         or
         ///         <see
-        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity, TEntity}})" />
+        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.InverseReference(Expression{Func{TRelatedEntity, TEntity}})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -156,16 +156,16 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     configured without a navigation property on this end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual ReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
+        public virtual ReferenceNavigationBuilder<TEntity, TRelatedEntity> Reference<TRelatedEntity>(
             [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> reference = null)
         {
             var relatedEntityType = Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
-            var referenceName = reference?.GetPropertyAccess().Name;
+            var navigationName = reference?.GetPropertyAccess().Name;
 
             return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
                 relatedEntityType,
-                referenceName,
-                HasOneBuilder(relatedEntityType, referenceName));
+                navigationName,
+                ReferenceBuilder(relatedEntityType, navigationName));
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see
-        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity, TEntity}})" />
+        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.InverseReference(Expression{Func{TRelatedEntity, TEntity}})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -188,15 +188,15 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     configured without a navigation property on this end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
+        public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> Collection<TRelatedEntity>(
             [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null)
         {
             var relatedEntityType = Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
-            var collectionName = collection?.GetPropertyAccess().Name;
+            var navigationName = collection?.GetPropertyAccess().Name;
 
             return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(
-                collectionName,
-                HasManyBuilder(relatedEntityType, collectionName));
+                navigationName,
+                CollectionBuilder(relatedEntityType, navigationName));
         }
     }
 }

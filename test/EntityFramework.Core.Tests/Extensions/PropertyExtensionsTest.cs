@@ -222,16 +222,16 @@ namespace Microsoft.Data.Entity.Tests
 
             modelBuilder
                 .Entity<Category>()
-                .HasMany(e => e.Products)
-                .WithOne(e => e.Category);
+                .Collection(e => e.Products)
+                .InverseReference(e => e.Category);
 
             modelBuilder
                 .Entity<ProductDetailsTag>(b =>
                 {
                     b.Key(e => new { e.Id1, e.Id2 });
-                    b.HasOne(e => e.TagDetails)
-                        .WithOne(e => e.Tag)
-                        .ReferencedKey<ProductDetailsTag>(e => e.Id2)
+                    b.Reference(e => e.TagDetails)
+                        .InverseReference(e => e.Tag)
+                        .PrincipalKey<ProductDetailsTag>(e => e.Id2)
                         .ForeignKey<ProductDetailsTagDetails>(e => e.Id);
                 });
 
@@ -239,25 +239,25 @@ namespace Microsoft.Data.Entity.Tests
                 .Entity<ProductDetails>(b =>
                 {
                     b.Key(e => new { e.Id1, e.Id2 });
-                    b.HasOne(e => e.Tag)
-                        .WithOne(e => e.Details)
+                    b.Reference(e => e.Tag)
+                        .InverseReference(e => e.Details)
                         .ForeignKey<ProductDetailsTag>(e => new { e.Id1, e.Id2 });
                 });
 
             modelBuilder
                 .Entity<Product>()
-                .HasOne(e => e.Details)
-                .WithOne(e => e.Product)
+                .Reference(e => e.Details)
+                .InverseReference(e => e.Product)
                 .ForeignKey<ProductDetails>(e => new { e.Id1 });
 
             modelBuilder.Entity<OrderDetails>(b =>
             {
                 b.Key(e => new { e.OrderId, e.ProductId });
-                b.HasOne(e => e.Order)
-                    .WithMany(e => e.OrderDetails)
+                b.Reference(e => e.Order)
+                    .InverseCollection(e => e.OrderDetails)
                     .ForeignKey(e => e.OrderId);
-                b.HasOne(e => e.Product)
-                    .WithMany(e => e.OrderDetails)
+                b.Reference(e => e.Product)
+                    .InverseCollection(e => e.OrderDetails)
                     .ForeignKey(e => e.ProductId);
             });
 

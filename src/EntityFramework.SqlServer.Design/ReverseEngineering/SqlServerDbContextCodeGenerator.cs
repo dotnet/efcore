@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     sb.AppendLine();
                 }
                 sb.Append("entity.");
-                sb.Append("HasOne");
+                sb.Append("Reference");
                 sb.Append("<");
                 sb.Append(foreignKey.PrincipalEntityType.Name);
                 sb.Append(">(d => d.");
@@ -91,11 +91,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 {
                     if (foreignKey.IsUnique)
                     {
-                        sb.Append(".WithOne(");
+                        sb.Append(".InverseReference(");
                     }
                     else
                     {
-                        sb.Append(".WithMany(");
+                        sb.Append(".InverseCollection(");
                     }
                     sb.Append("p => p.");
                     sb.Append(principalEndNavigationPropertyName);

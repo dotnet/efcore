@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     referencingForeignKey,
                     existingForeignKey: true,
                     configurationSource: ConfigurationSource.Convention)
-                    .UpdateReferencedKey(newProperties, configurationSource) != null;
+                    .UpdatePrincipalKey(newProperties, configurationSource) != null;
             }
 
             if (allForeignKeysReplaced)
@@ -454,13 +454,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual InternalRelationshipBuilder ForeignKey(
-            [NotNull] string referencedEntityTypeName, [NotNull] IReadOnlyList<string> propertyNames,
+            [NotNull] string principalEntityTypeName, [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(referencedEntityTypeName, nameof(referencedEntityTypeName));
+            Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
             Check.NotNull(propertyNames, nameof(propertyNames));
 
-            var principalType = ModelBuilder.Entity(referencedEntityTypeName, configurationSource);
+            var principalType = ModelBuilder.Entity(principalEntityTypeName, configurationSource);
             if (principalType == null)
             {
                 return null;
@@ -965,7 +965,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
                 if (principalProperties != null)
                 {
-                    builder = builder.ReferencedKey(principalProperties, configurationSource);
+                    builder = builder.PrincipalKey(principalProperties, configurationSource);
                 }
             }
 

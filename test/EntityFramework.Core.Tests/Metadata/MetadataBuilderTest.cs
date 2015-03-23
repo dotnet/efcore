@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .EntityBuilderExtension("V1")
                 .EntityBuilderExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .EntityBuilderExtension("V1")
                 .EntityBuilderExtension("V2");
 
-            Assert.IsType<EntityBuilder>(returnedBuilder);
+            Assert.IsType<EntityTypeBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .EntityBuilderExtension("V1")
                 .EntityBuilderExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .EntityBuilderExtension("V1")
                 .EntityBuilderExtension("V2");
 
-            Assert.IsType<EntityBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .GenericEntityBuilderExtension("V1")
                 .GenericEntityBuilderExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -157,7 +157,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .GenericEntityBuilderExtension("V1")
                 .GenericEntityBuilderExtension("V2");
 
-            Assert.IsType<EntityBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -178,7 +178,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .KeyBuilderExtension("V1")
                 .KeyBuilderExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder.KeyBuilder>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder.KeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var key = model.GetEntityType(typeof(Gunter)).GetPrimaryKey();
@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .PropertyBuilderExtension("V1")
                 .PropertyBuilderExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder.PropertyBuilder>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder.PropertyBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var property = model.GetEntityType(typeof(Gunter)).GetProperty("Id");
@@ -264,7 +264,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ForeignKeyBuilderExtension("V1")
                 .ForeignKeyBuilderExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder.ForeignKeyBuilder>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder.ForeignKeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
@@ -285,7 +285,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .IndexBuilderExtension("V1")
                 .IndexBuilderExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder.IndexBuilder>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder.IndexBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var index = model.GetEntityType(typeof(Gunter)).Indexes.Single();
@@ -322,11 +322,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
-                .Entity<Gunter>().HasMany(e => e.Gates).WithOne(e => e.Gunter)
+                .Entity<Gunter>().Collection(e => e.Gates).InverseReference(e => e.Gunter)
                 .OneToManyBuilderExtension("V1")
                 .OneToManyBuilderExtension("V2");
 
-            Assert.IsType<OneToManyBuilder<Gunter, Gate>>(returnedBuilder);
+            Assert.IsType<ReferenceCollectionBuilder<Gunter, Gate>>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
@@ -342,11 +342,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
-                .Entity<Gate>().HasOne(e => e.Gunter).WithMany(e => e.Gates)
+                .Entity<Gate>().Reference(e => e.Gunter).InverseCollection(e => e.Gates)
                 .ManyToOneBuilderExtension("V1")
                 .ManyToOneBuilderExtension("V2");
 
-            Assert.IsType<ManyToOneBuilder<Gate, Gunter>>(returnedBuilder);
+            Assert.IsType<CollectionReferenceBuilder<Gate, Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
@@ -362,12 +362,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
-                .Entity<Avatar>().HasOne(e => e.Gunter).WithOne(e => e.Avatar)
-                .ReferencedKey<Gunter>(e => e.Id)
+                .Entity<Avatar>().Reference(e => e.Gunter).InverseReference(e => e.Avatar)
+                .PrincipalKey<Gunter>(e => e.Id)
                 .OneToOneBuilderExtension("V1")
                 .OneToOneBuilderExtension("V2");
 
-            Assert.IsType<OneToOneBuilder>(returnedBuilder);
+            Assert.IsType<ReferenceReferenceBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Avatar)).ForeignKeys.Single();
@@ -423,7 +423,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -443,7 +443,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<EntityBuilder>(returnedBuilder);
+            Assert.IsType<EntityTypeBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -463,7 +463,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -483,7 +483,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<EntityBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -503,7 +503,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -523,7 +523,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<EntityBuilder<Gunter>>(returnedBuilder);
+            Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var entityType = model.GetEntityType(typeof(Gunter));
@@ -544,7 +544,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder.KeyBuilder>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder.KeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var key = model.GetEntityType(typeof(Gunter)).GetPrimaryKey();
@@ -586,7 +586,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder.PropertyBuilder>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder.PropertyBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var property = model.GetEntityType(typeof(Gunter)).GetProperty("Id");
@@ -630,7 +630,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder.ForeignKeyBuilder>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder.ForeignKeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
@@ -651,7 +651,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<BasicModelBuilder.EntityBuilder.IndexBuilder>(returnedBuilder);
+            Assert.IsType<BasicModelBuilder.EntityTypeBuilder.IndexBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var index = model.GetEntityType(typeof(Gunter)).Indexes.Single();
@@ -688,11 +688,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
-                .Entity<Gunter>().HasMany(e => e.Gates).WithOne(e => e.Gunter)
+                .Entity<Gunter>().Collection(e => e.Gates).InverseReference(e => e.Gunter)
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<OneToManyBuilder<Gunter, Gate>>(returnedBuilder);
+            Assert.IsType<ReferenceCollectionBuilder<Gunter, Gate>>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
@@ -708,11 +708,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
-                .Entity<Gate>().HasOne(e => e.Gunter).WithMany(e => e.Gates)
+                .Entity<Gate>().Reference(e => e.Gunter).InverseCollection(e => e.Gates)
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ManyToOneBuilder<Gate, Gunter>>(returnedBuilder);
+            Assert.IsType<CollectionReferenceBuilder<Gate, Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
@@ -728,12 +728,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
-                .Entity<Avatar>().HasOne(e => e.Gunter).WithOne(e => e.Avatar)
-                .ReferencedKey<Gunter>(e => e.Id)
+                .Entity<Avatar>().Reference(e => e.Gunter).InverseReference(e => e.Avatar)
+                .PrincipalKey<Gunter>(e => e.Id)
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<OneToOneBuilder>(returnedBuilder);
+            Assert.IsType<ReferenceReferenceBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Avatar)).ForeignKeys.Single();
@@ -786,7 +786,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         public static TBuilder EntityBuilderExtension<TBuilder>(this TBuilder builder, string value)
-            where TBuilder : IEntityBuilder<TBuilder>
+            where TBuilder : IEntityTypeBuilder<TBuilder>
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
@@ -795,15 +795,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             return builder;
         }
 
-        public static TBuilder GenericEntityBuilderExtension<TEntity, TBuilder>(this IEntityBuilder<TEntity, TBuilder> builder, string value)
+        public static TBuilder GenericEntityBuilderExtension<TEntity, TBuilder>(this IEntityTypeBuilder<TEntity, TBuilder> typeBuilder, string value)
             where TEntity : class
-            where TBuilder : IEntityBuilder<TEntity, TBuilder>
+            where TBuilder : IEntityTypeBuilder<TEntity, TBuilder>
         {
-            builder.Annotation("Annotation", value + ".Annotation");
-            builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.Model["Model"] = value + ".Model";
+            typeBuilder.Annotation("Annotation", value + ".Annotation");
+            typeBuilder.Metadata["Metadata"] = value + ".Metadata";
+            typeBuilder.Model["Model"] = value + ".Model";
 
-            return (TBuilder)builder;
+            return (TBuilder)typeBuilder;
         }
 
         public static TBuilder KeyBuilderExtension<TBuilder>(this TBuilder builder, string value)
@@ -846,8 +846,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             return builder;
         }
 
-        public static TBuilder OneToManyBuilderExtension<TBuilder>(this IOneToManyBuilder<TBuilder> builder, string value)
-            where TBuilder : IOneToManyBuilder<TBuilder>
+        public static TBuilder OneToManyBuilderExtension<TBuilder>(this IReferenceCollectionBuilder<TBuilder> builder, string value)
+            where TBuilder : IReferenceCollectionBuilder<TBuilder>
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
@@ -856,8 +856,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             return (TBuilder)builder;
         }
 
-        public static TBuilder ManyToOneBuilderExtension<TBuilder>(this IManyToOneBuilder<TBuilder> builder, string value)
-            where TBuilder : IManyToOneBuilder<TBuilder>
+        public static TBuilder ManyToOneBuilderExtension<TBuilder>(this ICollectionReferenceBuilder<TBuilder> builder, string value)
+            where TBuilder : ICollectionReferenceBuilder<TBuilder>
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
@@ -866,8 +866,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             return (TBuilder)builder;
         }
 
-        public static TBuilder OneToOneBuilderExtension<TBuilder>(this IOneToOneBuilder<TBuilder> builder, string value)
-            where TBuilder : IOneToOneBuilder<TBuilder>
+        public static TBuilder OneToOneBuilderExtension<TBuilder>(this IReferenceReferenceBuilder<TBuilder> builder, string value)
+            where TBuilder : IReferenceReferenceBuilder<TBuilder>
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
@@ -886,25 +886,25 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             return (TBuilder)builder;
         }
 
-        public static TBuilder SharedNameExtension<TBuilder>(this IEntityBuilder<TBuilder> builder, string value)
-            where TBuilder : IEntityBuilder<TBuilder>
+        public static TBuilder SharedNameExtension<TBuilder>(this IEntityTypeBuilder<TBuilder> typeBuilder, string value)
+            where TBuilder : IEntityTypeBuilder<TBuilder>
         {
-            builder.Annotation("Annotation", value + ".Annotation");
-            builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.Model["Model"] = value + ".Model";
+            typeBuilder.Annotation("Annotation", value + ".Annotation");
+            typeBuilder.Metadata["Metadata"] = value + ".Metadata";
+            typeBuilder.Model["Model"] = value + ".Model";
 
-            return (TBuilder)builder;
+            return (TBuilder)typeBuilder;
         }
 
-        public static TBuilder SharedNameExtension<TEntity, TBuilder>(this IEntityBuilder<TEntity, TBuilder> builder, string value)
+        public static TBuilder SharedNameExtension<TEntity, TBuilder>(this IEntityTypeBuilder<TEntity, TBuilder> typeBuilder, string value)
             where TEntity : class
-            where TBuilder : IEntityBuilder<TEntity, TBuilder>
+            where TBuilder : IEntityTypeBuilder<TEntity, TBuilder>
         {
-            builder.Annotation("Annotation", value + ".Annotation");
-            builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.Model["Model"] = value + ".Model";
+            typeBuilder.Annotation("Annotation", value + ".Annotation");
+            typeBuilder.Metadata["Metadata"] = value + ".Metadata";
+            typeBuilder.Model["Model"] = value + ".Model";
 
-            return (TBuilder)builder;
+            return (TBuilder)typeBuilder;
         }
 
         public static TBuilder SharedNameExtension<TBuilder>(this IKeyBuilder<TBuilder> builder, string value)
@@ -947,8 +947,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             return (TBuilder)builder;
         }
 
-        public static TBuilder SharedNameExtension<TBuilder>(this IOneToManyBuilder<TBuilder> builder, string value)
-            where TBuilder : IOneToManyBuilder<TBuilder>
+        public static TBuilder SharedNameExtension<TBuilder>(this IReferenceCollectionBuilder<TBuilder> builder, string value)
+            where TBuilder : IReferenceCollectionBuilder<TBuilder>
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
@@ -957,8 +957,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             return (TBuilder)builder;
         }
 
-        public static TBuilder SharedNameExtension<TBuilder>(this IManyToOneBuilder<TBuilder> builder, string value)
-            where TBuilder : IManyToOneBuilder<TBuilder>
+        public static TBuilder SharedNameExtension<TBuilder>(this ICollectionReferenceBuilder<TBuilder> builder, string value)
+            where TBuilder : ICollectionReferenceBuilder<TBuilder>
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
@@ -967,8 +967,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             return (TBuilder)builder;
         }
 
-        public static TBuilder SharedNameExtension<TBuilder>(this IOneToOneBuilder<TBuilder> builder, string value)
-            where TBuilder : IOneToOneBuilder<TBuilder>
+        public static TBuilder SharedNameExtension<TBuilder>(this IReferenceReferenceBuilder<TBuilder> builder, string value)
+            where TBuilder : IReferenceReferenceBuilder<TBuilder>
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";

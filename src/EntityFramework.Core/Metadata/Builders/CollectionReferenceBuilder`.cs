@@ -21,12 +21,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     /// </summary>
     /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
     /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-    public class ManyToOneBuilder<TEntity, TRelatedEntity> : ManyToOneBuilder
+    public class CollectionReferenceBuilder<TEntity, TRelatedEntity> : CollectionReferenceBuilder
         where TEntity : class
     {
         /// <summary>
         ///     <para>
-        ///         Initializes a new instance of the <see cref="ManyToOneBuilder{TEntity, TRelatedEntity}" /> class.
+        ///         Initializes a new instance of the <see cref="CollectionReferenceBuilder{TEntity,TRelatedEntity}" /> class.
         ///     </para>
         ///     <para>
         ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <param name="builder"> The internal builder being used to configure this relationship. </param>
-        public ManyToOneBuilder([NotNull] InternalRelationshipBuilder builder)
+        public CollectionReferenceBuilder([NotNull] InternalRelationshipBuilder builder)
             : base(builder)
         {
         }
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///         Configures the property(s) to use as the foreign key for this relationship.
         ///     </para>
         ///     <para>
-        ///         If <see cref="ReferencedKey(Expression{Func{TRelatedEntity, object}})" /> is not specified, then an
+        ///         If <see cref="PrincipalKey(Expression{Func{TRelatedEntity, object}})" /> is not specified, then an
         ///         attempt will be made to match the data type and order of foreign key properties against the primary
         ///         key of the principal entity type. If they do not match, new shadow state properties that form a
         ///         unique
@@ -62,21 +62,21 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///         If the foreign key is made up of multiple properties then specify an anonymous type including the
         ///         properties (<c>t => new { t.Id1, t.Id2 }</c>).
         ///         The order specified should match the order of corresponding keys in
-        ///         <see cref="ReferencedKey(Expression{Func{TRelatedEntity, object}})" />.
+        ///         <see cref="PrincipalKey(Expression{Func{TRelatedEntity, object}})" />.
         ///     </para>
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ManyToOneBuilder<TEntity, TRelatedEntity> ForeignKey(
+        public virtual CollectionReferenceBuilder<TEntity, TRelatedEntity> ForeignKey(
             [NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)
         {
             Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression));
 
-            return new ManyToOneBuilder<TEntity, TRelatedEntity>(Builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+            return new CollectionReferenceBuilder<TEntity, TRelatedEntity>(Builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
         }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
-        ///     method if you want to use a property(s) other than the primary key as the referenced property(s). If
+        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
         ///     the specified property(s) is not already a unique index (or the primary key) then a new unique index
         ///     will be introduced.
         /// </summary>
@@ -85,17 +85,17 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///         A lambda expression representing the reference key property(s) (<c>t => t.Id</c>).
         ///     </para>
         ///     <para>
-        ///         If the referenced key is made up of multiple properties then specify an anonymous type including
+        ///         If the principal key is made up of multiple properties then specify an anonymous type including
         ///         the properties (<c>t => new { t.Id1, t.Id2 }</c>).
         ///     </para>
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ManyToOneBuilder<TEntity, TRelatedEntity> ReferencedKey(
+        public virtual CollectionReferenceBuilder<TEntity, TRelatedEntity> PrincipalKey(
             [NotNull] Expression<Func<TRelatedEntity, object>> keyExpression)
         {
             Check.NotNull(keyExpression, nameof(keyExpression));
 
-            return new ManyToOneBuilder<TEntity, TRelatedEntity>(Builder.ReferencedKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+            return new CollectionReferenceBuilder<TEntity, TRelatedEntity>(Builder.PrincipalKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -105,12 +105,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ManyToOneBuilder<TEntity, TRelatedEntity> Annotation([NotNull] string annotation, [NotNull] string value)
+        public new virtual CollectionReferenceBuilder<TEntity, TRelatedEntity> Annotation([NotNull] string annotation, [NotNull] string value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotEmpty(value, nameof(value));
 
-            return (ManyToOneBuilder<TEntity, TRelatedEntity>)base.Annotation(annotation, value);
+            return (CollectionReferenceBuilder<TEntity, TRelatedEntity>)base.Annotation(annotation, value);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="ReferencedKey(string[])" /> is not specified, then an attempt will be made to match
+        ///         If <see cref="PrincipalKey(string[])" /> is not specified, then an attempt will be made to match
         ///         the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
@@ -135,26 +135,26 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     The name(s) of the foreign key property(s).
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ManyToOneBuilder<TEntity, TRelatedEntity> ForeignKey([NotNull] params string[] foreignKeyPropertyNames)
+        public new virtual CollectionReferenceBuilder<TEntity, TRelatedEntity> ForeignKey([NotNull] params string[] foreignKeyPropertyNames)
         {
             Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
-            return new ManyToOneBuilder<TEntity, TRelatedEntity>(Builder.ForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
+            return new CollectionReferenceBuilder<TEntity, TRelatedEntity>(Builder.ForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
-        ///     method if you want to use a property(s) other than the primary key as the referenced property(s). If
+        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
         ///     the specified property(s) is not already a unique index (or the primary key) then a new unique index
         ///     will be introduced.
         /// </summary>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ManyToOneBuilder<TEntity, TRelatedEntity> ReferencedKey([NotNull] params string[] keyPropertyNames)
+        public new virtual CollectionReferenceBuilder<TEntity, TRelatedEntity> PrincipalKey([NotNull] params string[] keyPropertyNames)
         {
             Check.NotNull(keyPropertyNames, nameof(keyPropertyNames));
 
-            return new ManyToOneBuilder<TEntity, TRelatedEntity>(Builder.ReferencedKey(keyPropertyNames, ConfigurationSource.Explicit));
+            return new CollectionReferenceBuilder<TEntity, TRelatedEntity>(Builder.PrincipalKey(keyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ManyToOneBuilder<TEntity, TRelatedEntity> Required(bool required = true)
-            => new ManyToOneBuilder<TEntity, TRelatedEntity>(Builder.Required(required, ConfigurationSource.Explicit));
+        public new virtual CollectionReferenceBuilder<TEntity, TRelatedEntity> Required(bool required = true)
+            => new CollectionReferenceBuilder<TEntity, TRelatedEntity>(Builder.Required(required, ConfigurationSource.Explicit));
     }
 }
