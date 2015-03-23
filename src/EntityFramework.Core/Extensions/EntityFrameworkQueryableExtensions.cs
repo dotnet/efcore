@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
@@ -21,7 +20,7 @@ namespace System.Linq
     {
         #region Any/All
 
-        private static readonly MethodInfo _any = GetMethod("Any");
+        private static readonly MethodInfo _any = GetMethod(nameof(Queryable.Any));
 
         /// <summary>
         ///     Asynchronously determines whether a sequence contains any elements.
@@ -52,7 +51,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, bool>(_any, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _anyPredicate = GetMethod("Any", 1);
+        private static readonly MethodInfo _anyPredicate = GetMethod(nameof(Queryable.Any), 1);
 
         /// <summary>
         ///     Asynchronously determines whether any element of a sequence satisfies a condition.
@@ -87,7 +86,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, bool>(_anyPredicate, source, predicate, cancellationToken);
         }
 
-        private static readonly MethodInfo _allPredicate = GetMethod("All", 1);
+        private static readonly MethodInfo _allPredicate = GetMethod(nameof(Queryable.All), 1);
 
         /// <summary>
         ///     Asynchronously determines whether all the elements of a sequence satisfy a condition.
@@ -126,7 +125,7 @@ namespace System.Linq
 
         #region Count/LongCount
 
-        private static readonly MethodInfo _count = GetMethod("Count");
+        private static readonly MethodInfo _count = GetMethod(nameof(Queryable.Count));
 
         /// <summary>
         ///     Asynchronously returns the number of elements in a sequence.
@@ -157,7 +156,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, int>(_count, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _countPredicate = GetMethod("Count", 1);
+        private static readonly MethodInfo _countPredicate = GetMethod(nameof(Queryable.Count), 1);
 
         /// <summary>
         ///     Asynchronously returns the number of elements in a sequence that satisfy a condition.
@@ -192,7 +191,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, int>(_countPredicate, source, predicate, cancellationToken);
         }
 
-        private static readonly MethodInfo _longCount = GetMethod("LongCount");
+        private static readonly MethodInfo _longCount = GetMethod(nameof(Queryable.LongCount));
 
         /// <summary>
         ///     Asynchronously returns an <see cref="Int64" /> that represents the total number of elements in a sequence.
@@ -223,7 +222,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, long>(_longCount, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _longCountPredicate = GetMethod("LongCount", 1);
+        private static readonly MethodInfo _longCountPredicate = GetMethod(nameof(Queryable.LongCount), 1);
 
         /// <summary>
         ///     Asynchronously returns an <see cref="Int64" /> that represents the number of elements in a sequence
@@ -263,7 +262,7 @@ namespace System.Linq
 
         #region First/FirstOrDefault
 
-        private static readonly MethodInfo _first = GetMethod("First");
+        private static readonly MethodInfo _first = GetMethod(nameof(Queryable.First));
 
         /// <summary>
         ///     Asynchronously returns the first element of a sequence.
@@ -294,7 +293,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, TSource>(_first, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _firstPredicate = GetMethod("First", 1);
+        private static readonly MethodInfo _firstPredicate = GetMethod(nameof(Queryable.First), 1);
 
         /// <summary>
         ///     Asynchronously returns the first element of a sequence that satisfies a specified condition.
@@ -329,7 +328,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, TSource>(_firstPredicate, source, predicate, cancellationToken);
         }
 
-        private static readonly MethodInfo _firstOrDefault = GetMethod("FirstOrDefault");
+        private static readonly MethodInfo _firstOrDefault = GetMethod(nameof(Queryable.FirstOrDefault));
 
         /// <summary>
         ///     Asynchronously returns the first element of a sequence, or a default value if the sequence contains no elements.
@@ -361,7 +360,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, TSource>(_firstOrDefault, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _firstOrDefaultPredicate = GetMethod("FirstOrDefault", 1);
+        private static readonly MethodInfo _firstOrDefaultPredicate = GetMethod(nameof(Queryable.FirstOrDefault), 1);
 
         /// <summary>
         ///     Asynchronously returns the first element of a sequence that satisfies a specified condition
@@ -402,7 +401,7 @@ namespace System.Linq
 
         #region Last/LastOrDefault
 
-        private static readonly MethodInfo _last = GetMethod("Last");
+        private static readonly MethodInfo _last = GetMethod(nameof(Queryable.Last));
 
         /// <summary>
         ///     Asynchronously returns the last element of a sequence.
@@ -433,7 +432,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, TSource>(_last, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _lastPredicate = GetMethod("Last", 1);
+        private static readonly MethodInfo _lastPredicate = GetMethod(nameof(Queryable.Last), 1);
 
         /// <summary>
         ///     Asynchronously returns the last element of a sequence that satisfies a specified condition.
@@ -468,7 +467,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, TSource>(_lastPredicate, source, predicate, cancellationToken);
         }
 
-        private static readonly MethodInfo _lastOrDefault = GetMethod("LastOrDefault");
+        private static readonly MethodInfo _lastOrDefault = GetMethod(nameof(Queryable.LastOrDefault));
 
         /// <summary>
         ///     Asynchronously returns the last element of a sequence, or a default value if the sequence contains no elements.
@@ -500,7 +499,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, TSource>(_lastOrDefault, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _lastOrDefaultPredicate = GetMethod("LastOrDefault", 1);
+        private static readonly MethodInfo _lastOrDefaultPredicate = GetMethod(nameof(Queryable.LastOrDefault), 1);
 
         /// <summary>
         ///     Asynchronously returns the last element of a sequence that satisfies a specified condition
@@ -541,7 +540,7 @@ namespace System.Linq
 
         #region Single/SingleOrDefault
 
-        private static readonly MethodInfo _single = GetMethod("Single");
+        private static readonly MethodInfo _single = GetMethod(nameof(Queryable.Single));
 
         /// <summary>
         ///     Asynchronously returns the only element of a sequence, and throws an exception
@@ -573,7 +572,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, TSource>(_single, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _singlePredicate = GetMethod("Single", 1);
+        private static readonly MethodInfo _singlePredicate = GetMethod(nameof(Queryable.Single), 1);
 
         /// <summary>
         ///     Asynchronously returns the only element of a sequence that satisfies a specified condition,
@@ -609,7 +608,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, TSource>(_singlePredicate, source, predicate, cancellationToken);
         }
 
-        private static readonly MethodInfo _singleOrDefault = GetMethod("SingleOrDefault");
+        private static readonly MethodInfo _singleOrDefault = GetMethod(nameof(Queryable.SingleOrDefault));
 
         /// <summary>
         ///     Asynchronously returns the only element of a sequence, or a default value if the sequence is empty;
@@ -643,7 +642,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, TSource>(_singleOrDefault, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _singleOrDefaultPredicate = GetMethod("SingleOrDefault", 1);
+        private static readonly MethodInfo _singleOrDefaultPredicate = GetMethod(nameof(Queryable.SingleOrDefault), 1);
 
         /// <summary>
         ///     Asynchronously returns the only element of a sequence that satisfies a specified condition or
@@ -684,7 +683,7 @@ namespace System.Linq
 
         #region Min
 
-        private static readonly MethodInfo _min = GetMethod("Min", predicate: mi => mi.IsGenericMethod);
+        private static readonly MethodInfo _min = GetMethod(nameof(Queryable.Min), predicate: mi => mi.IsGenericMethod);
 
         /// <summary>
         ///     Asynchronously returns the minimum value of a sequence.
@@ -715,7 +714,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, TSource>(_min, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _minSelector = GetMethod("Min", 1, mi => mi.IsGenericMethod);
+        private static readonly MethodInfo _minSelector = GetMethod(nameof(Queryable.Min), 1, mi => mi.IsGenericMethod);
 
         /// <summary>
         ///     Asynchronously invokes a projection function on each element of a sequence and returns the minimum resulting value.
@@ -756,7 +755,7 @@ namespace System.Linq
 
         #region Max
 
-        private static readonly MethodInfo _max = GetMethod("Max", predicate: mi => mi.IsGenericMethod);
+        private static readonly MethodInfo _max = GetMethod(nameof(Queryable.Max), predicate: mi => mi.IsGenericMethod);
 
         /// <summary>
         ///     Asynchronously returns the maximum value of a sequence.
@@ -787,7 +786,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, TSource>(_max, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _maxSelector = GetMethod("Max", 1, mi => mi.IsGenericMethod);
+        private static readonly MethodInfo _maxSelector = GetMethod(nameof(Queryable.Max), 1, mi => mi.IsGenericMethod);
 
         /// <summary>
         ///     Asynchronously invokes a projection function on each element of a sequence and returns the maximum resulting value.
@@ -828,7 +827,7 @@ namespace System.Linq
 
         #region Sum
 
-        private static readonly MethodInfo _sumDecimal = GetMethod<decimal>("Sum");
+        private static readonly MethodInfo _sumDecimal = GetMethod<decimal>(nameof(Queryable.Sum));
 
         /// <summary>
         ///     Asynchronously computes the sum of a sequence of values.
@@ -856,7 +855,7 @@ namespace System.Linq
             return ExecuteAsync<decimal, decimal>(_sumDecimal, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableDecimal = GetMethod<decimal?>("Sum");
+        private static readonly MethodInfo _sumNullableDecimal = GetMethod<decimal?>(nameof(Queryable.Sum));
 
         /// <summary>
         ///     Asynchronously computes the sum of a sequence of values.
@@ -884,7 +883,7 @@ namespace System.Linq
             return ExecuteAsync<decimal?, decimal?>(_sumNullableDecimal, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumDecimalSelector = GetMethod<decimal>("Sum", 1);
+        private static readonly MethodInfo _sumDecimalSelector = GetMethod<decimal>(nameof(Queryable.Sum), 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -916,7 +915,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, decimal>(_sumDecimalSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableDecimalSelector = GetMethod<decimal?>("Sum", 1);
+        private static readonly MethodInfo _sumNullableDecimalSelector = GetMethod<decimal?>(nameof(Queryable.Sum), 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -948,7 +947,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, decimal?>(_sumNullableDecimalSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumInt = GetMethod<int>("Sum");
+        private static readonly MethodInfo _sumInt = GetMethod<int>(nameof(Queryable.Sum));
 
         /// <summary>
         ///     Asynchronously computes the sum of a sequence of values.
@@ -976,7 +975,7 @@ namespace System.Linq
             return ExecuteAsync<int, int>(_sumInt, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableInt = GetMethod<int?>("Sum");
+        private static readonly MethodInfo _sumNullableInt = GetMethod<int?>(nameof(Queryable.Sum));
 
         /// <summary>
         ///     Asynchronously computes the sum of a sequence of values.
@@ -1004,7 +1003,7 @@ namespace System.Linq
             return ExecuteAsync<int?, int?>(_sumNullableInt, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumIntSelector = GetMethod<int>("Sum", 1);
+        private static readonly MethodInfo _sumIntSelector = GetMethod<int>(nameof(Queryable.Sum), 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1036,7 +1035,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, int>(_sumIntSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableIntSelector = GetMethod<int?>("Sum", 1);
+        private static readonly MethodInfo _sumNullableIntSelector = GetMethod<int?>(nameof(Queryable.Sum), 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1068,7 +1067,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, int?>(_sumNullableIntSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumLong = GetMethod<long>("Sum");
+        private static readonly MethodInfo _sumLong = GetMethod<long>(nameof(Queryable.Sum));
 
         /// <summary>
         ///     Asynchronously computes the sum of a sequence of values.
@@ -1096,7 +1095,7 @@ namespace System.Linq
             return ExecuteAsync<long, long>(_sumLong, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableLong = GetMethod<long?>("Sum");
+        private static readonly MethodInfo _sumNullableLong = GetMethod<long?>(nameof(Queryable.Sum));
 
         /// <summary>
         ///     Asynchronously computes the sum of a sequence of values.
@@ -1124,7 +1123,7 @@ namespace System.Linq
             return ExecuteAsync<long?, long?>(_sumNullableLong, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumLongSelector = GetMethod<long>("Sum", 1);
+        private static readonly MethodInfo _sumLongSelector = GetMethod<long>(nameof(Queryable.Sum), 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1156,7 +1155,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, long>(_sumLongSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableLongSelector = GetMethod<long?>("Sum", 1);
+        private static readonly MethodInfo _sumNullableLongSelector = GetMethod<long?>(nameof(Queryable.Sum), 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1188,7 +1187,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, long?>(_sumNullableLongSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumDouble = GetMethod<double>("Sum");
+        private static readonly MethodInfo _sumDouble = GetMethod<double>(nameof(Queryable.Sum));
 
         /// <summary>
         ///     Asynchronously computes the sum of a sequence of values.
@@ -1216,7 +1215,7 @@ namespace System.Linq
             return ExecuteAsync<double, double>(_sumDouble, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableDouble = GetMethod<double?>("Sum");
+        private static readonly MethodInfo _sumNullableDouble = GetMethod<double?>(nameof(Queryable.Sum));
 
         /// <summary>
         ///     Asynchronously computes the sum of a sequence of values.
@@ -1244,7 +1243,7 @@ namespace System.Linq
             return ExecuteAsync<double?, double?>(_sumNullableDouble, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumDoubleSelector = GetMethod<double>("Sum", 1);
+        private static readonly MethodInfo _sumDoubleSelector = GetMethod<double>(nameof(Queryable.Sum), 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1276,7 +1275,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, double>(_sumDoubleSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableDoubleSelector = GetMethod<double?>("Sum", 1);
+        private static readonly MethodInfo _sumNullableDoubleSelector = GetMethod<double?>(nameof(Queryable.Sum), 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1308,7 +1307,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, double?>(_sumNullableDoubleSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumFloat = GetMethod<float>("Sum");
+        private static readonly MethodInfo _sumFloat = GetMethod<float>(nameof(Queryable.Sum));
 
         /// <summary>
         ///     Asynchronously computes the sum of a sequence of values.
@@ -1336,7 +1335,7 @@ namespace System.Linq
             return ExecuteAsync<float, float>(_sumFloat, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableFloat = GetMethod<float?>("Sum");
+        private static readonly MethodInfo _sumNullableFloat = GetMethod<float?>(nameof(Queryable.Sum));
 
         /// <summary>
         ///     Asynchronously computes the sum of a sequence of values.
@@ -1364,7 +1363,7 @@ namespace System.Linq
             return ExecuteAsync<float?, float?>(_sumNullableFloat, source, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumFloatSelector = GetMethod<float>("Sum", 1);
+        private static readonly MethodInfo _sumFloatSelector = GetMethod<float>(nameof(Queryable.Sum), 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1396,7 +1395,7 @@ namespace System.Linq
             return ExecuteAsync<TSource, float>(_sumFloatSelector, source, selector, cancellationToken);
         }
 
-        private static readonly MethodInfo _sumNullableFloatSelector = GetMethod<float?>("Sum", 1);
+        private static readonly MethodInfo _sumNullableFloatSelector = GetMethod<float?>(nameof(Queryable.Sum), 1);
 
         /// <summary>
         ///     Asynchronously computes the sum of the sequence of values that is obtained by invoking a projection function on
@@ -1435,7 +1434,7 @@ namespace System.Linq
         private static MethodInfo GetAverageMethod<TOperand, TResult>(int parameterCount = 0)
         {
             return GetMethod<TResult>(
-                "Average",
+                nameof(Queryable.Average),
                 parameterCount,
                 mi => (parameterCount == 0
                        && mi.GetParameters()[0].ParameterType == typeof(IQueryable<TOperand>))
@@ -2059,7 +2058,7 @@ namespace System.Linq
 
         #region Contains
 
-        private static readonly MethodInfo _contains = GetMethod("Contains", 1);
+        private static readonly MethodInfo _contains = GetMethod(nameof(Queryable.Contains), 1);
 
         /// <summary>
         ///     Asynchronously determines whether a sequence contains a specified element by using the default equality comparer.
@@ -2165,7 +2164,7 @@ namespace System.Linq
 
         internal static readonly MethodInfo IncludeMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethods("Include")
+                .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.Include))
                 .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath"));
 
         // TODO API docs once we resolve #1709
@@ -2185,10 +2184,15 @@ namespace System.Linq
                         new[] { source.Expression, Expression.Quote(navigationPropertyPath) })));
         }
 
-        internal static readonly MethodInfo ThenIncludeMethodInfo
+        internal static readonly MethodInfo ThenIncludeAfterCollectionMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethods("ThenInclude")
-                .Single();
+                .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
+                .Single(mi => mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsConstructedGenericType);
+
+        internal static readonly MethodInfo ThenIncludeAfterReferenceMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
+                .Single(mi => mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
 
         // TODO API docs once we resolve #1709
         public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
@@ -2200,7 +2204,20 @@ namespace System.Linq
                 source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         null,
-                        ThenIncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
+                        ThenIncludeAfterCollectionMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
+                        new[] { source.Expression, Expression.Quote(navigationPropertyPath) })));
+        }
+
+        public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
+            [NotNull]this IIncludableQueryable<TEntity, TPreviousProperty> source,
+            [NotNull]Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
+            where TEntity : class
+        {
+            return new IncludableQueryable<TEntity, TProperty>(
+                source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(
+                        null,
+                        ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
                         new[] { source.Expression, Expression.Quote(navigationPropertyPath) })));
         }
 
@@ -2278,7 +2295,7 @@ namespace System.Linq
 
         internal static readonly MethodInfo AsNoTrackingMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod("AsNoTracking");
+                .GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
 
         /// <summary>
         ///     <para>
