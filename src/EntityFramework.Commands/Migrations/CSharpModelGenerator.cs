@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
@@ -16,11 +15,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
     // TODO: Replace usage of BasicModelBuilder with direct calls to core metadata (See #1484)
     public class CSharpModelGenerator
     {
-        private const string TableNameAnnotationName = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.TableName;
-        private const string SchemaAnnotationName = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.Schema;
-        private const string ColumnNameAnnotationName = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName;
-        private const string KeyNameAnnotationName = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.Name;
-
         private readonly CSharpHelper _code;
 
         public CSharpModelGenerator([NotNull] CSharpHelper code)
@@ -180,17 +174,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(property, nameof(property));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            var columnName = property[ColumnNameAnnotationName];
-            if (columnName != null)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".ColumnName(")
-                    .Append(_code.Literal(columnName))
-                    .Append(")");
-            }
-
-            GenerateAnnotations(property.Annotations.Where(a => a.Name != ColumnNameAnnotationName).ToArray(), stringBuilder);
+            GenerateAnnotations(property.Annotations.ToArray(), stringBuilder);
         }
 
         protected virtual void GenerateKey(
@@ -209,22 +193,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .Append(string.Join(", ", key.Properties.Select(p => _code.Literal(p.Name))))
                 .Append(")");
 
-            var keyName = key.Relational().Name;
-            if (keyName != null)
-            {
-                using (stringBuilder.Indent())
-                {
-                    stringBuilder
-                        .AppendLine()
-                        .Append(".ForRelational(rb => rb.Name(")
-                        .Append(_code.Literal(keyName))
-                        .Append("))");
-                }
-            }
-
             using (stringBuilder.Indent())
             {
-                GenerateAnnotations(key.Annotations.Where(a => a.Name != KeyNameAnnotationName).ToArray(), stringBuilder);
+                GenerateAnnotations(key.Annotations.ToArray(), stringBuilder);
             }
 
             stringBuilder.Append(";");
@@ -235,27 +206,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            var tableName = entityType.Relational().Table;
-            var schema = entityType.Relational().Schema;
-            if (tableName != entityType.DisplayName()
-                || schema != null)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append("b.ForRelational().Table(")
-                    .Append(_code.Literal(tableName));
-
-                if (schema != null)
-                {
-                    stringBuilder
-                        .Append(", ")
-                        .Append(_code.Literal(schema));
-                }
-
-                stringBuilder.Append(");");
-            }
-
-            var annotations = entityType.Annotations.Where(a => a.Name != TableNameAnnotationName && a.Name != SchemaAnnotationName).ToArray();
+            var annotations = entityType.Annotations.ToArray();
             if (annotations.Any())
             {
                 foreach (var annotation in annotations)
@@ -307,22 +258,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            var foreignKeyName = foreignKey.Relational().Name;
-            if (foreignKeyName != null)
-            {
-                using (stringBuilder.Indent())
-                {
-                    stringBuilder
-                        .AppendLine()
-                        .Append(".ForRelational(rb => rb.Name(")
-                        .Append(_code.Literal(foreignKeyName))
-                        .Append("))");
-                }
-            }
-
             using (stringBuilder.Indent())
             {
-                GenerateAnnotations(foreignKey.Annotations.Where(a => a.Name != KeyNameAnnotationName).ToArray(), stringBuilder);
+                GenerateAnnotations(foreignKey.Annotations.ToArray(), stringBuilder);
             }
         }
 

@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Builders
 {
-    public class BasicModelBuilder : IModelBuilder<BasicModelBuilder>
+    public class BasicModelBuilder
     {
         private readonly InternalModelBuilder _builder;
 
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             get { return Builder.Metadata; }
         }
 
-        public virtual BasicModelBuilder Annotation(string annotation, object value)
+        public virtual BasicModelBuilder Annotation([NotNull] string annotation, [NotNull] object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotNull(value, nameof(value));
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
-        public class EntityTypeBuilder : IEntityTypeBuilder<EntityTypeBuilder>
+        public class EntityTypeBuilder
         {
             public EntityTypeBuilder([NotNull] InternalEntityTypeBuilder builder)
             {
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             protected virtual InternalEntityTypeBuilder Builder { get; }
 
-            public virtual EntityTypeBuilder Annotation(string annotation, object value)
+            public virtual EntityTypeBuilder Annotation([NotNull] string annotation, [NotNull] object value)
             {
                 Check.NotEmpty(annotation, nameof(annotation));
                 Check.NotNull(value, nameof(value));
@@ -123,11 +123,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             public virtual EntityType Metadata
             {
                 get { return Builder.Metadata; }
-            }
-
-            Model IMetadataBuilder<EntityType, EntityTypeBuilder>.Model
-            {
-                get { return Builder.ModelBuilder.Metadata; }
             }
 
             public virtual KeyBuilder Key([NotNull] params string[] propertyNames)
@@ -167,7 +162,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 return new IndexBuilder(Builder.Index(propertyNames, ConfigurationSource.Explicit));
             }
 
-            public class KeyBuilder : IKeyBuilder<KeyBuilder>
+            public class KeyBuilder
             {
                 public KeyBuilder([NotNull] InternalKeyBuilder builder)
                 {
@@ -183,12 +178,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                     get { return Builder.Metadata; }
                 }
 
-                Model IMetadataBuilder<Key, KeyBuilder>.Model
-                {
-                    get { return Builder.ModelBuilder.Metadata; }
-                }
-
-                public virtual KeyBuilder Annotation(string annotation, object value)
+                public virtual KeyBuilder Annotation([NotNull] string annotation, [NotNull] object value)
                 {
                     Check.NotEmpty(annotation, nameof(annotation));
                     Check.NotNull(value, nameof(value));
@@ -199,7 +189,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 }
             }
 
-            public class PropertyBuilder : IPropertyBuilder<PropertyBuilder>
+            public class PropertyBuilder
             {
                 public PropertyBuilder([NotNull] InternalPropertyBuilder builder)
                 {
@@ -215,12 +205,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                     get { return Builder.Metadata; }
                 }
 
-                Model IMetadataBuilder<Property, PropertyBuilder>.Model
-                {
-                    get { return Builder.ModelBuilder.Metadata; }
-                }
-
-                public virtual PropertyBuilder Annotation(string annotation, object value)
+                public virtual PropertyBuilder Annotation([NotNull] string annotation, [NotNull] object value)
                 {
                     Check.NotNull(annotation, nameof(annotation));
                     Check.NotNull(value, nameof(value));
@@ -280,7 +265,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 }
             }
 
-            public class ForeignKeyBuilder : IForeignKeyBuilder<ForeignKeyBuilder>
+            public class ForeignKeyBuilder
             {
                 public ForeignKeyBuilder([NotNull] InternalRelationshipBuilder builder)
                 {
@@ -296,12 +281,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                     get { return Builder.Metadata; }
                 }
 
-                Model IMetadataBuilder<ForeignKey, ForeignKeyBuilder>.Model
-                {
-                    get { return Builder.ModelBuilder.Metadata; }
-                }
-
-                public virtual ForeignKeyBuilder Annotation(string annotation, object value)
+                public virtual ForeignKeyBuilder Annotation([NotNull] string annotation, [NotNull] object value)
                 {
                     Check.NotEmpty(annotation, nameof(annotation));
                     Check.NotNull(value, nameof(value));
@@ -317,7 +297,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 }
             }
 
-            public class IndexBuilder : IIndexBuilder<IndexBuilder>
+            public class IndexBuilder
             {
                 public IndexBuilder([NotNull] InternalIndexBuilder builder)
                 {
@@ -333,12 +313,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                     get { return Builder.Metadata; }
                 }
 
-                Model IMetadataBuilder<Index, IndexBuilder>.Model
-                {
-                    get { return Builder.ModelBuilder.Metadata; }
-                }
-
-                public virtual IndexBuilder Annotation(string annotation, object value)
+                public virtual IndexBuilder Annotation([NotNull] string annotation, [NotNull] object value)
                 {
                     Check.NotEmpty(annotation, nameof(annotation));
                     Check.NotNull(value, nameof(value));
@@ -357,7 +332,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             }
         }
 
-        public class EntityTypeBuilder<TEntity> : EntityTypeBuilder, IEntityTypeBuilder<TEntity, EntityTypeBuilder<TEntity>>
+        public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
             where TEntity : class
         {
             public EntityTypeBuilder([NotNull] InternalEntityTypeBuilder builder)
@@ -365,16 +340,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             {
             }
 
-            public new virtual EntityTypeBuilder<TEntity> Annotation(string annotation, object value)
+            public new virtual EntityTypeBuilder<TEntity> Annotation([NotNull] string annotation, [NotNull] object value)
             {
                 base.Annotation(annotation, value);
 
                 return this;
-            }
-
-            Model IMetadataBuilder<EntityType, EntityTypeBuilder<TEntity>>.Model
-            {
-                get { return Builder.ModelBuilder.Metadata; }
             }
 
             public virtual KeyBuilder Key([NotNull] Expression<Func<TEntity, object>> keyExpression)

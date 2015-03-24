@@ -75,7 +75,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual CollectionReferenceBuilder InverseCollection([CanBeNull] string collection = null) => new CollectionReferenceBuilder(InverseCollectionBuilder(collection));
+        public virtual CollectionReferenceBuilder InverseCollection([CanBeNull] string collection = null) 
+            => new CollectionReferenceBuilder(InverseCollectionBuilder(collection));
 
         /// <summary>
         ///     Returns the internal builder to be used when <see cref="InverseCollection" /> is called.
@@ -115,7 +116,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceReferenceBuilder InverseReference([CanBeNull] string inverseReference = null) => new ReferenceReferenceBuilder(InverseReferenceBuilder(inverseReference));
+        public virtual ReferenceReferenceBuilder InverseReference([CanBeNull] string inverseReference = null) 
+            => new ReferenceReferenceBuilder(InverseReferenceBuilder(inverseReference));
 
         /// <summary>
         ///     Returns the internal builder to be used when <see cref="InverseReference" /> is called.

@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity
     ///         constructor.
     ///     </para>
     /// </summary>
-    public class ModelBuilder : IModelBuilder<ModelBuilder>, IAccessor<InternalModelBuilder>
+    public class ModelBuilder : IAccessor<InternalModelBuilder>
     {
         private readonly InternalModelBuilder _builder;
 
@@ -64,11 +64,6 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     The model being configured.
         /// </summary>
-        Model IMetadataBuilder<Model, ModelBuilder>.Metadata => Builder.Metadata;
-
-        /// <summary>
-        ///     The model being configured.
-        /// </summary>
         public virtual Model Model => Builder.Metadata;
 
         /// <summary>
@@ -78,7 +73,7 @@ namespace Microsoft.Data.Entity
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same typeBuilder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ModelBuilder Annotation(string annotation, object value)
+        public virtual ModelBuilder Annotation([NotNull] string annotation, [NotNull] object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotNull(value, nameof(value));

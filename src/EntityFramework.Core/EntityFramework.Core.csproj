@@ -207,14 +207,6 @@
     <Compile Include="Metadata\Internal\NullableEnumClrPropertySetter.cs" />
     <Compile Include="Metadata\Internal\CollectionTypeFactory.cs" />
     <Compile Include="Metadata\ForeignKeyExtensions.cs" />
-    <Compile Include="Metadata\Builders\IEntityTypeBuilder.cs" />
-    <Compile Include="Metadata\Builders\IEntityTypeBuilder`.cs" />
-    <Compile Include="Metadata\Builders\IForeignKeyBuilder.cs" />
-    <Compile Include="Metadata\Builders\IIndexBuilder.cs" />
-    <Compile Include="Metadata\Builders\IKeyBuilder.cs" />
-    <Compile Include="Metadata\Builders\ICollectionReferenceBuilder.cs" />
-    <Compile Include="Metadata\Builders\IMetadataBuilder.cs" />
-    <Compile Include="Metadata\Builders\IModelBuilder.cs" />
     <Compile Include="Metadata\Internal\ConfigurationSource.cs" />
     <Compile Include="Metadata\Internal\ConfigurationSourceExtensions.cs" />
     <Compile Include="Metadata\Internal\InternalEntityTypeBuilder.cs" />
@@ -226,9 +218,6 @@
     <Compile Include="Metadata\Internal\InternalPropertyBuilder.cs" />
     <Compile Include="Metadata\Internal\InternalRelationshipBuilder.cs" />
     <Compile Include="Metadata\Internal\MetadataDictionary.cs" />
-    <Compile Include="Metadata\Builders\IReferenceCollectionBuilder.cs" />
-    <Compile Include="Metadata\Builders\IReferenceReferenceBuilder.cs" />
-    <Compile Include="Metadata\Builders\IPropertyBuilder.cs" />
     <Compile Include="Metadata\ModelConventions\ConventionsPropertyInfoExtensions.cs" />
     <Compile Include="Metadata\ModelConventions\RelationshipDiscoveryConvention.cs" />
     <Compile Include="Metadata\TypedAnnotation.cs" />

@@ -2387,7 +2387,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var dependentKey = dependentType.Keys.Single();
 
             modelBuilder
-                .Entity<Pickle>().Reference(e => e.BigMak).InverseCollection(null)
+                .Entity<Pickle>().Reference(e => e.BigMak).InverseCollection()
                 .ForeignKey(e => e.BurgerId);
 
             var fk = dependentType.ForeignKeys.Single();
