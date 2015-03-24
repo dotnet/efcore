@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
@@ -20,10 +21,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         entity type.
     ///     </para>
     /// </summary>
-    public class ReferenceReferenceBuilder : IAccessor<Model>, IAccessor<InternalRelationshipBuilder>
+    public class TypedReferenceReferenceBuilder : ReferenceReferenceBuilder
     {
-        private readonly InternalRelationshipBuilder _builder;
-
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="ReferenceReferenceBuilder" /> class.
@@ -34,27 +33,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <param name="builder"> The internal builder being used to configure this relationship. </param>
-        public ReferenceReferenceBuilder([NotNull] InternalRelationshipBuilder builder)
+        public TypedReferenceReferenceBuilder([NotNull] InternalRelationshipBuilder builder)
+            : base(builder)
         {
-            Check.NotNull(builder, nameof(builder));
-
-            _builder = builder;
         }
-
-        /// <summary>
-        ///     Gets the internal builder being used to configure this relationship.
-        /// </summary>
-        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => _builder;
-
-        /// <summary>
-        ///     The foreign key that represents this relationship.
-        /// </summary>
-        public virtual ForeignKey Metadata => Builder.Metadata;
-
-        /// <summary>
-        ///     The model that this relationship belongs to.
-        /// </summary>
-        Model IAccessor<Model>.Service => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in
@@ -63,15 +45,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder Annotation([NotNull] string annotation, [NotNull] object value)
-        {
-            Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotNull(value, nameof(value));
-
-            Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
-
-            return this;
-        }
+        public new virtual TypedReferenceReferenceBuilder Annotation([NotNull] string annotation, [NotNull] object value)
+            => (TypedReferenceReferenceBuilder)base.Annotation(annotation, value);
 
         /// <summary>
         ///     <para>
@@ -99,14 +74,14 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     The name(s) of the foreign key property(s).
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder ForeignKey(
+        public new virtual TypedReferenceReferenceBuilder ForeignKey(
             [NotNull] Type dependentEntityType,
             [NotNull] params string[] foreignKeyPropertyNames)
         {
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
             Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
-            return new ReferenceReferenceBuilder(Builder.ForeignKey(dependentEntityType, foreignKeyPropertyNames, ConfigurationSource.Explicit));
+            return new TypedReferenceReferenceBuilder(Builder.ForeignKey(dependentEntityType, foreignKeyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -121,14 +96,81 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder PrincipalKey(
+        public new virtual TypedReferenceReferenceBuilder PrincipalKey(
             [NotNull] Type principalEntityType,
             [NotNull] params string[] keyPropertyNames)
         {
             Check.NotNull(principalEntityType, nameof(principalEntityType));
             Check.NotNull(keyPropertyNames, nameof(keyPropertyNames));
 
-            return new ReferenceReferenceBuilder(Builder.PrincipalKey(principalEntityType, keyPropertyNames, ConfigurationSource.Explicit));
+            return new TypedReferenceReferenceBuilder(Builder.PrincipalKey(principalEntityType, keyPropertyNames, ConfigurationSource.Explicit));
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the property(s) to use as the foreign key for this relationship.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PrincipalKey{TPrincipalEntity}" />
+        ///         is not specified, then an attempt will be made to match the data type and order of foreign key
+        ///         properties against the primary key of the principal entity type. If they do not match, new shadow
+        ///         state properties that form a unique index will be
+        ///         added to the principal entity type to serve as the reference key.
+        ///         A shadow state property is one that does not have a corresponding property in the entity class. The
+        ///         current value for the property is stored in the <see cref="ChangeTracker" /> rather than being
+        ///         stored in instances of the entity class.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TDependentEntity">
+        ///     The entity type that is the dependent in this relationship. That is, the type
+        ///     that has the foreign key properties.
+        /// </typeparam>
+        /// <param name="foreignKeyExpression">
+        ///     <para>
+        ///         A lambda expression representing the foreign key property(s) (<c>t => t.Id1</c>).
+        ///     </para>
+        ///     <para>
+        ///         If the foreign key is made up of multiple properties then specify an anonymous type including the
+        ///         properties (<c>t => new { t.Id1, t.Id2 }</c>). The order specified should match the order of
+        ///         corresponding keys in <see cref="PrincipalKey{TPrincipalEntity}" />.
+        ///     </para>
+        /// </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual TypedReferenceReferenceBuilder ForeignKey<TDependentEntity>(
+            [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+        {
+            Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression));
+
+            return new TypedReferenceReferenceBuilder(
+                Builder.ForeignKey(typeof(TDependentEntity), foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+        }
+
+        /// <summary>
+        ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
+        ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
+        ///     the specified property(s) is not already a unique index (or the primary key) then a new unique index
+        ///     will be introduced.
+        /// </summary>
+        /// <typeparam name="TPrincipalEntity">
+        ///     The entity type that is the principal in this relationship. That is, the type
+        ///     that has the reference key properties.
+        /// </typeparam>
+        /// <param name="keyExpression">
+        ///     <para>
+        ///         A lambda expression representing the reference key property(s) (<c>t => t.Id</c>).
+        ///     </para>
+        ///     <para>
+        ///         If the principal key is made up of multiple properties then specify an anonymous type including
+        ///         the properties (<c>t => new { t.Id1, t.Id2 }</c>).
+        ///     </para>
+        /// </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual TypedReferenceReferenceBuilder PrincipalKey<TPrincipalEntity>(
+            [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
+        {
+            Check.NotNull(keyExpression, nameof(keyExpression));
+
+            return new TypedReferenceReferenceBuilder(Builder.PrincipalKey(typeof(TPrincipalEntity), keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -137,8 +179,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder Required(bool required = true)
-            => new ReferenceReferenceBuilder(Builder.Required(required, ConfigurationSource.Explicit));
+        public new virtual TypedReferenceReferenceBuilder Required(bool required = true)
+            => new TypedReferenceReferenceBuilder(Builder.Required(required, ConfigurationSource.Explicit));
 
         private InternalRelationshipBuilder Builder => ((IAccessor<InternalRelationshipBuilder>)this).Service;
     }
