@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             base.All_customers();
 
             Assert.Equal(
-                @"SELECT [c].[CompanyName], [c].[CustomerID]
+                @"SELECT [c].[CustomerID], [c].[CompanyName]
 FROM [dbo].[Customers] AS [c]",
                 Sql);
         }
@@ -23,7 +23,7 @@ FROM [dbo].[Customers] AS [c]",
             base.All_employees();
 
             Assert.Equal(
-                @"SELECT [e].[City], [e].[EmployeeID]
+                @"SELECT [e].[EmployeeID], [e].[City]
 FROM [dbo].[Employees] AS [e]",
                 Sql);
         }

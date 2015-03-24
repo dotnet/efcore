@@ -1431,7 +1431,7 @@ namespace Microsoft.Data.Entity.Tests
                 var productType = context.Model.GetEntityType(typeof(Product));
                 Assert.Equal("Id", productType.GetPrimaryKey().Properties.Single().Name);
                 Assert.Equal(
-                    new[] { "CategoryId", "Id", "Name", "Price" },
+                    new[] { "Id", "CategoryId", "Name", "Price" },
                     productType.GetProperties().Select(p => p.Name).ToArray());
 
                 var guType = context.Model.GetEntityType(typeof(TheGu));

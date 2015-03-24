@@ -28,8 +28,8 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly SortedDictionary<IReadOnlyList<Property>, Index> _indexes
             = new SortedDictionary<IReadOnlyList<Property>, Index>(PropertyListComparer.Instance);
 
-        private readonly SortedDictionary<string, Property> _properties
-            = new SortedDictionary<string, Property>(StringComparer.Ordinal);
+        private readonly SortedDictionary<string, Property> _properties;
+
 
         private readonly SortedDictionary<IReadOnlyList<Property>, Key> _keys
             = new SortedDictionary<IReadOnlyList<Property>, Key>(PropertyListComparer.Instance);
@@ -87,6 +87,8 @@ namespace Microsoft.Data.Entity.Metadata
             _typeOrName = typeOrName;
 
             Model = model;
+
+            _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
         }
 
         public virtual Type ClrType => _typeOrName as Type;
@@ -214,14 +216,44 @@ namespace Microsoft.Data.Entity.Metadata
         {
             ThrowIfDerivedEntity();
 
+            if (_primaryKey != null)
+            {
+                foreach (var property in _primaryKey.Properties)
+                {
+                    _properties.Remove(property.Name);
+                }
+
+                var oldPrimaryKey = _primaryKey;
+                _primaryKey = null;
+
+                foreach (var property in oldPrimaryKey.Properties)
+                {
+                    _properties.Add(property.Name, property);
+                }
+            }
+
             Key key = null;
             if (properties != null
                 && properties.Count != 0)
             {
                 key = GetOrAddKey(properties);
+
+                foreach (var property in key.Properties)
+                {
+                    _properties.Remove(property.Name);
+                }
+
+                _primaryKey = key;
+
+                foreach (var property in key.Properties)
+                {
+                    _properties.Add(property.Name, property);
+                }
             }
 
-            _primaryKey = key;
+            UpdateIndexes();
+            UpdateShadowIndexes();
+            UpdateOriginalValueIndexes();
 
             return _primaryKey;
         }
@@ -1032,6 +1064,50 @@ namespace Microsoft.Data.Entity.Metadata
                     index++;
                 }
                 return result;
+            }
+        }
+
+        private class PropertyComparer : IComparer<string>
+        {
+            private readonly EntityType _entityType;
+
+            public PropertyComparer(EntityType entityType)
+            {
+                _entityType = entityType;
+            }
+
+            public int Compare(string x, string y)
+            {
+                var properties = _entityType.FindPrimaryKey()?.Properties.Select(p => p.Name).ToList();
+
+                var xIndex = -1;
+                var yIndex = -1;
+
+                if (properties != null)
+                {
+                    xIndex = properties.IndexOf(x);
+                    yIndex = properties.IndexOf(y);
+                }
+
+                // Neither property is part of the Primary Key
+                // Compare the property names
+                if (xIndex == -1 && yIndex == -1)
+                {
+                    return StringComparer.Ordinal.Compare(x, y);
+                }
+
+                // Both properties are part of the Primary Key
+                // Compare the indices
+                if (xIndex > -1 && yIndex > -1)
+                {
+                    return xIndex - yIndex;
+                }
+
+                // One property is part of the Primary Key
+                // The primary key property is first
+                return (xIndex > yIndex)
+                    ? -1
+                    : 1;
             }
         }
     }

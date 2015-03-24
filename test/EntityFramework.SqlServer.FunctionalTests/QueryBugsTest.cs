@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 FROM [Customer] AS [c]
 ORDER BY [c].[FirstName], [c].[LastName]
 
-SELECT [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Id], [o].[Name]
+SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name]
 FROM [Order] AS [o]
 INNER JOIN (
     SELECT DISTINCT [c].[FirstName], [c].[LastName]
@@ -145,7 +145,7 @@ ORDER BY [c].[FirstName], [c].[LastName]";
                 Assert.NotNull(result[4].Customer);
 
                 var expectedSql =
-                    @"SELECT [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Id], [o].[Name], [c].[FirstName], [c].[LastName]
+                    @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [c].[FirstName], [c].[LastName]
 FROM [Order] AS [o]
 LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])";
 

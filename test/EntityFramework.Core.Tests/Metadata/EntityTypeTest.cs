@@ -1235,10 +1235,71 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer), new Model());
 
-            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
-            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
+            var property1 = entityType.AddProperty(Customer.IdProperty);
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
+        }
+
+        [Fact]
+        public void Primary_key_properties_precede_others()
+        {
+            var entityType = new EntityType(typeof(Customer), new Model());
+
+            var aProperty = entityType.AddProperty("A", typeof(int), true);
+            var pkProperty = entityType.AddProperty(Customer.IdProperty);
+
+            entityType.SetPrimaryKey(pkProperty);
+
+            Assert.True(new[] { pkProperty, aProperty }.SequenceEqual(entityType.Properties));
+        }
+
+        [Fact]
+        public void Composite_primary_key_properties_are_listed_in_key_order()
+        {
+            var entityType = new EntityType("CompositeKeyType", new Model());
+
+            var aProperty = entityType.AddProperty("A", typeof(int), true);
+            var pkProperty2 = entityType.AddProperty("aPK", typeof(int), true);
+            var pkProperty1 = entityType.AddProperty("bPK", typeof(int), true);
+
+            entityType.SetPrimaryKey(new[] { pkProperty1, pkProperty2 });
+
+            Assert.True(new[] { pkProperty1, pkProperty2, aProperty }.SequenceEqual(entityType.Properties));
+        }
+
+        [Fact]
+        public void Properties_on_base_type_are_listed_before_derived_properties()
+        {
+            var model = new Model();
+
+            var parentType = new EntityType("Parent", model);
+            var property2 = parentType.AddProperty("D", typeof(int), true);
+            var property1 = parentType.AddProperty("C", typeof(int), true);
+
+            var childType = new EntityType("Child", model);
+            var property4 = childType.AddProperty("B", typeof(int), true);
+            var property3 = childType.AddProperty("A", typeof(int), true);
+            childType.BaseType = parentType;
+
+            Assert.True(new[] { property1, property2, property3, property4 }.SequenceEqual(childType.Properties));
+        }
+
+        [Fact]
+        public void Properties_are_properly_ordered_when_primary_key_changes()
+        {
+            var entityType = new EntityType(typeof(Customer), new Model());
+
+            var aProperty = entityType.AddProperty("A", typeof(int), true);
+            var bProperty = entityType.AddProperty("B", typeof(int), true);
+
+            entityType.SetPrimaryKey(bProperty);
+
+            Assert.True(new[] { bProperty, aProperty }.SequenceEqual(entityType.Properties));
+
+            entityType.SetPrimaryKey(aProperty);
+
+            Assert.True(new[] { aProperty, bProperty }.SequenceEqual(entityType.Properties));
         }
 
         [Fact]

@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             Assert.Equal(
                 @"__city_0: London
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_0",
                 Sql);
@@ -37,7 +37,7 @@ WHERE [c].[City] = @__city_0",
             Assert.Equal(
                 @"__predicate_0: True
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE @__predicate_0 = 1",
                 Sql);
@@ -48,19 +48,19 @@ WHERE @__predicate_0 = 1",
             base.Where_simple_closure_via_query_cache_nullable_type_reverse();
 
             Assert.Equal(
-                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] IS NULL
 
 __reportsTo_0: 5
 
-SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = @__reportsTo_0
 
 __reportsTo_0: 2
 
-SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = @__reportsTo_0",
                 Sql);
@@ -73,17 +73,17 @@ WHERE [e].[ReportsTo] = @__reportsTo_0",
             Assert.Equal(
                 @"__reportsTo_0: 2
 
-SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = @__reportsTo_0
 
 __reportsTo_0: 5
 
-SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = @__reportsTo_0
 
-SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] IS NULL",
                 Sql);
@@ -96,13 +96,13 @@ WHERE [e].[ReportsTo] IS NULL",
             Assert.Equal(
                 @"__p_InstanceFieldValue_0: London
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__p_InstanceFieldValue_0
 
 __p_InstanceFieldValue_0: Seattle
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__p_InstanceFieldValue_0",
                 Sql);
@@ -115,13 +115,13 @@ WHERE [c].[City] = @__p_InstanceFieldValue_0",
             Assert.Equal(
                 @"__city_Nested_InstancePropertyValue_0: London
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0
 
 __city_Nested_InstancePropertyValue_0: Seattle
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0",
                 Sql);
@@ -134,13 +134,13 @@ WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0",
             Assert.Equal(
                 @"__city_Nested_InstanceFieldValue_0: London
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_Nested_InstanceFieldValue_0
 
 __city_Nested_InstanceFieldValue_0: Seattle
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_Nested_InstanceFieldValue_0",
                 Sql);
@@ -153,13 +153,13 @@ WHERE [c].[City] = @__city_Nested_InstanceFieldValue_0",
             Assert.Equal(
                 @"__StaticPropertyValue_0: London
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__StaticPropertyValue_0
 
 __StaticPropertyValue_0: Seattle
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__StaticPropertyValue_0",
                 Sql);
@@ -172,13 +172,13 @@ WHERE [c].[City] = @__StaticPropertyValue_0",
             Assert.Equal(
                 @"__city_InstancePropertyValue_0: London
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_InstancePropertyValue_0
 
 __city_InstancePropertyValue_0: Seattle
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_InstancePropertyValue_0",
                 Sql);
@@ -191,13 +191,13 @@ WHERE [c].[City] = @__city_InstancePropertyValue_0",
             Assert.Equal(
                 @"__StaticFieldValue_0: London
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__StaticFieldValue_0
 
 __StaticFieldValue_0: Seattle
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__StaticFieldValue_0",
                 Sql);
@@ -210,13 +210,13 @@ WHERE [c].[City] = @__StaticFieldValue_0",
             Assert.Equal(
                 @"__city_InstanceFieldValue_0: London
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_InstanceFieldValue_0
 
 __city_InstanceFieldValue_0: Seattle
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_InstanceFieldValue_0",
                 Sql);
@@ -229,13 +229,13 @@ WHERE [c].[City] = @__city_InstanceFieldValue_0",
             Assert.Equal(
                 @"__GetCity_0: London
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__GetCity_0
 
 __GetCity_0: Seattle
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__GetCity_0",
                 Sql);
@@ -248,13 +248,13 @@ WHERE [c].[City] = @__GetCity_0",
             Assert.Equal(
                 @"__city_NullableInt_0: 1
 
-SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] > @__city_NullableInt_0
 
 __city_NullableInt_0: 5
 
-SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] > @__city_NullableInt_0",
                 Sql);
@@ -267,13 +267,13 @@ WHERE [e].[EmployeeID] > @__city_NullableInt_0",
             Assert.Equal(
                 @"__city_Int_0: 2
 
-SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = @__city_Int_0
 
 __city_Int_0: 5
 
-SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = @__city_Int_0",
                 Sql);
@@ -286,13 +286,13 @@ WHERE [e].[ReportsTo] = @__city_Int_0",
             Assert.Equal(
                 @"__city_0: London
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_0
 
 __city_0: Seattle
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_0",
                 Sql);
@@ -358,7 +358,7 @@ WHERE ([o].[OrderID] > 10) AND ([o].[CustomerID] <> 'ALFKI')",
             base.Where_OrderBy_Count_client_eval();
 
             Assert.Equal(
-                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]",
                 Sql);
         }
@@ -379,7 +379,7 @@ WHERE [o].[OrderID] > 10",
             base.OrderBy_Where_Count_client_eval();
 
             Assert.Equal(
-                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]",
                 Sql);
         }
@@ -389,7 +389,7 @@ FROM [Orders] AS [o]",
             base.OrderBy_Where_Count_client_eval_mixed();
 
             Assert.Equal(
-                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]",
                 Sql);
         }
@@ -399,7 +399,7 @@ FROM [Orders] AS [o]",
             base.OrderBy_Count_with_predicate_client_eval();
 
             Assert.Equal(
-                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]",
                 Sql);
         }
@@ -424,7 +424,7 @@ WHERE @__ClientEvalPredicateStateless_0 = 1",
             Assert.Equal(
                 @"__ClientEvalPredicateStateless_1: True
 
-SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @__ClientEvalPredicateStateless_1 = 1",
                 Sql);
@@ -435,7 +435,7 @@ WHERE @__ClientEvalPredicateStateless_1 = 1",
             base.OrderBy_Where_Count_with_predicate_client_eval_mixed();
 
             Assert.Equal(
-                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] <> 'ALFKI'",
                 Sql);
@@ -528,7 +528,7 @@ FROM [Orders] AS [o]",
             Assert.Equal(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
 ) AS [t0]",
                 Sql);
@@ -553,7 +553,7 @@ FROM (
             base.Skip();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID] OFFSET 5 ROWS",
                 Sql);
@@ -564,7 +564,7 @@ ORDER BY [c].[CustomerID] OFFSET 5 ROWS",
             base.Skip_Take();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[ContactName] OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY",
                 Sql);
@@ -577,7 +577,7 @@ ORDER BY [c].[ContactName] OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY",
             Assert.Equal(
                 @"SELECT [t0].*
 FROM (
-    SELECT TOP(10) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(10) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactName]
 ) AS [t0]
@@ -594,7 +594,7 @@ ORDER BY [t0].[ContactName] OFFSET 5 ROWS",
 FROM (
     SELECT [t0].*
     FROM (
-        SELECT TOP(10) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        SELECT TOP(10) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
         ORDER BY [c].[ContactName]
     ) AS [t0]
@@ -615,7 +615,7 @@ FROM (
             Assert.Equal(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT TOP(5) [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+    SELECT DISTINCT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
     FROM [Orders] AS [o]
 ) AS [t0]",
                 Sql);
@@ -626,7 +626,7 @@ FROM (
             base.Queryable_simple();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -636,7 +636,7 @@ FROM [Customers] AS [c]",
             base.Queryable_simple_anonymous();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -646,7 +646,7 @@ FROM [Customers] AS [c]",
             base.Queryable_nested_simple();
 
             Assert.Equal(
-                @"SELECT [c3].[Address], [c3].[City], [c3].[CompanyName], [c3].[ContactName], [c3].[ContactTitle], [c3].[Country], [c3].[CustomerID], [c3].[Fax], [c3].[Phone], [c3].[PostalCode], [c3].[Region]
+                @"SELECT [c3].[CustomerID], [c3].[Address], [c3].[City], [c3].[CompanyName], [c3].[ContactName], [c3].[ContactTitle], [c3].[Country], [c3].[Fax], [c3].[Phone], [c3].[PostalCode], [c3].[Region]
 FROM [Customers] AS [c3]",
                 Sql);
         }
@@ -656,7 +656,7 @@ FROM [Customers] AS [c3]",
             base.Take_simple();
 
             Assert.Equal(
-                @"SELECT TOP(10) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(10) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",
                 Sql);
@@ -680,7 +680,7 @@ ORDER BY [c].[CustomerID]",
             Assert.Equal(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT TOP(5) [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t0]",
@@ -692,7 +692,7 @@ FROM (
             base.Take_OrderBy_Count();
 
             Assert.Equal(
-                @"SELECT TOP(5) [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]",
                 Sql);
         }
@@ -756,7 +756,7 @@ FROM [Customers] AS [c]",
             base.Select_scalar_primitive_after_take();
 
             Assert.Equal(
-                @"SELECT TOP(9) [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT TOP(9) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]",
                 Sql);
         }
@@ -788,7 +788,7 @@ FROM [Customers] AS [c]",
             base.Where_simple();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = 'London'",
                 Sql);
@@ -799,7 +799,7 @@ WHERE [c].[City] = 'London'",
             base.Where_simple_shadow();
 
             Assert.Equal(
-                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[Title] = 'Sales Representative'",
                 Sql);
@@ -821,7 +821,7 @@ WHERE [e].[Title] = 'Sales Representative'",
             base.Where_comparison_nullable_type_not_null();
 
             Assert.Equal(
-                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = 2",
                 Sql);
@@ -832,7 +832,7 @@ WHERE [e].[ReportsTo] = 2",
             base.Where_comparison_nullable_type_null();
 
             Assert.Equal(
-                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] IS NULL",
                 Sql);
@@ -843,7 +843,7 @@ WHERE [e].[ReportsTo] IS NULL",
             base.Where_client();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -853,7 +853,7 @@ FROM [Customers] AS [c]",
             base.First_client_predicate();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",
                 Sql);
@@ -864,7 +864,7 @@ ORDER BY [c].[CustomerID]",
             base.Last();
 
             Assert.Equal(
-                @"SELECT TOP(1) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[ContactName] DESC",
                 Sql);
@@ -875,7 +875,7 @@ ORDER BY [c].[ContactName] DESC",
             base.Last_when_no_order_by();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = 'ALFKI'",
                 Sql);
@@ -886,7 +886,7 @@ WHERE [c].[CustomerID] = 'ALFKI'",
             base.Last_Predicate();
 
             Assert.Equal(
-                @"SELECT TOP(1) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = 'London'
 ORDER BY [c].[ContactName] DESC",
@@ -898,7 +898,7 @@ ORDER BY [c].[ContactName] DESC",
             base.Where_Last();
 
             Assert.Equal(
-                @"SELECT TOP(1) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = 'London'
 ORDER BY [c].[ContactName] DESC",
@@ -910,7 +910,7 @@ ORDER BY [c].[ContactName] DESC",
             base.LastOrDefault();
 
             Assert.Equal(
-                @"SELECT TOP(1) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[ContactName] DESC",
                 Sql);
@@ -921,7 +921,7 @@ ORDER BY [c].[ContactName] DESC",
             base.LastOrDefault_Predicate();
 
             Assert.Equal(
-                @"SELECT TOP(1) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = 'London'
 ORDER BY [c].[ContactName] DESC",
@@ -933,7 +933,7 @@ ORDER BY [c].[ContactName] DESC",
             base.Where_LastOrDefault();
 
             Assert.Equal(
-                @"SELECT TOP(1) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = 'London'
 ORDER BY [c].[ContactName] DESC",
@@ -945,7 +945,7 @@ ORDER BY [c].[ContactName] DESC",
             base.Where_equals_method_string();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = 'London'",
                 Sql);
@@ -956,7 +956,7 @@ WHERE [c].[City] = 'London'",
             base.Where_equals_method_int();
 
             Assert.Equal(
-                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 1",
                 Sql);
@@ -967,7 +967,7 @@ WHERE [e].[EmployeeID] = 1",
             base.Where_string_length();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -977,7 +977,7 @@ FROM [Customers] AS [c]",
             base.Where_is_null();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] IS NULL",
                 Sql);
@@ -988,7 +988,7 @@ WHERE [c].[City] IS NULL",
             base.Where_is_not_null();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] IS NOT NULL",
                 Sql);
@@ -999,7 +999,7 @@ WHERE [c].[City] IS NOT NULL",
             base.Where_null_is_null();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 1 = 1",
                 Sql);
@@ -1010,7 +1010,7 @@ WHERE 1 = 1",
             base.Where_constant_is_null();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 1 = 0",
                 Sql);
@@ -1021,7 +1021,7 @@ WHERE 1 = 0",
             base.Where_null_is_not_null();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 1 = 0",
                 Sql);
@@ -1032,7 +1032,7 @@ WHERE 1 = 0",
             base.Where_constant_is_not_null();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 1 = 1",
                 Sql);
@@ -1043,7 +1043,7 @@ WHERE 1 = 1",
             base.Where_simple_reversed();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 'London' = [c].[City]",
                 Sql);
@@ -1054,7 +1054,7 @@ WHERE 'London' = [c].[City]",
             base.Where_identity_comparison();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = [c].[City]",
                 Sql);
@@ -1065,7 +1065,7 @@ WHERE [c].[City] = [c].[City]",
             base.Where_select_many_or();
             
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE ([c].[City] = 'London') OR ([e].[City] = 'London')",
@@ -1077,7 +1077,7 @@ WHERE ([c].[City] = 'London') OR ([e].[City] = 'London')",
             base.Where_select_many_or2();
 
             Assert.StartsWith(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] IN ('London', 'Berlin')",
@@ -1089,7 +1089,7 @@ WHERE [c].[City] IN ('London', 'Berlin')",
             base.Where_select_many_or3();
 
             Assert.StartsWith(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] IN ('London', 'Berlin', 'Seattle')",
@@ -1101,7 +1101,7 @@ WHERE [c].[City] IN ('London', 'Berlin', 'Seattle')",
             base.Where_select_many_or4();
 
             Assert.StartsWith(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] IN ('London', 'Berlin', 'Seattle', 'Lisboa')",
@@ -1116,7 +1116,7 @@ WHERE [c].[City] IN ('London', 'Berlin', 'Seattle', 'Lisboa')",
                 @"__london_0: London
 __lisboa_1: Lisboa
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] IN (@__london_0, 'Berlin', 'Seattle', @__lisboa_1)",
@@ -1128,7 +1128,7 @@ WHERE [c].[City] IN (@__london_0, 'Berlin', 'Seattle', @__lisboa_1)",
             base.Where_in_optimization_multiple();
 
             Assert.StartsWith(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] IN ('London', 'Berlin') OR ([c].[CustomerID] = 'ALFKI') OR ([c].[CustomerID] = 'ABCDE')",
@@ -1140,7 +1140,7 @@ WHERE [c].[City] IN ('London', 'Berlin') OR ([c].[CustomerID] = 'ALFKI') OR ([c]
             base.Where_not_in_optimization1();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE ([c].[City] <> 'London') AND ([e].[City] <> 'London')",
@@ -1152,7 +1152,7 @@ WHERE ([c].[City] <> 'London') AND ([e].[City] <> 'London')",
             base.Where_not_in_optimization2();
 
             Assert.StartsWith(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] NOT IN ('London', 'Berlin')",
@@ -1164,7 +1164,7 @@ WHERE [c].[City] NOT IN ('London', 'Berlin')",
             base.Where_not_in_optimization3();
 
             Assert.StartsWith(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] NOT IN ('London', 'Berlin', 'Seattle')",
@@ -1176,7 +1176,7 @@ WHERE [c].[City] NOT IN ('London', 'Berlin', 'Seattle')",
             base.Where_not_in_optimization4();
 
             Assert.StartsWith(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] NOT IN ('London', 'Berlin', 'Seattle', 'Lisboa')",
@@ -1188,7 +1188,7 @@ WHERE [c].[City] NOT IN ('London', 'Berlin', 'Seattle', 'Lisboa')",
             base.Where_select_many_and();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE ([c].[City] = 'London') AND ([c].[Country] = 'UK') AND ([e].[City] = 'London') AND ([e].[Country] = 'UK')",
@@ -1223,13 +1223,13 @@ WHERE [c].[City] = 'London'",
 
             Assert.Equal(3873, Sql.Length);
             Assert.StartsWith(
-                @"SELECT [e1].[City], [e1].[Country], [e1].[EmployeeID], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
+                @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM [Employees] AS [e1]
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -1239,7 +1239,7 @@ FROM [Customers] AS [c]",
             base.SelectMany_simple1();
 
             Assert.Equal(
-                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Employees] AS [e]
 CROSS JOIN [Customers] AS [c]",
                 Sql);
@@ -1250,7 +1250,7 @@ CROSS JOIN [Customers] AS [c]",
             base.SelectMany_simple2();
 
             Assert.Equal(
-                @"SELECT [e1].[City], [e1].[Country], [e1].[EmployeeID], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e2].[FirstName]
+                @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e2].[FirstName]
 FROM [Employees] AS [e1]
 CROSS JOIN [Customers] AS [c]
 CROSS JOIN [Employees] AS [e2]",
@@ -1262,7 +1262,7 @@ CROSS JOIN [Employees] AS [e2]",
             base.SelectMany_entity_deep();
 
             Assert.Equal(
-                @"SELECT [e1].[City], [e1].[Country], [e1].[EmployeeID], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title], [e2].[City], [e2].[Country], [e2].[EmployeeID], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title], [e3].[City], [e3].[Country], [e3].[EmployeeID], [e3].[FirstName], [e3].[ReportsTo], [e3].[Title]
+                @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title], [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title], [e3].[EmployeeID], [e3].[City], [e3].[Country], [e3].[FirstName], [e3].[ReportsTo], [e3].[Title]
 FROM [Employees] AS [e1]
 CROSS JOIN [Employees] AS [e2]
 CROSS JOIN [Employees] AS [e3]",
@@ -1342,7 +1342,7 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
             base.Join_customers_orders_entities();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
                 Sql);
@@ -1353,7 +1353,7 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
             base.Join_composite_key();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON ([c].[CustomerID] = [o].[CustomerID]) AND ([c].[CustomerID] = [o].[CustomerID])",
                 Sql);
@@ -1364,10 +1364,10 @@ INNER JOIN [Orders] AS [o] ON ([c].[CustomerID] = [o].[CustomerID]) AND ([c].[Cu
             base.Join_client_new_expression();
 
             Assert.Equal(
-                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -1377,7 +1377,7 @@ FROM [Customers] AS [c]",
             base.Join_select_many();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[OrderDate], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 CROSS JOIN [Employees] AS [e]",
@@ -1426,7 +1426,7 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]", Sql);
             base.GroupBy_Distinct();
 
             Assert.Equal(
-                @"SELECT DISTINCT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT DISTINCT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]",
                 Sql);
         }
@@ -1436,7 +1436,7 @@ FROM [Orders] AS [o]",
             base.GroupBy_Count();
 
             Assert.Equal(
-                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]",
                 Sql);
         }
@@ -1446,7 +1446,7 @@ FROM [Orders] AS [o]",
             base.GroupBy_LongCount();
 
             Assert.Equal(
-                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]",
                 Sql);
         }
@@ -1456,7 +1456,7 @@ FROM [Orders] AS [o]",
             base.SelectMany_cartesian_product_with_ordering();
 
             Assert.StartsWith(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE [c].[City] = [e].[City]
@@ -1469,10 +1469,10 @@ ORDER BY [e].[City], [c].[CustomerID] DESC",
             base.GroupJoin_customers_orders_count();
 
             Assert.Equal(
-                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -1484,7 +1484,7 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT TOP(2) [t0].*
 FROM (
-    SELECT TOP(1) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t0]",
@@ -1498,7 +1498,7 @@ FROM (
             Assert.Equal(
                 @"SELECT TOP(2) [t0].*
 FROM (
-    SELECT TOP(1) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[CustomerID] AS [c0], [o].[OrderDate], [o].[OrderID]
+    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID] AS [c0], [o].[OrderDate]
     FROM [Customers] AS [c]
     CROSS JOIN [Orders] AS [o]
     ORDER BY [c].[CustomerID], [o].[OrderID]
@@ -1511,7 +1511,7 @@ FROM (
             base.Distinct();
 
             Assert.Equal(
-                @"SELECT DISTINCT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -1531,7 +1531,7 @@ FROM [Customers] AS [c]",
             base.OrderBy_client_mixed();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -1541,10 +1541,10 @@ FROM [Customers] AS [c]",
             base.OrderBy_multiple_queries();
 
             Assert.Equal(
-                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -1575,7 +1575,7 @@ FROM [Customers] AS [c]",
             base.OrderBy_shadow();
 
             Assert.Equal(
-                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 ORDER BY [e].[Title], [e].[EmployeeID]",
                 Sql);
@@ -1612,11 +1612,11 @@ ORDER BY [c].[Country], [c].[CustomerID]",
 
             Assert.Equal(2632, Sql.Length);
             Assert.StartsWith(
-                @"SELECT [e1].[City], [e1].[Country], [e1].[EmployeeID], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
+                @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM [Employees] AS [e1]
 ORDER BY [e1].[EmployeeID]
 
-SELECT [e2].[City], [e2].[Country], [e2].[EmployeeID], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
+SELECT [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
 FROM [Employees] AS [e2]
 
 SELECT CASE WHEN (
@@ -1626,7 +1626,7 @@ SELECT CASE WHEN (
     )
 ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END
 
-SELECT [e2].[City], [e2].[Country], [e2].[EmployeeID], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
+SELECT [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
 FROM [Employees] AS [e2]",
                 Sql);
         }
@@ -1636,7 +1636,7 @@ FROM [Employees] AS [e2]",
             base.Where_false();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 1 = 0",
                 Sql);
@@ -1657,7 +1657,7 @@ FROM [Employees] AS [e]",
             base.Where_bool_member();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 1",
                 Sql);
@@ -1668,7 +1668,7 @@ WHERE [p].[Discontinued] = 1",
             base.Where_bool_member_false();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 0",
                 Sql);
@@ -1679,7 +1679,7 @@ WHERE [p].[Discontinued] = 0",
             base.Where_bool_member_negated_twice();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 1",
                 Sql);
@@ -1690,7 +1690,7 @@ WHERE [p].[Discontinued] = 1",
             base.Where_bool_member_shadow();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 1",
                 Sql);
@@ -1701,7 +1701,7 @@ WHERE [p].[Discontinued] = 1",
             base.Where_bool_member_false_shadow();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 0",
                 Sql);
@@ -1712,7 +1712,7 @@ WHERE [p].[Discontinued] = 0",
             base.Where_bool_member_equals_constant();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 1",
                 Sql);
@@ -1723,7 +1723,7 @@ WHERE [p].[Discontinued] = 1",
             base.Where_bool_member_in_complex_predicate();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE (([p].[ProductID] > 100) AND [p].[Discontinued] = 1) OR ([p].[Discontinued] = 1)",
                 Sql);
@@ -1734,7 +1734,7 @@ WHERE (([p].[ProductID] > 100) AND [p].[Discontinued] = 1) OR ([p].[Discontinued
             base.Where_bool_member_compared_to_binary_expression();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE ([p].[Discontinued] = 1 AND ([p].[ProductID] > 50)) OR ([p].[Discontinued] = 0 AND ([p].[ProductID] <= 50))",
                 Sql);
@@ -1745,7 +1745,7 @@ WHERE ([p].[Discontinued] = 1 AND ([p].[ProductID] > 50)) OR ([p].[Discontinued]
             base.Where_not_bool_member_compared_to_binary_expression();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE ([p].[Discontinued] = 0 AND ([p].[ProductID] > 50)) OR ([p].[Discontinued] = 1 AND ([p].[ProductID] <= 50))",
                 Sql);
@@ -1756,7 +1756,7 @@ WHERE ([p].[Discontinued] = 0 AND ([p].[ProductID] > 50)) OR ([p].[Discontinued]
             base.Where_not_bool_member_compared_to_not_bool_member();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE ([p].[Discontinued] = 0 AND [p].[Discontinued] = 0) OR ([p].[Discontinued] = 1 AND [p].[Discontinued] = 1)",
                 Sql);
@@ -1767,7 +1767,7 @@ WHERE ([p].[Discontinued] = 0 AND [p].[Discontinued] = 0) OR ([p].[Discontinued]
             base.Where_negated_boolean_expression_compared_to_another_negated_boolean_expression();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE (([p].[ProductID] <= 50) AND ([p].[ProductID] <= 20)) OR (([p].[ProductID] > 50) AND ([p].[ProductID] > 20))",
                 Sql);
@@ -1780,7 +1780,7 @@ WHERE (([p].[ProductID] <= 50) AND ([p].[ProductID] <= 20)) OR (([p].[ProductID]
             Assert.Equal(
                 @"__prm_0: True
 
-SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE (([p].[ProductID] > 50) AND @__prm_0 = 0) OR (([p].[ProductID] <= 50) AND @__prm_0 = 1)",
                 Sql);
@@ -1793,7 +1793,7 @@ WHERE (([p].[ProductID] > 50) AND @__prm_0 = 0) OR (([p].[ProductID] <= 50) AND 
             Assert.Equal(
                 @"__prm_0: True
 
-SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE ([p].[Discontinued] = 1 AND ((([p].[ProductID] > 50) AND @__prm_0 = 0) OR (([p].[ProductID] <= 50) AND @__prm_0 = 1))) OR ([p].[Discontinued] = 0 AND (([p].[ProductID] <= 50) OR @__prm_0 = 1) AND (([p].[ProductID] > 50) OR @__prm_0 = 0))",
                 Sql);
@@ -1804,7 +1804,7 @@ WHERE ([p].[Discontinued] = 1 AND ((([p].[ProductID] > 50) AND @__prm_0 = 0) OR 
             base.Where_de_morgan_or_optimizated();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 0 AND ([p].[ProductID] >= 20)",
                 Sql);
@@ -1815,7 +1815,7 @@ WHERE [p].[Discontinued] = 0 AND ([p].[ProductID] >= 20)",
             base.Where_de_morgan_and_optimizated();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 0 OR ([p].[ProductID] >= 20)",
                 Sql);
@@ -1826,7 +1826,7 @@ WHERE [p].[Discontinued] = 0 OR ([p].[ProductID] >= 20)",
             base.Where_complex_negated_expression_optimized();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 0 AND ([p].[ProductID] < 60) AND ([p].[ProductID] > 30)",
                 Sql);
@@ -1837,7 +1837,7 @@ WHERE [p].[Discontinued] = 0 AND ([p].[ProductID] < 60) AND ([p].[ProductID] > 3
             base.Where_short_member_comparison();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] > 10",
                 Sql);
@@ -1848,7 +1848,7 @@ WHERE [p].[UnitsInStock] > 10",
             base.Where_true();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 1 = 1",
                 Sql);
@@ -1859,7 +1859,7 @@ WHERE 1 = 1",
             base.Where_compare_constructed_equal();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -1869,7 +1869,7 @@ FROM [Customers] AS [c]",
             base.Where_compare_constructed_multi_value_equal();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -1879,7 +1879,7 @@ FROM [Customers] AS [c]",
             base.Where_compare_constructed_multi_value_not_equal();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -1889,7 +1889,7 @@ FROM [Customers] AS [c]",
             base.Where_compare_constructed();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -1899,7 +1899,7 @@ FROM [Customers] AS [c]",
             base.Where_compare_null();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] IS NULL AND ([c].[Country] = 'UK')",
                 Sql);
@@ -1910,7 +1910,7 @@ WHERE [c].[City] IS NULL AND ([c].[Country] = 'UK')",
             base.Single_Predicate();
 
             Assert.Equal(
-                @"SELECT TOP(2) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = 'ALFKI'",
                 Sql);
@@ -1923,7 +1923,7 @@ WHERE [c].[CustomerID] = 'ALFKI'",
             //            base.Projection_when_arithmetic_expressions();
             //
             //            Assert.Equal(
-            //                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [o].[OrderID], [o].[OrderID] * 2, [o].[OrderID] + 23, 100000 - [o].[OrderID], [o].[OrderID] / ([o].[OrderID] / 2)
+            //                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [o].[OrderID] * 2, [o].[OrderID] + 23, 100000 - [o].[OrderID], [o].[OrderID] / ([o].[OrderID] / 2)
             //FROM [Orders] AS [o]",
             //                Sql);
         }
@@ -1953,7 +1953,7 @@ FROM [Customers] AS [c]",
             base.String_StartsWith_Literal();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE 'M' + '%'",
                 Sql);
@@ -1964,7 +1964,7 @@ WHERE [c].[ContactName] LIKE 'M' + '%'",
             base.String_StartsWith_Identity();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE [c].[ContactName] + '%'",
                 Sql);
@@ -1975,7 +1975,7 @@ WHERE [c].[ContactName] LIKE [c].[ContactName] + '%'",
             base.String_StartsWith_Column();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE [c].[ContactName] + '%'",
                 Sql);
@@ -1988,7 +1988,7 @@ WHERE [c].[ContactName] LIKE [c].[ContactName] + '%'",
             Assert.Equal(
                 @"__LocalMethod1_0: M
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE @__LocalMethod1_0 + '%'",
                 Sql);
@@ -1999,7 +1999,7 @@ WHERE [c].[ContactName] LIKE @__LocalMethod1_0 + '%'",
             base.String_EndsWith_Literal();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE '%' + 'b'",
                 Sql);
@@ -2010,7 +2010,7 @@ WHERE [c].[ContactName] LIKE '%' + 'b'",
             base.String_EndsWith_Identity();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE '%' + [c].[ContactName]",
                 Sql);
@@ -2021,7 +2021,7 @@ WHERE [c].[ContactName] LIKE '%' + [c].[ContactName]",
             base.String_EndsWith_Column();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE '%' + [c].[ContactName]",
                 Sql);
@@ -2034,7 +2034,7 @@ WHERE [c].[ContactName] LIKE '%' + [c].[ContactName]",
             Assert.Equal(
                 @"__LocalMethod2_0: m
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE '%' + @__LocalMethod2_0",
                 Sql);
@@ -2048,7 +2048,7 @@ WHERE [c].[ContactName] LIKE '%' + @__LocalMethod2_0",
                 entryCount: 34);
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE '%' + 'M' + '%'",
                 Sql);
@@ -2059,7 +2059,7 @@ WHERE [c].[ContactName] LIKE '%' + 'M' + '%'",
             base.String_Contains_Identity();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE '%' + [c].[ContactName] + '%'",
                 Sql);
@@ -2070,7 +2070,7 @@ WHERE [c].[ContactName] LIKE '%' + [c].[ContactName] + '%'",
             base.String_Contains_Column();
 
             Assert.Equal(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE '%' + [c].[ContactName] + '%'",
                 Sql);
@@ -2086,7 +2086,7 @@ WHERE [c].[ContactName] LIKE '%' + [c].[ContactName] + '%'",
             Assert.Equal(
                 @"__LocalMethod1_0: M
 
-SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE '%' + @__LocalMethod1_0 + '%'",
                 Sql);
@@ -2118,7 +2118,7 @@ ORDER BY [o].[OrderID]
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 
-SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]
 
 ",
@@ -2133,7 +2133,7 @@ FROM [Orders] AS [o]
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 
-SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]
 
 ",
@@ -2145,7 +2145,7 @@ FROM [Orders] AS [o]
             base.Select_many_cross_join_same_collection();
 
             Assert.Equal(
-                @"SELECT [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[CustomerID], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+                @"SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM [Customers] AS [c]
 CROSS JOIN [Customers] AS [c0]",
                 Sql);
@@ -2156,7 +2156,7 @@ CROSS JOIN [Customers] AS [c0]",
             base.Join_same_collection_multiple();
 
             Assert.Equal(
-                @"SELECT [c3].[Address], [c3].[City], [c3].[CompanyName], [c3].[ContactName], [c3].[ContactTitle], [c3].[Country], [c3].[CustomerID], [c3].[Fax], [c3].[Phone], [c3].[PostalCode], [c3].[Region]
+                @"SELECT [c3].[CustomerID], [c3].[Address], [c3].[City], [c3].[CompanyName], [c3].[ContactName], [c3].[ContactTitle], [c3].[Country], [c3].[Fax], [c3].[Phone], [c3].[PostalCode], [c3].[Region]
 FROM [Customers] AS [o]
 INNER JOIN [Customers] AS [c2] ON [o].[CustomerID] = [c2].[CustomerID]
 INNER JOIN [Customers] AS [c3] ON [o].[CustomerID] = [c3].[CustomerID]",
@@ -2168,7 +2168,7 @@ INNER JOIN [Customers] AS [c3] ON [o].[CustomerID] = [c3].[CustomerID]",
             base.Join_same_collection_force_alias_uniquefication();
 
             Assert.Equal(
-                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [o0].[CustomerID], [o0].[OrderDate], [o0].[OrderID]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate], [o0].[OrderID], [o0].[CustomerID], [o0].[OrderDate]
 FROM [Orders] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]",
                 Sql);
@@ -2181,7 +2181,7 @@ INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]",
             Assert.Equal(
                 @"__p_0: 1/1/1998 12:00:00 AM
 
-SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = 'QUICK') AND ([o].[OrderDate] > @__p_0)",
                 Sql);
@@ -2192,7 +2192,7 @@ WHERE ([o].[CustomerID] = 'QUICK') AND ([o].[OrderDate] > @__p_0)",
             base.Contains_with_local_array_closure();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
                 Sql);
@@ -2203,7 +2203,7 @@ WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
             base.Contains_with_local_array_inline();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
                 Sql);
@@ -2214,7 +2214,7 @@ WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
             base.Contains_with_local_list_closure();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
                 Sql);
@@ -2225,7 +2225,7 @@ WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
             base.Contains_with_local_list_inline();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
                 Sql);
@@ -2236,7 +2236,7 @@ WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
             base.Contains_with_local_list_inline_closure_mix();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
                 Sql);
@@ -2247,7 +2247,7 @@ WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
             base.Contains_with_local_collection_false();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] NOT IN ('ABCDE', 'ALFKI')",
                 Sql);
@@ -2258,7 +2258,7 @@ WHERE [c].[CustomerID] NOT IN ('ABCDE', 'ALFKI')",
             base.Contains_with_local_collection_complex_predicate_and();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN ('ALFKI', 'ABCDE') AND [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
                 Sql);
@@ -2269,7 +2269,7 @@ WHERE [c].[CustomerID] IN ('ALFKI', 'ABCDE') AND [c].[CustomerID] IN ('ABCDE', '
             base.Contains_with_local_collection_complex_predicate_or();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI', 'ALFKI', 'ABCDE')",
                 Sql);
@@ -2280,7 +2280,7 @@ WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI', 'ALFKI', 'ABCDE')",
             base.Contains_with_local_collection_complex_predicate_not_matching_ins1();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN ('ALFKI', 'ABCDE') OR [c].[CustomerID] NOT IN ('ABCDE', 'ALFKI')",
                 Sql);
@@ -2291,7 +2291,7 @@ WHERE [c].[CustomerID] IN ('ALFKI', 'ABCDE') OR [c].[CustomerID] NOT IN ('ABCDE'
             base.Contains_with_local_collection_complex_predicate_not_matching_ins2();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI') AND [c].[CustomerID] NOT IN ('ALFKI', 'ABCDE')",
                 Sql);
@@ -2302,7 +2302,7 @@ WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI') AND [c].[CustomerID] NOT IN ('ALFKI
             base.Contains_with_local_collection_sql_injection();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN ('ALFKI', 'ABC'')); GO; DROP TABLE Orders; GO; --', 'ALFKI', 'ABCDE')",
                 Sql);
@@ -2313,7 +2313,7 @@ WHERE [c].[CustomerID] IN ('ALFKI', 'ABC'')); GO; DROP TABLE Orders; GO; --', 'A
             base.Contains_with_local_collection_empty_closure();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 1 = 0",
         Sql);
@@ -2324,7 +2324,7 @@ WHERE 1 = 0",
             base.Contains_with_local_collection_empty_inline();
 
             Assert.Equal(
-    @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 1 = 1",
                 Sql);

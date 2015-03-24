@@ -65,15 +65,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 stateManager.StartTracking(categoryType, new Category { Id = 12 }, new ObjectArrayValueReader(new object[] { 12 }));
                 stateManager.StartTracking(categoryType, new Category { Id = 13 }, new ObjectArrayValueReader(new object[] { 13 }));
 
-                stateManager.StartTracking(productType, new Product { Id = 21, CategoryId = 11 }, new ObjectArrayValueReader(new object[] { 11, 21 }));
+                stateManager.StartTracking(productType, new Product { Id = 21, CategoryId = 11 }, new ObjectArrayValueReader(new object[] { 21, 11 }));
                 AssertAllFixedUp(context);
-                stateManager.StartTracking(productType, new Product { Id = 22, CategoryId = 11 }, new ObjectArrayValueReader(new object[] { 11, 22 }));
+                stateManager.StartTracking(productType, new Product { Id = 22, CategoryId = 11 }, new ObjectArrayValueReader(new object[] { 22, 11 }));
                 AssertAllFixedUp(context);
-                stateManager.StartTracking(productType, new Product { Id = 23, CategoryId = 11 }, new ObjectArrayValueReader(new object[] { 11, 23 }));
+                stateManager.StartTracking(productType, new Product { Id = 23, CategoryId = 11 }, new ObjectArrayValueReader(new object[] { 23, 11 }));
                 AssertAllFixedUp(context);
-                stateManager.StartTracking(productType, new Product { Id = 24, CategoryId = 12 }, new ObjectArrayValueReader(new object[] { 12, 24 }));
+                stateManager.StartTracking(productType, new Product { Id = 24, CategoryId = 12 }, new ObjectArrayValueReader(new object[] { 24, 12 }));
                 AssertAllFixedUp(context);
-                stateManager.StartTracking(productType, new Product { Id = 25, CategoryId = 12 }, new ObjectArrayValueReader(new object[] { 12, 25 }));
+                stateManager.StartTracking(productType, new Product { Id = 25, CategoryId = 12 }, new ObjectArrayValueReader(new object[] { 25, 12 }));
                 AssertAllFixedUp(context);
 
                 stateManager.StartTracking(offerType, new SpecialOffer { Id = 31, ProductId = 22 }, new ObjectArrayValueReader(new object[] { 31, 22 }));
