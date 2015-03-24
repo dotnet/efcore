@@ -83,12 +83,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     <c>t => t.Property1</c>).
         /// </param>
         /// <returns> An object that can be used to configure the property. </returns>
-        public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
+        public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
             var propertyInfo = propertyExpression.GetPropertyAccess();
-            return new PropertyBuilder(Builder.Property(propertyInfo, ConfigurationSource.Explicit));
+            return new PropertyBuilder<TProperty>(Builder.Property(propertyInfo, ConfigurationSource.Explicit));
         }
 
         /// <summary>

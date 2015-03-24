@@ -33,6 +33,18 @@ namespace Microsoft.Data.Entity
             return propertyBuilder;
         }
 
+        public static PropertyBuilder<TProperty> ForSqlServer<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [NotNull] Action<SqlServerPropertyBuilder> builderAction)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+            Check.NotNull(builderAction, nameof(builderAction));
+
+            builderAction(ForSqlServer(propertyBuilder));
+
+            return propertyBuilder;
+        }
+
         public static SqlServerEntityTypeBuilder ForSqlServer(
             [NotNull] this EntityTypeBuilder entityTypeBuilder)
         {
@@ -105,63 +117,101 @@ namespace Microsoft.Data.Entity
         }
 
         public static SqlServerForeignKeyBuilder ForSqlServer(
-            [NotNull] this ReferenceCollectionBuilder foreignKeyBuilder)
+            [NotNull] this ReferenceCollectionBuilder referenceCollectionBuilder)
         {
-            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
+            Check.NotNull(referenceCollectionBuilder, nameof(referenceCollectionBuilder));
 
-            return new SqlServerForeignKeyBuilder(foreignKeyBuilder.Metadata);
+            return new SqlServerForeignKeyBuilder(referenceCollectionBuilder.Metadata);
         }
 
         public static ReferenceCollectionBuilder ForSqlServer(
-            [NotNull] this ReferenceCollectionBuilder foreignKeyBuilder,
+            [NotNull] this ReferenceCollectionBuilder referenceCollectionBuilder,
             [NotNull] Action<SqlServerForeignKeyBuilder> builderAction)
         {
-            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
+            Check.NotNull(referenceCollectionBuilder, nameof(referenceCollectionBuilder));
             Check.NotNull(builderAction, nameof(builderAction));
 
-            builderAction(ForSqlServer(foreignKeyBuilder));
+            builderAction(ForSqlServer(referenceCollectionBuilder));
 
-            return foreignKeyBuilder;
+            return referenceCollectionBuilder;
+        }
+
+        public static ReferenceCollectionBuilder<TEntity, TRelatedEntity> ForSqlServer<TEntity, TRelatedEntity>(
+            [NotNull] this ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder,
+            [NotNull] Action<SqlServerForeignKeyBuilder> builderAction)
+            where TEntity : class
+        {
+            Check.NotNull(referenceCollectionBuilder, nameof(referenceCollectionBuilder));
+            Check.NotNull(builderAction, nameof(builderAction));
+
+            builderAction(ForSqlServer(referenceCollectionBuilder));
+
+            return referenceCollectionBuilder;
         }
 
         public static SqlServerForeignKeyBuilder ForSqlServer(
-            [NotNull] this CollectionReferenceBuilder foreignKeyBuilder)
+            [NotNull] this CollectionReferenceBuilder collectionReferenceBuilder)
         {
-            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
+            Check.NotNull(collectionReferenceBuilder, nameof(collectionReferenceBuilder));
 
-            return new SqlServerForeignKeyBuilder(foreignKeyBuilder.Metadata);
+            return new SqlServerForeignKeyBuilder(collectionReferenceBuilder.Metadata);
         }
 
         public static CollectionReferenceBuilder ForSqlServer(
-            [NotNull] this CollectionReferenceBuilder foreignKeyBuilder,
+            [NotNull] this CollectionReferenceBuilder collectionReferenceBuilder,
             [NotNull] Action<SqlServerForeignKeyBuilder> builderAction)
         {
-            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
+            Check.NotNull(collectionReferenceBuilder, nameof(collectionReferenceBuilder));
             Check.NotNull(builderAction, nameof(builderAction));
 
-            builderAction(ForSqlServer(foreignKeyBuilder));
+            builderAction(ForSqlServer(collectionReferenceBuilder));
 
-            return foreignKeyBuilder;
+            return collectionReferenceBuilder;
+        }
+
+        public static CollectionReferenceBuilder<TEntity, TRelatedEntity> ForSqlServer<TEntity, TRelatedEntity>(
+            [NotNull] this CollectionReferenceBuilder<TEntity, TRelatedEntity> collectionReferenceBuilder,
+            [NotNull] Action<SqlServerForeignKeyBuilder> builderAction)
+            where TEntity : class
+        {
+            Check.NotNull(collectionReferenceBuilder, nameof(collectionReferenceBuilder));
+            Check.NotNull(builderAction, nameof(builderAction));
+
+            builderAction(ForSqlServer(collectionReferenceBuilder));
+
+            return collectionReferenceBuilder;
         }
 
         public static SqlServerForeignKeyBuilder ForSqlServer(
-            [NotNull] this ReferenceReferenceBuilder foreignKeyBuilder)
+            [NotNull] this ReferenceReferenceBuilder referenceReferenceBuilder)
         {
-            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
+            Check.NotNull(referenceReferenceBuilder, nameof(referenceReferenceBuilder));
 
-            return new SqlServerForeignKeyBuilder(foreignKeyBuilder.Metadata);
+            return new SqlServerForeignKeyBuilder(referenceReferenceBuilder.Metadata);
         }
 
         public static ReferenceReferenceBuilder ForSqlServer(
-            [NotNull] this ReferenceReferenceBuilder foreignKeyBuilder,
+            [NotNull] this ReferenceReferenceBuilder referenceReferenceBuilder,
             [NotNull] Action<SqlServerForeignKeyBuilder> builderAction)
         {
-            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
+            Check.NotNull(referenceReferenceBuilder, nameof(referenceReferenceBuilder));
             Check.NotNull(builderAction, nameof(builderAction));
 
-            builderAction(ForSqlServer(foreignKeyBuilder));
+            builderAction(ForSqlServer(referenceReferenceBuilder));
 
-            return foreignKeyBuilder;
+            return referenceReferenceBuilder;
+        }
+
+        public static ReferenceReferenceBuilder<TEntity, TRelatedEntity> ForSqlServer<TEntity, TRelatedEntity>(
+            [NotNull] this ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder,
+            [NotNull] Action<SqlServerForeignKeyBuilder> builderAction)
+        {
+            Check.NotNull(referenceReferenceBuilder, nameof(referenceReferenceBuilder));
+            Check.NotNull(builderAction, nameof(builderAction));
+
+            builderAction(ForSqlServer(referenceReferenceBuilder));
+
+            return referenceReferenceBuilder;
         }
 
         public static SqlServerModelBuilder ForSqlServer(
