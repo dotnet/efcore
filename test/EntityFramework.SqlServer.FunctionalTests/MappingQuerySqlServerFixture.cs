@@ -4,7 +4,6 @@
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
@@ -49,8 +48,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             modelBuilder.Entity<MappingQueryTestBase.MappedCustomer>(e =>
                 {
-                    e.Property(c => c.CompanyName2).ForSqlServer(c => c.Column("CompanyName"));
-                    e.ForSqlServer(t => t.Table("Customers", "dbo"));
+                    e.Property(c => c.CompanyName2).Metadata.SqlServer().Column = "CompanyName";
+                    e.Metadata.SqlServer().Table = "Customers";
+                    e.Metadata.SqlServer().Schema = "dbo";
                 });
         }
     }

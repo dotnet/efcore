@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         entity type.
     ///     </para>
     /// </summary>
-    public class ReferenceReferenceBuilder : IReferenceReferenceBuilder<ReferenceReferenceBuilder>, IAccessor<InternalRelationshipBuilder>
+    public class ReferenceReferenceBuilder : IAccessor<Model>, IAccessor<InternalRelationshipBuilder>
     {
         private readonly InternalRelationshipBuilder _builder;
 
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The model that this relationship belongs to.
         /// </summary>
-        Model IMetadataBuilder<ForeignKey, ReferenceReferenceBuilder>.Model => Builder.ModelBuilder.Metadata;
+        Model IAccessor<Model>.Service => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder Annotation(string annotation, object value)
+        public virtual ReferenceReferenceBuilder Annotation([NotNull] string annotation, [NotNull] object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotNull(value, nameof(value));

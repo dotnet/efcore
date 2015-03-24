@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -14,224 +13,175 @@ namespace Microsoft.Data.Entity
 {
     public static class RelationalBuilderExtensions
     {
-        public static RelationalPropertyBuilder ForRelational<TPropertyBuilder>(
-            [NotNull] this IPropertyBuilder<TPropertyBuilder> propertyBuilder)
-            where TPropertyBuilder : IPropertyBuilder<TPropertyBuilder>
+        public static RelationalPropertyBuilder ForRelational(
+            [NotNull] this PropertyBuilder propertyBuilder)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
             return new RelationalPropertyBuilder(propertyBuilder.Metadata);
         }
 
-        public static TPropertyBuilder ForRelational<TPropertyBuilder>(
-            [NotNull] this IPropertyBuilder<TPropertyBuilder> propertyBuilder,
-            [NotNull] Action<RelationalPropertyBuilder> relationalPropertyBuilder)
-            where TPropertyBuilder : IPropertyBuilder<TPropertyBuilder>
+        public static PropertyBuilder ForRelational(
+            [NotNull] this PropertyBuilder propertyBuilder,
+            [NotNull] Action<RelationalPropertyBuilder> builderAction)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-            Check.NotNull(relationalPropertyBuilder, nameof(relationalPropertyBuilder));
+            Check.NotNull(builderAction, nameof(builderAction));
 
-            relationalPropertyBuilder(ForRelational(propertyBuilder));
+            builderAction(ForRelational(propertyBuilder));
 
-            return (TPropertyBuilder)propertyBuilder;
+            return propertyBuilder;
         }
 
-        public static RelationalEntityTypeBuilder ForRelational<TEntityTypeBuilder>(
-            [NotNull] this IEntityTypeBuilder<TEntityTypeBuilder> entityTypeBuilder)
-            where TEntityTypeBuilder : IEntityTypeBuilder<TEntityTypeBuilder>
+        public static RelationalEntityTypeBuilder ForRelational(
+            [NotNull] this EntityTypeBuilder entityTypeBuilder)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             return new RelationalEntityTypeBuilder(entityTypeBuilder.Metadata);
         }
 
-        public static TEntityTypeBuilder ForRelational<TEntityTypeBuilder>(
-            [NotNull] this IEntityTypeBuilder<TEntityTypeBuilder> entityTypeBuilder,
-            [NotNull] Action<RelationalEntityTypeBuilder> relationalEntityTypeBuilder)
-            where TEntityTypeBuilder : IEntityTypeBuilder<TEntityTypeBuilder>
+        public static EntityTypeBuilder ForRelational(
+            [NotNull] this EntityTypeBuilder entityTypeBuilder,
+            [NotNull] Action<RelationalEntityTypeBuilder> builderAction)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            relationalEntityTypeBuilder(ForRelational(entityTypeBuilder));
+            builderAction(ForRelational(entityTypeBuilder));
 
-            return (TEntityTypeBuilder)entityTypeBuilder;
+            return entityTypeBuilder;
         }
 
-        public static RelationalEntityTypeBuilder ForRelational<TEntity, TEntityTypeBuilder>(
-            [NotNull] this IEntityTypeBuilder<TEntity, TEntityTypeBuilder> entityTypeBuilder)
+        public static EntityTypeBuilder<TEntity> ForRelational<TEntity>(
+            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            [NotNull] Action<RelationalEntityTypeBuilder> builderAction)
             where TEntity : class
-            where TEntityTypeBuilder : IEntityTypeBuilder<TEntity, TEntityTypeBuilder>
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            return new RelationalEntityTypeBuilder(entityTypeBuilder.Metadata);
+            builderAction(ForRelational(entityTypeBuilder));
+
+            return entityTypeBuilder;
         }
 
-        public static TEntityTypeBuilder ForRelational<TEntity, TEntityTypeBuilder>(
-            [NotNull] this IEntityTypeBuilder<TEntity, TEntityTypeBuilder> entityTypeBuilder,
-            [NotNull] Action<RelationalEntityTypeBuilder> relationalEntityTypeBuilder)
-            where TEntity : class
-            where TEntityTypeBuilder : IEntityTypeBuilder<TEntity, TEntityTypeBuilder>
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
-            relationalEntityTypeBuilder(ForRelational(entityTypeBuilder));
-
-            return (TEntityTypeBuilder)entityTypeBuilder;
-        }
-
-        public static RelationalKeyBuilder ForRelational<TKeyBuilder>(
-            [NotNull] this IKeyBuilder<TKeyBuilder> keyBuilder)
-            where TKeyBuilder : IKeyBuilder<TKeyBuilder>
+        public static RelationalKeyBuilder ForRelational(
+            [NotNull] this KeyBuilder keyBuilder)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
 
             return new RelationalKeyBuilder(keyBuilder.Metadata);
         }
 
-        public static TKeyBuilder ForRelational<TKeyBuilder>(
-            [NotNull] this IKeyBuilder<TKeyBuilder> keyBuilder,
-            [NotNull] Action<RelationalKeyBuilder> relationalKeyBuilder)
-            where TKeyBuilder : IKeyBuilder<TKeyBuilder>
+        public static KeyBuilder ForRelational(
+            [NotNull] this KeyBuilder keyBuilder,
+            [NotNull] Action<RelationalKeyBuilder> builderAction)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
-            Check.NotNull(relationalKeyBuilder, nameof(relationalKeyBuilder));
+            Check.NotNull(builderAction, nameof(builderAction));
 
-            relationalKeyBuilder(ForRelational(keyBuilder));
+            builderAction(ForRelational(keyBuilder));
 
-            return (TKeyBuilder)keyBuilder;
+            return keyBuilder;
         }
 
-        public static RelationalForeignKeyBuilder ForRelational<TForeignKeyBuilder>(
-            [NotNull] this IForeignKeyBuilder<TForeignKeyBuilder> foreignKeyBuilder)
-            where TForeignKeyBuilder : IForeignKeyBuilder<TForeignKeyBuilder>
-        {
-            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
-
-            return new RelationalForeignKeyBuilder(foreignKeyBuilder.Metadata);
-        }
-
-        public static TForeignKeyBuilder ForRelational<TForeignKeyBuilder>(
-            [NotNull] this IForeignKeyBuilder<TForeignKeyBuilder> foreignKeyBuilder,
-            [NotNull] Action<RelationalForeignKeyBuilder> relationalForeignKeyBuilder)
-            where TForeignKeyBuilder : IForeignKeyBuilder<TForeignKeyBuilder>
-        {
-            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
-            Check.NotNull(relationalForeignKeyBuilder, nameof(relationalForeignKeyBuilder));
-
-            relationalForeignKeyBuilder(ForRelational(foreignKeyBuilder));
-
-            return (TForeignKeyBuilder)foreignKeyBuilder;
-        }
-
-        public static RelationalIndexBuilder ForRelational<TIndexBuilder>(
-            [NotNull] this IIndexBuilder<TIndexBuilder> indexBuilder)
-            where TIndexBuilder : IIndexBuilder<TIndexBuilder>
+        public static RelationalIndexBuilder ForRelational(
+            [NotNull] this IndexBuilder indexBuilder)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
 
             return new RelationalIndexBuilder(indexBuilder.Metadata);
         }
 
-        public static TIndexBuilder ForRelational<TIndexBuilder>(
-            [NotNull] this IIndexBuilder<TIndexBuilder> indexBuilder,
-            [NotNull] Action<RelationalIndexBuilder> relationalIndexBuilder)
-            where TIndexBuilder : IIndexBuilder<TIndexBuilder>
+        public static IndexBuilder ForRelational(
+            [NotNull] this IndexBuilder indexBuilder,
+            [NotNull] Action<RelationalIndexBuilder> builderAction)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
-            Check.NotNull(relationalIndexBuilder, nameof(relationalIndexBuilder));
+            Check.NotNull(builderAction, nameof(builderAction));
 
-            relationalIndexBuilder(ForRelational(indexBuilder));
+            builderAction(ForRelational(indexBuilder));
 
-            return (TIndexBuilder)indexBuilder;
+            return indexBuilder;
         }
 
-        public static RelationalForeignKeyBuilder ForRelational<TOneToManyBuilder>(
-            [NotNull] this IReferenceCollectionBuilder<TOneToManyBuilder> foreignKeyBuilder)
-            where TOneToManyBuilder : IReferenceCollectionBuilder<TOneToManyBuilder>
+        public static RelationalForeignKeyBuilder ForRelational(
+            [NotNull] this ReferenceCollectionBuilder foreignKeyBuilder)
         {
             Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
 
             return new RelationalForeignKeyBuilder(foreignKeyBuilder.Metadata);
         }
 
-        public static TOneToManyBuilder ForRelational<TOneToManyBuilder>(
-            [NotNull] this IReferenceCollectionBuilder<TOneToManyBuilder> foreignKeyBuilder,
-            [NotNull] Action<RelationalForeignKeyBuilder> relationalOneToManyBuilder)
-            where TOneToManyBuilder : IReferenceCollectionBuilder<TOneToManyBuilder>
+        public static ReferenceCollectionBuilder ForRelational(
+            [NotNull] this ReferenceCollectionBuilder foreignKeyBuilder,
+            [NotNull] Action<RelationalForeignKeyBuilder> builderAction)
         {
             Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
-            Check.NotNull(relationalOneToManyBuilder, nameof(relationalOneToManyBuilder));
+            Check.NotNull(builderAction, nameof(builderAction));
 
-            relationalOneToManyBuilder(ForRelational(foreignKeyBuilder));
+            builderAction(ForRelational(foreignKeyBuilder));
 
-            return (TOneToManyBuilder)foreignKeyBuilder;
+            return foreignKeyBuilder;
         }
 
-        public static RelationalForeignKeyBuilder ForRelational<TManyToOneBuilder>(
-            [NotNull] this ICollectionReferenceBuilder<TManyToOneBuilder> foreignKeyBuilder)
-            where TManyToOneBuilder : ICollectionReferenceBuilder<TManyToOneBuilder>
-        {
-            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
-
-            return new RelationalForeignKeyBuilder(foreignKeyBuilder.Metadata);
-        }
-
-        public static TManyToOneBuilder ForRelational<TManyToOneBuilder>(
-            [NotNull] this ICollectionReferenceBuilder<TManyToOneBuilder> foreignKeyBuilder,
-            [NotNull] Action<RelationalForeignKeyBuilder> relationalManyToOneBuilder)
-            where TManyToOneBuilder : ICollectionReferenceBuilder<TManyToOneBuilder>
-        {
-            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
-            Check.NotNull(relationalManyToOneBuilder, nameof(relationalManyToOneBuilder));
-
-            relationalManyToOneBuilder(ForRelational(foreignKeyBuilder));
-
-            return (TManyToOneBuilder)foreignKeyBuilder;
-        }
-
-        public static RelationalForeignKeyBuilder ForRelational<TOneToOneBuilder>(
-            [NotNull] this IReferenceReferenceBuilder<TOneToOneBuilder> foreignKeyBuilder)
-            where TOneToOneBuilder : IReferenceReferenceBuilder<TOneToOneBuilder>
+        public static RelationalForeignKeyBuilder ForRelational(
+            [NotNull] this CollectionReferenceBuilder foreignKeyBuilder)
         {
             Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
 
             return new RelationalForeignKeyBuilder(foreignKeyBuilder.Metadata);
         }
 
-        public static TOneToOneBuilder ForRelational<TOneToOneBuilder>(
-            [NotNull] this IReferenceReferenceBuilder<TOneToOneBuilder> foreignKeyBuilder,
-            [NotNull] Action<RelationalForeignKeyBuilder> relationalOneToOneBuilder)
-            where TOneToOneBuilder : IReferenceReferenceBuilder<TOneToOneBuilder>
+        public static CollectionReferenceBuilder ForRelational(
+            [NotNull] this CollectionReferenceBuilder foreignKeyBuilder,
+            [NotNull] Action<RelationalForeignKeyBuilder> builderAction)
         {
             Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
-            Check.NotNull(relationalOneToOneBuilder, nameof(relationalOneToOneBuilder));
+            Check.NotNull(builderAction, nameof(builderAction));
 
-            relationalOneToOneBuilder(ForRelational(foreignKeyBuilder));
+            builderAction(ForRelational(foreignKeyBuilder));
 
-            return (TOneToOneBuilder)foreignKeyBuilder;
+            return foreignKeyBuilder;
         }
 
-        public static RelationalModelBuilder ForRelational<TModelBuilder>(
-            [NotNull] this IModelBuilder<TModelBuilder> modelBuilder)
-            where TModelBuilder : IModelBuilder<TModelBuilder>
+        public static RelationalForeignKeyBuilder ForRelational(
+            [NotNull] this ReferenceReferenceBuilder foreignKeyBuilder)
+        {
+            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
+
+            return new RelationalForeignKeyBuilder(foreignKeyBuilder.Metadata);
+        }
+
+        public static ReferenceReferenceBuilder ForRelational(
+            [NotNull] this ReferenceReferenceBuilder foreignKeyBuilder,
+            [NotNull] Action<RelationalForeignKeyBuilder> builderAction)
+        {
+            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
+            Check.NotNull(builderAction, nameof(builderAction));
+
+            builderAction(ForRelational(foreignKeyBuilder));
+
+            return foreignKeyBuilder;
+        }
+
+        public static RelationalModelBuilder ForRelational(
+            [NotNull] this ModelBuilder modelBuilder)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
 
-            return new RelationalModelBuilder(modelBuilder.Metadata);
+            return new RelationalModelBuilder(modelBuilder.Model);
         }
 
-        public static TModelBuilder ForRelational<TModelBuilder>(
-            [NotNull] this IModelBuilder<TModelBuilder> modelBuilder,
-            [NotNull] Action<RelationalModelBuilder> sqlServerModelBuilder)
-            where TModelBuilder : IModelBuilder<TModelBuilder>
+        public static ModelBuilder ForRelational(
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] Action<RelationalModelBuilder> builderAction)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotNull(sqlServerModelBuilder, nameof(sqlServerModelBuilder));
+            Check.NotNull(builderAction, nameof(builderAction));
 
-            sqlServerModelBuilder(ForRelational(modelBuilder));
+            builderAction(ForRelational(modelBuilder));
 
-            return (TModelBuilder)modelBuilder;
+            return modelBuilder;
         }
     }
 }

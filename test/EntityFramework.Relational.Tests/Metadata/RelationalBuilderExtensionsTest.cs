@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Relational.Tests;
 using Xunit;
@@ -13,47 +12,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 {
     public class RelationalBuilderExtensionsTest
     {
-        [Fact]
-        public void Can_set_column_name_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .ForRelational()
-                .Column("Eman");
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal("Name", property.Name);
-            Assert.Equal("Eman", property.Relational().Column);
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .ForRelational()
-                .Column(null);
-
-            Assert.Equal("Name", property.Relational().Column);
-        }
-
-        [Fact]
-        public void Can_set_column_name_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .ForRelational(b => { b.Column("Eman"); });
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal("Name", property.Name);
-            Assert.Equal("Eman", property.Relational().Column);
-        }
-
         [Fact]
         public void Can_set_column_name_with_convention_builder()
         {
@@ -88,45 +46,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         }
 
         [Fact]
-        public void Can_set_column_type_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .ForRelational()
-                .ColumnType("nvarchar(42)");
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal("nvarchar(42)", property.Relational().ColumnType);
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .ForRelational()
-                .ColumnType(null);
-
-            Assert.Null(property.Relational().ColumnType);
-        }
-
-        [Fact]
-        public void Can_set_column_type_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .ForRelational(b => { b.ColumnType("nvarchar(42)"); });
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal("nvarchar(42)", property.Relational().ColumnType);
-        }
-
-        [Fact]
         public void Can_set_column_type_with_convention_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -158,45 +77,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         }
 
         [Fact]
-        public void Can_set_column_default_expression_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .ForRelational()
-                .DefaultExpression("CherryCoke");
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal("CherryCoke", property.Relational().DefaultExpression);
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .ForRelational()
-                .DefaultExpression(null);
-
-            Assert.Null(property.Relational().DefaultExpression);
-        }
-
-        [Fact]
-        public void Can_set_column_default_expression_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .ForRelational(b => { b.DefaultExpression("CherryCoke"); });
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal("CherryCoke", property.Relational().DefaultExpression);
-        }
-
-        [Fact]
         public void Can_set_column_default_expression_with_convention_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -225,47 +105,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
             Assert.Equal("CherryCoke", property.Relational().DefaultExpression);
-        }
-
-        [Fact]
-        public void Can_set_column_default_value_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-            var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .ForRelational()
-                .DefaultValue(guid);
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal(guid, property.Relational().DefaultValue);
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .ForRelational()
-                .DefaultValue(null);
-
-            Assert.Null(property.Relational().DefaultValue);
-        }
-
-        [Fact]
-        public void Can_set_column_default_value_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-            var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .ForRelational(b => { b.DefaultValue(guid); });
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal(guid, property.Relational().DefaultValue);
         }
 
         [Fact]
@@ -302,45 +141,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         }
 
         [Fact]
-        public void Can_set_key_name_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Key(e => e.Id)
-                .ForRelational()
-                .Name("KeyLimePie");
-
-            var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
-
-            Assert.Equal("KeyLimePie", key.Relational().Name);
-
-            modelBuilder
-                .Entity<Customer>()
-                .Key(e => e.Id)
-                .ForRelational()
-                .Name(null);
-
-            Assert.Null(key.Relational().Name);
-        }
-
-        [Fact]
-        public void Can_set_key_name_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Key(e => e.Id)
-                .ForRelational(b => { b.Name("KeyLimePie"); });
-
-            var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
-
-            Assert.Equal("KeyLimePie", key.Relational().Name);
-        }
-
-        [Fact]
         public void Can_set_key_name_with_convention_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -369,53 +169,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
 
             Assert.Equal("KeyLimePie", key.Relational().Name);
-        }
-
-        [Fact]
-        public void Can_set_foreign_key_name_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Key(e => e.Id);
-
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(e => e.CustomerId)
-                .ForRelational()
-                .Name("LemonSupreme");
-
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single();
-
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
-
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(e => e.CustomerId)
-                .ForRelational()
-                .Name(null);
-
-            Assert.Null(foreignKey.Relational().Name);
-        }
-
-        [Fact]
-        public void Can_set_foreign_key_name_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Key(e => e.Id);
-
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(e => e.CustomerId)
-                .ForRelational(b => { b.Name("LemonSupreme"); });
-
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single();
-
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
         }
 
         [Fact]
@@ -622,45 +375,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         }
 
         [Fact]
-        public void Can_set_index_name_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Index(e => e.Id)
-                .ForRelational()
-                .Name("Eeeendeeex");
-
-            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
-
-            Assert.Equal("Eeeendeeex", index.Relational().Name);
-
-            modelBuilder
-                .Entity<Customer>()
-                .Index(e => e.Id)
-                .ForRelational()
-                .Name(null);
-
-            Assert.Null(index.Relational().Name);
-        }
-
-        [Fact]
-        public void Can_set_index_name_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Index(e => e.Id)
-                .ForRelational(b => { b.Name("Eeeendeeex"); });
-
-            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
-
-            Assert.Equal("Eeeendeeex", index.Relational().Name);
-        }
-
-        [Fact]
         public void Can_set_index_name_with_convention_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -692,44 +406,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         }
 
         [Fact]
-        public void Can_set_table_name_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .ForRelational()
-                .Table("Customizer");
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-
-            modelBuilder
-                .Entity<Customer>()
-                .ForRelational()
-                .Table(null);
-
-            Assert.Equal("Customer", entityType.Relational().Table);
-        }
-
-        [Fact]
-        public void Can_set_table_name_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .ForRelational(b => { b.Table("Customizer"); });
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-        }
-
-        [Fact]
         public void Can_set_table_name_with_convention_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -752,37 +428,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>()
-                .ForRelational(b => { b.Table("Customizer"); });
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-        }
-
-        [Fact]
-        public void Can_set_table_name_with_basic_builder_non_generic()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity(typeof(Customer))
-                .ForRelational()
-                .Table("Customizer");
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-        }
-
-        [Fact]
-        public void Can_set_table_name_with_basic_builder_using_nested_closure_non_generic()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity(typeof(Customer))
                 .ForRelational(b => { b.Table("Customizer"); });
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
@@ -823,47 +468,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         }
 
         [Fact]
-        public void Can_set_table_and_schema_name_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .ForRelational()
-                .Table("Customizer", "db0");
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("db0", entityType.Relational().Schema);
-
-            modelBuilder
-                .Entity<Customer>()
-                .ForRelational()
-                .Table(null, null);
-
-            Assert.Equal("Customer", entityType.Relational().Table);
-            Assert.Null(entityType.Relational().Schema);
-        }
-
-        [Fact]
-        public void Can_set_table_and_schema_name_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .ForRelational(b => { b.Table("Customizer", "db0"); });
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("db0", entityType.Relational().Schema);
-        }
-
-        [Fact]
         public void Can_set_table_and_schema_name_with_convention_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -887,39 +491,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>()
-                .ForRelational(b => { b.Table("Customizer", "db0"); });
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("db0", entityType.Relational().Schema);
-        }
-
-        [Fact]
-        public void Can_set_table_and_schema_name_with_basic_builder_non_generic()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity(typeof(Customer))
-                .ForRelational()
-                .Table("Customizer", "db0");
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("db0", entityType.Relational().Schema);
-        }
-
-        [Fact]
-        public void Can_set_table_and_schema_name_with_basic_builder_using_nested_closure_non_generic()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .Entity(typeof(Customer))
                 .ForRelational(b => { b.Table("Customizer", "db0"); });
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
@@ -963,33 +534,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         }
 
         [Fact]
-        public void Can_create_default_sequence_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .ForRelational()
-                .Sequence();
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
-
-            ValidateDefaultSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_default_sequence_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .ForRelational(b => { b.Sequence(); });
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
-
-            ValidateDefaultSequence(sequence);
-        }
-
-        [Fact]
         public void Can_create_default_sequence_with_convention_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -1025,33 +569,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
             Assert.Same(Sequence.DefaultType, sequence.Type);
-        }
-
-        [Fact]
-        public void Can_create_named_sequence_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .ForRelational()
-                .Sequence("Snook");
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
-
-            ValidateNamedSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_named_sequence_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .ForRelational(b => { b.Sequence("Snook"); });
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
-
-            ValidateNamedSequence(sequence);
         }
 
         [Fact]
@@ -1093,33 +610,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         }
 
         [Fact]
-        public void Can_create_schema_named_sequence_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .ForRelational()
-                .Sequence("Snook", "Tasty");
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
-
-            ValidateSchemaNamedSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_schema_named_sequence_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .ForRelational(b => { b.Sequence("Snook", "Tasty"); });
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
-
-            ValidateSchemaNamedSequence(sequence);
-        }
-
-        [Fact]
         public void Can_create_schema_named_sequence_with_convention_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -1155,46 +645,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
             Assert.Same(Sequence.DefaultType, sequence.Type);
-        }
-
-        [Fact]
-        public void Can_create_default_sequence_with_specific_facets_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .ForRelational()
-                .Sequence()
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
-                .Type<int>();
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
-
-            ValidateDefaultSpecificSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_default_sequence_with_specific_facets_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .ForRelational(b =>
-                    {
-                        b.Sequence()
-                            .IncrementBy(11)
-                            .Start(1729)
-                            .Min(111)
-                            .Max(2222)
-                            .Type<int>();
-                    });
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
-
-            ValidateDefaultSpecificSequence(sequence);
         }
 
         [Fact]
@@ -1249,46 +699,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         }
 
         [Fact]
-        public void Can_create_named_sequence_with_specific_facets_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .ForRelational()
-                .Sequence("Snook")
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
-                .Type<int>();
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
-
-            ValidateNamedSpecificSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_named_sequence_with_specific_facets_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .ForRelational(b =>
-                    {
-                        b.Sequence("Snook")
-                            .IncrementBy(11)
-                            .Start(1729)
-                            .Min(111)
-                            .Max(2222)
-                            .Type<int>();
-                    });
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
-
-            ValidateNamedSpecificSequence(sequence);
-        }
-
-        [Fact]
         public void Can_create_named_sequence_with_specific_facets_with_convention_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -1337,46 +747,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             Assert.Equal(111, sequence.MinValue);
             Assert.Equal(2222, sequence.MaxValue);
             Assert.Same(typeof(int), sequence.Type);
-        }
-
-        [Fact]
-        public void Can_create_schema_named_sequence_with_specific_facets_with_basic_builder()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .ForRelational()
-                .Sequence("Snook", "Tasty")
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
-                .Type<int>();
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
-
-            ValidateSchemaNamedSpecificSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_schema_named_sequence_with_specific_facets_with_basic_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateNonConventionModelBuilder();
-
-            modelBuilder
-                .ForRelational(b =>
-                    {
-                        b.Sequence("Snook", "Tasty")
-                            .IncrementBy(11)
-                            .Start(1729)
-                            .Min(111)
-                            .Max(2222)
-                            .Type<int>();
-                    });
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
-
-            ValidateSchemaNamedSpecificSequence(sequence);
         }
 
         [Fact]
