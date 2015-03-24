@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
@@ -25,6 +26,17 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             IDbContextOptionsExtension extension;
             return _extensions.TryGetValue(typeof(TExtension), out extension) ? (TExtension)extension : null;
+        }
+
+        public virtual TExtension GetExtension<TExtension>()
+            where TExtension : class, IDbContextOptionsExtension
+        {
+            var extension = FindExtension<TExtension>();
+            if (extension == null)
+            {
+                throw new InvalidOperationException(Strings.OptionsExtensionNotFound(typeof(TExtension).Name));
+            }
+            return extension;
         }
 
         public abstract DbContextOptions WithExtension<TExtension>([NotNull] TExtension extension)

@@ -88,6 +88,8 @@ namespace Microsoft.Data.Entity.Relational
             }
         }
 
+        public virtual bool? ThrowOnAmbientTransaction { get; set; }
+
         public virtual string MigrationsAssembly { get; [param: CanBeNull] set; }
 
         public static RelationalOptionsExtension Extract([NotNull] IDbContextOptions options)

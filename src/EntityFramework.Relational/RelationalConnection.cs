@@ -21,6 +21,9 @@ namespace Microsoft.Data.Entity.Relational
         private int _openedCount;
         private int? _commandTimeout;
         private readonly LazyRef<ILogger> _logger;
+#if NET451
+        private bool _throwOnAmbientTransaction;
+#endif
 
         protected RelationalConnection([NotNull] IDbContextOptions options, [NotNull] ILoggerFactory loggerFactory)
         {
@@ -54,6 +57,10 @@ namespace Microsoft.Data.Entity.Relational
             {
                 throw new InvalidOperationException(Strings.NoConnectionOrConnectionString);
             }
+
+#if NET451
+            _throwOnAmbientTransaction = storeConfig.ThrowOnAmbientTransaction ?? true;
+#endif
         }
 
         protected abstract DbConnection CreateDbConnection();
@@ -153,21 +160,52 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual void Open()
         {
+#if NET451
+            CheckForAmbientTransactions();
+
+            using (new System.Transactions.TransactionScope(System.Transactions.TransactionScopeOption.Suppress))
+            {
+#endif
             if (_openedCount == 0)
             {
                 _connection.Value.Open();
             }
+
+#if NET451
+            }
+#endif
             _openedCount++;
         }
 
         public virtual async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
+#if NET451
+            CheckForAmbientTransactions();
+
+            using (new System.Transactions.TransactionScope(
+                System.Transactions.TransactionScopeOption.Suppress, System.Transactions.TransactionScopeAsyncFlowOption.Enabled))
+            {
+#endif
             if (_openedCount == 0)
             {
                 await _connection.Value.OpenAsync(cancellationToken).WithCurrentCulture();
             }
+#if NET451
+            }
+#endif
             _openedCount++;
         }
+
+#if NET451
+        private void CheckForAmbientTransactions()
+        {
+            if (_throwOnAmbientTransaction
+               && System.Transactions.Transaction.Current != null)
+            {
+                throw new InvalidOperationException(Strings.AmbientTransaction);
+            }
+        }
+#endif
 
         // Sporadic failure when running Async query tests
         public virtual void Close()

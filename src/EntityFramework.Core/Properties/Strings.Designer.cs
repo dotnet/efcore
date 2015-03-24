@@ -325,14 +325,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// {debug} level logging is enabled.  At this level, Entity Framework will log sensitive application data such as Sql parameter values.  To hide this information configure {minimumLevel} to {recommendedLevel}.
-        /// </summary>
-        public static string DebugLogWarning([NotNull] object debug,[NotNull] object minimumLevel, [NotNull] object recommendedLevel)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DebugLogWarning","debug", "minimumLevel", "recommendedLevel"), debug, minimumLevel, recommendedLevel);
-        }
-
-        /// <summary>
         /// An exception occurred in the data store while iterating the results of a query.{newline}{error}
         /// </summary>
         public static string LogExceptionDuringQueryIteration([CanBeNull] object newline, [CanBeNull] object error)
@@ -957,6 +949,14 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// {debug} level logging is enabled. At this level, Entity Framework will log sensitive application data such as SQL parameter values. To hide this information configure {minimumLevel} to {recommendedLevel}
+        /// </summary>
+        public static string DebugLogWarning([CanBeNull] object debug, [CanBeNull] object minimumLevel, [CanBeNull] object recommendedLevel)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DebugLogWarning", "debug", "minimumLevel", "recommendedLevel"), debug, minimumLevel, recommendedLevel);
+        }
+
+        /// <summary>
         /// Property '{propertyName}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.
         /// </summary>
         public static string WrongGenericPropertyType([CanBeNull] object propertyName, [CanBeNull] object entityType, [CanBeNull] object actualType, [CanBeNull] object genericType)
@@ -970,6 +970,14 @@ namespace Microsoft.Data.Entity.Internal
         public static string NonGenericOptions
         {
             get { return GetString("NonGenericOptions"); }
+        }
+
+        /// <summary>
+        /// Options extension of type '{optionsExtension}' not found.
+        /// </summary>
+        public static string OptionsExtensionNotFound([CanBeNull] object optionsExtension)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("OptionsExtensionNotFound", "optionsExtension"), optionsExtension);
         }
 
         private static string GetString(string name, params string[] formatterNames)

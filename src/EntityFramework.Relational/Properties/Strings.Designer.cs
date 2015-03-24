@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Relational
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
-    using JetBrains.Annotations;
+	using JetBrains.Annotations;
 
     public static class Strings
     {
@@ -314,6 +314,14 @@ namespace Microsoft.Data.Entity.Relational
         public static string DiscriminatorPropertyNotFound([CanBeNull] object property, [CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DiscriminatorPropertyNotFound", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// An ambient transaction has been detected. Connections opened by Entity Framework will not be enlisted in ambient transactions. To suppress this warning call SuppressAmbientTransactionWarning() when overriding DbContext.OnConfiguring.
+        /// </summary>
+        public static string AmbientTransaction
+        {
+            get { return GetString("AmbientTransaction"); }
         }
 
         private static string GetString(string name, params string[] formatterNames)

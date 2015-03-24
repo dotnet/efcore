@@ -231,4 +231,7 @@
   <data name="DiscriminatorPropertyNotFound" xml:space="preserve">
     <value>Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.</value>
   </data>
+  <data name="AmbientTransaction" xml:space="preserve">
+    <value>An ambient transaction has been detected. Connections opened by Entity Framework will not be enlisted in ambient transactions. To suppress this warning call SuppressAmbientTransactionWarning() when overriding DbContext.OnConfiguring.</value>
+  </data>
 </root>

@@ -11,7 +11,8 @@
     "frameworks": {
         "net451": {
             "frameworkAssemblies": {
-                "System.Data": ""
+                "System.Data": "",
+                "System.Transactions": ""
             }
         },
         "dnx451": {

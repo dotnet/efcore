@@ -477,4 +477,7 @@
   <data name="NonGenericOptions" xml:space="preserve">
     <value>The DbContextOptions object registered in the service provider must be a DbContextOptions&lt;TContext&gt; where TContext is the type of the DbContext being used.</value>
   </data>
+  <data name="OptionsExtensionNotFound" xml:space="preserve">
+    <value>Options extension of type '{optionsExtension}' not found.</value>
+  </data>
 </root>

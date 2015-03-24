@@ -21,6 +21,28 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
+        public void Can_add_extension_with_command_timeout()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer("Database=Crunchie").CommandTimeout(30);
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+
+            Assert.Equal(30, extension.CommandTimeout);
+        }
+
+        [Fact]
+        public void Can_add_extension_with_ambient_transaction_warning_suppressed()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer("Database=Crunchie").SuppressAmbientTransactionWarning();
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+
+            Assert.Equal(false, extension.ThrowOnAmbientTransaction);
+        }
+
+        [Fact]
         public void Can_add_extension_with_connection_string()
         {
             var optionsBuilder = new DbContextOptionsBuilder();

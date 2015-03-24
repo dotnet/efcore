@@ -80,8 +80,6 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(connection, nameof(connection));
 
-            // TODO Deal with suppressing transactions etc.
-
             var connectionWasOpen = connection.DbConnection.State == ConnectionState.Open;
             if (!connectionWasOpen)
             {
