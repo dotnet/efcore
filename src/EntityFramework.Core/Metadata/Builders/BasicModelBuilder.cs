@@ -36,10 +36,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             get { return Builder.Metadata; }
         }
 
-        public virtual BasicModelBuilder Annotation(string annotation, string value)
+        public virtual BasicModelBuilder Annotation(string annotation, object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotEmpty(value, nameof(value));
+            Check.NotNull(value, nameof(value));
 
             _builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -110,10 +110,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             protected virtual InternalEntityTypeBuilder Builder { get; }
 
-            public virtual EntityTypeBuilder Annotation(string annotation, string value)
+            public virtual EntityTypeBuilder Annotation(string annotation, object value)
             {
                 Check.NotEmpty(annotation, nameof(annotation));
-                Check.NotEmpty(value, nameof(value));
+                Check.NotNull(value, nameof(value));
 
                 Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -188,10 +188,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                     get { return Builder.ModelBuilder.Metadata; }
                 }
 
-                public virtual KeyBuilder Annotation(string annotation, string value)
+                public virtual KeyBuilder Annotation(string annotation, object value)
                 {
                     Check.NotEmpty(annotation, nameof(annotation));
-                    Check.NotEmpty(value, nameof(value));
+                    Check.NotNull(value, nameof(value));
 
                     Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                     get { return Builder.ModelBuilder.Metadata; }
                 }
 
-                public virtual PropertyBuilder Annotation(string annotation, string value)
+                public virtual PropertyBuilder Annotation(string annotation, object value)
                 {
                     Check.NotNull(annotation, nameof(annotation));
                     Check.NotNull(value, nameof(value));
@@ -301,10 +301,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                     get { return Builder.ModelBuilder.Metadata; }
                 }
 
-                public virtual ForeignKeyBuilder Annotation(string annotation, string value)
+                public virtual ForeignKeyBuilder Annotation(string annotation, object value)
                 {
                     Check.NotEmpty(annotation, nameof(annotation));
-                    Check.NotEmpty(value, nameof(value));
+                    Check.NotNull(value, nameof(value));
 
                     Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -338,10 +338,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                     get { return Builder.ModelBuilder.Metadata; }
                 }
 
-                public virtual IndexBuilder Annotation(string annotation, string value)
+                public virtual IndexBuilder Annotation(string annotation, object value)
                 {
                     Check.NotEmpty(annotation, nameof(annotation));
-                    Check.NotEmpty(value, nameof(value));
+                    Check.NotNull(value, nameof(value));
 
                     Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -365,7 +365,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             {
             }
 
-            public new virtual EntityTypeBuilder<TEntity> Annotation(string annotation, string value)
+            public new virtual EntityTypeBuilder<TEntity> Annotation(string annotation, object value)
             {
                 base.Annotation(annotation, value);
 

@@ -78,10 +78,10 @@ namespace Microsoft.Data.Entity
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same typeBuilder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ModelBuilder Annotation(string annotation, string value)
+        public virtual ModelBuilder Annotation(string annotation, object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotEmpty(value, nameof(value));
+            Check.NotNull(value, nameof(value));
 
             Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 

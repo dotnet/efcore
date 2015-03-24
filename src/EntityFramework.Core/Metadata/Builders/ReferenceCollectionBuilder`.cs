@@ -106,10 +106,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> Annotation([NotNull] string annotation, [NotNull] string value)
+        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> Annotation([NotNull] string annotation, [NotNull] object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotEmpty(value, nameof(value));
+            Check.NotNull(value, nameof(value));
 
             return (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)base.Annotation(annotation, value);
         }

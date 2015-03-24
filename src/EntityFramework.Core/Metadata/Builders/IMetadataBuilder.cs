@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         where TMetadataBuilder : IMetadataBuilder<TMetadata, TMetadataBuilder>
         where TMetadata : Annotatable
     {
-        TMetadataBuilder Annotation([NotNull] string annotation, [NotNull] string value);
+        TMetadataBuilder Annotation([NotNull] string annotation, [NotNull] object value);
         TMetadata Metadata { get; }
         Model Model { get; }
     }

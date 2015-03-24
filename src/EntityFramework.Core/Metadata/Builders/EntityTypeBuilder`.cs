@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same typeBuilder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual EntityTypeBuilder<TEntity> Annotation(string annotation, string value)
+        public new virtual EntityTypeBuilder<TEntity> Annotation(string annotation, object value)
         {
             base.Annotation(annotation, value);
 
