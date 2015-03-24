@@ -82,7 +82,6 @@
     <Compile Include="BuiltInDataTypesSqlServerTest.cs" />
     <Compile Include="BatchingTest.cs" />
     <Compile Include="ConnectionSpecificationTest.cs" />
-    <Compile Include="ConnectionStringTest.cs" />
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="DeadlockSqlServerTest.cs" />
     <Compile Include="DefaultValuesTest.cs" />

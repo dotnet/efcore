@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     public class ConnectionSpecificationTest
     {
         [Fact]
-        public async void Can_specify_connection_string_in_OnConfiguring()
+        public void Can_specify_connection_string_in_OnConfiguring()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var context = serviceProvider.GetRequiredService<StringInOnConfiguringContext>())
                 {
@@ -35,9 +35,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async void Can_specify_connection_string_in_OnConfiguring_with_default_service_provider()
+        public void Can_specify_connection_string_in_OnConfiguring_with_default_service_provider()
         {
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var context = new StringInOnConfiguringContext())
                 {
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async void Can_specify_connection_in_OnConfiguring()
+        public void Can_specify_connection_in_OnConfiguring()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var context = serviceProvider.GetRequiredService<ConnectionInOnConfiguringContext>())
                 {
@@ -76,9 +76,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async void Can_specify_connection_in_OnConfiguring_with_default_service_provider()
+        public void Can_specify_connection_in_OnConfiguring_with_default_service_provider()
         {
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var context = new ConnectionInOnConfiguringContext(new SqlConnection(SqlServerNorthwindContext.ConnectionString)))
                 {
@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async void Can_select_appropriate_provider_when_multiple_registered()
+        public void Can_select_appropriate_provider_when_multiple_registered()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 MultipleProvidersContext context1;
                 MultipleProvidersContext context2;
@@ -218,7 +218,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async void Can_select_appropriate_provider_when_multiple_registered_with_default_service_provider()
         {
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var context = new MultipleProvidersContext())
                 {
@@ -264,7 +264,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async void Can_depend_on_DbContextOptions()
+        public void Can_depend_on_DbContextOptions()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var context = serviceProvider.GetRequiredService<OptionsContext>())
                 {
@@ -285,9 +285,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async void Can_depend_on_DbContextOptions_with_default_service_provider()
+        public void Can_depend_on_DbContextOptions_with_default_service_provider()
         {
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var context = new OptionsContext(
                     new DbContextOptions<OptionsContext>(),
@@ -327,7 +327,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async void Can_register_multiple_context_types()
+        public void Can_register_multiple_context_types()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
@@ -339,7 +339,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var context = serviceProvider.GetRequiredService<MultipleContext1>())
                 {
@@ -354,9 +354,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async void Can_register_multiple_context_types_with_default_service_provider()
+        public void Can_register_multiple_context_types_with_default_service_provider()
         {
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var context = new MultipleContext1(new DbContextOptions<MultipleContext1>()))
                 {
@@ -411,7 +411,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async void Can_depend_on_non_generic_options_when_only_one_context()
+        public void Can_depend_on_non_generic_options_when_only_one_context()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
@@ -422,7 +422,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var context = serviceProvider.GetRequiredService<NonGenericOptionsContext>())
                 {
@@ -432,9 +432,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async void Can_depend_on_non_generic_options_when_only_one_context_with_default_service_provider()
+        public void Can_depend_on_non_generic_options_when_only_one_context_with_default_service_provider()
         {
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var context = new NonGenericOptionsContext(new DbContextOptions<DbContext>()))
                 {
