@@ -69,8 +69,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     configured without a navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceReferenceBuilder InverseReference([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverseReference = null)
-            => new ReferenceReferenceBuilder(InverseReferenceBuilder(inverseReference?.GetPropertyAccess().Name));
+        public virtual TypedReferenceReferenceBuilder InverseReference([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverseReference = null)
+            => new TypedReferenceReferenceBuilder(InverseReferenceBuilder(inverseReference?.GetPropertyAccess().Name));
 
         /// <summary>
         ///     Configures this as a one-to-many relationship.

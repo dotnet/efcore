@@ -1576,6 +1576,53 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             ValidateSchemaNamedSpecificSequence(sequence);
         }
 
+        [Fact]
+        public void ForSqlServer_methods_dont_break_out_of_the_generics()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>()
+                    .ForSqlServer(b => { }));
+
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>().Collection(e => e.Orders)
+                    .InverseReference(e => e.Customer)
+                    .ForSqlServer(b => { }));
+
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Order>()
+                    .Reference(e => e.Customer)
+                    .InverseCollection(e => e.Orders)
+                    .ForSqlServer(b => { }));
+
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Order>()
+                    .Reference(e => e.Details)
+                    .InverseReference(e => e.Order)
+                    .ForSqlServer(b => { }));
+        }
+
+        private void AssertIsGeneric(EntityTypeBuilder<Customer> _)
+        {
+        }
+
+        private void AssertIsGeneric(ReferenceCollectionBuilder<Customer, Order> _)
+        {
+        }
+
+        private void AssertIsGeneric(CollectionReferenceBuilder<Order, Customer> _)
+        {
+        }
+
+        private void AssertIsGeneric(TypedReferenceReferenceBuilder _)
+        {
+        }
+
         protected virtual ModelBuilder CreateConventionModelBuilder()
         {
             return SqlServerTestHelpers.Instance.CreateConventionBuilder();
