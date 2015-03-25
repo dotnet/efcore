@@ -229,6 +229,12 @@ namespace Microsoft.Data.Entity.Query
 
                         var parameterValue = Evaluate(e, out parameterName);
 
+                        var compilerPrefixIndex = parameterName.LastIndexOf(">");
+                        if (compilerPrefixIndex != -1)
+                        {
+                            parameterName = parameterName.Substring(compilerPrefixIndex + 1);
+                        }
+
                         parameterName
                             = string.Format("{0}{1}_{2}",
                                 CompiledQueryParameterPrefix,

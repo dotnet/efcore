@@ -352,6 +352,47 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
+        [Fact]
+        public void Compiler_generated_local_closure_produces_valid_parameter_name_1742()
+        {
+            Execute1742(new CustomerDetails_1742 { FirstName = "Foo", LastName = "Bar" });
+        }
+
+        public void Execute1742(CustomerDetails_1742 details)
+        {
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer().
+                ServiceCollection()
+                .AddInstance<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var ctx = new MyContext925(serviceProvider))
+            {
+                var firstName = details.FirstName;
+
+                var query = ctx.Customers.Where(c => c.FirstName == firstName && c.LastName == details.LastName).ToList();
+
+                var expectedSql =
+@"__firstName_0: Foo
+__8__locals1_details_LastName_1: Bar
+
+SELECT [c].[FirstName], [c].[LastName]
+FROM [Customer] AS [c]
+WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_details_LastName_1)";
+
+                Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
+            }
+        }
+
+        public class CustomerDetails_1742
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+
+
         private readonly SqlServerFixture _fixture;
 
         public QueryBugsTest(SqlServerFixture fixture)
