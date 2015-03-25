@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -23,16 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         private readonly int _maxBatchSize;
         private readonly List<ModificationCommand> _bulkInsertCommands = new List<ModificationCommand>();
         private int _commandsLeftToLengthCheck = 50;
-
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected SqlServerModificationCommandBatch()
-        {
-        }
-
+        
         public SqlServerModificationCommandBatch([NotNull] ISqlServerSqlGenerator sqlGenerator, [CanBeNull] int? maxBatchSize)
             : base(sqlGenerator)
         {
@@ -137,8 +129,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             if (newModificationCommand.EntityState == EntityState.Added)
             {
                 if (_bulkInsertCommands.Count > 0
-                    && !(string.Equals(_bulkInsertCommands[0].TableName, newModificationCommand.TableName)
-                            && string.Equals(_bulkInsertCommands[0].SchemaName, newModificationCommand.SchemaName)))
+                    && !CanBeInsertedInSameStatement(_bulkInsertCommands[0], newModificationCommand))
                 {
                     CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
                     _bulkInsertCommands.Clear();
@@ -154,6 +145,16 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
                 base.UpdateCachedCommandText(commandPosition);
             }
+        }
+
+        private bool CanBeInsertedInSameStatement(ModificationCommand firstCommand, ModificationCommand secondCommand)
+        {
+            return string.Equals(firstCommand.TableName, secondCommand.TableName, StringComparison.Ordinal)
+                   && string.Equals(firstCommand.SchemaName, secondCommand.SchemaName, StringComparison.Ordinal)
+                   && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(
+                       secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
+                   && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
+                       secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
         }
 
         public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)

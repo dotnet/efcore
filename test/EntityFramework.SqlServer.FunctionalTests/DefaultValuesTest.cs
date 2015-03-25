@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
@@ -27,15 +26,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.Database.EnsureCreated();
 
                 var honeyDijon = context.Add(new KettleChips { Name = "Honey Dijon" }).Entity;
-
-                context.SaveChanges();
-
-                Assert.Equal(new DateTime(2035, 9, 25), honeyDijon.BestBuyDate);
-
                 var buffaloBleu = context.Add(new KettleChips { Name = "Buffalo Bleu", BestBuyDate = new DateTime(2111, 1, 11) }).Entity;
 
                 context.SaveChanges();
 
+                Assert.Equal(new DateTime(2035, 9, 25), honeyDijon.BestBuyDate);
                 Assert.Equal(new DateTime(2111, 1, 11), buffaloBleu.BestBuyDate);
             }
 

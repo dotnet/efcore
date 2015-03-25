@@ -216,7 +216,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async void Can_select_appropriate_provider_when_multiple_registered_with_default_service_provider()
+        public void Can_select_appropriate_provider_when_multiple_registered_with_default_service_provider()
         {
             using (SqlServerNorthwindContext.GetSharedStore())
             {
