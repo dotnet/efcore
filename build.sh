@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 if test `uname` = Darwin; then
     cachedir=~/Library/Caches/KBuild
@@ -31,7 +31,7 @@ if ! type dnvm > /dev/null 2>&1; then
     source packages/KoreBuild/build/dnvm.sh
 fi
 
-if ! type k > /dev/null 2>&1; then
+if ! type dnx > /dev/null 2>&1; then
     dnvm upgrade
 fi
 
