@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\packages\xunit.core.2.0.0-rc3-build2880\build\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props" Condition="Exists('..\..\packages\xunit.core.2.0.0-rc3-build2880\build\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\..\tools\EntityFramework.props" />
   <PropertyGroup>
@@ -11,9 +10,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Data.Entity.SqlServer.Tests</RootNamespace>
     <AssemblyName>EntityFramework.SqlServer.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>7a22f5fc</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,37 +33,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <PackageReference Include="Ix-Async">
-      <TargetFramework>net45</TargetFramework>
-      <Assemblies>System.Interactive.Async</Assemblies>
-    </PackageReference>
-    <PackageReference Include="System.Data.Common">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.DependencyInjection">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.DependencyInjection.Interfaces">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Logging">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Moq">
-      <TargetFramework>net40</TargetFramework>
-    </PackageReference>
-    <Reference Include="xunit.abstractions">
-      <HintPath>..\..\packages\xunit.abstractions.2.0.0-rc3-build2880\lib\net35\xunit.abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.assert">
-      <HintPath>..\..\packages\xunit.assert.2.0.0-rc3-build2880\lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.assert.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.core">
-      <HintPath>..\..\packages\xunit.extensibility.core.2.0.0-rc3-build2880\lib\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
@@ -90,7 +57,6 @@
     <Compile Include="SqlServerTestHelpers.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchFactoryTest.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchTest.cs" />
-    <None Include="packages.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -126,12 +92,6 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\xunit.core.2.0.0-rc3-build2880\build\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\xunit.core.2.0.0-rc3-build2880\build\portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid+Xamarin.iOS\xunit.core.props'))" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -2,6 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)..\</SolutionDir>
+    <ImplicitlyExpandTargetFramework>false</ImplicitlyExpandTargetFramework>
     <CustomAfterMicrosoftCommonTargets>$(MSBuildThisFileDirectory)EntityFramework.targets</CustomAfterMicrosoftCommonTargets>
   </PropertyGroup>
 </Project>

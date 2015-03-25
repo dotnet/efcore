@@ -7,6 +7,12 @@
         "test": "xunit.runner.aspnet"
     },
     "frameworks": {
+        "net451": {
+            "dependencies": {
+                "System.Data.SqlClient": "4.0.0-beta-*",
+                "System.Threading.Thread": "4.0.0-beta-*"                
+            }
+        },
         "dnx451": { }
     }
 }
