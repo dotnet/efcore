@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .PropertyBuilderExtension("V1")
                 .PropertyBuilderExtension("V2");
 
-            Assert.IsType<PropertyBuilder>(returnedBuilder);
+            Assert.IsType<PropertyBuilder<int>>(returnedBuilder);
 
             var model = builder.Model;
             var property = model.GetEntityType(typeof(Gunter)).GetProperty("Id");
@@ -204,7 +204,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .OneToOneBuilderExtension("V1")
                 .OneToOneBuilderExtension("V2");
 
-            Assert.IsType<ReferenceReferenceBuilder>(returnedBuilder);
+            Assert.IsType<ReferenceReferenceBuilder<Avatar, Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Avatar)).ForeignKeys.Single();
@@ -324,7 +324,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<PropertyBuilder>(returnedBuilder);
+            Assert.IsType<PropertyBuilder<int>>(returnedBuilder);
 
             var model = builder.Model;
             var property = model.GetEntityType(typeof(Gunter)).GetProperty("Id");
@@ -406,7 +406,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ReferenceReferenceBuilder>(returnedBuilder);
+            Assert.IsType<ReferenceReferenceBuilder<Avatar, Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Avatar)).ForeignKeys.Single();

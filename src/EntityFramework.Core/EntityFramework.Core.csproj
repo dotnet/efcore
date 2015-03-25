@@ -86,6 +86,7 @@
     <Compile Include="Metadata\Builders\KeyBuilder.cs" />
     <Compile Include="Metadata\Builders\CollectionReferenceBuilder.cs" />
     <Compile Include="Metadata\Builders\CollectionReferenceBuilder`.cs" />
+    <Compile Include="Metadata\Builders\PropertyBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceCollectionBuilder.cs" />
     <Compile Include="Metadata\Builders\ReferenceCollectionBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="DbContext.cs" />
     <Compile Include="DbContextOptionsBuilder.cs" />
     <Compile Include="DbContextOptionsBuilder`.cs" />
+    <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\ModelConventions\IPropertyConvention.cs" />
     <Compile Include="Metadata\ModelConventions\IModelConvention.cs" />
     <Compile Include="Query\AnnotateQueryExtensions.cs" />
