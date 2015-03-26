@@ -327,7 +327,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
             // TODO: How do DefaultExpression and DefaultValue relate to IsStoreComputed?
             if (source.IsNullable != target.IsNullable
-                || source.IsStoreComputed != target.IsStoreComputed
+                || source.StoreGeneratedPattern != target.StoreGeneratedPattern
                 || sourceColumnType != targetColumnType
                 || source.Relational().DefaultExpression != target.Relational().DefaultExpression
                 || source.Relational().DefaultValue != target.Relational().DefaultValue)

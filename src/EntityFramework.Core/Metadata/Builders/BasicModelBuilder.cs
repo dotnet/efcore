@@ -250,16 +250,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                     return this;
                 }
 
-                public virtual PropertyBuilder StoreComputed(bool computed = true)
+                public virtual PropertyBuilder StoreGeneratedPattern(StoreGeneratedPattern storeGeneratedPattern)
                 {
-                    Builder.StoreComputed(computed, ConfigurationSource.Explicit);
-
-                    return this;
-                }
-
-                public virtual PropertyBuilder UseStoreDefault(bool useDefault = true)
-                {
-                    Builder.UseStoreDefault(useDefault, ConfigurationSource.Explicit);
+                    Builder.StoreGeneratedPattern(storeGeneratedPattern, ConfigurationSource.Explicit);
 
                     return this;
                 }

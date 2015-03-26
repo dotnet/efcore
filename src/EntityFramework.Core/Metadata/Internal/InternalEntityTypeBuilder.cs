@@ -1072,8 +1072,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             foreach (var foreignKeyProperty in foreignKeyProperties)
             {
-                dependentEntityTypeBuilder.Property(foreignKeyProperty.ClrType, foreignKeyProperty.Name, ConfigurationSource.Convention)
-                    .GenerateValueOnAdd(false, ConfigurationSource.Convention);
+                var propertyBuilder = dependentEntityTypeBuilder.Property(
+                    foreignKeyProperty.ClrType, foreignKeyProperty.Name, ConfigurationSource.Convention);
+
+                propertyBuilder.GenerateValueOnAdd(null, ConfigurationSource.Convention);
+                propertyBuilder.StoreGeneratedPattern(null, ConfigurationSource.Convention);
             }
 
             return newForeignKey;

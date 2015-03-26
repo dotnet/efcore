@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_added_entities_with_temp_generated_key()
         {
-            var entry = Createentry(EntityState.Added, generateKeyValues: true);
+            var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0]);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_added_entities_with_non_temp_generated_key()
         {
-            var entry = Createentry(EntityState.Added, generateKeyValues: true);
+            var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0], isTemporary: false);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_added_entities_with_explicitly_specified_key_value()
         {
-            var entry = Createentry(EntityState.Added);
+            var entry = CreateEntry(EntityState.Added);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
             command.AddEntry(entry);
@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_identity_key()
         {
-            var entry = Createentry(EntityState.Modified, generateKeyValues: true);
+            var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
             command.AddEntry(entry);
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_client_generated_key()
         {
-            var entry = Createentry(EntityState.Modified);
+            var entry = CreateEntry(EntityState.Modified);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
             command.AddEntry(entry);
@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_concurrency_token()
         {
-            var entry = Createentry(EntityState.Modified, computeNonKeyValue: true);
+            var entry = CreateEntry(EntityState.Modified, computeNonKeyValue: true);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
             command.AddEntry(entry);
@@ -233,7 +233,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_deleted_entities()
         {
-            var entry = Createentry(EntityState.Deleted);
+            var entry = CreateEntry(EntityState.Deleted);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
             command.AddEntry(entry);
@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_deleted_entities_with_concurrency_token()
         {
-            var entry = Createentry(EntityState.Deleted, computeNonKeyValue: true);
+            var entry = CreateEntry(EntityState.Deleted, computeNonKeyValue: true);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
             command.AddEntry(entry);
@@ -294,7 +294,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_throws_for_unchanged_entities()
         {
-            var entry = Createentry(EntityState.Unchanged);
+            var entry = CreateEntry(EntityState.Unchanged);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
 
@@ -306,7 +306,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_throws_for_unknown_entities()
         {
-            var entry = Createentry(EntityState.Detached);
+            var entry = CreateEntry(EntityState.Detached);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
 
@@ -318,7 +318,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void RequiresResultPropagation_false_for_Delete_operation()
         {
-            var entry = Createentry(
+            var entry = CreateEntry(
                 EntityState.Deleted, generateKeyValues: true, computeNonKeyValue: true);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
@@ -330,7 +330,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void RequiresResultPropagation_true_for_Insert_operation_if_store_generated_columns_exist()
         {
-            var entry = Createentry(
+            var entry = CreateEntry(
                 EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
@@ -342,7 +342,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void RequiresResultPropagation_false_for_Insert_operation_if_no_store_generated_columns_exist()
         {
-            var entry = Createentry(EntityState.Added);
+            var entry = CreateEntry(EntityState.Added);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
             command.AddEntry(entry);
@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void RequiresResultPropagation_true_for_Update_operation_if_non_key_store_generated_columns_exist()
         {
-            var entry = Createentry(
+            var entry = CreateEntry(
                 EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
@@ -365,7 +365,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void RequiresResultPropagation_false_for_Update_operation_if_no_non_key_store_generated_columns_exist()
         {
-            var entry = Createentry(EntityState.Modified, generateKeyValues: true);
+            var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
             command.AddEntry(entry);
@@ -386,6 +386,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var key = entityType.GetOrAddProperty("Id", typeof(int));
             key.GenerateValueOnAdd = generateKeyValues;
+            key.StoreGeneratedPattern = generateKeyValues ? StoreGeneratedPattern.Identity : StoreGeneratedPattern.None;
             key.Relational().Column = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
@@ -393,19 +394,19 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             nonKey.IsConcurrencyToken = computeNonKeyValue;
 
             nonKey.Relational().Column = "Col2";
-            nonKey.IsStoreComputed = computeNonKeyValue;
+            nonKey.StoreGeneratedPattern = computeNonKeyValue ? StoreGeneratedPattern.Computed : StoreGeneratedPattern.None;
 
             return model;
         }
 
-        private static InternalEntityEntry Createentry(
+        private static InternalEntityEntry CreateEntry(
             EntityState entityState,
             bool generateKeyValues = false,
             bool computeNonKeyValue = false)
         {
             var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
-            return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = "Test" });
+            return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null :  "Test" });
         }
     }
 }

@@ -147,8 +147,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 _stateData.FlagAllProperties(EntityType.GetProperties().Count(), isFlagged: true);
 
                 foreach (var keyProperty in EntityType.GetProperties().Where(
-                    p => p.IsReadOnly
-                         || p.IsStoreComputed))
+                    p => p.IsReadOnly))
                 {
                     _stateData.FlagProperty(keyProperty.Index, isFlagged: false);
                 }
@@ -220,11 +219,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 OriginalValues.TakeSnapshot(property);
             }
 
-            if ((currentState != EntityState.Modified
-                 && currentState != EntityState.Unchanged)
-                // TODO: Consider allowing computed properties to be forcibly marked as modified
-                // Issue #711
-                || property.IsStoreComputed)
+            if (currentState != EntityState.Modified
+                && currentState != EntityState.Unchanged)
             {
                 return;
             }
@@ -429,9 +425,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private bool MayGetStoreValue([CanBeNull] IProperty property)
             => property != null
-                && (StateManager.ValueGeneration.MayGetTemporaryValue(property)
-                   || property.UseStoreDefault
-                   || property.IsStoreComputed);
+               && (property.StoreGeneratedPattern != StoreGeneratedPattern.None
+                   || StateManager.ValueGeneration.MayGetTemporaryValue(property));
 
         public virtual void AutoRollbackSidecars()
         {
@@ -487,11 +482,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual bool StoreMustGenerateValue([NotNull] IProperty property)
-            => property.IsValueGeneratedOnAdd && HasTemporaryValue(property)
-               || (property.UseStoreDefault && property.IsSentinelValue(this[property]))
-               || (property.IsStoreComputed
-                   && (EntityState == EntityState.Modified || EntityState == EntityState.Added)
-                   && !IsPropertyModified(property));
+            => property.StoreGeneratedPattern != StoreGeneratedPattern.None
+               && ((EntityState == EntityState.Added && (HasTemporaryValue(property) || property.IsSentinelValue(this[property])))
+                   || IsPropertyModified(property));
 
         public virtual bool IsKeySet => !EntityType.GetPrimaryKey().Properties.Any(p => p.IsSentinelValue(this[p]));
 

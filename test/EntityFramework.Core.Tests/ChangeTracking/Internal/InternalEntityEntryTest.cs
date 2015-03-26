@@ -1277,7 +1277,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
-            entityType.GetProperty("Name").IsStoreComputed = true;
+            entityType.GetProperty("Name").StoreGeneratedPattern = StoreGeneratedPattern.Computed;
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(model),
@@ -1299,7 +1299,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
-            entityType.GetProperty("Name").UseStoreDefault = true;
+            entityType.GetProperty("Name").StoreGeneratedPattern = StoreGeneratedPattern.Computed;
+            entityType.GetProperty("Name").IsReadOnly = false;
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(model),

@@ -584,14 +584,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 }
             }
 
-            if (tableColumn.IsStoreGenerated)
-            {
-                property.IsStoreComputed = tableColumn.IsStoreGenerated;
-            }
-            else if (tableColumn.DataType == "timestamp")
+            if (tableColumn.IsStoreGenerated
+                || tableColumn.DataType == "timestamp")
             {
                 // timestamp columns should always be treated as store generated
-                property.IsStoreComputed = true;
+                property.StoreGeneratedPattern = StoreGeneratedPattern.Computed;
             }
 
             if (tableColumn.DefaultValue != null)

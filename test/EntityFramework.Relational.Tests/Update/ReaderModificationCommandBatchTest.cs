@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -9,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
@@ -328,7 +326,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                             entry,
                             property,
                             property.Relational(),
-                            new ParameterNameGenerator(), 
+                            new ParameterNameGenerator(),
                             null,
                             false, true, false, false)
                     });
@@ -342,7 +340,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                             entry,
                             property,
                             property.Relational(),
-                            new ParameterNameGenerator(), 
+                            new ParameterNameGenerator(),
                             null,
                             false, true, false, false)
                     });
@@ -372,7 +370,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                     entry,
                     property,
                     property.Relational(),
-                    new ParameterNameGenerator(), 
+                    new ParameterNameGenerator(),
                     null,
                     false, true, false, false),
                 new RelationalTypeMapper());
@@ -394,7 +392,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                     entry,
                     property,
                     property.Relational(),
-                    new ParameterNameGenerator(), 
+                    new ParameterNameGenerator(),
                     null,
                     false, false, false, true),
                 new RelationalTypeMapper());
@@ -416,7 +414,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                     entry,
                     property,
                     property.Relational(),
-                    new ParameterNameGenerator(), 
+                    new ParameterNameGenerator(),
                     null,
                     false, true, false, true),
                 new RelationalTypeMapper());
@@ -438,7 +436,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                     entry,
                     property,
                     property.Relational(),
-                    new ParameterNameGenerator(), 
+                    new ParameterNameGenerator(),
                     new GenericBoxedValueReader<int>(),
                     true, false, false, false),
                 new RelationalTypeMapper());
@@ -574,13 +572,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var entityType = model.AddEntityType(typeof(T1));
 
             var key = entityType.GetOrAddProperty("Id", typeof(int));
+            key.StoreGeneratedPattern = generateKeyValues ? StoreGeneratedPattern.Identity : StoreGeneratedPattern.None;
             key.GenerateValueOnAdd = generateKeyValues;
             key.Relational().Column = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
             var nonKey = entityType.GetOrAddProperty("Name", typeof(string));
             nonKey.Relational().Column = "Col2";
-            nonKey.IsStoreComputed = computeNonKeyValue;
+            nonKey.StoreGeneratedPattern = computeNonKeyValue ? StoreGeneratedPattern.Computed : StoreGeneratedPattern.None;
 
             return model;
         }
@@ -592,7 +591,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
-            return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = "Test" });
+            return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null :  "Test" });
         }
 
         private class ModificationCommandBatchFake : ReaderModificationCommandBatch

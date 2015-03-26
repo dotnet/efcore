@@ -472,12 +472,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(property, nameof(property));
 
-            if (((Property)property).IsStoreComputed.HasValue)
+            if (property.StoreGeneratedPattern != StoreGeneratedPattern.None)
             {
                 return string.Format(CultureInfo.InvariantCulture,
-                    ".StoreComputed({0})",
+                    ".StoreGeneratedPattern({0})",
                     CSharpUtilities.Instance.GenerateLiteral(
-                        ((Property)property).IsStoreComputed.Value));
+                        property.StoreGeneratedPattern));
             }
 
             return null;

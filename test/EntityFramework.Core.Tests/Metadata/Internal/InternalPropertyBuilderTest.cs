@@ -72,34 +72,34 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Can_only_override_lower_source_StoreComputed()
+        public void Can_only_override_lower_source_StoreGeneratedPattern()
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
 
-            Assert.True(builder.StoreComputed(true, ConfigurationSource.Convention));
-            Assert.True(builder.StoreComputed(false, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.StoreGeneratedPattern(StoreGeneratedPattern.Computed, ConfigurationSource.Convention));
+            Assert.True(builder.StoreGeneratedPattern(StoreGeneratedPattern.None, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(false, metadata.IsStoreComputed);
+            Assert.Equal(StoreGeneratedPattern.None, metadata.StoreGeneratedPattern);
 
-            Assert.False(builder.StoreComputed(true, ConfigurationSource.Convention));
-            Assert.Equal(false, metadata.IsStoreComputed);
+            Assert.False(builder.StoreGeneratedPattern(StoreGeneratedPattern.Computed, ConfigurationSource.Convention));
+            Assert.Equal(StoreGeneratedPattern.None, metadata.StoreGeneratedPattern);
         }
 
         [Fact]
-        public void Can_only_override_existing_StoreComputed_value_explicitly()
+        public void Can_only_override_existing_StoreGeneratedPattern_value_explicitly()
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
-            metadata.IsStoreComputed = true;
+            metadata.StoreGeneratedPattern = StoreGeneratedPattern.Computed;
 
-            Assert.True(builder.StoreComputed(true, ConfigurationSource.DataAnnotation));
-            Assert.False(builder.StoreComputed(false, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.StoreGeneratedPattern(StoreGeneratedPattern.Computed, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.StoreGeneratedPattern(StoreGeneratedPattern.None, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(true, metadata.IsStoreComputed);
+            Assert.Equal(StoreGeneratedPattern.Computed, metadata.StoreGeneratedPattern);
 
-            Assert.True(builder.StoreComputed(false, ConfigurationSource.Explicit));
-            Assert.Equal(false, metadata.IsStoreComputed);
+            Assert.True(builder.StoreGeneratedPattern(StoreGeneratedPattern.None, ConfigurationSource.Explicit));
+            Assert.Equal(StoreGeneratedPattern.None, metadata.StoreGeneratedPattern);
         }
 
         [Fact]
@@ -194,37 +194,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.True(builder.Shadow(false, ConfigurationSource.Explicit));
             Assert.False(metadata.IsShadowProperty);
-        }
-
-        [Fact]
-        public void Can_only_override_lower_source_UseStoreDefault()
-        {
-            var builder = CreateInternalPropertyBuilder();
-            var metadata = builder.Metadata;
-
-            Assert.True(builder.UseStoreDefault(true, ConfigurationSource.Convention));
-            Assert.True(builder.UseStoreDefault(false, ConfigurationSource.DataAnnotation));
-
-            Assert.False(metadata.UseStoreDefault.Value);
-
-            Assert.False(builder.UseStoreDefault(true, ConfigurationSource.Convention));
-            Assert.False(metadata.UseStoreDefault.Value);
-        }
-
-        [Fact]
-        public void Can_only_override_existing_UseStoreDefault_value_explicitly()
-        {
-            var builder = CreateInternalPropertyBuilder();
-            var metadata = builder.Metadata;
-            metadata.UseStoreDefault = true;
-
-            Assert.True(builder.UseStoreDefault(true, ConfigurationSource.DataAnnotation));
-            Assert.False(builder.UseStoreDefault(false, ConfigurationSource.DataAnnotation));
-
-            Assert.True(metadata.UseStoreDefault.Value);
-
-            Assert.True(builder.UseStoreDefault(false, ConfigurationSource.Explicit));
-            Assert.False(metadata.UseStoreDefault.Value);
         }
 
         private InternalPropertyBuilder CreateInternalPropertyBuilder()

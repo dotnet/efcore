@@ -29,6 +29,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             conventions.EntityTypeAddedConventions.Add(new RelationshipDiscoveryConvention());
 
             var keyConvention = new KeyConvention();
+
             conventions.KeyAddedConventions.Add(keyConvention);
 
             conventions.ForeignKeyAddedConventions.Add(new ForeignKeyPropertyDiscoveryConvention());

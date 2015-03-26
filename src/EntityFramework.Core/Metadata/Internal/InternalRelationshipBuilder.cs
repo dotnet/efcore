@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 : null;
         }
 
-        public virtual InternalRelationshipBuilder Required(bool isRequired, ConfigurationSource configurationSource)
+        public virtual InternalRelationshipBuilder Required(bool? isRequired, ConfigurationSource configurationSource)
         {
             if (((IForeignKey)Metadata).IsRequired == isRequired)
             {
@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return ReplaceForeignKey(configurationSource, isRequired: isRequired);
         }
 
-        public virtual InternalRelationshipBuilder Unique(bool isUnique, ConfigurationSource configurationSource)
+        public virtual InternalRelationshipBuilder Unique(bool? isUnique, ConfigurationSource configurationSource)
         {
             if (((IForeignKey)Metadata).IsUnique == isUnique)
             {

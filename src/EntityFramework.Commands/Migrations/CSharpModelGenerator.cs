@@ -156,11 +156,13 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         .AppendLine()
                         .Append(".GenerateValueOnAdd()");
                 }
-                else if (property.IsStoreComputed)
+                else if (property.StoreGeneratedPattern != StoreGeneratedPattern.None)
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(".StoreComputed()");
+                        .Append(".StoreGeneratedPattern(StoreGeneratedPattern.")
+                        .Append(property.StoreGeneratedPattern.ToString())
+                        .Append(")");
                 }
 
                 GeneratePropertyAnnotations(property, stringBuilder);

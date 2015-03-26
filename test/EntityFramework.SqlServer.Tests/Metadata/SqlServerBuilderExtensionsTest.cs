@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.SqlServer.Metadata;
@@ -1066,6 +1067,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Null(property.SqlServer().SequenceName);
 
             Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
@@ -1086,6 +1088,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Null(property.SqlServer().SequenceName);
 
             Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
@@ -1107,6 +1110,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Null(property.SqlServer().SequenceSchema);
 
@@ -1128,6 +1132,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Null(property.SqlServer().SequenceSchema);
 
@@ -1150,6 +1155,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
@@ -1171,6 +1177,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
@@ -1202,6 +1209,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
@@ -1232,6 +1240,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
@@ -1263,6 +1272,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
@@ -1293,6 +1303,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
@@ -1315,6 +1326,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Identity, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Null(property.SqlServer().SequenceName);
 
             Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
@@ -1335,6 +1347,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Identity, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Null(property.SqlServer().SequenceName);
 
             Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));

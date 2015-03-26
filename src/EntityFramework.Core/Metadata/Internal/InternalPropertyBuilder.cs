@@ -12,16 +12,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
         private ConfigurationSource _isShadowPropertyConfigurationSource;
         private ConfigurationSource? _generateValueOnAddConfigurationSource;
-        private ConfigurationSource? _isStoreComputedConfigurationSource;
-        private ConfigurationSource? _useStoreDefaultConfigurationSource;
+        private ConfigurationSource? _storeGeneratedPatternConfigurationSource;
 
-        public InternalPropertyBuilder([NotNull] Property property, [NotNull] InternalModelBuilder modelBuilder, ConfigurationSource configurationSource)
+        public InternalPropertyBuilder(
+            [NotNull] Property property, 
+            [NotNull] InternalModelBuilder modelBuilder, 
+            ConfigurationSource configurationSource)
             : base(property, modelBuilder)
         {
             _isShadowPropertyConfigurationSource = configurationSource;
         }
 
-        public virtual bool Required(bool isRequired, ConfigurationSource configurationSource)
+        public virtual bool Required(bool? isRequired, ConfigurationSource configurationSource)
         {
             if (CanSetRequired(isRequired, configurationSource))
             {
@@ -42,18 +44,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return false;
         }
 
-        public virtual bool CanSetRequired(bool isRequired, ConfigurationSource configurationSource)
+        public virtual bool CanSetRequired(bool? isRequired, ConfigurationSource configurationSource)
         {
-            if (configurationSource.CanSet(_isRequiredConfigurationSource, Metadata.IsNullable.HasValue)
-                || Metadata.IsNullable.Value == !isRequired)
-            {
-                return true;
-            }
-
-            return false;
+            return configurationSource.CanSet(_isRequiredConfigurationSource, Metadata.IsNullable.HasValue)
+                   || Metadata.IsNullable.Value == !isRequired;
         }
 
-        public virtual bool MaxLength(int maxLength, ConfigurationSource configurationSource)
+        public virtual bool MaxLength(int? maxLength, ConfigurationSource configurationSource)
         {
             if (configurationSource.CanSet(_maxLengthConfigurationSource, Metadata.GetMaxLength().HasValue)
                 || Metadata.GetMaxLength().Value == maxLength)
@@ -75,7 +72,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return false;
         }
 
-        public virtual bool ConcurrencyToken(bool isConcurrencyToken, ConfigurationSource configurationSource)
+        public virtual bool ConcurrencyToken(bool? isConcurrencyToken, ConfigurationSource configurationSource)
         {
             if (configurationSource.CanSet(_isConcurrencyTokenConfigurationSource, Metadata.IsConcurrencyToken.HasValue)
                 || Metadata.IsConcurrencyToken.Value == isConcurrencyToken)
@@ -111,7 +108,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return false;
         }
 
-        public virtual bool GenerateValueOnAdd(bool generateValue, ConfigurationSource configurationSource)
+        public virtual bool GenerateValueOnAdd(bool? generateValue, ConfigurationSource configurationSource)
         {
             if (configurationSource.CanSet(_generateValueOnAddConfigurationSource, Metadata.GenerateValueOnAdd.HasValue)
                 || Metadata.GenerateValueOnAdd.Value == generateValue)
@@ -133,44 +130,22 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return false;
         }
 
-        public virtual bool StoreComputed(bool storeComputed, ConfigurationSource configurationSource)
+        public virtual bool StoreGeneratedPattern(StoreGeneratedPattern? storeGeneratedPattern, ConfigurationSource configurationSource)
         {
-            if (configurationSource.CanSet(_isStoreComputedConfigurationSource, Metadata.IsStoreComputed.HasValue)
-                || Metadata.IsStoreComputed == storeComputed)
+            if (configurationSource.CanSet(_storeGeneratedPatternConfigurationSource, Metadata.StoreGeneratedPattern.HasValue)
+                || Metadata.StoreGeneratedPattern == storeGeneratedPattern)
             {
-                if (_isStoreComputedConfigurationSource == null
-                    && Metadata.IsStoreComputed != null)
+                if (_storeGeneratedPatternConfigurationSource == null
+                    && Metadata.StoreGeneratedPattern != null)
                 {
-                    _isStoreComputedConfigurationSource = ConfigurationSource.Explicit;
+                    _storeGeneratedPatternConfigurationSource = ConfigurationSource.Explicit;
                 }
                 else
                 {
-                    _isStoreComputedConfigurationSource = configurationSource.Max(_isStoreComputedConfigurationSource);
+                    _storeGeneratedPatternConfigurationSource = configurationSource.Max(_storeGeneratedPatternConfigurationSource);
                 }
 
-                Metadata.IsStoreComputed = storeComputed;
-                return true;
-            }
-
-            return false;
-        }
-
-        public virtual bool UseStoreDefault(bool useDefault, ConfigurationSource configurationSource)
-        {
-            if (configurationSource.CanSet(_useStoreDefaultConfigurationSource, Metadata.UseStoreDefault.HasValue)
-                || Metadata.UseStoreDefault.Value == useDefault)
-            {
-                if (_useStoreDefaultConfigurationSource == null
-                    && Metadata.UseStoreDefault != null)
-                {
-                    _useStoreDefaultConfigurationSource = ConfigurationSource.Explicit;
-                }
-                else
-                {
-                    _useStoreDefaultConfigurationSource = configurationSource.Max(_useStoreDefaultConfigurationSource);
-                }
-
-                Metadata.UseStoreDefault = useDefault;
+                Metadata.StoreGeneratedPattern = storeGeneratedPattern;
                 return true;
             }
 

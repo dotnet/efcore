@@ -81,27 +81,27 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Property_does_not_use_store_default_by_default()
+        public void Property_does_not_use_StoreGeneratedPattern_by_default()
         {
             var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
 
-            Assert.Null(property.UseStoreDefault);
-            Assert.False(((IProperty)property).UseStoreDefault);
+            Assert.Null(property.StoreGeneratedPattern);
+            Assert.Equal(StoreGeneratedPattern.None, ((IProperty)property).StoreGeneratedPattern);
         }
 
         [Fact]
-        public void Can_mark_property_as_using_store_default()
+        public void Can_mark_property_as_using_StoreGeneratedPattern()
         {
             var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(Entity)));
 
-            property.UseStoreDefault = true;
-            Assert.True(property.UseStoreDefault.Value);
+            property.StoreGeneratedPattern = StoreGeneratedPattern.Computed;
+            Assert.Equal(StoreGeneratedPattern.Computed, property.StoreGeneratedPattern.Value);
 
-            property.UseStoreDefault = false;
-            Assert.False(property.UseStoreDefault.Value);
+            property.StoreGeneratedPattern = StoreGeneratedPattern.None;
+            Assert.Equal(StoreGeneratedPattern.None, property.StoreGeneratedPattern.Value);
 
-            property.UseStoreDefault = null;
-            Assert.Null(property.UseStoreDefault);
+            property.StoreGeneratedPattern = null;
+            Assert.Null(property.StoreGeneratedPattern);
         }
 
         [Fact]

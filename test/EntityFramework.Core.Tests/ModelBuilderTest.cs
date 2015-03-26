@@ -632,50 +632,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             modelBuilder.Entity<Quarks>(b =>
                 {
-                    b.Property(e => e.Up).StoreComputed();
-                    b.Property(e => e.Down).StoreComputed(false);
-                    b.Property<int>("Charm").StoreComputed();
-                    b.Property<string>("Strange").StoreComputed(false);
-                    b.Property(typeof(int), "Top").StoreComputed();
-                    b.Property(typeof(string), "Bottom").StoreComputed(false);
+                    b.Property(e => e.Up).StoreGeneratedPattern(StoreGeneratedPattern.Computed);
+                    b.Property(e => e.Down).StoreGeneratedPattern(StoreGeneratedPattern.None);
+                    b.Property<int>("Charm").StoreGeneratedPattern(StoreGeneratedPattern.Identity);
+                    b.Property<string>("Strange").StoreGeneratedPattern(StoreGeneratedPattern.None);
+                    b.Property(typeof(int), "Top").StoreGeneratedPattern(StoreGeneratedPattern.Computed);
+                    b.Property(typeof(string), "Bottom").StoreGeneratedPattern(StoreGeneratedPattern.None);
                 });
 
             var entityType = model.GetEntityType(typeof(Quarks));
 
-            Assert.Null(entityType.GetProperty(Customer.IdProperty.Name).IsStoreComputed);
-            Assert.Equal(true, entityType.GetProperty("Up").IsStoreComputed);
-            Assert.Equal(false, entityType.GetProperty("Down").IsStoreComputed);
-            Assert.Equal(true, entityType.GetProperty("Charm").IsStoreComputed);
-            Assert.Equal(false, entityType.GetProperty("Strange").IsStoreComputed);
-            Assert.Equal(true, entityType.GetProperty("Top").IsStoreComputed);
-            Assert.Equal(false, entityType.GetProperty("Bottom").IsStoreComputed);
-        }
-
-        [Fact]
-        public void Properties_can_be_set_to_use_store_default_values()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-
-            modelBuilder.Entity<Quarks>(b =>
-                {
-                    b.Property(e => e.Up).UseStoreDefault();
-                    b.Property(e => e.Down).UseStoreDefault(false);
-                    b.Property<int>("Charm").UseStoreDefault();
-                    b.Property<string>("Strange").UseStoreDefault(false);
-                    b.Property(typeof(int), "Top").UseStoreDefault();
-                    b.Property(typeof(string), "Bottom").UseStoreDefault(false);
-                });
-
-            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
-
-            Assert.False(entityType.GetProperty(Customer.IdProperty.Name).UseStoreDefault);
-            Assert.True(entityType.GetProperty("Up").UseStoreDefault);
-            Assert.False(entityType.GetProperty("Down").UseStoreDefault);
-            Assert.True(entityType.GetProperty("Charm").UseStoreDefault);
-            Assert.False(entityType.GetProperty("Strange").UseStoreDefault);
-            Assert.True(entityType.GetProperty("Top").UseStoreDefault);
-            Assert.False(entityType.GetProperty("Bottom").UseStoreDefault);
+            Assert.Equal(StoreGeneratedPattern.Identity, entityType.GetProperty(Customer.IdProperty.Name).StoreGeneratedPattern);
+            Assert.Equal(StoreGeneratedPattern.Computed, entityType.GetProperty("Up").StoreGeneratedPattern);
+            Assert.Equal(StoreGeneratedPattern.None, entityType.GetProperty("Down").StoreGeneratedPattern);
+            Assert.Equal(StoreGeneratedPattern.Identity, entityType.GetProperty("Charm").StoreGeneratedPattern);
+            Assert.Equal(StoreGeneratedPattern.None, entityType.GetProperty("Strange").StoreGeneratedPattern);
+            Assert.Equal(StoreGeneratedPattern.Computed, entityType.GetProperty("Top").StoreGeneratedPattern);
+            Assert.Equal(StoreGeneratedPattern.None, entityType.GetProperty("Bottom").StoreGeneratedPattern);
         }
 
         [Fact]
@@ -714,9 +687,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Required()
                 .Annotation("A", "V")
                 .ConcurrencyToken()
-                .StoreComputed()
+                .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
                 .GenerateValueOnAdd()
-                .UseStoreDefault()
                 .MaxLength(100)
                 .Required();
         }

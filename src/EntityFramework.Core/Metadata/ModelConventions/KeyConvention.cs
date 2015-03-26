@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -15,23 +16,13 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
 
-            ConfigureKeyProperties(keyBuilder.ModelBuilder.Entity(keyBuilder.Metadata.EntityType.Name, ConfigurationSource.Convention),
-                keyBuilder.Metadata.Properties);
+            var entityTypeBuilder = keyBuilder.ModelBuilder.Entity(keyBuilder.Metadata.EntityType.Name, ConfigurationSource.Convention);
+            var properties = keyBuilder.Metadata.Properties;
+
+            SetValueGeneration(entityTypeBuilder, properties);
+            SetIdentity(entityTypeBuilder, properties);
 
             return keyBuilder;
-        }
-
-        protected virtual void ConfigureKeyProperties([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] IReadOnlyList<Property> properties)
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NotNull(properties, nameof(properties));
-            foreach (var property in properties.Where(property => !entityTypeBuilder.Metadata.ForeignKeys.SelectMany(fk => fk.Properties).Contains(property)))
-            {
-                entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
-                    ?.GenerateValueOnAdd(true, ConfigurationSource.Convention);
-            }
-            // TODO: Nullable, Sequence
-            // Issue #213
         }
 
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
@@ -39,7 +30,49 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            ConfigureKeyProperties(entityTypeBuilder, foreignKey.Properties);
+            SetValueGeneration(entityTypeBuilder, foreignKey.Properties);
         }
+
+        protected virtual void SetValueGeneration(
+            [NotNull] InternalEntityTypeBuilder entityTypeBuilder, 
+            [NotNull] IReadOnlyList<Property> properties)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotNull(properties, nameof(properties));
+
+            foreach (var property in properties.Where(
+                property => !entityTypeBuilder.Metadata.ForeignKeys.SelectMany(fk => fk.Properties).Contains(property)))
+            {
+                entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                    ?.GenerateValueOnAdd(true, ConfigurationSource.Convention);
+            }
+        }
+
+        protected virtual void SetIdentity(
+            [NotNull] InternalEntityTypeBuilder entityTypeBuilder, 
+            [NotNull] IReadOnlyList<Property> properties)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotNull(properties, nameof(properties));
+
+            foreach (var property in entityTypeBuilder.Metadata.Properties)
+            {
+                entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                    ?.StoreGeneratedPattern(null, ConfigurationSource.Convention);
+            }
+
+            if (properties.Count == 1)
+            {
+                var property = properties.First();
+
+                if (property.ClrType.IsInteger()
+                    && entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null)
+                {
+                    entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                        ?.StoreGeneratedPattern(StoreGeneratedPattern.Identity, ConfigurationSource.Convention);
+                }
+            }
+        }
+
     }
 }

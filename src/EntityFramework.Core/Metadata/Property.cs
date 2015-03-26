@@ -54,13 +54,39 @@ namespace Microsoft.Data.Entity.Metadata
 
         protected virtual bool DefaultIsNullable => ClrType.IsNullableType();
 
-        public virtual bool? UseStoreDefault
+        public virtual StoreGeneratedPattern? StoreGeneratedPattern
         {
-            get { return GetFlag(PropertyFlags.UseStoreDefault); }
-            set { SetFlag(value, PropertyFlags.UseStoreDefault); }
+            get
+            {
+                var isIdentity = GetFlag(PropertyFlags.IsIdentity);
+                var isComputed = GetFlag(PropertyFlags.IsComputed);
+
+                return isIdentity == null && isComputed == null
+                    ? (StoreGeneratedPattern?)null
+                    : isIdentity.HasValue && isIdentity.Value
+                        ? Metadata.StoreGeneratedPattern.Identity
+                        : isComputed.HasValue && isComputed.Value
+                            ? Metadata.StoreGeneratedPattern.Computed
+                            : Metadata.StoreGeneratedPattern.None;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    SetFlag(null, PropertyFlags.IsIdentity);
+                    SetFlag(null, PropertyFlags.IsComputed);
+                }
+                else
+                {
+                    Check.IsDefined(value.Value, nameof(value));
+
+                    SetFlag(value.Value == Metadata.StoreGeneratedPattern.Identity, PropertyFlags.IsIdentity);
+                    SetFlag(value.Value == Metadata.StoreGeneratedPattern.Computed, PropertyFlags.IsComputed);
+                }
+            }
         }
 
-        protected virtual bool DefaultUseStoreDefault => false;
+        protected virtual StoreGeneratedPattern DefaultStoreGeneratedPattern => Metadata.StoreGeneratedPattern.None;
 
         public virtual bool? IsReadOnly
         {
@@ -78,14 +104,6 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         protected virtual bool DefaultIsReadOnly => this.IsKey();
-
-        public virtual bool? IsStoreComputed
-        {
-            get { return GetFlag(PropertyFlags.IsStoreComputed); }
-            set { SetFlag(value, PropertyFlags.IsStoreComputed); }
-        }
-
-        protected virtual bool DefaultIsStoreComputed => false;
 
         public virtual bool? GenerateValueOnAdd
         {
@@ -202,11 +220,9 @@ namespace Microsoft.Data.Entity.Metadata
 
         bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;
 
-        bool IProperty.UseStoreDefault => UseStoreDefault ?? DefaultUseStoreDefault;
+        StoreGeneratedPattern IProperty.StoreGeneratedPattern => StoreGeneratedPattern ?? DefaultStoreGeneratedPattern;
 
         bool IProperty.IsReadOnly => IsReadOnly ?? DefaultIsReadOnly;
-
-        bool IProperty.IsStoreComputed => IsStoreComputed ?? DefaultIsStoreComputed;
 
         bool IProperty.IsValueGeneratedOnAdd => GenerateValueOnAdd ?? DefaultGenerateValueOnAdd;
 
@@ -220,8 +236,8 @@ namespace Microsoft.Data.Entity.Metadata
             IsConcurrencyToken = 1,
             IsNullable = 2,
             IsReadOnly = 4,
-            UseStoreDefault = 8,
-            IsStoreComputed = 16,
+            IsIdentity = 8,
+            IsComputed = 16,
             GenerateValueOnAdd = 32,
             IsShadowProperty = 64
         }

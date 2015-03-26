@@ -593,62 +593,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Properties_can_be_set_to_be_store_computed()
-        {
-            var model = new Model();
-            var modelBuilder = new BasicModelBuilder(model);
-
-            modelBuilder.Entity<Quarks>(b =>
-                {
-                    b.Property(e => e.Id);
-                    b.Property(e => e.Up).StoreComputed();
-                    b.Property(e => e.Down).StoreComputed(false);
-                    b.Property<int>("Charm").StoreComputed();
-                    b.Property<string>("Strange").StoreComputed(false);
-                    b.Property(typeof(int), "Top").StoreComputed();
-                    b.Property(typeof(string), "Bottom").StoreComputed(false);
-                });
-
-            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
-
-            Assert.False(entityType.GetProperty("Id").IsStoreComputed);
-            Assert.True(entityType.GetProperty("Up").IsStoreComputed);
-            Assert.False(entityType.GetProperty("Down").IsStoreComputed);
-            Assert.True(entityType.GetProperty("Charm").IsStoreComputed);
-            Assert.False(entityType.GetProperty("Strange").IsStoreComputed);
-            Assert.True(entityType.GetProperty("Top").IsStoreComputed);
-            Assert.False(entityType.GetProperty("Bottom").IsStoreComputed);
-        }
-
-        [Fact]
-        public void Properties_can_be_set_to_use_store_default_values()
-        {
-            var model = new Model();
-            var modelBuilder = new BasicModelBuilder(model);
-
-            modelBuilder.Entity<Quarks>(b =>
-                {
-                    b.Property(e => e.Id);
-                    b.Property(e => e.Up).UseStoreDefault();
-                    b.Property(e => e.Down).UseStoreDefault(false);
-                    b.Property<int>("Charm").UseStoreDefault();
-                    b.Property<string>("Strange").UseStoreDefault(false);
-                    b.Property(typeof(int), "Top").UseStoreDefault();
-                    b.Property(typeof(string), "Bottom").UseStoreDefault(false);
-                });
-
-            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
-
-            Assert.False(entityType.GetProperty("Id").UseStoreDefault);
-            Assert.True(entityType.GetProperty("Up").UseStoreDefault);
-            Assert.False(entityType.GetProperty("Down").UseStoreDefault);
-            Assert.True(entityType.GetProperty("Charm").UseStoreDefault);
-            Assert.False(entityType.GetProperty("Strange").UseStoreDefault);
-            Assert.True(entityType.GetProperty("Top").UseStoreDefault);
-            Assert.False(entityType.GetProperty("Bottom").UseStoreDefault);
-        }
-
-        [Fact]
         public void Can_set_max_length_for_properties()
         {
             var model = new Model();
@@ -686,9 +630,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Annotation("A", "V")
                 .ConcurrencyToken()
                 .Shadow()
-                .StoreComputed()
+                .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
                 .GenerateValueOnAdd()
-                .UseStoreDefault()
                 .MaxLength(100)
                 .Required();
         }

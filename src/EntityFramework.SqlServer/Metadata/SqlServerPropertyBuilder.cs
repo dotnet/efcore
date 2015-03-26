@@ -64,6 +64,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public virtual SqlServerPropertyBuilder UseSequence()
         {
             _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            _property.StoreGeneratedPattern = StoreGeneratedPattern.Identity;
             _property.SqlServer().SequenceName = null;
             _property.SqlServer().SequenceSchema = null;
 
@@ -78,6 +79,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             var sequence = _property.EntityType.Model.SqlServer().GetOrAddSequence(name, schema);
 
             _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            _property.StoreGeneratedPattern = StoreGeneratedPattern.Identity;
             _property.SqlServer().SequenceName = sequence.Name;
             _property.SqlServer().SequenceSchema = sequence.Schema;
 
@@ -87,6 +89,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public virtual SqlServerPropertyBuilder UseIdentity()
         {
             _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
+            _property.StoreGeneratedPattern = StoreGeneratedPattern.Identity;
             _property.SqlServer().SequenceName = null;
             _property.SqlServer().SequenceSchema = null;
 
@@ -96,6 +99,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public virtual SqlServerPropertyBuilder UseDefaultValueGeneration()
         {
             _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Default;
+            _property.StoreGeneratedPattern = StoreGeneratedPattern.Identity;
             _property.SqlServer().SequenceName = null;
             _property.SqlServer().SequenceSchema = null;
 
