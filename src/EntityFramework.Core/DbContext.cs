@@ -290,13 +290,34 @@ namespace Microsoft.Data.Entity
         [DebuggerStepThrough]
         public virtual int SaveChanges()
         {
+            return SaveChanges(acceptAllChangesOnSuccess: true);
+        }
+
+        /// <summary>
+        ///     Saves all changes made in this context to the underlying data store.
+        /// </summary>
+        /// <param name="acceptAllChangesOnSuccess">
+        ///     Indicates whether <see cref="ChangeTracker.AcceptAllChanges" /> is called after the changes have been
+        ///     sent succesfully to the data store.
+        /// </param>
+        /// <remarks>
+        ///     This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any changes
+        ///     to entity instances before saving to the underlying data store. This can be disabled via
+        ///     <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+        /// </remarks>
+        /// <returns>
+        ///     The number of state entries written to the underlying data store.
+        /// </returns>
+        [DebuggerStepThrough]
+        public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
             var stateManager = GetStateManager();
 
             TryDetectChanges(stateManager);
 
             try
             {
-                return stateManager.SaveChanges();
+                return stateManager.SaveChanges(acceptAllChangesOnSuccess);
             }
             catch (Exception ex)
             {
@@ -337,7 +358,36 @@ namespace Microsoft.Data.Entity
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of state entries written to the underlying data store.
         /// </returns>
-        public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
+        }
+
+        /// <summary>
+        ///     Asynchronously saves all changes made in this context to the underlying data store.
+        /// </summary>
+        /// <param name="acceptAllChangesOnSuccess">
+        ///     Indicates whether <see cref="ChangeTracker.AcceptAllChanges" /> is called after the changes have been
+        ///     sent succesfully to the data store.
+        /// </param>
+        /// <remarks>
+        ///     <para>
+        ///         This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any changes
+        ///         to entity instances before saving to the underlying data store. This can be disabled via
+        ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+        ///     </para>
+        ///     <para>
+        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         that any asynchronous operations have completed before calling another method on this context.
+        ///     </para>
+        /// </remarks>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous save operation. The task result contains the
+        ///     number of state entries written to the underlying data store.
+        /// </returns>
+        public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             var stateManager = GetStateManager();
 
@@ -348,7 +398,7 @@ namespace Microsoft.Data.Entity
 
             try
             {
-                return await stateManager.SaveChangesAsync(cancellationToken).WithCurrentCulture();
+                return await stateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken).WithCurrentCulture();
             }
             catch (Exception ex)
             {
@@ -428,7 +478,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Added" /> state such that it will
-        ///     be inserted into the data store when <see cref="SaveChanges" /> is called.
+        ///     be inserted into the data store when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to add. </param>
@@ -446,7 +496,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state such that no
-        ///     operation will be performed when <see cref="SaveChanges" /> is called.
+        ///     operation will be performed when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to attach. </param>
@@ -469,7 +519,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     <para>
         ///         Begins tracking the given entity in the <see cref="EntityState.Modified" /> state such that it will
-        ///         be updated in the data store when <see cref="SaveChanges" /> is called.
+        ///         be updated in the data store when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
@@ -494,7 +544,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
-        ///     be removed from the data store when <see cref="SaveChanges" /> is called.
+        ///     be removed from the data store when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
         ///     If the entity is already tracked in the <see cref="EntityState.Added" /> state then the context will
@@ -531,7 +581,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Added" /> state such that it will
-        ///     be inserted into the data store when <see cref="SaveChanges" /> is called.
+        ///     be inserted into the data store when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
         /// <returns>
@@ -548,7 +598,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state such that no
-        ///     operation will be performed when <see cref="SaveChanges" /> is called.
+        ///     operation will be performed when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entity"> The entity to attach. </param>
         /// <returns>
@@ -566,7 +616,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     <para>
         ///         Begins tracking the given entity in the <see cref="EntityState.Modified" /> state such that it will
-        ///         be updated in the data store when <see cref="SaveChanges" /> is called.
+        ///         be updated in the data store when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
@@ -589,7 +639,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
-        ///     be removed from the data store when <see cref="SaveChanges" /> is called.
+        ///     be removed from the data store when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
         ///     If the entity is already tracked in the <see cref="EntityState.Added" /> state then the context will
@@ -635,7 +685,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Added" /> state such that they will
-        ///     be inserted into the data store when <see cref="SaveChanges" /> is called.
+        ///     be inserted into the data store when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange([NotNull] params object[] entities)
@@ -647,7 +697,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state such that no
-        ///     operation will be performed when <see cref="SaveChanges" /> is called.
+        ///     operation will be performed when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
         public virtual void AttachRange([NotNull] params object[] entities)
@@ -660,7 +710,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     <para>
         ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
-        ///         be updated in the data store when <see cref="SaveChanges" /> is called.
+        ///         be updated in the data store when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
@@ -678,7 +728,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
-        ///     be removed from the data store when <see cref="SaveChanges" /> is called.
+        ///     be removed from the data store when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
         ///     If any of the entities are already tracked in the <see cref="EntityState.Added" /> state then the context will
@@ -705,7 +755,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Added" /> state such that they will
-        ///     be inserted into the data store when <see cref="SaveChanges" /> is called.
+        ///     be inserted into the data store when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange([NotNull] IEnumerable<object> entities)
@@ -717,7 +767,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state such that no
-        ///     operation will be performed when <see cref="SaveChanges" /> is called.
+        ///     operation will be performed when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
         public virtual void AttachRange([NotNull] IEnumerable<object> entities)
@@ -730,7 +780,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     <para>
         ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
-        ///         be updated in the data store when <see cref="SaveChanges" /> is called.
+        ///         be updated in the data store when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
@@ -748,7 +798,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
-        ///     be removed from the data store when <see cref="SaveChanges" /> is called.
+        ///     be removed from the data store when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
         ///     If any of the entities are already tracked in the <see cref="EntityState.Added" /> state then the context will

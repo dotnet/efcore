@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     Configures whether this property should be used as a concurrency token. When a property is configured
         ///     as a concurrency token the value in the data store will be checked when an instance of this entity type
-        ///     is updated or deleted during <see cref="DbContext.SaveChanges" /> to ensure it has not changed since
+        ///     is updated or deleted during <see cref="DbContext.SaveChanges()" /> to ensure it has not changed since
         ///     the instance was retrieved from the data store. If it has changed, an exception will be thrown and the
         ///     changes will not be applied to the data store.
         /// </summary>

@@ -54,11 +54,38 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             using (var context = CreateContext())
             {
+                var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
+                firstEntry.State = EntityState.Deleted;
+
                 using (context.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     context.SaveChanges();
                 }
+
+                Assert.Equal(EntityState.Detached, firstEntry.State);
+            }
+
+            AssertStoreInitialState();
+        }
+
+        [Fact]
+        public void SaveChanges_false_uses_explicit_transaction_without_committing_or_accepting_changes()
+        {
+            using (var context = CreateContext())
+            {
+                var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
+                firstEntry.State = EntityState.Deleted;
+
+                using (context.Database.AsRelational().Connection.BeginTransaction())
+                {
+                    context.SaveChanges(acceptAllChangesOnSuccess: false);
+                }
+
+                Assert.Equal(EntityState.Deleted, firstEntry.State);
+
+                context.ChangeTracker.AcceptAllChanges();
+
+                Assert.Equal(EntityState.Detached, firstEntry.State);
             }
 
             AssertStoreInitialState();
@@ -69,11 +96,38 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             using (var context = CreateContext())
             {
+                var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
+                firstEntry.State = EntityState.Deleted;
+
                 using (await context.Database.AsRelational().Connection.BeginTransactionAsync())
                 {
-                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     await context.SaveChangesAsync();
                 }
+
+                Assert.Equal(EntityState.Detached, firstEntry.State);
+            }
+
+            AssertStoreInitialState();
+        }
+
+        [Fact]
+        public async Task SaveChangesAsync_false_uses_explicit_transaction_without_committing_or_accepting_changes()
+        {
+            using (var context = CreateContext())
+            {
+                var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
+                firstEntry.State = EntityState.Deleted;
+
+                using (await context.Database.AsRelational().Connection.BeginTransactionAsync())
+                {
+                    await context.SaveChangesAsync(acceptAllChangesOnSuccess: false);
+                }
+
+                Assert.Equal(EntityState.Deleted, firstEntry.State);
+
+                context.ChangeTracker.AcceptAllChanges();
+
+                Assert.Equal(EntityState.Detached, firstEntry.State);
             }
 
             AssertStoreInitialState();
@@ -86,8 +140,10 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (var transaction = context.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                    var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
+                    firstEntry.State = EntityState.Deleted;
+                    var lastEntry = context.Entry(context.Set<TransactionCustomer>().Last());
+                    lastEntry.State = EntityState.Added;
 
                     try
                     {
@@ -97,6 +153,8 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                     {
                     }
 
+                    Assert.Equal(EntityState.Deleted, firstEntry.State);
+                    Assert.Equal(EntityState.Added, lastEntry.State);
                     Assert.NotNull(transaction.DbTransaction.Connection);
                 }
             }
@@ -109,8 +167,10 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
                 {
-                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                    var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
+                    firstEntry.State = EntityState.Deleted;
+                    var lastEntry = context.Entry(context.Set<TransactionCustomer>().Last());
+                    lastEntry.State = EntityState.Added;
 
                     try
                     {
@@ -120,6 +180,8 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                     {
                     }
 
+                    Assert.Equal(EntityState.Deleted, firstEntry.State);
+                    Assert.Equal(EntityState.Added, lastEntry.State);
                     Assert.NotNull(transaction.DbTransaction.Connection);
                 }
             }

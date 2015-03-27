@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///         The default value is true. This ensures the context is aware of any changes to tracked entity instances before performing
         ///         operations such as <see cref="DbContext.SaveChanges()"/> or returning change tracking information. If you disable automatic
         ///         detect changes then you must ensure that <see cref="DetectChanges"/> is called when entity instances have been modified.
-        ///         Failure to do so may result in some changes not being persisted during <see cref="DbContext.SaveChanges"/> or out-of-date
+        ///         Failure to do so may result in some changes not being persisted during <see cref="DbContext.SaveChanges()"/> or out-of-date
         ///         change tracking information being returned.
         ///     </para>
         /// </summary>
@@ -121,11 +121,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         /// <summary>
         ///     Scans the tracked entity instances to detect any changes made to the instance data. <see cref="DetectChanges"/>
-        ///     is usually called automatically by the context when up-to-date information is required (before <see cref="DbContext.SaveChanges"/> 
+        ///     is usually called automatically by the context when up-to-date information is required (before <see cref="DbContext.SaveChanges()"/> 
         ///     and when returning change tracking information). You typically only need to call this method if you have disabled
         ///     <see cref="AutoDetectChangesEnabled"/>.
         /// </summary>
         public virtual void DetectChanges() => _changeDetector.DetectChanges(_stateManager);
+
+        /// <summary>
+        ///     Accepts all changes made to entities in the context. It will be assumed that the tracked entities
+        ///     represent the current state of the store.
+        /// </summary>
+        public virtual void AcceptAllChanges() => _stateManager.AcceptAllChanges();
 
         /// <summary>
         ///     <para>

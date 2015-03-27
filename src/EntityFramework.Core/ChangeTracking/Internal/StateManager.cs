@@ -261,7 +261,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         [DebuggerStepThrough]
-        public virtual int SaveChanges()
+        public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             var entriesToSave = Entries
                 .Where(e => e.EntityState == EntityState.Added
@@ -279,12 +279,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 var result = SaveChanges(entriesToSave);
 
-                // TODO: When transactions supported, make it possible to commit/accept at end of all transactions
-                // Issue #744
-                foreach (var entry in entriesToSave)
+                if (acceptAllChangesOnSuccess)
                 {
-                    entry.AutoCommitSidecars();
-                    entry.AcceptChanges();
+                    AcceptAllChanges(entriesToSave);
                 }
 
                 return result;
@@ -299,7 +296,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
             var entriesToSave = Entries
                 .Where(e => e.EntityState == EntityState.Added
@@ -319,12 +316,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     = await SaveChangesAsync(entriesToSave, cancellationToken)
                         .WithCurrentCulture();
 
-                // TODO: When transactions supported, make it possible to commit/accept at end of all transactions
-                // Issue #744
-                foreach (var entry in entriesToSave)
+                if (acceptAllChangesOnSuccess)
                 {
-                    entry.AutoCommitSidecars();
-                    entry.AcceptChanges();
+                    AcceptAllChanges(entriesToSave);
                 }
 
                 return result;
@@ -346,5 +340,25 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
             CancellationToken cancellationToken = default(CancellationToken))
             => await _dataStore.SaveChangesAsync(entriesToSave, cancellationToken).WithCurrentCulture();
+
+        public virtual void AcceptAllChanges()
+        {
+            var changedEntries = Entries
+                .Where(e => e.EntityState == EntityState.Added
+                            || e.EntityState == EntityState.Modified
+                            || e.EntityState == EntityState.Deleted)
+                .ToList();
+
+            AcceptAllChanges(changedEntries);
+        }
+
+        private void AcceptAllChanges(IReadOnlyList<InternalEntityEntry> changedEntries)
+        {
+            foreach (var entry in changedEntries)
+            {
+                entry.AutoCommitSidecars();
+                entry.AcceptChanges();
+            }
+        }
     }
 }

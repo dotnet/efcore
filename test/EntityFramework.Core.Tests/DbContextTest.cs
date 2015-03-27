@@ -221,16 +221,21 @@ namespace Microsoft.Data.Entity.Tests
                 throw new NotImplementedException();
             }
 
-            public int SaveChanges()
+            public int SaveChanges(bool acceptAllChangesOnSuccess)
             {
                 SaveChangesCalled = true;
                 return 1;
             }
 
-            public Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+            public Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
             {
                 SaveChangesAsyncCalled = true;
                 return Task.FromResult(1);
+            }
+
+            public virtual void AcceptAllChanges()
+            {
+                throw new NotImplementedException();
             }
 
             public InternalEntityEntry CreateNewEntry(IEntityType entityType)
