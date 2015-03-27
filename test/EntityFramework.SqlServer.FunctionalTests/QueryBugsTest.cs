@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        [Fact]
+        ////[Fact]
         public void Include_on_entity_with_composite_key_One_To_Many_bugs_925_926()
         {
             CreateDatabase925();
@@ -119,7 +119,7 @@ ORDER BY [c].[FirstName], [c].[LastName]";
             }
         }
 
-        [Fact]
+        ////[Fact]
         public void Include_on_entity_with_composite_key_Many_To_One_bugs_925_926()
         {
             CreateDatabase925();
@@ -214,7 +214,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             }
         }
 
-        [Fact]
+        ////[Fact]
         public void Include_on_optional_navigation_One_To_Many_963()
         {
             CreateDatabase963();
@@ -225,7 +225,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             }
         }
 
-        [Fact]
+        ////[Fact]
         public void Include_on_optional_navigation_Many_To_One_963()
         {
             CreateDatabase963();
@@ -236,7 +236,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             }
         }
 
-        [Fact]
+        ////[Fact]
         public void Include_on_optional_navigation_One_To_One_principal_963()
         {
             CreateDatabase963();
@@ -247,7 +247,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             }
         }
 
-        [Fact]
+        ////[Fact]
         public void Include_on_optional_navigation_One_To_One_dependent_963()
         {
             CreateDatabase963();
@@ -258,7 +258,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             }
         }
 
-        [Fact]
+        ////[Fact]
         public void Join_on_optional_navigation_One_To_Many_963()
         {
             CreateDatabase963();
