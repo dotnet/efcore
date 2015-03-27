@@ -11,10 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 #if DNX451 || DNXCORE50
 using System.Threading.Tasks;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.FeatureModel;
 using Microsoft.AspNet.Hosting;
-using Microsoft.AspNet.Hosting.Server;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Runtime.Infrastructure;
@@ -37,12 +34,8 @@ namespace Microsoft.Data.Entity.Commands
 #if DNX451 || DNXCORE50
             try
             {
-                var context = new HostingContext
-                {
-                    ServerFactory = new ServerFactory(),
-                };
-                var instance = new HostingEngine().Start(context);
-                return context.ApplicationServices.GetService(type) as DbContext;
+                var engine = WebApplication.CreateHostingEngine(CallContextServiceLocator.Locator.ServiceProvider, config: null, configureServices: null);
+                return engine.ApplicationServices.GetService(type) as DbContext;
             }
             catch
             {
@@ -51,35 +44,6 @@ namespace Microsoft.Data.Entity.Commands
 
             return null;
         }
-
-#if DNX451 || DNXCORE50
-        private class ServerFactory : IServerFactory {
-            public IServerInformation Initialize(IConfiguration configuration)
-            {
-                return null;
-            }
-
-            public IDisposable Start(IServerInformation serverInformation, Func<IFeatureCollection, Task> application)
-            {
-                return new StartInstance(application);
-            }
-
-            private class StartInstance : IDisposable
-            {
-                private readonly Func<IFeatureCollection, Task> _application;
-
-                public StartInstance(Func<IFeatureCollection, Task> application)
-                {
-                    _application = application;
-                }
-
-                public void Dispose()
-                {
-                }
-            }
-        }
-#endif
-
 
         public static IEnumerable<Type> GetContextTypes([NotNull] Assembly assembly) =>
             assembly.GetTypes().Where(
