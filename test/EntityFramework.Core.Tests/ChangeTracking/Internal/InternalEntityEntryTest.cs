@@ -1370,10 +1370,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 .ForeignKey<SecondDependent>(e => e.Id);
 
             modelBuilder
-                .Entity<Root>()
-                .Reference(e => e.First)
-                .InverseReference(e => e.Root)
-                .ForeignKey<FirstDependent>(e => e.Id);
+                .Entity<Root>(b =>
+                    {
+                        b.Property(e => e.Id)
+                            .StoreGeneratedPattern(StoreGeneratedPattern.None);
+
+                        b.Reference(e => e.First)
+                            .InverseReference(e => e.Root)
+                            .ForeignKey<FirstDependent>(e => e.Id);
+
+                    });
+
 
             return modelBuilder.Model;
         }

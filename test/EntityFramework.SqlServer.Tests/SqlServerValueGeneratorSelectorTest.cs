@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
-        public void Does_not_return_generator_configured_on_model_when_default_is_not_set_on_property()
+        public void Returns_generator_configured_on_model_when_property_is_Identity()
         {
             var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
             model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
@@ -99,7 +99,21 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorSelector>();
 
-            Assert.IsType<TemporaryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("Id")));
+            Assert.IsType<SqlServerSequenceValueGenerator<int>>(selector.Select(entityType.GetProperty("Id")));
+        }
+
+        [Fact]
+        public void Does_not_return_generator_configured_on_model_when_default_is_not_set_on_property()
+        {
+            var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
+            model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            var entityType = model.GetEntityType(typeof(AnEntity));
+            var property = entityType.GetProperty("Id");
+            property.StoreGeneratedPattern = StoreGeneratedPattern.None;
+
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorSelector>();
+
+            Assert.IsType<TemporaryIntegerValueGenerator<int>>(selector.Select(property));
         }
 
         private static Model BuildModel(bool generateValues = true)
