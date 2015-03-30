@@ -41,18 +41,17 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
             Check.NotNull(entityType, nameof(entityType));
 
             var primaryKeyProperties =
-                entityType.GetPrimaryKey().Properties.ToList();
+                ((EntityType)entityType).FindPrimaryKey()?.Properties.ToList()
+                ?? new List<Property>();
 
             foreach (var property in primaryKeyProperties)
             {
                 yield return property;
             }
 
-            var foreignKeyProperties = entityType.GetForeignKeys().SelectMany(fk => fk.Properties).Distinct().ToList();
             foreach (var property in
                 entityType.GetProperties()
                 .Except(primaryKeyProperties)
-                .Except(foreignKeyProperties)
                 .OrderBy(p => p.Name))
             {
                 yield return property;

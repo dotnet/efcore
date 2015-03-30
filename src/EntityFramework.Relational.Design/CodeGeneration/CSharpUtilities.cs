@@ -213,7 +213,15 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
         public virtual string GenerateCSharpIdentifier(
             [NotNull] string identifier, [CanBeNull]ICollection<string> existingIdentifiers)
         {
+            return GenerateCSharpIdentifier(identifier, existingIdentifiers, Uniquifier);
+        }
+
+        public virtual string GenerateCSharpIdentifier(
+            [NotNull] string identifier, [CanBeNull]ICollection<string> existingIdentifiers,
+            [NotNull] Func<string, ICollection<string>, string> uniquifier)
+        {
             Check.NotEmpty(identifier, nameof(identifier));
+            Check.NotNull(uniquifier, nameof(uniquifier));
 
             var invalidCharsRegex
                 = new Regex(@"[^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Nl}\p{Mn}\p{Mc}\p{Cf}\p{Pc}\p{Lm}]");
@@ -234,15 +242,25 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
                 proposedIdentifier = "_" + proposedIdentifier;
             }
 
-            string finalIdentifier = proposedIdentifier;
-            if (existingIdentifiers != null)
+            return uniquifier(proposedIdentifier, existingIdentifiers);
+        }
+
+        public virtual string Uniquifier(
+            [NotNull] string proposedIdentifier, [CanBeNull]ICollection<string> existingIdentifiers)
+        {
+            Check.NotEmpty(proposedIdentifier, nameof(proposedIdentifier));
+
+            if (existingIdentifiers == null)
             {
-                var suffix = 1;
-                while (existingIdentifiers.Contains(finalIdentifier))
-                {
-                    finalIdentifier = proposedIdentifier + suffix.ToString();
-                    suffix++;
-                }
+                return proposedIdentifier;
+            }
+
+            string finalIdentifier = proposedIdentifier;
+            var suffix = 1;
+            while (existingIdentifiers.Contains(finalIdentifier))
+            {
+                finalIdentifier = proposedIdentifier + suffix.ToString();
+                suffix++;
             }
 
             return finalIdentifier;

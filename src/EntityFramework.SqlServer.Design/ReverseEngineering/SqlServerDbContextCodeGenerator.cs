@@ -15,7 +15,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
     public class SqlServerDbContextCodeGenerator : DbContextCodeGenerator
     {
-        private static readonly string _defaultDbContextName = "ModelContext";
+        private const string _defaultDbContextName = "ModelContext";
+        private const string _dbContextSuffix = "Context";
 
         public SqlServerDbContextCodeGenerator(
             [NotNull] ReverseEngineeringGenerator generator,
@@ -42,7 +43,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 var builder = new SqlConnectionStringBuilder(ConnectionString);
                 if (builder.InitialCatalog != null)
                 {
-                    return CSharpUtilities.Instance.GenerateCSharpIdentifier(builder.InitialCatalog, null);
+                    return CSharpUtilities.Instance.GenerateCSharpIdentifier(builder.InitialCatalog + _dbContextSuffix, null);
                 }
 
                 return _defaultDbContextName;
@@ -68,15 +69,16 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             foreach (var foreignKey in entityType.GetForeignKeys())
             {
                 var dependentEndNavigationPropertyName =
-                    foreignKey[SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName];
+                    (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName];
                 var principalEndNavigationPropertyName =
-                    foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
+                    (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
                 if (first)
                 {
                     first = false;
                 }
                 else
                 {
+                    sb.AppendLine();
                     sb.AppendLine();
                 }
                 sb.Append("entity.");
@@ -87,27 +89,41 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 sb.Append(dependentEndNavigationPropertyName);
                 sb.Append(")");
 
-                if (principalEndNavigationPropertyName != null)
+                if (foreignKey.IsUnique)
                 {
-                    if (foreignKey.IsUnique)
-                    {
-                        sb.Append(".InverseReference(");
-                    }
-                    else
-                    {
-                        sb.Append(".InverseCollection(");
-                    }
-                    sb.Append("p => p.");
-                    sb.Append(principalEndNavigationPropertyName);
-                    sb.Append(")");
+                    sb.Append(".InverseReference(");
+                }
+                else
+                {
+                    sb.Append(".InverseCollection(");
                 }
 
-                sb.Append(";");
+                if (!string.IsNullOrEmpty(principalEndNavigationPropertyName))
+                {
+                    sb.Append("p => p.");
+                    sb.Append(principalEndNavigationPropertyName);
+                }
+                sb.Append(")");
+
+                sb.Append(".ForeignKey");
+                if (foreignKey.IsUnique)
+                {
+                    // If the relationship is 1:1 need to define to which end
+                    // the ForeignKey properties belong.
+                    sb.Append("<");
+                    sb.Append(entityType.Name);
+                    sb.Append(">");
+                }
+                sb.Append("(d => ");
+                sb.Append(Generator.ModelUtilities
+                    .GenerateLambdaToKey(foreignKey.Properties, "d"));
+                sb.Append(");");
             }
         }
 
-        public override void GenerateProviderSpecificPropertyFacetsConfiguration(
-            IProperty property, string entityVariableName, IndentedStringBuilder sb)
+        public override bool GenerateProviderSpecificPropertyFacetsConfiguration(
+            IProperty property, string entityVariableName, bool hadPreviousAppend,
+            IndentedStringBuilder sb)
         {
             Check.NotNull(property, nameof(property));
             Check.NotEmpty(entityVariableName, nameof(entityVariableName));
@@ -116,9 +132,13 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             var useIdentityFacetConfig = GenerateUseIdentityFacetConfiguration(property);
             if (string.IsNullOrEmpty(useIdentityFacetConfig))
             {
-                return;
+                return hadPreviousAppend;
             }
 
+            if (hadPreviousAppend)
+            {
+                sb.AppendLine();
+            }
             sb.AppendLine();
             sb.Append(entityVariableName);
             sb.Append(".Property(e => e.");
@@ -128,13 +148,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             {
                 sb.AppendLine();
                 sb.Append(".ForSqlServer()");
-                using (sb.Indent())
-                {
-                    sb.AppendLine();
-                    sb.Append(useIdentityFacetConfig);
-                }
+                sb.Append(useIdentityFacetConfig);
                 sb.Append(";");
             }
+
+            return true;
         }
 
         public virtual string GenerateUseIdentityFacetConfiguration([NotNull] IProperty property)
