@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
@@ -14,7 +16,7 @@ using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
 
-namespace System.Linq
+namespace Microsoft.Data.Entity
 {
     public static class EntityFrameworkQueryableExtensions
     {
