@@ -12,9 +12,6 @@ using Microsoft.Data.Entity.Utilities;
 #if DNX451 || DNXCORE50
 using System.Threading.Tasks;
 using Microsoft.AspNet.Hosting;
-using Microsoft.Framework.ConfigurationModel;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Runtime.Infrastructure;
 #endif
 
 namespace Microsoft.Data.Entity.Commands
