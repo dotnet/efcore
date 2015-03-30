@@ -119,7 +119,15 @@ namespace Microsoft.Data.Entity.Metadata
                         throw new InvalidOperationException(Strings.DerivedEntityCannotHaveKeys(this));
                     }
 
-                    ValidateNoNameCollision(value);
+                    var collisions = value.Properties.Where(property => _properties.ContainsKey(property.Name)).ToList();
+                    if (collisions.Count > 0)
+                    {
+                        throw new InvalidOperationException(
+                            Strings.DuplicatePropertiesOnBase(
+                                string.Join(", ", collisions.Select(p => p.Name)),
+                                Name,
+                                value.Name));
+                    }
 
                     value.PropertyMetadataChanged += OnPropertyMetadataChanged;
                 }
@@ -136,12 +144,14 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        private void ValidateNoNameCollision(EntityType entityType)
+        private void ValidateNoNameCollision(EntityType entityType, Property property)
         {
-            foreach (var property in entityType.Properties
-                .Where(property => _properties.ContainsKey(property.Name)))
+            if (entityType._properties.ContainsKey(property.Name))
             {
-                throw new InvalidOperationException(Strings.DuplicateProperty(property.Name, Name));
+                throw new InvalidOperationException(
+                    Strings.DuplicateProperty(
+                        property.Name,
+                        property.EntityType.Name));
             }
         }
 
@@ -812,12 +822,9 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(name, nameof(name));
             Check.NotNull(propertyType, nameof(propertyType));
 
-            if (_properties.ContainsKey(name))
-            {
-                throw new InvalidOperationException(Strings.DuplicateProperty(name, Name));
-            }
-
             var property = new Property(name, propertyType, this, shadowProperty);
+
+            ValidateNoNameCollision(this, property);
 
             ValidateAgainstClrProperty(property);
 
@@ -942,9 +949,17 @@ namespace Microsoft.Data.Entity.Metadata
         {
             ValidateAgainstClrProperty(property);
 
-            if (BaseType != null)
+            var entityType = this;
+            if (entityType == property.EntityType)
             {
-                ValidateNoNameCollision(BaseType);
+                while ((entityType = entityType.BaseType) != null)
+                {
+                    ValidateNoNameCollision(entityType, property);
+                }
+            }
+            else
+            {
+                ValidateNoNameCollision(entityType, property);
             }
 
             UpdateIndexes();

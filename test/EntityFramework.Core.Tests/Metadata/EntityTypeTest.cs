@@ -70,9 +70,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Properties_should_inherit_from_base_type()
+        public void Properties_on_base_type_should_be_inherited()
         {
             var model = new Model();
+
+            //    A
+            //   / \
+            //  B   C
 
             var a = new EntityType(typeof(A), model);
             a.AddProperty("G", typeof(string));
@@ -82,15 +86,186 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             b.AddProperty("H", typeof(string));
             b.AddProperty("F", typeof(string));
 
+            var c = new EntityType(typeof(C), model);
+            c.AddProperty("H", typeof(string), true);
+            c.AddProperty("I", typeof(string), true);
+
             Assert.Equal(new[] { "E", "G" }, a.Properties.Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "F", "H" }, b.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "H", "I" }, c.Properties.Select(p => p.Name).ToArray());
 
             b.BaseType = a;
+            c.BaseType = a;
 
             Assert.Equal(new[] { "E", "G" }, a.Properties.Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "E", "G", "F", "H" }, b.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "E", "G", "H", "I" }, c.Properties.Select(p => p.Name).ToArray());
             Assert.Equal(new[] { 0, 1, 2, 3 }, b.Properties.Select(p => p.Index));
+            Assert.Equal(new[] { 0, 1, 2, 3 }, c.Properties.Select(p => p.Index));
         }
+
+        [Fact]
+        public void Properties_added_to_base_type_should_be_inherited()
+        {
+            var model = new Model();
+
+            //    A
+            //   / \
+            //  B   C
+
+            var a = new EntityType(typeof(A), model);
+            var b = new EntityType(typeof(B), model);
+            var c = new EntityType(typeof(C), model);
+
+            b.BaseType = a;
+            c.BaseType = a;
+
+            a.AddProperty("G", typeof(string));
+            a.AddProperty("E", typeof(string));
+
+            b.AddProperty("H", typeof(string));
+            b.AddProperty("F", typeof(string));
+
+            c.AddProperty("H", typeof(string), true);
+            c.AddProperty("I", typeof(string), true);
+
+            Assert.Equal(new[] { "E", "G" }, a.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "E", "G", "F", "H" }, b.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "E", "G", "H", "I" }, c.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { 0, 1, 2, 3 }, b.Properties.Select(p => p.Index));
+            Assert.Equal(new[] { 0, 1, 2, 3 }, c.Properties.Select(p => p.Index));
+        }
+
+        [Fact]
+        public void Adding_property_throws_when_parent_type_has_property_with_same_name()
+        {
+            var model = new Model();
+
+            var a = new EntityType(typeof(A), model);
+            a.AddProperty("G", typeof(string));
+
+            var b = new EntityType(typeof(B), model);
+            b.BaseType = a;
+
+            Assert.Equal(
+                Strings.DuplicateProperty("G", typeof(B).FullName),
+                Assert.Throws<InvalidOperationException>(() => b.AddProperty("G", typeof(string), true)).Message);
+        }
+
+        [Fact]
+        public void Adding_property_throws_when_grandparent_type_has_property_with_same_name()
+        {
+            var model = new Model();
+
+            var a = new EntityType(typeof(A), model);
+            a.AddProperty("G", typeof(string));
+
+            var b = new EntityType(typeof(B), model);
+            b.BaseType = a;
+
+            var c = new EntityType(typeof(C), model);
+            c.BaseType = b;
+
+            Assert.Equal(
+                Strings.DuplicateProperty("G", typeof(C).FullName),
+                Assert.Throws<InvalidOperationException>(() => c.AddProperty("G", typeof(string))).Message);
+        }
+
+        [Fact]
+        public void Adding_property_throws_when_child_type_has_property_with_same_name()
+        {
+            var model = new Model();
+
+            var a = new EntityType(typeof(A), model);
+
+            var b = new EntityType(typeof(B), model);
+            b.BaseType = a;
+
+            b.AddProperty("G", typeof(string));
+
+            Assert.Equal(
+                Strings.DuplicateProperty("G", typeof(A).FullName),
+                Assert.Throws<InvalidOperationException>(() => a.AddProperty("G", typeof(string))).Message);
+        }
+
+        [Fact]
+        public void Adding_property_throws_when_grandchild_type_has_property_with_same_name()
+        {
+            var model = new Model();
+
+            var a = new EntityType(typeof(A), model);
+
+            var b = new EntityType(typeof(B), model);
+            b.BaseType = a;
+
+            var c = new EntityType(typeof(C), model);
+            c.BaseType = b;
+
+            c.AddProperty("G", typeof(string));
+
+            Assert.Equal(
+                Strings.DuplicateProperty("G", typeof(A).FullName),
+                Assert.Throws<InvalidOperationException>(() => a.AddProperty("G", typeof(string))).Message);
+        }
+
+        [Fact]
+        public void Setting_base_type_throws_when_parent_contains_duplicate_property()
+        {
+            var model = new Model();
+
+            var a = new EntityType(typeof(A), model);
+            a.AddProperty("G", typeof(string));
+
+            var b = new EntityType(typeof(B), model);
+            b.AddProperty("G", typeof(string), true);
+
+            Assert.Equal(
+                Strings.DuplicatePropertiesOnBase("G", typeof(B).FullName, typeof(A).FullName),
+                Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
+        }
+
+        [Fact]
+        public void Setting_base_type_throws_when_grandparent_contains_duplicate_property()
+        {
+            var model = new Model();
+
+            var a = new EntityType(typeof(A), model);
+            a.AddProperty("E", typeof(string));
+            a.AddProperty("G", typeof(string));
+
+            var b = new EntityType(typeof(B), model);
+            b.BaseType = a;
+
+            var c = new EntityType(typeof(C), model);
+            c.AddProperty("E", typeof(string));
+            c.AddProperty("G", typeof(string));
+
+            Assert.Equal(
+                Strings.DuplicatePropertiesOnBase("E, G", typeof(C).FullName, typeof(B).FullName),
+                Assert.Throws<InvalidOperationException>(() => c.BaseType = b).Message);
+        }
+
+        //[Fact(Skip ="Issue 1954")]
+        public void Setting_base_type_throws_when_child_and_parent_contain_duplicate_property()
+        {
+            var model = new Model();
+
+            var a = new EntityType(typeof(A), model);
+            a.AddProperty("E", typeof(string));
+            a.AddProperty("G", typeof(string));
+
+            var b = new EntityType(typeof(B), model);
+
+            var c = new EntityType(typeof(C), model);
+            c.AddProperty("E", typeof(string));
+            c.AddProperty("G", typeof(string));
+            c.BaseType = b;
+
+            Assert.Equal(
+                Strings.DuplicatePropertiesOnBase("E, G", typeof(C).FullName, typeof(B).FullName),
+                Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
+        }
+
 
         [Fact]
         public void Can_create_entity_type()

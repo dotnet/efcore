@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Internal
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
-	using JetBrains.Annotations;
+    using JetBrains.Annotations;
 
     public static class Strings
     {
@@ -354,6 +354,14 @@ namespace Microsoft.Data.Entity.Internal
         public static string DuplicateProperty([CanBeNull] object property, [CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateProperty", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The type '{entityType}' cannot have base type '{baseType}' because both types include the properties: {properties}.
+        /// </summary>
+        public static string DuplicatePropertiesOnBase([CanBeNull] object properties, [CanBeNull] object entityType, [CanBeNull] object baseType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicatePropertiesOnBase", "properties", "entityType", "baseType"), properties, entityType, baseType);
         }
 
         /// <summary>

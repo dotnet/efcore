@@ -480,4 +480,7 @@
   <data name="OptionsExtensionNotFound" xml:space="preserve">
     <value>Options extension of type '{optionsExtension}' not found.</value>
   </data>
+  <data name="DuplicatePropertiesOnBase" xml:space="preserve">
+    <value>The type '{entityType}' cannot have base type '{baseType}' because both types include the properties: {properties}.</value>
+  </data>
 </root>
