@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -15,10 +16,35 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class QueryBugsTest : IClassFixture<SqlServerFixture>
     {
-        [Fact]
-        public async Task First_ix_async_bug_603()
+        private SqlServerTestStore CreateTestStore<TContext>(
+            string databaseName, 
+            IServiceProvider serviceProvider,
+            Func<IServiceProvider, DbContextOptions, TContext> contextCreator,
+            Action<TContext> contextInitializer)
+            where TContext : DbContext, IDisposable
         {
-            using (var context = new MyContext(_fixture.ServiceProvider))
+            var connectionString = SqlServerTestStore.CreateConnectionString(databaseName);
+            return SqlServerTestStore.GetOrCreateShared(databaseName, () =>
+            {
+                var optionsBuilder = new DbContextOptionsBuilder();
+                optionsBuilder.UseSqlServer(connectionString);
+
+                using (var context = contextCreator(serviceProvider, optionsBuilder.Options))
+                {
+                    if (context.Database.EnsureCreated())
+                    {
+                        contextInitializer(context);
+                    }
+
+                    TestSqlLoggerFactory.SqlStatements.Clear();
+                }
+            });
+        }
+
+        [Fact]
+        public async Task First_FirstOrDefault_ix_async_bug_603()
+        {
+            using (var context = new MyContext603(_fixture.ServiceProvider))
             {
                 await context.Database.EnsureDeletedAsync();
                 await context.Database.EnsureCreatedAsync();
@@ -27,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var ctx = new MyContext(_fixture.ServiceProvider))
+            using (var ctx = new MyContext603(_fixture.ServiceProvider))
             {
                 var product = await ctx.Products.FirstAsync();
 
@@ -35,12 +61,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 await ctx.SaveChangesAsync();
             }
-        }
 
-        [Fact]
-        public async Task First_or_default_ix_async_bug_603()
-        {
-            using (var context = new MyContext(_fixture.ServiceProvider))
+            using (var context = new MyContext603(_fixture.ServiceProvider))
             {
                 await context.Database.EnsureDeletedAsync();
                 await context.Database.EnsureCreatedAsync();
@@ -49,7 +71,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var ctx = new MyContext(_fixture.ServiceProvider))
+            using (var ctx = new MyContext603(_fixture.ServiceProvider))
             {
                 var product = await ctx.Products.FirstOrDefaultAsync();
 
@@ -58,16 +80,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 await ctx.SaveChangesAsync();
             }
         }
-
+             
         private class Product
         {
             public int Id { get; set; }
             public string Name { get; set; }
         }
 
-        private class MyContext : DbContext
+        private class MyContext603 : DbContext
         {
-            public MyContext(IServiceProvider provider)
+            public MyContext603(IServiceProvider provider)
                 : base(provider)
             {
             }
@@ -80,7 +102,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        ////[Fact]
+        [Fact]
         public void Include_on_entity_with_composite_key_One_To_Many_bugs_925_926()
         {
             CreateDatabase925();
@@ -119,7 +141,7 @@ ORDER BY [c].[FirstName], [c].[LastName]";
             }
         }
 
-        ////[Fact]
+        [Fact]
         public void Include_on_entity_with_composite_key_Many_To_One_bugs_925_926()
         {
             CreateDatabase925();
@@ -155,24 +177,25 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
 
         private void CreateDatabase925()
         {
-            using (var context = new MyContext925(_fixture.ServiceProvider))
-            {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+            CreateTestStore(
+                "Repro925",
+                _fixture.ServiceProvider,
+                (sp, co) => new MyContext925(sp),
+                (context) =>
+                {
+                    var order11 = new Order { Name = "Order11" };
+                    var order12 = new Order { Name = "Order12" };
+                    var order21 = new Order { Name = "Order21" };
+                    var order22 = new Order { Name = "Order22" };
+                    var order23 = new Order { Name = "Order23" };
 
-                var order11 = new Order { Name = "Order11" };
-                var order12 = new Order { Name = "Order12" };
-                var order21 = new Order { Name = "Order21" };
-                var order22 = new Order { Name = "Order22" };
-                var order23 = new Order { Name = "Order23" };
+                    var customer1 = new Customer { FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12 } };
+                    var customer2 = new Customer { FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22, order23 } };
 
-                var customer1 = new Customer { FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12 } };
-                var customer2 = new Customer { FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22, order23 } };
-
-                context.Customers.AddRange(customer1, customer2);
-                context.Orders.AddRange(order11, order12, order21, order22, order23);
-                context.SaveChanges();
-            }
+                    context.Customers.AddRange(customer1, customer2);
+                    context.Orders.AddRange(order11, order12, order21, order22, order23);
+                    context.SaveChanges();
+                });
         }
 
         public class Customer
@@ -214,7 +237,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             }
         }
 
-        ////[Fact]
+        [Fact]
         public void Include_on_optional_navigation_One_To_Many_963()
         {
             CreateDatabase963();
@@ -225,7 +248,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             }
         }
 
-        ////[Fact]
+        [Fact]
         public void Include_on_optional_navigation_Many_To_One_963()
         {
             CreateDatabase963();
@@ -236,7 +259,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             }
         }
 
-        ////[Fact]
+        [Fact]
         public void Include_on_optional_navigation_One_To_One_principal_963()
         {
             CreateDatabase963();
@@ -247,7 +270,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             }
         }
 
-        ////[Fact]
+        [Fact]
         public void Include_on_optional_navigation_One_To_One_dependent_963()
         {
             CreateDatabase963();
@@ -258,7 +281,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             }
         }
 
-        ////[Fact]
+        [Fact]
         public void Join_on_optional_navigation_One_To_Many_963()
         {
             CreateDatabase963();
@@ -273,30 +296,31 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
 
         private void CreateDatabase963()
         {
-            using (var context = new MyContext963(_fixture.ServiceProvider))
-            {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
+            CreateTestStore(
+                "Repro963",
+                _fixture.ServiceProvider,
+                (sp, co) => new MyContext963(sp),
+                (context) =>
+                {
+                    var drogon = new Dragon { Name = "Drogon" };
+                    var rhaegal = new Dragon { Name = "Rhaegal" };
+                    var viserion = new Dragon { Name = "Viserion" };
+                    var balerion = new Dragon { Name = "Balerion" };
 
-                var drogon = new Dragon { Name = "Drogon" };
-                var rhaegal = new Dragon { Name = "Rhaegal" };
-                var viserion = new Dragon { Name = "Viserion" };
-                var balerion = new Dragon { Name = "Balerion" };
-
-                var aerys = new Targaryen { Name = "Aerys II" };
-                var details = new Details
+                    var aerys = new Targaryen { Name = "Aerys II" };
+                    var details = new Details
                     {
                         FullName = @"Daenerys Stormborn of the House Targaryen, the First of Her Name, the Unburnt, Queen of Meereen, 
 Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Grass Sea, Breaker of Chains, and Mother of Dragons"
                     };
 
-                var daenerys = new Targaryen { Name = "Daenerys", Details = details, Dragons = new List<Dragon> { drogon, rhaegal, viserion } };
-                context.Targaryens.AddRange(daenerys, aerys);
-                context.Dragons.AddRange(drogon, rhaegal, viserion, balerion);
-                context.Details.Add(details);
+                    var daenerys = new Targaryen { Name = "Daenerys", Details = details, Dragons = new List<Dragon> { drogon, rhaegal, viserion } };
+                    context.Targaryens.AddRange(daenerys, aerys);
+                    context.Dragons.AddRange(drogon, rhaegal, viserion, balerion);
+                    context.Details.Add(details);
 
-                context.SaveChanges();
-            }
+                    context.SaveChanges();
+                });
         }
 
         public class Targaryen
