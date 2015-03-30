@@ -5,13 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Migrations.Sql
 {
-    // TODO: Review for SQL Server specific code
     public abstract class MigrationSqlGenerator : IMigrationSqlGenerator
     {
         private readonly ISqlGenerator _sql;
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             {
                 // TODO: Too magic?
                 ((dynamic)this).Generate((dynamic)operation, model, builder);
-                builder.AppendLine();
+                builder.AppendLine(_sql.BatchCommandSeparator);
             }
 
             builder.EndBatch();
@@ -42,16 +42,19 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             return builder.SqlBatches;
         }
 
-        protected virtual void Generate(
+        public virtual void Generate(
             [NotNull] MigrationOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder batchBuilder)
+            [NotNull] SqlBatchBuilder builder)
         {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
             throw new InvalidOperationException(Strings.UnknownOperation(GetType().Name, operation.GetType().Name));
         }
 
-        protected virtual void Generate(
-            [NotNull] CreateSequenceOperation operation,
+        public virtual void Generate(
+            [NotNull] AddColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder)
         {
@@ -59,34 +62,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             Check.NotNull(builder, nameof(builder));
 
             builder
-                .Append("CREATE SEQUENCE ")
-                .Append(_sql.DelimitIdentifier(operation.Name, operation.Schema))
-                .Append(" AS ")
-                .Append(operation.StoreType)
-                .Append(" START WITH ")
-                .Append(operation.StartValue)
-                .Append(" INCREMENT BY ")
-                .Append(operation.IncrementBy);
-
-            if (operation.MinValue.HasValue)
-            {
-                builder
-                    .Append(" MINVALUE ")
-                    .Append(operation.MinValue.Value);
-            }
-
-            if (operation.MaxValue.HasValue)
-            {
-                builder
-                    .Append(" MAXVALUE ")
-                    .Append(operation.MaxValue.Value);
-            }
-
-            builder.Append(";");
+                .Append("ALTER TABLE ")
+                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" ADD ");
+            ColumnDefinition(operation, model, builder);
         }
 
-        protected virtual void Generate(
-            [NotNull] DropSequenceOperation operation,
+        public virtual void Generate(
+            [NotNull] AddForeignKeyOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder)
         {
@@ -94,22 +77,53 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             Check.NotNull(builder, nameof(builder));
 
             builder
-                .Append("DROP SEQUENCE ")
-                .Append(_sql.DelimitIdentifier(operation.Name, operation.Schema))
-                .Append(";");
+                .Append("ALTER TABLE ")
+                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" ADD ");
+            ForeignKeyConstraint(operation, model, builder);
         }
 
-        protected abstract void Generate(
-            [NotNull] RenameSequenceOperation operation,
+        public virtual void Generate(
+            [NotNull] AddPrimaryKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("ALTER TABLE ")
+                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" ADD ");
+            PrimaryKeyConstraint(operation, model, builder);
+        }
+
+        public virtual void Generate(
+            [NotNull] AddUniqueConstraintOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("ALTER TABLE ")
+                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" ADD ");
+            UniqueConstraint(operation, model, builder);
+        }
+
+        public abstract void Generate(
+            [NotNull] AlterColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder);
 
-        protected abstract void Generate(
-            [NotNull] MoveSequenceOperation operation,
+        public abstract void Generate(
+            [NotNull] RenameIndexOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder);
 
-        protected virtual void Generate(
+        public virtual void Generate(
             [NotNull] AlterSequenceOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder)
@@ -119,36 +133,82 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
 
             builder
                 .Append("ALTER SEQUENCE ")
-                .Append(_sql.DelimitIdentifier(operation.Name, operation.Schema))
-                .Append(" INCREMENT BY ")
-                .Append(operation.IncrementBy);
+                .Append(_sql.DelimitIdentifier(operation.Name, operation.Schema));
 
-            if (operation.MinValue.HasValue)
-            {
-                builder
-                    .Append(" MINVALUE ")
-                    .Append(operation.MinValue.Value);
-            }
-            else
-            {
-                builder.Append(" NO MINVALUE");
-            }
-
-            if (operation.MaxValue.HasValue)
-            {
-                builder
-                    .Append(" MAXVALUE ")
-                    .Append(operation.MaxValue.Value);
-            }
-            else
-            {
-                builder.Append(" NO MAXVALUE");
-            }
-
-            builder.Append(";");
+            SequenceOptions(operation, model, builder);
         }
 
-        protected virtual void Generate(
+        public abstract void Generate(
+            [NotNull] RenameTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder);
+
+        public virtual void Generate(
+            [NotNull] CreateIndexOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.Append("CREATE ");
+
+            if (operation.IsUnique)
+            {
+                builder.Append("UNIQUE ");
+            }
+
+            IndexTraits(operation, model, builder);
+
+            builder
+                .Append("INDEX ")
+                .Append(_sql.DelimitIdentifier(operation.Name))
+                .Append(" ON ")
+                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" (")
+                .Append(ColumnList(operation.Columns))
+                .Append(")");
+        }
+
+        public virtual void Generate(
+            [NotNull] CreateSchemaOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("CREATE SCHEMA ")
+                .Append(_sql.DelimitIdentifier(operation.Name));
+        }
+
+        public virtual void Generate(
+            [NotNull] CreateSequenceOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("CREATE SEQUENCE ")
+                .Append(_sql.DelimitIdentifier(operation.Name, operation.Schema));
+
+            if (operation.Type != null)
+            {
+                builder
+                    .Append(" AS ")
+                    .Append(operation.Type);
+            }
+
+            builder
+                .Append(" START WITH ")
+                .Append(_sql.GenerateLiteral(operation.StartWith));
+            SequenceOptions(operation, model, builder);
+        }
+
+        public virtual void Generate(
             [NotNull] CreateTableOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder)
@@ -163,88 +223,42 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
 
             using (builder.Indent())
             {
-                GenerateColumns(operation.Columns, builder);
+                for (var i = 0; i < operation.Columns.Count; i++)
+                {
+                    var column = operation.Columns[i];
+                    ColumnDefinition(column, model, builder);
 
-                GenerateTableConstraints(operation, builder);
+                    if (i != operation.Columns.Count - 1)
+                    {
+                        builder.AppendLine(",");
+                    }
+                }
+
+                if (operation.PrimaryKey != null)
+                {
+                    builder.AppendLine(",");
+                    PrimaryKeyConstraint(operation.PrimaryKey, model, builder);
+                }
+
+                foreach (var uniqueConstraint in operation.UniqueConstraints)
+                {
+                    builder.AppendLine(",");
+                    UniqueConstraint(uniqueConstraint, model, builder);
+                }
+
+                foreach (var foreignKey in operation.ForeignKeys)
+                {
+                    builder.AppendLine(",");
+                    ForeignKeyConstraint(foreignKey, model, builder);
+                }
+
+                builder.AppendLine();
             }
 
-            builder
-                .AppendLine()
-                .Append(");");
+            builder.Append(")");
         }
 
-        protected virtual void GenerateTableConstraints(
-            [NotNull] CreateTableOperation operation,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            if (operation.PrimaryKey != null)
-            {
-                builder.AppendLine(",");
-
-                GeneratePrimaryKey(operation.PrimaryKey, builder);
-            }
-
-            foreach (var uniqueConstraint in operation.UniqueConstraints)
-            {
-                builder.AppendLine(",");
-
-                GenerateUniqueConstraint(uniqueConstraint, builder);
-            }
-
-            foreach (var foreignKey in operation.ForeignKeys)
-            {
-                builder.AppendLine(",");
-
-                GenerateForeignKey(foreignKey, builder);
-            }
-        }
-
-        protected virtual void Generate(
-            [NotNull] DropTableOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append("DROP TABLE ")
-                .Append(_sql.DelimitIdentifier(operation.Name, operation.Schema))
-                .Append(";");
-        }
-
-        protected abstract void Generate(
-            [NotNull] RenameTableOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder);
-
-        protected abstract void Generate(
-            [NotNull] MoveTableOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder);
-
-        protected virtual void Generate(
-            [NotNull] AddColumnOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append("ALTER TABLE ")
-                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" ADD ");
-
-            GenerateColumn(operation.Column, builder);
-
-            builder.Append(";");
-        }
-
-        protected virtual void Generate(
+        public virtual void Generate(
             [NotNull] DropColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder)
@@ -256,122 +270,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
                 .Append("ALTER TABLE ")
                 .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP COLUMN ")
-                .Append(_sql.DelimitIdentifier(operation.Name))
-                .Append(";");
+                .Append(_sql.DelimitIdentifier(operation.Name));
         }
 
-        protected virtual void Generate(
-            [NotNull] AlterColumnOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            var column = operation.Column;
-
-            builder
-                .Append("ALTER TABLE ")
-                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" ALTER COLUMN ");
-
-            GenerateColumn(column, builder);
-
-            builder.Append(";");
-        }
-
-        protected abstract void Generate(
-            [NotNull] RenameColumnOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder);
-
-        protected virtual void Generate(
-            [NotNull] AddPrimaryKeyOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append("ALTER TABLE ")
-                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" ADD ");
-
-            GeneratePrimaryKey(operation, builder);
-
-            builder.Append(";");
-        }
-
-        protected virtual void Generate(
-            [NotNull] DropPrimaryKeyOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append("ALTER TABLE ")
-                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" DROP CONSTRAINT ")
-                .Append(_sql.DelimitIdentifier(operation.Name))
-                .Append(";");
-        }
-
-        protected virtual void Generate(
-            [NotNull] AddUniqueConstraintOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append("ALTER TABLE ")
-                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" ADD ");
-
-            GenerateUniqueConstraint(operation, builder);
-
-            builder.Append(";");
-        }
-
-        protected virtual void Generate(
-            [NotNull] DropUniqueConstraintOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append("ALTER TABLE ")
-                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" DROP CONSTRAINT ")
-                .Append(_sql.DelimitIdentifier(operation.Name))
-                .Append(";");
-        }
-
-        protected virtual void Generate(
-            [NotNull] AddForeignKeyOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append("ALTER TABLE ")
-                .Append(_sql.DelimitIdentifier(operation.DependentTable, operation.DependentSchema))
-                .Append(" ADD ");
-
-            GenerateForeignKey(operation, builder);
-
-            builder.Append(";");
-        }
-
-        protected virtual void Generate(
+        public virtual void Generate(
             [NotNull] DropForeignKeyOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder)
@@ -383,63 +285,109 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
                 .Append("ALTER TABLE ")
                 .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP CONSTRAINT ")
-                .Append(_sql.DelimitIdentifier(operation.Name))
-                .Append(";");
+                .Append(_sql.DelimitIdentifier(operation.Name));
         }
 
-        protected virtual void Generate(
-            [NotNull] CreateIndexOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder.Append("CREATE ");
-
-            if (operation.Unique)
-            {
-                builder.Append("UNIQUE ");
-            }
-
-            GenerateIndexTraits(operation, builder);
-
-            builder
-                .Append("INDEX ")
-                .Append(_sql.DelimitIdentifier(operation.Name))
-                .Append(" ON ")
-                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" (")
-                .Append(string.Join(", ", operation.Columns.Select(_sql.DelimitIdentifier)))
-                .Append(");");
-        }
-
-        protected virtual void GenerateIndexTraits(
-            [NotNull] CreateIndexOperation operation,
-            [NotNull] SqlBatchBuilder builder)
-        {
-        }
-
-        protected virtual void Generate(
+        public abstract void Generate(
             [NotNull] DropIndexOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append("DROP INDEX ")
-                .Append(_sql.DelimitIdentifier(operation.Name, operation.Schema))
-                .Append(";");
-        }
-
-        protected abstract void Generate(
-            [NotNull] RenameIndexOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder);
 
-        protected virtual void Generate(
+        public virtual void Generate(
+            [NotNull] DropPrimaryKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("ALTER TABLE ")
+                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" DROP CONSTRAINT ")
+                .Append(_sql.DelimitIdentifier(operation.Name));
+        }
+
+        public virtual void Generate(
+            [NotNull] DropSchemaOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("DROP SCHEMA ")
+                .Append(_sql.DelimitIdentifier(operation.Name));
+        }
+
+        public virtual void Generate(
+            [NotNull] DropSequenceOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("DROP SEQUENCE ")
+                .Append(_sql.DelimitIdentifier(operation.Name, operation.Schema));
+        }
+
+        public virtual void Generate(
+            [NotNull] DropTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("DROP TABLE ")
+                .Append(_sql.DelimitIdentifier(operation.Name, operation.Schema));
+        }
+
+        public virtual void Generate(
+            [NotNull] DropUniqueConstraintOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("ALTER TABLE ")
+                .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" DROP CONSTRAINT ")
+                .Append(_sql.DelimitIdentifier(operation.Name));
+        }
+
+        public abstract void Generate(
+            [NotNull] RenameColumnOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder);
+
+        public abstract void Generate(
+            [NotNull] RenameSequenceOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder);
+
+        public virtual void Generate(
+            [NotNull] RestartSequenceOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("ALTER SEQUENCE ")
+                .Append(_sql.DelimitIdentifier(operation.Name, operation.Schema))
+                .Append(" RESTART WITH ")
+                .Append(_sql.GenerateLiteral(operation.RestartWith));
+        }
+
+        public virtual void Generate(
             [NotNull] SqlOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder)
@@ -450,157 +398,261 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             builder.Append(operation.Sql, operation.SuppressTransaction);
         }
 
-        protected virtual void Generate(
-            [NotNull] AlterTableOperation operation,
+        public virtual void SequenceOptions(
+            [NotNull] AlterSequenceOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder) =>
+            SequenceOptions(
+                operation.Schema,
+                operation.Name,
+                operation.IncrementBy,
+                operation.MinValue,
+                operation.MaxValue,
+                operation.Cycle,
+                model,
+                builder);
+
+        public virtual void SequenceOptions(
+            [NotNull] CreateSequenceOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder) =>
+            SequenceOptions(
+                operation.Schema,
+                operation.Name,
+                operation.IncrementBy,
+                operation.MinValue,
+                operation.MaxValue,
+                operation.Cycle,
+                model,
+                builder);
+
+        private void SequenceOptions(
+            [CanBeNull] string schema,
+            [NotNull] string name,
+            [NotNull] int? increment,
+            long? minimumValue,
+            long? maximumValue,
+            [NotNull] bool? cycle,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(increment, nameof(increment));
+            Check.NotNull(cycle, nameof(cycle));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append(" INCREMENT BY ")
+                .Append(_sql.GenerateLiteral(increment));
+
+            if (minimumValue != null)
+            {
+                builder
+                    .Append(" MINVALUE ")
+                    .Append(_sql.GenerateLiteral(minimumValue));
+            }
+            else
+            {
+                builder.Append(" NO MINVALUE");
+            }
+
+            if (maximumValue != null)
+            {
+                builder
+                    .Append(" MAXVALUE ")
+                    .Append(_sql.GenerateLiteral(maximumValue));
+            }
+            else
+            {
+                builder.Append(" NO MAXVALUE");
+            }
+
+            builder.Append(cycle.Value ? " CYCLE" : " NO CYCLE");
+        }
+
+        public virtual void ColumnDefinition(
+            [NotNull] AddColumnOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder) =>
+            ColumnDefinition(
+                operation.Schema,
+                operation.Table,
+                operation.Name,
+                operation.Type,
+                operation.IsNullable,
+                operation.DefaultValue,
+                operation.DefaultExpression,
+                operation,
+                model,
+                builder);
+
+        public virtual void ColumnDefinition(
+            [CanBeNull] string schema,
+            [CanBeNull] string table,
+            [NotNull] string name,
+            [NotNull] string type,
+            bool nullable,
+            [CanBeNull] object defaultValue,
+            [CanBeNull] string defaultExpression,
+            [NotNull] IAnnotatable annotatable,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(type, nameof(type));
+            Check.NotNull(annotatable, nameof(annotatable));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append(_sql.DelimitIdentifier(name))
+                .Append(" ")
+                .Append(type);
+
+            if (!nullable)
+            {
+                builder.Append(" NOT NULL");
+            }
+
+            if (defaultExpression != null)
+            {
+                builder
+                    .Append(" DEFAULT (")
+                    .Append(defaultExpression)
+                    .Append(")");
+            }
+            else if (defaultValue != null)
+            {
+                builder
+                    .Append(" DEFAULT ")
+                    .Append(_sql.GenerateLiteral((dynamic)defaultValue));
+            }
+        }
+
+        public virtual void ForeignKeyConstraint(
+            [NotNull] AddForeignKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            if (operation.Name != null)
+            {
+                builder
+                    .Append("CONSTRAINT ")
+                    .Append(_sql.DelimitIdentifier(operation.Name))
+                    .Append(" ");
+            }
+
+            builder
+                .Append("FOREIGN KEY (")
+                .Append(ColumnList(operation.Columns))
+                .Append(") REFERENCES ")
+                .Append(_sql.DelimitIdentifier(operation.ReferencedTable, operation.ReferencedSchema));
+
+            if (operation.ReferencedColumns != null && operation.ReferencedColumns.Length != 0)
+            {
+                builder
+                    .Append(" (")
+                    .Append(ColumnList(operation.ReferencedColumns))
+                    .Append(")");
+            }
+
+            if (operation.OnUpdate != ReferentialAction.NoAction)
+            {
+                builder.Append(" ON UPDATE ");
+                ForeignKeyAction(operation.OnUpdate, builder);
+            }
+
+            if (operation.OnDelete != ReferentialAction.NoAction)
+            {
+                builder.Append(" ON DELETE ");
+                ForeignKeyAction(operation.OnDelete, builder);
+            }
+        }
+
+        public virtual void PrimaryKeyConstraint(
+            [NotNull] AddPrimaryKeyOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            if (operation.Name != null)
+            {
+                builder
+                    .Append("CONSTRAINT ")
+                    .Append(_sql.DelimitIdentifier(operation.Name))
+                    .Append(" ");
+            }
+
+            builder
+                .Append("PRIMARY KEY ");
+
+            IndexTraits(operation, model, builder);
+
+            builder.Append("(")
+                .Append(ColumnList(operation.Columns))
+                .Append(")");
+        }
+
+        public virtual void UniqueConstraint(
+            [NotNull] AddUniqueConstraintOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            if (operation.Name != null)
+            {
+                builder
+                    .Append("CONSTRAINT ")
+                    .Append(_sql.DelimitIdentifier(operation.Name))
+                    .Append(" ");
+            }
+
+            builder
+                .Append("UNIQUE ");
+
+            IndexTraits(operation, model, builder);
+
+            builder.Append("(")
+                .Append(ColumnList(operation.Columns))
+                .Append(")");
+        }
+
+        public virtual void IndexTraits(
+            [NotNull] MigrationOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder)
         {
         }
 
-        protected virtual void GenerateColumns(
-            [NotNull] IReadOnlyList<ColumnModel> columns,
+        public virtual void ForeignKeyAction(
+            ReferentialAction referentialAction,
             [NotNull] SqlBatchBuilder builder)
         {
-            Check.NotNull(columns, nameof(columns));
             Check.NotNull(builder, nameof(builder));
 
-            var first = true;
-            foreach (var column in columns)
+            switch (referentialAction)
             {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    builder.AppendLine(",");
-                }
-
-                GenerateColumn(column, builder);
+                case ReferentialAction.Restrict:
+                    builder.Append("RESTRICT");
+                    break;
+                case ReferentialAction.Cascade:
+                    builder.Append("CASCADE");
+                    break;
+                case ReferentialAction.SetNull:
+                    builder.Append("SET NULL");
+                    break;
+                case ReferentialAction.SetDefault:
+                    builder.Append("SET DEFAULT");
+                    break;
             }
         }
 
-        protected virtual void GenerateColumn([NotNull] ColumnModel column, [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(column, nameof(column));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(_sql.DelimitIdentifier(column.Name))
-                .Append(" ");
-
-            builder.Append(column.StoreType);
-
-            if (!column.Nullable)
-            {
-                builder.Append(" NOT NULL");
-            }
-
-            GenerateColumnTraits(column, builder);
-
-            if (column.DefaultValueSql != null)
-            {
-                builder
-                    .Append(" DEFAULT ")
-                    .Append(column.DefaultValueSql);
-            }
-            else if (column.DefaultValue != null)
-            {
-                builder
-                    .Append(" DEFAULT ")
-                    .Append(_sql.GenerateLiteral((dynamic)column.DefaultValue));
-            }
-        }
-
-        protected virtual void GenerateColumnTraits(
-            [NotNull] ColumnModel column,
-            [NotNull] SqlBatchBuilder builder)
-        {
-        }
-
-        protected virtual void GeneratePrimaryKey(
-            [NotNull] AddPrimaryKeyOperation operation,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            if (operation.Name != null)
-            {
-                builder
-                    .Append("CONSTRAINT ")
-                    .Append(_sql.DelimitIdentifier(operation.Name))
-                    .Append(" ");
-            }
-
-            builder.Append("PRIMARY KEY");
-
-            GeneratePrimaryKeyTraits(operation, builder);
-
-            builder
-                .Append(" (")
-                .Append(string.Join(", ", operation.Columns.Select(_sql.DelimitIdentifier)))
-                .Append(")");
-        }
-
-        protected virtual void GeneratePrimaryKeyTraits(
-            [NotNull] AddPrimaryKeyOperation operation,
-            [NotNull] SqlBatchBuilder builder)
-        {
-        }
-
-        protected virtual void GenerateUniqueConstraint(
-            [NotNull] AddUniqueConstraintOperation operation,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            if (operation.Name != null)
-            {
-                builder
-                    .Append("CONSTRAINT ")
-                    .Append(_sql.DelimitIdentifier(operation.Name))
-                    .Append(" ");
-            }
-
-            builder.Append("UNIQUE (")
-                .Append(string.Join(", ", operation.Columns.Select(_sql.DelimitIdentifier)))
-                .Append(")");
-        }
-
-        protected virtual void GenerateForeignKey(
-            [NotNull] AddForeignKeyOperation operation,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            if (operation.Name != null)
-            {
-                builder
-                    .Append("CONSTRAINT ")
-                    .Append(_sql.DelimitIdentifier(operation.Name))
-                    .Append(" ");
-            }
-
-            builder.Append("FOREIGN KEY (")
-                .Append(string.Join(", ", operation.DependentColumns.Select(_sql.DelimitIdentifier)))
-                .Append(") REFERENCES ")
-                .Append(_sql.DelimitIdentifier(operation.PrincipalTable, operation.PrincipalSchema));
-
-            if (operation.PrincipalColumns.Any())
-            {
-                builder
-                    .Append(" (")
-                    .Append(string.Join(", ", operation.PrincipalColumns.Select(_sql.DelimitIdentifier)))
-                    .Append(")");
-            }
-
-            if (operation.CascadeDelete)
-            {
-                builder.Append(" ON DELETE CASCADE");
-            }
-        }
+        private string ColumnList(string[] columns) => string.Join(", ", columns.Select(_sql.DelimitIdentifier));
     }
 }

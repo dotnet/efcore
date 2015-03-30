@@ -29,7 +29,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
                 increment,
                 _sequence.MinValue,
                 _sequence.MaxValue,
-                _sequence.Type);
+                _sequence.Type,
+                _sequence.Cycle);
 
             model.Relational().AddOrReplaceSequence(_sequence);
 
@@ -47,7 +48,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
                 _sequence.IncrementBy,
                 _sequence.MinValue,
                 _sequence.MaxValue,
-                _sequence.Type);
+                _sequence.Type,
+                _sequence.Cycle);
 
             model.Relational().AddOrReplaceSequence(_sequence);
 
@@ -65,7 +67,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
                 _sequence.IncrementBy,
                 _sequence.MinValue,
                 _sequence.MaxValue,
-                typeof(T));
+                typeof(T),
+                _sequence.Cycle);
 
             model.Relational().AddOrReplaceSequence(_sequence);
 
@@ -83,7 +86,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
                 _sequence.IncrementBy,
                 _sequence.MinValue,
                 maximum,
-                _sequence.Type);
+                _sequence.Type,
+                _sequence.Cycle);
 
             model.Relational().AddOrReplaceSequence(_sequence);
 
@@ -101,7 +105,27 @@ namespace Microsoft.Data.Entity.Relational.Metadata
                 _sequence.IncrementBy,
                 minimum,
                 _sequence.MaxValue,
-                _sequence.Type);
+                _sequence.Type,
+                _sequence.Cycle);
+
+            model.Relational().AddOrReplaceSequence(_sequence);
+
+            return this;
+        }
+
+        public virtual RelationalSequenceBuilder Cycle(bool cycle = true)
+        {
+            var model = (Model)_sequence.Model;
+
+            _sequence = new Sequence(
+                _sequence.Name,
+                _sequence.Schema,
+                _sequence.StartValue,
+                _sequence.IncrementBy,
+                _sequence.MinValue,
+                _sequence.MaxValue,
+                _sequence.Type,
+                cycle);
 
             model.Relational().AddOrReplaceSequence(_sequence);
 

@@ -1,12 +1,11 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -14,348 +13,581 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
 {
     public class MigrationBuilder
     {
-        private readonly List<MigrationOperation> _operations = new List<MigrationOperation>();
+        public virtual ICollection<MigrationOperation> Operations { get; } = new List<MigrationOperation>();
 
-        // TODO: Expose collection directly?
-        public virtual IReadOnlyList<MigrationOperation> Operations => _operations;
-
-        // TODO: Hide?
-        public virtual void AddOperation([NotNull] MigrationOperation operation) => _operations.Add(operation);
-
-        // TODO: Cycle option? (See #1777)
-        public virtual void CreateSequence(
+        public virtual OperationBuilder<AddColumnOperation> AddColumn(
             [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string type,
             [CanBeNull] string schema = null,
-            [CanBeNull] string storeType = null,
-            long startValue = Sequence.DefaultStartValue,
-            int incrementBy = Sequence.DefaultIncrement,
-            [CanBeNull] long? minValue = null,
-            [CanBeNull] long? maxValue = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(
-                    new CreateSequenceOperation(
-                        name,
-                        schema,
-                        startValue,
-                        incrementBy,
-                        minValue,
-                        maxValue,
-                        storeType,
-                        annotations));
-
-        public virtual void DropSequence(
-            [NotNull] string name,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new DropSequenceOperation(name, schema, annotations));
-
-        public virtual void RenameSequence(
-            [NotNull] string name,
-            [NotNull] string newName,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new RenameSequenceOperation(name, schema, newName, annotations));
-
-        public virtual void MoveSequence(
-            [NotNull] string name,
-            [NotNull] string newSchema,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new MoveSequenceOperation(name, schema, newSchema, annotations));
-
-        // TODO: Type, start?
-        public virtual void AlterSequence(
-            [NotNull] string name,
-            [CanBeNull] string schema = null,
-            int incrementBy = Sequence.DefaultIncrement,
-            [CanBeNull] long? minValue = null,
-            [CanBeNull] long? maxValue = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new AlterSequenceOperation(name, schema, incrementBy, minValue, maxValue, annotations));
-
-        public virtual TableBuilder<TColumns> CreateTable<TColumns>(
-            [NotNull] string name,
-            [NotNull] Func<ColumnBuilder, TColumns> columnBuilder,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                CreateTable(name, /*schema:*/ null, columnBuilder, annotations);
-
-        public virtual TableBuilder<TColumns> CreateTable<TColumns>(
-            [NotNull] string name,
-            [CanBeNull] string schema,
-            [NotNull] Func<ColumnBuilder, TColumns> columnsAction,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null)
+            bool nullable = false,
+            [CanBeNull] object defaultValue = null,
+            [CanBeNull] string defaultExpression = null)
         {
-            Check.NotNull(columnsAction, nameof(columnsAction));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(table, nameof(table));
+            Check.NotEmpty(type, nameof(type));
 
-            var createTableOperation = new CreateTableOperation(name, schema, annotations);
-            AddOperation(createTableOperation);
+            var operation = new AddColumnOperation
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                Type = type,
+                IsNullable = nullable,
+                DefaultValue = defaultValue,
+                DefaultExpression = defaultExpression
+            };
+            Operations.Add(operation);
 
-            // TODO: Can this be simplified?
-            IDictionary<PropertyInfo, ColumnModel> propertyInfoToColumnMap;
-            var columns = GetColumns(columnsAction(new ColumnBuilder()), out propertyInfoToColumnMap);
-            createTableOperation.Columns.AddRange(columns);
-
-            return new TableBuilder<TColumns>(createTableOperation, propertyInfoToColumnMap);
+            return new OperationBuilder<AddColumnOperation>(operation);
         }
 
-        private static IReadOnlyList<ColumnModel> GetColumns<TColumns>(
-            TColumns columnSpec,
-            out IDictionary<PropertyInfo, ColumnModel> propertyInfoToColumnMap)
+        public virtual OperationBuilder<AddForeignKeyOperation> AddForeignKey(
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string column,
+            [NotNull] string referencedTable,
+            [CanBeNull] string schema = null,
+            [CanBeNull] string referencedSchema = null,
+            [CanBeNull] string referencedColumn = null,
+            ReferentialAction onUpdate = ReferentialAction.NoAction,
+            ReferentialAction onDelete = ReferentialAction.NoAction) =>
+            AddForeignKey(
+                name,
+                table,
+                new[] { column },
+                referencedTable,
+                schema,
+                referencedSchema,
+                new[] { referencedColumn },
+                onUpdate,
+                onDelete);
+
+        public virtual OperationBuilder<AddForeignKeyOperation> AddForeignKey(
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string[] columns,
+            [NotNull] string referencedTable,
+            [CanBeNull] string schema = null,
+            [CanBeNull] string referencedSchema = null,
+            [CanBeNull] string[] referencedColumns = null,
+            ReferentialAction onUpdate = ReferentialAction.NoAction,
+            ReferentialAction onDelete = ReferentialAction.NoAction)
         {
-            var columns = new List<ColumnModel>();
-            propertyInfoToColumnMap = new Dictionary<PropertyInfo, ColumnModel>();
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(table, nameof(table));
+            Check.NotEmpty(columns, nameof(columns));
+            Check.NotEmpty(referencedTable, nameof(referencedTable));
 
-            var properties = columnSpec.GetType().GetRuntimeProperties()
-                .Where(p => IsPublic(p) && !p.GetIndexParameters().Any());
-            foreach (var propertyInfo in properties)
+            var operation = new AddForeignKeyOperation
             {
-                var column = propertyInfo.GetValue(columnSpec, null) as ColumnModel;
+                Schema = schema,
+                Table = table,
+                Name = name,
+                Columns = columns,
+                ReferencedSchema = referencedSchema,
+                ReferencedTable = referencedTable,
+                ReferencedColumns = referencedColumns,
+                OnUpdate = onUpdate,
+                OnDelete = onDelete
+            };
+            Operations.Add(operation);
 
-                if (column != null)
+            return new OperationBuilder<AddForeignKeyOperation>(operation);
+        }
+
+        public virtual OperationBuilder<AddPrimaryKeyOperation> AddPrimaryKey(
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string column,
+            [CanBeNull] string schema = null) =>
+            AddPrimaryKey(
+                name,
+                table,
+                new[] { column },
+                schema);
+
+        public virtual OperationBuilder<AddPrimaryKeyOperation> AddPrimaryKey(
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string[] columns,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(table, nameof(table));
+            Check.NotEmpty(columns, nameof(columns));
+
+            var operation = new AddPrimaryKeyOperation
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                Columns = columns
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<AddPrimaryKeyOperation>(operation);
+        }
+
+        public virtual OperationBuilder<AddUniqueConstraintOperation> AddUniqueConstraint(
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string column,
+            [CanBeNull] string schema = null) =>
+            AddUniqueConstraint(
+                name,
+                table,
+                new[] { column },
+                schema);
+
+        public virtual OperationBuilder<AddUniqueConstraintOperation> AddUniqueConstraint(
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string[] columns,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(table, nameof(table));
+            Check.NotEmpty(columns, nameof(columns));
+
+            var operation = new AddUniqueConstraintOperation
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                Columns = columns
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<AddUniqueConstraintOperation>(operation);
+        }
+
+        public virtual OperationBuilder<AlterColumnOperation> AlterColumn(
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string type,
+            [CanBeNull] string schema = null,
+            bool nullable = false,
+            [CanBeNull] object defaultValue = null,
+            [CanBeNull] string defaultExpression = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(table, nameof(table));
+
+            var operation = new AlterColumnOperation
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                Type = type,
+                IsNullable = nullable,
+                DefaultValue = defaultValue,
+                DefaultExpression = defaultExpression
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<AlterColumnOperation>(operation);
+        }
+
+        public virtual OperationBuilder<AlterSequenceOperation> AlterSequence(
+            [NotNull] string name,
+            [CanBeNull] string schema = null,
+            [CanBeNull] int? incrementBy = null,
+            [CanBeNull] long? minValue = null,
+            [CanBeNull] long? maxValue = null,
+            bool cycle = false)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var operation = new AlterSequenceOperation
+            {
+                Schema = schema,
+                Name = name,
+                IncrementBy = incrementBy,
+                MinValue = minValue,
+                MaxValue = maxValue,
+                Cycle = cycle
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<AlterSequenceOperation>(operation);
+        }
+
+        public virtual OperationBuilder<CreateIndexOperation> CreateIndex(
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string column,
+            [CanBeNull] string schema = null,
+            bool unique = false) =>
+            CreateIndex(
+                name,
+                table,
+                new[] { column },
+                schema,
+                unique);
+
+        public virtual OperationBuilder<CreateIndexOperation> CreateIndex(
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string[] columns,
+            [CanBeNull] string schema = null,
+            bool unique = false)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(table, nameof(table));
+            Check.NotEmpty(columns, nameof(columns));
+
+            var operation = new CreateIndexOperation
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                Columns = columns,
+                IsUnique = unique
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<CreateIndexOperation>(operation);
+        }
+
+        public virtual OperationBuilder<CreateSchemaOperation> CreateSchema(
+            [NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var operation = new CreateSchemaOperation
+            {
+                Name = name
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<CreateSchemaOperation>(operation);
+        }
+
+        public virtual OperationBuilder<CreateSequenceOperation> CreateSequence(
+            [NotNull] string name,
+            [CanBeNull] string schema = null,
+            [CanBeNull] string type = null,
+            [CanBeNull] long? startWith = null,
+            [CanBeNull] int? incrementBy = null,
+            [CanBeNull] long? minValue = null,
+            [CanBeNull] long? maxValue = null,
+            bool cycle = false)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var operation = new CreateSequenceOperation
+            {
+                Schema = schema,
+                Name = name,
+                Type = type,
+                StartWith = startWith,
+                IncrementBy = incrementBy,
+                MinValue = minValue,
+                MaxValue = maxValue,
+                Cycle = cycle
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<CreateSequenceOperation>(operation);
+        }
+
+        public virtual CreateTableBuilder<TColumns> CreateTable<TColumns>(
+            [NotNull] string name,
+            [NotNull] Func<ColumnsBuilder, TColumns> columns,
+            [CanBeNull] string schema = null,
+            [CanBeNull] Action<CreateTableBuilder<TColumns>> constraints = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(columns, nameof(columns));
+
+            var createTableOperation = new CreateTableOperation
+            {
+                Schema = schema,
+                Name = name
+            };
+
+            var columnsBuilder = new ColumnsBuilder(createTableOperation);
+            var columnsObject = columns(columnsBuilder);
+            var columnMap = new Dictionary<PropertyInfo, AddColumnOperation>();
+            foreach (var property in typeof(TColumns).GetTypeInfo().DeclaredProperties)
+            {
+                var addColumnOperation = ((IAccessor<AddColumnOperation>)property.GetMethod.Invoke(columnsObject, null)).Service;
+                if (addColumnOperation.Name == null)
                 {
-                    propertyInfoToColumnMap.Add(propertyInfo, column);
-
-                    if (string.IsNullOrWhiteSpace(column.Name))
-                    {
-                        column.Name = propertyInfo.Name;
-                    }
-
-                    columns.Add(column);
+                    addColumnOperation.Name = property.Name;
                 }
+                columnMap.Add(property, addColumnOperation);
             }
 
-            return columns;
+            var builder = new CreateTableBuilder<TColumns>(createTableOperation, columnMap);
+            if (constraints != null)
+            {
+                constraints(builder);
+            }
+
+            Operations.Add(createTableOperation);
+
+            return builder;
         }
 
-        private static bool IsPublic(PropertyInfo property)
-        {
-            var getter = property.GetMethod;
-            var getterAccess = getter == null ? MethodAttributes.Private : (getter.Attributes & MethodAttributes.MemberAccessMask);
-
-            var setter = property.SetMethod;
-            var setterAccess = setter == null ? MethodAttributes.Private : (setter.Attributes & MethodAttributes.MemberAccessMask);
-
-            var propertyAccess = getterAccess > setterAccess ? getterAccess : setterAccess;
-
-            return propertyAccess == MethodAttributes.Public;
-        }
-
-        public virtual void DropTable(
+        public virtual OperationBuilder<DropColumnOperation> DropColumn(
             [NotNull] string name,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new DropTableOperation(name, schema, annotations));
+            [NotNull] string table,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(table, nameof(table));
 
-        public virtual void RenameTable(
+            var operation = new DropColumnOperation
+            {
+                Schema = schema,
+                Table = table,
+                Name = name
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<DropColumnOperation>(operation);
+        }
+
+        public virtual OperationBuilder<DropForeignKeyOperation> DropForeignKey(
+            [NotNull] string name,
+            [NotNull] string table,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(table, nameof(table));
+
+            var operation = new DropForeignKeyOperation
+            {
+                Schema = schema,
+                Table = table,
+                Name = name
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<DropForeignKeyOperation>(operation);
+        }
+
+        public virtual OperationBuilder<DropIndexOperation> DropIndex(
+            [NotNull] string name,
+            [CanBeNull] string table = null,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var operation = new DropIndexOperation
+            {
+                Schema = schema,
+                Table = table,
+                Name = name
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<DropIndexOperation>(operation);
+        }
+
+        public virtual OperationBuilder<DropPrimaryKeyOperation> DropPrimaryKey(
+            [NotNull] string name,
+            [NotNull] string table,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(table, nameof(table));
+
+            var operation = new DropPrimaryKeyOperation
+            {
+                Schema = schema,
+                Table = table,
+                Name = name
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<DropPrimaryKeyOperation>(operation);
+        }
+
+        public virtual OperationBuilder<DropSchemaOperation> DropSchema(
+            [NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var operation = new DropSchemaOperation
+            {
+                Name = name
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<DropSchemaOperation>(operation);
+        }
+
+        public virtual OperationBuilder<DropSequenceOperation> DropSequence(
+            [NotNull] string name,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var operation = new DropSequenceOperation
+            {
+                Schema = schema,
+                Name = name
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<DropSequenceOperation>(operation);
+        }
+
+        public virtual OperationBuilder<DropTableOperation> DropTable(
+            [NotNull] string name,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var operation = new DropTableOperation
+            {
+                Schema = schema,
+                Name = name
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<DropTableOperation>(operation);
+        }
+
+        public virtual OperationBuilder<DropUniqueConstraintOperation> DropUniqueConstraint(
+            [NotNull] string name,
+            [NotNull] string table,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(table, nameof(table));
+
+            var operation = new DropUniqueConstraintOperation
+            {
+                Schema = schema,
+                Table = table,
+                Name = name
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<DropUniqueConstraintOperation>(operation);
+        }
+
+        public virtual OperationBuilder<RenameColumnOperation> RenameColumn(
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string newName,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(table, nameof(table));
+            Check.NotEmpty(newName, nameof(newName));
+
+            var operation = new RenameColumnOperation
+            {
+                Name = name,
+                Schema = schema,
+                Table = table,
+                NewName = newName
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<RenameColumnOperation>(operation);
+        }
+
+        public virtual OperationBuilder<RenameIndexOperation> RenameIndex(
             [NotNull] string name,
             [NotNull] string newName,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new RenameTableOperation(name, schema, newName, annotations));
-
-        public virtual void MoveTable(
-            [NotNull] string name,
-            [NotNull] string newSchema,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new MoveTableOperation(name, schema, newSchema, annotations));
-
-        public virtual void AlterTable(
-            [NotNull] string name,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new AlterTableOperation(name, schema, annotations));
-
-        public virtual void AddColumn(
-            [NotNull] string table,
-            [NotNull] string name,
-            [NotNull] Func<ColumnBuilder, ColumnModel> columnAction,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null)
+            [CanBeNull] string table = null,
+            [CanBeNull] string schema = null)
         {
-            Check.NotNull(columnAction, nameof(columnAction));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(newName, nameof(newName));
 
-            var column = columnAction(new ColumnBuilder());
-            column.Name = name;
+            var operation = new RenameIndexOperation
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                NewName = newName
+            };
+            Operations.Add(operation);
 
-            AddOperation(new AddColumnOperation(table, schema, column, annotations));
+            return new OperationBuilder<RenameIndexOperation>(operation);
         }
 
-        public virtual void DropColumn(
-            [NotNull] string table,
+        public virtual OperationBuilder<RenameSequenceOperation> RenameSequence(
             [NotNull] string name,
             [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new DropColumnOperation(table, schema, name, annotations));
-
-        public virtual void RenameColumn(
-            [NotNull] string table,
-            [NotNull] string name,
-            [NotNull] string newName,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new RenameColumnOperation(table, schema, name, newName, annotations));
-
-        public virtual void AlterColumn(
-            [NotNull] string table,
-            [NotNull] string name,
-            [NotNull] Func<ColumnBuilder, ColumnModel> columnAction,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AlterColumn(table, /*schema:*/ null, name, columnAction, annotations);
-
-        public virtual void AlterColumn(
-            [NotNull] string table,
-            [CanBeNull] string schema,
-            [NotNull] string name,
-            [NotNull] Func<ColumnBuilder, ColumnModel> columnAction,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null)
+            [CanBeNull] string newName = null,
+            [CanBeNull] string newSchema = null)
         {
-            Check.NotNull(columnAction, nameof(columnAction));
+            Check.NotEmpty(name, nameof(name));
 
-            // TODO: Throw on attempts to rename
-            var column = columnAction(new ColumnBuilder());
-            column.Name = name;
+            var operation = new RenameSequenceOperation
+            {
+                Name = name,
+                Schema = schema,
+                NewName = newName,
+                NewSchema = newSchema
+            };
+            Operations.Add(operation);
 
-            AddOperation(new AlterColumnOperation(table, schema, column, annotations));
+            return new OperationBuilder<RenameSequenceOperation>(operation);
         }
 
-        public virtual void AddPrimaryKey(
-            [NotNull] string table,
-            [NotNull] string column,
-            [CanBeNull] string schema = null,
-            [CanBeNull] string name = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddPrimaryKey(table, new[] { column }, schema, name, annotations);
-
-        public virtual void AddPrimaryKey(
-            [NotNull] string table,
-            [NotNull] IReadOnlyList<string> columns,
-            [CanBeNull] string schema = null,
-            [CanBeNull] string name = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new AddPrimaryKeyOperation(table, schema, name, columns, annotations));
-
-        public virtual void DropPrimaryKey(
-            [NotNull] string table,
+        public virtual OperationBuilder<RenameTableOperation> RenameTable(
             [NotNull] string name,
             [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new DropPrimaryKeyOperation(table, schema, name, annotations));
+            [CanBeNull] string newName = null,
+            [CanBeNull] string newSchema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
 
-        public virtual void AddUniqueConstraint(
-            [NotNull] string table,
-            [NotNull] string column,
-            [CanBeNull] string schema = null,
-            [CanBeNull] string name = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddUniqueConstraint(table, new[] { column }, schema, name, annotations);
+            var operation = new RenameTableOperation
+            {
+                Schema = schema,
+                Name = name,
+                NewName = newName,
+                NewSchema = newSchema
+            };
+            Operations.Add(operation);
 
-        public virtual void AddUniqueConstraint(
-            [NotNull] string table,
-            [NotNull] IReadOnlyList<string> columns,
-            [CanBeNull] string schema = null,
-            [CanBeNull] string name = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new AddUniqueConstraintOperation(table, schema, name, columns, annotations));
+            return new OperationBuilder<RenameTableOperation>(operation);
+        }
 
-        public virtual void DropUniqueConstraint(
-            [NotNull] string table,
+        public virtual OperationBuilder<RestartSequenceOperation> RestartSequence(
             [NotNull] string name,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new DropUniqueConstraintOperation(table, schema, name, annotations));
+            long with,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, nameof(name));
 
-        public virtual void AddForeignKey(
-            [NotNull] string dependentTable,
-            [NotNull] string dependentColumn,
-            [NotNull] string principalTable,
-            [CanBeNull] string dependentSchema = null,
-            [CanBeNull] string principalSchema = null,
-            [CanBeNull] string principalColumn = null,
-            bool cascadeDelete = false,
-            [CanBeNull] string name = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddForeignKey(
-                    dependentTable,
-                    new[] { dependentColumn },
-                    principalTable,
-                    dependentSchema,
-                    principalSchema,
-                    new[] { principalColumn },
-                    cascadeDelete,
-                    name,
-                    annotations);
+            var operation = new RestartSequenceOperation
+            {
+                Name = name,
+                Schema = schema,
+                RestartWith = with
+            };
+            Operations.Add(operation);
 
-        public virtual void AddForeignKey(
-            [NotNull] string dependentTable,
-            [NotNull] IReadOnlyList<string> dependentColumns,
-            [NotNull] string principalTable,
-            [CanBeNull] string dependentSchema = null,
-            [CanBeNull] string principalSchema = null,
-            [CanBeNull] IReadOnlyList<string> principalColumns = null,
-            bool cascadeDelete = false,
-            [CanBeNull] string name = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(
-                    new AddForeignKeyOperation(
-                        dependentTable,
-                        dependentSchema,
-                        name,
-                        dependentColumns,
-                        principalTable,
-                        principalSchema,
-                        principalColumns,
-                        cascadeDelete,
-                        annotations));
+            return new OperationBuilder<RestartSequenceOperation>(operation);
 
-        public virtual void DropForeignKey(
-            [NotNull] string table,
-            [NotNull] string name,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new DropForeignKeyOperation(table, schema, name, annotations));
+        }
 
-        public virtual void CreateIndex(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] string column,
-            [CanBeNull] string schema = null,
-            bool unique = false,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                CreateIndex(name, table, new[] { column }, schema, unique, annotations);
-
-        // TODO: Is name really required?
-        public virtual void CreateIndex(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] IReadOnlyList<string> columns,
-            [CanBeNull] string schema = null,
-            bool unique = false,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new CreateIndexOperation(name, table, schema, columns, unique, annotations));
-
-        // TODO: Is table really required?
-        public virtual void DropIndex(
-            [NotNull] string name,
-            [NotNull] string table,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new DropIndexOperation(name, table, schema, annotations));
-
-        // TODO: Is table really required?
-        public virtual void RenameIndex(
-            [NotNull] string name,
-            [NotNull] string newName,
-            [NotNull] string table,
-            [CanBeNull] string schema = null,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new RenameIndexOperation(table, schema, name, newName, annotations));
-
-        // TODO: SqlFile, SqlResource (See #1776)
-        public virtual void Sql(
+        public virtual OperationBuilder<SqlOperation> Sql(
             [NotNull] string sql,
-            bool suppressTransaction = false,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-                AddOperation(new SqlOperation(sql, suppressTransaction, annotations));
+            bool suppressTransaction = false)
+        {
+            Check.NotEmpty(sql, nameof(sql));
+
+            var operation = new SqlOperation
+            {
+                Sql = sql,
+                SuppressTransaction = suppressTransaction
+            };
+            Operations.Add(operation);
+
+            return new OperationBuilder<SqlOperation>(operation);
+        }
     }
 }

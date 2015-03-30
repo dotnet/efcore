@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Commands.Utilities
@@ -55,9 +54,9 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         [InlineData(
             (ushort)42,
             "(ushort)42")]
-        public void Literal_works(dynamic value, string expected)
+        public void Literal_works(object value, string expected)
         {
-            var literal = new CSharpHelper().Literal(value);
+            var literal = new CSharpHelper().UnknownLiteral(value);
             Assert.Equal(expected, literal);
         }
 
@@ -122,41 +121,25 @@ namespace Microsoft.Data.Entity.Commands.Utilities
                 "42");
 
         [Fact]
-        public void Literal_works_when_single_StringArray() =>
-            Literal_works(
-                new[] { "A" },
-                "\"A\"");
+        public void Literal_works_when_single_StringArray()
+        {
+            var literal = new CSharpHelper().Literal(new[] { "A" });
+            Assert.Equal("\"A\"", literal);
+        }
 
         [Fact]
-        public void Literal_works_when_many_StringArray() =>
-            Literal_works(
-                new[] { "A", "B" },
-                "new[] { \"A\", \"B\" }");
+        public void Literal_works_when_many_StringArray()
+        {
+            var literal = new CSharpHelper().Literal(new[] { "A", "B" });
+            Assert.Equal("new[] { \"A\", \"B\" }", literal);
+        }
 
         [Fact]
-        public void Literal_works_when_empty_DictionaryStringString() =>
-            Literal_works(
-                new Dictionary<string, string>(),
-                "new Dictionary<string, string> {  }");
-
-        [Fact]
-        public void Literal_works_when_single_DictionaryStringString() =>
-            Literal_works(
-                new Dictionary<string, string> { { "A", "a" } },
-                "new Dictionary<string, string> { { \"A\", \"a\" } }");
-
-        [Fact]
-        public void Literal_works_when_many_DictionaryStringString() =>
-            Literal_works(
-                new Dictionary<string, string> { { "A", "a" }, { "B", "b" } },
-                "new Dictionary<string, string> { { \"A\", \"a\" }, { \"B\", \"b\" } }");
-
-        [Fact]
-        public void Literal_throws_when_unknown()
+        public void UnknownLiteral_throws_when_unknown()
         {
             var ex = Assert.Throws<InvalidOperationException>(
-                () => new CSharpHelper().Literal((object)1));
-            Assert.Equal(Strings.UnknownLiteral(typeof(int)), ex.Message);
+                () => new CSharpHelper().UnknownLiteral(new object()));
+            Assert.Equal(Strings.UnknownLiteral(typeof(object)), ex.Message);
         }
     }
 }

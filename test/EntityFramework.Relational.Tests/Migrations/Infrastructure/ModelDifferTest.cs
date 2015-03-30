@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
 
             Assert.Equal(0, firstOperation.ForeignKeys.Count);
             Assert.Equal(1, secondOperation.ForeignKeys.Count);
-            Assert.Equal(firstOperation.Name, thirdOperation.DependentTable);
+            Assert.Equal(firstOperation.Name, thirdOperation.Table);
         }
     }
 }

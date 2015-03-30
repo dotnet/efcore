@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -69,15 +68,16 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 && (source.SqlServer().ComputedExpression != target.SqlServer().ComputedExpression
                     || sourceValueGenerationStrategy != targetValueGenerationStrategy))
             {
-                alterColumnOperation = new AlterColumnOperation(
-                    source.EntityType.Relational().Table,
-                    source.EntityType.Relational().Schema,
-                    new ColumnModel(
-                        source.Relational().Column,
-                        TypeMapper.GetTypeMapping(target).StoreTypeName,
-                        target.IsNullable,
-                        target.Relational().DefaultValue,
-                        target.Relational().DefaultExpression));
+                alterColumnOperation = new AlterColumnOperation
+                {
+                    Schema = source.EntityType.Relational().Schema,
+                    Table = source.EntityType.Relational().Table,
+                    Name = source.Relational().Column,
+                    Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
+                    IsNullable = target.IsNullable,
+                    DefaultValue = target.Relational().DefaultValue,
+                    DefaultExpression = target.Relational().DefaultExpression
+                };
                 operations.Add(alterColumnOperation);
             }
 
@@ -85,13 +85,13 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             {
                 if (targetValueGenerationStrategy == SqlServerValueGenerationStrategy.Identity)
                 {
-                    alterColumnOperation.Column[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration] =
+                    alterColumnOperation[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration] =
                         targetValueGenerationStrategy.ToString();
                 }
 
                 if (target.SqlServer().ComputedExpression != null)
                 {
-                    alterColumnOperation.Column[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ColumnComputedExpression] =
+                    alterColumnOperation[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ColumnComputedExpression] =
                         target.SqlServer().ComputedExpression;
                 }
             }
@@ -107,13 +107,13 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
 
             if (targetValueGenerationStrategy == SqlServerValueGenerationStrategy.Identity)
             {
-                operation.Column[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration] =
+                operation[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration] =
                     targetValueGenerationStrategy.ToString();
             }
 
             if (target.SqlServer().ComputedExpression != null)
             {
-                operation.Column[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ColumnComputedExpression] =
+                operation[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ColumnComputedExpression] =
                     target.SqlServer().ComputedExpression;
             }
 
@@ -182,12 +182,14 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             {
                 operations.AddRange(Remove(source));
 
-                createIndexOperation = new CreateIndexOperation(
-                    target.Relational().Name,
-                    target.EntityType.Relational().Table,
-                    target.EntityType.Relational().Schema,
-                    target.Properties.Select(p => p.Relational().Column).ToArray(),
-                    target.IsUnique);
+                createIndexOperation = new CreateIndexOperation
+                {
+                    Name = target.Relational().Name,
+                    Schema = target.EntityType.Relational().Schema,
+                    Table = target.EntityType.Relational().Table,
+                    Columns = target.Properties.Select(p => p.Relational().Column).ToArray(),
+                    IsUnique = target.IsUnique
+                };
                 operations.Add(createIndexOperation);
             }
 

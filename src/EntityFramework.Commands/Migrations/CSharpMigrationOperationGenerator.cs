@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
-using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -40,424 +40,538 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             }
         }
 
-        public virtual void Generate([NotNull] AddColumnOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate([NotNull] MigrationOperation operation, [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var column = operation.Column;
-            var columnName = column.Name;
-
-            builder
-                .Append(".AddColumn(")
-                .Append(_code.Literal(operation.Table))
-                .Append(", ")
-                .Append(_code.Literal(columnName))
-                .Append(", ")
-                .Append("x => ");
-            Generate(column, "x", columnName, builder);
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
+            throw new InvalidOperationException(Strings.UnknownOperation(operation.GetType()));
         }
 
-        public virtual void Generate([NotNull] AddForeignKeyOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate([NotNull] AddColumnOperation operation, [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder
-                .Append(".AddForeignKey(")
-                .Append(_code.Literal(operation.DependentTable))
-                .Append(", ")
-                .Append(_code.Literal(operation.DependentColumns))
-                .Append(", ")
-                .Append(_code.Literal(operation.PrincipalTable));
-
-            if (operation.DependentSchema != null)
-            {
-                builder
-                    .Append(", dependentSchema: ")
-                    .Append(_code.Literal(operation.DependentSchema));
-            }
-
-            if (operation.PrincipalSchema != null)
-            {
-                builder
-                    .Append(", principalSchema: ")
-                    .Append(_code.Literal(operation.PrincipalSchema));
-            }
-
-            if (operation.PrincipalColumns.Any())
-            {
-                if (operation.PrincipalColumns.Count == 1)
-                {
-                    builder.Append(", principalColumn: ");
-                }
-                else
-                {
-                    builder.Append(", principalColumns: ");
-                }
-
-                builder.Append(_code.Literal(operation.PrincipalColumns));
-            }
-
-            if (operation.CascadeDelete)
-            {
-                builder.Append(", cascadeDelete: true");
-            }
-
-            if (operation.Name != null)
-            {
-                builder
-                    .Append(", name: ")
-                    .Append(_code.Literal(operation.Name));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate(
-            [NotNull] AddPrimaryKeyOperation operation,
-            [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".AddPrimaryKey(")
-                .Append(_code.Literal(operation.Table))
-                .Append(", ")
-                .Append(_code.Literal(operation.Columns));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Name != null)
-            {
-                builder
-                    .Append(", name: ")
-                    .Append(_code.Literal(operation.Name));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate(
-            [NotNull] AddUniqueConstraintOperation operation,
-            [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".AddUniqueConstraint(")
-                .Append(_code.Literal(operation.Table))
-                .Append(", ")
-                .Append(_code.Literal(operation.Columns));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Name != null)
-            {
-                builder
-                    .Append(", name: ")
-                    .Append(_code.Literal(operation.Name));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] AlterColumnOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".AlterColumn(")
-                .Append(_code.Literal(operation.Table));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            var column = operation.Column;
-            var name = column.Name;
-
-            builder
-                .Append(", ")
-                .Append(_code.Literal(name))
-                .Append(", x => ");
-            Generate(column, "x", name, builder);
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate(
-            [NotNull] AlterSequenceOperation operation,
-            [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".AlterSequence(")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.IncrementBy != Sequence.DefaultIncrement)
-            {
-                builder
-                    .Append(", incrementBy: ")
-                    .Append(_code.Literal(operation.IncrementBy));
-            }
-
-            if (operation.MinValue.HasValue)
-            {
-                builder
-                    .Append(", minValue: ")
-                    .Append(_code.Literal(operation.MinValue.Value));
-            }
-
-            if (operation.MaxValue.HasValue)
-            {
-                builder
-                    .Append(", maxValue: ")
-                    .Append(_code.Literal(operation.MaxValue.Value));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] AlterTableOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append("AlterTable(")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] CreateIndexOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".CreateIndex(")
-                .Append(_code.Literal(operation.Name))
-                .Append(", ")
-                .Append(_code.Literal(operation.Table))
-                .Append(", ")
-                .Append(_code.Literal(operation.Columns));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Unique)
-            {
-                builder.Append(", unique: true");
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate(
-            [NotNull] CreateSequenceOperation operation,
-            [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".CreateSequence(")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.StoreType != null)
-            {
-                builder
-                    .Append(", storeType: ")
-                    .Append(_code.Literal(operation.StoreType));
-            }
-
-            if (operation.StartValue != Sequence.DefaultStartValue)
-            {
-                builder
-                    .Append(", startValue: ")
-                    .Append(_code.Literal(operation.StartValue));
-            }
-
-            if (operation.IncrementBy != Sequence.DefaultIncrement)
-            {
-                builder
-                    .Append(", incrementBy: ")
-                    .Append(_code.Literal(operation.IncrementBy));
-            }
-
-            if (operation.MinValue.HasValue)
-            {
-                builder
-                    .Append(", minValue: ")
-                    .Append(_code.Literal(operation.MinValue.Value));
-            }
-
-            if (operation.MaxValue.HasValue)
-            {
-                builder
-                    .Append(", maxValue: ")
-                    .Append(_code.Literal(operation.MaxValue.Value));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] CreateTableOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .AppendLine(".CreateTable(");
+            builder.AppendLine(".AddColumn(");
 
             using (builder.Indent())
             {
-                builder.Append(_code.Literal(operation.Name));
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
 
                 if (operation.Schema != null)
                 {
                     builder
                         .AppendLine(",")
+                        .Append("schema: ")
                         .Append(_code.Literal(operation.Schema));
                 }
 
                 builder
                     .AppendLine(",")
-                    .AppendLine("x => new")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .AppendLine(",")
+                    .Append("type: ")
+                    .Append(_code.Literal(operation.Type))
+                    .AppendLine(",")
+                    .Append("nullable: ")
+                    .Append(_code.Literal(operation.IsNullable));
+
+                if (operation.DefaultExpression != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("defaultExpression: ")
+                        .Append(_code.Literal(operation.DefaultExpression));
+                }
+                else if (operation.DefaultValue != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("defaultValue: ")
+                        .Append(_code.UnknownLiteral(operation.DefaultValue));
+                }
+
+                builder.Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] AddForeignKeyOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".AddForeignKey(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .AppendLine(",")
+                    .Append(
+                        operation.Columns.Length == 1
+                            ? "column: "
+                            : "columns: ")
+                    .Append(_code.Literal(operation.Columns));
+
+                if (operation.ReferencedSchema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("referencedSchema: ")
+                        .Append(_code.Literal(operation.ReferencedSchema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("referencedTable: ")
+                    .Append(_code.Literal(operation.ReferencedTable));
+
+                if (operation.ReferencedColumns != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append(
+                            operation.ReferencedColumns.Length == 1
+                                ? "referencedColumn: "
+                                : "referencedColumns: ")
+                        .Append(_code.Literal(operation.ReferencedColumns));
+                }
+
+                if (operation.OnUpdate != ReferentialAction.NoAction)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("onUpdate: ")
+                        .Append(_code.Literal(operation.OnUpdate));
+                }
+
+                if (operation.OnDelete != ReferentialAction.NoAction)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("onDelete: ")
+                        .Append(_code.Literal(operation.OnDelete));
+                }
+
+                builder.Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] AddPrimaryKeyOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".AddPrimaryKey(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .AppendLine(",")
+                    .Append(
+                        operation.Columns.Length == 1
+                            ? "column: "
+                            : "columns: ")
+                    .Append(_code.Literal(operation.Columns))
+                    .Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] AddUniqueConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".AddUniqueConstraint(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .AppendLine(",")
+                    .Append(
+                        operation.Columns.Length == 1
+                            ? "column: "
+                            : "columns: ")
+                    .Append(_code.Literal(operation.Columns))
+                    .Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] AlterColumnOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".AlterColumn(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .AppendLine(",")
+                    .Append("type: ")
+                    .Append(_code.Literal(operation.Type))
+                    .AppendLine(",")
+                    .Append("nullable: ")
+                    .Append(_code.Literal(operation.IsNullable));
+
+                if (operation.DefaultExpression != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("defaultExpression: ")
+                        .Append(_code.Literal(operation.DefaultExpression));
+                }
+                else if (operation.DefaultValue != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("defaultValue: ")
+                        .Append(_code.UnknownLiteral(operation.DefaultValue));
+                }
+
+                builder.Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] AlterSequenceOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".AlterSequence(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                if (operation.IncrementBy != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("incrementBy: ")
+                        .Append(_code.Literal(operation.IncrementBy));
+                }
+
+                if (operation.MinValue != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("minValue: ")
+                        .Append(_code.Literal(operation.MinValue));
+                }
+
+                if (operation.MaxValue != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("maxValue: ")
+                        .Append(_code.Literal(operation.MaxValue));
+                }
+
+                if (operation.Cycle)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("cycle: true");
+                }
+
+                builder.Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] CreateIndexOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".CreateIndex(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .AppendLine(",")
+                    .Append(
+                        operation.Columns.Length == 1
+                            ? "column: "
+                            : "columns: ")
+                    .Append(_code.Literal(operation.Columns));
+
+                if (operation.IsUnique)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("unique: true");
+                }
+
+                builder.Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] CreateSchemaOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append(".CreateSchema(")
+                .Append(_code.Literal(operation.Name))
+                .Append(")");
+
+            using (builder.Indent())
+            {
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] CreateSequenceOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".CreateSequence(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                if (operation.Type != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("type: ")
+                        .Append(_code.Literal(operation.Type));
+                }
+
+                if (operation.StartWith.HasValue)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("startWith: ")
+                        .Append(_code.Literal(operation.StartWith.Value));
+                }
+
+                if (operation.IncrementBy.HasValue)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("incrementBy: ")
+                        .Append(_code.Literal(operation.IncrementBy.Value));
+                }
+
+                if (operation.MinValue.HasValue)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("minValue: ")
+                        .Append(_code.Literal(operation.MinValue.Value));
+                }
+
+                if (operation.MaxValue.HasValue)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("maxValue: ")
+                        .Append(_code.Literal(operation.MaxValue.Value));
+                }
+
+                if (operation.Cycle)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("cycle: true");
+                }
+
+                builder.Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] CreateTableOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".CreateTable(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .AppendLine("columns: table => new")
                     .AppendLine("{");
 
-                var propertyMap = new Dictionary<string, string>();
-
+                var map = new Dictionary<string, string>();
                 using (builder.Indent())
                 {
                     var scope = new List<string>();
                     for (var i = 0; i < operation.Columns.Count; i++)
                     {
                         var column = operation.Columns[i];
-                        var identifier = _code.Identifier(column.Name, scope);
-                        propertyMap.Add(column.Name, identifier);
+                        var propertyName = _code.Identifier(column.Name, scope);
+                        map.Add(column.Name, propertyName);
 
                         builder
-                            .Append(identifier)
-                            .Append(" = ");
-                        Generate(column, "x", identifier, builder);
+                            .Append(propertyName)
+                            .Append(" = table.Column(");
+
+                        if (propertyName != column.Name)
+                        {
+                            builder
+                                .Append("name: ")
+                                .Append(_code.Literal(column.Name))
+                                .Append(", ");
+                        }
+
+                        builder
+                            .Append("type: ")
+                            .Append(_code.Literal(column.Type))
+                            .Append(", nullable: ")
+                            .Append(_code.Literal(column.IsNullable));
+
+                        if (column.DefaultExpression != null)
+                        {
+                            builder
+                                .Append(", defaultExpression: ")
+                                .Append(_code.Literal(column.DefaultExpression));
+                        }
+                        else if (column.DefaultValue != null)
+                        {
+                            builder
+                                .Append(", defaultValue: ")
+                                .Append(_code.UnknownLiteral(column.DefaultValue));
+                        }
+
+                        builder.Append(")");
+
+                        using (builder.Indent())
+                        {
+                            Annotations(column.Annotations, builder);
+                        }
 
                         if (i != operation.Columns.Count - 1)
                         {
@@ -468,584 +582,555 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     }
                 }
 
-                builder.Append("}");
+                builder
+                    .AppendLine("},")
+                    .AppendLine("constraints: table =>")
+                    .AppendLine("{");
 
-                if (operation.Annotations.Any())
+                using (builder.Indent())
+                {
+                    if (operation.PrimaryKey != null)
+                    {
+                        builder
+                            .Append("table.PrimaryKey(")
+                            .Append(_code.Literal(operation.PrimaryKey.Name))
+                            .Append(", ")
+                            .Append(_code.Lambda(operation.PrimaryKey.Columns.Select(c => map[c]).ToList()))
+                            .Append(")");
+
+                        using (builder.Indent())
+                        {
+                            Annotations(operation.PrimaryKey.Annotations, builder);
+                        }
+
+                        builder.AppendLine(";");
+                    }
+
+                    foreach (var uniqueConstraint in operation.UniqueConstraints)
+                    {
+                        builder
+                            .Append("table.Unique(")
+                            .Append(_code.Literal(uniqueConstraint.Name))
+                            .Append(", ")
+                            .Append(_code.Lambda(uniqueConstraint.Columns.Select(c => map[c]).ToList()))
+                            .Append(")");
+
+                        using (builder.Indent())
+                        {
+                            Annotations(uniqueConstraint.Annotations, builder);
+                        }
+
+                        builder.AppendLine(";");
+                    }
+
+                    foreach (var foreignKey in operation.ForeignKeys)
+                    {
+                        builder.AppendLine("table.ForeignKey(");
+
+                        using (builder.Indent())
+                        {
+                            builder
+                                .Append("name: ")
+                                .Append(_code.Literal(foreignKey.Name))
+                                .AppendLine(",")
+                                .Append("columns: ")
+                                .Append(_code.Lambda(foreignKey.Columns.Select(c => map[c]).ToList()));
+
+                            if (foreignKey.ReferencedSchema != null)
+                            {
+                                builder
+                                    .AppendLine(",")
+                                    .Append("referencedSchema: ")
+                                    .Append(_code.Literal(foreignKey.ReferencedSchema));
+                            }
+
+                            builder
+                                .AppendLine(",")
+                                .Append("referencedTable: ")
+                                .Append(_code.Literal(foreignKey.ReferencedTable));
+
+                            if (foreignKey.ReferencedColumns != null)
+                            {
+                                builder
+                                    .AppendLine(",")
+                                    .Append(
+                                        foreignKey.ReferencedColumns.Length == 1
+                                            ? "referencedColumn: "
+                                            : "referencedColumns: ")
+                                    .Append(_code.Literal(foreignKey.ReferencedColumns));
+                            }
+
+                            if (foreignKey.OnUpdate != ReferentialAction.NoAction)
+                            {
+                                builder
+                                    .AppendLine(",")
+                                    .Append("onUpdate: ")
+                                    .Append(_code.Literal(foreignKey.OnUpdate));
+                            }
+
+                            if (foreignKey.OnDelete != ReferentialAction.NoAction)
+                            {
+                                builder
+                                    .AppendLine(",")
+                                    .Append("onDelete: ")
+                                    .Append(_code.Literal(foreignKey.OnDelete));
+                            }
+
+                            builder.Append(")");
+
+                            Annotations(foreignKey.Annotations, builder);
+                        }
+
+                        builder.AppendLine(";");
+                    }
+                }
+
+                builder.Append("})");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] DropColumnOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append(".DropColumn(name: ")
+                .Append(_code.Literal(operation.Name));
+
+            if (operation.Schema != null)
+            {
+                builder
+                    .Append(", schema: ")
+                    .Append(_code.Literal(operation.Schema));
+            }
+
+            builder
+                .Append(", table: ")
+                .Append(_code.Literal(operation.Table))
+                .Append(")");
+
+            using (builder.Indent())
+            {
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] DropForeignKeyOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append(".DropForeignKey(name: ")
+                .Append(_code.Literal(operation.Name));
+
+            if (operation.Schema != null)
+            {
+                builder
+                    .Append(", schema: ")
+                    .Append(_code.Literal(operation.Schema));
+            }
+
+            builder
+                .Append(", table: ")
+                .Append(_code.Literal(operation.Table))
+                .Append(")");
+
+            using (builder.Indent())
+            {
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] DropIndexOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append(".DropIndex(name: ")
+                .Append(_code.Literal(operation.Name));
+
+            if (operation.Schema != null)
+            {
+                builder
+                    .Append(", schema: ")
+                    .Append(_code.Literal(operation.Schema));
+            }
+
+            builder
+                .Append(", table: ")
+                .Append(_code.Literal(operation.Table))
+                .Append(")");
+
+            using (builder.Indent())
+            {
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] DropPrimaryKeyOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append(".DropPrimaryKey(name: ")
+                .Append(_code.Literal(operation.Name));
+
+            if (operation.Schema != null)
+            {
+                builder
+                    .Append(", schema: ")
+                    .Append(_code.Literal(operation.Schema));
+            }
+
+            builder
+                .Append(", table: ")
+                .Append(_code.Literal(operation.Table))
+                .Append(")");
+
+            using (builder.Indent())
+            {
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] DropSchemaOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append(".DropSchema(")
+                .Append(_code.Literal(operation.Name))
+                .Append(")");
+
+            using (builder.Indent())
+            {
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] DropSequenceOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.Append(".DropSequence(");
+
+            if (operation.Schema != null)
+            {
+                builder.Append("name: ");
+            }
+
+            builder.Append(_code.Literal(operation.Name));
+
+            if (operation.Schema != null)
+            {
+                builder
+                    .Append(", schema: ")
+                    .Append(_code.Literal(operation.Schema));
+            }
+
+            builder.Append(")");
+
+            using (builder.Indent())
+            {
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] DropTableOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.Append(".DropTable(");
+
+            if (operation.Schema != null)
+            {
+                builder.Append("name: ");
+            }
+
+            builder.Append(_code.Literal(operation.Name));
+
+            if (operation.Schema != null)
+            {
+                builder
+                    .Append(", schema: ")
+                    .Append(_code.Literal(operation.Schema));
+            }
+
+            builder.Append(")");
+
+            using (builder.Indent())
+            {
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] DropUniqueConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append(".DropUniqueConstraint(name: ")
+                .Append(_code.Literal(operation.Name));
+
+            if (operation.Schema != null)
+            {
+                builder
+                    .Append(", schema: ")
+                    .Append(_code.Literal(operation.Schema));
+            }
+
+            builder
+                .Append(", table: ")
+                .Append(_code.Literal(operation.Table))
+                .Append(")");
+
+            using (builder.Indent())
+            {
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] RenameColumnOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".RenameColumn(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
                 {
                     builder
                         .AppendLine(",")
-                        .Append("annotations: ")
-                        .Append(_code.Literal(operation.Annotations));
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .AppendLine(",")
+                    .Append("newName: ")
+                    .Append(_code.Literal(operation.NewName))
+                    .Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] RenameIndexOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".RenameIndex(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .AppendLine(",")
+                    .Append("newName: ")
+                    .Append(_code.Literal(operation.NewName))
+                    .Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] RenameSequenceOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".RenameSequence(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                if (operation.NewName != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("newName: ")
+                        .Append(_code.Literal(operation.NewName));
+                }
+
+                if (operation.NewSchema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("newSchema: ")
+                        .Append(_code.Literal(operation.NewSchema));
                 }
 
                 builder.Append(")");
 
-                var primaryKey = operation.PrimaryKey;
-                if (primaryKey != null)
-                {
-                    // TODO: Move to method
-                    builder
-                        .AppendLine()
-                        .Append(".PrimaryKey(")
-                        .Append(_code.Lambda(primaryKey.Columns.Select(c => propertyMap[c]).ToList()));
-
-                    if (primaryKey.Name != null)
-                    {
-                        builder
-                            .Append(", name: ")
-                            .Append(_code.Literal(primaryKey.Name));
-                    }
-
-                    if (operation.Annotations.Any())
-                    {
-                        builder
-                            .Append(", annotations: ")
-                            .Append(_code.Literal(operation.Annotations));
-                    }
-
-                    builder.Append(")");
-                }
-
-                foreach (var uniqueConstraint in operation.UniqueConstraints)
-                {
-                    // TODO: Move to method
-                    builder
-                        .AppendLine()
-                        .Append(".UniqueConstraint(")
-                        .Append(_code.Lambda(uniqueConstraint.Columns.Select(c => propertyMap[c]).ToList()));
-
-                    if (uniqueConstraint.Name != null)
-                    {
-                        builder
-                            .Append(", name: ")
-                            .Append(_code.Literal(uniqueConstraint.Name));
-                    }
-
-                    if (operation.Annotations.Any())
-                    {
-                        builder
-                            .Append(", annotations: ")
-                            .Append(_code.Literal(operation.Annotations));
-                    }
-
-                    builder.Append(")");
-                }
-
-                foreach (var foreignKey in operation.ForeignKeys)
-                {
-                    // TODO: Move to method
-                    builder
-                        .AppendLine()
-                        .Append(".ForeignKey(")
-                        .Append(_code.Lambda(foreignKey.DependentColumns.Select(c => propertyMap[c]).ToList()))
-                        .Append(", ")
-                        .Append(_code.Literal(foreignKey.PrincipalTable));
-
-                    if (foreignKey.PrincipalSchema != null)
-                    {
-                        builder
-                            .Append(", principalSchema: ")
-                            .Append(_code.Literal(foreignKey.PrincipalSchema));
-                    }
-
-                    if (foreignKey.PrincipalColumns.Any())
-                    {
-                        if (foreignKey.PrincipalColumns.Count == 1)
-                        {
-                            builder.Append(", principalColumn: ");
-                        }
-                        else
-                        {
-                            builder.Append(", principalColumns: ");
-                        }
-
-                        builder.Append(_code.Literal(foreignKey.PrincipalColumns));
-                    }
-
-                    if (foreignKey.CascadeDelete)
-                    {
-                        builder.Append(", cascadeDelete: true");
-                    }
-
-                    if (foreignKey.Name != null)
-                    {
-                        builder
-                            .Append(", name: ")
-                            .Append(_code.Literal(foreignKey.Name));
-                    }
-
-                    if (operation.Annotations.Any())
-                    {
-                        builder
-                            .Append(", annotations: ")
-                            .Append(_code.Literal(operation.Annotations));
-                    }
-
-                    builder.Append(")");
-                }
+                Annotations(operation.Annotations, builder);
             }
         }
 
-        public virtual void Generate([NotNull] DropColumnOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate([NotNull] RenameTableOperation operation, [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder
-                .Append(".DropColumn(")
-                .Append(_code.Literal(operation.Table))
-                .Append(", ")
-                .Append(_code.Literal(operation.Name));
+            builder.AppendLine(".RenameTable(");
 
-            if (operation.Schema != null)
+            using (builder.Indent())
             {
                 builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate(
-            [NotNull] DropForeignKeyOperation operation,
-            [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".DropForeignKey(")
-                .Append(_code.Literal(operation.Table))
-                .Append(", ")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] DropIndexOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".DropIndex(")
-                .Append(_code.Literal(operation.Table))
-                .Append(", ")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate(
-            [NotNull] DropPrimaryKeyOperation operation,
-            [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".DropPrimaryKey(")
-                .Append(_code.Literal(operation.Table))
-                .Append(", ")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] DropSequenceOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".DropSequence(")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] DropTableOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".DropTable(")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate(
-            [NotNull] DropUniqueConstraintOperation operation,
-            [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".DropUniqueConstraint(")
-                .Append(_code.Literal(operation.Table))
-                .Append(", ")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] MoveSequenceOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".MoveSequence(")
-                .Append(_code.Literal(operation.Name))
-                .Append(", ")
-                .Append(_code.Literal(operation.NewSchema));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] MoveTableOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".MoveTable(")
-                .Append(_code.Literal(operation.Name))
-                .Append(", ")
-                .Append(_code.Literal(operation.NewSchema));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] RenameColumnOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".RenameColumn(")
-                .Append(_code.Literal(operation.Table))
-                .Append(", ")
-                .Append(_code.Literal(operation.Name))
-                .Append(", ")
-                .Append(_code.Literal(operation.NewName));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] RenameIndexOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".RenameIndex(")
-                .Append(_code.Literal(operation.Table))
-                .Append(", ")
-                .Append(_code.Literal(operation.Name))
-                .Append(", ")
-                .Append(_code.Literal(operation.NewName));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate(
-            [NotNull] RenameSequenceOperation operation,
-            [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".RenameSequence(")
-                .Append(_code.Literal(operation.Name))
-                .Append(", ")
-                .Append(_code.Literal(operation.NewName));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] RenameTableOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".RenameTable(")
-                .Append(_code.Literal(operation.Name))
-                .Append(", ")
-                .Append(_code.Literal(operation.NewName));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate([NotNull] SqlOperation operation, [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(".Sql(")
-                .Append(_code.Literal(operation.Sql));
-
-            if (operation.SuppressTransaction)
-            {
-                builder.Append(", suppressTransaction: true");
-            }
-
-            if (operation.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(operation.Annotations));
-            }
-
-            builder.Append(")");
-        }
-
-        public virtual void Generate(
-            [NotNull] ColumnModel column,
-            [NotNull] string variable,
-            [NotNull] string defaultName,
-            [NotNull] IndentedStringBuilder builder)
-        {
-            Check.NotNull(column, nameof(column));
-            Check.NotEmpty(variable, nameof(variable));
-            Check.NotEmpty(defaultName, nameof(defaultName));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append(variable)
-                .Append(".Column(")
-                .Append(_code.Literal(column.StoreType));
-
-            if (column.Name != defaultName)
-            {
-                builder
-                    .Append(", ")
                     .Append("name: ")
-                    .Append(_code.Literal(column.Name));
-            }
+                    .Append(_code.Literal(operation.Name));
 
-            if (column.Nullable)
-            {
-                builder
-                    .Append(", ")
-                    .Append("nullable: true");
-            }
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
 
-            if (column.DefaultValueSql != null)
-            {
-                builder
-                    .Append(", ")
-                    .Append("defaultValueSql: ")
-                    .Append(_code.Literal(column.DefaultValueSql));
-            }
-            else if (column.DefaultValue != null)
-            {
-                builder
-                    .Append(", ")
-                    .Append("defaultValue: ")
-                    .Append(_code.Literal((dynamic)column.DefaultValue));
-            }
+                if (operation.NewName != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("newName: ")
+                        .Append(_code.Literal(operation.NewName));
+                }
 
-            if (column.Annotations.Any())
-            {
-                builder
-                    .Append(", annotations: ")
-                    .Append(_code.Literal(column.Annotations));
-            }
+                if (operation.NewSchema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("newSchema: ")
+                        .Append(_code.Literal(operation.NewSchema));
+                }
 
-            builder.Append(")");
+                builder.Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
         }
 
-        protected virtual void Generate(
-            [NotNull] MigrationOperation operation,
-            [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate([NotNull] RestartSequenceOperation operation, [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            throw new InvalidOperationException(Strings.UnknownOperation(operation.GetType()));
+            builder.AppendLine(".RestartSequence(");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+                builder
+                    .AppendLine(",")
+                    .Append("with: ")
+                    .Append(_code.Literal(operation.RestartWith))
+                    .Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Generate([NotNull] SqlOperation operation, [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AppendLine(".Sql(");
+
+            using (builder.Indent())
+            {
+                if (operation.SuppressTransaction)
+                {
+                    builder.Append("sql: ");
+                }
+
+                builder.Append(_code.Literal(operation.Sql));
+
+                if (operation.SuppressTransaction)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("suppressTransaction: true");
+                }
+
+                builder.Append(")");
+
+                Annotations(operation.Annotations, builder);
+            }
+        }
+
+        protected virtual void Annotations(
+            [NotNull] IEnumerable<Annotation> annotations,
+            [NotNull] IndentedStringBuilder builder)
+        {
+            Check.NotNull(annotations, nameof(annotations));
+            Check.NotNull(builder, nameof(builder));
+
+            foreach (var annotation in annotations)
+            {
+                // TODO: Give providers an opportunity to render these as provider-specific extension methods
+                builder
+                    .AppendLine()
+                    .Append(".Annotation(")
+                    .Append(_code.Literal(annotation.Name))
+                    .Append(", ")
+                    .Append(_code.UnknownLiteral(annotation.Value))
+                    .Append(")");
+            }
         }
     }
 }

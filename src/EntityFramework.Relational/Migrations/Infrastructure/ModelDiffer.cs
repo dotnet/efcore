@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -14,18 +15,16 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 {
     // TODO: Move constraint naming
-    // TODO: Handle transitive renames
+    // TODO: Handle transitive renames (See #1907)
     // TODO: Match similar items
     public class ModelDiffer : IModelDiffer
     {
         private static readonly Type[] _dropOperationTypes =
             {
-                typeof(DropColumnOperation),
                 typeof(DropForeignKeyOperation),
                 typeof(DropIndexOperation),
                 typeof(DropPrimaryKeyOperation),
                 typeof(DropSequenceOperation),
-                typeof(DropTableOperation),
                 typeof(DropUniqueConstraintOperation)
             };
 
@@ -37,20 +36,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 typeof(AddUniqueConstraintOperation),
                 typeof(AlterColumnOperation),
                 typeof(AlterSequenceOperation),
-                typeof(CreateIndexOperation)
+                typeof(CreateIndexOperation),
+                typeof(RestartSequenceOperation)
             };
 
         private static readonly Type[] _renameOperationTypes =
             {
                 typeof(RenameColumnOperation),
-                typeof(RenameIndexOperation),
                 typeof(RenameSequenceOperation)
-            };
-
-        private static readonly Type[] _moveOperationTypes =
-            {
-                typeof(MoveSequenceOperation),
-                typeof(MoveTableOperation)
             };
 
         public ModelDiffer([NotNull] RelationalTypeMapper typeMapper)
@@ -71,12 +64,16 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             Check.NotNull(operations, nameof(operations));
 
             var dropOperations = new List<MigrationOperation>();
+            var dropColumnOperations = new List<MigrationOperation>();
+            var dropTableOperations = new List<MigrationOperation>();
+            var dropSchemaOperations = new List<MigrationOperation>();
+            var createSchemaOperations = new List<MigrationOperation>();
             var createSequenceOperations = new List<MigrationOperation>();
             var createTableOperations = new Dictionary<string, CreateTableOperation>();
             var alterOperations = new List<MigrationOperation>();
             var renameOperations = new List<MigrationOperation>();
+            var renameIndexOperations = new List<MigrationOperation>();
             var renameTableOperations = new List<MigrationOperation>();
-            var moveOperations = new List<MigrationOperation>();
             var leftovers = new List<MigrationOperation>();
 
             foreach (var operation in operations)
@@ -85,6 +82,22 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 if (_dropOperationTypes.Contains(type))
                 {
                     dropOperations.Add(operation);
+                }
+                else if (type == typeof(DropColumnOperation))
+                {
+                    dropColumnOperations.Add(operation);
+                }
+                else if (type == typeof(DropTableOperation))
+                {
+                    dropTableOperations.Add(operation);
+                }
+                else if (type == typeof(DropSchemaOperation))
+                {
+                    dropSchemaOperations.Add(operation);
+                }
+                else if (type == typeof(CreateSchemaOperation))
+                {
+                    createSchemaOperations.Add(operation);
                 }
                 else if (type == typeof(CreateSequenceOperation))
                 {
@@ -106,16 +119,17 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 {
                     renameOperations.Add(operation);
                 }
+                else if (type == typeof(RenameIndexOperation))
+                {
+                    renameIndexOperations.Add(operation);
+                }
                 else if (type == typeof(RenameTableOperation))
                 {
                     renameTableOperations.Add(operation);
                 }
-                else if (_moveOperationTypes.Contains(type))
-                {
-                    moveOperations.Add(operation);
-                }
                 else
                 {
+                    Debug.Assert(false, "Unexpected operation type: " + operation.GetType());
                     leftovers.Add(operation);
                 }
             }
@@ -126,7 +140,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             {
                 foreach (var addForeignKeyOperation in pair.Value.ForeignKeys)
                 {
-                    var principalTable = addForeignKeyOperation.PrincipalSchema + ":" + addForeignKeyOperation.PrincipalTable;
+                    var principalTable = addForeignKeyOperation.ReferencedSchema + ":" + addForeignKeyOperation.ReferencedTable;
                     if (principalTable == pair.Key)
                     {
                         continue;
@@ -138,7 +152,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     createTableGraph.AddEdge(principalTable, pair.Key, addForeignKeyOperation);
                 }
             }
-            var sortedCreatetableOperations = createTableGraph.TopologicalSort(
+            var sortedCreateTableOperations = createTableGraph.TopologicalSort(
                 (principalTable, key, foreignKeyOperations) =>
                     {
                         foreach (var foreignKeyOperation in foreignKeyOperations)
@@ -151,12 +165,16 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 .Select(k => createTableOperations[k]);
 
             return dropOperations
+                .Concat(dropColumnOperations)
+                .Concat(dropTableOperations)
+                .Concat(dropSchemaOperations)
+                .Concat(createSchemaOperations)
                 .Concat(createSequenceOperations)
-                .Concat(sortedCreatetableOperations)
+                .Concat(sortedCreateTableOperations)
                 .Concat(alterOperations)
                 .Concat(renameOperations)
+                .Concat(renameIndexOperations)
                 .Concat(renameTableOperations)
-                .Concat(moveOperations)
                 .Concat(leftovers)
                 .ToArray();
         }
@@ -190,20 +208,16 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Diff(IEntityType source, IEntityType target)
         {
-            if (source.Relational().Schema != target.Relational().Schema)
+            if (source.Relational().Schema != target.Relational().Schema
+                || source.Relational().Table != target.Relational().Table)
             {
-                yield return new MoveTableOperation(
-                    source.Relational().Table,
-                    source.Relational().Schema,
-                    target.Relational().Schema);
-            }
-
-            if (source.Relational().Table != target.Relational().Table)
-            {
-                yield return new RenameTableOperation(
-                    source.Relational().Table,
-                    source.Relational().Schema,
-                    target.Relational().Table);
+                yield return new RenameTableOperation
+                {
+                    Schema = source.Relational().Schema,
+                    Name = source.Relational().Table,
+                    NewSchema = target.Relational().Schema,
+                    NewName = target.Relational().Table
+                };
             }
 
             var sourcePrimaryKey = source.GetPrimaryKey();
@@ -253,10 +267,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Add(IEntityType target)
         {
-            var createTableOperation = new CreateTableOperation(target.Relational().Table, target.Relational().Schema);
+            var createTableOperation = new CreateTableOperation
+            {
+                Schema = target.Relational().Schema,
+                Name = target.Relational().Table
+            };
 
-            // TODO: Build ColumnModel objects directly
-            createTableOperation.Columns.AddRange(target.GetProperties().SelectMany(Add).Cast<AddColumnOperation>().Select(o => o.Column));
+            createTableOperation.Columns.AddRange(target.GetProperties().SelectMany(Add).Cast<AddColumnOperation>());
 
             var primaryKey = target.GetPrimaryKey();
             if (primaryKey != null)
@@ -278,7 +295,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Remove(IEntityType source)
         {
-            yield return new DropTableOperation(source.Relational().Table, source.Relational().Schema);
+            yield return new DropTableOperation
+            {
+                Schema = source.Relational().Schema,
+                Name = source.Relational().Table
+            };
         }
 
         #endregion
@@ -292,11 +313,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         {
             if (source.Relational().Column != target.Relational().Column)
             {
-                yield return new RenameColumnOperation(
-                    source.EntityType.Relational().Table,
-                    source.EntityType.Relational().Schema,
-                    source.Relational().Column,
-                    target.Relational().Column);
+                yield return new RenameColumnOperation
+                {
+                    Schema = source.EntityType.Relational().Schema,
+                    Table = source.EntityType.Relational().Table,
+                    Name = source.Relational().Column,
+                    NewName = target.Relational().Column
+                };
             }
 
             var sourceColumnType = TypeMapper.GetTypeMapping(source).StoreTypeName;
@@ -310,15 +333,16 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 || source.Relational().DefaultValue != target.Relational().DefaultValue)
             {
                 // TODO: Determine if data loss
-                yield return new AlterColumnOperation(
-                    source.EntityType.Relational().Table,
-                    source.EntityType.Relational().Schema,
-                    new ColumnModel(
-                        source.Relational().Column,
-                        targetColumnType,
-                        target.IsNullable,
-                        target.Relational().DefaultValue,
-                        target.Relational().DefaultExpression));
+                yield return new AlterColumnOperation
+                {
+                    Schema = source.EntityType.Relational().Schema,
+                    Table = source.EntityType.Relational().Table,
+                    Name = source.Relational().Column,
+                    Type = targetColumnType,
+                    IsNullable = target.IsNullable,
+                    DefaultValue = target.Relational().DefaultValue,
+                    DefaultExpression = target.Relational().DefaultExpression
+                };
             }
         }
 
@@ -345,23 +369,26 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Add(IProperty target)
         {
-            yield return new AddColumnOperation(
-                target.EntityType.Relational().Table,
-                target.EntityType.Relational().Schema,
-                new ColumnModel(
-                    target.Relational().Column,
-                    TypeMapper.GetTypeMapping(target).StoreTypeName,
-                    target.IsNullable,
-                    target.Relational().DefaultValue,
-                    target.Relational().DefaultExpression));
+            yield return new AddColumnOperation
+            {
+                Schema = target.EntityType.Relational().Schema,
+                Table = target.EntityType.Relational().Table,
+                Name = target.Relational().Column,
+                Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
+                IsNullable = target.IsNullable,
+                DefaultValue = target.Relational().DefaultValue,
+                DefaultExpression = target.Relational().DefaultExpression
+            };
         }
 
         protected virtual IEnumerable<MigrationOperation> Remove(IProperty source)
         {
-            yield return new DropColumnOperation(
-                source.EntityType.Relational().Table,
-                source.EntityType.Relational().Schema,
-                source.Relational().Column);
+            yield return new DropColumnOperation
+            {
+                Schema = source.EntityType.Relational().Schema,
+                Table = source.EntityType.Relational().Table,
+                Name = source.Relational().Column
+            };
         }
 
         #endregion
@@ -413,19 +440,23 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         {
             if (target.IsPrimaryKey())
             {
-                yield return new AddPrimaryKeyOperation(
-                    target.EntityType.Relational().Table,
-                    target.EntityType.Relational().Schema,
-                    Name(target),
-                    target.Properties.Select(p => p.Relational().Column).ToArray());
+                yield return new AddPrimaryKeyOperation
+                {
+                    Schema = target.EntityType.Relational().Schema,
+                    Table = target.EntityType.Relational().Table,
+                    Name = Name(target),
+                    Columns = target.Properties.Select(p => p.Relational().Column).ToArray()
+                };
             }
             else
             {
-                yield return new AddUniqueConstraintOperation(
-                    target.EntityType.Relational().Table,
-                    target.EntityType.Relational().Schema,
-                    Name(target),
-                    target.Properties.Select(p => p.Relational().Column).ToArray());
+                yield return new AddUniqueConstraintOperation
+                {
+                    Schema = target.EntityType.Relational().Schema,
+                    Table = target.EntityType.Relational().Table,
+                    Name = Name(target),
+                    Columns = target.Properties.Select(p => p.Relational().Column).ToArray()
+                };
             }
         }
 
@@ -433,17 +464,21 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         {
             if (source.IsPrimaryKey())
             {
-                yield return new DropPrimaryKeyOperation(
-                    source.EntityType.Relational().Table,
-                    source.EntityType.Relational().Schema,
-                    Name(source));
+                yield return new DropPrimaryKeyOperation
+                {
+                    Schema = source.EntityType.Relational().Schema,
+                    Table = source.EntityType.Relational().Table,
+                    Name = Name(source)
+                };
             }
             else
             {
-                yield return new DropUniqueConstraintOperation(
-                    source.EntityType.Relational().Table,
-                    source.EntityType.Relational().Schema,
-                    Name(source));
+                yield return new DropUniqueConstraintOperation
+                {
+                    Schema = source.EntityType.Relational().Schema,
+                    Table = source.EntityType.Relational().Table,
+                    Name = Name(source)
+                };
             }
         }
 
@@ -485,24 +520,27 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Add(IForeignKey target)
         {
-            // TODO: Set cascadeDelete (See #1084)
-            yield return new AddForeignKeyOperation(
-                target.EntityType.Relational().Table,
-                target.EntityType.Relational().Schema,
-                Name(target),
-                target.Properties.Select(p => p.Relational().Column).ToArray(),
-                target.PrincipalEntityType.Relational().Table,
-                target.PrincipalEntityType.Relational().Schema,
-                target.PrincipalKey.Properties.Select(p => p.Relational().Column).ToArray(),
-                cascadeDelete: false);
+            // TODO: Set CascadeOnDelete (See #1084)
+            yield return new AddForeignKeyOperation
+            {
+                Schema = target.EntityType.Relational().Schema,
+                Table = target.EntityType.Relational().Table,
+                Name = Name(target),
+                Columns = target.Properties.Select(p => p.Relational().Column).ToArray(),
+                ReferencedSchema = target.PrincipalEntityType.Relational().Schema,
+                ReferencedTable = target.PrincipalEntityType.Relational().Table,
+                ReferencedColumns = target.PrincipalKey.Properties.Select(p => p.Relational().Column).ToArray()
+            };
         }
 
         protected virtual IEnumerable<MigrationOperation> Remove(IForeignKey source)
         {
-            yield return new DropForeignKeyOperation(
-                source.EntityType.Relational().Table,
-                source.EntityType.Relational().Schema,
-                Name(source));
+            yield return new DropForeignKeyOperation
+            {
+                Schema = source.EntityType.Relational().Schema,
+                Table = source.EntityType.Relational().Table,
+                Name = Name(source)
+            };
         }
 
         #endregion
@@ -519,11 +557,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
             if (sourceName != targetName)
             {
-                yield return new RenameIndexOperation(
-                    source.EntityType.Relational().Table,
-                    source.EntityType.Relational().Schema,
-                    sourceName,
-                    targetName);
+                yield return new RenameIndexOperation
+                {
+                    Schema = source.EntityType.Relational().Schema,
+                    Table = source.EntityType.Relational().Table,
+                    Name = sourceName,
+                    NewName = targetName
+                };
             }
 
             if (!source.Properties.Select(p => p.Relational().Column).SequenceEqual(
@@ -554,20 +594,24 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Add(IIndex target)
         {
-            yield return new CreateIndexOperation(
-                Name(target),
-                target.EntityType.Relational().Table,
-                target.EntityType.Relational().Schema,
-                target.Properties.Select(p => p.Relational().Column).ToArray(),
-                target.IsUnique);
+            yield return new CreateIndexOperation
+            {
+                Name = Name(target),
+                Schema = target.EntityType.Relational().Schema,
+                Table = target.EntityType.Relational().Table,
+                Columns = target.Properties.Select(p => p.Relational().Column).ToArray(),
+                IsUnique = target.IsUnique
+            };
         }
 
         protected virtual IEnumerable<MigrationOperation> Remove(IIndex source)
         {
-            yield return new DropIndexOperation(
-                Name(source),
-                source.EntityType.Relational().Table,
-                source.EntityType.Relational().Schema);
+            yield return new DropIndexOperation
+            {
+                Name = Name(source),
+                Schema = source.EntityType.Relational().Schema,
+                Table = source.EntityType.Relational().Table
+            };
         }
 
         #endregion
@@ -579,32 +623,34 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Diff(ISequence source, ISequence target)
         {
-            if (source.Name != target.Name)
+            if (source.Schema != target.Schema
+                || source.Name != target.Name)
             {
-                yield return new RenameSequenceOperation(source.Name, source.Schema, target.Name);
+                yield return new RenameSequenceOperation
+                {
+                    Schema = source.Schema,
+                    Name = source.Name,
+                    NewSchema = target.Schema,
+                    NewName = target.Name
+                };
             }
-
-            if (source.Schema != target.Schema)
-            {
-                yield return new MoveSequenceOperation(source.Name, source.Schema, target.Schema);
-            }
-
-            var sourceStoreType = TypeMapper.GetTypeMapping(source).StoreTypeName;
-            var targetStoreType = TypeMapper.GetTypeMapping(target).StoreTypeName;
 
             if (source.IncrementBy != target.IncrementBy
                 || source.MaxValue != target.MaxValue
                 || source.MinValue != target.MinValue
                 || source.StartValue != target.StartValue
-                || sourceStoreType != targetStoreType)
+                || source.Cycle != target.Cycle)
             {
                 // TODO: What about StartValue and StoreType?
-                yield return new AlterSequenceOperation(
-                    source.Name,
-                    source.Schema,
-                    target.IncrementBy,
-                    target.MinValue,
-                    target.MaxValue);
+                yield return new AlterSequenceOperation
+                {
+                    Schema = source.Schema,
+                    Name = source.Name,
+                    IncrementBy = target.IncrementBy,
+                    MinValue = target.MinValue,
+                    MaxValue = target.MaxValue,
+                    Cycle = target.Cycle
+                };
             }
         }
 
@@ -628,19 +674,26 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Add(ISequence target)
         {
-            yield return new CreateSequenceOperation(
-                target.Name,
-                target.Schema,
-                target.StartValue,
-                target.IncrementBy,
-                target.MinValue,
-                target.MaxValue,
-                TypeMapper.GetTypeMapping(target).StoreTypeName);
+            yield return new CreateSequenceOperation
+            {
+                Schema = target.Schema,
+                Name = target.Name,
+                Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
+                StartWith = target.StartValue,
+                IncrementBy = target.IncrementBy,
+                MinValue = target.MinValue,
+                MaxValue = target.MaxValue,
+                Cycle = target.Cycle
+            };
         }
 
         protected virtual IEnumerable<MigrationOperation> Remove(ISequence source)
         {
-            yield return new DropSequenceOperation(source.Name, source.Schema);
+            yield return new DropSequenceOperation
+            {
+                Schema = source.Schema,
+                Name = source.Name
+            };
         }
 
         #endregion
