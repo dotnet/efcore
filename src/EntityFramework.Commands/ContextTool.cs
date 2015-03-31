@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Commands
 #if DNX451 || DNXCORE50
             try
             {
-                return WebApplication.CreateHostingEngine()
+                return WebHost.CreateHostingEngine()
                     .ApplicationServices
                     .GetService(type) as DbContext;
             }
