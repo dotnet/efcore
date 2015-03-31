@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Debug.Assert(index >= 0 && index < Count);
 
-            return (T)_values[index];
+            return (T)Convert.ChangeType(_values[index], typeof(T));
         }
 
         public virtual int Count => _values.Length;
