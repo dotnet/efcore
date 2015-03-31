@@ -237,7 +237,7 @@ namespace EntityFramework.Microbenchmarks.Core
             var jsonFilename = string.Format("result_{0}_{1}.json", scenario, TestConfig.Instance.RuntimeFlavor);
             File.WriteAllText(Path.Combine(resultDirectory, jsonFilename), jsonData);
 
-            var csvFilename = string.Format("results.csv", scenario, TestConfig.Instance.RuntimeFlavor);
+            var csvFilename = string.Format(Path.Combine(resultDirectory, "results.csv"));
             if (!File.Exists(csvFilename))
             {
                 File.WriteAllText(csvFilename, "StartTime,EndTime,Scenario,Metric,Unit,Value");
