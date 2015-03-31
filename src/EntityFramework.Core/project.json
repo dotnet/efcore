@@ -60,6 +60,15 @@
                 "System.ObjectModel": "4.0.10-beta-*",
                 "System.Reflection.Extensions": "4.0.0-beta-*"
             }
+        },
+        "netcore451": {
+            "frameworkAssemblies": {
+                "System.Diagnostics.Contracts": "",
+                "System.IO": "",
+                "System.Linq.Queryable": "",
+                "System.ObjectModel": "",
+                "System.Reflection.Extensions": ""
+            }
         }
     }
 }
