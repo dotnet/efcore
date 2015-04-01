@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Can_read_value()
         {
             var readerMock = new Mock<DbDataReader>();
-            readerMock.Setup(m => m.GetFieldValue<int>(0)).Returns(77);
-            readerMock.Setup(m => m.GetFieldValue<string>(1)).Returns("Smokey");
+            readerMock.Setup(m => m.GetValue(0)).Returns(77);
+            readerMock.Setup(m => m.GetValue(1)).Returns("Smokey");
 
             var reader = new RelationalTypedValueReader(readerMock.Object);
 

@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual bool IsNull(int index) => _dataReader.IsDBNull(index);
 
-        public virtual T ReadValue<T>(int index) => _dataReader.GetFieldValue<T>(index);
+        public virtual T ReadValue<T>(int index) => (T)_dataReader.GetValue(index);
 
         public virtual int Count => _dataReader.FieldCount;
     }
