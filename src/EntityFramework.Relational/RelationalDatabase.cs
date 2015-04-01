@@ -13,11 +13,11 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract class RelationalDatabase : Database, IAccessor<IMigrator>
+    public class RelationalDatabase : Database, IAccessor<IMigrator>
     {
         private readonly IMigrator _migrator;
 
-        protected RelationalDatabase(
+        public RelationalDatabase(
             [NotNull] DbContext context,
             [NotNull] IRelationalDataStoreCreator dataStoreCreator,
             [NotNull] IRelationalConnection connection,
@@ -54,23 +54,23 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual void CreateTables() => RelationalDataStoreCreator.CreateTables(Model);
 
-        public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken)) 
+        public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
             => RelationalDataStoreCreator.CreateTablesAsync(Model, cancellationToken);
 
         public virtual void Delete() => RelationalDataStoreCreator.Delete();
 
-        public virtual Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken)) 
+        public virtual Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
             => RelationalDataStoreCreator.DeleteAsync(cancellationToken);
 
-        public virtual bool Exists() 
+        public virtual bool Exists()
             => RelationalDataStoreCreator.Exists();
 
-        public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken)) 
+        public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
             => RelationalDataStoreCreator.ExistsAsync(cancellationToken);
 
         public virtual bool HasTables() => RelationalDataStoreCreator.HasTables();
 
-        public virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken)) 
+        public virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
             => RelationalDataStoreCreator.HasTablesAsync(cancellationToken);
 
         private IRelationalDataStoreCreator RelationalDataStoreCreator => (IRelationalDataStoreCreator)((IAccessor<IDataStoreCreator>)this).Service;

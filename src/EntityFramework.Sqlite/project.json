@@ -1,0 +1,18 @@
+{
+    "version": "7.0.0-*",
+    "description": "SQLite data store for Entity Framework.",
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+    "dependencies": {
+        "EntityFramework.Relational": "7.0.0-*",
+        "Microsoft.Data.Sqlite": "1.0.0-*"
+    },
+    "compile": "..\\Shared\\*.cs",
+    "frameworks": {
+        "net451": { },
+        "dnx451": { },
+        "dnxcore50": { },
+        ".NETPortable,Version=v4.5,Profile=Profile7": { }
+    }
+}

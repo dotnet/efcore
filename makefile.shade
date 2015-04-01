@@ -14,6 +14,9 @@ k-standard-goals
   for each='var projectFile in Files.Include("src/**/*.csproj").Include("test/**/*.csproj")'
     exec program='${buildProgram}' commandline='${projectFile} /t:WritePackageReferences /v:m /nologo /p:Configuration=${E("Configuration")}'
 
+#nuget-restore target='initialize' if='!IsMono && !IsTeamCity'
+  exec-clr program='.nuget/NuGet.exe' commandline='restore EntityFramework.sln'
+
 @{
     var packagesDir = Environment.GetEnvironmentVariable("DNX_PACKAGES")
         ?? Path.Combine(

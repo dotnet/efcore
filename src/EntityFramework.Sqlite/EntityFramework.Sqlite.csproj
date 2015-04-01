@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E340807B-ECBB-41DF-A164-23FE833C76DE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.Sqlite</RootNamespace>
+    <AssemblyName>EntityFramework.Sqlite</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Data.Common">
+      <TargetFramework>portable-wpa81+wp80+win80+net45+aspnetcore50</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection.Interfaces" />
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
+    <PackageReference Include="Remotion.Linq">
+      <TargetFramework>portable-net45+win+wpa81+wp80</TargetFramework>
+    </PackageReference>
+    <ProjectReference Include="..\EntityFramework.Core\EntityFramework.Core.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\tools\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
+    <Compile Include="..\Shared\Check.cs">
+      <Link>Utilities\Check.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>Extensions\SharedTypeExtensions.cs</Link>
+    </Compile>
+    <Compile Include="Extensions\SqliteDbContextOptionsBuilderExtensions.cs" />
+    <Compile Include="Extensions\SqliteEntityFrameworkServicesBuilderExtensions.cs" />
+    <Compile Include="ISqliteConnection.cs" />
+    <Compile Include="ISqliteDatabaseFactory.cs" />
+    <Compile Include="ISqliteDataStore.cs" />
+    <Compile Include="ISqliteDataStoreCreator.cs" />
+    <Compile Include="ISqliteDataStoreServices.cs" />
+    <Compile Include="ISqliteTypeMapper.cs" />
+    <Compile Include="Metadata\SqliteModelBuilderFactory.cs" />
+    <Compile Include="Migrations\ISqliteHistoryRepository.cs" />
+    <Compile Include="Migrations\ISqliteMigrationSqlGenerator.cs" />
+    <Compile Include="Metadata\ISqliteModelBuilderFactory.cs" />
+    <Compile Include="Migrations\ISqliteModelDiffer.cs" />
+    <Compile Include="ISqliteModelSource.cs" />
+    <Compile Include="Query\ISqliteQueryContextFactory.cs" />
+    <Compile Include="ISqliteSqlGenerator.cs" />
+    <Compile Include="Migrations\SqliteHistoryRepository.cs" />
+    <Compile Include="Migrations\SqliteMigrationSqlGenerator.cs" />
+    <Compile Include="Migrations\SqliteModelDiffer.cs" />
+    <Compile Include="Query\ISqliteValueReaderFactoryFactory.cs" />
+    <Compile Include="Query\SqliteQueryCompilationContext.cs" />
+    <Compile Include="Query\SqliteQueryContextFactory.cs" />
+    <Compile Include="Query\SqliteQueryGenerator.cs" />
+    <Compile Include="Query\SqliteValueReaderFactory.cs" />
+    <Compile Include="Query\SqliteValueReaderFactoryFactory.cs" />
+    <Compile Include="SqliteDatabaseFactory.cs" />
+    <Compile Include="SqliteDataStoreConnection.cs" />
+    <Compile Include="SqliteDataStoreCreator.cs" />
+    <Compile Include="SqliteModelSource.cs" />
+    <Compile Include="SqliteSqlGenerator.cs" />
+    <Compile Include="SqliteTypeMapper.cs" />
+    <Compile Include="Update\ISqliteBatchExecutor.cs" />
+    <Compile Include="Update\ISqliteCommandBatchPreparer.cs" />
+    <Compile Include="Update\ISqliteModificationCommandBatchFactory.cs" />
+    <Compile Include="Update\SqliteBatchExecutor.cs" />
+    <Compile Include="Update\SqliteModificationCommandBatch.cs" />
+    <Compile Include="Update\SqliteCommandBatchPreparer.cs" />
+    <Compile Include="Update\SqliteModificationCommandBatchFactory.cs" />
+    <Compile Include="ValueGeneration\ISqliteValueGeneratorCache.cs" />
+    <Compile Include="ValueGeneration\ISqliteValueGeneratorSelector.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="..\Shared\CodeAnnotations.cs">
+      <Link>Utilities\CodeAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="SqliteDataStore.cs" />
+    <Compile Include="SqliteDataStoreServices.cs" />
+    <Compile Include="SqliteDataStoreSource.cs" />
+    <Compile Include="SqliteOptionsExtension.cs" />
+    <Compile Include="ValueGeneration\SqliteValueGeneratorCache.cs" />
+    <Compile Include="ValueGeneration\SqliteValueGeneratorSelector.cs" />
+    <Content Include="..\..\tools\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Resources.cs</LastGenOutput>
+    </Content>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

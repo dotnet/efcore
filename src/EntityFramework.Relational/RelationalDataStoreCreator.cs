@@ -12,23 +12,54 @@ namespace Microsoft.Data.Entity.Relational
     {
         public abstract bool Exists();
 
-        public abstract Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return Task.FromResult(Exists());
+        }
 
         public abstract void Create();
 
-        public abstract Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public virtual Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Create();
+
+            return Task.FromResult(0);
+        }
 
         public abstract void Delete();
 
-        public abstract Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public virtual Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Delete();
+
+            return Task.FromResult(0);
+        }
 
         public abstract void CreateTables(IModel model);
 
-        public abstract Task CreateTablesAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken));
+        public virtual Task CreateTablesAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            CreateTables(model);
+
+            return Task.FromResult(0);
+        }
 
         public abstract bool HasTables();
 
-        public abstract Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        public virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return Task.FromResult(HasTables());
+        }
 
         public virtual bool EnsureDeleted(IModel model)
         {

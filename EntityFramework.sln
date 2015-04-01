@@ -53,6 +53,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Relational.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SqlServer.Design.Tests", "test\EntityFramework.SqlServer.Design.Tests\EntityFramework.SqlServer.Design.Tests.csproj", "{AC579BD1-6646-4A68-8C49-60E36EFF20A1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Sqlite", "src\EntityFramework.Sqlite\EntityFramework.Sqlite.csproj", "{E340807B-ECBB-41DF-A164-23FE833C76DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Sqlite.Tests", "test\EntityFramework.Sqlite.Tests\EntityFramework.Sqlite.Tests.csproj", "{4E8D7833-A710-41A9-BD77-DF985D41857C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +155,14 @@ Global
 		{AC579BD1-6646-4A68-8C49-60E36EFF20A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC579BD1-6646-4A68-8C49-60E36EFF20A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC579BD1-6646-4A68-8C49-60E36EFF20A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E340807B-ECBB-41DF-A164-23FE833C76DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E340807B-ECBB-41DF-A164-23FE833C76DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E340807B-ECBB-41DF-A164-23FE833C76DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E340807B-ECBB-41DF-A164-23FE833C76DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E8D7833-A710-41A9-BD77-DF985D41857C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E8D7833-A710-41A9-BD77-DF985D41857C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E8D7833-A710-41A9-BD77-DF985D41857C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E8D7833-A710-41A9-BD77-DF985D41857C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -179,5 +191,7 @@ Global
 		{9AFDF1FA-1710-48E3-9802-7AB9DAC91B35} = {35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}
 		{A8B8291A-2E63-48DC-A19E-41AF9E50F22D} = {547020C0-976F-4542-81CE-7FD465595614}
 		{AC579BD1-6646-4A68-8C49-60E36EFF20A1} = {547020C0-976F-4542-81CE-7FD465595614}
+		{E340807B-ECBB-41DF-A164-23FE833C76DE} = {35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}
+		{4E8D7833-A710-41A9-BD77-DF985D41857C} = {547020C0-976F-4542-81CE-7FD465595614}
 	EndGlobalSection
 EndGlobal
