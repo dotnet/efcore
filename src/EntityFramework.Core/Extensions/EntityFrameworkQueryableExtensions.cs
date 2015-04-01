@@ -2189,7 +2189,7 @@ namespace Microsoft.Data.Entity
         internal static readonly MethodInfo ThenIncludeAfterCollectionMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
-                .Single(mi => mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsConstructedGenericType);
+                .Single(mi => !mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
 
         internal static readonly MethodInfo ThenIncludeAfterReferenceMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
