@@ -30,14 +30,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             Check.NotNull(sb, nameof(sb));
 
             var errorMessageAnnotation =
-                EntityType[SqlServerMetadataModelProvider.AnnotationNameEntityTypeError] as string;
+                (string)EntityType[SqlServerMetadataModelProvider.AnnotationNameEntityTypeError];
 
             if (errorMessageAnnotation != null)
             {
                 GenerateCommentHeader(sb);
                 Generator.CSharpCodeGeneratorHelper.SingleLineComment(errorMessageAnnotation, sb);
-                Generator.Logger.LogWarning(
-                    Strings.CannotGenerateEntityType(EntityType.Name, errorMessageAnnotation));
 
                 return;
             }
