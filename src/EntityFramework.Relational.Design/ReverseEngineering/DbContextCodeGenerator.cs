@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             foreach (var entityType in OrderedEntityTypes())
             {
                 var navigationsStringBuilder = new IndentedStringBuilder(sb);
-                navigationsStringBuilder.IncrementIndent().IncrementIndent();
+                navigationsStringBuilder.IncrementIndent();
                 GenerateNavigationsConfiguration(entityType, navigationsStringBuilder);
                 var navigationsCode = navigationsStringBuilder.ToString();
                 if (!string.IsNullOrEmpty(navigationsCode))
@@ -181,15 +181,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     sb.Append("modelBuilder.Entity<");
                     sb.Append(entityType.Name);
                     sb.AppendLine(">(entity =>");
-                    using (sb.Indent())
-                    {
-                        sb.AppendLine("{");
-                        sb.DecrementIndent().DecrementIndent().DecrementIndent().DecrementIndent();
-                        sb.AppendLine(navigationsCode);
-                        sb.IncrementIndent().IncrementIndent().IncrementIndent().IncrementIndent();
-                        sb.AppendLine("}");
-                    }
-                    sb.AppendLine(");");
+                    sb.AppendLine("{");
+                    sb.DecrementIndent().DecrementIndent().DecrementIndent();
+                    sb.AppendLine(navigationsCode);
+                    sb.IncrementIndent().IncrementIndent().IncrementIndent();
+                    sb.AppendLine("});");
                 }
             }
 
@@ -202,28 +198,26 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(sb, nameof(sb));
 
+            sb.Append("{");
             using (sb.Indent())
             {
-                sb.Append("{");
-                using (sb.Indent())
+                var hadPreviousAppend = false;
+                var key = ((EntityType)entityType).FindPrimaryKey();
+                if (key != null && key.Properties.Count > 0)
                 {
-                    var key = entityType.GetPrimaryKey();
-                    if (key.Properties.Count > 0)
-                    {
-                        GenerateEntityKeyConfiguration(key, sb);
-                    }
-                    GenerateEntityFacetsConfiguration(entityType, sb);
-                    foreach (var property in OrderedProperties(entityType))
-                    {
-                        GeneratePropertyFacetsConfiguration(property, sb);
-                    }
+                    hadPreviousAppend |= GenerateEntityKeyConfiguration(key, hadPreviousAppend, sb);
                 }
-                sb.AppendLine();
-                sb.AppendLine("}");
+                hadPreviousAppend |= GenerateEntityFacetsConfiguration(entityType, hadPreviousAppend, sb);
+                foreach (var property in OrderedProperties(entityType))
+                {
+                    hadPreviousAppend |= GeneratePropertyFacetsConfiguration(property, hadPreviousAppend, sb);
+                }
             }
+            sb.AppendLine();
+            sb.Append("}");
         }
 
-        public virtual void GenerateEntityKeyConfiguration([NotNull] IKey key, [NotNull] IndentedStringBuilder sb)
+        public virtual bool GenerateEntityKeyConfiguration([NotNull] IKey key, bool hadPreviousAppend, [NotNull] IndentedStringBuilder sb)
         {
             Check.NotNull(key, nameof(key));
             Check.NotNull(sb, nameof(sb));
@@ -235,16 +229,23 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                         key.Properties.OrderBy(p => p.Name),
                         conventionKeyProperties.OrderBy(p => p.Name)))
             {
+                if (hadPreviousAppend)
+                {
+                    sb.AppendLine();
+                }
                 sb.AppendLine();
                 sb.Append("entity.Key(e => ");
                 sb.Append(Generator.ModelUtilities
                     .GenerateLambdaToKey(key.Properties, "e"));
                 sb.Append(");");
+                hadPreviousAppend = true;
             }
+
+            return hadPreviousAppend;
         }
 
-        public virtual void GenerateEntityFacetsConfiguration(
-            [NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder sb)
+        public virtual bool GenerateEntityFacetsConfiguration(
+            [NotNull] IEntityType entityType, bool hadPreviousAppend, [NotNull] IndentedStringBuilder sb)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(sb, nameof(sb));
@@ -257,25 +258,35 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             {
                 foreach (var facetConfig in nonForRelationalEntityFacetsConfiguration)
                 {
+                    if (hadPreviousAppend)
+                    {
+                        sb.AppendLine();
+                    }
                     sb.AppendLine();
+                    sb.Append("entity.");
                     sb.Append(facetConfig);
+                    sb.Append(";");
+                    hadPreviousAppend = true;
                 }
 
                 if (forRelationalEntityFacetsConfiguration.Count > 0)
                 {
-                    sb.AppendLine();
-                    sb.Append("entity.ForRelational()");
-                    using (sb.Indent())
+                    foreach (var facetConfig in forRelationalEntityFacetsConfiguration)
                     {
-                        foreach (var facetConfig in forRelationalEntityFacetsConfiguration)
+                        if (hadPreviousAppend)
                         {
                             sb.AppendLine();
-                            sb.Append(facetConfig);
                         }
+                        sb.AppendLine();
+                        sb.Append("entity.ForRelational()");
+                        sb.Append(facetConfig);
+                        sb.Append(";");
+                        hadPreviousAppend = true;
                     }
                 }
-                sb.Append(";");
             }
+
+            return hadPreviousAppend;
         }
 
         public virtual List<string> GenerateNonForRelationalEntityFacetsConfiguration([NotNull] IEntityType entityType)
@@ -324,8 +335,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public abstract void GenerateNavigationsConfiguration(
             [NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder sb);
 
-        public virtual void GeneratePropertyFacetsConfiguration(
-            [NotNull] IProperty property, [NotNull] IndentedStringBuilder sb)
+        public virtual bool GeneratePropertyFacetsConfiguration(
+            [NotNull] IProperty property, bool hadPreviousAppend, [NotNull] IndentedStringBuilder sb)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(sb, nameof(sb));
@@ -337,36 +348,50 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                              || relationalPropertyFacetsConfiguration.Count > 0);
             if (anyFacets)
             {
-                sb.AppendLine();
-                sb.Append("entity.Property(e => e.");
-                sb.Append(property.Name);
-                sb.Append(")");
-                using (sb.Indent())
+                foreach (var facetConfig in nonProviderSpecificPropertyFacetsConfiguration)
                 {
-                    foreach (var facetConfig in nonProviderSpecificPropertyFacetsConfiguration)
+                    if (hadPreviousAppend)
+                    {
+                        sb.AppendLine();
+                    }
+                    sb.AppendLine();
+                    sb.Append("entity.Property(e => e.");
+                    sb.Append(property.Name);
+                    sb.Append(")");
+                    using (sb.Indent())
                     {
                         sb.AppendLine();
                         sb.Append(facetConfig);
+                        sb.Append(";");
                     }
+                    hadPreviousAppend = true;
+                }
 
-                    if (relationalPropertyFacetsConfiguration.Count > 0)
+                foreach (var facetConfig in relationalPropertyFacetsConfiguration)
+                {
+                    if (hadPreviousAppend)
                     {
                         sb.AppendLine();
-                        sb.Append(".ForRelational()");
-                        using (sb.Indent())
-                        {
-                            foreach (var facetConfig in relationalPropertyFacetsConfiguration)
-                            {
-                                sb.AppendLine();
-                                sb.Append(facetConfig);
-                            }
-                        }
                     }
+                    sb.AppendLine();
+                    sb.Append("entity.Property(e => e.");
+                    sb.Append(property.Name);
+                    sb.Append(")");
+                    sb.AppendLine();
+                    using (sb.Indent())
+                    {
+                        sb.Append(".ForRelational()");
+                        sb.Append(facetConfig);
+                        sb.Append(";");
+                    }
+                    hadPreviousAppend = true;
                 }
-                sb.Append(";");
             }
 
-            GenerateProviderSpecificPropertyFacetsConfiguration(property, "entity", sb);
+            hadPreviousAppend |=
+                GenerateProviderSpecificPropertyFacetsConfiguration(property, "entity", hadPreviousAppend, sb);
+
+            return hadPreviousAppend;
         }
 
 
@@ -424,9 +449,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return facetsConfig;
         }
 
-        public abstract void GenerateProviderSpecificPropertyFacetsConfiguration(
+        public abstract bool GenerateProviderSpecificPropertyFacetsConfiguration(
             [NotNull] IProperty property, [NotNull] string entityVariableName,
-            [NotNull] IndentedStringBuilder sb);
+            bool hadPreviousAppend, [NotNull] IndentedStringBuilder sb);
 
         public virtual string GenerateMaxLengthFacetConfiguration([NotNull] IProperty property)
         {

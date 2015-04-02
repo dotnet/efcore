@@ -32,6 +32,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public const string AnnotationNamePrincipalEndNavPropName = AnnotationPrefix + "PrincipalEndNavPropName";
         public const string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";
 
+        public const string NavigationNameUniquifyingSuffix = "Navigation";
+
         private ILogger _logger;
         private ModelUtilities _modelUtilities;
         private SqlServerLiteralUtilities _sqlServerLiteralUtilities;
@@ -431,7 +433,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     var dependentEndNavigationPropertyName =
                         CSharpUtilities.Instance.GenerateCSharpIdentifier(
                             dependentEndNavigationPropertyCandidateName,
-                            dependentEndExistingIdentifiers);
+                            dependentEndExistingIdentifiers,
+                            NavigationUniquifier);
                     foreignKey.AddAnnotation(
                         AnnotationNameDependentEndNavPropName,
                         dependentEndNavigationPropertyName);
@@ -447,7 +450,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         var principalEndNavigationPropertyName =
                             CSharpUtilities.Instance.GenerateCSharpIdentifier(
                                 principalEndNavigationPropertyCandidateName,
-                                principalEndExistingIdentifiers);
+                                principalEndExistingIdentifiers,
+                                NavigationUniquifier);
                         foreignKey.AddAnnotation(
                             AnnotationNamePrincipalEndNavPropName,
                             principalEndNavigationPropertyName);
@@ -496,6 +500,27 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             Check.NotNull(listOfColumnIds, nameof(listOfColumnIds));
 
             return string.Join(string.Empty, listOfColumnIds.OrderBy(columnId => columnId));
+        }
+
+
+        public virtual string NavigationUniquifier(
+            [NotNull] string proposedIdentifier, [CanBeNull]ICollection<string> existingIdentifiers)
+        {
+            if (existingIdentifiers == null
+                || !existingIdentifiers.Contains(proposedIdentifier))
+            {
+                return proposedIdentifier;
+            }
+
+            string finalIdentifier = proposedIdentifier + NavigationNameUniquifyingSuffix;
+            var suffix = 1;
+            while (existingIdentifiers.Contains(finalIdentifier))
+            {
+                finalIdentifier = proposedIdentifier + suffix.ToString();
+                suffix++;
+            }
+
+            return finalIdentifier;
         }
 
         public virtual void ApplyPropertyProperties(
