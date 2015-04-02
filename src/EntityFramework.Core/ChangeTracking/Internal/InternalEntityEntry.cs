@@ -144,12 +144,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             // set all properties to modified if the entity state is explicitly set to Modified.
             if (newState == EntityState.Modified)
             {
-                _stateData.FlagAllProperties(EntityType.GetProperties().Count(), isFlagged: true);
-
-                foreach (var keyProperty in EntityType.GetProperties().Where(
-                    p => p.IsReadOnly))
+                foreach (var property in EntityType.GetProperties().Where(
+                    p => !p.IsReadOnlyAfterSave))
                 {
-                    _stateData.FlagProperty(keyProperty.Index, isFlagged: false);
+                    _stateData.FlagProperty(property.Index, isFlagged: true);
                 }
             }
 
@@ -225,9 +223,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return;
             }
 
-            if (isModified && property.IsReadOnly)
+            if (isModified && property.IsKey())
             {
-                throw new NotSupportedException(Strings.PropertyReadOnly(property.Name, EntityType.Name));
+                throw new NotSupportedException(Strings.KeyReadOnly(property.Name, EntityType.DisplayName()));
             }
 
             _stateData.FlagProperty(property.Index, isModified);
@@ -396,6 +394,23 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual InternalEntityEntry PrepareToSave()
         {
+            if (EntityState == EntityState.Added)
+            {
+                var setProperty = EntityType.GetProperties().FirstOrDefault(p => p.IsReadOnlyBeforeSave && !IsTemporaryOrSentinel(p));
+                if (setProperty != null)
+                {
+                    throw new InvalidOperationException(Strings.PropertyReadOnlyBeforeSave(setProperty.Name, EntityType.DisplayName()));
+                }
+            }
+            else if (EntityState == EntityState.Modified)
+            {
+                var modifiedProperty = EntityType.GetProperties().FirstOrDefault(p => p.IsReadOnlyAfterSave && IsPropertyModified(p));
+                if (modifiedProperty != null)
+                {
+                    throw new InvalidOperationException(Strings.PropertyReadOnlyAfterSave(modifiedProperty.Name, EntityType.DisplayName()));
+                }
+            }
+
             var properties = MayGetStoreValue();
             if (properties.Any())
             {
@@ -483,8 +498,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual bool StoreMustGenerateValue([NotNull] IProperty property)
             => property.StoreGeneratedPattern != StoreGeneratedPattern.None
-               && ((EntityState == EntityState.Added && (HasTemporaryValue(property) || property.IsSentinelValue(this[property])))
-                   || IsPropertyModified(property));
+               && ((EntityState == EntityState.Added && IsTemporaryOrSentinel(property))
+                   || (property.StoreGeneratedPattern == StoreGeneratedPattern.Computed
+                       && (EntityState == EntityState.Modified && !IsPropertyModified(property))));
+
+        private bool IsTemporaryOrSentinel(IProperty property) => HasTemporaryValue(property) || property.IsSentinelValue(this[property]);
 
         public virtual bool IsKeySet => !EntityType.GetPrimaryKey().Properties.Any(p => p.IsSentinelValue(this[p]));
 

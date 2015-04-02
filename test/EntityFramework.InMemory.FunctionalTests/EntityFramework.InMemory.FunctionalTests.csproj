@@ -89,6 +89,7 @@
     <Compile Include="AsyncQueryInMemoryTest.cs" />
     <Compile Include="QueryInMemoryTest.cs" />
     <Compile Include="ShadowStateUpdateTest.cs" />
+    <Compile Include="StoreGeneratedInMemoryTest.cs" />
     <Compile Include="TestInMemoryModelSource.cs" />
     <None Include="packages.config" />
     <None Include="project.json" />

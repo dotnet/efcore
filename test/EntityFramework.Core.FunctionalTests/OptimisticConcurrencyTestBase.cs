@@ -18,22 +18,37 @@ namespace Microsoft.Data.Entity.FunctionalTests
     // TODO: Remove these once available in the product
     internal static class TestExtensions
     {
-        public static void SetValues(this IPropertyAccessor propertyAccessor, Dictionary<IProperty, object> values)
+        public static void SetValues(this InternalEntityEntry internalEntry, Dictionary<IProperty, object> values)
         {
             foreach (var value in values)
             {
-                propertyAccessor[value.Key] = value.Value;
+                var property = value.Key;
+
+                internalEntry[property] = value.Value;
+
+                if (property.IsReadOnlyAfterSave)
+                {
+                    internalEntry.SetPropertyModified(property, isModified: false);
+                }
             }
         }
 
-        public static void SetValues(this EntityEntry entityEntry, Dictionary<string, object> values)
+        public static void SetOriginalValues(this InternalEntityEntry internalEntry, Dictionary<IProperty, object> values)
         {
-            var entry = ((IAccessor<InternalEntityEntry>)entityEntry).Service;
-            var entityType = entry.EntityType;
+            var originalValues = internalEntry.OriginalValues;
+
             foreach (var value in values)
             {
-                var property = entityType.GetProperty(value.Key);
-                entry[property] = value.Value;
+                var property = value.Key;
+
+                originalValues[property] = value.Value;
+
+                if (property.IsReadOnlyAfterSave)
+                {
+                    // Prevent DetectChanges from marking this property as Modified
+                    internalEntry[property] = value.Value;
+                    internalEntry.SetPropertyModified(property, isModified: false);
+                }
             }
         }
 
@@ -62,7 +77,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             else
             {
                 internalEntry.SetValues(storeValues);
-                internalEntry.OriginalValues.SetValues(storeValues);
+                internalEntry.SetOriginalValues(storeValues);
                 internalEntry.SetEntityState(EntityState.Unchanged);
             }
             return Task.FromResult(false);
@@ -141,7 +156,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 ClientPodiums, (c, ex) =>
                     {
                         var driverEntry = ex.Entries.Single();
-                        driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues(c));
+                        driverEntry.SetOriginalValues(driverEntry.GetDatabaseValues(c));
                         ResolveConcurrencyTokens(driverEntry);
                     });
         }
@@ -155,7 +170,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         var driverEntry = ex.Entries.Single();
                         var storeValues = driverEntry.GetDatabaseValues(c);
                         driverEntry.SetValues(storeValues);
-                        driverEntry.OriginalValues.SetValues(storeValues);
+                        driverEntry.SetOriginalValues(storeValues);
                         ResolveConcurrencyTokens(driverEntry);
                     });
         }
@@ -167,7 +182,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 10, (c, ex) =>
                     {
                         var driverEntry = ex.Entries.Single();
-                        driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues(c));
+                        driverEntry.SetOriginalValues(driverEntry.GetDatabaseValues(c));
                         ResolveConcurrencyTokens(driverEntry);
                         ((Driver)driverEntry.Entity).Podiums = 10;
                     });
@@ -182,7 +197,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         var driverEntry = ex.Entries.Single();
                         var storeValues = driverEntry.GetDatabaseValues(c);
                         driverEntry.SetValues(storeValues);
-                        driverEntry.OriginalValues.SetValues(storeValues);
+                        driverEntry.SetOriginalValues(storeValues);
                         driverEntry.SetEntityState(EntityState.Unchanged);
                     });
         }
@@ -469,7 +484,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                         entry.SetEntityState(EntityState.Unchanged);
                         var storeValues = entry.GetDatabaseValues(c);
-                        entry.OriginalValues.SetValues(storeValues);
+                        entry.SetOriginalValues(storeValues);
                         entry.SetValues(storeValues);
                         ResolveConcurrencyTokens(entry);
                     },

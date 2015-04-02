@@ -109,53 +109,111 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Read_only_properties_cannot_be_modified()
+        public void Read_only_before_save_properties_throw_if_not_null_or_temp()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
             var nonKeyProperty = entityType.GetProperty("Name");
-            nonKeyProperty.IsReadOnly = true;
+            nonKeyProperty.IsReadOnlyBeforeSave = true;
+            keyProperty.IsReadOnlyBeforeSave = true;
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
+
+            var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
+
+            entry.SetEntityState(EntityState.Added);
+            entry.MarkAsTemporary(keyProperty);
+
+            entry[nonKeyProperty] = "Jillybean";
+
+            Assert.Equal(
+                Strings.PropertyReadOnlyBeforeSave("Name", typeof(SomeEntity).Name),
+                Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
+
+            entry[nonKeyProperty] = null;
+
+            entry[keyProperty] = 2;
+
+            Assert.Equal(
+                Strings.PropertyReadOnlyBeforeSave("Id", typeof(SomeEntity).Name),
+                Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
+        }
+
+        [Fact]
+        public void Read_only_after_save_properties_throw_if_modified()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            var nonKeyProperty = entityType.GetProperty("Name");
+            nonKeyProperty.IsReadOnlyAfterSave = true;
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
+
+            var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
+
+            entry[entityType.GetProperty("Id")] = 1;
+            entry[nonKeyProperty] = "Jillybean";
+
+            entry.SetEntityState(EntityState.Modified);
+
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+
+            entry.SetEntityState(EntityState.Unchanged, true);
+
+            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+
+            entry.SetPropertyModified(nonKeyProperty);
+
+            Assert.True(entry.IsPropertyModified(nonKeyProperty));
+
+            Assert.Equal(
+                Strings.PropertyReadOnlyAfterSave("Name", typeof(SomeEntity).Name),
+                Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
+
+            entry.SetPropertyModified(nonKeyProperty, isModified: false);
+
+            entry[nonKeyProperty] = "Beanjilly";
+
+            Assert.True(entry.IsPropertyModified(nonKeyProperty));
+
+            Assert.Equal(
+                Strings.PropertyReadOnlyAfterSave("Name", typeof(SomeEntity).Name),
+                Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
+        }
+
+        [Fact]
+        public void Key_properties_throw_immediately_if_modified()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            var keyProperty = entityType.GetProperty("Id");
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
             entry[keyProperty] = 1;
-            entry[nonKeyProperty] = "Jillybean";
 
             entry.SetEntityState(EntityState.Modified);
 
             Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
             entry.SetEntityState(EntityState.Unchanged, true);
 
             Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
             Assert.Equal(
-                Strings.PropertyReadOnly("Name", typeof(SomeEntity).FullName),
-                Assert.Throws<NotSupportedException>(() => entry.SetPropertyModified(nonKeyProperty)).Message);
-
-            Assert.Equal(
-                Strings.PropertyReadOnly("Id", typeof(SomeEntity).FullName),
+                Strings.KeyReadOnly("Id", typeof(SomeEntity).Name),
                 Assert.Throws<NotSupportedException>(() => entry.SetPropertyModified(keyProperty)).Message);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
             Assert.Equal(
-                Strings.PropertyReadOnly("Id", typeof(SomeEntity).FullName),
+                Strings.KeyReadOnly("Id", typeof(SomeEntity).Name),
                 Assert.Throws<NotSupportedException>(() => entry[keyProperty] = 2).Message);
 
-            Assert.Equal(
-                Strings.PropertyReadOnly("Name", typeof(SomeEntity).FullName),
-                Assert.Throws<NotSupportedException>(() => entry[nonKeyProperty] = "Beanjilly").Message);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
         }
 
         [Fact]
@@ -1282,8 +1340,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(model),
                 entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new SomeEntity { Id = 1 },
+                new ObjectArrayValueReader(new object[] { 1, null }));
 
             entry.SetEntityState(EntityState.Added);
             entry.PrepareToSave();
@@ -1300,13 +1358,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             entityType.GetProperty("Name").StoreGeneratedPattern = StoreGeneratedPattern.Computed;
-            entityType.GetProperty("Name").IsReadOnly = false;
+            entityType.GetProperty("Name").IsReadOnlyAfterSave = false;
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(model),
                 entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new SomeEntity { Id = 1 },
+                new ObjectArrayValueReader(new object[] { 1, null }));
 
             entry.SetEntityState(EntityState.Added);
             entry.PrepareToSave();

@@ -133,26 +133,60 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
 
-            Assert.Null(property.IsReadOnly);
-            Assert.False(((IProperty)property).IsReadOnly);
+            Assert.Null(property.IsReadOnlyAfterSave);
+            Assert.False(((IProperty)property).IsReadOnlyAfterSave);
+            Assert.Null(property.IsReadOnlyBeforeSave);
+            Assert.False(((IProperty)property).IsReadOnlyBeforeSave);
         }
 
         [Fact]
-        public void Property_can_be_marked_as_read_only()
+        public void Property_can_be_marked_as_read_only_before_save()
         {
             var property 
                 = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)))
                 {
-                    IsReadOnly = true
+                    IsReadOnlyBeforeSave = true
                 };
 
-            Assert.True(property.IsReadOnly.Value);
+            Assert.True(property.IsReadOnlyBeforeSave.Value);
 
-            property.IsReadOnly = false;
-            Assert.False(property.IsReadOnly.Value);
+            property.IsReadOnlyBeforeSave = false;
+            Assert.False(property.IsReadOnlyBeforeSave.Value);
 
-            property.IsReadOnly = null;
-            Assert.Null(property.IsReadOnly);
+            property.IsReadOnlyBeforeSave = null;
+            Assert.Null(property.IsReadOnlyBeforeSave);
+        }
+
+        [Fact]
+        public void Property_can_be_marked_as_read_only_after_save()
+        {
+            var property
+                = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)))
+                {
+                    IsReadOnlyAfterSave = true
+                };
+
+            Assert.True(property.IsReadOnlyAfterSave.Value);
+
+            property.IsReadOnlyAfterSave = false;
+            Assert.False(property.IsReadOnlyAfterSave.Value);
+
+            property.IsReadOnlyAfterSave = null;
+            Assert.Null(property.IsReadOnlyAfterSave);
+        }
+
+        [Fact]
+        public void Property_can_be_marked_as_read_only_always()
+        {
+            var property
+                = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)))
+                {
+                    IsReadOnlyBeforeSave = true,
+                    IsReadOnlyAfterSave = true
+                };
+
+            Assert.True(property.IsReadOnlyBeforeSave.Value);
+            Assert.True(property.IsReadOnlyAfterSave.Value);
         }
 
         [Fact]
