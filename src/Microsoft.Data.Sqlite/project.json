@@ -1,0 +1,48 @@
+﻿{
+    "version": "1.0.0-*",
+    "description": "SQLite implementation of the System.Data.Common provider model.",
+    "frameworks": {
+        "net451": {
+            "frameworkAssemblies": {
+                "System.Data": ""
+            }
+        },
+        "dnx451": {
+            "dependencies": {
+                "Microsoft.Framework.Runtime.Interfaces": { "version": "1.0.0-*", "type": "build" }
+            },
+            "frameworkAssemblies": {
+                "System.Data": ""
+            }
+        },
+        "dnxcore50": {
+            "dependencies": {
+                "Microsoft.Framework.Runtime.Interfaces": { "version": "1.0.0-*", "type": "build" },
+                "System.Data.Common": "4.0.0-beta-*",
+                "System.Diagnostics.Debug": "4.0.10-beta-*",
+                "System.IO.FileSystem": "4.0.0-beta-*",
+                "System.Linq": "4.0.0-beta-*",
+                "System.Resources.ResourceManager": "4.0.0-beta-*",
+                "System.Runtime.InteropServices": "4.0.20-beta-*"
+            }
+        },
+        "netcore451": {
+            "dependencies": {
+                "System.Data.Common": "4.0.0-beta-*"
+            },
+            "frameworkAssemblies": {
+                "System.Collections": "",
+                "System.ComponentModel": "",
+                "System.Diagnostics.Debug": "",
+                "System.Globalization": "",
+                "System.Linq": "",
+                "System.Reflection": "",
+                "System.Resources.ResourceManager": "",
+                "System.Runtime": "",
+                "System.Runtime.Extensions": "",
+                "System.Runtime.InteropServices": "",
+                "System.Text.Encoding": ""
+            }
+        }
+    }
+}

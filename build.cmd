@@ -1,4 +1,4 @@
-﻿@echo off
+@echo off
 cd %~dp0
 
 SETLOCAL
@@ -19,10 +19,10 @@ IF EXIST packages\KoreBuild goto run
 .nuget\NuGet.exe install KoreBuild -ExcludeVersion -o packages -nocache -pre
 .nuget\NuGet.exe install Sake -version 0.2 -o packages -ExcludeVersion
 
-IF "%SKIP_DOTNET_INSTALL%"=="1" goto run
-CALL packages\KoreBuild\build\dnvm upgrade -runtime CLR -x86
-CALL packages\KoreBuild\build\dnvm install default -runtime CoreCLR -x86
+IF "%SKIP_DNX_INSTALL%"=="1" goto run
+CALL packages\KoreBuild\build\dnvm upgrade -runtime CLR -arch x86
+CALL packages\KoreBuild\build\dnvm install default -runtime CoreCLR -arch x86
 
 :run
-CALL packages\KoreBuild\build\dnvm use default -runtime CLR -x86
+CALL packages\KoreBuild\build\dnvm use default -runtime CLR -arch x86
 packages\Sake\tools\Sake.exe -I packages\KoreBuild\build -f makefile.shade %*
