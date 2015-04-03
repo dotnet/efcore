@@ -616,6 +616,38 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_client_and_server_top_level()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.IsLondon && c.CustomerID != "AROUT"),
+                entryCount: 5);
+        }
+
+        [Fact]
+        public virtual void Where_client_or_server_top_level()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.IsLondon || c.CustomerID == "ALFKI"),
+                entryCount: 7);
+        }
+
+        [Fact]
+        public virtual void Where_client_and_server_non_top_level()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID != "ALFKI" == (c.IsLondon && c.CustomerID != "AROUT")),
+                entryCount: 6);
+        }
+
+        [Fact]
+        public virtual void Where_client_deep_inside_predicate_and_server_top_level()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID != "ALFKI" && (c.CustomerID == "FUBAR" || (c.CustomerID != "AROUT" && c.IsLondon)) ),
+                entryCount: 5);
+        }
+
+        [Fact]
         public virtual void First_client_predicate()
         {
             AssertQuery<Customer>(

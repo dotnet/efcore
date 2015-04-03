@@ -226,9 +226,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             if (!requiresClientEval)
             {
-                var sqlPredicateExpression
-                    = new SqlTranslatingExpressionTreeVisitor(this)
-                        .VisitExpression(whereClause.Predicate);
+                var translatingVisitor = new SqlTranslatingExpressionTreeVisitor(this, whereClause.Predicate);
+                var sqlPredicateExpression = translatingVisitor.VisitExpression(whereClause.Predicate);
 
                 if (sqlPredicateExpression != null)
                 {
@@ -240,6 +239,12 @@ namespace Microsoft.Data.Entity.Relational.Query
                 else
                 {
                     requiresClientEval = true;
+                }
+
+                if (translatingVisitor.ClientEvalPredicate != null)
+                {
+                    requiresClientEval = true;
+                    whereClause = new WhereClause(translatingVisitor.ClientEvalPredicate);
                 }
             }
 
