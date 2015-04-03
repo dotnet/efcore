@@ -16,13 +16,19 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
     public class SqlTranslatingExpressionTreeVisitor : ThrowingExpressionTreeVisitor
     {
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
+        private readonly Expression _topLevelPredicate;
 
-        public SqlTranslatingExpressionTreeVisitor([NotNull] RelationalQueryModelVisitor queryModelVisitor)
+        public SqlTranslatingExpressionTreeVisitor(
+            [NotNull] RelationalQueryModelVisitor queryModelVisitor, 
+            [CanBeNull] Expression topLevelPredicate = null)
         {
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
             _queryModelVisitor = queryModelVisitor;
+            _topLevelPredicate = topLevelPredicate;
         }
+
+        public virtual Expression ClientEvalPredicate { get; private set; }
 
         protected override Expression VisitBinaryExpression([NotNull] BinaryExpression binaryExpression)
         {
@@ -53,10 +59,31 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     var left = VisitExpression(binaryExpression.Left);
                     var right = VisitExpression(binaryExpression.Right);
 
-                    return left != null
-                           && right != null
+                    if (binaryExpression == _topLevelPredicate)
+                    {
+                        if (left != null && right != null)
+                        {
+                            return Expression.AndAlso(left, right);
+                        }
+
+                        if (left != null && right == null)
+                        {
+                            ClientEvalPredicate = binaryExpression.Right;
+                            return left;
+                        }
+
+                        if (left == null && right != null)
+                        {
+                            ClientEvalPredicate = binaryExpression.Left;
+                            return right;
+                        }
+
+                        return null;
+                    }
+
+                    return left != null && right != null
                         ? Expression.AndAlso(left, right)
-                        : (left ?? right);
+                        : null;
                 }
 
                 case ExpressionType.OrElse:
