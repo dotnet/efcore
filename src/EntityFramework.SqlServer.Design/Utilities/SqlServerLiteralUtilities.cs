@@ -25,7 +25,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
 
         /// <summary>
         /// Converts a string of the form 'There''s a double single quote in here'
-        /// (including the outer single quotes) to the string literal
+        /// or, for unicode strings, N'There''s a double single quote in here'
+        /// (including the optional N and the outer single quotes) to the string literal
         /// "There's a double single quote in here" (not including the double quotes).
         /// </summary>
         /// <param name="sqlServerStringLiteral"> the string to convert </param>
@@ -35,7 +36,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
             Check.NotEmpty(sqlServerStringLiteral, nameof(sqlServerStringLiteral));
 
             if (sqlServerStringLiteral[0] == 'N')
+            {
                 sqlServerStringLiteral = sqlServerStringLiteral.Substring(1);
+            }
 
             var sqlServerStringLiteralLength = sqlServerStringLiteral.Length;
             if (sqlServerStringLiteralLength < 2)
