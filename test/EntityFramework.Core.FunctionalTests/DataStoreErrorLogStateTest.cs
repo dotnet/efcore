@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             public class TestLogger : ILogger
             {
-                public IDisposable BeginScope(object state)
+                public IDisposable BeginScopeImpl(object state)
                 {
                     return NullScope.Instance;
                 }

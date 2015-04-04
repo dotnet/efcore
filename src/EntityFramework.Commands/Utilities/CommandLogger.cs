@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             }
         }
 
-        public virtual IDisposable BeginScope(object state) => null;
+        public virtual IDisposable BeginScopeImpl(object state) => null;
 
         protected abstract void WriteWarning(string message);
         protected abstract void WriteInformation(string message);

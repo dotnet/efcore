@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 get { return string.Join("\r\n", _log); }
             }
 
-            public IDisposable BeginScope(object state)
+            public IDisposable BeginScopeImpl(object state)
             {
                 return _log.Indent();
             }

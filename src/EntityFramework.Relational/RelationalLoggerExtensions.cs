@@ -47,7 +47,7 @@ namespace Microsoft.Framework.Logging
 
             var scope = Guid.NewGuid();
 
-            using (logger.BeginScope(scope))
+            using (logger.BeginScopeImpl(scope))
             {
                 logger.LogParameters(command.Parameters);
                 logger.LogSql(command.CommandText);
