@@ -202,6 +202,27 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void All_client()
+        {
+            AssertQuery<Customer>(
+                cs => cs.All(c => c.IsLondon));
+        }
+
+        [Fact]
+        public virtual void All_client_and_server_top_level()
+        {
+            AssertQuery<Customer>(
+                cs => cs.All(c => c.CustomerID != "Foo" && c.IsLondon));
+        }
+
+        [Fact]
+        public virtual void All_client_or_server_top_level()
+        {
+            AssertQuery<Customer>(
+                cs => cs.All(c => c.CustomerID != "Foo" || c.IsLondon));
+        }
+
+        [Fact]
         public virtual void Select_into()
         {
             AssertQuery<Customer>(

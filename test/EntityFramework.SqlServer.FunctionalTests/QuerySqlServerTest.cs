@@ -741,6 +741,33 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
+        //public override void All_client()
+        //{
+        //    base.All_client();
+
+        //    Assert.Equal(
+        //        @"",
+        //        Sql);
+        //}
+
+        //public override void All_client_and_server_top_level()
+        //{
+        //    base.All_client_and_server_top_level();
+
+        //    Assert.Equal(
+        //        @"",
+        //        Sql);
+        //}
+
+        //public override void All_client_or_server_top_level()
+        //{
+        //    base.All_client_or_server_top_level();
+
+        //    Assert.Equal(
+        //        @"",
+        //        Sql);
+        //}
+
         public override void Select_scalar()
         {
             base.Select_scalar();
