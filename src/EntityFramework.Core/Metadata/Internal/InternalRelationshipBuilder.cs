@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         strictPreferExisting.Value ? (bool?)true : null,
                         Metadata.IsUnique))
                 {
-                    var navigationToDependentName = Metadata.GetNavigationToDependent()?.Name ?? "";
+                    var navigationToDependentName = Metadata.PrincipalToDependent?.Name ?? "";
 
                     if (Metadata == navigationToPrincipal.ForeignKey
                         || dependentEntityType.RemoveRelationship(Metadata, configurationSource).HasValue)
@@ -70,14 +70,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             var hasChanged = navigationToPrincipalName != null &&
-                             Metadata.GetNavigationToPrincipal()?.Name != navigationToPrincipalName;
-
-            if (Metadata.IsSelfReferencing()
-                && navigationToPrincipalName != null
-                && navigationToPrincipalName == Metadata.GetNavigationToDependent()?.Name)
-            {
-                throw new InvalidOperationException(Strings.NavigationToSelfDuplicate(navigationToPrincipalName));
-            }
+                             Metadata.DependentToPrincipal?.Name != navigationToPrincipalName;
 
             return dependentEntityType
                 .Navigation(navigationToPrincipalName, Metadata, pointsToPrincipal: true, configurationSource: configurationSource)
@@ -105,7 +98,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         strictPreferExisting.Value ? (bool?)false : null,
                         Metadata.IsUnique))
                 {
-                    var navigationToPrincipalName = Metadata.GetNavigationToPrincipal()?.Name ?? "";
+                    var navigationToPrincipalName = Metadata.DependentToPrincipal?.Name ?? "";
 
                     if (Metadata == navigationToDependent.ForeignKey
                         || principalEntityType.RemoveRelationship(Metadata, configurationSource).HasValue)
@@ -119,11 +112,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             var hasChanged = navigationToDependentName != null &&
-                             Metadata.GetNavigationToDependent()?.Name != navigationToDependentName;
+                             Metadata.PrincipalToDependent?.Name != navigationToDependentName;
 
             if (Metadata.IsSelfReferencing()
                 && navigationToDependentName != null
-                && navigationToDependentName == Metadata.GetNavigationToPrincipal()?.Name)
+                && navigationToDependentName == Metadata.DependentToPrincipal?.Name)
             {
                 throw new InvalidOperationException(Strings.NavigationToSelfDuplicate(navigationToDependentName));
             }
@@ -162,7 +155,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return this;
             }
 
-            if (Metadata.GetNavigationToDependent() != null)
+            if (Metadata.PrincipalToDependent != null)
             {
                 // TODO: throw for explicit
                 return null;
@@ -203,8 +196,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return ReplaceForeignKey(
                 Metadata.EntityType,
                 Metadata.PrincipalEntityType,
-                Metadata.GetNavigationToDependent()?.Name,
-                Metadata.GetNavigationToPrincipal()?.Name,
+                Metadata.PrincipalToDependent?.Name,
+                Metadata.DependentToPrincipal?.Name,
                 null,
                 null,
                 ((IForeignKey)Metadata).IsUnique,
@@ -415,7 +408,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                                       ? Metadata.PrincipalKey.Properties
                                       : null);
 
-            var navigationToDependentName = Metadata.GetNavigationToDependent()?.Name;
+            var navigationToDependentName = Metadata.PrincipalToDependent?.Name;
 
             isUnique = isUnique ??
                        (navigationToDependentName != null
@@ -437,7 +430,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return ReplaceForeignKey(
                 Metadata.PrincipalEntityType,
                 Metadata.EntityType,
-                Metadata.GetNavigationToPrincipal()?.Name,
+                Metadata.DependentToPrincipal?.Name,
                 navigationToDependentName,
                 dependentProperties,
                 principalProperties,

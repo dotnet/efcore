@@ -9,36 +9,39 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class NavigationExtensions
     {
+        public static bool PointsToPrincipal([NotNull] this INavigation navigation) 
+            => Check.NotNull(navigation, nameof(navigation)).ForeignKey.DependentToPrincipal == navigation;
+
         public static bool IsCollection([NotNull] this INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
 
-            return !navigation.PointsToPrincipal && !navigation.ForeignKey.IsUnique;
+            return !navigation.PointsToPrincipal() && !navigation.ForeignKey.IsUnique;
         }
 
         public static Navigation FindInverse([NotNull] this Navigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
 
-            return navigation.PointsToPrincipal
-                ? navigation.ForeignKey.GetNavigationToDependent()
-                : navigation.ForeignKey.GetNavigationToPrincipal();
+            return navigation.PointsToPrincipal()
+                ? navigation.ForeignKey.PrincipalToDependent
+                : navigation.ForeignKey.DependentToPrincipal;
         }
 
         public static INavigation FindInverse([NotNull] this INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
 
-            return navigation.PointsToPrincipal
-                ? navigation.ForeignKey.GetNavigationToDependent()
-                : navigation.ForeignKey.GetNavigationToPrincipal();
+            return navigation.PointsToPrincipal()
+                ? navigation.ForeignKey.PrincipalToDependent
+                : navigation.ForeignKey.DependentToPrincipal;
         }
 
         public static EntityType GetTargetType([NotNull] this Navigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
 
-            return navigation.PointsToPrincipal
+            return navigation.PointsToPrincipal()
                 ? navigation.ForeignKey.PrincipalEntityType
                 : navigation.ForeignKey.EntityType;
         }
@@ -47,7 +50,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(navigation, nameof(navigation));
 
-            return navigation.PointsToPrincipal
+            return navigation.PointsToPrincipal()
                 ? navigation.ForeignKey.PrincipalEntityType
                 : navigation.ForeignKey.EntityType;
         }
@@ -63,7 +66,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(principalType, nameof(principalType));
             Check.NotNull(dependentType, nameof(dependentType));
 
-            if ((!shouldPointToPrincipal.HasValue || navigation.PointsToPrincipal == shouldPointToPrincipal.Value)
+            if ((!shouldPointToPrincipal.HasValue || navigation.PointsToPrincipal() == shouldPointToPrincipal.Value)
                 && navigation.ForeignKey.IsCompatible(principalType, dependentType, oneToOne))
             {
                 return true;

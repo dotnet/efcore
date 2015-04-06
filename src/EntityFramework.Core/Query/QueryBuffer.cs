@@ -322,7 +322,7 @@ namespace Microsoft.Data.Entity.Query
                 Debug.Assert(entry != null);
 
                 primaryKey
-                    = navigation.PointsToPrincipal
+                    = navigation.PointsToPrincipal()
                         ? entry.GetDependentKeySnapshot(navigation.ForeignKey)
                         : entry.GetPrimaryKeyValue();
             }
@@ -337,14 +337,14 @@ namespace Microsoft.Data.Entity.Query
                     Debug.Assert(entry != null);
 
                     primaryKey
-                        = navigation.PointsToPrincipal
+                        = navigation.PointsToPrincipal()
                             ? entry.GetDependentKeySnapshot(navigation.ForeignKey)
                             : entry.GetPrimaryKeyValue();
                 }
                 else
                 {
                     primaryKey
-                        = navigation.PointsToPrincipal
+                        = navigation.PointsToPrincipal()
                             ? foreignKeyFactory
                                 .Create(
                                     targetEntityType,
@@ -358,7 +358,7 @@ namespace Microsoft.Data.Entity.Query
                 }
             }
 
-            if (navigation.PointsToPrincipal)
+            if (navigation.PointsToPrincipal())
             {
                 relatedKeyFactory
                     = valueReader =>
@@ -388,7 +388,7 @@ namespace Microsoft.Data.Entity.Query
             int currentNavigationIndex,
             IReadOnlyList<object> relatedEntities)
         {
-            if (navigationPath[currentNavigationIndex].PointsToPrincipal
+            if (navigationPath[currentNavigationIndex].PointsToPrincipal()
                 && relatedEntities.Any())
             {
                 _clrPropertySetterSource

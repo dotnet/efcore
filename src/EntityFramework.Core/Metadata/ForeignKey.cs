@@ -17,7 +17,9 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly Key _principalKey;
 
         private bool _isRequiredSet;
-        
+        private Navigation _dependentToPrincipal;
+        private Navigation _principalToDependent;
+
         public ForeignKey(
             [NotNull] IReadOnlyList<Property> dependentProperties,
             [NotNull] Key principalKey,
@@ -45,6 +47,46 @@ namespace Microsoft.Data.Entity.Metadata
             _principalKey = principalKey;
 
             PrincipalEntityType = principalEntityType ?? _principalKey.EntityType;
+        }
+
+        public virtual Navigation DependentToPrincipal
+        {
+            get { return _dependentToPrincipal; }
+            [param: CanBeNull]
+            set
+            {
+                CheckNavigation(value, _principalToDependent);
+
+                _dependentToPrincipal = value;
+            }
+        }
+
+        public virtual Navigation PrincipalToDependent
+        {
+            get { return _principalToDependent; }
+            [param: CanBeNull] set
+            {
+                CheckNavigation(value, _dependentToPrincipal);
+
+                _principalToDependent = value;
+            }
+        }
+
+        private void CheckNavigation(Navigation value, Navigation otherNavigation)
+        {
+            if (value != null)
+            {
+                if (value.ForeignKey != this)
+                {
+                    throw new InvalidOperationException(
+                        Strings.NavigationForWrongForeignKey(value.Name, value.EntityType.DisplayName(), this, value.ForeignKey));
+                }
+
+                if (value == otherNavigation)
+                {
+                    throw new InvalidOperationException(Strings.NavigationToSelfDuplicate(value.Name));
+                }
+            }
         }
 
         [NotNull]
@@ -108,6 +150,10 @@ namespace Microsoft.Data.Entity.Metadata
         IEntityType IForeignKey.PrincipalEntityType => PrincipalEntityType;
 
         IKey IForeignKey.PrincipalKey => PrincipalKey;
+
+        INavigation IForeignKey.DependentToPrincipal => DependentToPrincipal;
+
+        INavigation IForeignKey.PrincipalToDependent => PrincipalToDependent;
 
         bool IForeignKey.IsUnique => IsUnique ?? DefaultIsUnique;
 

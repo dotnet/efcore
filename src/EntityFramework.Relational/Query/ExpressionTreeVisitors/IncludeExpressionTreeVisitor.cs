@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     canProduceInnerJoin
                         = canProduceInnerJoin
                           && (navigation.ForeignKey.IsRequired
-                              && navigation.PointsToPrincipal);
+                              && navigation.PointsToPrincipal());
 
                     var joinExpression
                         = canProduceInnerJoin
@@ -140,12 +140,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     joinExpression.Predicate
                         = BuildJoinEqualityExpression(
                             navigation,
-                            (navigation.PointsToPrincipal
+                            (navigation.PointsToPrincipal()
                                 ? targetEntityType
                                 : navigation.EntityType)
                                 .GetPrimaryKey().Properties,
-                            navigation.PointsToPrincipal ? targetTableExpression : joinExpression,
-                            navigation.PointsToPrincipal ? joinExpression : targetTableExpression);
+                            navigation.PointsToPrincipal() ? targetTableExpression : joinExpression,
+                            navigation.PointsToPrincipal() ? joinExpression : targetTableExpression);
 
                     targetTableExpression = joinedTableExpression;
 

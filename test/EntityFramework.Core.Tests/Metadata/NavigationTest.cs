@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(foreignKey, navigation.ForeignKey);
             Assert.Equal("Deception", navigation.Name);
             Assert.NotNull(navigation.EntityType);
-            Assert.True(navigation.PointsToPrincipal);
+            Assert.True(navigation.PointsToPrincipal());
             Assert.False(navigation.IsCollection());
         }
 
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(foreignKey, navigation.ForeignKey);
             Assert.Equal("Deception", navigation.Name);
             Assert.NotNull(navigation.EntityType);
-            Assert.False(navigation.PointsToPrincipal);
+            Assert.False(navigation.PointsToPrincipal());
             Assert.False(navigation.IsCollection());
         }
 
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(foreignKey, navigation.ForeignKey);
             Assert.Equal("Deception", navigation.Name);
             Assert.NotNull(navigation.EntityType);
-            Assert.False(navigation.PointsToPrincipal);
+            Assert.False(navigation.PointsToPrincipal());
             Assert.True(navigation.IsCollection());
         }
 

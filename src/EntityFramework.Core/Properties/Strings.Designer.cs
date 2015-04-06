@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Internal
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
-    using JetBrains.Annotations;
+	using JetBrains.Annotations;
 
     public static class Strings
     {
@@ -354,14 +354,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string DuplicateProperty([CanBeNull] object property, [CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateProperty", "property", "entityType"), property, entityType);
-        }
-
-        /// <summary>
-        /// The type '{entityType}' cannot have base type '{baseType}' because both types include the properties: {properties}.
-        /// </summary>
-        public static string DuplicatePropertiesOnBase([CanBeNull] object properties, [CanBeNull] object entityType, [CanBeNull] object baseType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicatePropertiesOnBase", "properties", "entityType", "baseType"), properties, entityType, baseType);
         }
 
         /// <summary>
@@ -973,6 +965,14 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// The navigation for property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.
+        /// </summary>
+        public static string NavigationForWrongForeignKey([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object targetFk, [CanBeNull] object actualFk)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationForWrongForeignKey", "navigation", "entityType", "targetFk", "actualFk"), navigation, entityType, targetFk, actualFk);
+        }
+
+        /// <summary>
         /// {debug} level logging is enabled. At this level, Entity Framework will log sensitive application data such as SQL parameter values. To hide this information configure {minimumLevel} to {recommendedLevel}
         /// </summary>
         public static string DebugLogWarning([CanBeNull] object debug, [CanBeNull] object minimumLevel, [CanBeNull] object recommendedLevel)
@@ -1002,6 +1002,14 @@ namespace Microsoft.Data.Entity.Internal
         public static string OptionsExtensionNotFound([CanBeNull] object optionsExtension)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("OptionsExtensionNotFound", "optionsExtension"), optionsExtension);
+        }
+
+        /// <summary>
+        /// The type '{entityType}' cannot have base type '{baseType}' because both types include the properties: {properties}.
+        /// </summary>
+        public static string DuplicatePropertiesOnBase([CanBeNull] object entityType, [CanBeNull] object baseType, [CanBeNull] object properties)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicatePropertiesOnBase", "entityType", "baseType", "properties"), entityType, baseType, properties);
         }
 
         private static string GetString(string name, params string[] formatterNames)

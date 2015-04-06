@@ -9,7 +9,6 @@ namespace Microsoft.Data.Entity.Metadata
     public class Navigation : PropertyBase, INavigation
     {
         private ForeignKey _foreignKey;
-        private bool _pointsToPrincipal;
 
         public Navigation(
             [NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
@@ -18,7 +17,15 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             _foreignKey = foreignKey;
-            _pointsToPrincipal = pointsToPrincipal;
+
+            if (pointsToPrincipal)
+            {
+                foreignKey.DependentToPrincipal = this;
+            }
+            else
+            {
+                foreignKey.PrincipalToDependent = this;
+            }
         }
 
         public virtual ForeignKey ForeignKey
@@ -33,20 +40,8 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual bool PointsToPrincipal
-        {
-            get { return _pointsToPrincipal; }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, nameof(value));
-
-                _pointsToPrincipal = value;
-            }
-        }
-
         public override EntityType EntityType
-            => PointsToPrincipal
+            => this.PointsToPrincipal()
                 ? ForeignKey.EntityType
                 : ForeignKey.PrincipalEntityType;
 

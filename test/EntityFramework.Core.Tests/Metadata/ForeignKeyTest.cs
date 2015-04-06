@@ -412,6 +412,56 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 false));
         }
 
+        [Fact]
+        public void Throws_setting_navigation_to_principal_on_wrong_FK()
+        {
+            var foreignKey1 = CreateOneToManyFK();
+            var foreignKey2 = CreateSelfRefFK();
+
+            var navigation = new Navigation("Deception", foreignKey1, pointsToPrincipal: true);
+
+            Assert.Equal(
+                Strings.NavigationForWrongForeignKey("Deception", "OneToManyDependent", foreignKey2, foreignKey1),
+                Assert.Throws<InvalidOperationException>(() => foreignKey2.DependentToPrincipal = navigation).Message);
+        }
+
+        [Fact]
+        public void Throws_setting_navigation_to_dependent_on_wrong_FK()
+        {
+            var foreignKey1 = CreateOneToManyFK();
+            var foreignKey2 = CreateSelfRefFK();
+
+            var navigation = new Navigation("Deception", foreignKey1, pointsToPrincipal: false);
+
+            Assert.Equal(
+                Strings.NavigationForWrongForeignKey("Deception", "OneToManyPrincipal", foreignKey2, foreignKey1),
+                Assert.Throws<InvalidOperationException>(() => foreignKey2.PrincipalToDependent = navigation).Message);
+        }
+
+        [Fact]
+        public void Throws_setting_same_navigation_to_principal_as_is_set_to_dependent()
+        {
+            var foreignKey = CreateSelfRefFK();
+
+            var navigation = new Navigation("Deception", foreignKey, pointsToPrincipal: false);
+
+            Assert.Equal(
+                Strings.NavigationToSelfDuplicate("Deception"),
+                Assert.Throws<InvalidOperationException>(() => foreignKey.DependentToPrincipal = navigation).Message);
+        }
+
+        [Fact]
+        public void Throws_setting_same_navigation_to_dependent_as_is_set_to_principal()
+        {
+            var foreignKey = CreateSelfRefFK();
+
+            var navigation = new Navigation("Deception", foreignKey, pointsToPrincipal: true);
+
+            Assert.Equal(
+                Strings.NavigationToSelfDuplicate("Deception"),
+                Assert.Throws<InvalidOperationException>(() => foreignKey.PrincipalToDependent = navigation).Message);
+        }
+
         private ForeignKey CreateSelfRefFK()
         {
             var entityType = new Model().AddEntityType(typeof(SelfRef));

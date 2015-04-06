@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             // TODO: What if the other entry is not yet being tracked?
             // Issue #323
-            if (navigation.PointsToPrincipal)
+            if (navigation.PointsToPrincipal())
             {
                 if (newValue != null)
                 {
@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             foreach (var navigation in navigations)
             {
-                if (navigation.PointsToPrincipal)
+                if (navigation.PointsToPrincipal())
                 {
                     var setter = _setterSource.GetAccessor(navigation);
 
@@ -363,7 +363,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private void Unfixup(INavigation navigation, InternalEntityEntry oldPrincipalEntry, InternalEntityEntry dependentEntry)
         {
-            if (navigation.PointsToPrincipal)
+            if (navigation.PointsToPrincipal())
             {
                 _setterSource.GetAccessor(navigation).SetClrValue(dependentEntry.Entity, null);
 
@@ -390,7 +390,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             foreach (var navigation in dependentEntry.EntityType.GetNavigations().Where(n => n.ForeignKey == foreignKey))
             {
-                if (navigation.PointsToPrincipal)
+                if (navigation.PointsToPrincipal())
                 {
                     _setterSource.GetAccessor(navigation).SetClrValue(dependentEntry.Entity, null);
                     dependentEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
@@ -478,7 +478,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         && oldEntity != entry.Entity)
                     {
                         var oldEntry = entry.StateManager.GetOrCreateEntry(oldEntity);
-                        if (navigation.PointsToPrincipal)
+                        if (navigation.PointsToPrincipal())
                         {
                             Unfixup(navigation, inverseEntry, oldEntry);
                             SetNullForeignKey(oldEntry, navigation.ForeignKey.Properties);

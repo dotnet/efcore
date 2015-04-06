@@ -992,18 +992,18 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal("Customer", customerNavigation.Name);
             Assert.Same(orderType, customerNavigation.EntityType);
             Assert.Same(customerForeignKey, customerNavigation.ForeignKey);
-            Assert.True(customerNavigation.PointsToPrincipal);
+            Assert.True(customerNavigation.PointsToPrincipal());
             Assert.False(customerNavigation.IsCollection());
             Assert.Same(customerType, customerNavigation.GetTargetType());
-            Assert.Same(customerNavigation, customerForeignKey.GetNavigationToPrincipal());
+            Assert.Same(customerNavigation, customerForeignKey.DependentToPrincipal);
 
             Assert.Equal("Orders", ordersNavigation.Name);
             Assert.Same(customerType, ordersNavigation.EntityType);
             Assert.Same(customerForeignKey, ordersNavigation.ForeignKey);
-            Assert.False(ordersNavigation.PointsToPrincipal);
+            Assert.False(ordersNavigation.PointsToPrincipal());
             Assert.True(ordersNavigation.IsCollection());
             Assert.Same(orderType, ordersNavigation.GetTargetType());
-            Assert.Same(ordersNavigation, customerForeignKey.GetNavigationToDependent());
+            Assert.Same(ordersNavigation, customerForeignKey.PrincipalToDependent);
 
             Assert.Same(customerNavigation, orderType.Navigations.Single());
             Assert.Same(ordersNavigation, customerType.Navigations.Single());
@@ -1031,12 +1031,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal("Customer", customerNavigation.Name);
             Assert.Same(orderType, customerNavigation.EntityType);
             Assert.Same(customerForeignKey, customerNavigation.ForeignKey);
-            Assert.True(customerNavigation.PointsToPrincipal);
+            Assert.True(customerNavigation.PointsToPrincipal());
             Assert.False(customerNavigation.IsCollection());
             Assert.Same(customerType, customerNavigation.GetTargetType());
 
             Assert.Same(customerNavigation, orderType.GetOrAddNavigation("Customer", customerForeignKey, pointsToPrincipal: false));
-            Assert.True(customerNavigation.PointsToPrincipal);
+            Assert.True(customerNavigation.PointsToPrincipal());
         }
 
         [Fact]
@@ -1216,8 +1216,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var navigationToDependent = principalEntityType.AddNavigation("SelfRef1", fk, pointsToPrincipal: false);
             var navigationToPrincipal = principalEntityType.AddNavigation("SelfRef2", fk, pointsToPrincipal: true);
 
-            Assert.Same(fk.GetNavigationToDependent(), navigationToDependent);
-            Assert.Same(fk.GetNavigationToPrincipal(), navigationToPrincipal);
+            Assert.Same(fk.PrincipalToDependent, navigationToDependent);
+            Assert.Same(fk.DependentToPrincipal, navigationToPrincipal);
         }
 
         [Fact]

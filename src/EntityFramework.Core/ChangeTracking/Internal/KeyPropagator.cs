@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private object TryFindPrincipal(IStateManager stateManager, INavigation navigation, object dependentEntity)
         {
-            if (navigation.PointsToPrincipal)
+            if (navigation.PointsToPrincipal())
             {
                 return _getterSource.GetAccessor(navigation).GetClrValue(dependentEntity);
             }

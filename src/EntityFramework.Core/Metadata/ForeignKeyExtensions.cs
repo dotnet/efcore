@@ -10,32 +10,6 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class ForeignKeyExtensions
     {
-        public static Navigation GetNavigationToPrincipal([NotNull] this ForeignKey foreignKey)
-        {
-            return (Navigation)((IForeignKey)foreignKey).GetNavigationToPrincipal();
-        }
-
-        public static INavigation GetNavigationToPrincipal([NotNull] this IForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
-            return foreignKey.EntityType.GetNavigations().SingleOrDefault(
-                navigation => navigation.ForeignKey == foreignKey && navigation.PointsToPrincipal);
-        }
-
-        public static Navigation GetNavigationToDependent([NotNull] this ForeignKey foreignKey)
-        {
-            return (Navigation)((IForeignKey)foreignKey).GetNavigationToDependent();
-        }
-
-        public static INavigation GetNavigationToDependent([NotNull] this IForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
-            return foreignKey.PrincipalEntityType.GetNavigations().SingleOrDefault(
-                navigation => navigation.ForeignKey == foreignKey && !navigation.PointsToPrincipal);
-        }
-
         public static bool IsSelfReferencing(
             [NotNull] this ForeignKey foreignKey)
         {
@@ -94,8 +68,8 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(principalType, nameof(principalType));
             Check.NotNull(dependentType, nameof(dependentType));
 
-            var existingNavigationToPrincipal = foreignKey.GetNavigationToPrincipal();
-            var existingNavigationToDependent = foreignKey.GetNavigationToDependent();
+            var existingNavigationToPrincipal = foreignKey.DependentToPrincipal;
+            var existingNavigationToDependent = foreignKey.PrincipalToDependent;
             return foreignKey.IsCompatible(principalType, dependentType, foreignKeyProperties, principalProperties, isUnique)
                    && (existingNavigationToPrincipal == null || existingNavigationToPrincipal.Name == navigationToPrincipal)
                    && (existingNavigationToDependent == null || existingNavigationToDependent.Name == navigationToDependent);

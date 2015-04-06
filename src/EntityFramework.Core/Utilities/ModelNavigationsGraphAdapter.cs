@@ -26,14 +26,14 @@ namespace Microsoft.Data.Entity.Utilities
 
         public override IEnumerable<EntityType> GetOutgoingNeighbours(EntityType from)
         {
-            return from.ForeignKeys.Where(fk => fk.GetNavigationToPrincipal() != null).Select(fk => fk.PrincipalEntityType)
-                .Union(_model.GetReferencingForeignKeys(from).Where(fk => fk.GetNavigationToDependent() != null).Select(fk => fk.EntityType));
+            return from.ForeignKeys.Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.PrincipalEntityType)
+                .Union(_model.GetReferencingForeignKeys(from).Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.EntityType));
         }
 
         public override IEnumerable<EntityType> GetIncomingNeighbours(EntityType to)
         {
-            return to.ForeignKeys.Where(fk => fk.GetNavigationToDependent() != null).Select(fk => fk.PrincipalEntityType)
-                .Union(_model.GetReferencingForeignKeys(to).Where(fk => fk.GetNavigationToPrincipal() != null).Select(fk => fk.EntityType));
+            return to.ForeignKeys.Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.PrincipalEntityType)
+                .Union(_model.GetReferencingForeignKeys(to).Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.EntityType));
         }
     }
 }

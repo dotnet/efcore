@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             var builder = Builder;
             if (!((IForeignKey)_builder.Metadata).IsUnique)
             {
-                Debug.Assert(_builder.Metadata.GetNavigationToPrincipal()?.Name == ReferenceName);
+                Debug.Assert(_builder.Metadata.DependentToPrincipal?.Name == ReferenceName);
 
                 builder = builder.NavigationToDependent(null, ConfigurationSource.Explicit);
             }
@@ -142,11 +142,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             var inverseToPrincipal = !foreignKey.IsSelfReferencing()
                                      && foreignKey.EntityType == RelatedEntityType
-                                     && foreignKey.GetNavigationToDependent()?.Name == ReferenceName;
+                                     && foreignKey.PrincipalToDependent?.Name == ReferenceName;
 
             Debug.Assert(inverseToPrincipal
                          || (foreignKey.PrincipalEntityType == RelatedEntityType
-                             && foreignKey.GetNavigationToPrincipal()?.Name == ReferenceName));
+                             && foreignKey.DependentToPrincipal?.Name == ReferenceName));
             builder = inverseToPrincipal
                 ? builder.NavigationToPrincipal(inverseReferenceName, ConfigurationSource.Explicit, strictPreferExisting: false)
                 : builder.NavigationToDependent(inverseReferenceName, ConfigurationSource.Explicit, strictPreferExisting: false);

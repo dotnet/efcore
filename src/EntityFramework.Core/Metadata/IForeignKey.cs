@@ -12,6 +12,8 @@ namespace Microsoft.Data.Entity.Metadata
         IReadOnlyList<IProperty> Properties { get; }
         IEntityType PrincipalEntityType { get; }
         IKey PrincipalKey { get; }
+        INavigation DependentToPrincipal { get; }
+        INavigation PrincipalToDependent { get; }
         bool IsUnique { get; }
         bool IsRequired { get; }
     }

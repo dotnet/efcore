@@ -474,6 +474,9 @@
   <data name="NavigationToSelfDuplicate" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be used for both ends of the relationship. Either specify it on the principal side or the dependent side.</value>
   </data>
+  <data name="NavigationForWrongForeignKey" xml:space="preserve">
+    <value>The navigation for property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.</value>
+  </data>
   <data name="DebugLogWarning" xml:space="preserve">
     <value>{debug} level logging is enabled. At this level, Entity Framework will log sensitive application data such as SQL parameter values. To hide this information configure {minimumLevel} to {recommendedLevel}</value>
   </data>

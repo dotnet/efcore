@@ -228,8 +228,8 @@ namespace Microsoft.Data.Entity.Query
                             (MemberExpression)includeResultOperator.NavigationPropertyPath,
                             (ns, _) => BindChainedNavigations(ns, includeResultOperator.ChainedNavigationProperties).ToArray())
                     orderby navigationPath != null
-                            && navigationPath.First().PointsToPrincipal
-                    select new
+                            && navigationPath.First().PointsToPrincipal()
+                   select new
                         {
                             navigationPath,
                             queryAnnotation.QuerySource,

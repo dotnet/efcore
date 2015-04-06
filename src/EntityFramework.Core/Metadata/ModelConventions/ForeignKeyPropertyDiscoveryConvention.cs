@@ -66,8 +66,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 return true;
             }
 
-            var navigationToPrincipal = foreignKey.GetNavigationToPrincipal();
-            var navigationToDependent = foreignKey.GetNavigationToDependent();
+            var navigationToPrincipal = foreignKey.DependentToPrincipal;
+            var navigationToDependent = foreignKey.PrincipalToDependent;
 
             if (navigationToPrincipal == null
                 && navigationToDependent != null)
@@ -107,8 +107,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         {
             var baseNames = new List<string>();
             var navigation = onDependent
-                ? foreignKey.GetNavigationToPrincipal()
-                : foreignKey.GetNavigationToDependent();
+                ? foreignKey.DependentToPrincipal
+                : foreignKey.PrincipalToDependent;
             if (navigation != null)
             {
                 baseNames.Add(navigation.Name);

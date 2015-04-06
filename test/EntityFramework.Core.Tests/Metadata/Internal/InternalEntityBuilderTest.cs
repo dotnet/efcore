@@ -818,8 +818,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Same(fk.PrincipalEntityType, newFk.PrincipalEntityType);
             Assert.NotEqual(fk.Properties, newFk.EntityType.Properties);
             Assert.Same(fk.PrincipalKey, newFk.PrincipalKey);
-            Assert.Equal(Order.CustomerProperty.Name, newFk.GetNavigationToPrincipal().Name);
-            Assert.Equal(Customer.OrdersProperty.Name, newFk.GetNavigationToDependent().Name);
+            Assert.Equal(Order.CustomerProperty.Name, newFk.DependentToPrincipal.Name);
+            Assert.Equal(Customer.OrdersProperty.Name, newFk.PrincipalToDependent.Name);
         }
 
         [Fact]
@@ -921,8 +921,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Same(fk.PrincipalEntityType, newFk.PrincipalEntityType);
             Assert.Equal(fk.Properties, newFk.EntityType.Properties);
             Assert.NotSame(fk.PrincipalKey, newFk.PrincipalKey);
-            Assert.Equal(Order.CustomerProperty.Name, newFk.GetNavigationToPrincipal().Name);
-            Assert.Equal(Customer.OrdersProperty.Name, newFk.GetNavigationToDependent().Name);
+            Assert.Equal(Order.CustomerProperty.Name, newFk.DependentToPrincipal.Name);
+            Assert.Equal(Customer.OrdersProperty.Name, newFk.PrincipalToDependent.Name);
         }
 
         [Fact]
@@ -1129,11 +1129,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.False(dependentEntityBuilder.Navigation(Order.CustomerProperty.Name, newForeignKeyBuilder.Metadata, pointsToPrincipal: true, configurationSource: ConfigurationSource.Convention));
 
-            Assert.Equal(Customer.OrdersProperty.Name, foreignKeyBuilder.Metadata.GetNavigationToDependent().Name);
-            Assert.Equal(Order.CustomerProperty.Name, foreignKeyBuilder.Metadata.GetNavigationToPrincipal().Name);
+            Assert.Equal(Customer.OrdersProperty.Name, foreignKeyBuilder.Metadata.PrincipalToDependent.Name);
+            Assert.Equal(Order.CustomerProperty.Name, foreignKeyBuilder.Metadata.DependentToPrincipal.Name);
 
-            Assert.Null(newForeignKeyBuilder.Metadata.GetNavigationToDependent());
-            Assert.Null(newForeignKeyBuilder.Metadata.GetNavigationToPrincipal());
+            Assert.Null(newForeignKeyBuilder.Metadata.PrincipalToDependent);
+            Assert.Null(newForeignKeyBuilder.Metadata.DependentToPrincipal);
         }
 
         [Fact]
@@ -1270,8 +1270,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Empty(principalEntityBuilder.Metadata.ForeignKeys);
             var fk = dependentEntityBuilder.Metadata.ForeignKeys.Single();
-            Assert.Null(fk.GetNavigationToPrincipal());
-            Assert.Equal(Customer.OrdersProperty.Name, fk.GetNavigationToDependent().Name);
+            Assert.Null(fk.DependentToPrincipal);
+            Assert.Equal(Customer.OrdersProperty.Name, fk.PrincipalToDependent.Name);
         }
 
         [Fact]
@@ -1287,8 +1287,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Empty(principalEntityBuilder.Metadata.ForeignKeys);
             var fk = dependentEntityBuilder.Metadata.ForeignKeys.Single();
-            Assert.Null(fk.GetNavigationToDependent());
-            Assert.Equal(Order.CustomerProperty.Name, fk.GetNavigationToPrincipal().Name);
+            Assert.Null(fk.PrincipalToDependent);
+            Assert.Equal(Order.CustomerProperty.Name, fk.DependentToPrincipal.Name);
         }
 
         [Fact]
@@ -1306,10 +1306,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Null(orderEntityBuilder.Relationship(typeof(Order), typeof(Customer), "NotCollectionOrders", Order.CustomerProperty.Name, ConfigurationSource.Convention, true, true));
 
-            Assert.Null(orderRelationship.Metadata.GetNavigationToDependent());
-            Assert.Equal(Order.CustomerProperty.Name, orderRelationship.Metadata.GetNavigationToPrincipal().Name);
-            Assert.Equal("NotCollectionOrders", customerRelationship.Metadata.GetNavigationToDependent().Name);
-            Assert.Null(customerRelationship.Metadata.GetNavigationToPrincipal());
+            Assert.Null(orderRelationship.Metadata.PrincipalToDependent);
+            Assert.Equal(Order.CustomerProperty.Name, orderRelationship.Metadata.DependentToPrincipal.Name);
+            Assert.Equal("NotCollectionOrders", customerRelationship.Metadata.PrincipalToDependent.Name);
+            Assert.Null(customerRelationship.Metadata.DependentToPrincipal);
         }
 
         [Fact]
@@ -1327,10 +1327,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Null(orderEntityBuilder.Relationship(typeof(Order), typeof(Customer), "NotCollectionOrders", Order.CustomerProperty.Name, ConfigurationSource.Convention, true, true));
 
-            Assert.Null(orderRelationship.Metadata.GetNavigationToDependent());
-            Assert.Equal(Order.CustomerProperty.Name, orderRelationship.Metadata.GetNavigationToPrincipal().Name);
-            Assert.Equal("NotCollectionOrders", customerRelationship.Metadata.GetNavigationToDependent().Name);
-            Assert.Null(customerRelationship.Metadata.GetNavigationToPrincipal());
+            Assert.Null(orderRelationship.Metadata.PrincipalToDependent);
+            Assert.Equal(Order.CustomerProperty.Name, orderRelationship.Metadata.DependentToPrincipal.Name);
+            Assert.Equal("NotCollectionOrders", customerRelationship.Metadata.PrincipalToDependent.Name);
+            Assert.Null(customerRelationship.Metadata.DependentToPrincipal);
         }
 
         private InternalModelBuilder CreateModelBuilder()

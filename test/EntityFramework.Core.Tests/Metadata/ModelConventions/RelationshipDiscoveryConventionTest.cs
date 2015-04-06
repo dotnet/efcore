@@ -244,8 +244,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.True(fk.IsUnique);
             Assert.NotSame(fk.Properties.Single(), entityType.GetPrimaryKey().Properties.Single());
             Assert.Equal(2, entityType.GetNavigations().Count());
-            Assert.Equal(SelfRef.SelfRef1NavigationProperty.Name, fk.GetNavigationToDependent()?.Name);
-            Assert.Equal(SelfRef.SelfRef2NavigationProperty.Name, fk.GetNavigationToPrincipal()?.Name);
+            Assert.Equal(SelfRef.SelfRef1NavigationProperty.Name, fk.PrincipalToDependent?.Name);
+            Assert.Equal(SelfRef.SelfRef2NavigationProperty.Name, fk.DependentToPrincipal?.Name);
         }
 
         private class EntityWithNoValidNavigations
