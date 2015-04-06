@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Xunit;
@@ -780,7 +779,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 newRoot.RequiredSingle = root.RequiredSingle;
 
                 Assert.Equal(
-                    Strings.PropertyReadOnly("Id", typeof(RequiredSingle1).FullName),
+                    Strings.KeyReadOnly("Id", typeof(RequiredSingle1).Name),
                     Assert.Throws<NotSupportedException>(() => context.SaveChanges()).Message);
             }
         }
@@ -1619,7 +1618,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 newRoot.RequiredSingleAk = root.RequiredSingleAk;
 
                 Assert.Equal(
-                    Strings.PropertyReadOnly("AlternateId", typeof(RequiredSingleAk1).FullName),
+                    Strings.KeyReadOnly("AlternateId", typeof(RequiredSingleAk1).Name),
                     Assert.Throws<NotSupportedException>(() => context.SaveChanges()).Message);
             }
         }

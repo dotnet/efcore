@@ -549,28 +549,61 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Key_properties_are_always_read_only()
+        public void Key_properties_are_always_read_only_after_save()
         {
             var entityType = new EntityType(typeof(Customer), new Model());
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            Assert.False(((IProperty)idProperty).IsReadOnly);
-            Assert.False(((IProperty)nameProperty).IsReadOnly);
+            Assert.False(((IProperty)idProperty).IsReadOnlyAfterSave);
+            Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
+            Assert.False(((IProperty)idProperty).IsReadOnlyBeforeSave);
+            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
 
             entityType.GetOrAddKey(new[] { idProperty, nameProperty });
 
-            Assert.True(((IProperty)idProperty).IsReadOnly);
-            Assert.True(((IProperty)nameProperty).IsReadOnly);
+            Assert.True(((IProperty)idProperty).IsReadOnlyAfterSave);
+            Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
+            Assert.False(((IProperty)idProperty).IsReadOnlyBeforeSave);
+            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
 
-            nameProperty.IsReadOnly = true;
+            nameProperty.IsReadOnlyAfterSave = true;
 
             Assert.Equal(
                 Strings.KeyPropertyMustBeReadOnly(Customer.NameProperty.Name, typeof(Customer).FullName),
-                Assert.Throws<NotSupportedException>(() => nameProperty.IsReadOnly = false).Message);
+                Assert.Throws<NotSupportedException>(() => nameProperty.IsReadOnlyAfterSave = false).Message);
 
-            Assert.True(((IProperty)idProperty).IsReadOnly);
-            Assert.True(((IProperty)nameProperty).IsReadOnly);
+            nameProperty.IsReadOnlyBeforeSave = true;
+
+            Assert.True(((IProperty)idProperty).IsReadOnlyAfterSave);
+            Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
+            Assert.False(((IProperty)idProperty).IsReadOnlyBeforeSave);
+            Assert.True(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+        }
+
+        [Fact]
+        public void Store_computed_values_are_read_only_before_and_after_save_by_default()
+        {
+            var entityType = new EntityType(typeof(Customer), new Model());
+            var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
+
+            Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
+            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+
+            nameProperty.StoreGeneratedPattern = StoreGeneratedPattern.Computed;
+
+            Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
+            Assert.True(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+
+            nameProperty.IsReadOnlyBeforeSave = false;
+
+            Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
+            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+
+            nameProperty.IsReadOnlyAfterSave = false;
+
+            Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
+            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
         }
 
         [Fact]

@@ -9,7 +9,8 @@ namespace Microsoft.Data.Entity.Metadata
     {
         Type ClrType { get; }
         bool IsNullable { get; }
-        bool IsReadOnly { get; }
+        bool IsReadOnlyBeforeSave { get; }
+        bool IsReadOnlyAfterSave { get; }
         StoreGeneratedPattern StoreGeneratedPattern { get; }
         bool IsValueGeneratedOnAdd { get; }
         int Index { get; }

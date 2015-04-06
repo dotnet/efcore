@@ -88,9 +88,17 @@ namespace Microsoft.Data.Entity.Metadata
 
         protected virtual StoreGeneratedPattern DefaultStoreGeneratedPattern => Metadata.StoreGeneratedPattern.None;
 
-        public virtual bool? IsReadOnly
+        public virtual bool? IsReadOnlyBeforeSave
         {
-            get { return GetFlag(PropertyFlags.IsReadOnly); }
+            get { return GetFlag(PropertyFlags.IsReadOnlyBeforeSave); }
+            set { SetFlag(value, PropertyFlags.IsReadOnlyBeforeSave); }
+        }
+
+        protected virtual bool DefaultIsReadOnlyBeforeSave => StoreGeneratedPattern == Metadata.StoreGeneratedPattern.Computed;
+
+        public virtual bool? IsReadOnlyAfterSave
+        {
+            get { return GetFlag(PropertyFlags.IsReadOnlyAfterSave); }
             set
             {
                 if (value.HasValue
@@ -99,11 +107,13 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     throw new NotSupportedException(Strings.KeyPropertyMustBeReadOnly(Name, EntityType.Name));
                 }
-                SetFlag(value, PropertyFlags.IsReadOnly);
+                SetFlag(value, PropertyFlags.IsReadOnlyAfterSave);
             }
         }
 
-        protected virtual bool DefaultIsReadOnly => this.IsKey();
+        protected virtual bool DefaultIsReadOnlyAfterSave
+            => StoreGeneratedPattern == Metadata.StoreGeneratedPattern.Computed
+               || this.IsKey();
 
         public virtual bool? GenerateValueOnAdd
         {
@@ -222,7 +232,9 @@ namespace Microsoft.Data.Entity.Metadata
 
         StoreGeneratedPattern IProperty.StoreGeneratedPattern => StoreGeneratedPattern ?? DefaultStoreGeneratedPattern;
 
-        bool IProperty.IsReadOnly => IsReadOnly ?? DefaultIsReadOnly;
+        bool IProperty.IsReadOnlyBeforeSave => IsReadOnlyBeforeSave ?? DefaultIsReadOnlyBeforeSave;
+
+        bool IProperty.IsReadOnlyAfterSave => IsReadOnlyAfterSave ?? DefaultIsReadOnlyAfterSave;
 
         bool IProperty.IsValueGeneratedOnAdd => GenerateValueOnAdd ?? DefaultGenerateValueOnAdd;
 
@@ -235,11 +247,12 @@ namespace Microsoft.Data.Entity.Metadata
         {
             IsConcurrencyToken = 1,
             IsNullable = 2,
-            IsReadOnly = 4,
-            IsIdentity = 8,
-            IsComputed = 16,
-            GenerateValueOnAdd = 32,
-            IsShadowProperty = 64
+            IsReadOnlyBeforeSave = 4,
+            IsReadOnlyAfterSave = 8,
+            IsIdentity = 16,
+            IsComputed = 32,
+            GenerateValueOnAdd = 64,
+            IsShadowProperty = 128
         }
     }
 }

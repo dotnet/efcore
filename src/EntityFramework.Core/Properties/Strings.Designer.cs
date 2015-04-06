@@ -533,15 +533,31 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entityType}' is read-only and so cannot be modified or marked as modified.
+        /// The property '{property}' on entity type '{entityType}' is part of a key and so cannot be modified or marked as modified.
         /// </summary>
-        public static string PropertyReadOnly([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string KeyReadOnly([CanBeNull] object property, [CanBeNull] object entityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyReadOnly", "property", "entityType"), property, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("KeyReadOnly", "property", "entityType"), property, entityType);
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entityType}' cannot be marked as read-write because it is part of a key. Key properties are always read-only.
+        /// The property '{property}' on entity type '{entityType}' is defined to be read-only after it has been saved, but its value has been modified or marked as modified.
+        /// </summary>
+        public static string PropertyReadOnlyAfterSave([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyReadOnlyAfterSave", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is defined to be read-only before it is saved, but its value has been set to something other than a temporary or default value.
+        /// </summary>
+        public static string PropertyReadOnlyBeforeSave([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyReadOnlyBeforeSave", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' must be marked as read-only after it has been saved because it is part of a key. Key properties are always read-only once an entity has been saved for the first time.
         /// </summary>
         public static string KeyPropertyMustBeReadOnly([CanBeNull] object property, [CanBeNull] object entityType)
         {
