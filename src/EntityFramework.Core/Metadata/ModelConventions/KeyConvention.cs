@@ -31,10 +31,11 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             SetValueGeneration(entityTypeBuilder, foreignKey.Properties);
+            SetIdentity(entityTypeBuilder, foreignKey.Properties);
         }
 
         protected virtual void SetValueGeneration(
-            [NotNull] InternalEntityTypeBuilder entityTypeBuilder, 
+            [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
             [NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
@@ -49,30 +50,33 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         }
 
         protected virtual void SetIdentity(
-            [NotNull] InternalEntityTypeBuilder entityTypeBuilder, 
+            [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
             [NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(properties, nameof(properties));
 
-            foreach (var property in entityTypeBuilder.Metadata.Properties)
+            if (entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null)
             {
-                entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
-                    ?.StoreGeneratedPattern(null, ConfigurationSource.Convention);
-            }
-
-            if (properties.Count == 1)
-            {
-                var property = properties.First();
-
-                if (property.ClrType.IsInteger()
-                    && entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null)
+                foreach (var property in entityTypeBuilder.Metadata.Properties)
                 {
                     entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
-                        ?.StoreGeneratedPattern(StoreGeneratedPattern.Identity, ConfigurationSource.Convention);
+                        ?.StoreGeneratedPattern(null, ConfigurationSource.Convention);
+                }
+
+                if (properties.Count == 1)
+                {
+                    var property = properties.First();
+
+                    if (property.ClrType.IsInteger()
+                        && entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null
+                        && !property.IsForeignKey())
+                    {
+                        entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                            ?.StoreGeneratedPattern(StoreGeneratedPattern.Identity, ConfigurationSource.Convention);
+                    }
                 }
             }
         }
-
     }
 }
