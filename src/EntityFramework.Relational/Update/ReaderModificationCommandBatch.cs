@@ -356,7 +356,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             if (reader.Read())
             {
-                var rowsAffected = reader.GetFieldValue<int>(0);
+                var rowsAffected = reader.GetInt32(0);
                 if (rowsAffected != expectedRowsAffected)
                 {
                     throw new DbUpdateConcurrencyException(
@@ -389,7 +389,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             if (await reader.ReadAsync(cancellationToken).WithCurrentCulture())
             {
-                var rowsAffected = reader.GetFieldValue<int>(0);
+                var rowsAffected = reader.GetInt32(0);
                 if (rowsAffected != expectedRowsAffected)
                 {
                     throw new DbUpdateConcurrencyException(
