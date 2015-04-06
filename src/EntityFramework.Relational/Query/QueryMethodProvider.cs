@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     return enumerator.Current.IsDBNull(0)
                         ? default(TResult)
-                        : enumerator.Current.GetFieldValue<TResult>(0);
+                        : (TResult)enumerator.Current.GetValue(0);
                 }
             }
 
