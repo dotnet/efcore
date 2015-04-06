@@ -78,6 +78,8 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>Extensions\Internal\LoggingExtensions.cs</Link>
     </Compile>
+    <Compile Include="ChangeTracking\ChangeTrackerFactory.cs" />
+    <Compile Include="ChangeTracking\IChangeTrackerFactory.cs" />
     <Compile Include="Metadata\Builders\CollectionNavigationBuilder.cs" />
     <Compile Include="Metadata\Builders\CollectionNavigationBuilder`.cs" />
     <Compile Include="Metadata\Builders\EntityTypeBuilder.cs" />

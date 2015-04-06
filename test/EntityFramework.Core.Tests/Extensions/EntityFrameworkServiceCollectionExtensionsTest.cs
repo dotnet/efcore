@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<IInternalEntityEntrySubscriber>();
             VerifyScoped<IValueGenerationManager>();
             VerifyScoped<IEntityQueryProvider>();
-            VerifyScoped<ChangeTracker>();
+            VerifyScoped<IChangeTrackerFactory>();
             VerifyScoped<IChangeDetector>();
             VerifyScoped<IEntityEntryGraphIterator>();
             VerifyScoped<IDbContextServices>();

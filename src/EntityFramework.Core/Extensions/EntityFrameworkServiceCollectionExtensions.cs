@@ -93,7 +93,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<IInternalEntityEntrySubscriber, InternalEntityEntrySubscriber>()
                 .AddScoped<IValueGenerationManager, ValueGenerationManager>()
                 .AddScoped<IEntityQueryProvider, EntityQueryProvider>()
-                .AddScoped<ChangeTracker>()
+                .AddScoped<IChangeTrackerFactory, ChangeTrackerFactory>()
                 .AddScoped<IChangeDetector, ChangeDetector>()
                 .AddScoped<IEntityEntryGraphIterator, EntityEntryGraphIterator>()
                 .AddScoped<IDbContextServices, DbContextServices>()

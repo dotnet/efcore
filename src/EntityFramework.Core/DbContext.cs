@@ -49,6 +49,7 @@ namespace Microsoft.Data.Entity
         private LazyRef<IDbContextServices> _contextServices;
         private LazyRef<IDbSetInitializer> _setInitializer;
         private LazyRef<Database> _database;
+        private LazyRef<ChangeTracker> _changeTracker;
         private ILogger _logger;
         private ILoggerFactory _loggerFactory;
 
@@ -144,8 +145,9 @@ namespace Microsoft.Data.Entity
         {
             InitializeSets(serviceProvider, options);
             _contextServices = new LazyRef<IDbContextServices>(() => InitializeServices(serviceProvider, options));
-            _setInitializer = new LazyRef<IDbSetInitializer>(GetSetInitializer);
-            _database = new LazyRef<Database>(GetDatabase);
+            _setInitializer = new LazyRef<IDbSetInitializer>(() => ServiceProvider.GetRequiredService<IDbSetInitializer>());
+            _database = new LazyRef<Database>(() => ServiceProvider.GetRequiredService<IDatabaseFactory>().CreateDatabase());
+            _changeTracker = new LazyRef<ChangeTracker>(() => ServiceProvider.GetRequiredService<IChangeTrackerFactory>().CreateChangeTracker());
         }
 
         private DbContextOptions GetOptions(IServiceProvider serviceProvider)
@@ -169,15 +171,11 @@ namespace Microsoft.Data.Entity
             return options ?? new DbContextOptions<DbContext>();
         }
 
-        private ILogger CreateLogger() => _loggerFactory.CreateLogger<DbContext>();
+        private IChangeDetector GetChangeDetector() => ServiceProvider.GetRequiredService<IChangeDetector>();
 
-        private IDbSetInitializer GetSetInitializer() => _contextServices.Value.ServiceProvider.GetRequiredService<IDbSetInitializer>();
+        private IStateManager GetStateManager() => ServiceProvider.GetRequiredService<IStateManager>();
 
-        private IChangeDetector GetChangeDetector() => _contextServices.Value.ServiceProvider.GetRequiredService<IChangeDetector>();
-
-        private IStateManager GetStateManager() => _contextServices.Value.ServiceProvider.GetRequiredService<IStateManager>();
-
-        private Database GetDatabase() => _contextServices.Value.ServiceProvider.GetRequiredService<IDatabaseFactory>().CreateDatabase();
+        private IServiceProvider ServiceProvider => _contextServices.Value.ServiceProvider;
 
         private IDbContextServices InitializeServices(IServiceProvider serviceProvider, DbContextOptions options)
         {
@@ -241,7 +239,7 @@ namespace Microsoft.Data.Entity
         ///         not directly exposed in the public API surface.
         ///     </para>
         /// </summary>
-        IServiceProvider IAccessor<IServiceProvider>.Service => _contextServices.Value.ServiceProvider;
+        IServiceProvider IAccessor<IServiceProvider>.Service => ServiceProvider;
 
         /// <summary>
         ///     Override this method to configure the data store (and other options) to be used for this context.
@@ -831,13 +829,12 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     Provides access to information and operations for entity instances this context is tracking.
         /// </summary>
-        public virtual ChangeTracker ChangeTracker
-            => _contextServices.Value.ServiceProvider.GetRequiredService<ChangeTracker>();
+        public virtual ChangeTracker ChangeTracker => _changeTracker.Value;
 
         /// <summary>
         ///     The metadata about the shape of entities and relationships between them.
         /// </summary>
-        public virtual IModel Model => _contextServices.Value.ServiceProvider.GetRequiredService<IModel>();
+        public virtual IModel Model => ServiceProvider.GetRequiredService<IModel>();
 
         /// <summary>
         ///     Creates a set to perform operations for a given entity type in the model. LINQ queries against
