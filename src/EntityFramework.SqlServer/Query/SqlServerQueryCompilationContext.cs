@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query;
+using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
@@ -37,9 +38,11 @@ namespace Microsoft.Data.Entity.SqlServer.Query
         {
         }
 
-        public override ISqlQueryGenerator CreateSqlQueryGenerator()
+        public override ISqlQueryGenerator CreateSqlQueryGenerator([NotNull] SelectExpression selectExpression)
         {
-            return new SqlServerQueryGenerator();
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
+            return new SqlServerQueryGenerator(selectExpression);
         }
 
         public override string GetTableName(IEntityType entityType)

@@ -13,10 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             base.From_sql_queryable_simple();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM (
-    SELECT * FROM Customers
-) AS [c]",
+                @"SELECT * FROM Customers",
                 Sql);
         }
 
@@ -25,114 +22,163 @@ FROM (
             base.From_sql_queryable_filter();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM (
-    SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'
-) AS [c]",
+                @"SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'",
                 Sql);
         }
-        public override void From_sql_queryable_cached_by_query()
+
+        public override void From_sql_queryable_composed()
         {
-            base.From_sql_queryable_cached_by_query();
+            base.From_sql_queryable_composed();
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
-    SELECT * FROM Customers WHERE Customers.City = 'London'
+    SELECT * FROM Customers
 ) AS [c]
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM (
-    SELECT * FROM Customers WHERE Customers.City = 'Seattle'
-) AS [c]",
+WHERE [c].[ContactName] LIKE '%' + 'z' + '%'",
                 Sql);
         }
 
-        public override void From_sql_queryable_where_simple_closure_via_query_cache()
+        public override void From_sql_queryable_multiple_line_query()
         {
-            base.From_sql_queryable_where_simple_closure_via_query_cache();
+            base.From_sql_queryable_multiple_line_query();
 
             Assert.Equal(
-                @"__title_0: Sales Associate
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM (
-    SELECT * FROM Customers WHERE Customers.ContactName LIKE '%o%'
-) AS [c]
-WHERE [c].[ContactTitle] = @__title_0
-
-__title_0: Sales Manager
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM (
-    SELECT * FROM Customers WHERE Customers.ContactName LIKE '%o%'
-) AS [c]
-WHERE [c].[ContactTitle] = @__title_0",
+                @"SELECT *
+FROM Customers
+WHERE Customers.City = 'London'",
                 Sql);
         }
 
-        public override void From_sql_queryable_with_multiple_line_query()
+        public override void From_sql_queryable_composed_multiple_line_query()
         {
-            base.From_sql_queryable_with_multiple_line_query();
+            base.From_sql_queryable_composed_multiple_line_query();
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT *
     FROM Customers
-    WHERE Customers.City = 'London'
-) AS [c]",
-                Sql);
-        }
-
-        public override void From_sql_queryable_with_params_parameters()
-        {
-            base.From_sql_queryable_with_params_parameters();
-
-            Assert.Equal(
-                @"p0: London
-p1: Sales Representative
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM (
-    SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1
-) AS [c]",
-                Sql);
-        }
-
-        public override void From_sql_queryable_with_params_parameters_does_not_collide_with_cache()
-        {
-            base.From_sql_queryable_with_params_parameters_does_not_collide_with_cache();
-
-            Assert.Equal(
-                @"p0: London
-p1: Sales Representative
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM (
-    SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1
 ) AS [c]
+WHERE [c].[City] = 'London'",
+                Sql);
+        }
+
+        public override void From_sql_queryable_with_parameters()
+        {
+            base.From_sql_queryable_with_parameters();
+
+            Assert.Equal(
+                @"p0: London
+p1: Sales Representative
+
+SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
+                Sql);
+        }
+
+        public override void From_sql_queryable_with_parameters_and_closure()
+        {
+            base.From_sql_queryable_with_parameters_and_closure();
+
+            Assert.Equal(
+                @"p0: London
+__contactTitle_0: Sales Representative
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM Customers WHERE City = @p0
+) AS [c]
+WHERE [c].[ContactTitle] = @__contactTitle_0",
+                Sql);
+        }
+
+        public override void From_sql_queryable_simple_cache_key_includes_query_string()
+        {
+            base.From_sql_queryable_simple_cache_key_includes_query_string();
+
+            Assert.Equal(
+                @"SELECT * FROM Customers WHERE Customers.City = 'London'
+
+SELECT * FROM Customers WHERE Customers.City = 'Seattle'",
+                Sql);
+        }
+
+        public override void From_sql_queryable_with_parameters_cache_key_includes_parameters()
+        {
+            base.From_sql_queryable_with_parameters_cache_key_includes_parameters();
+
+            Assert.Equal(
+                @"p0: London
+p1: Sales Representative
+
+SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1
 
 p0: Madrid
 p1: Accounting Manager
 
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM (
-    SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1
-) AS [c]",
+SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
                 Sql);
         }
 
-
-        public override void From_sql_annotations_do_not_modify_successive_calls()
+        public override void From_sql_queryable_simple_as_no_tracking_not_composed()
         {
-            base.From_sql_annotations_do_not_modify_successive_calls();
+            base.From_sql_queryable_simple_as_no_tracking_not_composed();
+
+            Assert.Equal(
+                @"SELECT * FROM Customers",
+                Sql);
+        }
+
+        public override void From_sql_queryable_simple_include()
+        {
+            base.From_sql_queryable_simple_include();
+
+            Assert.Equal(
+                @"SELECT * FROM Customers
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT [c].[CustomerID]
+    FROM (
+        SELECT * FROM Customers
+    ) AS [c]
+) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void From_sql_queryable_simple_composed_include()
+        {
+            base.From_sql_queryable_simple_composed_include();
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
-    SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'
+    SELECT * FROM Customers
 ) AS [c]
+WHERE [c].[City] = 'London'
+ORDER BY [c].[CustomerID]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT [c].[CustomerID]
+    FROM (
+        SELECT * FROM Customers
+    ) AS [c]
+    WHERE [c].[City] = 'London'
+) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void From_sql_annotations_do_not_affect_successive_calls()
+        {
+            base.From_sql_annotations_do_not_affect_successive_calls();
+
+            Assert.Equal(
+                @"SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",

@@ -5,17 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
-using Microsoft.Data.Entity.Relational.Query.Methods;
+using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
@@ -38,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = new ChipsContext(_serviceProvider, "KettleChips"))
             {
-                var commandBuilder = setupCommandBuilder(context);
+                var commandBuilder = setupCommandBuilder();
 
                 var relationalConnection = context.Database.AsRelational().Connection;
                 var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
@@ -57,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = new ConfiguredChipsContext(_serviceProvider, "KettleChips"))
             {
-                var commandBuilder = setupCommandBuilder(context);
+                var commandBuilder = setupCommandBuilder();
 
                 var relationalConnection = context.Database.AsRelational().Connection;
                 var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
@@ -71,7 +67,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = new ConfiguredChipsContext(_serviceProvider, "KettleChips"))
             {
-                var commandBuilder = setupCommandBuilder(context);
+                var commandBuilder = setupCommandBuilder();
 
                 context.Database.AsRelational().Connection.CommandTimeout = 88;
                 var relationalConnection = context.Database.AsRelational().Connection;
@@ -101,7 +97,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = new ConfiguredChipsContext(_serviceProvider, "KettleChips"))
             {
-                var commandBuilder = setupCommandBuilder(context);
+                var commandBuilder = setupCommandBuilder();
 
                 var relationalConnection = context.Database.AsRelational().Connection;
                 context.Database.AsRelational().Connection.CommandTimeout = null;
@@ -111,24 +107,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        private CommandBuilder setupCommandBuilder(DbContext context)
+        private CommandBuilder setupCommandBuilder()
         {
-            var source = new EntityMaterializerSource(new MemberMapper(new FieldMatcher()));
-
-            var loggerFactory = new LoggerFactory();
-
             var selectExpression = new SelectExpression();
-            var queryCompilationContext = new RelationalQueryCompilationContext(
-                context.Model,
-                loggerFactory.CreateLogger("new"),
-                new LinqOperatorProvider(),
-                new RelationalResultOperatorHandler(),
-                source,
-                new EntityKeyFactorySource(new BoxedValueReaderSource()),
-                new AsyncQueryMethodProvider(),
-                new CompositeMethodCallTranslator());
 
-            return new CommandBuilder(selectExpression, queryCompilationContext);
+            return new CommandBuilder(new DefaultSqlQueryGenerator(selectExpression));
         }
 
         [Fact]

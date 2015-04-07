@@ -7,12 +7,12 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Relational.Query.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
+using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -76,6 +76,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             Check.NotNull(elementType, nameof(elementType));
 
             var queryMethodInfo = RelationalQueryModelVisitor.CreateValueReaderMethodInfo;
+
             var entityType = QueryModelVisitor.QueryCompilationContext.Model.GetEntityType(elementType);
 
             var selectExpression = new SelectExpression();
@@ -85,7 +86,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 ? tableName.First().ToString().ToLower()
                 : _querySource.ItemName;
 
-            var fromSqlAnnotation = GetAnnotations<FromSqlAnnotation>(_querySource).SingleOrDefault();
+            var annotation = GetAnnotations<FromSqlAnnotation>(_querySource).SingleOrDefault();
+            var fromSqlAnnotation = (annotation?.ResultOperator as AnnotateQueryResultOperator)?.Expression.Value as FromSqlAnnotation;
 
             selectExpression.AddTable(
                 (fromSqlAnnotation != null)
@@ -151,11 +153,24 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         });
             }
 
+            CommandBuilder commandBuilder = null;
+
+            if (fromSqlAnnotation != null
+                && annotation.QueryModel.IsIdentityQuery()
+                && !annotation.QueryModel.ResultOperators.Any())
+            {
+                commandBuilder = new CommandBuilder(new RawSqlQueryGenerator(fromSqlAnnotation.Sql, fromSqlAnnotation.Parameters));
+            }
+            else
+            {
+                commandBuilder = new CommandBuilder(QueryModelVisitor.QueryCompilationContext.CreateSqlQueryGenerator(selectExpression));
+            }
+
             return Expression.Call(
                 QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.QueryMethod
                     .MakeGenericMethod(queryMethodInfo.ReturnType),
                 EntityQueryModelVisitor.QueryContextParameter,
-                Expression.Constant(new CommandBuilder(selectExpression, QueryModelVisitor.QueryCompilationContext)),
+                Expression.Constant(commandBuilder),
                 Expression.Lambda(
                     Expression.Call(queryMethodInfo, queryMethodArguments),
                     _readerParameter));

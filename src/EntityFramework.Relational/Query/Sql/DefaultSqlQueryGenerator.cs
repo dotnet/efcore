@@ -19,25 +19,32 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
     public class DefaultSqlQueryGenerator : ThrowingExpressionTreeVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
     {
         private IndentedStringBuilder _sql;
-        private List<string> _parameters;
+        private List<CommandParameter> _commandParameters;
         private IDictionary<string, object> _parameterValues;
 
-        public virtual string GenerateSql(
-            SelectExpression selectExpression, IDictionary<string, object> parameterValues)
+        protected SelectExpression _selectExpression;
+
+        public DefaultSqlQueryGenerator([NotNull] SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
+
+            _selectExpression = selectExpression;
+        }
+
+        public virtual string GenerateSql(IDictionary<string, object> parameterValues)
+        {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
             _sql = new IndentedStringBuilder();
-            _parameters = new List<string>();
+            _commandParameters = new List<CommandParameter>();
             _parameterValues = parameterValues;
 
-            selectExpression.Accept(this);
+            _selectExpression.Accept(this);
 
             return _sql.ToString();
         }
 
-        public virtual IEnumerable<string> Parameters => _parameters;
+        public virtual IReadOnlyList<CommandParameter> Parameters => _commandParameters;
 
         protected virtual IndentedStringBuilder Sql => _sql;
 
@@ -197,8 +204,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 {
                     var parameterName = "p" + index;
 
-                    _parameters.Add(parameterName);
-                    _parameterValues.Add(parameterName, rawSqlDerivedTableExpression.Parameters[index]);
+                    _commandParameters.Add(new CommandParameter(parameterName, rawSqlDerivedTableExpression.Parameters[index]));
                     substitutions[index] = ParameterPrefix + parameterName;
                 }
 
@@ -520,7 +526,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 VisitExpression(binaryExpression.Left);
 
                 if (binaryExpression.IsLogicalOperation()
-                    && ( binaryExpression.Left is ColumnExpression
+                    && (binaryExpression.Left is ColumnExpression
                         || binaryExpression.Left is ParameterExpression
                         || binaryExpression.Left.IsAliasWithColumnExpression()))
                 {
@@ -772,9 +778,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             _sql.Append(ParameterPrefix + parameterExpression.Name);
 
-            if (!_parameters.Contains(parameterExpression.Name))
+            if (!_commandParameters.Any(commandParameter => commandParameter.Name == parameterExpression.Name))
             {
-                _parameters.Add(parameterExpression.Name);
+                _commandParameters.Add(new CommandParameter(parameterExpression.Name, _parameterValues[parameterExpression.Name]));
             }
 
             return parameterExpression;

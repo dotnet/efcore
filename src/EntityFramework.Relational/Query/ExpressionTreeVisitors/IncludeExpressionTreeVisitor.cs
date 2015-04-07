@@ -243,7 +243,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                     _queryCompilationContext.QueryMethodProvider.QueryMethod
                                         .MakeGenericMethod(typeof(IValueReader)),
                                     EntityQueryModelVisitor.QueryContextParameter,
-                                    Expression.Constant(new CommandBuilder(targetSelectExpression, _queryCompilationContext)),
+                                    Expression.Constant(new CommandBuilder(_queryCompilationContext.CreateSqlQueryGenerator(targetSelectExpression))),
                                     Expression.Lambda(
                                         Expression.Call(
                                             _createValueReaderForIncludeMethodInfo,

@@ -107,6 +107,7 @@ namespace Microsoft.Data.Entity.Query
                 in _queryAnnotations
                     .Where(qa => qa.QuerySource == subQueryExpression.QueryModel.MainFromClause))
             {
+                queryAnnotation.QueryModel = queryModel;
                 queryAnnotation.QuerySource = fromClause;
             }
         }

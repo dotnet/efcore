@@ -38,6 +38,7 @@ namespace Microsoft.Data.Entity.Query
                 queryAnnotations.Add(
                     new QueryAnnotation(resultOperator)
                         {
+                            QueryModel = queryModel,
                             QuerySource = queryModel.MainFromClause
                         });
 

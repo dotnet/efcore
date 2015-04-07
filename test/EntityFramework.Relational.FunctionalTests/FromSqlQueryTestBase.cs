@@ -32,7 +32,61 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         [Fact]
-        public virtual void From_sql_queryable_cached_by_query()
+        public virtual void From_sql_queryable_composed()
+        {
+            AssertQuery<Customer>(
+                cs => cs.FromSql("SELECT * FROM Customers").Where(c => c.ContactName.Contains("z")),
+                cs => cs.Where(c => c.ContactName.Contains("z")),
+                entryCount: 14);
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_multiple_line_query()
+        {
+            AssertQuery<Customer>(
+                cs => cs.FromSql(@"SELECT *
+FROM Customers
+WHERE Customers.City = 'London'"),
+                cs => cs.Where(c => c.City == "London"),
+                entryCount: 6);
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_composed_multiple_line_query()
+        {
+            AssertQuery<Customer>(
+                cs => cs.FromSql(@"SELECT *
+FROM Customers").Where(c => c.City == "London"),
+                cs => cs.Where(c => c.City == "London"),
+                entryCount: 6);
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_with_parameters()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+
+            AssertQuery<Customer>(
+                cs => cs.FromSql(@"SELECT * FROM Customers WHERE City = {0} AND ContactTitle = {1}", city, contactTitle),
+                cs => cs.Where(c => c.City == city && c.ContactTitle == contactTitle),
+                entryCount: 3);
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_with_parameters_and_closure()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+
+            AssertQuery<Customer>(
+                cs => cs.FromSql(@"SELECT * FROM Customers WHERE City = {0}", city).Where(c => c.ContactTitle == contactTitle),
+                cs => cs.Where(c => c.City == city && c.ContactTitle == contactTitle),
+                entryCount: 3);
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_simple_cache_key_includes_query_string()
         {
             AssertQuery<Customer>(
                 cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.City = 'London'"),
@@ -46,48 +100,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         [Fact]
-        public virtual void From_sql_queryable_where_simple_closure_via_query_cache()
-        {
-            var title = "Sales Associate";
-
-            AssertQuery<Customer>(
-                cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%o%'").Where(c => c.ContactTitle == title),
-                cs => cs.Where(c => c.ContactName.Contains("o")).Where(c => c.ContactTitle == title),
-                entryCount: 4);
-
-            title = "Sales Manager";
-
-            AssertQuery<Customer>(
-                cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%o%'").Where(c => c.ContactTitle == title),
-                cs => cs.Where(c => c.ContactName.Contains("o")).Where(c => c.ContactTitle == title),
-                entryCount: 7);
-        }
-
-        [Fact]
-        public virtual void From_sql_queryable_with_multiple_line_query()
-        {
-            AssertQuery<Customer>(
-                cs => cs.FromSql(@"SELECT *
-FROM Customers
-WHERE Customers.City = 'London'"),
-                cs => cs.Where(c => c.City == "London"),
-                entryCount: 6);
-        }
-
-        [Fact]
-        public virtual void From_sql_queryable_with_params_parameters()
-        {
-            var city = "London";
-            var contactTitle = "Sales Representative";
-
-            AssertQuery<Customer>(
-                cs => cs.FromSql(@"SELECT * FROM Customers WHERE City = {0} AND ContactTitle = {1}", city, contactTitle),
-                cs => cs.Where(c => c.City == city && c.ContactTitle == contactTitle),
-                entryCount: 3);
-        }
-
-        [Fact]
-        public virtual void From_sql_queryable_with_params_parameters_does_not_collide_with_cache()
+        public virtual void From_sql_queryable_with_parameters_cache_key_includes_parameters()
         {
             var city = "London";
             var contactTitle = "Sales Representative";
@@ -108,7 +121,34 @@ WHERE Customers.City = 'London'"),
         }
 
         [Fact]
-        public virtual void From_sql_annotations_do_not_modify_successive_calls()
+        public virtual void From_sql_queryable_simple_as_no_tracking_not_composed()
+        {
+            AssertQuery<Customer>(
+                cs => cs.FromSql("SELECT * FROM Customers").AsNoTracking(),
+                cs => cs,
+                entryCount: 0);
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_simple_include()
+        {
+            AssertQuery<Customer>(
+                cs => cs.FromSql("SELECT * FROM Customers").Include(c => c.Orders),
+                cs => cs,
+                entryCount: 921);
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_simple_composed_include()
+        {
+            AssertQuery<Customer>(
+                cs => cs.FromSql("SELECT * FROM Customers").Where(c => c.City == "London").Include(c => c.Orders),
+                cs => cs.Where(c => c.City == "London"),
+                entryCount: 52);
+        }
+
+        [Fact]
+        public virtual void From_sql_annotations_do_not_affect_successive_calls()
         {
             using (var context = CreateContext())
             {

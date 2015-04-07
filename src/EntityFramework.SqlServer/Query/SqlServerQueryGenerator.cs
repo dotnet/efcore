@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
@@ -10,6 +11,11 @@ namespace Microsoft.Data.Entity.SqlServer.Query
 {
     public class SqlServerQueryGenerator : DefaultSqlQueryGenerator
     {
+        public SqlServerQueryGenerator([NotNull] SelectExpression selectExpression)
+            : base(Check.NotNull(selectExpression, nameof(selectExpression)))
+        {
+        }
+
         protected override string DelimitIdentifier(string identifier)
         {
             return "[" + identifier.Replace("]", "]]") + "]";

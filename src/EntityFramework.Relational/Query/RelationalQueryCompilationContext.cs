@@ -74,9 +74,11 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public virtual IMethodCallTranslator MethodCallTranslator { get; }
 
-        public virtual ISqlQueryGenerator CreateSqlQueryGenerator()
+        public virtual ISqlQueryGenerator CreateSqlQueryGenerator([NotNull] SelectExpression selectExpression)
         {
-            return new DefaultSqlQueryGenerator();
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
+            return new DefaultSqlQueryGenerator(selectExpression);
         }
 
         public virtual string GetTableName([NotNull] IEntityType entityType)
