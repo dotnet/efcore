@@ -3,7 +3,7 @@
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
-    public class ParameterNameGeneratorFactory
+    public class ParameterNameGeneratorFactory : IParameterNameGeneratorFactory
     {
         public virtual ParameterNameGenerator Create()
         {

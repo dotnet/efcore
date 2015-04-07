@@ -8,17 +8,8 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
-    public abstract class ModificationCommandBatchFactory
+    public abstract class ModificationCommandBatchFactory : IModificationCommandBatchFactory
     {
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected ModificationCommandBatchFactory()
-        {
-        }
-
         protected ModificationCommandBatchFactory(
             [NotNull] ISqlGenerator sqlGenerator)
         {
@@ -29,11 +20,11 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         protected ISqlGenerator SqlGenerator { get; }
 
-        public abstract ModificationCommandBatch Create([NotNull] IDbContextOptions options);
+        public abstract ModificationCommandBatch Create(IDbContextOptions options);
 
         public virtual bool AddCommand(
-            [NotNull] ModificationCommandBatch modificationCommandBatch,
-            [NotNull] ModificationCommand modificationCommand)
+            ModificationCommandBatch modificationCommandBatch,
+            ModificationCommand modificationCommand)
         {
             Check.NotNull(modificationCommandBatch, nameof(modificationCommandBatch));
             Check.NotNull(modificationCommand, nameof(modificationCommand));

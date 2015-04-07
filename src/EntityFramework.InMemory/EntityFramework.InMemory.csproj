@@ -63,6 +63,7 @@
       <Link>LoggingExtensions.cs</Link>
     </Compile>
     <Compile Include="IInMemoryConnection.cs" />
+    <Compile Include="IInMemoryDatabase.cs" />
     <Compile Include="IInMemoryDatabaseFactory.cs" />
     <Compile Include="IInMemoryDataStore.cs" />
     <Compile Include="IInMemoryDataStoreCreator.cs" />

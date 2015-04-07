@@ -46,15 +46,6 @@ namespace Microsoft.Data.Entity.Metadata
         private bool _useEagerSnapshots;
 
         /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected EntityType()
-        {
-        }
-
-        /// <summary>
         ///     Creates a new metadata object representing an entity type associated with the given .NET type.
         /// </summary>
         /// <param name="type">The .NET entity type that this metadata object represents.</param>

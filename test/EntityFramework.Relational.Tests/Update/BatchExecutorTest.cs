@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Relational.Update;
@@ -16,10 +17,12 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task ExecuteAsync_calls_Commit_if_no_transaction()
         {
-            var mockModificationCommandBatch = new Mock<ModificationCommandBatch>();
+            var sqlGenerator = new Mock<ISqlGenerator>().Object;
+            var mockModificationCommandBatch = new Mock<ModificationCommandBatch>(sqlGenerator);
 
-            var transactionMock = new Mock<RelationalTransaction>();
             var mockRelationalConnection = new Mock<IRelationalConnection>();
+            var transactionMock = new Mock<RelationalTransaction>(
+                mockRelationalConnection.Object, Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
 
             RelationalTransaction currentTransaction = null;
             mockRelationalConnection.Setup(m => m.BeginTransaction()).Returns(() => currentTransaction = transactionMock.Object);
@@ -46,10 +49,12 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task ExecuteAsync_does_not_call_Commit_if_existing_transaction()
         {
-            var mockModificationCommandBatch = new Mock<ModificationCommandBatch>();
+            var sqlGenerator = new Mock<ISqlGenerator>().Object;
+            var mockModificationCommandBatch = new Mock<ModificationCommandBatch>(sqlGenerator);
 
-            var transactionMock = new Mock<RelationalTransaction>();
             var mockRelationalConnection = new Mock<IRelationalConnection>();
+            var transactionMock = new Mock<RelationalTransaction>(
+                mockRelationalConnection.Object, Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
             mockRelationalConnection.Setup(m => m.Transaction).Returns(transactionMock.Object);
 
             var cancellationToken = new CancellationTokenSource().Token;
@@ -73,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class BatchExecutorForTest : BatchExecutor
         {
-            public BatchExecutorForTest(RelationalTypeMapper typeMapper)
+            public BatchExecutorForTest(IRelationalTypeMapper typeMapper)
                 : base(typeMapper, TestHelpers.Instance.CreateContext(), new LoggerFactory())
             {
             }

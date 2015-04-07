@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,23 +10,14 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
-    public class BatchExecutor
+    public class BatchExecutor : IBatchExecutor
     {
-        private readonly RelationalTypeMapper _typeMapper;
+        private readonly IRelationalTypeMapper _typeMapper;
         private readonly DbContext _context;
         private readonly LazyRef<ILogger> _logger;
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected BatchExecutor()
-        {
-        }
-
         public BatchExecutor(
-            [NotNull] RelationalTypeMapper typeMapper,
+            [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] DbContext context,
             [NotNull] ILoggerFactory loggerFactory)
         {
@@ -43,8 +33,8 @@ namespace Microsoft.Data.Entity.Relational.Update
         protected virtual ILogger Logger => _logger.Value;
 
         public virtual int Execute(
-            [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
-            [NotNull] IRelationalConnection connection)
+            IEnumerable<ModificationCommandBatch> commandBatches,
+            IRelationalConnection connection)
         {
             Check.NotNull(commandBatches, nameof(commandBatches));
             Check.NotNull(connection, nameof(connection));
@@ -80,8 +70,8 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         public virtual async Task<int> ExecuteAsync(
-            [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
-            [NotNull] IRelationalConnection connection,
+            IEnumerable<ModificationCommandBatch> commandBatches,
+            IRelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(commandBatches, nameof(commandBatches));

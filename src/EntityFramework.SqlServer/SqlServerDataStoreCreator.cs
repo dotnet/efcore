@@ -19,13 +19,13 @@ namespace Microsoft.Data.Entity.SqlServer
         private readonly ISqlServerConnection _connection;
         private readonly ISqlServerModelDiffer _modelDiffer;
         private readonly ISqlServerMigrationSqlGenerator _sqlGenerator;
-        private readonly SqlStatementExecutor _statementExecutor;
+        private readonly ISqlStatementExecutor _statementExecutor;
 
         public SqlServerDataStoreCreator(
             [NotNull] ISqlServerConnection connection,
             [NotNull] ISqlServerModelDiffer modelDiffer,
             [NotNull] ISqlServerMigrationSqlGenerator sqlGenerator,
-            [NotNull] SqlStatementExecutor statementExecutor)
+            [NotNull] ISqlStatementExecutor statementExecutor)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(modelDiffer, nameof(modelDiffer));

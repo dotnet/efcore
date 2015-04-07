@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] DbContext context,
             [NotNull] ISqlServerDataStoreCreator dataStoreCreator,
             [NotNull] ISqlServerConnection connection,
-            [NotNull] Migrator migrator,
+            [NotNull] IMigrator migrator,
             [NotNull] ILoggerFactory loggerFactory)
             : base(context, dataStoreCreator, connection, migrator, loggerFactory)
         {

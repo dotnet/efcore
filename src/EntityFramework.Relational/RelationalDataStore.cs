@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.Relational
 {
     public abstract class RelationalDataStore : DataStore, IRelationalDataStore
     {
-        private readonly CommandBatchPreparer _batchPreparer;
-        private readonly BatchExecutor _batchExecutor;
+        private readonly ICommandBatchPreparer _batchPreparer;
+        private readonly IBatchExecutor _batchExecutor;
         private readonly IRelationalConnection _connection;
         private readonly IDbContextOptions _options;
 
@@ -33,8 +33,8 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IRelationalConnection connection,
-            [NotNull] CommandBatchPreparer batchPreparer,
-            [NotNull] BatchExecutor batchExecutor,
+            [NotNull] ICommandBatchPreparer batchPreparer,
+            [NotNull] IBatchExecutor batchExecutor,
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory)
             : base(

@@ -23,7 +23,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<IInMemoryModelBuilderFactory, InMemoryModelBuilderFactory>()
                     .AddSingleton<IInMemoryValueGeneratorCache, InMemoryValueGeneratorCache>()
-                    .AddSingleton<InMemoryDatabase>()
+                    .AddSingleton<IInMemoryDatabase, InMemoryDatabase>()
                     .AddSingleton<IInMemoryModelSource, InMemoryModelSource>()
                     .AddScoped<IInMemoryQueryContextFactory, InMemoryQueryContextFactory>()
                     .AddScoped<IInMemoryValueGeneratorSelector, InMemoryValueGeneratorSelector>()

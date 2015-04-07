@@ -29,8 +29,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Only_keys_with_the_same_value_and_entity_type_test_as_equal()
         {
-            var type1 = new Mock<EntityType>().Object;
-            var type2 = new Mock<EntityType>().Object;
+            var type1 = new Mock<IEntityType>().Object;
+            var type2 = new Mock<IEntityType>().Object;
 
             Assert.True(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).Equals(new CompositeEntityKey(type1, new object[] { 77, "Kake" })));
             Assert.False(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).Equals(null));
@@ -46,8 +46,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Only_keys_with_the_same_value_and_type_return_same_hashcode()
         {
-            var type1 = new Mock<EntityType>().Object;
-            var type2 = new Mock<EntityType>().Object;
+            var type1 = new Mock<IEntityType>().Object;
+            var type2 = new Mock<IEntityType>().Object;
 
             Assert.Equal(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode(), new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode());
             Assert.NotEqual(new CompositeEntityKey(type1, new object[] { 77, "Kake" }).GetHashCode(), new CompositeEntityKey(type1, new object[] { 77, "Lie" }).GetHashCode());
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Uses_structural_comparisons_for_array_matching()
         {
-            var type = new Mock<EntityType>().Object;
+            var type = new Mock<IEntityType>().Object;
 
             Assert.True(new CompositeEntityKey(type, new object[] { new Byte[] { 1, 2, 3 } }).Equals(new CompositeEntityKey(type, new object[] { new Byte[] { 1, 2, 3 } })));
             Assert.False(new CompositeEntityKey(type, new object[] { new Byte[] { 1, 2, 3 } }).Equals(new CompositeEntityKey(type, new object[] { new Byte[] { 3, 2, 3 } })));
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Uses_structural_comparisons_for_array_hashcode_generation()
         {
-            var type = new Mock<EntityType>().Object;
+            var type = new Mock<IEntityType>().Object;
 
             Assert.Equal(new CompositeEntityKey(type, new object[] { new Byte[] { 1, 2, 3 } }).GetHashCode(), new CompositeEntityKey(type, new object[] { new Byte[] { 1, 2, 3 } }).GetHashCode());
             Assert.NotEqual(new CompositeEntityKey(type, new object[] { new Byte[] { 1, 2, 3 } }).GetHashCode(), new CompositeEntityKey(type, new object[] { new Byte[] { 3, 2, 3 } }).GetHashCode());

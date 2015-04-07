@@ -10,13 +10,13 @@ using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerSequenceValueGeneratorFactory
+    public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGeneratorFactory
     {
-        private readonly SqlStatementExecutor _executor;
+        private readonly ISqlStatementExecutor _executor;
         private readonly ISqlServerSqlGenerator _sqlGenerator;
 
         public SqlServerSequenceValueGeneratorFactory(
-            [NotNull] SqlStatementExecutor executor,
+            [NotNull] ISqlStatementExecutor executor,
             [NotNull] ISqlServerSqlGenerator sqlGenerator)
         {
             Check.NotNull(executor, nameof(executor));
@@ -26,10 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer
             _sqlGenerator = sqlGenerator;
         }
 
-        public virtual ValueGenerator Create(
-            [NotNull] IProperty property,
-            [NotNull] SqlServerSequenceValueGeneratorState generatorState,
-            [NotNull] ISqlServerConnection connection)
+        public virtual ValueGenerator Create(IProperty property, SqlServerSequenceValueGeneratorState generatorState, ISqlServerConnection connection)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(generatorState, nameof(generatorState));

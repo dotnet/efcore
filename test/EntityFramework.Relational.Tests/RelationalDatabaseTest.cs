@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 context,
                 creatorMock.Object,
                 connectionMock.Object,
-                Mock.Of<Migrator>(),
+                Mock.Of<IMigrator>(),
                 new LoggerFactory());
 
             Assert.True(database.Exists());
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 context,
                 creatorMock.Object,
                 connectionMock.Object,
-                Mock.Of<Migrator>(),
+                Mock.Of<IMigrator>(),
                 new LoggerFactory());
 
             Assert.True(await database.ExistsAsync(cancellationToken));
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 DbContext context,
                 RelationalDataStoreCreator dataStoreCreator,
                 IRelationalConnection connection,
-                Migrator migrator,
+                IMigrator migrator,
                 ILoggerFactory loggerFactory)
                 : base(context, dataStoreCreator, connection, migrator, loggerFactory)
             {

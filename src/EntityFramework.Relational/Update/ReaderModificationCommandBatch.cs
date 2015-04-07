@@ -27,15 +27,6 @@ namespace Microsoft.Data.Entity.Relational.Update
         protected StringBuilder CachedCommandText { get; set; }
         protected int LastCachedCommandIndex;
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected ReaderModificationCommandBatch()
-        {
-        }
-
         protected ReaderModificationCommandBatch([NotNull] ISqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
@@ -125,7 +116,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         protected virtual DbCommand CreateStoreCommand(
             [NotNull] string commandText,
             [NotNull] DbTransaction transaction,
-            [NotNull] RelationalTypeMapper typeMapper,
+            [NotNull] IRelationalTypeMapper typeMapper,
             int? commandTimeout)
         {
             var command = transaction.Connection.CreateCommand();
@@ -148,7 +139,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public override int Execute(
             RelationalTransaction transaction,
-            RelationalTypeMapper typeMapper,
+            IRelationalTypeMapper typeMapper,
             DbContext context,
             ILogger logger)
         {
@@ -212,7 +203,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public override async Task<int> ExecuteAsync(
             RelationalTransaction transaction,
-            RelationalTypeMapper typeMapper,
+            IRelationalTypeMapper typeMapper,
             DbContext context,
             ILogger logger,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -421,7 +412,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public abstract IRelationalPropertyExtensions GetPropertyExtensions([NotNull] IProperty property);
 
-        protected virtual void PopulateParameters(DbCommand command, ColumnModification columnModification, RelationalTypeMapper typeMapper)
+        protected virtual void PopulateParameters(DbCommand command, ColumnModification columnModification, IRelationalTypeMapper typeMapper)
         {
             if (columnModification.ParameterName != null
                 || columnModification.OriginalParameterName != null)

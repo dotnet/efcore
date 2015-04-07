@@ -15,7 +15,7 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryDatabase : IEnumerable<InMemoryDatabase.InMemoryTable>
+    public class InMemoryDatabase : IInMemoryDatabase
     {
         private readonly ILogger _logger;
 
@@ -36,8 +36,10 @@ namespace Microsoft.Data.Entity.InMemory
         /// <returns>
         ///     true if the database has just been created, false otherwise
         /// </returns>
-        public virtual bool EnsureCreated([NotNull] IModel model)
+        public virtual bool EnsureCreated(IModel model)
         {
+            Check.NotNull(model, nameof(model));
+
             var returnValue = !_tables.HasValue;
 
             // ReSharper disable once UnusedVariable
@@ -51,8 +53,10 @@ namespace Microsoft.Data.Entity.InMemory
             _tables.ExchangeValue(ts => ImmutableDictionary<IEntityType, InMemoryTable>.Empty);
         }
 
-        public virtual IEnumerable<InMemoryTable> GetTables([NotNull] IEntityType entityType)
+        public virtual IEnumerable<InMemoryTable> GetTables(IEntityType entityType)
         {
+            Check.NotNull(entityType, nameof(entityType));
+
             if (!_tables.HasValue)
             {
                 yield break;
@@ -69,7 +73,7 @@ namespace Microsoft.Data.Entity.InMemory
             }
         }
 
-        public virtual int ExecuteTransaction([NotNull] IEnumerable<InternalEntityEntry> entries)
+        public virtual int ExecuteTransaction(IEnumerable<InternalEntityEntry> entries)
         {
             Check.NotNull(entries, nameof(entries));
 

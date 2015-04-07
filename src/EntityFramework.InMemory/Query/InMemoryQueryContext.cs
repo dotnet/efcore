@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
         public InMemoryQueryContext(
             [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer,
-            [NotNull] InMemoryDatabase database)
+            [NotNull] IInMemoryDatabase database)
             : base(
                 Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(queryBuffer, nameof(queryBuffer)))
@@ -21,6 +21,6 @@ namespace Microsoft.Data.Entity.InMemory.Query
             Database = database;
         }
 
-        public virtual InMemoryDatabase Database { get; }
+        public virtual IInMemoryDatabase Database { get; }
     }
 }

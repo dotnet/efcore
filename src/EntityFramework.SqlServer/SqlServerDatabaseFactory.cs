@@ -14,14 +14,14 @@ namespace Microsoft.Data.Entity.SqlServer
         private readonly DbContext _context;
         private readonly ISqlServerDataStoreCreator _dataStoreCreator;
         private readonly ISqlServerConnection _connection;
-        private readonly Migrator _migrator;
+        private readonly IMigrator _migrator;
         private readonly ILoggerFactory _loggerFactory;
 
         public SqlServerDatabaseFactory(
             [NotNull] DbContext context,
             [NotNull] ISqlServerDataStoreCreator dataStoreCreator,
             [NotNull] ISqlServerConnection connection,
-            [NotNull] Migrator migrator,
+            [NotNull] IMigrator migrator,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(context, nameof(context));

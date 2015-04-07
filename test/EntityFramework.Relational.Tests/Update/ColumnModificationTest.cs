@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void Parameters_return_set_values()
         {
             var columnModification = new ColumnModification(
-                new Mock<InternalEntityEntry>().Object,
+                CreateInternalEntryMock(Mock.Of<IProperty>()).Object,
                 new Mock<IProperty>().Object,
                 new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
@@ -41,9 +41,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void Get_OriginalValue_delegates_to_OriginalValues_if_possible()
         {
-            var originalValuesMock = new Mock<Sidecar>();
+            var internalEntryMock = CreateInternalEntryMock(Mock.Of<IProperty>());
+            var originalValuesMock = new Mock<Sidecar>(internalEntryMock.Object);
             originalValuesMock.Setup(m => m.CanStoreValue(It.IsAny<IPropertyBase>())).Returns(true);
-            var internalEntryMock = new Mock<InternalEntityEntry>();
             internalEntryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
             var columnModification = new ColumnModification(
                 internalEntryMock.Object,
@@ -65,9 +65,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void Get_OriginalValue_delegates_to_Entry_if_OriginalValues_if_unavailable()
         {
-            var originalValuesMock = new Mock<Sidecar>();
+            var internalEntryMock = CreateInternalEntryMock(Mock.Of<IProperty>());
+            var originalValuesMock = new Mock<Sidecar>(internalEntryMock.Object);
             originalValuesMock.Setup(m => m.CanStoreValue(It.IsAny<IPropertyBase>())).Returns(false);
-            var internalEntryMock = new Mock<InternalEntityEntry>();
             internalEntryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
             var columnModification = new ColumnModification(
                 internalEntryMock.Object,
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void Get_Value_delegates_to_Entry()
         {
-            var internalEntryMock = new Mock<InternalEntityEntry>();
+            var internalEntryMock = CreateInternalEntryMock(Mock.Of<IProperty>());
             var columnModification = new ColumnModification(
                 internalEntryMock.Object,
                 new Mock<IProperty>().Object,
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void Set_Value_delegates_to_Entry()
         {
             var property = new Mock<IProperty>().Object;
-            var internalEntryMock = new Mock<InternalEntityEntry>();
+            var internalEntryMock = CreateInternalEntryMock(property);
             var columnModification = new ColumnModification(
                 internalEntryMock.Object,
                 property,
@@ -126,6 +126,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             columnModification.Value = value;
 
             internalEntryMock.VerifySet(m => m[property] = It.IsAny<object>(), Times.Once);
+        }
+
+        private static Mock<InternalEntityEntry> CreateInternalEntryMock(IProperty property)
+        {
+            var entityTypeMock = new Mock<IEntityType>();
+            entityTypeMock.Setup(e => e.GetProperties()).Returns(new[] { property });
+
+            var internalEntryMock = new Mock<InternalEntityEntry>(
+                Mock.Of<IStateManager>(), entityTypeMock.Object, Mock.Of<IEntityEntryMetadataServices>());
+            return internalEntryMock;
         }
     }
 }

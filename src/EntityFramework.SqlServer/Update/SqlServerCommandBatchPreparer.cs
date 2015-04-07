@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -10,12 +11,12 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Update
 {
-    public class SqlServerCommandBatchPreparer : CommandBatchPreparer
+    public class SqlServerCommandBatchPreparer : CommandBatchPreparer, ISqlServerCommandBatchPreparer
     {
         public SqlServerCommandBatchPreparer(
-            [NotNull] SqlServerModificationCommandBatchFactory modificationCommandBatchFactory,
-            [NotNull] ParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] ModificationCommandComparer modificationCommandComparer,
+            [NotNull] ISqlServerModificationCommandBatchFactory modificationCommandBatchFactory,
+            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
             [NotNull] IBoxedValueReaderSource boxedValueReaderSource)
             : base(modificationCommandBatchFactory, parameterNameGeneratorFactory, modificationCommandComparer, boxedValueReaderSource)
         {

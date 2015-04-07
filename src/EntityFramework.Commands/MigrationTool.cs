@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Commands
             using (var context = CreateContext(contextType))
             {
                 var services = new DesignTimeServices(((IAccessor<IServiceProvider>)context).Service);
-                var migrationAssembly = services.GetRequiredService<MigrationAssembly>();
+                var migrationAssembly = services.GetRequiredService<IMigrationAssembly>();
 
                 return migrationAssembly.Migrations;
             }
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Commands
             using (var context = CreateContext(contextType))
             {
                 var services = ((IAccessor<IServiceProvider>)context).Service;
-                var migrator = services.GetRequiredService<Migrator>();
+                var migrator = services.GetRequiredService<IMigrator>();
 
                 return migrator.ScriptMigrations(fromMigrationName, toMigrationName, idempotent);
             }
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Commands
             using (var context = CreateContext(contextType))
             {
                 var services = ((IAccessor<IServiceProvider>)context).Service;
-                var migrator = services.GetRequiredService<Migrator>();
+                var migrator = services.GetRequiredService<IMigrator>();
 
                 migrator.ApplyMigrations(migrationName);
             }

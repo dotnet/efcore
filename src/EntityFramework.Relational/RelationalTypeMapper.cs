@@ -5,14 +5,13 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class RelationalTypeMapper
+    public class RelationalTypeMapper : IRelationalTypeMapper
     {
         // This table is for invariant mappings from a sealed CLR type to a single
         // store type. If the CLR type is unsealed or if the mapping varies based on how the
@@ -34,7 +33,7 @@ namespace Microsoft.Data.Entity.Relational
 
         private readonly RelationalDecimalTypeMapping _decimalMapping = new RelationalDecimalTypeMapping(18, 2);
 
-        public virtual RelationalTypeMapping GetTypeMapping([NotNull] IProperty property) =>
+        public virtual RelationalTypeMapping GetTypeMapping(IProperty property) =>
             GetTypeMapping(
                 property.Relational().ColumnType,
                 property.Relational().Column,
@@ -42,7 +41,7 @@ namespace Microsoft.Data.Entity.Relational
                 property.IsKey() || property.IsForeignKey(),
                 property.IsConcurrencyToken);
 
-        public virtual RelationalTypeMapping GetTypeMapping([NotNull] ISequence sequence) =>
+        public virtual RelationalTypeMapping GetTypeMapping(ISequence sequence) =>
             GetTypeMapping(
                 /*specifiedType:*/ null,
                 sequence.Name,
@@ -54,9 +53,9 @@ namespace Microsoft.Data.Entity.Relational
         // store model for which there is no easy way to get an IProperty.
         // Issue #769
         public virtual RelationalTypeMapping GetTypeMapping(
-            [CanBeNull] string specifiedType,
-            [NotNull] string storageName,
-            [NotNull] Type propertyType,
+            string specifiedType,
+            string storageName,
+            Type propertyType,
             bool isKey,
             bool isConcurrencyToken)
         {

@@ -5,22 +5,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 {
-    public class MigrationIdGenerator
+    public class MigrationIdGenerator : IMigrationIdGenerator
     {
         private const string Format = "yyyyMMddHHmmss";
 
         private DateTime _lastTimestamp = DateTime.MinValue;
 
-        public virtual string CreateId([NotNull] string name) => NextTimestamp() + "_" + name;
-        public virtual string GetName([NotNull] string id) => id.Substring(Format.Length + 1);
-        public virtual bool IsValidId([NotNull] string value) => Regex.IsMatch(value, "[0-9]{" + Format.Length + "}_.+");
+        public virtual string CreateId(string name) => NextTimestamp() + "_" + name;
+        public virtual string GetName(string id) => id.Substring(Format.Length + 1);
+        public virtual bool IsValidId(string value) => Regex.IsMatch(value, "[0-9]{" + Format.Length + "}_.+");
 
-        public virtual string ResolveId([NotNull] string nameOrId, [NotNull] IReadOnlyList<Migration> migrations)
+        public virtual string ResolveId(string nameOrId, IReadOnlyList<Migration> migrations)
         {
             Check.NotEmpty(nameOrId, nameof(nameOrId));
             Check.NotNull(migrations, nameof(migrations));

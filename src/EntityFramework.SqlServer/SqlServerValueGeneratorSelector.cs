@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer
     public class SqlServerValueGeneratorSelector : ValueGeneratorSelector, ISqlServerValueGeneratorSelector
     {
         private readonly ISqlServerValueGeneratorCache _cache;
-        private readonly SqlServerSequenceValueGeneratorFactory _sequenceFactory;
+        private readonly ISqlServerSequenceValueGeneratorFactory _sequenceFactory;
 
         private readonly ValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory 
             = new ValueGeneratorFactory<SequentialGuidValueGenerator>();
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public SqlServerValueGeneratorSelector(
             [NotNull] ISqlServerValueGeneratorCache cache,
-            [NotNull] SqlServerSequenceValueGeneratorFactory sequenceFactory,
+            [NotNull] ISqlServerSequenceValueGeneratorFactory sequenceFactory,
             [NotNull] ISqlServerConnection connection)
         {
             Check.NotNull(cache, nameof(cache));

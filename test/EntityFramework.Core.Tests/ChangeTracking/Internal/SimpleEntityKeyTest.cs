@@ -28,8 +28,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Only_keys_with_the_same_value_type_and_entity_type_test_as_equal()
         {
-            var type1 = new Mock<EntityType>().Object;
-            var type2 = new Mock<EntityType>().Object;
+            var type1 = new Mock<IEntityType>().Object;
+            var type2 = new Mock<IEntityType>().Object;
 
             Assert.True(new SimpleEntityKey<int>(type1, 77).Equals(new SimpleEntityKey<int>(type1, 77)));
             Assert.False(new SimpleEntityKey<int>(type1, 77).Equals(null));
@@ -42,8 +42,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Only_keys_with_the_same_value_and_type_return_same_hashcode()
         {
-            var type1 = new Mock<EntityType>().Object;
-            var type2 = new Mock<EntityType>().Object;
+            var type1 = new Mock<IEntityType>().Object;
+            var type2 = new Mock<IEntityType>().Object;
 
             Assert.Equal(new SimpleEntityKey<int>(type1, 77).GetHashCode(), new SimpleEntityKey<int>(type1, 77).GetHashCode());
             Assert.NotEqual(new SimpleEntityKey<int>(type1, 77).GetHashCode(), new SimpleEntityKey<int>(type1, 88).GetHashCode());

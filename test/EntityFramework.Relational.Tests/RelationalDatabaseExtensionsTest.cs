@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 TestHelpers.Instance.CreateContext(),
                 Mock.Of<IRelationalDataStoreCreator>(),
                 Mock.Of<IRelationalConnection>(),
-                Mock.Of<Migrator>(),
+                Mock.Of<IMigrator>(),
                 new LoggerFactory());
 
             Assert.Same(database, database.AsRelational());
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 DbContext context,
                 IRelationalDataStoreCreator dataStoreCreator,
                 IRelationalConnection connection,
-                Migrator migrator,
+                IMigrator migrator,
                 ILoggerFactory loggerFactory)
                 : base(context, dataStoreCreator, connection, migrator, loggerFactory)
             {

@@ -67,7 +67,9 @@
     <Compile Include="ISqlServerDataStoreServices.cs" />
     <Compile Include="ISqlServerModelBuilderFactory.cs" />
     <Compile Include="ISqlServerModelSource.cs" />
+    <Compile Include="ISqlServerSequenceValueGeneratorFactory.cs" />
     <Compile Include="ISqlServerSqlGenerator.cs" />
+    <Compile Include="ISqlServerTypeMapper.cs" />
     <Compile Include="ISqlServerValueGeneratorCache.cs" />
     <Compile Include="ISqlServerValueGeneratorSelector.cs" />
     <Compile Include="Metadata\ISqlServerEntityTypeExtensions.cs" />
@@ -117,6 +119,9 @@
     <Compile Include="Migrations\SqlServerModelDiffer.cs" />
     <Compile Include="SqlServerModelSource.cs" />
     <Compile Include="SqlServerSequenceValueGeneratorState.cs" />
+    <Compile Include="Update\ISqlServerBatchExecutor.cs" />
+    <Compile Include="Update\ISqlServerCommandBatchPreparer.cs" />
+    <Compile Include="Update\ISqlServerModificationCommandBatchFactory.cs" />
     <Compile Include="Update\SqlServerBatchExecutor.cs" />
     <Compile Include="SqlServerDataStoreServices.cs" />
     <Compile Include="Update\SqlServerCommandBatchPreparer.cs" />

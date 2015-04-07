@@ -46,14 +46,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 typeof(RenameSequenceOperation)
             };
 
-        public ModelDiffer([NotNull] RelationalTypeMapper typeMapper)
+        public ModelDiffer([NotNull] IRelationalTypeMapper typeMapper)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 
             TypeMapper = typeMapper;
         }
 
-        protected virtual RelationalTypeMapper TypeMapper { get; }
+        protected virtual IRelationalTypeMapper TypeMapper { get; }
 
         public virtual bool HasDifferences(IModel source, [CanBeNull] IModel target) => Diff(source, target).Any();
 

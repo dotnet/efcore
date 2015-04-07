@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.InMemory
 {
     public interface IInMemoryDataStore : IDataStore
     {
-        InMemoryDatabase Database { get; }
+        IInMemoryDatabase Database { get; }
         bool EnsureDatabaseCreated([NotNull] IModel model);
     }
 }

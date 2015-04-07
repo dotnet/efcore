@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 TestHelpers.Instance.CreateContext(),
                 Mock.Of<ISqlServerDataStoreCreator>(),
                 Mock.Of<ISqlServerConnection>(),
-                Mock.Of<Migrator>(),
+                Mock.Of<IMigrator>(),
                 new LoggerFactory());
 
             Assert.Same(database, database.AsSqlServer());

@@ -24,8 +24,8 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] ISqlServerConnection connection,
-            [NotNull] SqlServerCommandBatchPreparer batchPreparer,
-            [NotNull] SqlServerBatchExecutor batchExecutor,
+            [NotNull] ISqlServerCommandBatchPreparer batchPreparer,
+            [NotNull] ISqlServerBatchExecutor batchExecutor,
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory)
             : base(

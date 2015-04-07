@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
@@ -219,7 +220,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var relatedentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
             relatedentry.SetEntityState(EntityState.Added);
 
-            var modificationCommandBatchFactoryMock = new Mock<ModificationCommandBatchFactory>();
+            var modificationCommandBatchFactoryMock = new Mock<IModificationCommandBatchFactory>();
             var options = new Mock<IDbContextOptions>().Object;
 
             var commandBatches = CreateCommandBatchPreparer(modificationCommandBatchFactoryMock.Object).BatchCommands(new[] { relatedentry, entry }, options);
@@ -265,7 +266,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             return ((IAccessor<IServiceProvider>)new DbContext(optionsBuilder.Options)).Service;
         }
 
-        private static CommandBatchPreparer CreateCommandBatchPreparer(ModificationCommandBatchFactory modificationCommandBatchFactory = null)
+        private static ICommandBatchPreparer CreateCommandBatchPreparer(IModificationCommandBatchFactory modificationCommandBatchFactory = null)
         {
             modificationCommandBatchFactory =
                 modificationCommandBatchFactory ?? new TestModificationCommandBatchFactory(new Mock<ISqlGenerator>().Object);
@@ -336,9 +337,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         private class TestCommandBatchPreparer : CommandBatchPreparer
         {
             public TestCommandBatchPreparer(
-                ModificationCommandBatchFactory modificationCommandBatchFactory,
-                ParameterNameGeneratorFactory parameterNameGeneratorFactory,
-                ModificationCommandComparer modificationCommandComparer,
+                IModificationCommandBatchFactory modificationCommandBatchFactory,
+                IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+                IComparer<ModificationCommand> modificationCommandComparer,
                 IBoxedValueReaderSource boxedValueReaderSource)
                 : base(modificationCommandBatchFactory, parameterNameGeneratorFactory, modificationCommandComparer, boxedValueReaderSource)
             {

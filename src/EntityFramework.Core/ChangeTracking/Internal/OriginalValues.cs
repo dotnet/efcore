@@ -10,15 +10,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class OriginalValues : ArraySidecar
     {
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected OriginalValues()
-        {
-        }
-
         public OriginalValues([NotNull] InternalEntityEntry entry)
             : base(entry, entry.EntityType.OriginalValueCount())
         {

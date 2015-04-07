@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 {
-    public class MigrationAssembly
+    public class MigrationAssembly : IMigrationAssembly
     {
         private readonly LazyRef<IReadOnlyList<Migration>> _migrations;
         private readonly LazyRef<ModelSnapshot> _modelSnapshot;

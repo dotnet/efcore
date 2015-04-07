@@ -19,15 +19,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private readonly Dictionary<IForeignKey, EntityKey> _principalKeys = new Dictionary<IForeignKey, EntityKey>();
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected InternalEntityEntry()
-        {
-        }
-
         protected InternalEntityEntry(
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
@@ -36,7 +27,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             StateManager = stateManager;
             MetadataServices = metadataServices;
             EntityType = entityType;
-            _stateData = new StateData(EntityType.GetProperties().Count());
+            _stateData = new StateData(entityType.GetProperties().Count());
         }
 
         [CanBeNull]

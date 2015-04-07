@@ -8,19 +8,10 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.Update
 {
-    public class SqlServerBatchExecutor : BatchExecutor
+    public class SqlServerBatchExecutor : BatchExecutor, ISqlServerBatchExecutor
     {
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected SqlServerBatchExecutor()
-        {
-        }
-
         public SqlServerBatchExecutor(
-            [NotNull] SqlServerTypeMapper typeMapper,
+            [NotNull] ISqlServerTypeMapper typeMapper,
             [NotNull] DbContext context,
             [NotNull] ILoggerFactory loggerFactory)
             : base(typeMapper, context, loggerFactory)

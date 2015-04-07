@@ -1,9 +1,13 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
 using System.Data.Common;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Moq;
 using Moq.Protected;
@@ -23,7 +27,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
                 .Setup<DbParameter>("CreateDbParameter")
                 .Returns(parameterMock.Object);
 
-            var columnModificationMock = new Mock<ColumnModification>();
+            var columnModificationMock = new Mock<ColumnModification>(
+                CreateInternalEntryMock().Object,
+                Mock.Of<IProperty>(),
+                Mock.Of<IRelationalPropertyExtensions>(),
+                new ParameterNameGenerator(),
+                Mock.Of<IBoxedValueReader>(),
+                false, false, false, false);
+
             columnModificationMock.Setup(m => m.Property).Returns(new Mock<IProperty>().Object);
             columnModificationMock.Setup(m => m.ParameterName).Returns("p");
 
@@ -44,7 +55,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
                 .Setup<DbParameter>("CreateDbParameter")
                 .Returns(parameterMock.Object);
 
-            var columnModificationMock = new Mock<ColumnModification>();
+            var columnModificationMock = new Mock<ColumnModification>(
+                CreateInternalEntryMock().Object,
+                Mock.Of<IProperty>(),
+                Mock.Of<IRelationalPropertyExtensions>(),
+                new ParameterNameGenerator(),
+                Mock.Of<IBoxedValueReader>(),
+                false, false, false, false);
+
             columnModificationMock.Setup(m => m.Property).Returns(new Mock<IProperty>().Object);
             columnModificationMock.Setup(m => m.OriginalParameterName).Returns("op");
 
@@ -53,6 +71,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             Assert.Same(parameterMock.Object, parameter);
             columnModificationMock.Verify(m => m.Value, Times.Never);
             columnModificationMock.Verify(m => m.OriginalValue, Times.Once);
+        }
+
+        private static Mock<InternalEntityEntry> CreateInternalEntryMock()
+        {
+            var entityTypeMock = new Mock<IEntityType>();
+            entityTypeMock.Setup(e => e.GetProperties()).Returns(new IProperty[0]);
+
+            var internalEntryMock = new Mock<InternalEntityEntry>(
+                Mock.Of<IStateManager>(), entityTypeMock.Object, Mock.Of<IEntityEntryMetadataServices>());
+            return internalEntryMock;
         }
     }
 }

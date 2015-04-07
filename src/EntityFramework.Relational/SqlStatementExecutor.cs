@@ -13,7 +13,41 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class SqlStatementExecutor
+    public interface ISqlStatementExecutor
+    {
+        Task ExecuteNonQueryAsync(
+            [NotNull] IRelationalConnection connection,
+            [CanBeNull] DbTransaction transaction,
+            [NotNull] IEnumerable<SqlBatch> sqlBatches,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        Task<object> ExecuteScalarAsync(
+            [NotNull] IRelationalConnection connection,
+            [CanBeNull] DbTransaction transaction,
+            [NotNull] string sql,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        Task<object> ExecuteAsync(
+            [NotNull] IRelationalConnection connection,
+            [NotNull] Func<Task<object>> action,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        void ExecuteNonQuery(
+            [NotNull] IRelationalConnection connection,
+            [CanBeNull] DbTransaction transaction,
+            [NotNull] IEnumerable<SqlBatch> sqlBatches);
+
+        object ExecuteScalar(
+            [NotNull] IRelationalConnection connection,
+            [CanBeNull] DbTransaction transaction,
+            [NotNull] string sql);
+
+        object Execute(
+            [NotNull] IRelationalConnection connection,
+            [NotNull] Func<object> action);
+    }
+
+    public class SqlStatementExecutor : ISqlStatementExecutor
     {
         private readonly LazyRef<ILogger> _logger;
 
@@ -27,9 +61,9 @@ namespace Microsoft.Data.Entity.Relational
         protected virtual ILogger Logger => _logger.Value;
 
         public virtual Task ExecuteNonQueryAsync(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
-            [NotNull] IEnumerable<SqlBatch> sqlBatches,
+            IRelationalConnection connection, 
+            DbTransaction transaction, 
+            IEnumerable<SqlBatch> sqlBatches,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, nameof(connection));
@@ -53,9 +87,9 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual Task<object> ExecuteScalarAsync(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
-            [NotNull] string sql,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            string sql,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, nameof(connection));
@@ -74,8 +108,8 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual async Task<object> ExecuteAsync(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] Func<Task<object>> action,
+            IRelationalConnection connection,
+            Func<Task<object>> action,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, nameof(connection));
@@ -104,9 +138,9 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual void ExecuteNonQuery(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
-            [NotNull] IEnumerable<SqlBatch> sqlBatches)
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            IEnumerable<SqlBatch> sqlBatches)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(sqlBatches, nameof(sqlBatches));
@@ -127,9 +161,9 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual object ExecuteScalar(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
-            [NotNull] string sql)
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            string sql)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(sql, nameof(sql));
@@ -146,8 +180,8 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual object Execute(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] Func<object> action)
+            IRelationalConnection connection,
+            Func<object> action)
         {
             Check.NotNull(connection, nameof(connection));
 

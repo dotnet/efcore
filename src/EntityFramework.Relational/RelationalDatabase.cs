@@ -13,15 +13,15 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract class RelationalDatabase : Database, IAccessor<Migrator>
+    public abstract class RelationalDatabase : Database, IAccessor<IMigrator>
     {
-        private readonly Migrator _migrator;
+        private readonly IMigrator _migrator;
 
         protected RelationalDatabase(
             [NotNull] DbContext context,
             [NotNull] IRelationalDataStoreCreator dataStoreCreator,
             [NotNull] IRelationalConnection connection,
-            [NotNull] Migrator migrator,
+            [NotNull] IMigrator migrator,
             [NotNull] ILoggerFactory loggerFactory)
             : base(context, dataStoreCreator, loggerFactory)
         {
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual void ApplyMigrations() => _migrator.ApplyMigrations();
 
-        Migrator IAccessor<Migrator>.Service => _migrator;
+        IMigrator IAccessor<IMigrator>.Service => _migrator;
 
         public virtual IRelationalConnection Connection { get; }
 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
@@ -130,7 +131,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IStateManager>();
 
-                var entryMock = new Mock<InternalEntityEntry>();
+                var entryMock = CreateInternalEntryMock();
                 entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
                 stateManager.InternalEntries = new[] { entryMock.Object };
 
@@ -157,7 +158,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IStateManager>();
 
-                var entryMock = new Mock<InternalEntityEntry>();
+                var entryMock = CreateInternalEntryMock();
                 entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
                 stateManager.InternalEntries = new[] { entryMock.Object };
 
@@ -195,7 +196,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var entity = new Random();
             var stateManagerMock = new Mock<IStateManager>();
-            var entry = new Mock<InternalEntityEntry>().Object;
+            var entry = CreateInternalEntryMock().Object;
             stateManagerMock.Setup(m => m.GetOrCreateEntry(entity)).Returns(entry);
 
             var services = new ServiceCollection()
@@ -1905,6 +1906,10 @@ namespace Microsoft.Data.Entity.Tests
 
         private class FakeEntityMaterializerSource : EntityMaterializerSource
         {
+            public FakeEntityMaterializerSource(IMemberMapper memberMapper)
+                : base(memberMapper)
+            {
+            }
         }
 
         private class FakeLoggerFactory : ILoggerFactory
@@ -2363,6 +2368,16 @@ namespace Microsoft.Data.Entity.Tests
 
                 base.DetectChanges(stateManager);
             }
+        }
+
+        private static Mock<InternalEntityEntry> CreateInternalEntryMock()
+        {
+            var entityTypeMock = new Mock<IEntityType>();
+            entityTypeMock.Setup(e => e.GetProperties()).Returns(new IProperty[0]);
+
+            var internalEntryMock = new Mock<InternalEntityEntry>(
+                Mock.Of<IStateManager>(), entityTypeMock.Object, Mock.Of<IEntityEntryMetadataServices>());
+            return internalEntryMock;
         }
     }
 }

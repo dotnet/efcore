@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -13,26 +12,17 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
-    public abstract class CommandBatchPreparer
+    public abstract class CommandBatchPreparer : ICommandBatchPreparer
     {
-        private readonly ModificationCommandBatchFactory _modificationCommandBatchFactory;
-        private readonly ParameterNameGeneratorFactory _parameterNameGeneratorFactory;
-        private readonly ModificationCommandComparer _modificationCommandComparer;
+        private readonly IModificationCommandBatchFactory _modificationCommandBatchFactory;
+        private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+        private readonly IComparer<ModificationCommand> _modificationCommandComparer;
         private readonly IBoxedValueReaderSource _boxedValueReaderSource;
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected CommandBatchPreparer()
-        {
-        }
-
         protected CommandBatchPreparer(
-            [NotNull] ModificationCommandBatchFactory modificationCommandBatchFactory,
-            [NotNull] ParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] ModificationCommandComparer modificationCommandComparer,
+            [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
+            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
             [NotNull] IBoxedValueReaderSource boxedValueReaderSource)
         {
             Check.NotNull(modificationCommandBatchFactory, nameof(modificationCommandBatchFactory));
@@ -46,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             _boxedValueReaderSource = boxedValueReaderSource;
         }
 
-        public virtual IEnumerable<ModificationCommandBatch> BatchCommands([NotNull] IReadOnlyList<InternalEntityEntry> entries, [NotNull] IDbContextOptions options)
+        public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<InternalEntityEntry> entries, IDbContextOptions options)
         {
             Check.NotNull(entries, nameof(entries));
 
@@ -87,9 +77,9 @@ namespace Microsoft.Data.Entity.Relational.Update
                     .AddEntry(e));
         }
 
-        public abstract IRelationalPropertyExtensions GetPropertyExtensions([NotNull] IProperty property);
+        public abstract IRelationalPropertyExtensions GetPropertyExtensions(IProperty property);
 
-        public abstract IRelationalEntityTypeExtensions GetEntityTypeExtensions([NotNull] IEntityType entityType);
+        public abstract IRelationalEntityTypeExtensions GetEntityTypeExtensions(IEntityType entityType);
 
         // To avoid violating store constraints the modification commands must be sorted
         // according to these rules:

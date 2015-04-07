@@ -23,13 +23,13 @@ namespace Microsoft.Data.Entity.InMemory
     public class InMemoryDataStore : DataStore, IInMemoryDataStore
     {
         private readonly bool _persist;
-        private readonly ThreadSafeLazyRef<InMemoryDatabase> _database;
+        private readonly ThreadSafeLazyRef<IInMemoryDatabase> _database;
 
         public InMemoryDataStore(
             [NotNull] IModel model,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] InMemoryDatabase persistentDatabase,
+            [NotNull] IInMemoryDatabase persistentDatabase,
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory)
             : base(
@@ -46,13 +46,13 @@ namespace Microsoft.Data.Entity.InMemory
 
             _persist = storeConfig?.Persist ?? true;
 
-            _database = new ThreadSafeLazyRef<InMemoryDatabase>(
+            _database = new ThreadSafeLazyRef<IInMemoryDatabase>(
                 () => _persist
                     ? persistentDatabase
                     : new InMemoryDatabase(loggerFactory));
         }
 
-        public virtual InMemoryDatabase Database => _database.Value;
+        public virtual IInMemoryDatabase Database => _database.Value;
 
         public override int SaveChanges(IReadOnlyList<InternalEntityEntry> entries)
         {

@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public async Task SaveChangesAsync_delegates()
         {
             var relationalConnectionMock = new Mock<IRelationalConnection>();
-            var commandBatchPreparerMock = new Mock<CommandBatchPreparer>();
-            var batchExecutorMock = new Mock<BatchExecutor>();
+            var commandBatchPreparerMock = new Mock<ICommandBatchPreparer>();
+            var batchExecutorMock = new Mock<IBatchExecutor>();
 
             var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
@@ -48,8 +48,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void SaveChanges_delegates()
         {
             var relationalConnectionMock = new Mock<IRelationalConnection>();
-            var commandBatchPreparerMock = new Mock<CommandBatchPreparer>();
-            var batchExecutorMock = new Mock<BatchExecutor>();
+            var commandBatchPreparerMock = new Mock<ICommandBatchPreparer>();
+            var batchExecutorMock = new Mock<IBatchExecutor>();
 
             var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
@@ -76,8 +76,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 IEntityKeyFactorySource entityKeyFactorySource,
                 IEntityMaterializerSource entityMaterializerSource,
                 IRelationalConnection connection,
-                CommandBatchPreparer batchPreparer,
-                BatchExecutor batchExecutor,
+                ICommandBatchPreparer batchPreparer,
+                IBatchExecutor batchExecutor,
                 IDbContextOptions options,
                 ILoggerFactory loggerFactory)
                 : base(model, entityKeyFactorySource, entityMaterializerSource, connection, batchPreparer, batchExecutor, options, loggerFactory)

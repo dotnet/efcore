@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations;
@@ -26,25 +27,23 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             base.Services_wire_up_correctly();
 
             // Relational
-            VerifySingleton<RelationalObjectArrayValueReaderFactory>();
-            VerifySingleton<RelationalTypedValueReaderFactory>();
-            VerifySingleton<ModificationCommandComparer>();
+            VerifySingleton<IComparer<ModificationCommand>>();
 
             // SQL Server dingletones
             VerifySingleton<ISqlServerModelBuilderFactory>();
             VerifySingleton<ISqlServerValueGeneratorCache>();
-            VerifySingleton<SqlServerSequenceValueGeneratorFactory>();
+            VerifySingleton<ISqlServerSequenceValueGeneratorFactory>();
             VerifySingleton<ISqlServerSqlGenerator>();
-            VerifySingleton<SqlStatementExecutor>();
-            VerifySingleton<SqlServerTypeMapper>();
-            VerifySingleton<SqlServerModificationCommandBatchFactory>();
-            VerifySingleton<SqlServerCommandBatchPreparer>();
+            VerifySingleton<ISqlStatementExecutor>();
+            VerifySingleton<ISqlServerTypeMapper>();
+            VerifySingleton<ISqlServerModificationCommandBatchFactory>();
+            VerifySingleton<ISqlServerCommandBatchPreparer>();
             VerifySingleton<ISqlServerModelSource>();
 
             // SQL Server scoped
             VerifyScoped<ISqlServerQueryContextFactory>();
             VerifyScoped<ISqlServerValueGeneratorSelector>();
-            VerifyScoped<SqlServerBatchExecutor>();
+            VerifyScoped<ISqlServerBatchExecutor>();
             VerifyScoped<ISqlServerDataStoreServices>();
             VerifyScoped<ISqlServerDataStore>();
             VerifyScoped<ISqlServerConnection>();
@@ -57,10 +56,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifyCommonDataStoreServices();
 
             // Migrations
-            VerifyScoped<MigrationAssembly>();
+            VerifyScoped<IMigrationAssembly>();
             VerifyScoped<IHistoryRepository>();
-            VerifyScoped<Migrator>();
-            VerifySingleton<MigrationIdGenerator>();
+            VerifyScoped<IMigrator>();
+            VerifySingleton<IMigrationIdGenerator>();
             VerifyScoped<IModelDiffer>();
             VerifyScoped<IMigrationSqlGenerator>();
         }

@@ -12,13 +12,13 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerSequenceValueGenerator<TValue> : HiLoValueGenerator<TValue>
     {
-        private readonly SqlStatementExecutor _executor;
+        private readonly ISqlStatementExecutor _executor;
         private readonly ISqlServerSqlGenerator _sqlGenerator;
         private readonly ISqlServerConnection _connection;
         private readonly string _sequenceName;
 
         public SqlServerSequenceValueGenerator(
-            [NotNull] SqlStatementExecutor executor,
+            [NotNull] ISqlStatementExecutor executor,
             [NotNull] ISqlServerSqlGenerator sqlGenerator,
             [NotNull] SqlServerSequenceValueGeneratorState generatorState,
             [NotNull] ISqlServerConnection connection)

@@ -383,7 +383,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         protected ModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
         {
-            var entry = new Mock<InternalEntityEntry>().Object;
+            var entry = CreateInternalEntryMock().Object;
             var generator = new ParameterNameGenerator();
 
             var idProperty = CreateMockProperty("Id");
@@ -419,7 +419,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         protected ModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
         {
-            var entry = new Mock<InternalEntityEntry>().Object;
+            var entry = CreateInternalEntryMock().Object;
             var generator = new ParameterNameGenerator();
 
             var idProperty = CreateMockProperty("Id");
@@ -450,7 +450,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         protected ModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
         {
-            var entry = new Mock<InternalEntityEntry>().Object;
+            var entry = CreateInternalEntryMock().Object;
             var generator = new ParameterNameGenerator();
 
             var idProperty = CreateMockProperty("Id");
@@ -468,6 +468,16 @@ namespace Microsoft.Data.Entity.Relational.Tests
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
+        }
+
+        private static Mock<InternalEntityEntry> CreateInternalEntryMock()
+        {
+            var entityTypeMock = new Mock<IEntityType>();
+            entityTypeMock.Setup(e => e.GetProperties()).Returns(new IProperty[0]);
+
+            var internalEntryMock = new Mock<InternalEntityEntry>(
+                Mock.Of<IStateManager>(), entityTypeMock.Object, Mock.Of<IEntityEntryMetadataServices>());
+            return internalEntryMock;
         }
     }
 }

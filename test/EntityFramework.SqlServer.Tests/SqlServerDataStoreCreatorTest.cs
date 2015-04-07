@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var customServices = new ServiceCollection()
                 .AddScoped<ISqlServerConnection, FakeSqlServerConnection>()
-                .AddScoped<SqlStatementExecutor, FakeSqlStatementExecutor>();
+                .AddScoped<ISqlStatementExecutor, FakeSqlStatementExecutor>();
 
             var contextServices = SqlServerTestHelpers.Instance.CreateContextServices(customServices);
 
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var customServices = new ServiceCollection()
                 .AddScoped<ISqlServerConnection, FakeSqlServerConnection>()
-                .AddScoped<SqlStatementExecutor, FakeSqlStatementExecutor>();
+                .AddScoped<ISqlStatementExecutor, FakeSqlStatementExecutor>();
 
             var contextServices = SqlServerTestHelpers.Instance.CreateContextServices(customServices);
 

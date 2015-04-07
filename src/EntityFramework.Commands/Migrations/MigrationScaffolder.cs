@@ -20,9 +20,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
     {
         private readonly Type _contextType;
         private readonly IModel _model;
-        private readonly MigrationAssembly _migrationAssembly;
+        private readonly IMigrationAssembly _migrationAssembly;
         private readonly IModelDiffer _modelDiffer;
-        private readonly MigrationIdGenerator _idGenerator;
+        private readonly IMigrationIdGenerator _idGenerator;
         private readonly MigrationCodeGenerator _migrationCodeGenerator;
         private readonly IHistoryRepository _historyRepository;
         private readonly LazyRef<ILogger> _logger;
@@ -30,9 +30,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         public MigrationScaffolder(
             [NotNull] DbContext context,
             [NotNull] IModel model,
-            [NotNull] MigrationAssembly migrationAssembly,
+            [NotNull] IMigrationAssembly migrationAssembly,
             [NotNull] IModelDiffer modelDiffer,
-            [NotNull] MigrationIdGenerator idGenerator,
+            [NotNull] IMigrationIdGenerator idGenerator,
             [NotNull] MigrationCodeGenerator migrationCodeGenerator,
             [NotNull] IHistoryRepository historyRepository,
             [NotNull] ILoggerFactory loggerFactory)

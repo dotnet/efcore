@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -34,8 +35,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var sqlGenerator = new Mock<ISqlGenerator>().Object;
             var factory = new TestModificationCommandBatchFactory(sqlGenerator);
 
-            var modificationCommandBatchMock = new Mock<ModificationCommandBatch>();
-            var mockModificationCommand = new Mock<ModificationCommand>().Object;
+            var modificationCommandBatchMock = new Mock<ModificationCommandBatch>(sqlGenerator);
+            var mockModificationCommand = new Mock<ModificationCommand>(
+                "T", 
+                "S", 
+                new ParameterNameGenerator(), 
+                (Func<IProperty, IRelationalPropertyExtensions>)(p => p.Relational()), 
+                Mock.Of<IBoxedValueReaderSource>()).Object;
 
             factory.AddCommand(modificationCommandBatchMock.Object, mockModificationCommand);
 

@@ -1047,11 +1047,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 new SomeEntity { Id = 1, Name = "Kool" }, 
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
-            var sidecarMock1 = new Mock<Sidecar>();
+            var sidecarMock1 = new Mock<Sidecar>(entry);
             sidecarMock1.Setup(m => m.Name).Returns("IMZ-Ural");
             sidecarMock1.Setup(m => m.AutoCommit).Returns(true);
 
-            var sidecarMock2 = new Mock<Sidecar>();
+            var sidecarMock2 = new Mock<Sidecar>(entry);
             sidecarMock2.Setup(m => m.Name).Returns("GG Duetto");
 
             var originalValues = entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);

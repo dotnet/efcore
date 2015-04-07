@@ -17,40 +17,31 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Relational.Migrations
 {
     // TODO: Log
-    public class Migrator
+    public class Migrator : IMigrator
     {
         private const string InitialDatabase = "0";
 
-        private readonly MigrationAssembly _migrationAssembly;
+        private readonly IMigrationAssembly _migrationAssembly;
         private readonly IHistoryRepository _historyRepository;
         private readonly IRelationalDataStoreCreator _dataStoreCreator;
         private readonly IMigrationSqlGenerator _migrationSqlGenerator;
-        private readonly SqlStatementExecutor _executor;
+        private readonly ISqlStatementExecutor _executor;
         private readonly IRelationalConnection _connection;
         private readonly IModelDiffer _modelDiffer;
         private readonly IModel _model;
-        private readonly MigrationIdGenerator _idGenerator;
+        private readonly IMigrationIdGenerator _idGenerator;
         private readonly ISqlGenerator _sqlGenerator;
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected Migrator()
-        {
-        }
-
         public Migrator(
-            [NotNull] MigrationAssembly migrationAssembly,
+            [NotNull] IMigrationAssembly migrationAssembly,
             [NotNull] IHistoryRepository historyRepository,
             [NotNull] IDataStoreCreator dataStoreCreator,
             [NotNull] IMigrationSqlGenerator migrationSqlGenerator,
-            [NotNull] SqlStatementExecutor executor,
+            [NotNull] ISqlStatementExecutor executor,
             [NotNull] IRelationalConnection connection,
             [NotNull] IModelDiffer modelDiffer,
             [NotNull] IModel model,
-            [NotNull] MigrationIdGenerator idGenerator,
+            [NotNull] IMigrationIdGenerator idGenerator,
             [NotNull] ISqlGenerator sqlGenerator)
         {
             Check.NotNull(migrationAssembly, nameof(migrationAssembly));
@@ -93,7 +84,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         public virtual bool HasPendingModelChanges() =>
             _modelDiffer.HasDifferences(_migrationAssembly.ModelSnapshot?.Model, _model);
 
-        public virtual void ApplyMigrations([CanBeNull] string targetMigration = null)
+        public virtual void ApplyMigrations(string targetMigration = null)
         {
             var migrations = _migrationAssembly.Migrations;
             var appliedMigrationEntries = _historyRepository.GetAppliedMigrations();
@@ -164,8 +155,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         }
 
         public virtual string ScriptMigrations(
-            [CanBeNull] string fromMigrationName,
-            [CanBeNull] string toMigrationName,
+            string fromMigrationName, 
+            string toMigrationName,
             bool idempotent = false)
         {
             var migrations = _migrationAssembly.Migrations;

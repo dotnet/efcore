@@ -1,225 +1,225 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
 {
     public class PropertyEntryTest
     {
-        #region NonGeneric PropertyEntry Tests
-
         [Fact]
         public void Can_get_name()
         {
-            var internalEntryMock = CreateInternalEntryMock(new Mock<IProperty>());
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                new Wotty { Id = 1, Primate = "Monkey" });
 
-            Assert.Equal("Monkey", new PropertyEntry(internalEntryMock.Object, "Monkey").Metadata.Name);
+            Assert.Equal("Primate", new PropertyEntry(entry, "Primate").Metadata.Name);
         }
 
         [Fact]
         public void Can_get_current_value()
         {
-            var internalEntryMock = CreateInternalEntryMock(new Mock<IProperty>());
-            internalEntryMock.Setup(m => m[It.IsAny<IProperty>()]).Returns("Chimp");
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                new Wotty { Id = 1, Primate = "Monkey" });
 
-            Assert.Equal("Chimp", new PropertyEntry(internalEntryMock.Object, "Monkey").CurrentValue);
+            Assert.Equal("Monkey", new PropertyEntry(entry, "Primate").CurrentValue);
         }
 
         [Fact]
         public void Can_set_current_value()
         {
-            var property = new Mock<IProperty>();
-            var internalEntryMock = CreateInternalEntryMock(property);
+            var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            new PropertyEntry(internalEntryMock.Object, "Monkey").CurrentValue = "Chimp";
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                entity);
 
-            internalEntryMock.VerifySet(m => m[property.Object] = "Chimp");
+            new PropertyEntry(entry, "Primate").CurrentValue = "Chimp";
+
+            Assert.Equal("Chimp", entity.Primate);
         }
 
         [Fact]
         public void Can_set_current_value_to_null()
         {
-            var property = new Mock<IProperty>();
-            var internalEntryMock = CreateInternalEntryMock(property);
+            var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            new PropertyEntry(internalEntryMock.Object, "Monkey").CurrentValue = null;
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                entity);
 
-            internalEntryMock.VerifySet(m => m[property.Object] = null);
+            new PropertyEntry(entry, "Primate").CurrentValue = null;
+
+            Assert.Null(entity.Primate);
         }
 
         [Fact]
-        public void Can_get_original_value()
+        public void Can_set_and_get_original_value()
         {
-            var internalEntryMock = CreateInternalEntryMock(new Mock<IProperty>());
-            internalEntryMock.Setup(m => m.OriginalValues[It.IsAny<IProperty>()]).Returns("Chimp");
+            var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            Assert.Equal("Chimp", new PropertyEntry(internalEntryMock.Object, "Monkey").OriginalValue);
-        }
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                entity);
 
-        [Fact]
-        public void Can_set_original_value()
-        {
-            var property = new Mock<IProperty>();
-            var internalEntryMock = CreateInternalEntryMock(property);
+            Assert.Equal("Monkey", new PropertyEntry(entry, "Primate").OriginalValue);
 
-            var sideCarMock = new Mock<Sidecar>();
-            internalEntryMock.Setup(m => m.OriginalValues).Returns(sideCarMock.Object);
+            new PropertyEntry(entry, "Primate").OriginalValue = "Chimp";
 
-            new PropertyEntry(internalEntryMock.Object, "Monkey").OriginalValue = "Chimp";
-
-            sideCarMock.VerifySet(m => m[property.Object] = "Chimp");
+            Assert.Equal("Chimp", new PropertyEntry(entry, "Primate").OriginalValue);
+            Assert.Equal("Monkey", entity.Primate);
         }
 
         [Fact]
         public void Can_set_original_value_to_null()
         {
-            var property = new Mock<IProperty>();
-            var internalEntryMock = CreateInternalEntryMock(property);
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                new Wotty { Id = 1, Primate = "Monkey" });
 
-            var sideCarMock = new Mock<Sidecar>();
-            internalEntryMock.Setup(m => m.OriginalValues).Returns(sideCarMock.Object);
+            new PropertyEntry(entry, "Primate").OriginalValue = null;
 
-            new PropertyEntry(internalEntryMock.Object, "Monkey").OriginalValue = null;
-
-            sideCarMock.VerifySet(m => m[property.Object] = null);
+            Assert.Null(new PropertyEntry(entry, "Primate").OriginalValue);
         }
 
         [Fact]
-        public void IsModified_delegates_to_state_object()
+        public void Can_set_and_clear_modified()
         {
-            var propertyMock = new Mock<IProperty>();
-            var internalEntryMock = CreateInternalEntryMock(propertyMock);
-            internalEntryMock.Setup(m => m.IsPropertyModified(propertyMock.Object)).Returns(true);
+            var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            var propertyEntry = new PropertyEntry(internalEntryMock.Object, "Monkey");
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                entity);
 
-            Assert.True(propertyEntry.IsModified);
-            internalEntryMock.Verify(m => m.IsPropertyModified(propertyMock.Object));
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
 
-            propertyEntry.IsModified = true;
+            new PropertyEntry(entry, "Primate").IsModified = true;
 
-            internalEntryMock.Verify(m => m.SetPropertyModified(propertyMock.Object, true));
+            Assert.True(new PropertyEntry(entry, "Primate").IsModified);
+
+            new PropertyEntry(entry, "Primate").IsModified = false;
+
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
         }
-
-        #endregion
-
-        #region Generic PropertyEntry Tests
 
         [Fact]
         public void Can_get_name_generic()
         {
-            var internalEntryMock = CreateInternalEntryMock(new Mock<IProperty>());
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                new Wotty { Id = 1, Primate = "Monkey" });
 
-            Assert.Equal("Monkey", new PropertyEntry<Random, string>(internalEntryMock.Object, "Monkey").Metadata.Name);
+            Assert.Equal("Primate", new PropertyEntry<Wotty, string>(entry, "Primate").Metadata.Name);
         }
 
         [Fact]
         public void Can_get_current_value_generic()
         {
-            var internalEntryMock = CreateInternalEntryMock(new Mock<IProperty>());
-            internalEntryMock.Setup(m => m[It.IsAny<IProperty>()]).Returns("Chimp");
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                new Wotty { Id = 1, Primate = "Monkey" });
 
-            Assert.Equal("Chimp", new PropertyEntry<Random, string>(internalEntryMock.Object, "Monkey").CurrentValue);
+            Assert.Equal("Monkey", new PropertyEntry<Wotty, string>(entry, "Primate").CurrentValue);
         }
 
         [Fact]
         public void Can_set_current_value_generic()
         {
-            var property = new Mock<IProperty>();
-            var internalEntryMock = CreateInternalEntryMock(property);
+            var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            new PropertyEntry<Random, string>(internalEntryMock.Object, "Monkey").CurrentValue = "Chimp";
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                entity);
 
-            internalEntryMock.VerifySet(m => m[property.Object] = "Chimp");
+            new PropertyEntry<Wotty, string>(entry, "Primate").CurrentValue = "Chimp";
+
+            Assert.Equal("Chimp", entity.Primate);
         }
 
         [Fact]
         public void Can_set_current_value_to_null_generic()
         {
-            var property = new Mock<IProperty>();
-            var internalEntryMock = CreateInternalEntryMock(property);
+            var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            new PropertyEntry<Random, string>(internalEntryMock.Object, "Monkey").CurrentValue = null;
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                entity);
 
-            internalEntryMock.VerifySet(m => m[property.Object] = null);
+            new PropertyEntry<Wotty, string>(entry, "Primate").CurrentValue = null;
+
+            Assert.Null(entity.Primate);
         }
 
         [Fact]
-        public void Can_get_original_value_generic()
+        public void Can_set_and_get_original_value_generic()
         {
-            var internalEntryMock = CreateInternalEntryMock(new Mock<IProperty>());
-            internalEntryMock.Setup(m => m.OriginalValues[It.IsAny<IProperty>()]).Returns("Chimp");
+            var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            Assert.Equal("Chimp", new PropertyEntry<Random, string>(internalEntryMock.Object, "Monkey").OriginalValue);
-        }
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                entity);
 
-        [Fact]
-        public void Can_set_original_value_generic()
-        {
-            var property = new Mock<IProperty>();
-            var internalEntryMock = CreateInternalEntryMock(property);
+            Assert.Equal("Monkey", new PropertyEntry<Wotty, string>(entry, "Primate").OriginalValue);
 
-            var sideCarMock = new Mock<Sidecar>();
-            internalEntryMock.Setup(m => m.OriginalValues).Returns(sideCarMock.Object);
+            new PropertyEntry<Wotty, string>(entry, "Primate").OriginalValue = "Chimp";
 
-            new PropertyEntry<Random, string>(internalEntryMock.Object, "Monkey").OriginalValue = "Chimp";
-
-            sideCarMock.VerifySet(m => m[property.Object] = "Chimp");
+            Assert.Equal("Chimp", new PropertyEntry<Wotty, string>(entry, "Primate").OriginalValue);
+            Assert.Equal("Monkey", entity.Primate);
         }
 
         [Fact]
         public void Can_set_original_value_to_null_generic()
         {
-            var property = new Mock<IProperty>();
-            var internalEntryMock = CreateInternalEntryMock(property);
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                new Wotty { Id = 1, Primate = "Monkey" });
 
-            var sideCarMock = new Mock<Sidecar>();
-            internalEntryMock.Setup(m => m.OriginalValues).Returns(sideCarMock.Object);
+            new PropertyEntry<Wotty, string>(entry, "Primate").OriginalValue = null;
 
-            new PropertyEntry<Random, string>(internalEntryMock.Object, "Monkey").OriginalValue = null;
-
-            sideCarMock.VerifySet(m => m[property.Object] = null);
+            Assert.Null(new PropertyEntry<Wotty, string>(entry, "Primate").OriginalValue);
         }
 
         [Fact]
-        public void IsModified_delegates_to_state_object_generic()
+        public void Can_set_and_clear_modified_generic()
         {
-            var propertyMock = new Mock<IProperty>();
-            var internalEntryMock = CreateInternalEntryMock(propertyMock);
-            internalEntryMock.Setup(m => m.IsPropertyModified(propertyMock.Object)).Returns(true);
+            var entity = new Wotty { Id = 1, Primate = "Monkey" };
 
-            var propertyEntry = new PropertyEntry<Random, string>(internalEntryMock.Object, "Monkey");
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                TestHelpers.Instance.BuildModelFor<Wotty>(),
+                EntityState.Unchanged,
+                entity);
 
-            Assert.True(propertyEntry.IsModified);
-            internalEntryMock.Verify(m => m.IsPropertyModified(propertyMock.Object));
+            Assert.False(new PropertyEntry<Wotty, string>(entry, "Primate").IsModified);
 
-            propertyEntry.IsModified = true;
+            new PropertyEntry(entry, "Primate").IsModified = true;
 
-            internalEntryMock.Verify(m => m.SetPropertyModified(propertyMock.Object, true));
+            Assert.True(new PropertyEntry<Wotty, string>(entry, "Primate").IsModified);
+
+            new PropertyEntry(entry, "Primate").IsModified = false;
+
+            Assert.False(new PropertyEntry<Wotty, string>(entry, "Primate").IsModified);
         }
 
-        #endregion
-
-        #region Helper Functions
-
-        private static Mock<InternalEntityEntry> CreateInternalEntryMock(Mock<IProperty> propertyMock)
+        private class Wotty
         {
-            propertyMock.Setup(m => m.Name).Returns("Monkey");
-
-            var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.GetProperty("Monkey")).Returns(propertyMock.Object);
-
-            var internalEntryMock = new Mock<InternalEntityEntry>();
-            internalEntryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
-            return internalEntryMock;
+            public int Id { get; set; }
+            public string Primate { get; set; }
         }
-
-        #endregion
     }
 }
