@@ -18,11 +18,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 && expression.Left.Type == typeof(bool)
                 && expression.Right.Type == typeof(bool))
             {
-                var complexLeft = !((expression.Left as AliasExpression)?.ColumnExpression != null
+                var complexLeft = !((expression.Left as AliasExpression)?.ColumnExpression() != null
                     || expression.Left is ParameterExpression 
                     || expression.Left is ConstantExpression);
 
-                var complexRight = !((expression.Right as AliasExpression)?.ColumnExpression != null
+                var complexRight = !((expression.Right as AliasExpression)?.ColumnExpression() != null
                     || expression.Right is ParameterExpression
                     || expression.Right is ConstantExpression);
 

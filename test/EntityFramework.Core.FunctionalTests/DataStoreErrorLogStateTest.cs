@@ -218,6 +218,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     return true;
                 }
 
+                public IDisposable BeginScope(object state)
+                {
+                    throw new NotImplementedException();
+                }
+
                 public DataStoreErrorLogState LastDataStoreErrorState { get; set; }
                 public Exception LastDataStoreErrorException { get; set; }
                 public Func<object, Exception, string> LastDataStoreErrorFormatter { get; set; }

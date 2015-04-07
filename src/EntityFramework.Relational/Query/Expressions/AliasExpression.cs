@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
@@ -31,8 +26,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual Expression Expression { get; [param: NotNull] set; }
 
-        public virtual ColumnExpression ColumnExpression => Expression as ColumnExpression;
-
         public virtual bool Projected { get; set; } = false;
 
 
@@ -55,7 +48,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override string ToString()
         {
-            return ColumnExpression?.ToString() ?? Expression.NodeType + " " + Alias;
+            return this.ColumnExpression()?.ToString() ?? Expression.NodeType + " " + Alias;
         }
     }
 }

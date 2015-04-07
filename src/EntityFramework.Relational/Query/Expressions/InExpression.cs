@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override string ToString()
         {
-            return Alias.ColumnExpression + " IN (" + string.Join(", ", Values) + ")";
+            return Alias.ColumnExpression() + " IN (" + string.Join(", ", Values) + ")";
         }
     }
 }

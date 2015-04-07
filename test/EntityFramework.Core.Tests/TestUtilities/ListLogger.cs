@@ -39,6 +39,10 @@ namespace Microsoft.Data.Entity.Tests.TestUtilities
         }
 
         public bool IsEnabled(LogLevel logLevel) => true;
+        public IDisposable BeginScope(object state)
+        {
+            throw new NotImplementedException();
+        }
 
         public IDisposable BeginScopeImpl(object state) => null;
     }

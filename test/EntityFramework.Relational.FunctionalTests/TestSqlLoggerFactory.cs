@@ -114,6 +114,11 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 return true;
             }
 
+            public IDisposable BeginScope(object state)
+            {
+                throw new NotImplementedException();
+            }
+
             public CancellationTokenSource CancellationTokenSource
             {
                 set { _cancellationTokenSource = value; }

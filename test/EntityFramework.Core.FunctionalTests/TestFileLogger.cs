@@ -65,6 +65,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return true;
         }
 
+        public IDisposable BeginScope(object state)
+        {
+            throw new NotImplementedException();
+        }
+
         public IDisposable BeginScopeImpl(object state)
         {
             return NullScope.Instance;

@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     var innerJoinSelectExpression
                         = selectExpression.Clone(
                             ((AliasExpression)selectExpression.OrderBy.Last(o => 
-                                (o.Expression as AliasExpression)?.ColumnExpression != null).Expression).ColumnExpression.TableAlias);
+                                (o.Expression as AliasExpression)?.ColumnExpression() != null).Expression).ColumnExpression().TableAlias);
 
                     innerJoinSelectExpression.IsDistinct = true;
                     innerJoinSelectExpression.ClearProjection();
@@ -335,10 +335,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var matchingColumnExpression
                 = projections
                     .OfType<AliasExpression>()
-                    .Last(p => p.ColumnExpression?.Property == property);
+                    .Last(p => p.ColumnExpression()?.Property == property);
 
             return new ColumnExpression(
-                matchingColumnExpression.Alias ?? matchingColumnExpression.ColumnExpression.Name,
+                matchingColumnExpression.Alias ?? matchingColumnExpression.ColumnExpression().Name,
                 property,
                 tableExpression);
         }

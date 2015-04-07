@@ -36,6 +36,11 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 
         public virtual bool IsEnabled(LogLevel logLevel) => _enabledByName;
 
+        public virtual IDisposable BeginScope([NotNull] object state)
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual void Log(
             LogLevel logLevel,
             int eventId,

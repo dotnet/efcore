@@ -632,8 +632,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     && parameterValue == null)
                 {
                     var columnExpression
-                        = (binaryExpression.Left as AliasExpression)?.ColumnExpression
-                          ?? (binaryExpression.Right as AliasExpression)?.ColumnExpression;
+                        = (binaryExpression.Left as AliasExpression)?.ColumnExpression()
+                          ?? (binaryExpression.Right as AliasExpression)?.ColumnExpression();
 
                     if (columnExpression != null)
                     {
