@@ -185,12 +185,32 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
+            AddRequiredFacetConfiguration(propertyConfiguration);
             AddMaxLengthFacetConfiguration(propertyConfiguration);
             AddStoreGeneratedPatternFacetConfiguration(propertyConfiguration);
             AddColumnNameFacetConfiguration(propertyConfiguration);
             AddColumnTypeFacetConfiguration(propertyConfiguration);
             AddDefaultValueFacetConfiguration(propertyConfiguration);
             AddDefaultExpressionFacetConfiguration(propertyConfiguration);
+        }
+
+        public virtual void AddRequiredFacetConfiguration(
+            [NotNull]PropertyConfiguration propertyConfiguration)
+        {
+            Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
+
+            if (!propertyConfiguration.Property.IsNullable)
+            {
+                var entityKeyProperties =
+                    ((EntityType)propertyConfiguration.EntityConfiguration.EntityType)
+                        .FindPrimaryKey()?.Properties
+                    ?? Enumerable.Empty<Property>();
+                if (!entityKeyProperties.Contains(propertyConfiguration.Property))
+                {
+                    propertyConfiguration.AddFacetConfiguration(
+                        new FacetConfiguration("Required()"));
+                }
+            }
         }
 
         public virtual void AddMaxLengthFacetConfiguration(
