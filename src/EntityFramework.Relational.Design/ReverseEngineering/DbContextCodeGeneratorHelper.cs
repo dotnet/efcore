@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
             AddMaxLengthFacetConfiguration(propertyConfiguration);
-            AddStoreComputedFacetConfiguration(propertyConfiguration);
+            AddStoreGeneratedPatternFacetConfiguration(propertyConfiguration);
             AddColumnNameFacetConfiguration(propertyConfiguration);
             AddColumnTypeFacetConfiguration(propertyConfiguration);
             AddDefaultValueFacetConfiguration(propertyConfiguration);
@@ -209,19 +209,19 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public virtual void AddStoreComputedFacetConfiguration(
+        public virtual void AddStoreGeneratedPatternFacetConfiguration(
             [NotNull]PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (((Property)propertyConfiguration.Property).IsStoreComputed.HasValue)
+            if (propertyConfiguration.Property.StoreGeneratedPattern != StoreGeneratedPattern.None)
             {
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture,
-                            "StoreComputed({0})",
+                            "StoreGeneratedPattern({0})",
                             CSharpUtilities.Instance.GenerateLiteral(
-                                ((Property)propertyConfiguration.Property).IsStoreComputed.Value))));
+                                propertyConfiguration.Property.StoreGeneratedPattern))));
             }
         }
 

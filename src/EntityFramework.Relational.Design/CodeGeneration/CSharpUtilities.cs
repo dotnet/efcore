@@ -204,7 +204,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
 
             if (value.GetType().GetTypeInfo().IsEnum)
             {
-                return Enum.Format(value.GetType(), value, "D");
+                return value.GetType().Name + "." + Enum.Format(value.GetType(), value, "G");
             }
 
             return string.Format(CultureInfo.InvariantCulture, "{0}", value);
