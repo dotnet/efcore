@@ -548,6 +548,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             Check.NotNull(property, nameof(property));
             Check.NotNull(tableColumn, nameof(tableColumn));
 
+            property.IsNullable = tableColumn.IsNullable;
+
             if (property.Name != tableColumn.ColumnName)
             {
                 property.Relational().Column = tableColumn.ColumnName;
