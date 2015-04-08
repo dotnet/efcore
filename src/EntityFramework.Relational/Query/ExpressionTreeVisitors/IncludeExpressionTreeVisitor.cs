@@ -200,8 +200,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     var innerJoinSelectExpression
                         = selectExpression.Clone(
-                            ((AliasExpression)selectExpression.OrderBy.Last(o => 
-                                (o.Expression as AliasExpression)?.ColumnExpression() != null).Expression).ColumnExpression().TableAlias);
+                            selectExpression.OrderBy.Select(o => o.Expression).Last(o => o.IsAliasWithColumnExpression())
+                            .GetColumnExpression().TableAlias);
 
                     innerJoinSelectExpression.IsDistinct = true;
                     innerJoinSelectExpression.ClearProjection();
@@ -324,6 +324,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             TableExpressionBase tableExpression,
             IProperty property)
         {
+            Check.NotNull(property, nameof(property));
+
             if (projections.Count == 0)
             {
                 return new ColumnExpression(

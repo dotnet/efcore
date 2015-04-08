@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -61,7 +62,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     if (!(expression is NewExpression))
                     {
                         var aliasExpression = sqlExpression as AliasExpression;
-                        var columnExpression = aliasExpression?.ColumnExpression();
+                        var columnExpression = sqlExpression.GetColumnExpression();
 
                         if (columnExpression != null)
                         {

@@ -181,8 +181,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     && constantExpression.Value == null)
                 {
                     var columnExpression
-                        = (left as AliasExpression)?.ColumnExpression()
-                          ?? (right as AliasExpression)?.ColumnExpression();
+                        = left.GetColumnExpression()
+                          ?? right.GetColumnExpression();
 
                     if (columnExpression != null)
                     {
@@ -230,10 +230,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         (property, querySource, selectExpression)
                             =>
                             {
-                                return new AliasExpression(new ColumnExpression(
-                                    _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
-                                    property,
-                                    selectExpression.FindTableForQuerySource(querySource)));
+                                return new AliasExpression(
+                                    new ColumnExpression(
+                                        _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                                        property,
+                                        selectExpression.FindTableForQuerySource(querySource)));
                             });
             }
 
@@ -250,10 +251,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     (property, querySource, selectExpression)
                         =>
                         {
-                            return new AliasExpression(new ColumnExpression(
-                                _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
-                                property,
-                                selectExpression.FindTableForQuerySource(querySource)));
+                            return new AliasExpression(
+                                new ColumnExpression(
+                                    _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                                    property,
+                                    selectExpression.FindTableForQuerySource(querySource)));
                         });
         }
 
