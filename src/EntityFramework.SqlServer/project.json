@@ -8,6 +8,9 @@
         "EntityFramework.Relational": "7.0.0-*"
     },
     "compile": "..\\Shared\\*.cs",
+    "namedResource": {
+        "EntityFramework.SqlServer.Strings": "Properties/Strings.resx"
+    },
     "frameworks": {
         "net451": { },
         "dnx451": { },

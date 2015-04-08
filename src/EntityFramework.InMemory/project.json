@@ -8,6 +8,9 @@
         "EntityFramework.Core": "7.0.0-*"
     },
     "compile": "..\\Shared\\*.cs",
+    "namedResource": {
+        "EntityFramework.InMemory.Strings": "Properties/Strings.resx"
+    },
     "frameworks": {
         "net45": { },
         "dnx451": { },

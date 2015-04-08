@@ -13,6 +13,9 @@
     },
     "compile": "..\\Shared\\*.cs",
     "exclude": "tools\\Handlers.cs",
+    "namedResource": {
+        "EntityFramework.Commands.Strings": "Properties/Strings.resx"
+    },
     "frameworks": {
         "net451": { },
         "dnx451": {

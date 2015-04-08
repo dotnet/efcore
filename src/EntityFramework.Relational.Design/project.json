@@ -9,6 +9,9 @@
         "EntityFramework.Relational": "7.0.0-*"
     },
     "compile": "..\\Shared\\*.cs",
+    "namedResource": {
+        "EntityFramework.Relational.Design.Strings": "Properties/Strings.resx"
+    },
     "frameworks": {
         "net451": {
             "frameworkAssemblies": {
