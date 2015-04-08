@@ -36,8 +36,7 @@ namespace @Model.Namespace
 {
 @{
 string className = Model.ClassName ?? Model.Helper.ClassName(Model.ConnectionString);
-}
-    public partial class @className : DbContext
+}    public partial class @className : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
@@ -46,60 +45,76 @@ string className = Model.ClassName ?? Model.Helper.ClassName(Model.ConnectionStr
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-@foreach(var entityConfig in Model.Helper.EntityConfigurations)
+@{
+bool firstEntity = true;
+}@foreach(var entityConfig in Model.Helper.EntityConfigurations)
 {
-    bool first = true;
+    bool firstConfig = true;
+    @if(!firstEntity)
+    {
+@:
+    }
+    firstEntity = false;
 @:            modelBuilder.Entity<@entityConfig.EntityType.DisplayName()>(entity =>
 @:            {
     @foreach(var entityFacet in @entityConfig.FacetConfigurations)
     {
-        @if(!first)
+        @if(!firstConfig)
         {
 @:
         }
+        firstConfig = false;
 @:                entity@(entityFacet.ToString());
-    first = false;
     }                        
+    bool firstFacet = true;
     @foreach(var propertyConfig in @entityConfig.PropertyConfigurations)
     {
-        @if(!first)
-        {
-@:
-        }
         @foreach(var keyValuePair in @propertyConfig.FacetConfigurations)
         {
             @foreach(var facetMethodBody in @keyValuePair.Value)
             {
-                @if(!string.IsNullOrEmpty(keyValuePair.Key))
+                @if(!firstConfig || !firstFacet)
                 {
-@:                entity.Property(e => e.@(propertyConfig.Property.Name))
-@:                    .@(keyValuePair.Key).@(facetMethodBody.ToString());
+@:
                 }
-                else
+                firstFacet = false;
+                @if(string.IsNullOrEmpty(keyValuePair.Key))
                 {
 @:                entity.Property(e => e.@(propertyConfig.Property.Name))
 @:                    .@(facetMethodBody.ToString());
                 }
-    first = false;
+                else
+                {
+@:                entity.Property(e => e.@(propertyConfig.Property.Name))
+@:                    .@(keyValuePair.Key).@(facetMethodBody.ToString());
+                }
             }
         }
     }
 @:            });
 }
 
+@{
+bool firstNavigation = true;
+}
 @foreach(var navigationConfig in Model.Helper.NavigationConfigurations)
 {
-    bool first = true;
+    bool firstConfig = true;
+    @if(!firstNavigation)
+    {
+@:
+    }
+    firstNavigation = false;
 @:            modelBuilder.Entity<@navigationConfig.EntityType.DisplayName()>(entity =>
 @:            {
     @foreach(var navigationFacet in @navigationConfig.FacetConfigurations)
     {
-        @if(!first)
+        @if(!firstConfig)
         {
 @:
         }
+        firstConfig = false;
 @:                entity@(navigationFacet.ToString());
-    first = false;
     }                        
 @:            });
 }
@@ -118,19 +133,20 @@ string className = Model.ClassName ?? Model.Helper.ClassName(Model.ConnectionStr
 //
 // Generated code
 //
-using System;
-using System.Collections.Generic;
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Metadata;
-
-namespace @Model.Namespace
-{
 @{
 string errorMessageAnnotation = Model.Helper.ErrorMessageAnnotation;
 }@if(errorMessageAnnotation != null) {
+@:
 @:// @errorMessageAnnotation
 }
 else {
+@:using System;
+@:using System.Collections.Generic;
+@:using Microsoft.Data.Entity;
+@:using Microsoft.Data.Entity.Metadata;
+
+@:namespace @Model.Namespace
+@:{
 @:    public class @Model.EntityType.Name
 @:    {
 @:        public @(Model.EntityType.Name)()
@@ -158,7 +174,7 @@ else {
         }
     }
 @:    }
-}
+@:}
 }";
 
         private static readonly List<string> DataTypesForMax = new List<string>() { "varchar", "nvarchar", "varbinary" };
