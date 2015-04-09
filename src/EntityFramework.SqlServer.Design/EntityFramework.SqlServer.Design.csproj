@@ -96,6 +96,8 @@
       <LastGenOutput>Resources.cs</LastGenOutput>
     </Content>
     <None Include="project.json" />
+    <EmbeddedResource Include="ReverseEngineering\Templates\SqlServerDbContextTemplate.cshtml" />
+    <EmbeddedResource Include="ReverseEngineering\Templates\SqlServerEntityTypeTemplate.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EntityFramework.Relational.Design\EntityFramework.Relational.Design.csproj">
