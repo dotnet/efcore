@@ -5,8 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
@@ -24,159 +25,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
     public class SqlServerMetadataModelProvider : IDatabaseMetadataModelProvider
     {
-        public const string SqlServerDbContextTemplate =
-@"@inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
-// Generated using Provider Assembly: @Model.ProviderAssembly
-// And Database Connection String: @Model.ConnectionString
-
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Metadata;
-
-namespace @Model.Namespace
-{
-@{
-string className = Model.ClassName ?? Model.Helper.ClassName(Model.ConnectionString);
-}    public partial class @className : DbContext
-    {
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            options.UseSqlServer(@Model.Helper.VerbatimStringLiteral(@Model.ConnectionString));
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-@{
-bool firstEntity = true;
-}@foreach(var entityConfig in Model.Helper.EntityConfigurations)
-{
-    bool firstConfig = true;
-    @if(!firstEntity)
-    {
-@:
-    }
-    firstEntity = false;
-@:            modelBuilder.Entity<@entityConfig.EntityType.DisplayName()>(entity =>
-@:            {
-    @foreach(var entityFacet in @entityConfig.FacetConfigurations)
-    {
-        @if(!firstConfig)
-        {
-@:
-        }
-        firstConfig = false;
-@:                entity@(entityFacet.ToString());
-    }                        
-    bool firstFacet = true;
-    @foreach(var propertyConfig in @entityConfig.PropertyConfigurations)
-    {
-        @foreach(var keyValuePair in @propertyConfig.FacetConfigurations)
-        {
-            @foreach(var facetMethodBody in @keyValuePair.Value)
-            {
-                @if(!firstConfig || !firstFacet)
-                {
-@:
-                }
-                firstFacet = false;
-                @if(string.IsNullOrEmpty(keyValuePair.Key))
-                {
-@:                entity.Property(e => e.@(propertyConfig.Property.Name))
-@:                    .@(facetMethodBody.ToString());
-                }
-                else
-                {
-@:                entity.Property(e => e.@(propertyConfig.Property.Name))
-@:                    .@(keyValuePair.Key).@(facetMethodBody.ToString());
-                }
-            }
-        }
-    }
-@:            });
-}
-
-@{
-bool firstNavigation = true;
-}
-@foreach(var navigationConfig in Model.Helper.NavigationConfigurations)
-{
-    bool firstConfig = true;
-    @if(!firstNavigation)
-    {
-@:
-    }
-    firstNavigation = false;
-@:            modelBuilder.Entity<@navigationConfig.EntityType.DisplayName()>(entity =>
-@:            {
-    @foreach(var navigationFacet in @navigationConfig.FacetConfigurations)
-    {
-        @if(!firstConfig)
-        {
-@:
-        }
-        firstConfig = false;
-@:                entity@(navigationFacet.ToString());
-    }                        
-@:            });
-}
-        }@* End of OnModelCreating() *@
-
-@foreach(var et in Model.Helper.OrderedEntityTypes())
-{
-@:        public virtual DbSet<@et.Name> @et.Name { get; set; }
-}
-    }
-}";
-
-        public const string SqlServerEntityTypeTemplate =
-@"@inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
-@using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
-//
-// Generated code
-//
-@{
-string errorMessageAnnotation = Model.Helper.ErrorMessageAnnotation;
-}@if(errorMessageAnnotation != null) {
-@:
-@:// @errorMessageAnnotation
-}
-else {
-@:using System;
-@:using System.Collections.Generic;
-@:using Microsoft.Data.Entity;
-@:using Microsoft.Data.Entity.Metadata;
-
-@:namespace @Model.Namespace
-@:{
-@:    public class @Model.EntityType.Name
-@:    {
-@:        public @(Model.EntityType.Name)()
-@:        {
-    @foreach(var navPropInitializer in Model.Helper.NavPropInitializers)
-    {
-@:            @navPropInitializer.NavigationPropertyName = new HashSet<@navPropInitializer.PrincipalEntityTypeName>();
-    }
-@:        }
-@:
-@:        // Properties
-    @foreach(var property in Model.Helper.OrderedEntityProperties)
-    {
-@:        public @Model.Generator.CSharpCodeGeneratorHelper.GetTypeName(@property.ClrType) @property.Name { get; set; }
-    }
-@:
-@:        // Navigation Properties
-    @foreach(var navProp in Model.Helper.NavigationProperties)
-    {
-        @if(navProp.ErrorAnnotation != null) {
-@:        // @navProp.ErrorAnnotation
-        }
-        else {
-@:        public virtual @navProp.Type @navProp.Name { get; set; }
-        }
-    }
-@:    }
-@:}
-}";
-
         private static readonly List<string> DataTypesForMax = new List<string>() { "varchar", "nvarchar", "varbinary" };
         private static readonly List<string> DataTypesForMaxLengthNotAllowed = new List<string>() { "ntext", "text", "image" };
         private static readonly List<string> DataTypesForNumericPrecisionAndScale = new List<string>() { "decimal", "numeric" };
@@ -188,6 +36,13 @@ else {
         public const string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";
 
         public const string NavigationNameUniquifyingSuffix = "Navigation";
+
+        public static readonly string SqlServerDbContextTemplateResourceName =
+            typeof(SqlServerMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
+            + ".ReverseEngineering.Templates.SqlServerDbContextTemplate.cshtml";
+        public static readonly string SqlServerEntityTypeTemplateResourceName =
+            typeof(SqlServerMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
+            + ".ReverseEngineering.Templates.SqlServerEntityTypeTemplate.cshtml";
 
         private ILogger _logger;
         private ModelUtilities _modelUtilities;
@@ -263,7 +118,9 @@ else {
         {
             get
             {
-                return SqlServerDbContextTemplate;
+                return ReadFromResource(
+                    typeof(SqlServerMetadataModelProvider).GetTypeInfo().Assembly,
+                    SqlServerDbContextTemplateResourceName);
             }
         }
 
@@ -276,7 +133,9 @@ else {
         {
             get
             {
-                return SqlServerEntityTypeTemplate;
+                return ReadFromResource(
+                    typeof(SqlServerMetadataModelProvider).GetTypeInfo().Assembly,
+                    SqlServerEntityTypeTemplateResourceName);
             }
         }
 
@@ -771,6 +630,20 @@ else {
                         Strings.UnableToConvertDefaultValue(
                             tableColumn.Id, tableColumn.DefaultValue,
                             property.ClrType, property.Name, property.EntityType.Name));
+                }
+            }
+        }
+
+        public virtual string ReadFromResource([NotNull]Assembly assembly, [NotNull]string resourceName)
+        {
+            Check.NotNull(assembly, nameof(assembly));
+            Check.NotEmpty(resourceName, nameof(resourceName));
+
+            using (var resourceStream = assembly.GetManifestResourceStream(resourceName))
+            {
+                using (var streamReader = new StreamReader(resourceStream))
+                {
+                    return streamReader.ReadToEnd();
                 }
             }
         }
