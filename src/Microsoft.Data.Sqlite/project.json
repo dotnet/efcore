@@ -1,6 +1,9 @@
 ﻿{
     "version": "1.0.0-*",
     "description": "SQLite implementation of the System.Data.Common provider model.",
+    "namedResource": {
+        "Microsoft.Data.Sqlite.Strings": "Properties/Strings.resx"
+    },
     "frameworks": {
         "net451": {
             "frameworkAssemblies": {
