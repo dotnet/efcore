@@ -70,7 +70,7 @@ namespace EntityFramework.Microbenchmarks.Core
             }
             else
             {
-                var configuration = new Configuration();
+                var configuration = new Configuration(GetApplicationBathPath());
                 if (File.Exists(cliConfigPath))
                 {
                     configuration.AddJsonFile(cliConfigPath);
@@ -126,6 +126,19 @@ namespace EntityFramework.Microbenchmarks.Core
             runtimeFlavor = isCoreCLR ? "CoreCLR" : "Desktop";
 #endif
             return runtimeFlavor;
+        }
+
+        private string GetApplicationBathPath()
+        { 
+            var applicatioBasePath = ".";
+
+#if DNX451 || DNXCORE50
+            var services = CallContextServiceLocator.Locator.ServiceProvider;
+            var appEnv = (IApplicationEnvironment)services.GetService(typeof(IApplicationEnvironment));
+            applicatioBasePath = appEnv.ApplicationBasePath;
+#endif
+
+            return applicatioBasePath;
         }
     }
 }
