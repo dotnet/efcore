@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Utilities;
@@ -210,60 +211,56 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryModel, nameof(queryModel));
             Check.NotNull(resultType, nameof(resultType));
 
+            var includePaths = QueryCompilationContext.QueryAnnotations.OfType<IncludeQueryAnnotation>()
+                .Select(annotation =>
+                    {
+                        var navigationPath = BindNavigationPathMemberExpression(
+                           (MemberExpression)annotation.NavigationPropertyPath,
+                           (ns, _) => BindChainedNavigations(ns, annotation.ChainedNavigationProperties).ToArray());
+
+                        if (navigationPath == null)
+                        {
+                            throw new InvalidOperationException(
+                                Strings.IncludeNonBindableExpression(annotation.NavigationPropertyPath));
+                        }
+                        return new
+                        {
+                            Annotation = annotation,
+                            NavigationPath = navigationPath
+                        };
+                    });
+
             var querySourceTracingExpressionTreeVisitor
                 = new QuerySourceTracingExpressionTreeVisitor();
 
-            foreach (var include
-                in from queryAnnotation in QueryCompilationContext.QueryAnnotations
-                    let includeResultOperator = queryAnnotation.ResultOperator as IncludeResultOperator
-                    where includeResultOperator != null
-                    let navigationPath
-                        = BindNavigationPathMemberExpression(
-                            (MemberExpression)includeResultOperator.NavigationPropertyPath,
-                            (ns, _) => BindChainedNavigations(ns, includeResultOperator.ChainedNavigationProperties).ToArray())
-                    orderby navigationPath != null
-                            && navigationPath.First().PointsToPrincipal()
-                    select new
-                        {
-                            navigationPath,
-                            queryAnnotation.QuerySource,
-                            includeResultOperator.NavigationPropertyPath
-                        })
+            foreach (var include in includePaths.OrderBy(a => a.NavigationPath.First().PointsToPrincipal()))
             {
-                if (include.navigationPath != null)
+                var resultQuerySourceReferenceExpression
+                    = querySourceTracingExpressionTreeVisitor
+                        .FindResultQuerySourceReferenceExpression(
+                            queryModel.SelectClause.Selector,
+                            include.Annotation.QuerySource);
+
+                if (resultQuerySourceReferenceExpression != null)
                 {
-                    var resultQuerySourceReferenceExpression
-                        = querySourceTracingExpressionTreeVisitor
-                            .FindResultQuerySourceReferenceExpression(
+                    var accessorLambda
+                        = AccessorFindingExpressionTreeVisitor
+                            .FindAccessorLambda(
+                                resultQuerySourceReferenceExpression,
                                 queryModel.SelectClause.Selector,
-                                include.QuerySource);
+                                Expression.Parameter(queryModel.SelectClause.Selector.Type));
 
-                    if (resultQuerySourceReferenceExpression != null)
-                    {
-                        var accessorLambda
-                            = AccessorFindingExpressionTreeVisitor
-                                .FindAccessorLambda(
-                                    resultQuerySourceReferenceExpression,
-                                    queryModel.SelectClause.Selector,
-                                    Expression.Parameter(queryModel.SelectClause.Selector.Type));
+                    QueryCompilationContext.Logger
+                        .LogInformation(
+                            include.NavigationPath.Join("."),
+                            Strings.LogIncludingNavigation);
 
-                        QueryCompilationContext.Logger
-                            .LogInformation(
-                                include.navigationPath.Join("."),
-                                Strings.LogIncludingNavigation);
-
-                        IncludeNavigations(
-                            include.QuerySource,
-                            resultType,
-                            accessorLambda,
-                            include.navigationPath,
-                            QuerySourceRequiresTracking(include.QuerySource));
-                    }
-                }
-                else
-                {
-                    throw new InvalidOperationException(
-                        Strings.IncludeNonBindableExpression(include.NavigationPropertyPath));
+                    IncludeNavigations(
+                        include.Annotation.QuerySource,
+                        resultType,
+                        accessorLambda,
+                        include.NavigationPath,
+                        QuerySourceRequiresTracking(include.Annotation.QuerySource));
                 }
             }
         }
@@ -322,8 +319,8 @@ namespace Microsoft.Data.Entity.Query
                 = new EntityResultFindingExpressionTreeVisitor(QueryCompilationContext.Model)
                     .FindEntitiesInResult(queryModel.SelectClause.Selector)
                     .Where(qsre => !QueryCompilationContext.QueryAnnotations
-                        .Any(qa => qa.ResultOperator is AsNoTrackingResultOperator
-                                   && qa.QuerySource == qsre.ReferencedQuerySource))
+                        .OfType<AsNoTrackingQueryAnnotation>()
+                        .Any(qa => qa.QuerySource == qsre.ReferencedQuerySource))
                     .ToList();
 
             if (querySourceReferenceExpressionsToTrack.Any())
@@ -404,7 +401,8 @@ namespace Microsoft.Data.Entity.Query
                 return true;
             }
 
-            return QueryCompilationContext.QueryAnnotations.Where(en => en.ResultOperator is AsNoTrackingResultOperator)
+            return QueryCompilationContext.QueryAnnotations
+                .OfType<AsNoTrackingQueryAnnotation>()
                 .All(qa => qa.QuerySource != querySource);
         }
 

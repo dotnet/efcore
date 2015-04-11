@@ -4,6 +4,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -33,12 +34,13 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
 
         protected override QueryModel ApplyNodeSpecificSemantics(QueryModel queryModel, ClauseGenerationContext clauseGenerationContext)
         {
-            var includeResultOperator
-                = (IncludeResultOperator)clauseGenerationContext.GetContextInfo(Source);
+            var queryAnnotationResultOperator
+                = (QueryAnnotationResultOperator)clauseGenerationContext.GetContextInfo(Source);
 
-            includeResultOperator.AppendToNavigationPath(_navigationPropertyPathLambda.GetComplexPropertyAccess());
+            ((IncludeQueryAnnotation)queryAnnotationResultOperator.Annotation)
+                .AppendToNavigationPath(_navigationPropertyPathLambda.GetComplexPropertyAccess());
 
-            clauseGenerationContext.AddContextInfo(this, includeResultOperator);
+            clauseGenerationContext.AddContextInfo(this, queryAnnotationResultOperator);
 
             return queryModel;
         }
@@ -48,7 +50,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         public override Expression Resolve(
             ParameterExpression inputParameter,
             Expression expressionToBeResolved,
-            ClauseGenerationContext clauseGenerationContext) 
+            ClauseGenerationContext clauseGenerationContext)
             => Source.Resolve(
                 inputParameter,
                 expressionToBeResolved,

@@ -8,17 +8,10 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class QueryAnnotation
+    public abstract class QueryAnnotation
     {
         private IQuerySource _querySource;
         private QueryModel _queryModel;
-
-        public QueryAnnotation([NotNull] ResultOperatorBase resultOperator)
-        {
-            Check.NotNull(resultOperator, nameof(resultOperator));
-
-            ResultOperator = resultOperator;
-        }
 
         public virtual QueryModel QueryModel
         {
@@ -43,7 +36,5 @@ namespace Microsoft.Data.Entity.Query
                 _querySource = value;
             }
         }
-
-        public virtual ResultOperatorBase ResultOperator { get; }
     }
 }

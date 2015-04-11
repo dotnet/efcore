@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity
     /// </summary>
     /// <typeparam name="TEntity"> The type of entity being operated on by this set. </typeparam>
     public abstract class DbSet<TEntity>
-        : IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>, IAnnotatableQueryable<TEntity>
+        : IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>
         where TEntity : class
     {
         /// <summary>
@@ -275,20 +275,6 @@ namespace Microsoft.Data.Entity
         IServiceProvider IAccessor<IServiceProvider>.Service
         {
             get { throw new NotImplementedException(); }
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Adds a <see cref="QueryAnnotation" /> to the query.
-        ///     </para>
-        ///     <para>
-        ///         This method is intended for use by extension methods that need to add information to
-        ///         the expression tree.
-        ///     </para>
-        /// </summary>
-        IQueryable<TEntity> IAnnotatableQueryable<TEntity>.AnnotateQuery(object annotation)
-        {
-            throw new NotImplementedException();
         }
     }
 }

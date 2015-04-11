@@ -9,13 +9,13 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public static class AnnotateQueryExtensions
+    public static class QueryAnnotationExtensions
     {
         internal static readonly MethodInfo AnnotateQueryMethodInfo
-            = typeof(AnnotateQueryExtensions)
+            = typeof(QueryAnnotationExtensions)
                 .GetTypeInfo().GetDeclaredMethod(nameof(AnnotateQuery));
 
-        public static IQueryable<TEntity> AnnotateQuery<TEntity>([NotNull] this IQueryable<TEntity> source, [NotNull] object annotation) where TEntity : class
+        public static IQueryable<TEntity> AnnotateQuery<TEntity>([NotNull] this IQueryable<TEntity> source, [NotNull] QueryAnnotation annotation) where TEntity : class
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(annotation, nameof(annotation));

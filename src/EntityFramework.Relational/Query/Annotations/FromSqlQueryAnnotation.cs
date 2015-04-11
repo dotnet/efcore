@@ -3,18 +3,19 @@
 
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Query.Annotations
 {
-    public class FromSqlAnnotation
+    public class FromSqlQueryAnnotation : QueryAnnotation
     {
-        public FromSqlAnnotation([NotNull] string sql)
+        public FromSqlQueryAnnotation([NotNull] string sql)
             : this(sql, new object[0])
         {
         }
 
-        public FromSqlAnnotation([NotNull] string sql, [NotNull] object[] parameters)
+        public FromSqlQueryAnnotation([NotNull] string sql, [NotNull] object[] parameters)
         {
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
@@ -28,10 +29,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Annotations
         public virtual object[] Parameters { get; }
 
         public override string ToString()
-        {
-            return string.Format("\"{0}\" ({1})",
-                Sql,
-                string.Join(", ", Parameters.Select(p => p.ToString())));
-        }
+            => "FromSql(\""
+            + Sql
+            + (Parameters.Length > 0
+                ? "\", " + Parameters.Select(p => p.ToString()).Join()
+                : "\"")
+            + ")";
     }
 }

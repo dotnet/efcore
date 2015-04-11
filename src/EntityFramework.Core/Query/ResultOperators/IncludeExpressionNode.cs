@@ -4,6 +4,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
@@ -37,11 +38,13 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
                     _navigationPropertyPathLambda.Body,
                     clauseGenerationContext);
 
-            var includeResultOperator = new IncludeResultOperator(navigationPropertyPath);
+            var queryAnnotationResultOperator = new QueryAnnotationResultOperator(
+                Expression.Constant(
+                    new IncludeQueryAnnotation(navigationPropertyPath)));
 
-            clauseGenerationContext.AddContextInfo(this, includeResultOperator);
+            clauseGenerationContext.AddContextInfo(this, queryAnnotationResultOperator);
 
-            return includeResultOperator;
+            return queryAnnotationResultOperator;
         }
 
         public override Expression Resolve(

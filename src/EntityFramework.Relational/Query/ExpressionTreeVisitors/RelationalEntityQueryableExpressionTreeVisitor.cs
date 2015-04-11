@@ -86,8 +86,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 ? tableName.First().ToString().ToLower()
                 : _querySource.ItemName;
 
-            var annotation = GetAnnotations<FromSqlAnnotation>(_querySource).SingleOrDefault();
-            var fromSqlAnnotation = (annotation?.ResultOperator as AnnotateQueryResultOperator)?.Expression.Value as FromSqlAnnotation;
+            var fromSqlAnnotation = QueryModelVisitor.QueryCompilationContext.QueryAnnotations
+                .OfType<FromSqlQueryAnnotation>()
+                .Where(a => a.QuerySource == _querySource)
+                .SingleOrDefault();
 
             selectExpression.AddTable(
                 (fromSqlAnnotation != null)
@@ -156,8 +158,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             CommandBuilder commandBuilder = null;
 
             if (fromSqlAnnotation != null
-                && annotation.QueryModel.IsIdentityQuery()
-                && !annotation.QueryModel.ResultOperators.Any())
+                && fromSqlAnnotation.QueryModel.IsIdentityQuery()
+                && !fromSqlAnnotation.QueryModel.ResultOperators.Any())
             {
                 commandBuilder = new CommandBuilder(new RawSqlQueryGenerator(fromSqlAnnotation.Sql, fromSqlAnnotation.Parameters));
             }

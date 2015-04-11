@@ -12,18 +12,20 @@ using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.Data.Entity.Query.ResultOperators
 {
-    public class AnnotateQueryResultOperator : SequenceTypePreservingResultOperatorBase
+    public class QueryAnnotationResultOperator : SequenceTypePreservingResultOperatorBase
     {
         private readonly ConstantExpression _annotationExpression;
+        private readonly QueryAnnotation _queryAnnotation;
 
-        public AnnotateQueryResultOperator([NotNull] ConstantExpression annotationExpression)
+        public QueryAnnotationResultOperator([NotNull] ConstantExpression annotationExpression)
         {
             Check.NotNull(annotationExpression, nameof(annotationExpression));
 
             _annotationExpression = annotationExpression;
+            _queryAnnotation = (QueryAnnotation)annotationExpression.Value;
         }
 
-        public virtual ConstantExpression Expression => _annotationExpression;
+        public virtual QueryAnnotation Annotation => _queryAnnotation;
 
         public override string ToString()
             => "AnnotateQuery("
@@ -34,7 +36,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         {
             Check.NotNull(cloneContext, nameof(cloneContext));
 
-            return new AnnotateQueryResultOperator(_annotationExpression);
+            return new QueryAnnotationResultOperator(_annotationExpression);
         }
 
         public override void TransformExpressions([NotNull] Func<Expression, Expression> transformation)

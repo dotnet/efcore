@@ -25,7 +25,6 @@ namespace Microsoft.Data.Entity.Query
                 {
                     { typeof(AllResultOperator), (v, r, q) => HandleAll(v, (AllResultOperator)r, q) },
                     { typeof(AnyResultOperator), (v, _, __) => HandleAny(v) },
-                    { typeof(AsNoTrackingResultOperator), (v, _, __) => v.Expression },
                     { typeof(AverageResultOperator), (v, _, __) => HandleAverage(v) },
                     { typeof(CastResultOperator), (v, r, __) => HandleCast(v, (CastResultOperator)r) },
                     { typeof(CountResultOperator), (v, _, __) => HandleCount(v) },

@@ -10,13 +10,13 @@ using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Microsoft.Data.Entity.Query.ResultOperators
 {
-    public class AnnotateQueryExpressionNode : ResultOperatorExpressionNodeBase
+    public class QueryAnnotationExpressionNode : ResultOperatorExpressionNodeBase
     {
-        public static readonly MethodInfo[] SupportedMethods = { AnnotateQueryExtensions.AnnotateQueryMethodInfo };
+        public static readonly MethodInfo[] SupportedMethods = { QueryAnnotationExtensions.AnnotateQueryMethodInfo };
 
         private readonly ConstantExpression _annotationExpression;
 
-        public AnnotateQueryExpressionNode(
+        public QueryAnnotationExpressionNode(
             MethodCallExpressionParseInfo parseInfo,
             [NotNull] ConstantExpression annotationExpression)
             : base(
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         {
             Check.NotNull(clauseGenerationContext, nameof(clauseGenerationContext));
 
-            return new AnnotateQueryResultOperator(_annotationExpression);
+            return new QueryAnnotationResultOperator(_annotationExpression);
         }
 
         public override Expression Resolve(

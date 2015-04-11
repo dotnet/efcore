@@ -3,7 +3,7 @@
 
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(dbSet, nameof(dbSet));
             Check.NotEmpty(sql, nameof(sql));
 
-            return ((IAnnotatableQueryable<TEntity>)dbSet).AnnotateQuery(new FromSqlAnnotation(sql));
+            return dbSet.AnnotateQuery(new FromSqlQueryAnnotation(sql));
         }
 
         public static IQueryable<TEntity> FromSql<TEntity>([NotNull]this DbSet<TEntity> dbSet, [NotNull]string sql, [NotNull] params object[] parameters)
@@ -29,8 +29,7 @@ namespace Microsoft.Data.Entity
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
-            return ((IAnnotatableQueryable<TEntity>)dbSet).AnnotateQuery(
-                new FromSqlAnnotation(sql, parameters));
+            return dbSet.AnnotateQuery(new FromSqlQueryAnnotation(sql, parameters));
         }
     }
 }

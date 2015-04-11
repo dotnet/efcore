@@ -26,16 +26,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         public virtual EntityQueryModelVisitor QueryModelVisitor => _entityQueryModelVisitor;
 
-        protected virtual IEnumerable<QueryAnnotation> GetAnnotations<TAnnotation>([NotNull] IQuerySource querySource)
-        {
-            Check.NotNull(querySource, nameof(querySource));
-
-            return QueryModelVisitor.QueryCompilationContext.QueryAnnotations
-                .Where(annotation => annotation.QuerySource == querySource)
-                .Where(annotation => annotation.ResultOperator is AnnotateQueryResultOperator)
-                .Where(annotation => (annotation.ResultOperator as AnnotateQueryResultOperator)?.Expression.Value is TAnnotation);
-        }
-
         protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
         {
             Check.NotNull(subQueryExpression, nameof(subQueryExpression));

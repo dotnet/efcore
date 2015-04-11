@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -2313,10 +2314,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(source, nameof(source));
 
-            return source.Provider.CreateQuery<TEntity>(
-                Expression.Call(
-                    null,
-                    AsNoTrackingMethodInfo.MakeGenericMethod(typeof(TEntity)), source.Expression));
+            return source.AnnotateQuery(new AsNoTrackingQueryAnnotation());
         }
 
         #endregion

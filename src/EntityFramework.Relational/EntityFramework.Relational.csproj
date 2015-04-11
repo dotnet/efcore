@@ -144,7 +144,7 @@
     <Compile Include="Migrations\Sql\IMigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Sql\MigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Infrastructure\ModelDiffer.cs" />
-    <Compile Include="Query\Annotations\FromSqlAnnotation.cs" />
+    <Compile Include="Query\Annotations\FromSqlQueryAnnotation.cs" />
     <Compile Include="Query\AsyncQueryingEnumerable.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\CommandBuilder.cs" />

@@ -16,7 +16,7 @@ using Microsoft.Framework.DependencyInjection;
 namespace Microsoft.Data.Entity.Internal
 {
     public class InternalDbSet<TEntity>
-        : DbSet<TEntity>, IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>, IAnnotatableQueryable<TEntity>
+        : DbSet<TEntity>, IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>
         where TEntity : class
     {
         private readonly DbContext _context;
@@ -133,12 +133,5 @@ namespace Microsoft.Data.Entity.Internal
         IQueryProvider IQueryable.Provider => _entityQueryable.Value.Provider;
 
         IServiceProvider IAccessor<IServiceProvider>.Service => ((IAccessor<IServiceProvider>)_context).Service;
-
-        IQueryable<TEntity> IAnnotatableQueryable<TEntity>.AnnotateQuery([NotNull] object annotation)
-        {
-            Check.NotNull(annotation, nameof(annotation));
-
-            return _entityQueryable.Value.AnnotateQuery(annotation);
-        }
     }
 }

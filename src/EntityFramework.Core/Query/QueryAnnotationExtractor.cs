@@ -30,18 +30,12 @@ namespace Microsoft.Data.Entity.Query
         {
             foreach (var resultOperator
                 in queryModel.ResultOperators
-                    .Where(ro => ro is IncludeResultOperator
-                                 || ro is AsNoTrackingResultOperator
-                                 || ro is AnnotateQueryResultOperator)
+                    .OfType<QueryAnnotationResultOperator>()
                     .ToList())
             {
-                queryAnnotations.Add(
-                    new QueryAnnotation(resultOperator)
-                        {
-                            QueryModel = queryModel,
-                            QuerySource = queryModel.MainFromClause
-                        });
-
+                resultOperator.Annotation.QueryModel = queryModel;
+                resultOperator.Annotation.QuerySource = queryModel.MainFromClause;
+                queryAnnotations.Add(resultOperator.Annotation);
                 queryModel.ResultOperators.Remove(resultOperator);
             }
 

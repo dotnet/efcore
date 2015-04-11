@@ -155,7 +155,6 @@
     <Compile Include="Metadata\ModelConventions\IPropertyConvention.cs" />
     <Compile Include="Metadata\ModelConventions\IModelConvention.cs" />
     <Compile Include="Metadata\StoreGeneratedPattern.cs" />
-    <Compile Include="Query\AnnotateQueryExtensions.cs" />
     <Compile Include="Infrastructure\CoreOptionsExtension.cs" />
     <Compile Include="Infrastructure\DbContextOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptions`.cs" />
@@ -163,7 +162,6 @@
     <Compile Include="Infrastructure\IBoxedValueReaderSource.cs" />
     <Compile Include="Infrastructure\IDatabaseFactory.cs" />
     <Compile Include="Infrastructure\IDbContextOptions.cs" />
-    <Compile Include="Infrastructure\IAnnotatableQueryable`.cs" />
     <Compile Include="Infrastructure\IOptionsBuilderExtender.cs" />
     <Compile Include="Infrastructure\EntityFrameworkServicesBuilder.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
@@ -195,6 +193,8 @@
     <Compile Include="Metadata\ModelConventions\IKeyConvention.cs" />
     <Compile Include="Metadata\ModelConventions\KeyConvention.cs" />
     <Compile Include="ModelBuilder.cs" />
+    <Compile Include="Query\Annotations\AsNoTrackingQueryAnnotation.cs" />
+    <Compile Include="Query\Annotations\IncludeQueryAnnotation.cs" />
     <Compile Include="Query\EntityLoadInfo.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ExpressionStringBuilder.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ExpressionTreeVisitorBase.cs" />
@@ -236,6 +236,7 @@
     <Compile Include="Query\ICompiledQueryCache.cs" />
     <Compile Include="Query\IQueryContextFactory.cs" />
     <Compile Include="Query\QueryAnnotation.cs" />
+    <Compile Include="Query\QueryAnnotationExtensions.cs" />
     <Compile Include="Query\QueryAnnotationExtractor.cs" />
     <Compile Include="Query\CompiledQueryCache.cs" />
     <Compile Include="Query\QueryContextFactory.cs" />
@@ -244,14 +245,11 @@
     <Compile Include="Query\ExpressionTreeVisitors\QuerySourceTracingExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\RequiresMaterializationExpressionTreeVisitor.cs" />
     <Compile Include="Query\ResultOperators\IncludeExpressionNode.cs" />
-    <Compile Include="Query\ResultOperators\IncludeResultOperator.cs" />
     <Compile Include="Query\QueryBuffer.cs" />
     <Compile Include="Query\IQueryBuffer.cs" />
-    <Compile Include="Query\ResultOperators\AsNoTrackingExpressionNode.cs" />
-    <Compile Include="Query\ResultOperators\AsNoTrackingResultOperator.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\TaskBlockingExpressionTreeVisitor.cs" />
-    <Compile Include="Query\ResultOperators\AnnotateQueryExpressionNode.cs" />
-    <Compile Include="Query\ResultOperators\AnnotateQueryResultOperator.cs" />
+    <Compile Include="Query\ResultOperators\QueryAnnotationExpressionNode.cs" />
+    <Compile Include="Query\ResultOperators\QueryAnnotationResultOperator.cs" />
     <Compile Include="Query\ResultOperators\ThenIncludeExpressionNode.cs" />
     <Compile Include="Storage\DataStoreErrorLogState.cs" />
     <Compile Include="Storage\DataStoreException.cs" />
