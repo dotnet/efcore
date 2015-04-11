@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.Utilities;
 using RelationalStrings = Microsoft.Data.Entity.Relational.Strings;
 
@@ -25,8 +26,11 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         private readonly List<ModificationCommand> _bulkInsertCommands = new List<ModificationCommand>();
         private int _commandsLeftToLengthCheck = 50;
         
-        public SqlServerModificationCommandBatch([NotNull] ISqlServerSqlGenerator sqlGenerator, [CanBeNull] int? maxBatchSize)
-            : base(sqlGenerator)
+        public SqlServerModificationCommandBatch(
+            [NotNull] ISqlServerSqlGenerator sqlGenerator,
+            [NotNull] ISqlServerValueReaderFactory valueReaderFactory,
+            [CanBeNull] int? maxBatchSize)
+            : base(sqlGenerator, valueReaderFactory)
         {
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)

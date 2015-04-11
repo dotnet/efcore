@@ -2,18 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
+using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.SqlServer.Query;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests
+namespace Microsoft.Data.Entity.SqlServer.Tests
 {
-    public class RelationalObjectArrayValueReaderFactoryTest
+    public class SqlServerValueReaderFactoryTest
     {
         [Fact]
         public void Creates_RelationalObjectArrayValueReader()
         {
             Assert.IsType<RelationalObjectArrayValueReader>(
-                new RelationalObjectArrayValueReaderFactory().Create(Mock.Of<DbDataReader>()));
+                new SqlServerValueReaderFactory().CreateValueReader(Mock.Of<DbDataReader>()));
         }
     }
 }

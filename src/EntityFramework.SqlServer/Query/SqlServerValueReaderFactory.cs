@@ -3,13 +3,14 @@
 
 using System.Data.Common;
 using System.Diagnostics;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Storage;
 
-namespace Microsoft.Data.Entity.Relational
+namespace Microsoft.Data.Entity.SqlServer.Query
 {
-    public class RelationalObjectArrayValueReaderFactory : RelationalValueReaderFactory
+    public class SqlServerValueReaderFactory : ISqlServerValueReaderFactory
     {
-        public override IValueReader Create(DbDataReader dataReader)
+        public virtual IValueReader CreateValueReader(DbDataReader dataReader)
         {
             Debug.Assert(dataReader != null); // hot path
 

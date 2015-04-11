@@ -220,12 +220,10 @@
     <Compile Include="RelationalLoggerExtensions.cs" />
     <Compile Include="RelationalLoggingEventIds.cs" />
     <Compile Include="RelationalObjectArrayValueReader.cs" />
-    <Compile Include="RelationalObjectArrayValueReaderFactory.cs" />
     <Compile Include="Query\RelationalQueryContext.cs" />
     <Compile Include="RelationalTransaction.cs" />
     <Compile Include="RelationalTypedValueReader.cs" />
-    <Compile Include="RelationalTypedValueReaderFactory.cs" />
-    <Compile Include="RelationalValueReaderFactory.cs" />
+    <Compile Include="IRelationalValueReaderFactory.cs" />
     <Compile Include="SqlBatch.cs" />
     <Compile Include="SqlBatchBuilder.cs" />
     <Compile Include="SqlGenerator.cs" />

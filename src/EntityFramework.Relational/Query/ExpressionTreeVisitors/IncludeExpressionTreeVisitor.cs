@@ -273,7 +273,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         private static IValueReader CreateValueReaderForInclude(
             QueryContext queryContext, DbDataReader dataReader, IEntityType entityType)
         {
-            return ((RelationalQueryContext)queryContext).ValueReaderFactory.Create(dataReader);
+            return ((RelationalQueryContext)queryContext).ValueReaderFactory.CreateValueReader(dataReader);
         }
 
         private Expression BuildJoinEqualityExpression(

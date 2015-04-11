@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Xunit;
 
@@ -17,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         [Fact]
         public void Uses_MaxBatchSize_specified_in_SqlServerOptionsExtension()
         {
-            var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
+            var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator(), new SqlServerValueReaderFactory());
 
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie").MaxBatchSize(1);
@@ -31,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         [Fact]
         public void MaxBatchSize_is_optional()
         {
-            var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
+            var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator(), new SqlServerValueReaderFactory());
 
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie");
@@ -45,7 +46,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         [Fact]
         public void SqlServerOptionsExtension_is_optional()
         {
-            var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
+            var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator(), new SqlServerValueReaderFactory());
 
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie");

@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
@@ -18,6 +17,7 @@ using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -351,17 +351,25 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 return base.CreateStoreCommand(commandText, transaction, typeMapper, commandTimeout);
             }
 
-            public TestSqlServerModificationCommandBatch(ISqlServerSqlGenerator sqlGenerator, int? maxBatchSize)
-                : base(sqlGenerator, maxBatchSize)
+            public TestSqlServerModificationCommandBatch(
+                ISqlServerSqlGenerator sqlGenerator,
+                ISqlServerValueReaderFactory valueReaderFactory,
+                int? maxBatchSize)
+                : base(sqlGenerator, valueReaderFactory, maxBatchSize)
             {
             }
         }
 
         public class TestSqlServerModificationCommandBatchFactory : SqlServerModificationCommandBatchFactory
         {
-            public TestSqlServerModificationCommandBatchFactory(ISqlServerSqlGenerator sqlGenerator)
-                : base(sqlGenerator)
+            private readonly ISqlServerValueReaderFactory _valueReaderFactory;
+
+            public TestSqlServerModificationCommandBatchFactory(
+                ISqlServerSqlGenerator sqlGenerator,
+                ISqlServerValueReaderFactory valueReaderFactory)
+                : base(sqlGenerator, valueReaderFactory)
             {
+                _valueReaderFactory = valueReaderFactory;
             }
 
             public override ModificationCommandBatch Create(IDbContextOptions options)
@@ -370,7 +378,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 var maxBatchSize = optionsExtension?.MaxBatchSize;
 
-                return new TestSqlServerModificationCommandBatch((ISqlServerSqlGenerator)SqlGenerator, maxBatchSize);
+                return new TestSqlServerModificationCommandBatch((ISqlServerSqlGenerator)SqlGenerator, _valueReaderFactory, maxBatchSize);
             }
         }
 

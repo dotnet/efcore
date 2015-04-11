@@ -269,7 +269,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         private static ICommandBatchPreparer CreateCommandBatchPreparer(IModificationCommandBatchFactory modificationCommandBatchFactory = null)
         {
             modificationCommandBatchFactory =
-                modificationCommandBatchFactory ?? new TestModificationCommandBatchFactory(new Mock<ISqlGenerator>().Object);
+                modificationCommandBatchFactory ?? new TestModificationCommandBatchFactory(
+                    Mock.Of<ISqlGenerator>(), 
+                    Mock.Of<IRelationalValueReaderFactory>());
 
             return new TestCommandBatchPreparer(modificationCommandBatchFactory,
                 new ParameterNameGeneratorFactory(),
@@ -358,21 +360,28 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
         {
-            public TestModificationCommandBatchFactory(ISqlGenerator sqlGenerator)
+            private readonly IRelationalValueReaderFactory _valueReaderFactory;
+
+            public TestModificationCommandBatchFactory(
+                ISqlGenerator sqlGenerator,
+                IRelationalValueReaderFactory valueReaderFactory)
                 : base(sqlGenerator)
             {
+                _valueReaderFactory = valueReaderFactory;
             }
 
             public override ModificationCommandBatch Create(IDbContextOptions options)
             {
-                return new TestModificationCommandBatch(SqlGenerator);
+                return new TestModificationCommandBatch(SqlGenerator, _valueReaderFactory);
             }
         }
 
         private class TestModificationCommandBatch : SingularModificationCommandBatch
         {
-            public TestModificationCommandBatch(ISqlGenerator sqlGenerator)
-                : base(sqlGenerator)
+            public TestModificationCommandBatch(
+                ISqlGenerator sqlGenerator,
+                IRelationalValueReaderFactory valueReaderFactory)
+                : base(sqlGenerator, valueReaderFactory)
             {
             }
 

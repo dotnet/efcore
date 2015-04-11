@@ -3,13 +3,12 @@
 
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract class RelationalValueReaderFactory
+    public interface IRelationalValueReaderFactory
     {
-        public abstract IValueReader Create([NotNull] DbDataReader dataReader);
+        IValueReader CreateValueReader([NotNull] DbDataReader dataReader);
     }
 }

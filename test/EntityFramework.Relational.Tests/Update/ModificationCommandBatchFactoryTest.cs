@@ -18,7 +18,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void Create_returns_new_instances()
         {
             var factory = new TestModificationCommandBatchFactory(
-                new Mock<ISqlGenerator>().Object);
+                Mock.Of<ISqlGenerator>(),
+                Mock.Of<IRelationalValueReaderFactory>());
+
             var options = new Mock<IDbContextOptions>().Object;
 
             var firstBatch = factory.Create(options);
@@ -33,7 +35,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void AddCommand_delegates()
         {
             var sqlGenerator = new Mock<ISqlGenerator>().Object;
-            var factory = new TestModificationCommandBatchFactory(sqlGenerator);
+            var factory = new TestModificationCommandBatchFactory(sqlGenerator, Mock.Of<IRelationalValueReaderFactory>());
 
             var modificationCommandBatchMock = new Mock<ModificationCommandBatch>(sqlGenerator);
             var mockModificationCommand = new Mock<ModificationCommand>(
@@ -50,21 +52,28 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
         {
-            public TestModificationCommandBatchFactory(ISqlGenerator sqlGenerator)
+            private readonly IRelationalValueReaderFactory _valueReaderFactory;
+
+            public TestModificationCommandBatchFactory(
+                ISqlGenerator sqlGenerator,
+                IRelationalValueReaderFactory valueReaderFactory)
                 : base(sqlGenerator)
             {
+                _valueReaderFactory = valueReaderFactory;
             }
 
-            public override ModificationCommandBatch Create([NotNull] IDbContextOptions options)
+            public override ModificationCommandBatch Create(IDbContextOptions options)
             {
-                return new TestModificationCommandBatch(SqlGenerator);
+                return new TestModificationCommandBatch(SqlGenerator, _valueReaderFactory);
             }
         }
 
         private class TestModificationCommandBatch : SingularModificationCommandBatch
         {
-            public TestModificationCommandBatch(ISqlGenerator sqlGenerator)
-                : base(sqlGenerator)
+            public TestModificationCommandBatch(
+                ISqlGenerator sqlGenerator,
+                IRelationalValueReaderFactory valueReaderFactory)
+                : base(sqlGenerator, valueReaderFactory)
             {
             }
 
