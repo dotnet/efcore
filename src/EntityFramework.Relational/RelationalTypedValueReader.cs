@@ -3,7 +3,6 @@
 
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -22,7 +21,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual bool IsNull(int index) => _dataReader.IsDBNull(index);
 
-        public virtual T ReadValue<T>(int index) => (T)_dataReader.GetValue(index);
+        public virtual T ReadValue<T>(int index) => _dataReader.GetFieldValue<T>(index);
 
         public virtual int Count => _dataReader.FieldCount;
     }

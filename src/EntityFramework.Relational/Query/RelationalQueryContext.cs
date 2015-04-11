@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -22,7 +21,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer,
             [NotNull] IRelationalConnection connection,
-            [NotNull] RelationalValueReaderFactory valueReaderFactory)
+            [NotNull] IRelationalValueReaderFactory valueReaderFactory)
             : base(
                 Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(queryBuffer, nameof(queryBuffer)))
@@ -35,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         // TODO: Move this to compilation context
-        public virtual RelationalValueReaderFactory ValueReaderFactory { get; }
+        public virtual IRelationalValueReaderFactory ValueReaderFactory { get; }
 
         public virtual IRelationalConnection Connection { get; }
 
@@ -47,7 +46,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         public virtual IValueReader CreateValueReader(int readerIndex) 
-            => ValueReaderFactory.Create(_activeDataReaders[_activeReaderOffset + readerIndex]);
+            => ValueReaderFactory.CreateValueReader(_activeDataReaders[_activeReaderOffset + readerIndex]);
 
         public virtual void BeginIncludeScope() => _activeReaderOffset = _activeDataReaders.Count;
 

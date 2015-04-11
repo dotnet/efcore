@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
@@ -13,6 +12,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalQueryContextFactory : QueryContextFactory, IRelationalQueryContextFactory
     {
+        private readonly IRelationalValueReaderFactory _valueReaderFactory;
         private readonly IRelationalConnection _connection;
 
         public RelationalQueryContextFactory(
@@ -20,17 +20,18 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
+            [NotNull] IRelationalValueReaderFactory valueReaderFactory,
             [NotNull] IRelationalConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, loggerFactory)
         {
             Check.NotNull(connection, nameof(connection));
+            Check.NotNull(valueReaderFactory, nameof(valueReaderFactory));
 
+            _valueReaderFactory = valueReaderFactory;
             _connection = connection;
         }
 
-        protected virtual RelationalValueReaderFactory ValueReaderFactory => new RelationalTypedValueReaderFactory();
-
-        public override QueryContext CreateQueryContext() => new RelationalQueryContext(Logger, CreateQueryBuffer(), _connection, ValueReaderFactory);
+        public override QueryContext CreateQueryContext() => new RelationalQueryContext(Logger, CreateQueryBuffer(), _connection, _valueReaderFactory);
     }
 }

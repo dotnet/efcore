@@ -88,6 +88,7 @@
     <Compile Include="SqlServerValueGeneratorCacheTest.cs" />
     <Compile Include="SqlServerValueGeneratorSelectorTest.cs" />
     <Compile Include="SqlServerTestHelpers.cs" />
+    <Compile Include="SqlServerValueReaderFactoryTest.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchFactoryTest.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchTest.cs" />
     <None Include="packages.config" />

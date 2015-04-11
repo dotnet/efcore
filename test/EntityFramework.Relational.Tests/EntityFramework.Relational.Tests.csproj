@@ -86,11 +86,9 @@
     <Compile Include="RelationalDatabaseTest.cs" />
     <Compile Include="RelationalDataStoreTest.cs" />
     <Compile Include="RelationalEntityServicesBuilderExtensionsTest.cs" />
-    <Compile Include="RelationalObjectArrayValueReaderFactoryTest.cs" />
     <Compile Include="RelationalObjectArrayValueReaderTest.cs" />
     <Compile Include="RelationalOptionsExtensionTest.cs" />
     <Compile Include="RelationalTestHelpers.cs" />
-    <Compile Include="RelationalTypedValueReaderFactoryTest.cs" />
     <Compile Include="RelationalTypedValueReaderTest.cs" />
     <Compile Include="SqlBatchBuilderTest.cs" />
     <Compile Include="SqlGeneratorTest.cs" />

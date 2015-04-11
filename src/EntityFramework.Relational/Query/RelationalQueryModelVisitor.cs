@@ -440,7 +440,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             return new QuerySourceScope<IValueReader>(
                 querySource,
-                ((RelationalQueryContext)queryContext).ValueReaderFactory.Create(dataReader),
+                ((RelationalQueryContext)queryContext).ValueReaderFactory.CreateValueReader(dataReader),
                 parentQuerySourceScope);
         }
 
@@ -464,7 +464,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             var valueReader
                 = ((RelationalQueryContext)queryContext).ValueReaderFactory
-                    .Create(dataReader);
+                    .CreateValueReader(dataReader);
 
             if (readerOffset > 0)
             {

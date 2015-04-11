@@ -14,6 +14,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -22,27 +23,27 @@ namespace Microsoft.Data.Entity.Relational.Update
 {
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
+        private readonly IRelationalValueReaderFactory _valueReaderFactory;
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
         private readonly List<bool> _resultSetEnd = new List<bool>();
         protected StringBuilder CachedCommandText { get; set; }
         protected int LastCachedCommandIndex;
 
-        protected ReaderModificationCommandBatch([NotNull] ISqlGenerator sqlGenerator)
+        protected ReaderModificationCommandBatch(
+            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] IRelationalValueReaderFactory valueReaderFactory)
             : base(sqlGenerator)
         {
+            Check.NotNull(valueReaderFactory, nameof(valueReaderFactory));
+
+            _valueReaderFactory = valueReaderFactory;
         }
 
-        public override IReadOnlyList<ModificationCommand> ModificationCommands
-        {
-            get { return _modificationCommands; }
-        }
+        public override IReadOnlyList<ModificationCommand> ModificationCommands => _modificationCommands;
 
         // contains true if the command at the corresponding index is the last command in its result set
         // the last value will not be read
-        protected IList<bool> ResultSetEnds
-        {
-            get { return _resultSetEnd; }
-        }
+        protected IList<bool> ResultSetEnds => _resultSetEnd;
 
         public override bool AddCommand(ModificationCommand modificationCommand)
         {
@@ -271,7 +272,6 @@ namespace Microsoft.Data.Entity.Relational.Update
         private int ConsumeResultSetWithPropagation(int commandIndex, DbDataReader reader, DbContext context)
         {
             var rowsAffected = 0;
-            var valueReader = new RelationalTypedValueReader(reader);
             do
             {
                 var tableModification = ModificationCommands[commandIndex];
@@ -292,7 +292,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         AggregateEntries(commandIndex, expectedRowsAffected));
                 }
 
-                tableModification.PropagateResults(valueReader);
+                tableModification.PropagateResults(_valueReaderFactory.CreateValueReader(reader));
                 rowsAffected++;
             }
             while (++commandIndex < ResultSetEnds.Count
@@ -304,7 +304,6 @@ namespace Microsoft.Data.Entity.Relational.Update
         private async Task<int> ConsumeResultSetWithPropagationAsync(int commandIndex, DbDataReader reader, DbContext context, CancellationToken cancellationToken)
         {
             var rowsAffected = 0;
-            var valueReader = new RelationalTypedValueReader(reader);
             do
             {
                 var tableModification = ModificationCommands[commandIndex];
@@ -325,7 +324,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         AggregateEntries(commandIndex, expectedRowsAffected));
                 }
 
-                tableModification.PropagateResults(valueReader);
+                tableModification.PropagateResults(_valueReaderFactory.CreateValueReader(reader));
                 rowsAffected++;
             }
             while (++commandIndex < ResultSetEnds.Count

@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.Logging;
 using Moq;
@@ -629,19 +630,24 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null :  "Test" });
         }
 
+        private class TestValueReaderFactory : IRelationalValueReaderFactory
+        {
+            public virtual IValueReader CreateValueReader(DbDataReader dataReader) => new RelationalTypedValueReader(dataReader);
+        }
+
         private class ModificationCommandBatchFake : ReaderModificationCommandBatch
         {
             private readonly DbDataReader _reader;
 
             public ModificationCommandBatchFake(ISqlGenerator sqlGenerator = null)
-                : base(sqlGenerator ?? new FakeSqlGenerator())
+                : base(sqlGenerator ?? new FakeSqlGenerator(), new TestValueReaderFactory())
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;
             }
 
             public ModificationCommandBatchFake(DbDataReader reader, ISqlGenerator sqlGenerator = null)
-                : base(sqlGenerator ?? new FakeSqlGenerator())
+                : base(sqlGenerator ?? new FakeSqlGenerator(), new TestValueReaderFactory())
             {
                 _reader = reader;
                 ShouldAddCommand = true;

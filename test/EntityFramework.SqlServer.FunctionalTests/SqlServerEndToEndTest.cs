@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -18,6 +19,7 @@ using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.SqlServer.Query;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -62,7 +64,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddEntityFramework()
                     .AddSqlServer();
 
-                serviceCollection.AddScoped<ISqlServerQueryContextFactory, TestSqlServerQueryContextFactory>();
+                serviceCollection.AddSingleton<ISqlServerValueReaderFactory, TestTypedValueReaderFactory>();
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 using (var db = new NorthwindContext(serviceProvider))
@@ -86,20 +88,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        public class TestSqlServerQueryContextFactory : SqlServerQueryContextFactory
+        public class TestTypedValueReaderFactory : ISqlServerValueReaderFactory
         {
-            public TestSqlServerQueryContextFactory(
-                IStateManager stateManager,
-                IEntityKeyFactorySource entityKeyFactorySource,
-                IClrCollectionAccessorSource collectionAccessorSource,
-                IClrAccessorSource<IClrPropertySetter> propertySetterSource,
-                ISqlServerConnection connection,
-                ILoggerFactory loggerFactory)
-                : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, connection, loggerFactory)
-            {
-            }
-
-            protected override RelationalValueReaderFactory ValueReaderFactory => new RelationalTypedValueReaderFactory();
+            public virtual IValueReader CreateValueReader(DbDataReader dataReader) => new RelationalTypedValueReader(dataReader);
         }
 
         [Fact]
