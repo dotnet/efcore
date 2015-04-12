@@ -14,7 +14,7 @@ k-standard-goals
 
 var sqliteDllPath='src/Microsoft.Data.Sqlite/redist/x86/sqlite3.dll'
 #sqlite-download target='initialize' if='!File.Exists(sqliteDllPath)'
-    var sqliteUri='http://sqlite.org/2015/sqlite-dll-win32-x86-3080803.zip'
+    var sqliteUri='http://sqlite.org/2015/sqlite-dll-win32-x86-3080900.zip'
     @{
         using (var client = new HttpClient())
         using (var archiveStream = client.GetStreamAsync(sqliteUri).Result)
@@ -33,7 +33,6 @@ var sqliteDllPath='src/Microsoft.Data.Sqlite/redist/x86/sqlite3.dll'
             }
         }
     }
-    copy sourceDir='${Path.GetDirectoryName(sqliteDllPath)}' include='${Path.GetFileName(sqliteDllPath)}' outputDir='test/Microsoft.Data.Sqlite.Tests/bin/Debug'
 
 #nupkg-patch target='compile'
     @{

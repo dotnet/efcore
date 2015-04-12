@@ -11,38 +11,6 @@ namespace Microsoft.Data.Sqlite
             = new ResourceManager("Microsoft.Data.Sqlite.Strings", typeof(Strings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// The argument '{argumentName}' cannot be null, empty or contain only white space.
-        /// </summary>
-        internal static string ArgumentIsNullOrWhitespace
-        {
-            get { return GetString("ArgumentIsNullOrWhitespace"); }
-        }
-
-        /// <summary>
-        /// The argument '{argumentName}' cannot be null, empty or contain only white space.
-        /// </summary>
-        internal static string FormatArgumentIsNullOrWhitespace(object argumentName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsNullOrWhitespace", "argumentName"), argumentName);
-        }
-
-        /// <summary>
-        /// CommandText contains more than one SQL statement. Queries must be a single statement. Batch queries are not supported.
-        /// </summary>
-        internal static string BatchNotSupported
-        {
-            get { return GetString("BatchNotSupported"); }
-        }
-
-        /// <summary>
-        /// CommandText contains more than one SQL statement. Queries must be a single statement. Batch queries are not supported.
-        /// </summary>
-        internal static string FormatBatchNotSupported()
-        {
-            return GetString("BatchNotSupported");
-        }
-
-        /// <summary>
         /// {methodName} can only be called when the connection is open.
         /// </summary>
         internal static string CallRequiresOpenConnection
@@ -75,38 +43,6 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// The SqliteParameter is already contained by another SqliteParameterCollection.
-        /// </summary>
-        internal static string CollectionIsNotParent
-        {
-            get { return GetString("CollectionIsNotParent"); }
-        }
-
-        /// <summary>
-        /// The SqliteParameter is already contained by another SqliteParameterCollection.
-        /// </summary>
-        internal static string FormatCollectionIsNotParent()
-        {
-            return GetString("CollectionIsNotParent");
-        }
-
-        /// <summary>
-        /// The SqliteParameter is already contained by this SqliteParameterCollection.
-        /// </summary>
-        internal static string CollectionIsParent
-        {
-            get { return GetString("CollectionIsParent"); }
-        }
-
-        /// <summary>
-        /// The SqliteParameter is already contained by this SqliteParameterCollection.
-        /// </summary>
-        internal static string FormatCollectionIsParent()
-        {
-            return GetString("CollectionIsParent");
-        }
-
-        /// <summary>
         /// ConnectionString cannot be set when the connection is open.
         /// </summary>
         internal static string ConnectionStringRequiresClosedConnection
@@ -123,7 +59,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Invalid attempt to {operation} when reader is closed.
+        /// Invalid attempt to call {operation} when reader is closed.
         /// </summary>
         internal static string DataReaderClosed
         {
@@ -131,11 +67,27 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Invalid attempt to {operation} when reader is closed.
+        /// Invalid attempt to call {operation} when reader is closed.
         /// </summary>
         internal static string FormatDataReaderClosed(object operation)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DataReaderClosed", "operation"), operation);
+        }
+
+        /// <summary>
+        /// The CommandBehavior '{behavior}' is invalid.
+        /// </summary>
+        internal static string InvalidCommandBehavior
+        {
+            get { return GetString("InvalidCommandBehavior"); }
+        }
+
+        /// <summary>
+        /// The CommandBehavior '{behavior}' is invalid.
+        /// </summary>
+        internal static string FormatInvalidCommandBehavior(object behavior)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidCommandBehavior", "behavior"), behavior);
         }
 
         /// <summary>
@@ -152,22 +104,6 @@ namespace Microsoft.Data.Sqlite
         internal static string FormatInvalidCommandType(object commandType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidCommandType", "commandType"), commandType);
-        }
-
-        /// <summary>
-        /// Invalid '{keyword}' value in the connection string: {value}.
-        /// </summary>
-        internal static string InvalidConnectionOptionValue
-        {
-            get { return GetString("InvalidConnectionOptionValue"); }
-        }
-
-        /// <summary>
-        /// Invalid '{keyword}' value in the connection string: {value}.
-        /// </summary>
-        internal static string FormatInvalidConnectionOptionValue(object keyword, object value)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidConnectionOptionValue", "keyword", "value"), keyword, value);
         }
 
         /// <summary>
@@ -219,19 +155,19 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// There is already an open DataReader associated with this Command which must be closed first.
+        /// No data exists for the row/column.
         /// </summary>
-        internal static string OpenReaderExists
+        internal static string NoData
         {
-            get { return GetString("OpenReaderExists"); }
+            get { return GetString("NoData"); }
         }
 
         /// <summary>
-        /// There is already an open DataReader associated with this Command which must be closed first.
+        /// No data exists for the row/column.
         /// </summary>
-        internal static string FormatOpenReaderExists()
+        internal static string FormatNoData()
         {
-            return GetString("OpenReaderExists");
+            return GetString("NoData");
         }
 
         /// <summary>
@@ -367,7 +303,7 @@ namespace Microsoft.Data.Sqlite
             var value = _resourceManager.GetString(name);
 
             System.Diagnostics.Debug.Assert(value != null);
-    
+
             if (formatterNames != null)
             {
                 for (var i = 0; i < formatterNames.Length; i++)

@@ -1,50 +1,47 @@
 ﻿{
     "version": "1.0.0-*",
     "description": "SQLite implementation of the System.Data.Common provider model.",
-    "namedResource": {
-        "Microsoft.Data.Sqlite.Strings": "Properties/Strings.resx"
-    },
     "frameworks": {
         "net451": {
             "frameworkAssemblies": {
-                "System.Data": ""
+                "System.Data": "4.0.0.0"
             }
         },
         "dnx451": {
             "dependencies": {
-                "Microsoft.Framework.Runtime.Interfaces": { "version": "1.0.0-*", "type": "build" }
+                "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*",
+                "Microsoft.Framework.DependencyInjection.Interfaces": "1.0.0-*"
             },
             "frameworkAssemblies": {
-                "System.Data": ""
+                "System.Data": "4.0.0.0"
             }
         },
         "dnxcore50": {
             "dependencies": {
-                "Microsoft.Framework.Runtime.Interfaces": { "version": "1.0.0-*", "type": "build" },
-                "System.Data.Common": "4.0.0-beta-*",
-                "System.Diagnostics.Debug": "4.0.10-beta-*",
-                "System.IO.FileSystem": "4.0.0-beta-*",
-                "System.Linq": "4.0.0-beta-*",
-                "System.Resources.ResourceManager": "4.0.0-beta-*",
-                "System.Runtime.InteropServices": "4.0.20-beta-*"
+                "System.AppContext": "4.0.0-*",
+                "System.Data.Common": "4.0.0-*",
+                "System.IO.FileSystem": "4.0.0-*",
+                "System.Runtime.InteropServices": "4.0.20-*",
+                "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*",
+                "Microsoft.Framework.DependencyInjection.Interfaces": "1.0.0-*"
             }
         },
         "netcore451": {
             "dependencies": {
-                "System.Data.Common": "4.0.0-beta-*"
+                "System.Data.Common": "4.0.0-*"
             },
             "frameworkAssemblies": {
-                "System.Collections": "",
-                "System.ComponentModel": "",
-                "System.Diagnostics.Debug": "",
-                "System.Globalization": "",
-                "System.Linq": "",
-                "System.Reflection": "",
-                "System.Resources.ResourceManager": "",
-                "System.Runtime": "",
-                "System.Runtime.Extensions": "",
-                "System.Runtime.InteropServices": "",
-                "System.Text.Encoding": ""
+                "System.Collections": "4.0.0.0",
+                "System.Diagnostics.Debug": "4.0.0.0",
+                "System.Globalization": "4.0.0.0",
+                "System.Linq": "4.0.0.0",
+                "System.Reflection": "4.0.0.0",
+                "System.Resources.ResourceManager": "4.0.0.0",
+                "System.Runtime": "4.0.10.0",
+                "System.Runtime.Extensions": "4.0.0.0",
+                "System.Runtime.InteropServices": "4.0.10.0",
+                "System.Text.Encoding": "4.0.0.0",
+                "System.Threading.Tasks": "4.0.0.0"
             }
         }
     }

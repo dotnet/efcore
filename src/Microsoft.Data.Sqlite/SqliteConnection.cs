@@ -1,13 +1,10 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.Data.Sqlite.Interop;
-using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -16,81 +13,53 @@ namespace Microsoft.Data.Sqlite
         private const string MainDatabaseName = "main";
 
         private string _connectionString;
-        private SqliteConnectionStringBuilder _connectionOptions;
+        private SqliteConnectionStringBuilder _connectionStringBuilder;
         private ConnectionState _state;
-        private DatabaseHandle _handle;
+        private Sqlite3Handle _db;
 
         public SqliteConnection()
         {
         }
 
-        public SqliteConnection([NotNull] string connectionString)
-            : this()
+        public SqliteConnection(string connectionString)
         {
-            Check.NotEmpty(connectionString, "connectionString");
-
             ConnectionString = connectionString;
         }
 
-        internal DatabaseHandle Handle
-        {
-            get { return _handle; }
-        }
+        internal virtual Sqlite3Handle Handle => _db;
 
         public override string ConnectionString
         {
             get { return _connectionString; }
-            [param: NotNull]
             set
             {
-                Check.NotEmpty(value, "value");
                 if (_state != ConnectionState.Closed)
                 {
                     throw new InvalidOperationException(Strings.ConnectionStringRequiresClosedConnection);
                 }
 
                 _connectionString = value;
-                _connectionOptions = new SqliteConnectionStringBuilder(value);
+                _connectionStringBuilder = new SqliteConnectionStringBuilder(value);
             }
         }
 
-        public override string Database
+        public override string Database => MainDatabaseName;
+        public override string DataSource =>
+            _state == ConnectionState.Open
+                ? NativeMethods.sqlite3_db_filename(_db, MainDatabaseName)
+                : _connectionStringBuilder.DataSource;
+        public override string ServerVersion => NativeMethods.sqlite3_libversion();
+        public override ConnectionState State => _state;
+        protected internal SqliteTransaction Transaction { get; set; }
+
+        protected virtual void SetState(ConnectionState value)
         {
-            get { return MainDatabaseName; }
-        }
-
-        public override string DataSource
-        {
-            get
-            {
-                return _state == ConnectionState.Open
-                    ? NativeMethods.sqlite3_db_filename(_handle, MainDatabaseName)
-                    : _connectionOptions.Filename;
-            }
-        }
-
-        public override string ServerVersion
-        {
-            get { return NativeMethods.sqlite3_libversion(); }
-        }
-
-        public override ConnectionState State
-        {
-            get { return _state; }
-        }
-
-        internal SqliteTransaction Transaction { get; set; }
-
-        private void SetState(ConnectionState value)
-        {
-            if (_state == value)
-            {
-                return;
-            }
-
             var originalState = _state;
-            _state = value;
-            OnStateChange(new StateChangeEventArgs(originalState, value));
+            if (originalState != value)
+            {
+                _state = value;
+                OnStateChange(new StateChangeEventArgs(originalState, value));
+            }
         }
 
         public override void Open()
@@ -99,28 +68,25 @@ namespace Microsoft.Data.Sqlite
             {
                 return;
             }
-            if (_connectionString == null)
+            if (ConnectionString == null)
             {
                 throw new InvalidOperationException(Strings.OpenRequiresSetConnectionString);
             }
 
-            Debug.Assert(_handle == null, "_handle is not null.");
-            Debug.Assert(_connectionOptions != null, "_connectionOptions is null.");
-
-            // TODO: Register transaction hooks
-            var rc = NativeMethods.sqlite3_open_v2(
-                _connectionOptions.Filename,
-                out _handle,
-                _connectionOptions.GetFlags(),
-                _connectionOptions.VirtualFileSystem);
-            MarshalEx.ThrowExceptionForRC(rc);
-
+            var rc = NativeMethods.sqlite3_open16(_connectionStringBuilder.DataSource, out _db);
+            MarshalEx.ThrowExceptionForRC(rc, _db);
             SetState(ConnectionState.Open);
         }
 
         public override void Close()
         {
-            ReleaseNativeObjects();
+            if (_db == null || _db.IsInvalid)
+            {
+                return;
+            }
+
+            _db.Dispose();
+            _db = null;
             SetState(ConnectionState.Closed);
         }
 
@@ -128,47 +94,17 @@ namespace Microsoft.Data.Sqlite
         {
             if (disposing)
             {
-                SetState(ConnectionState.Closed);
+                Close();
             }
-
-            ReleaseNativeObjects();
-
-            base.Dispose(disposing);
         }
 
-        private void ReleaseNativeObjects()
-        {
-            if (_handle == null
-                || _handle.IsInvalid)
-            {
-                return;
-            }
+        // NB: Other providers don't set Transaction
+        public virtual new SqliteCommand CreateCommand() => new SqliteCommand { Connection = this, Transaction = Transaction };
+        protected override DbCommand CreateDbCommand() => CreateCommand();
+        public virtual new SqliteTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
+        protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) => BeginTransaction(isolationLevel);
 
-            _handle.Dispose();
-            _handle = null;
-        }
-
-        public new SqliteCommand CreateCommand()
-        {
-            return new SqliteCommand { Connection = this, Transaction = Transaction };
-        }
-
-        protected override DbCommand CreateDbCommand()
-        {
-            return CreateCommand();
-        }
-
-        public new SqliteTransaction BeginTransaction()
-        {
-            return BeginTransaction(IsolationLevel.Unspecified);
-        }
-
-        protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
-        {
-            return BeginTransaction(isolationLevel);
-        }
-
-        public new SqliteTransaction BeginTransaction(IsolationLevel isolationLevel)
+        public virtual new SqliteTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             if (_state != ConnectionState.Open)
             {

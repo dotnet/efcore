@@ -1,10 +1,9 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
@@ -12,99 +11,91 @@ namespace Microsoft.Data.Sqlite
     public class SqliteTransaction : DbTransaction
     {
         private SqliteConnection _connection;
-        private IsolationLevel _isolationLevel;
+        private readonly IsolationLevel _isolationLevel;
+        private bool _completed;
 
         internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel)
         {
-            Debug.Assert(connection != null, "connection is null.");
-            Debug.Assert(connection.State == ConnectionState.Open, "connection.State is not Open.");
-
             _connection = connection;
             _isolationLevel = isolationLevel;
 
-            if (_isolationLevel == IsolationLevel.ReadUncommitted)
+            if (isolationLevel == IsolationLevel.ReadUncommitted)
             {
-                _connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1");
+                connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1;");
             }
-            else if (_isolationLevel == IsolationLevel.Serializable)
+            else if (isolationLevel == IsolationLevel.Serializable)
             {
-                _connection.ExecuteNonQuery("PRAGMA read_uncommitted = 0");
+                connection.ExecuteNonQuery("PRAGMA read_uncommitted = 0;");
             }
-            else if (_isolationLevel != IsolationLevel.Unspecified)
+            else if (isolationLevel != IsolationLevel.Unspecified)
             {
                 throw new ArgumentException(Strings.FormatInvalidIsolationLevel(isolationLevel));
             }
 
-            _connection.ExecuteNonQuery("BEGIN");
+            // TODO: Register transaction hooks to detect when a user manually completes a transaction created using this API
+            connection.ExecuteNonQuery("BEGIN;");
         }
 
-        public new SqliteConnection Connection
-        {
-            get { return _connection; }
-        }
-
-        protected override DbConnection DbConnection
-        {
-            get { return Connection; }
-        }
+        public virtual new SqliteConnection Connection => _connection;
+        protected override DbConnection DbConnection => Connection;
 
         public override IsolationLevel IsolationLevel
         {
             get
             {
-                CheckCompleted();
-
-                if (_isolationLevel == IsolationLevel.Unspecified)
+                if (_completed || _connection.State != ConnectionState.Open)
                 {
-                    _isolationLevel = _connection.ExecuteScalar<long>("PRAGMA read_uncommitted") != 0
-                        ? IsolationLevel.ReadUncommitted
-                        : IsolationLevel.Serializable;
+                    throw new InvalidOperationException(Strings.TransactionCompleted);
                 }
 
-                return _isolationLevel;
+                return _isolationLevel != IsolationLevel.Unspecified
+                    ? _isolationLevel
+                    : _connection.ExecuteScalar<long>("PRAGMA read_uncommitted;") != 0
+                        ? IsolationLevel.ReadUncommitted
+                        : IsolationLevel.Serializable;
             }
         }
 
         public override void Commit()
         {
-            CheckCompleted();
+            if (_completed || _connection.State != ConnectionState.Open)
+            {
+                throw new InvalidOperationException(Strings.TransactionCompleted);
+            }
 
-            _connection.ExecuteNonQuery("COMMIT");
-            _connection.Transaction = null;
-            _connection = null;
+            _connection.ExecuteNonQuery("COMMIT;");
+            Complete();
         }
 
         public override void Rollback()
         {
-            CheckCompleted();
+            if (_completed || _connection.State != ConnectionState.Open)
+            {
+                throw new InvalidOperationException(Strings.TransactionCompleted);
+            }
 
-            Dispose();
+            RollbackInternal();
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (!disposing
-                || _connection == null)
+            if (disposing && !_completed && _connection.State == ConnectionState.Open)
             {
-                return;
+                RollbackInternal();
             }
-
-            if (_connection.State == ConnectionState.Open)
-            {
-                _connection.ExecuteNonQuery("ROLLBACK");
-            }
-
-            _connection.Transaction = null;
-            _connection = null;
         }
 
-        private void CheckCompleted()
+        private void Complete()
         {
-            if (_connection == null
-                || _connection.State != ConnectionState.Open)
-            {
-                throw new InvalidOperationException(Strings.TransactionCompleted);
-            }
+            _connection.Transaction = null;
+            _connection = null;
+            _completed = true;
+        }
+
+        private void RollbackInternal()
+        {
+            _connection.ExecuteNonQuery("ROLLBACK;");
+            Complete();
         }
     }
 }

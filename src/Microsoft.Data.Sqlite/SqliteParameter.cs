@@ -1,39 +1,64 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
-using JetBrains.Annotations;
+using System.Globalization;
 using Microsoft.Data.Sqlite.Interop;
-using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
 {
+    // TODO: Truncate to specified size
+    // TODO: Convert to specified type
+    // TODO: Infer type and size from value
     public class SqliteParameter : DbParameter
     {
-        private bool _bound;
-        private string _parameterName;
+        private string _parameterName = string.Empty;
         private object _value;
+        private Action<Sqlite3StmtHandle, int> _bindAction;
+        private bool _bindActionValid;
 
         public SqliteParameter()
         {
         }
 
-        public SqliteParameter([NotNull] string parameterName, [NotNull] object value)
-            : this()
+        public SqliteParameter(string name, object value)
         {
-            Check.NotEmpty(parameterName, "parameterName");
-            Check.NotNull(value, "value");
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
 
-            _parameterName = parameterName;
-            _value = value;
+            _parameterName = name;
+            Value = value;
         }
 
-        // TODO: Implement this
-        public override DbType DbType { get; set; }
+        public SqliteParameter(string name, SqliteType type)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            _parameterName = name;
+            SqliteType = type;
+        }
+
+        public SqliteParameter(string name, SqliteType type, int size)
+            : this(name, type)
+        {
+            Size = size;
+        }
+
+        public SqliteParameter(string name, SqliteType type, int size, string sourceColumn)
+            : this(name, type, size)
+        {
+            SourceColumn = sourceColumn;
+        }
+
+        public override DbType DbType { get; set; } = DbType.String;
+        public virtual SqliteType SqliteType { get; set; } = SqliteType.Text;
 
         public override ParameterDirection Direction
         {
@@ -52,108 +77,172 @@ namespace Microsoft.Data.Sqlite
         public override string ParameterName
         {
             get { return _parameterName; }
-            [param: NotNull]
             set
             {
-                Check.NotEmpty(value, "value");
-                if (_parameterName == value)
+                if (string.IsNullOrEmpty(value))
                 {
-                    return;
+                    throw new ArgumentNullException("value");
                 }
 
                 _parameterName = value;
-                _bound = false;
             }
         }
 
         public override int Size { get; set; }
-        public override string SourceColumn { get; set; }
+        public override string SourceColumn { get; set; } = string.Empty;
         public override bool SourceColumnNullMapping { get; set; }
 
         public override object Value
         {
             get { return _value; }
-            [param: NotNull]
             set
             {
-                Check.NotNull(value, "value");
-
-                // NOTE: Using Equals here avoids reference comparison
-                if (value.Equals(_value))
-                {
-                    return;
-                }
-
                 _value = value;
-                _bound = false;
+                _bindActionValid = false;
             }
         }
 
-        internal bool Bound
+        public override void ResetDbType() => ResetSqliteType();
+        public virtual void ResetSqliteType()
         {
-            get { return _bound; }
+            DbType = DbType.String;
+            SqliteType = SqliteType.Text;
         }
 
-        internal SqliteParameterCollection Parent { get; set; }
-
-        public override void ResetDbType()
+        internal void Bind(Sqlite3StmtHandle stmt)
         {
-            throw new NotSupportedException();
-        }
-
-        internal void Bind(IEnumerable<StatementHandle> handles)
-        {
-            Debug.Assert(handles != null, "handles is null.");
-            if (_parameterName == null)
+            if (_parameterName.Length == 0)
             {
                 throw new InvalidOperationException(Strings.FormatRequiresSet("ParameterName"));
             }
+
+            var index = NativeMethods.sqlite3_bind_parameter_index(stmt, _parameterName);
+            if (index == 0)
+            {
+                return;
+            }
+
             if (_value == null)
             {
                 throw new InvalidOperationException(Strings.FormatRequiresSet("Value"));
             }
 
-            foreach (var handle in handles)
+            if (!_bindActionValid)
             {
-                var index = NativeMethods.sqlite3_bind_parameter_index(handle, _parameterName);
-                if (index != 0)
+                var type = Value.GetType();
+                if (type == typeof(bool))
                 {
-                    var typeMap = SqliteTypeMap.FromClrType(_value.GetType());
-                    switch (typeMap.SqliteType)
-                    {
-                        case SqliteType.Integer:
-                            var rc = NativeMethods.sqlite3_bind_int64(handle, index, (long)typeMap.ToInterop(_value));
-                            MarshalEx.ThrowExceptionForRC(rc);
-                            break;
-
-                        case SqliteType.Float:
-                            rc = NativeMethods.sqlite3_bind_double(handle, index, (double)typeMap.ToInterop(_value));
-                            MarshalEx.ThrowExceptionForRC(rc);
-                            break;
-
-                        case SqliteType.Text:
-                            rc = NativeMethods.sqlite3_bind_text(handle, index, (string)typeMap.ToInterop(_value));
-                            MarshalEx.ThrowExceptionForRC(rc);
-                            break;
-
-                        case SqliteType.Blob:
-                            rc = NativeMethods.sqlite3_bind_blob(handle, index, (byte[])typeMap.ToInterop(_value));
-                            MarshalEx.ThrowExceptionForRC(rc);
-                            break;
-
-                        case SqliteType.Null:
-                            rc = NativeMethods.sqlite3_bind_null(handle, index);
-                            MarshalEx.ThrowExceptionForRC(rc);
-                            break;
-
-                        default:
-                            Debug.Assert(false, "Unexpected value.");
-                            break;
-                    }
+                    var value = (bool)_value ? 1L : 0;
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
                 }
+                else if (type == typeof(byte))
+                {
+                    var value = (long)(byte)_value;
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                }
+                else if (type == typeof(byte[]))
+                {
+                    var value = (byte[])_value;
+                    _bindAction = (s, i) => BindBlob(s, i, value);
+                }
+                else if (type == typeof(char))
+                {
+                    var value = (long)(char)_value;
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                }
+                else if (type == typeof(DateTime))
+                {
+                    var value = ((DateTime)_value).ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF");
+                    _bindAction = (s, i) => BindText(s, i, value);
+                }
+                else if (type == typeof(DateTimeOffset))
+                {
+                    var value = ((DateTimeOffset)_value).ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz");
+                    _bindAction = (s, i) => BindText(s, i, value);
+                }
+                else if (type == typeof(DBNull))
+                {
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_null(s, i);
+                }
+                else if (type == typeof(decimal))
+                {
+                    var value = ((decimal)_value).ToString(CultureInfo.InvariantCulture);
+                    _bindAction = (s, i) => BindText(s, i, value);
+                }
+                else if (type == typeof(double))
+                {
+                    var value = (double)_value;
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_double(s, i, value);
+                }
+                else if (type == typeof(float))
+                {
+                    var value = (double)(float)_value;
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_double(s, i, value);
+                }
+                else if (type == typeof(Guid))
+                {
+                    var value = ((Guid)_value).ToByteArray();
+                    _bindAction = (s, i) => BindBlob(s, i, value);
+                }
+                else if (type == typeof(int))
+                {
+                    var value = (long)(int)_value;
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                }
+                else if (type == typeof(long))
+                {
+                    var value = (long)_value;
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                }
+                else if (type == typeof(sbyte))
+                {
+                    var value = (long)(sbyte)_value;
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                }
+                else if (type == typeof(short))
+                {
+                    var value = (long)(short)_value;
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                }
+                else if (type == typeof(string))
+                {
+                    var value = (string)_value;
+                    _bindAction = (s, i) => BindText(s, i, value);
+                }
+                else if (type == typeof(TimeSpan))
+                {
+                    var value = ((TimeSpan)_value).ToString("c");
+                    _bindAction = (s, i) => BindText(s, i, value);
+                }
+                else if (type == typeof(uint))
+                {
+                    var value = (long)(uint)_value;
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                }
+                else if (type == typeof(ulong))
+                {
+                    var value = (long)(ulong)_value;
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                }
+                else if (type == typeof(ushort))
+                {
+                    var value = (long)(ushort)_value;
+                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_int64(s, i, value);
+                }
+                else
+                {
+                    throw new InvalidOperationException(Strings.FormatUnknownDataType(type));
+                }
+
+                _bindActionValid = true;
             }
 
-            _bound = true;
+            _bindAction(stmt, index);
         }
+
+        private static void BindBlob(Sqlite3StmtHandle stmt, int index, byte[] value) =>
+            NativeMethods.sqlite3_bind_blob(stmt, index, value, value.Length, Constants.SQLITE_TRANSIENT);
+        private static void BindText(Sqlite3StmtHandle stmt, int index, string value) =>
+            NativeMethods.sqlite3_bind_text16(stmt, index, value, value.Length * 2, Constants.SQLITE_TRANSIENT);
     }
 }

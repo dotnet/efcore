@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -13,13 +13,13 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Ctor_sets_read_uncommitted()
         {
-            using (var connection = new SqliteConnection("Filename=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
                 using (connection.BeginTransaction(IsolationLevel.ReadUncommitted))
                 {
-                    Assert.Equal(1L, connection.ExecuteScalar<long>("PRAGMA read_uncommitted"));
+                    Assert.Equal(1L, connection.ExecuteScalar<long>("PRAGMA read_uncommitted;"));
                 }
             }
         }
@@ -27,13 +27,13 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Ctor_unsets_read_uncommitted_when_serializable()
         {
-            using (var connection = new SqliteConnection("Filename=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
                 using (connection.BeginTransaction(IsolationLevel.Serializable))
                 {
-                    Assert.Equal(0L, connection.ExecuteScalar<long>("PRAGMA read_uncommitted"));
+                    Assert.Equal(0L, connection.ExecuteScalar<long>("PRAGMA read_uncommitted;"));
                 }
             }
         }
@@ -41,20 +41,20 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Ctor_throws_when_invalid_isolation_level()
         {
-            using (var connection = new SqliteConnection("Filename=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(0));
+                var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(IsolationLevel.Snapshot));
 
-                Assert.Equal(Strings.FormatInvalidIsolationLevel(0), ex.Message);
+                Assert.Equal(Strings.FormatInvalidIsolationLevel(IsolationLevel.Snapshot), ex.Message);
             }
         }
 
         [Fact]
         public void IsolationLevel_throws_when_completed()
         {
-            using (var connection = new SqliteConnection("Filename=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
@@ -70,10 +70,10 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void IsolationLevel_is_infered_when_unspecified()
         {
-            using (var connection = new SqliteConnection("Filename=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1");
+                connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1;");
 
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Commit_throws_when_completed()
         {
-            using (var connection = new SqliteConnection("Filename=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Commit_throws_when_connection_closed()
         {
-            using (var connection = new SqliteConnection("Filename=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
@@ -119,32 +119,29 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Commit_works()
         {
-            using (var connection = new SqliteConnection("Filename=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
+                connection.Open();
                 CreateTestTable(connection);
 
                 using (var transaction = connection.BeginTransaction())
                 {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = "INSERT INTO TestTable VALUES (1)";
-                        command.ExecuteNonQuery();
+                    connection.ExecuteNonQuery("INSERT INTO TestTable VALUES (1);");
 
-                        transaction.Commit();
+                    transaction.Commit();
 
-                        Assert.Null(connection.Transaction);
-                        Assert.Null(transaction.Connection);
-                    }
+                    Assert.Null(connection.Transaction);
+                    Assert.Null(transaction.Connection);
                 }
 
-                Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable"));
+                Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
             }
         }
 
         [Fact]
         public void Rollback_throws_when_completed()
         {
-            using (var connection = new SqliteConnection("Filename=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
@@ -160,61 +157,56 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Rollback_works()
         {
-            using (var connection = new SqliteConnection("Filename=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
+                connection.Open();
                 CreateTestTable(connection);
 
                 using (var transaction = connection.BeginTransaction())
                 {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = "INSERT INTO TestTable VALUES (1)";
-                        command.ExecuteNonQuery();
+                    connection.ExecuteNonQuery("INSERT INTO TestTable VALUES (1);");
 
-                        transaction.Rollback();
+                    transaction.Rollback();
 
-                        Assert.Null(connection.Transaction);
-                        Assert.Null(transaction.Connection);
-                    }
+                    Assert.Null(connection.Transaction);
+                    Assert.Null(transaction.Connection);
                 }
 
-                Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable"));
+                Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
             }
         }
 
         [Fact]
         public void Dispose_works()
         {
-            using (var connection = new SqliteConnection("Filename=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
+                connection.Open();
                 CreateTestTable(connection);
 
                 using (var transaction = connection.BeginTransaction())
                 {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = "INSERT INTO TestTable VALUES (1)";
-                        command.ExecuteNonQuery();
+                    connection.ExecuteNonQuery("INSERT INTO TestTable VALUES (1);");
 
-                        transaction.Dispose();
+                    transaction.Dispose();
 
-                        Assert.Null(connection.Transaction);
-                        Assert.Null(transaction.Connection);
-                    }
+                    Assert.Null(connection.Transaction);
+                    Assert.Null(transaction.Connection);
                 }
 
-                Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable"));
+                Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
             }
         }
 
         [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
-            using (var connection = new SqliteConnection("Filename=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
-                CreateTestTable(connection);
+                connection.Open();
 
                 var transaction = connection.BeginTransaction();
+
                 transaction.Dispose();
                 transaction.Dispose();
             }
@@ -222,7 +214,6 @@ namespace Microsoft.Data.Sqlite
 
         private static void CreateTestTable(SqliteConnection connection)
         {
-            connection.Open();
             connection.ExecuteNonQuery(@"
                 CREATE TABLE TestTable (
                     TestColumn INTEGER

@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -8,43 +8,34 @@ using System.Collections.ObjectModel;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
-using Microsoft.Data.Sqlite.Interop;
-using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
 {
     public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     {
-        // NOTE: Order must match the Keywords enum
-        private static readonly string[] _validKeywords = new[]
-            {
-                "Cache",
-                "Filename",
-                "Mode",
-                "Mutex",
-                "Uri",
-                "VFS"
-            };
+        private const string DataSourceKeyword = "Data Source";
 
-        private static readonly IDictionary<string, Keywords> _keywords = new Dictionary<string, Keywords>(
-            7,
-            StringComparer.OrdinalIgnoreCase)
-            {
-                { "Cache", Keywords.Cache },
-                { "Data Source", Keywords.Filename },
-                { "Filename", Keywords.Filename },
-                { "Mode", Keywords.Mode },
-                { "Mutex", Keywords.Mutex },
-                { "Uri", Keywords.Uri },
-                { "VFS", Keywords.VirtualFileSystem }
-            };
+        private enum Keywords
+        {
+            DataSource
+        }
 
-        private string _cache;
-        private string _filename;
-        private string _mode = "RWC";
-        private string _mutex;
-        private bool _uri;
-        private string _virtualFileSystem;
+        private static readonly IReadOnlyList<string> _validKeywords;
+        private static readonly IReadOnlyDictionary<string, Keywords> _keywords;
+
+        private string _dataSource = string.Empty;
+
+        static SqliteConnectionStringBuilder()
+        {
+            var validKeywords = new string[1];
+            validKeywords[(int)Keywords.DataSource] = DataSourceKeyword;
+            _validKeywords = validKeywords;
+
+            _keywords = new Dictionary<string, Keywords>(1, StringComparer.OrdinalIgnoreCase)
+            {
+                [DataSourceKeyword] = Keywords.DataSource
+            };
+        }
 
         public SqliteConnectionStringBuilder()
         {
@@ -52,134 +43,23 @@ namespace Microsoft.Data.Sqlite
 
         public SqliteConnectionStringBuilder(string connectionString)
         {
-            Check.NotEmpty(connectionString, "connectionString");
-
             ConnectionString = connectionString;
         }
 
-        public string Cache
+        public string DataSource
         {
-            get { return _cache; }
-            set
-            {
-                if (string.Equals(value, "Private", StringComparison.OrdinalIgnoreCase))
-                {
-                    value = "Private";
-                }
-                else if (string.Equals(value, "Shared", StringComparison.OrdinalIgnoreCase))
-                {
-                    value = "Shared";
-                }
-                else if (string.IsNullOrEmpty(value))
-                {
-                    value = null;
-                }
-                else
-                {
-                    throw new ArgumentException(Strings.FormatInvalidConnectionOptionValue("Cache", value));
-                }
-
-                base["Cache"] = value;
-                _cache = value;
-            }
+            get { return _dataSource; }
+            set { base[DataSourceKeyword] = _dataSource = value; }
         }
 
-        public string Filename
-        {
-            get { return _filename; }
-            set
-            {
-                base["Filename"] = value;
-                _filename = value;
-            }
-        }
-
-        public string Mode
-        {
-            get { return _mode; }
-            set
-            {
-                if (string.Equals(value, "RO", StringComparison.OrdinalIgnoreCase))
-                {
-                    value = "RO";
-                }
-                else if (string.Equals(value, "RW", StringComparison.OrdinalIgnoreCase))
-                {
-                    value = "RW";
-                }
-                else if (string.IsNullOrEmpty(value)
-                         || value.Equals("RWC", StringComparison.OrdinalIgnoreCase))
-                {
-                    value = "RWC";
-                }
-                else
-                {
-                    throw new ArgumentException(Strings.FormatInvalidConnectionOptionValue("Mode", value));
-                }
-
-                base["Mode"] = value;
-                _mode = value;
-            }
-        }
-
-        public string Mutex
-        {
-            get { return _mutex; }
-            set
-            {
-                if (string.Equals(value, "None", StringComparison.OrdinalIgnoreCase))
-                {
-                    value = "None";
-                }
-                else if (string.Equals(value, "Full", StringComparison.OrdinalIgnoreCase))
-                {
-                    value = "Full";
-                }
-                else if (string.IsNullOrEmpty(value))
-                {
-                    value = null;
-                }
-                else
-                {
-                    throw new ArgumentException(Strings.FormatInvalidConnectionOptionValue("Mutex", value));
-                }
-
-                base["Mutex"] = value;
-                _mutex = value;
-            }
-        }
-
-        public bool Uri
-        {
-            get { return _uri; }
-            set
-            {
-                base["Uri"] = value.ToString();
-                _uri = value;
-            }
-        }
-
-        public string VirtualFileSystem
-        {
-            get { return _virtualFileSystem; }
-            set
-            {
-                base["VFS"] = value;
-                _virtualFileSystem = value;
-            }
-        }
-
-        public override ICollection Keys
-        {
-            get { return new ReadOnlyCollection<string>(_validKeywords); }
-        }
+        public override ICollection Keys => new ReadOnlyCollection<string>((string[])_validKeywords);
 
         public override ICollection Values
         {
             get
             {
-                var values = new object[_validKeywords.Length];
-                for (var i = 0; i < _validKeywords.Length; i++)
+                var values = new object[_validKeywords.Count];
+                for (var i = 0; i < _validKeywords.Count; i++)
                 {
                     values[i] = GetAt((Keywords)i);
                 }
@@ -190,16 +70,9 @@ namespace Microsoft.Data.Sqlite
 
         public override object this[string keyword]
         {
-            get
-            {
-                Check.NotEmpty(keyword, "keyword");
-
-                return GetAt(GetIndex(keyword));
-            }
+            get { return GetAt(GetIndex(keyword)); }
             set
             {
-                Check.NotEmpty(keyword, "keyword");
-
                 if (value == null)
                 {
                     Remove(keyword);
@@ -209,101 +82,33 @@ namespace Microsoft.Data.Sqlite
 
                 switch (GetIndex(keyword))
                 {
-                    case Keywords.Cache:
-                        Cache = Convert.ToString(value, CultureInfo.InvariantCulture);
+                    case Keywords.DataSource:
+                        DataSource = Convert.ToString(value, CultureInfo.InvariantCulture);
                         return;
 
-                    case Keywords.Filename:
-                        Filename = Convert.ToString(value, CultureInfo.InvariantCulture);
-                        return;
-
-                    case Keywords.Mode:
-                        Mode = Convert.ToString(value, CultureInfo.InvariantCulture);
-                        return;
-
-                    case Keywords.Mutex:
-                        Mutex = Convert.ToString(value, CultureInfo.InvariantCulture);
-                        return;
-
-                    case Keywords.Uri:
-                        Uri = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
-                        return;
-
-                    case Keywords.VirtualFileSystem:
-                        VirtualFileSystem = Convert.ToString(value, CultureInfo.InvariantCulture);
-                        return;
-
+#if !NETCORE451
                     default:
-                        Debug.Assert(false, "Unexpected keyword");
+                        Debug.Fail("Unexpected keyword: " + keyword);
                         return;
+#endif
                 }
             }
-        }
-
-        internal int GetFlags()
-        {
-            var flags = 0;
-
-            switch (Mode)
-            {
-                case "RO":
-                    flags |= Constants.SQLITE_OPEN_READONLY;
-                    break;
-
-                case "RW":
-                    flags |= Constants.SQLITE_OPEN_READWRITE;
-                    break;
-
-                default:
-                    Debug.Assert(Mode == "RWC", "Mode is not RWC.");
-                    flags |= Constants.SQLITE_OPEN_READWRITE | Constants.SQLITE_OPEN_CREATE;
-                    break;
-            }
-
-            switch (Mutex)
-            {
-                case "None":
-                    flags |= Constants.SQLITE_OPEN_NOMUTEX;
-                    break;
-
-                case "Full":
-                    flags |= Constants.SQLITE_OPEN_FULLMUTEX;
-                    break;
-
-                default:
-                    Debug.Assert(Mutex == null, "Mutex is not null.");
-                    break;
-            }
-
-            if (Uri)
-            {
-                flags |= Constants.SQLITE_OPEN_URI;
-            }
-
-            return flags;
         }
 
         public override void Clear()
         {
             base.Clear();
 
-            for (var i = 0; i < _validKeywords.Length; i++)
+            for (var i = 0; i < _validKeywords.Count; i++)
             {
                 Reset((Keywords)i);
             }
         }
 
-        public override bool ContainsKey(string keyword)
-        {
-            Check.NotEmpty(keyword, "keyword");
-
-            return _keywords.ContainsKey(keyword);
-        }
+        public override bool ContainsKey(string keyword) => _keywords.ContainsKey(keyword);
 
         public override bool Remove(string keyword)
         {
-            Check.NotEmpty(keyword, "keyword");
-
             Keywords index;
             if (!_keywords.TryGetValue(keyword, out index)
                 || !base.Remove(_validKeywords[(int)index]))
@@ -318,8 +123,6 @@ namespace Microsoft.Data.Sqlite
 
         public override bool ShouldSerialize(string keyword)
         {
-            Check.NotEmpty(keyword, "keyword");
-
             Keywords index;
             if (!_keywords.TryGetValue(keyword, out index))
             {
@@ -335,10 +138,12 @@ namespace Microsoft.Data.Sqlite
             if (!_keywords.TryGetValue(keyword, out index))
             {
                 value = null;
+
                 return false;
             }
 
             value = GetAt(index);
+
             return true;
         }
 
@@ -346,34 +151,19 @@ namespace Microsoft.Data.Sqlite
         {
             switch (index)
             {
-                case Keywords.Cache:
-                    return Cache;
-
-                case Keywords.Filename:
-                    return Filename;
-
-                case Keywords.Mode:
-                    return Mode;
-
-                case Keywords.Mutex:
-                    return Mutex;
-
-                case Keywords.Uri:
-                    return Uri;
-
-                case Keywords.VirtualFileSystem:
-                    return VirtualFileSystem;
+                case Keywords.DataSource:
+                    return DataSource;
 
                 default:
-                    Debug.Assert(false, "Unexpected keyword.");
+#if !NETCORE451
+                    Debug.Fail("Unexpected keyword: " + index);
+#endif
                     return null;
             }
         }
 
         private Keywords GetIndex(string keyword)
         {
-            Debug.Assert(!string.IsNullOrWhiteSpace(keyword), "keyword is null or empty.");
-
             Keywords index;
             if (!_keywords.TryGetValue(keyword, out index))
             {
@@ -387,45 +177,16 @@ namespace Microsoft.Data.Sqlite
         {
             switch (index)
             {
-                case Keywords.Cache:
-                    _cache = null;
+                case Keywords.DataSource:
+                    _dataSource = string.Empty;
                     return;
 
-                case Keywords.Filename:
-                    _filename = null;
-                    return;
-
-                case Keywords.Mode:
-                    _mode = "RWC";
-                    return;
-
-                case Keywords.Mutex:
-                    _mutex = null;
-                    return;
-
-                case Keywords.Uri:
-                    _uri = false;
-                    return;
-
-                case Keywords.VirtualFileSystem:
-                    _virtualFileSystem = null;
-                    return;
-
+#if !NETCORE451
                 default:
-                    Debug.Assert(false, "Unexpected keyword.");
+                    Debug.Fail("Unexpected keyword: " + index);
                     return;
+#endif
             }
-        }
-
-        // NOTE: Values must match _validKeywords field order
-        private enum Keywords
-        {
-            Cache = 0,
-            Filename = 1,
-            Mode = 2,
-            Mutex = 3,
-            Uri = 4,
-            VirtualFileSystem = 5
         }
     }
 }

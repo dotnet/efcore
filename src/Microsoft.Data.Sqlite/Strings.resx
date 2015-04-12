@@ -117,35 +117,23 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ArgumentIsNullOrWhitespace" xml:space="preserve">
-    <value>The argument '{argumentName}' cannot be null, empty or contain only white space.</value>
-  </data>
-  <data name="BatchNotSupported" xml:space="preserve">
-    <value>CommandText contains more than one SQL statement. Queries must be a single statement. Batch queries are not supported.</value>
-  </data>
   <data name="CallRequiresOpenConnection" xml:space="preserve">
     <value>{methodName} can only be called when the connection is open.</value>
   </data>
   <data name="CallRequiresSetCommandText" xml:space="preserve">
     <value>CommandText must be set before {methodName} can be called.</value>
   </data>
-  <data name="CollectionIsNotParent" xml:space="preserve">
-    <value>The SqliteParameter is already contained by another SqliteParameterCollection.</value>
-  </data>
-  <data name="CollectionIsParent" xml:space="preserve">
-    <value>The SqliteParameter is already contained by this SqliteParameterCollection.</value>
-  </data>
   <data name="ConnectionStringRequiresClosedConnection" xml:space="preserve">
     <value>ConnectionString cannot be set when the connection is open.</value>
   </data>
   <data name="DataReaderClosed" xml:space="preserve">
-    <value>Invalid attempt to {operation} when reader is closed.</value>
+    <value>Invalid attempt to call {operation} when reader is closed.</value>
+  </data>
+  <data name="InvalidCommandBehavior" xml:space="preserve">
+    <value>The CommandBehavior '{behavior}' is invalid.</value>
   </data>
   <data name="InvalidCommandType" xml:space="preserve">
     <value>The CommandType '{commandType}' is invalid.</value>
-  </data>
-  <data name="InvalidConnectionOptionValue" xml:space="preserve">
-    <value>Invalid '{keyword}' value in the connection string: {value}.</value>
   </data>
   <data name="InvalidIsolationLevel" xml:space="preserve">
     <value>The IsolationLevel '{isolationLevel}' is invalid.</value>
@@ -156,8 +144,8 @@
   <data name="KeywordNotSupported" xml:space="preserve">
     <value>Keyword not supported: '{keyword}'.</value>
   </data>
-  <data name="OpenReaderExists" xml:space="preserve">
-    <value>There is already an open DataReader associated with this Command which must be closed first.</value>
+  <data name="NoData" xml:space="preserve">
+    <value>No data exists for the row/column.</value>
   </data>
   <data name="OpenRequiresSetConnectionString" xml:space="preserve">
     <value>ConnectionString must be set before Open can be called.</value>

@@ -1,109 +1,56 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
-using JetBrains.Annotations;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Interop;
-using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
 {
     public class SqliteCommand : DbCommand
     {
-        private SqliteConnection _connection;
-        private CommandType _commandType = CommandType.Text;
-        private string _commandText;
-        private bool _prepared;
-        private IEnumerable<StatementHandle> _handles;
-        private SqliteParameterCollection _parameters = null;
+        private Lazy<SqliteParameterCollection> _parameters = new Lazy<SqliteParameterCollection>(
+            () => new SqliteParameterCollection());
 
         public SqliteCommand()
         {
         }
 
-        public SqliteCommand([NotNull] string commandText)
-            : this()
+        public SqliteCommand(string commandText)
         {
-            Check.NotEmpty(commandText, "commandText");
-
-            _commandText = commandText;
+            CommandText = commandText;
         }
 
-        public SqliteCommand([NotNull] string commandText, [NotNull] SqliteConnection connection)
+        public SqliteCommand(string commandText, SqliteConnection connection)
             : this(commandText)
         {
-            Check.NotEmpty(commandText, "commandText");
-            Check.NotNull(connection, "connection");
-
-            _connection = connection;
+            Connection = connection;
         }
 
-        public SqliteCommand(
-            [NotNull] string commandText,
-            [NotNull] SqliteConnection connection,
-            [NotNull] SqliteTransaction transaction)
+        public SqliteCommand(string commandText, SqliteConnection connection, SqliteTransaction transaction)
             : this(commandText, connection)
         {
-            Check.NotEmpty(commandText, "commandText");
-            Check.NotNull(connection, "connection");
-            Check.NotNull(transaction, "transaction");
-
             Transaction = transaction;
         }
 
         public override CommandType CommandType
         {
-            get { return _commandType; }
+            get { return CommandType.Text; }
             set
             {
                 if (value != CommandType.Text)
                 {
                     throw new ArgumentException(Strings.FormatInvalidCommandType(value));
                 }
-
-                _commandType = value;
             }
         }
 
-        public override string CommandText
-        {
-            get { return _commandText; }
-            [param: NotNull]
-            set
-            {
-                Check.NotEmpty(value, "value");
-
-                if (_prepared && _commandText != value)
-                {
-                    ReleaseNativeObjects();
-                    _prepared = false;
-                }
-
-                _commandText = value;
-            }
-        }
-
-        public new SqliteConnection Connection
-        {
-            get { return _connection; }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, "value");
-
-                if (_prepared && _connection != value)
-                {
-                    ReleaseNativeObjects();
-                    _prepared = false;
-                }
-
-                _connection = value;
-            }
-        }
+        public override string CommandText { get; set; }
+        public virtual new SqliteConnection Connection { get; set; }
 
         protected override DbConnection DbConnection
         {
@@ -111,7 +58,7 @@ namespace Microsoft.Data.Sqlite
             set { Connection = (SqliteConnection)value; }
         }
 
-        public new SqliteTransaction Transaction { get; set; }
+        public virtual new SqliteTransaction Transaction { get; set; }
 
         protected override DbTransaction DbTransaction
         {
@@ -119,307 +66,153 @@ namespace Microsoft.Data.Sqlite
             set { Transaction = (SqliteTransaction)value; }
         }
 
-        public new SqliteParameterCollection Parameters
-        {
-            get
-            {
-                if (_parameters == null)
-                {
-                    _parameters = new SqliteParameterCollection();
-                }
-
-                return _parameters;
-            }
-        }
-
-        protected override DbParameterCollection DbParameterCollection
-        {
-            get { return Parameters; }
-        }
-
+        public virtual new SqliteParameterCollection Parameters => _parameters.Value;
+        protected override DbParameterCollection DbParameterCollection => Parameters;
         public override int CommandTimeout { get; set; }
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
-
-        internal SqliteDataReader OpenReader { get; set; }
-
-        public new SqliteParameter CreateParameter()
-        {
-            return new SqliteParameter();
-        }
-
-        protected override DbParameter CreateDbParameter()
-        {
-            return CreateParameter();
-        }
+        public virtual new SqliteParameter CreateParameter() => new SqliteParameter();
+        protected override DbParameter CreateDbParameter() => CreateParameter();
 
         public override void Prepare()
         {
-            if (OpenReader != null)
-            {
-                throw new InvalidOperationException(Strings.OpenReaderExists);
-            }
-            if (_connection == null
-                || _connection.State != ConnectionState.Open)
-            {
-                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("Prepare"));
-            }
-            if (string.IsNullOrWhiteSpace(_commandText))
-            {
-                throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("Prepare"));
-            }
-            if (_prepared)
-            {
-                return;
-            }
-
-            Debug.Assert(_connection.Handle != null && !_connection.Handle.IsInvalid, "_connection.Handle is null.");
-            Debug.Assert(_handles == null, "_handles is not null.");
-
-            var handles = new List<StatementHandle>();
-            var remainingSql = _commandText;
-            do
-            {
-                StatementHandle handle;
-                var rc = NativeMethods.sqlite3_prepare_v2(
-                    _connection.Handle,
-                    remainingSql,
-                    out handle,
-                    out remainingSql);
-                MarshalEx.ThrowExceptionForRC(rc);
-
-                handles.Add(handle);
-            }
-            while (!string.IsNullOrWhiteSpace(remainingSql));
-
-            _handles = handles;
-            _prepared = true;
         }
 
-        public new SqliteDataReader ExecuteReader()
-        {
-            return ExecuteReader(CommandBehavior.Default);
-        }
+        public virtual new SqliteDataReader ExecuteReader() => ExecuteReader(CommandBehavior.Default);
 
-        // TODO: Honor behavior
-        public new SqliteDataReader ExecuteReader(CommandBehavior behavior)
+        public virtual new SqliteDataReader ExecuteReader(CommandBehavior behavior)
         {
-            if (OpenReader != null)
+            if (behavior != CommandBehavior.Default)
             {
-                throw new InvalidOperationException(Strings.OpenReaderExists);
+                throw new ArgumentException(Strings.FormatInvalidCommandBehavior(behavior));
             }
-            if (_connection == null
-                || _connection.State != ConnectionState.Open)
+            if (Connection == null || Connection.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteReader"));
             }
-            if (string.IsNullOrWhiteSpace(_commandText))
+            if (string.IsNullOrEmpty(CommandText))
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteReader"));
             }
-
-            ValidateTransaction();
-            Prepare();
-            Bind();
-
-            var changes = 0;
-            var resultHandles = new List<StatementHandle>();
-            foreach (var handle in _handles)
+            if (Transaction != Connection.Transaction)
             {
-                var hasResults = NativeMethods.sqlite3_stmt_readonly(handle) != 0;
-
-                var rc = NativeMethods.sqlite3_step(handle);
-                if (rc == Constants.SQLITE_ROW
-                    || (rc == Constants.SQLITE_DONE && hasResults))
-                {
-                    resultHandles.Add(handle);
-
-                    continue;
-                }
-
-                rc = NativeMethods.sqlite3_reset(handle);
-                MarshalEx.ThrowExceptionForRC(rc);
-
-                changes += NativeMethods.sqlite3_changes(_connection.Handle);
+                throw new InvalidOperationException(
+                    Transaction == null
+                        ? Strings.TransactionRequired
+                        : Strings.TransactionConnectionMismatch);
             }
 
-            return OpenReader = new SqliteDataReader(this, resultHandles, changes);
+            var hasChanges = false;
+            var changes = 0;
+            var stmts = new Queue<Tuple<Sqlite3StmtHandle, bool>>();
+            var tail = CommandText;
+            do
+            {
+                Sqlite3StmtHandle stmt;
+                var rc = NativeMethods.sqlite3_prepare16_v2(
+                    Connection.Handle,
+                    tail,
+                    -1,
+                    out stmt,
+                    out tail);
+                MarshalEx.ThrowExceptionForRC(rc, Connection.Handle);
+
+                // Statement was empty, white space, or a comment
+                if (stmt.IsInvalid)
+                {
+                    if (!string.IsNullOrEmpty(tail))
+                    {
+                        continue;
+                    }
+
+                    break;
+                }
+
+                if (_parameters.IsValueCreated)
+                {
+                    _parameters.Value.Bind(stmt);
+                }
+
+                rc = NativeMethods.sqlite3_step(stmt);
+                MarshalEx.ThrowExceptionForRC(rc, Connection.Handle);
+
+                // NB: This is only a heuristic to separate SELECT statements from INSERT/UPDATE/DELETE statements. It will result
+                //     in unexpected corner cases, but it's the best we can do without re-parsing SQL
+                if (NativeMethods.sqlite3_stmt_readonly(stmt) != 0)
+                {
+                    stmts.Enqueue(Tuple.Create(stmt, rc != Constants.SQLITE_DONE));
+                }
+                else
+                {
+                    hasChanges = true;
+                    changes += NativeMethods.sqlite3_changes(Connection.Handle);
+                    stmt.Dispose();
+                }
+            }
+            while (!string.IsNullOrEmpty(tail));
+
+            return new SqliteDataReader(Connection.Handle, stmts, hasChanges ? changes : -1);
         }
 
-        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => ExecuteReader(behavior);
+        public virtual new Task<SqliteDataReader> ExecuteReaderAsync() =>
+            ExecuteReaderAsync(CommandBehavior.Default, CancellationToken.None);
+        public virtual new Task<SqliteDataReader> ExecuteReaderAsync(CancellationToken cancellationToken) =>
+            ExecuteReaderAsync(CommandBehavior.Default, cancellationToken);
+        public virtual new Task<SqliteDataReader> ExecuteReaderAsync(CommandBehavior behavior) =>
+            ExecuteReaderAsync(behavior, CancellationToken.None);
+
+        public virtual new Task<SqliteDataReader> ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
-            return ExecuteReader(behavior);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return Task.FromResult(ExecuteReader(behavior));
         }
+
+        protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(
+            CommandBehavior behavior,
+            CancellationToken cancellationToken) =>
+            await ExecuteReaderAsync(behavior, cancellationToken);
 
         public override int ExecuteNonQuery()
         {
-            if (OpenReader != null)
-            {
-                throw new InvalidOperationException(Strings.OpenReaderExists);
-            }
-            if (_connection == null
-                || _connection.State != ConnectionState.Open)
+            if (Connection == null || Connection.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteNonQuery"));
             }
-            if (string.IsNullOrWhiteSpace(_commandText))
+            if (CommandText == null)
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteNonQuery"));
             }
 
-            ValidateTransaction();
-            Prepare();
-            Bind();
+            var reader = ExecuteReader();
+            reader.Dispose();
 
-            Debug.Assert(_connection.Handle != null && !_connection.Handle.IsInvalid, "_connection.Handle is null.");
-
-            var changes = 0;
-            foreach (var handle in _handles)
-            {
-                var hasChanges = NativeMethods.sqlite3_stmt_readonly(handle) == 0;
-
-                NativeMethods.sqlite3_step(handle);
-                var rc = NativeMethods.sqlite3_reset(handle);
-                MarshalEx.ThrowExceptionForRC(rc);
-
-                if (hasChanges)
-                {
-                    changes += NativeMethods.sqlite3_changes(_connection.Handle);
-                }
-            }
-
-            return changes;
+            return reader.RecordsAffected;
         }
 
         public override object ExecuteScalar()
         {
-            if (OpenReader != null)
-            {
-                throw new InvalidOperationException(Strings.OpenReaderExists);
-            }
-            if (_connection == null
-                || _connection.State != ConnectionState.Open)
+            if (Connection == null || Connection.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteScalar"));
             }
-            if (string.IsNullOrWhiteSpace(_commandText))
+            if (CommandText == null)
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteScalar"));
             }
 
-            ValidateTransaction();
-            Prepare();
-            Bind();
-
-            object result = null;
-            var gotResult = false;
-            foreach (var handle in _handles)
+            using (var reader = ExecuteReader())
             {
-                try
-                {
-                    var rc = NativeMethods.sqlite3_step(handle);
-                    if (rc != Constants.SQLITE_DONE
-                        && rc != Constants.SQLITE_ROW)
-                    {
-                        MarshalEx.ThrowExceptionForRC(rc);
-                    }
-
-                    var hasResults = NativeMethods.sqlite3_stmt_readonly(handle) != 0;
-
-                    if (!gotResult && hasResults)
-                    {
-                        if (rc == Constants.SQLITE_ROW)
-                        {
-                            var declaredType = NativeMethods.sqlite3_column_decltype(handle, 0);
-                            var sqliteType = (SqliteType)NativeMethods.sqlite3_column_type(handle, 0);
-                            var map = SqliteTypeMap.FromDeclaredType(declaredType, sqliteType);
-                            var value = ColumnReader.Read(map.SqliteType, handle, 0);
-
-                            result = map.FromInterop(value);
-                        }
-
-                        gotResult = true;
-                    }
-                }
-                finally
-                {
-                    var rc = NativeMethods.sqlite3_reset(handle);
-                    MarshalEx.ThrowExceptionForRC(rc);
-                }
+                return reader.Read()
+                    ? reader.GetValue(0)
+                    : null;
             }
-
-            return result;
         }
 
         public override void Cancel()
         {
             throw new NotSupportedException();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _connection = null;
-                _prepared = false;
-
-                if (OpenReader != null)
-                {
-                    OpenReader.Dispose();
-                }
-            }
-
-            ReleaseNativeObjects();
-
-            base.Dispose(disposing);
-        }
-
-        private void Bind()
-        {
-            Debug.Assert(_prepared, "_prepared is false.");
-            Debug.Assert(_handles != null, "_handles is null.");
-            Debug.Assert(OpenReader == null, "ActiveReader is not null.");
-            if (_parameters == null
-                || _parameters.Bound)
-            {
-                return;
-            }
-
-            foreach (var handle in _handles)
-            {
-                var rc = NativeMethods.sqlite3_clear_bindings(handle);
-                MarshalEx.ThrowExceptionForRC(rc);
-            }
-
-            _parameters.Bind(_handles);
-        }
-
-        private void ReleaseNativeObjects()
-        {
-            if (_handles == null)
-            {
-                return;
-            }
-
-            foreach (var handle in _handles)
-            {
-                handle.Dispose();
-            }
-
-            _handles = null;
-        }
-
-        private void ValidateTransaction()
-        {
-            if (Transaction != _connection.Transaction)
-            {
-                if (Transaction == null)
-                {
-                    throw new InvalidOperationException(Strings.TransactionRequired);
-                }
-
-                throw new InvalidOperationException(Strings.TransactionConnectionMismatch);
-            }
         }
     }
 }

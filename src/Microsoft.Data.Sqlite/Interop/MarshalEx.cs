@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -9,16 +9,6 @@ namespace Microsoft.Data.Sqlite.Interop
 {
     internal static class MarshalEx
     {
-        public static SqliteException GetExceptionForRC(int errorCode)
-        {
-            if (errorCode == Constants.SQLITE_OK)
-            {
-                return null;
-            }
-
-            return new SqliteException(NativeMethods.sqlite3_errstr(errorCode), errorCode);
-        }
-
         public static string PtrToStringUTF8(IntPtr ptr)
         {
             if (ptr == IntPtr.Zero)
@@ -40,35 +30,33 @@ namespace Microsoft.Data.Sqlite.Interop
 
         public static IntPtr StringToHGlobalUTF8(string s)
         {
-            int size;
-            return StringToHGlobalUTF8(s, out size);
-        }
-
-        public static IntPtr StringToHGlobalUTF8(string s, out int size)
-        {
             if (s == null)
             {
-                size = 0;
                 return IntPtr.Zero;
             }
 
             var bytes = Encoding.UTF8.GetBytes(s);
-            size = bytes.Length + 1;
-            var ptr = Marshal.AllocHGlobal(size);
+            var ptr = Marshal.AllocHGlobal(bytes.Length + 1);
             Marshal.Copy(bytes, 0, ptr, bytes.Length);
             Marshal.WriteByte(ptr, bytes.Length, 0);
 
             return ptr;
         }
 
-        public static void ThrowExceptionForRC(int errorCode)
+        public static void ThrowExceptionForRC(int rc, Sqlite3Handle db)
         {
-            if (errorCode == Constants.SQLITE_OK)
+            if (rc == Constants.SQLITE_OK
+                || rc == Constants.SQLITE_ROW
+                || rc == Constants.SQLITE_DONE)
             {
                 return;
             }
 
-            throw GetExceptionForRC(errorCode);
+            var message = db == null || db.IsInvalid
+                ? NativeMethods.sqlite3_errstr(rc)
+                : NativeMethods.sqlite3_errmsg16(db);
+
+            throw new SqliteException("Error: " + message, rc);
         }
     }
 }

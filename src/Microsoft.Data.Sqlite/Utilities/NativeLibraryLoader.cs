@@ -1,127 +1,92 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if !NETCORE451
 
-#if NET451 || DNX451 || DNXCORE50
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 
 #if DNX451 || DNXCORE50
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Infrastructure;
+using Microsoft.Framework.DependencyInjection;
 #endif
 
-namespace Microsoft.Data.Sqlite.Utilities
+namespace Microsoft.Framework.Internal
 {
     internal static class NativeLibraryLoader
     {
         private const uint LOAD_WITH_ALTERED_SEARCH_PATH = 8;
 
-        [DllImport("kernel32")]
+        [DllImport("api-ms-win-core-libraryloader-l1-1-0", SetLastError = true)]
         private static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hFile, uint dwFlags);
 
-        [DllImport("kernel32")]
+        [DllImport("api-ms-win-core-libraryloader-l1-1-0", SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
 
-        public static void Load(string dllName)
+        public static bool TryLoad(string dllName)
         {
-            Debug.Assert(!string.IsNullOrWhiteSpace(dllName), "dllName is null or empty.");
-
-            if (IsLoaded(dllName))
-                return;
-
-            var currentAssembly = typeof(NativeLibraryLoader).GetTypeInfo().Assembly;
-
-#if DNX451 || DNXCORE50
-            try
-            {
-                if (TryLoadUnderKRuntime(currentAssembly, dllName))
-                    return;
-            }
-            catch (FileNotFoundException)
-            {
-                // Ignore. Running outside of Project K
-            }
+            string applicationBase;
+#if NET451
+            applicationBase = AppDomain.CurrentDomain.BaseDirectory;
+#elif DNX451 || DNXCORE50
+            applicationBase = CallContextServiceLocator
+                .Locator
+                .ServiceProvider
+                .GetRequiredService<IApplicationEnvironment>()
+                .ApplicationBasePath;
 #else
-            if (TryLoadFromDirectory(dllName, new Uri(AppDomain.CurrentDomain.BaseDirectory).LocalPath))
-                return;
+            applicationBase = AppContext.BaseDirectory;
 #endif
 
-            Debug.Fail(dllName + " was not loaded.");
+            return TryLoad(dllName, applicationBase);
         }
 
-
-#if DNX451 || DNXCORE50
-        private static bool TryLoadUnderKRuntime(Assembly currentAssembly, string dllName)
+        public static bool TryLoad(string dllName, string applicationBase)
         {
-            var serviceProvider = CallContextServiceLocator.Locator.ServiceProvider;
-
-            var libraryManager = serviceProvider.GetService<ILibraryManager>();
-            if (libraryManager != null)
+            if (dllName == null)
             {
-                var library = libraryManager.GetLibraryInformation(currentAssembly.GetName().Name);
-                var libraryPath = library.Path;
-                if (library.Type == "Project")
-                    libraryPath = Path.GetDirectoryName(libraryPath);
-
-                if (TryLoadFromDirectory(dllName, Path.Combine(libraryPath, "redist")))
-                    return true;
+                throw new ArgumentNullException(nameof(dllName));
+            }
+            if (applicationBase == null)
+            {
+                throw new ArgumentNullException(nameof(applicationBase));
+            }
+            if (IsLoaded(dllName))
+            {
+                return true;
             }
 
-            var applicationEnvironment = serviceProvider.GetService<IApplicationEnvironment>();
-            
-            return applicationEnvironment != null
-                && TryLoadFromDirectory(dllName, applicationEnvironment.ApplicationBasePath);
-        }
-#endif
-
-        private static bool IsLoaded(string dllName)
-        {
-            var ptr = IntPtr.Zero;
-            try
-            {
-                ptr = GetModuleHandle(dllName);
-            }
-            catch (Exception ex)
-            {
-                Debug.Fail(ex.ToString());
-            }
-
-            return ptr != IntPtr.Zero;
-        }
-
-        private static bool TryLoadFromDirectory(string dllName, string baseDirectory)
-        {
-            Debug.Assert(!string.IsNullOrWhiteSpace(dllName), "dllName is null or empty.");
-            Debug.Assert(!string.IsNullOrWhiteSpace(baseDirectory), "baseDirectory is null or empty.");
-            Debug.Assert(Path.IsPathRooted(baseDirectory), "baseDirectory is not rooted.");
-
-            var architecture = IntPtr.Size == 4
-                ? "x86"
-                : "x64";
+            // TODO: Use GetSystemInfo (in api-ms-win-core-sysinfo-l1-1-0.dll) to detect ARM
+            var architecture = IntPtr.Size == 4 ? "x86" : "x64";
 
             if (!dllName.EndsWith(".dll"))
-                dllName = dllName + ".dll";
+            {
+                dllName += ".dll";
+            }
 
-            var dllPath = Path.Combine(baseDirectory, architecture, dllName);
+            var dllPath = Path.Combine(applicationBase, architecture, dllName);
+
             if (!File.Exists(dllPath))
+            {
                 return false;
-
-            var ptr = IntPtr.Zero;
-            try
-            {
-                ptr = LoadLibraryEx(dllPath, IntPtr.Zero, LOAD_WITH_ALTERED_SEARCH_PATH);
-            }
-            catch (Exception ex)
-            {
-                Debug.Fail(ex.ToString());
             }
 
-            return ptr != IntPtr.Zero;
+            var handle = LoadLibraryEx(dllPath, IntPtr.Zero, LOAD_WITH_ALTERED_SEARCH_PATH);
+            Marshal.ThrowExceptionForHR(Marshal.GetLastWin32Error());
+
+            return handle != IntPtr.Zero;
+        }
+
+        public static bool IsLoaded(string dllName)
+        {
+            var handle = GetModuleHandle(dllName);
+            Marshal.ThrowExceptionForHR(Marshal.GetLastWin32Error());
+
+            return handle != IntPtr.Zero;
         }
     }
 }
+
 #endif

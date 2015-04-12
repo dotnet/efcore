@@ -1,8 +1,7 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
-using System.Diagnostics;
 
 namespace Microsoft.Data.Sqlite.Utilities
 {
@@ -10,42 +9,21 @@ namespace Microsoft.Data.Sqlite.Utilities
     {
         public static int ExecuteNonQuery(this DbConnection connection, string commandText)
         {
-            Debug.Assert(connection != null, "connection is null.");
-            Debug.Assert(!string.IsNullOrWhiteSpace(commandText), "commandText is null or empty.");
+            var command = connection.CreateCommand();
+            command.CommandText = commandText;
 
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = commandText;
-
-                return command.ExecuteNonQuery();
-            }
+            return command.ExecuteNonQuery();
         }
 
-        public static T ExecuteScalar<T>(this DbConnection connection, string commandText)
-        {
-            Debug.Assert(connection != null, "connection is null.");
-            Debug.Assert(!string.IsNullOrWhiteSpace(commandText), "commandText is null or empty.");
-
-            var value = connection.ExecuteScalar(commandText);
-            if (!(value is T))
-            {
-                return default(T);
-            }
-
-            return (T)value;
-        }
+        public static T ExecuteScalar<T>(this DbConnection connection, string commandText) =>
+            (T)connection.ExecuteScalar(commandText);
 
         private static object ExecuteScalar(this DbConnection connection, string commandText)
         {
-            Debug.Assert(connection != null, "connection is null.");
-            Debug.Assert(!string.IsNullOrWhiteSpace(commandText), "commandText is null or empty.");
+            var command = connection.CreateCommand();
+            command.CommandText = commandText;
 
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = commandText;
-
-                return command.ExecuteScalar();
-            }
+            return command.ExecuteScalar();
         }
     }
 }

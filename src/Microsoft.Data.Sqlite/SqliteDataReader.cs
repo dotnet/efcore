@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,171 +6,159 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Linq;
+using System.Globalization;
 using Microsoft.Data.Sqlite.Interop;
-using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
 {
     public class SqliteDataReader : DbDataReader
     {
-        private static readonly IList<StatementHandle> _empty = new StatementHandle[0];
-
-        private readonly SqliteCommand _command;
-        private readonly bool _hasRows;
-        private int _currentIndex;
-        private StatementHandle _currentHandle;
-        private IList<StatementHandle> _handles;
-        private readonly int _recordsAffected;
-
+        private readonly Sqlite3Handle _db;
+        private readonly Queue<Tuple<Sqlite3StmtHandle, bool>> _stmtQueue;
+        private Sqlite3StmtHandle _stmt;
+        private bool _hasRows;
+        private bool _stepped;
+        private bool _done;
         private bool _closed;
-        private bool _hasRead;
 
-        internal SqliteDataReader(SqliteCommand command, IList<StatementHandle> handles, int recordsAffected)
+        internal SqliteDataReader(
+            Sqlite3Handle db,
+            Queue<Tuple<Sqlite3StmtHandle, bool>> stmtQueue,
+            int recordsAffected)
         {
-            Debug.Assert(command != null, "command is null.");
-            Debug.Assert(handles != null, "handles is null.");
-
-            _command = command;
-
-            if (handles.Count > 0)
+            if (stmtQueue.Count != 0)
             {
-                _hasRows = true;
-                _currentHandle = handles[0];
+                var tuple = stmtQueue.Dequeue();
+                _stmt = tuple.Item1;
+                _hasRows = tuple.Item2;
             }
 
-            _handles = handles;
-            _recordsAffected = recordsAffected;
+            _db = db;
+            _stmtQueue = stmtQueue;
+            RecordsAffected = recordsAffected;
         }
 
-        public override int Depth
-        {
-            get { return 0; }
-        }
+        public override int Depth => 0;
 
         public override int FieldCount
         {
             get
             {
-                CheckClosed("FieldCount");
+                if (_closed)
+                {
+                    throw new InvalidOperationException(Strings.FormatDataReaderClosed("FieldCount"));
+                }
 
-                return NativeMethods.sqlite3_column_count(_currentHandle);
+                return NativeMethods.sqlite3_column_count(_stmt);
             }
         }
 
-        public override bool HasRows
-        {
-            get { return _hasRows; }
-        }
+        public override bool HasRows => _hasRows;
+        public override bool IsClosed => _closed;
+        public override int RecordsAffected { get; }
 
-        public override bool IsClosed
-        {
-            get { return _closed; }
-        }
+        /// <remarks>The <paramref name="name"/> parameter is case sensitive.</remarks>
+        public override object this[string name] => GetValue(GetOrdinal(name));
 
-        public override int RecordsAffected
-        {
-            get { return _recordsAffected; }
-        }
-
-        public override object this[string name]
-        {
-            get { return GetValue(GetOrdinal(name)); }
-        }
-
-        public override object this[int ordinal]
-        {
-            get { return GetValue(ordinal); }
-        }
+        public override object this[int ordinal] => GetValue(ordinal);
 
         public override IEnumerator GetEnumerator()
         {
-            // TODO
+#if NET451 || DNX451
+            return new DbEnumerator(this);
+#else
+            // TODO: Remove when the System.Data.Common includes DbEnumerator
             throw new NotImplementedException();
+#endif
         }
 
         public override bool Read()
         {
-            CheckClosed("Read");
-
-            if (!_hasRead)
+            if (_closed)
             {
-                _hasRead = true;
-
-                return NativeMethods.sqlite3_stmt_busy(_currentHandle) != 0;
+                throw new InvalidOperationException(Strings.FormatDataReaderClosed("Read"));
             }
 
-            Debug.Assert(_currentHandle != null && !_currentHandle.IsInvalid, "_currentHandle is null.");
-            var rc = NativeMethods.sqlite3_step(_currentHandle);
-            if (rc == Constants.SQLITE_DONE)
+            if (!_stepped)
             {
-                return false;
-            }
-            if (rc != Constants.SQLITE_ROW)
-            {
-                MarshalEx.ThrowExceptionForRC(rc);
+                _stepped = true;
+
+                return _hasRows;
             }
 
-            return true;
+            var rc = NativeMethods.sqlite3_step(_stmt);
+            MarshalEx.ThrowExceptionForRC(rc, _db);
+
+            _done = rc == Constants.SQLITE_DONE;
+
+            return !_done;
         }
 
         public override bool NextResult()
         {
-            CheckClosed("NextResult");
-
-            _currentIndex++;
-
-            if (_currentIndex >= _handles.Count)
+            if (_stmtQueue.Count == 0)
             {
                 return false;
             }
 
-            _hasRead = false;
-            _currentHandle = _handles[_currentIndex];
+            _stmt.Dispose();
+
+            var tuple = _stmtQueue.Dequeue();
+            _stmt = tuple.Item1;
+            _hasRows = tuple.Item2;
+            _stepped = false;
+            _done = false;
 
             return true;
         }
 
+
+#if NET451 || DNX451
+        // TODO: Remove when fixed in System.Data.Common
+        public override void Close() => Dispose(true);
+#endif
+
         protected override void Dispose(bool disposing)
         {
-            if (_closed || !disposing)
+            if (!disposing)
             {
                 return;
             }
 
-            Debug.Assert(_command.OpenReader == this, "_command.ActiveReader is not this.");
-
-            if (_handles.Any())
+            if (_stmt != null)
             {
-                foreach (var handle in _handles)
-                {
-                    if (handle != null
-                        && !handle.IsInvalid)
-                    {
-                        var rc = NativeMethods.sqlite3_reset(handle);
-                        MarshalEx.ThrowExceptionForRC(rc);
-                    }
-                }
-
-                _handles = _empty;
+                _stmt.Dispose();
+                _stmt = null;
             }
 
-            _command.OpenReader = null;
+            while (_stmtQueue.Count != 0)
+            {
+                _stmtQueue.Dequeue().Item1.Dispose();
+            }
+
             _closed = true;
         }
 
         public override string GetName(int ordinal)
         {
-            CheckClosed("GetName");
+            if (_closed)
+            {
+                throw new InvalidOperationException(Strings.FormatDataReaderClosed("GetName"));
+            }
 
-            // TODO: Cache results #Perf
-            return NativeMethods.sqlite3_column_name(_currentHandle, ordinal);
+            var name = NativeMethods.sqlite3_column_name16(_stmt, ordinal);
+            if (name == null && (ordinal < 0 || ordinal >= FieldCount))
+            {
+                // NB: Message is provided by the framework
+                throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
+            }
+
+            return name;
         }
 
+        /// <remarks>The <paramref name="name"/> parameter is case sensitive.</remarks>
         public override int GetOrdinal(string name)
         {
-            CheckClosed("GetOrdinal");
-
             for (var i = 0; i < FieldCount; i++)
             {
                 if (GetName(i) == name)
@@ -179,124 +167,151 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            throw new IndexOutOfRangeException(name);
+            // NB: Message is provided by framework
+            throw new ArgumentOutOfRangeException(nameof(name), name, message: null);
         }
 
         public override string GetDataTypeName(int ordinal)
         {
-            CheckClosed("GetDataTypeName");
+            if (_closed)
+            {
+                throw new InvalidOperationException(Strings.FormatDataReaderClosed("GetDataTypeName"));
+            }
 
-            return NativeMethods.sqlite3_column_decltype(_currentHandle, ordinal);
+            var typeName = NativeMethods.sqlite3_column_decltype16(_stmt, ordinal);
+            if (typeName != null)
+            {
+                var i = typeName.IndexOf('(');
+
+                return i == -1
+                    ? typeName
+                    : typeName.Substring(0, i);
+            }
+
+            var sqliteType = GetSqliteType(ordinal);
+            switch (sqliteType)
+            {
+                case Constants.SQLITE_INTEGER:
+                    return "INTEGER";
+
+                case Constants.SQLITE_FLOAT:
+                    return "REAL";
+
+                case Constants.SQLITE_TEXT:
+                    return "TEXT";
+
+                case Constants.SQLITE_BLOB:
+                    return "BLOB";
+
+                case Constants.SQLITE_NULL:
+                    return "INTEGER";
+
+                default:
+#if !NETCORE451
+                    Debug.Fail("Unexpected column type: " + sqliteType);
+#endif
+                    return "INTEGER";
+            }
         }
 
         public override Type GetFieldType(int ordinal)
         {
-            CheckClosed("GetFieldType");
+            if (_closed)
+            {
+                throw new InvalidOperationException(Strings.FormatDataReaderClosed("GetFieldType"));
+            }
 
-            return GetTypeMap(ordinal).ClrType;
+            var sqliteType = GetSqliteType(ordinal);
+            switch (sqliteType)
+            {
+                case Constants.SQLITE_INTEGER:
+                    return typeof(long);
+
+                case Constants.SQLITE_FLOAT:
+                    return typeof(double);
+
+                case Constants.SQLITE_TEXT:
+                    return typeof(string);
+
+                case Constants.SQLITE_BLOB:
+                    return typeof(byte[]);
+
+                case Constants.SQLITE_NULL:
+                    return typeof(int);
+
+                default:
+#if !NETCORE451
+                    Debug.Fail("Unexpected column type: " + sqliteType);
+#endif
+                    return typeof(int);
+            }
         }
 
-        private SqliteTypeMap GetTypeMap(int ordinal)
+        private int GetSqliteType(int ordinal)
         {
-            return SqliteTypeMap.FromDeclaredType(GetDataTypeName(ordinal), GetSqliteType(ordinal));
-        }
+            var type = NativeMethods.sqlite3_column_type(_stmt, ordinal);
+            if (type == Constants.SQLITE_NULL && (ordinal < 0 || ordinal >= FieldCount))
+            {
+                // NB: Message is provided by the framework
+                throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
+            }
 
-        private SqliteType GetSqliteType(int ordinal)
-        {
-            Debug.Assert(!_closed, "_closed is true.");
-
-            return (SqliteType)NativeMethods.sqlite3_column_type(_currentHandle, ordinal);
+            return type;
         }
 
         public override bool IsDBNull(int ordinal)
         {
-            CheckClosed("IsDBNull");
+            if (_closed)
+            {
+                throw new InvalidOperationException(Strings.FormatDataReaderClosed("IsDBNull"));
+            }
+            if (!_stepped || _done)
+            {
+                throw new InvalidOperationException(Strings.NoData);
+            }
 
-            return GetSqliteType(ordinal) == SqliteType.Null;
+            return GetSqliteType(ordinal) == Constants.SQLITE_NULL;
         }
 
-        public override bool GetBoolean(int ordinal)
-        {
-            CheckClosed("GetBoolean");
-
-            return GetFieldValue<bool>(ordinal);
-        }
-
-        public override byte GetByte(int ordinal)
-        {
-            CheckClosed("GetByte");
-
-            return GetFieldValue<byte>(ordinal);
-        }
-
-        public override char GetChar(int ordinal)
-        {
-            CheckClosed("GetChar");
-
-            return GetFieldValue<char>(ordinal);
-        }
-
-        public override DateTime GetDateTime(int ordinal)
-        {
-            CheckClosed("GetDateTime");
-
-            return GetFieldValue<DateTime>(ordinal);
-        }
-
-        public override decimal GetDecimal(int ordinal)
-        {
-            CheckClosed("GetDecimal");
-
-            return GetFieldValue<decimal>(ordinal);
-        }
+        public override bool GetBoolean(int ordinal) => GetInt64(ordinal) != 0;
+        public override byte GetByte(int ordinal) => (byte)GetInt64(ordinal);
+        public override char GetChar(int ordinal) => (char)GetInt64(ordinal);
+        public override DateTime GetDateTime(int ordinal) => DateTime.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+        public override decimal GetDecimal(int ordinal) => decimal.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
 
         public override double GetDouble(int ordinal)
         {
-            CheckClosed("GetDouble");
+            if (IsDBNull(ordinal))
+            {
+                throw new InvalidCastException();
+            }
 
-            return GetFieldValue<double>(ordinal);
+            return NativeMethods.sqlite3_column_double(_stmt, ordinal);
         }
 
-        public override float GetFloat(int ordinal)
-        {
-            CheckClosed("GetFloat");
-
-            return GetFieldValue<float>(ordinal);
-        }
-
-        public override Guid GetGuid(int ordinal)
-        {
-            CheckClosed("GetGuid");
-
-            return GetFieldValue<Guid>(ordinal);
-        }
-
-        public override short GetInt16(int ordinal)
-        {
-            CheckClosed("GetInt16");
-
-            return GetFieldValue<short>(ordinal);
-        }
-
-        public override int GetInt32(int ordinal)
-        {
-            CheckClosed("GetInt32");
-
-            return GetFieldValue<int>(ordinal);
-        }
+        public override float GetFloat(int ordinal) => (float)GetDouble(ordinal);
+        public override Guid GetGuid(int ordinal) => new Guid(GetBlob(ordinal));
+        public override short GetInt16(int ordinal) => (short)GetInt64(ordinal);
+        public override int GetInt32(int ordinal) => (int)GetInt64(ordinal);
 
         public override long GetInt64(int ordinal)
         {
-            CheckClosed("GetInt64");
+            if (IsDBNull(ordinal))
+            {
+                throw new InvalidCastException();
+            }
 
-            return GetFieldValue<long>(ordinal);
+            return NativeMethods.sqlite3_column_int64(_stmt, ordinal);
         }
 
         public override string GetString(int ordinal)
         {
-            CheckClosed("GetString");
+            if (IsDBNull(ordinal))
+            {
+                throw new InvalidCastException();
+            }
 
-            return GetFieldValue<string>(ordinal);
+            return NativeMethods.sqlite3_column_text16(_stmt, ordinal);
         }
 
         public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
@@ -311,52 +326,152 @@ namespace Microsoft.Data.Sqlite
 
         public override T GetFieldValue<T>(int ordinal)
         {
-            CheckClosed("GetFieldValue");
-
-            if (typeof(T) == typeof(object))
+            if (typeof(T) == typeof(bool))
             {
-                return (T)GetValue(ordinal);
+                return (T)(object)GetBoolean(ordinal);
+            }
+            else if (typeof(T) == typeof(byte))
+            {
+                return (T)(object)GetByte(ordinal);
+            }
+            else if (typeof(T) == typeof(byte[]))
+            {
+                return (T)(object)GetBlob(ordinal);
+            }
+            else if (typeof(T) == typeof(char))
+            {
+                return (T)(object)GetChar(ordinal);
+            }
+            else if (typeof(T) == typeof(DateTime))
+            {
+                return (T)(object)GetDateTime(ordinal);
+            }
+            else if (typeof(T) == typeof(DateTimeOffset))
+            {
+                return (T)(object)DateTimeOffset.Parse(GetString(ordinal));
+            }
+            else if (typeof(T) == typeof(DBNull))
+            {
+                if (!_stepped || _done)
+                {
+                    throw new InvalidOperationException(Strings.NoData);
+                }
+
+                return (T)(object)DBNull.Value;
+            }
+            else if (typeof(T) == typeof(decimal))
+            {
+                return (T)(object)GetDecimal(ordinal);
+            }
+            else if (typeof(T) == typeof(double))
+            {
+                return (T)(object)GetDouble(ordinal);
+            }
+            else if (typeof(T) == typeof(float))
+            {
+                return (T)(object)GetFloat(ordinal);
+            }
+            else if (typeof(T) == typeof(Guid))
+            {
+                return (T)(object)GetGuid(ordinal);
+            }
+            else if (typeof(T) == typeof(int))
+            {
+                return (T)(object)GetInt32(ordinal);
+            }
+            else if (typeof(T) == typeof(long))
+            {
+                return (T)(object)GetInt64(ordinal);
+            }
+            else if (typeof(T) == typeof(sbyte))
+            {
+                return (T)(object)((sbyte)GetInt64(ordinal));
+            }
+            else if (typeof(T) == typeof(short))
+            {
+                return (T)(object)GetInt16(ordinal);
+            }
+            else if (typeof(T) == typeof(string))
+            {
+                return (T)(object)GetString(ordinal);
+            }
+            else if (typeof(T) == typeof(TimeSpan))
+            {
+                return (T)(object)TimeSpan.Parse(GetString(ordinal));
+            }
+            else if (typeof(T) == typeof(uint))
+            {
+                return (T)(object)((uint)GetInt64(ordinal));
+            }
+            else if (typeof(T) == typeof(ulong))
+            {
+                return (T)(object)((ulong)GetInt64(ordinal));
+            }
+            else if (typeof(T) == typeof(ushort))
+            {
+                return (T)(object)((ushort)GetInt64(ordinal));
             }
 
-            var map = SqliteTypeMap.FromClrType<T>();
-            var value = ColumnReader.Read(map.SqliteType, _currentHandle, ordinal);
-
-            return (T)map.FromInterop(value);
+            return base.GetFieldValue<T>(ordinal);
         }
 
         public override object GetValue(int ordinal)
         {
-            CheckClosed("GetValue");
-
-            if (IsDBNull(ordinal))
+            if (_closed)
             {
-                return DBNull.Value;
+                throw new InvalidOperationException(Strings.FormatDataReaderClosed("GetValue"));
             }
 
-            var map = GetTypeMap(ordinal);
-            var value = ColumnReader.Read(map.SqliteType, _currentHandle, ordinal);
+            var sqliteType = GetSqliteType(ordinal);
+            switch (sqliteType)
+            {
+                case Constants.SQLITE_INTEGER:
+                    return GetInt64(ordinal);
 
-            return map.FromInterop(value);
+                case Constants.SQLITE_FLOAT:
+                    return GetDouble(ordinal);
+
+                case Constants.SQLITE_TEXT:
+                    return GetString(ordinal);
+
+                case Constants.SQLITE_BLOB:
+                    return GetBlob(ordinal);
+
+                case Constants.SQLITE_NULL:
+                    if (!_stepped || _done)
+                    {
+                        throw new InvalidOperationException(Strings.NoData);
+                    }
+
+                    return DBNull.Value;
+
+                default:
+#if !NETCORE451
+                    Debug.Fail("Unexpected column type: " + sqliteType);
+#endif
+                    return GetInt32(ordinal);
+            }
         }
 
         public override int GetValues(object[] values)
         {
-            CheckClosed("GetValues");
-
-            for (var i = 0; i < FieldCount; i++)
+            int i;
+            for (i = 0; i < FieldCount; i++)
             {
                 values[i] = GetValue(i);
             }
 
-            return FieldCount;
+            return i;
         }
 
-        private void CheckClosed(string operation)
+        private byte[] GetBlob(int ordinal)
         {
-            if (_closed)
+            if (IsDBNull(ordinal))
             {
-                throw new InvalidOperationException(Strings.FormatDataReaderClosed(operation));
+                throw new InvalidCastException();
             }
+
+            return NativeMethods.sqlite3_column_blob(_stmt, ordinal);
         }
     }
 }
