@@ -113,12 +113,12 @@ namespace Microsoft.Data.Entity.Query
 
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
-            if (resultOperator is ValueFromSequenceResultOperatorBase 
-                && !(resultOperator is ChoiceResultOperatorBase) 
-                && !queryModel.ResultOperators.Any(r => r is TakeResultOperator) 
+            if (resultOperator is ValueFromSequenceResultOperatorBase
+                && !(resultOperator is ChoiceResultOperatorBase)
+                && !queryModel.ResultOperators.Any(r => r is TakeResultOperator)
                 && !queryModel.ResultOperators.Any(r => r is SkipResultOperator))
             {
-                for (int i = queryModel.BodyClauses.Count - 1; i >= 0; i--)
+                for (var i = queryModel.BodyClauses.Count - 1; i >= 0; i--)
                 {
                     if (queryModel.BodyClauses[i] is OrderByClause)
                     {

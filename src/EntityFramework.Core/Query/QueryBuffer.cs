@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Query
                             // TODO: Optimize this by not materializing when not required for query execution. i.e.
                             //       entity is only needed in final results
                             Instance = entityLoadInfo.Materialize()
-                    };
+                        };
 
                 _byEntityKey.Add(entityKey, bufferedEntity);
                 _byEntityInstance.Add(bufferedEntity.Instance, new List<BufferedEntity> { bufferedEntity });
@@ -268,29 +268,28 @@ namespace Microsoft.Data.Entity.Query
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
-                    .Select(async (eli, ct) =>
-                        {
-                            var targetEntity
-                                = GetTargetEntity(
-                                    targetEntityType,
-                                    entityKeyFactory,
-                                    keyProperties,
-                                    eli,
-                                    bufferedEntities,
-                                    querySourceRequiresTracking);
+                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory), async (eli, ct) =>
+                    {
+                        var targetEntity
+                            = GetTargetEntity(
+                                targetEntityType,
+                                entityKeyFactory,
+                                keyProperties,
+                                eli,
+                                bufferedEntities,
+                                querySourceRequiresTracking);
 
-                            await IncludeAsync(
-                                targetEntity,
-                                navigationPath,
-                                relatedEntitiesLoaders,
-                                ct,
-                                currentNavigationIndex + 1,
-                                querySourceRequiresTracking)
-                                .WithCurrentCulture();
+                        await IncludeAsync(
+                            targetEntity,
+                            navigationPath,
+                            relatedEntitiesLoaders,
+                            ct,
+                            currentNavigationIndex + 1,
+                            querySourceRequiresTracking)
+                            .WithCurrentCulture();
 
-                            return targetEntity;
-                        })
+                        return targetEntity;
+                    })
                     .Where(e => e != null)
                     .ToList(cancellationToken)
                     .WithCurrentCulture());

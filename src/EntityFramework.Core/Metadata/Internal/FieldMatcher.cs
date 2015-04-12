@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -12,10 +11,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual FieldInfo TryMatchFieldName(
             IProperty property, PropertyInfo propertyInfo, Dictionary<string, FieldInfo> dclaredFields)
         {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
-            Check.NotNull(dclaredFields, nameof(dclaredFields));
-
             var propertyName = propertyInfo.Name;
             var propertyType = propertyInfo.PropertyType.GetTypeInfo();
 

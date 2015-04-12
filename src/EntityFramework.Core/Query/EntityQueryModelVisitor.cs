@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Query
 
             foreach (var include
                 in from queryAnnotation in QueryCompilationContext.QueryAnnotations
-                   let includeResultOperator = queryAnnotation.ResultOperator as IncludeResultOperator
+                    let includeResultOperator = queryAnnotation.ResultOperator as IncludeResultOperator
                     where includeResultOperator != null
                     let navigationPath
                         = BindNavigationPathMemberExpression(
@@ -229,7 +229,7 @@ namespace Microsoft.Data.Entity.Query
                             (ns, _) => BindChainedNavigations(ns, includeResultOperator.ChainedNavigationProperties).ToArray())
                     orderby navigationPath != null
                             && navigationPath.First().PointsToPrincipal()
-                   select new
+                    select new
                         {
                             navigationPath,
                             queryAnnotation.QuerySource,

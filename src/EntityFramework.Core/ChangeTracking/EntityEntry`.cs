@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     ///         Provides access to change tracking information and operations for a given entity.
     ///     </para>
     ///     <para>
-    ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker"/> API and it is 
+    ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker" /> API and it is
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
@@ -25,9 +25,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         where TEntity : class
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EntityEntry{TEntity}"/> class. Instances of this class are returned from 
-        ///     methods when using the <see cref="ChangeTracker"/> API and it is not designed to be directly constructed in 
-        ///     your application code.
+        ///     Initializes a new instance of the <see cref="EntityEntry{TEntity}" /> class. Instances of this class are returned
+        ///     from methods when using the <see cref="ChangeTracker" /> API and it is not designed to be directly
+        ///     constructed in your application code.
         /// </summary>
         /// <param name="context"> The context that is tracking the entity. </param>
         /// <param name="internalEntry"> The internal entry tracking information about this entity. </param>
@@ -45,9 +45,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     Provides access to change tracking information and operations for a given
         ///     property of this entity.
         /// </summary>
-        /// <param name="propertyExpression"> 
+        /// <param name="propertyExpression">
         ///     A lambda expression representing the property to access information and operations for
-        ///     (<c>t => t.Property1</c>). 
+        ///     (<c>t => t.Property1</c>).
         /// </param>
         /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
         public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (property.ClrType != typeof(TProperty))
             {
-                throw new ArgumentException(Strings.WrongGenericPropertyType(propertyName,property.EntityType.Name, property.ClrType.Name,typeof(TProperty).Name));
+                throw new ArgumentException(Strings.WrongGenericPropertyType(propertyName, property.EntityType.Name, property.ClrType.Name, typeof(TProperty).Name));
             }
 
             return new PropertyEntry<TEntity, TProperty>(((IAccessor<InternalEntityEntry>)this).Service, propertyName);

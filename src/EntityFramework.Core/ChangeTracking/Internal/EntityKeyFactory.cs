@@ -10,12 +10,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public abstract class EntityKeyFactory
     {
-        [NotNull]
         public abstract EntityKey Create(
-            [NotNull] IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IValueReader valueReader);
+            [NotNull] IEntityType entityType, 
+            [NotNull] IReadOnlyList<IProperty> properties, 
+            [NotNull] IValueReader valueReader);
 
-        [NotNull]
         public abstract EntityKey Create(
-            [NotNull] IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IPropertyAccessor propertyAccessor);
+            [NotNull] IEntityType entityType, 
+            [NotNull] IReadOnlyList<IProperty> properties, 
+            [NotNull] IPropertyAccessor propertyAccessor);
     }
 }

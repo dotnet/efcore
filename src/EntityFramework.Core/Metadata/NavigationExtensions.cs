@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class NavigationExtensions
     {
-        public static bool PointsToPrincipal([NotNull] this INavigation navigation) 
+        public static bool PointsToPrincipal([NotNull] this INavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).ForeignKey.DependentToPrincipal == navigation;
 
         public static bool IsCollection([NotNull] this INavigation navigation)

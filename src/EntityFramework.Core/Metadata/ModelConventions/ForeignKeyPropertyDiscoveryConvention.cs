@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             {
                 var foreignKey = relationshipBuilder.Metadata;
                 var foreignKeyProperties = GetCandidateForeignKeyProperties(foreignKey, onDependent: true);
-                
+
                 if (((IForeignKey)foreignKey).IsUnique
                     && !foreignKey.IsSelfReferencing())
                 {
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         private bool ShouldFlip(ForeignKey foreignKey, IReadOnlyList<Property> currentDependentCandidateProperties)
         {
             var currentPrincipalCandidateProperties = GetCandidateForeignKeyProperties(foreignKey, onDependent: false);
-            
+
             if (currentDependentCandidateProperties != null
                 && currentPrincipalCandidateProperties == null)
             {
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
             var model = foreignKey.EntityType.Model;
             var principalPk = foreignKey.PrincipalEntityType.FindPrimaryKey();
-            var principalPkReferenceThreshold = foreignKey.PrincipalKey == principalPk? 1 : 0;
+            var principalPkReferenceThreshold = foreignKey.PrincipalKey == principalPk ? 1 : 0;
             var isPrincipalKeyReferenced = principalPk != null && model.GetReferencingForeignKeys(principalPk).Count > principalPkReferenceThreshold;
             var dependentPk = foreignKey.EntityType.FindPrimaryKey();
             var isDependentPrimaryKeyReferenced = dependentPk != null && model.GetReferencingForeignKeys(dependentPk).Count > 0;
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             {
                 return true;
             }
-            
+
             return StringComparer.Ordinal.Compare(foreignKey.PrincipalEntityType.Name, foreignKey.EntityType.Name) > 0;
         }
 
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     return match;
                 }
             }
-            
+
             return null;
         }
 
@@ -162,8 +162,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var foreignKeyProperties = new List<Property>();
             foreach (var referencedProperty in propertiesToReference)
             {
-                var property = TryGetProperty(entityType, baseName 
-                    + referencedProperty.Name, referencedProperty.ClrType.UnwrapNullableType());
+                var property = TryGetProperty(entityType, baseName
+                                                          + referencedProperty.Name, referencedProperty.ClrType.UnwrapNullableType());
 
                 if (property != null)
                 {
@@ -210,8 +210,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             foreach (var property in entityType.Properties)
             {
                 if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
-                        && !property.IsShadowProperty
-                        && property.ClrType.UnwrapNullableType() == type)
+                    && !property.IsShadowProperty
+                    && property.ClrType.UnwrapNullableType() == type)
                 {
                     return property;
                 }

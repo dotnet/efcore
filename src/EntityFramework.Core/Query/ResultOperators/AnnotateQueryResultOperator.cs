@@ -28,8 +28,8 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         public override string ToString()
         {
             return "AnnotateQuery("
-                + FormattingExpressionTreeVisitor.Format(_annotationExpression)
-                + ")";
+                   + FormattingExpressionTreeVisitor.Format(_annotationExpression)
+                   + ")";
         }
 
         public override ResultOperatorBase Clone([NotNull] CloneContext cloneContext)

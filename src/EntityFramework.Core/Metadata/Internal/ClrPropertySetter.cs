@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -14,16 +13,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public ClrPropertySetter([NotNull] Action<TEntity, TValue> setter)
         {
-            Check.NotNull(setter, nameof(setter));
-
             _setter = setter;
         }
 
-        public virtual void SetClrValue(object instance, object value)
-        {
-            Check.NotNull(instance, nameof(instance));
-
-            _setter((TEntity)instance, (TValue)value);
-        }
+        public virtual void SetClrValue(object instance, object value) 
+            => _setter((TEntity)instance, (TValue)value);
     }
 }

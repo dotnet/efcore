@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -21,9 +20,9 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
             [NotNull] MethodCallExpressionParseInfo parseInfo,
             [NotNull] ConstantExpression annotationExpression)
             : base(
-                  Check.NotNull(parseInfo, nameof(parseInfo)),
-                  null,
-                  null)
+                Check.NotNull(parseInfo, nameof(parseInfo)),
+                null,
+                null)
         {
             Check.NotNull(annotationExpression, nameof(annotationExpression));
 

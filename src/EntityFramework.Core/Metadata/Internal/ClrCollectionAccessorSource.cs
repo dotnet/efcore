@@ -26,15 +26,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public ClrCollectionAccessorSource([NotNull] ICollectionTypeFactory collectionTypeFactory)
         {
-            Check.NotNull(collectionTypeFactory, nameof(collectionTypeFactory));
-
             _collectionTypeFactory = collectionTypeFactory;
         }
 
         public virtual IClrCollectionAccessor GetAccessor(INavigation navigation)
         {
-            Check.NotNull(navigation, nameof(navigation));
-
             var accessor = navigation as IClrCollectionAccessor;
 
             if (accessor != null)

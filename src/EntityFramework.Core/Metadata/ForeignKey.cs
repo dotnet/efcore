@@ -64,7 +64,8 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual Navigation PrincipalToDependent
         {
             get { return _principalToDependent; }
-            [param: CanBeNull] set
+            [param: CanBeNull]
+            set
             {
                 CheckNavigation(value, _dependentToPrincipal);
 

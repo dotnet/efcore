@@ -9,7 +9,16 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public interface INavigationListener
     {
-        void NavigationReferenceChanged([NotNull] InternalEntityEntry entry, [NotNull] INavigation navigation, [CanBeNull] object oldValue, [CanBeNull] object newValue);
-        void NavigationCollectionChanged([NotNull] InternalEntityEntry entry, [NotNull] INavigation navigation, [NotNull] ISet<object> added, [NotNull] ISet<object> removed);
+        void NavigationReferenceChanged(
+            [NotNull] InternalEntityEntry entry, 
+            [NotNull] INavigation navigation, 
+            [CanBeNull] object oldValue, 
+            [CanBeNull] object newValue);
+
+        void NavigationCollectionChanged(
+            [NotNull] InternalEntityEntry entry, 
+            [NotNull] INavigation navigation, 
+            [NotNull] ISet<object> added, 
+            [NotNull] ISet<object> removed);
     }
 }

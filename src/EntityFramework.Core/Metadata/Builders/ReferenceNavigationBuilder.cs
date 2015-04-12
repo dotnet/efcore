@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     Gets the internal builder being used to configure the relationship.
         /// </summary>
         InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => _builder;
-        
+
         /// <summary>
         ///     Configures this as a one-to-many relationship.
         /// </summary>
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual CollectionReferenceBuilder InverseCollection([CanBeNull] string collection = null) 
+        public virtual CollectionReferenceBuilder InverseCollection([CanBeNull] string collection = null)
             => new CollectionReferenceBuilder(InverseCollectionBuilder(collection));
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceReferenceBuilder InverseReference([CanBeNull] string inverseReference = null) 
+        public virtual ReferenceReferenceBuilder InverseReference([CanBeNull] string inverseReference = null)
             => new ReferenceReferenceBuilder(InverseReferenceBuilder(inverseReference));
 
         /// <summary>

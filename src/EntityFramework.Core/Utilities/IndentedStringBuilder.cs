@@ -21,9 +21,9 @@ namespace Microsoft.Data.Entity.Utilities
         {
         }
 
-        public IndentedStringBuilder([NotNull]IndentedStringBuilder from)
+        public IndentedStringBuilder([NotNull] IndentedStringBuilder from)
         {
-            Check.NotNull<IndentedStringBuilder>(from, nameof(from));
+            Check.NotNull(from, nameof(from));
 
             _indent = from._indent;
         }
@@ -74,7 +74,6 @@ namespace Microsoft.Data.Entity.Utilities
 
             return this;
         }
-
 
         public virtual IndentedStringBuilder IncrementIndent()
         {

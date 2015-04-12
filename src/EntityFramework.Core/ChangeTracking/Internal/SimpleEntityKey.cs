@@ -44,7 +44,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                ^ _equalityComparer.GetHashCode(_keyValue);
 
         [UsedImplicitly]
-        private string DebuggerDisplay
-            => string.Format("{0}({1})", _entityType.Name, string.Join(", ", _keyValue));
+        private string DebuggerDisplay => $"{_entityType.Name}({string.Join(", ", _keyValue)})";
     }
 }

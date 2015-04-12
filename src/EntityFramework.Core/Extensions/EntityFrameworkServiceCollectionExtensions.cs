@@ -7,7 +7,6 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
@@ -80,8 +79,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<IFieldMatcher, FieldMatcher>()
                 .AddSingleton<IOriginalValuesFactory, OriginalValuesFactory>()
                 .AddSingleton<IRelationshipsSnapshotFactory, RelationshipsSnapshotFactory>()
-                .AddSingleton<IStoreGeneratedValuesFactory,StoreGeneratedValuesFactory>()
-                .AddSingleton<IEntityEntryMetadataServices,EntityEntryMetadataServices>()
+                .AddSingleton<IStoreGeneratedValuesFactory, StoreGeneratedValuesFactory>()
+                .AddSingleton<IEntityEntryMetadataServices, EntityEntryMetadataServices>()
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
                 .AddSingleton<IBoxedValueReaderSource, BoxedValueReaderSource>()
@@ -114,10 +113,10 @@ namespace Microsoft.Framework.DependencyInjection
             return new EntityFrameworkServicesBuilder(serviceCollection);
         }
 
-    private static IDbContextServices GetContextServices(IServiceProvider serviceProvider)
-        => serviceProvider.GetRequiredService<IDbContextServices>();
+        private static IDbContextServices GetContextServices(IServiceProvider serviceProvider)
+            => serviceProvider.GetRequiredService<IDbContextServices>();
 
-    private static IDataStoreServices GetStoreServices(IServiceProvider serviceProvider)
-        => GetContextServices(serviceProvider).DataStoreServices;
+        private static IDataStoreServices GetStoreServices(IServiceProvider serviceProvider)
+            => GetContextServices(serviceProvider).DataStoreServices;
     }
 }

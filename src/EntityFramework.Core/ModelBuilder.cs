@@ -95,9 +95,7 @@ namespace Microsoft.Data.Entity
         /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> Entity<TEntity>() where TEntity : class
-        {
-            return new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
-        }
+            => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
@@ -169,9 +167,7 @@ namespace Microsoft.Data.Entity
         /// </summary>
         /// <typeparam name="TEntity"> The  entity type to be removed from the model. </typeparam>
         public virtual void Ignore<TEntity>() where TEntity : class
-        {
-            Ignore(typeof(TEntity));
-        }
+            => Ignore(typeof(TEntity));
 
         /// <summary>
         ///     Excludes the given entity type from the model. This method is typically used to remove types from

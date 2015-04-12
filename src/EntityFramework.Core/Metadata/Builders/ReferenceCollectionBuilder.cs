@@ -122,10 +122,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder Required(bool required = true)
-        {
-            return new ReferenceCollectionBuilder(Builder.Required(required, ConfigurationSource.Explicit));
-        }
+        public virtual ReferenceCollectionBuilder Required(bool required = true) 
+            => new ReferenceCollectionBuilder(Builder.Required(required, ConfigurationSource.Explicit));
 
         private InternalRelationshipBuilder Builder => ((IAccessor<InternalRelationshipBuilder>)this).Service;
     }

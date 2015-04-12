@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -41,7 +40,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual ILogger Logger => _logger.Value;
 
-        protected virtual IQueryBuffer CreateQueryBuffer() 
+        protected virtual IQueryBuffer CreateQueryBuffer()
             => new QueryBuffer(_stateManager, _entityKeyFactorySource, _collectionAccessorSource, _propertySetterSource);
 
         public abstract QueryContext CreateQueryContext();

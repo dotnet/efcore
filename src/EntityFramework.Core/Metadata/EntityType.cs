@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -29,7 +28,6 @@ namespace Microsoft.Data.Entity.Metadata
             = new SortedDictionary<IReadOnlyList<Property>, Index>(PropertyListComparer.Instance);
 
         private readonly SortedDictionary<string, Property> _properties;
-
 
         private readonly SortedDictionary<IReadOnlyList<Property>, Key> _keys
             = new SortedDictionary<IReadOnlyList<Property>, Key>(PropertyListComparer.Instance);
@@ -1106,14 +1104,16 @@ namespace Microsoft.Data.Entity.Metadata
 
                 // Neither property is part of the Primary Key
                 // Compare the property names
-                if (xIndex == -1 && yIndex == -1)
+                if (xIndex == -1
+                    && yIndex == -1)
                 {
                     return StringComparer.Ordinal.Compare(x, y);
                 }
 
                 // Both properties are part of the Primary Key
                 // Compare the indices
-                if (xIndex > -1 && yIndex > -1)
+                if (xIndex > -1
+                    && yIndex > -1)
                 {
                     return xIndex - yIndex;
                 }

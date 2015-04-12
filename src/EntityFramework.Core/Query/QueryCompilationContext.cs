@@ -52,10 +52,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual ICollection<QueryAnnotation> QueryAnnotations
         {
-            get
-            {
-                return _queryAnnotations;
-            }
+            get { return _queryAnnotations; }
             [param: NotNull]
             set
             {

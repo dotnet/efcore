@@ -55,19 +55,19 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual void StateChanging(InternalEntityEntry entry, EntityState newState) 
+        public virtual void StateChanging(InternalEntityEntry entry, EntityState newState)
             => Dispatch(l => l.StateChanging(entry, newState));
 
-        public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState) 
+        public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState)
             => Dispatch(l => l.StateChanged(entry, oldState));
 
-        public virtual void ForeignKeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue) 
+        public virtual void ForeignKeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
             => Dispatch(l => l.ForeignKeyPropertyChanged(entry, property, oldValue, newValue));
 
-        public virtual void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue) 
+        public virtual void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
             => Dispatch(l => l.NavigationReferenceChanged(entry, navigation, oldValue, newValue));
 
-        public virtual void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed) 
+        public virtual void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
             => Dispatch(l => l.NavigationCollectionChanged(entry, navigation, added, removed));
 
         public virtual void PrincipalKeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)

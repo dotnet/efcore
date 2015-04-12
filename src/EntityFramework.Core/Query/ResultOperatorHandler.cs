@@ -240,8 +240,8 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static Expression HandleOfType(
-           EntityQueryModelVisitor entityQueryModelVisitor,
-           OfTypeResultOperator ofTypeResultOperator)
+            EntityQueryModelVisitor entityQueryModelVisitor,
+            OfTypeResultOperator ofTypeResultOperator)
         {
             return Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.OfType

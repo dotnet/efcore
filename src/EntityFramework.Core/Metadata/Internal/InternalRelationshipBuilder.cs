@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -26,9 +25,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource? initialConfigurationSource)
             : base(foreignKey, modelBuilder)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
             _foreignKeyPropertiesConfigurationSource = initialConfigurationSource;
             _principalKeyConfigurationSource = initialConfigurationSource;
             _isUniqueConfigurationSource = initialConfigurationSource;
@@ -207,21 +203,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalRelationshipBuilder ForeignKey([CanBeNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
-        {
-            return ForeignKey(
+            => ForeignKey(
                 ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
                     .GetOrCreateProperties(properties, configurationSource),
                 configurationSource);
-        }
 
         public virtual InternalRelationshipBuilder ForeignKey([CanBeNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
-        {
-            return ForeignKey(
+            => ForeignKey(
                 ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
                     .GetOrCreateProperties(propertyNames, configurationSource),
                 configurationSource);
-        }
 
         public virtual InternalRelationshipBuilder ForeignKey([CanBeNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource)
@@ -260,23 +252,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] Type specifiedDependentType,
             [CanBeNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
-        {
-            Check.NotNull(specifiedDependentType, nameof(specifiedDependentType));
-
-            return ForeignInvertIfNeeded(ResolveType(specifiedDependentType), configurationSource)
+            => ForeignInvertIfNeeded(ResolveType(specifiedDependentType), configurationSource)
                 .ForeignKey(properties, configurationSource);
-        }
 
         public virtual InternalRelationshipBuilder ForeignKey(
             [NotNull] Type specifiedDependentType,
             [CanBeNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
-        {
-            Check.NotNull(specifiedDependentType, nameof(specifiedDependentType));
-
-            return ForeignInvertIfNeeded(ResolveType(specifiedDependentType), configurationSource)
+            => ForeignInvertIfNeeded(ResolveType(specifiedDependentType), configurationSource)
                 .ForeignKey(propertyNames, configurationSource);
-        }
 
         private InternalRelationshipBuilder ForeignInvertIfNeeded(EntityType entityType, ConfigurationSource configurationSource)
         {
@@ -288,21 +272,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalRelationshipBuilder PrincipalKey([CanBeNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
-        {
-            return PrincipalKey(
+            => PrincipalKey(
                 ModelBuilder.Entity(Metadata.PrincipalEntityType.Name, configurationSource)
                     .GetOrCreateProperties(properties, configurationSource),
                 configurationSource);
-        }
 
         public virtual InternalRelationshipBuilder PrincipalKey([CanBeNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
-        {
-            return PrincipalKey(
+            => PrincipalKey(
                 ModelBuilder.Entity(Metadata.PrincipalEntityType.Name, configurationSource)
                     .GetOrCreateProperties(propertyNames, configurationSource),
                 configurationSource);
-        }
 
         public virtual InternalRelationshipBuilder PrincipalKey([CanBeNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource)
@@ -364,23 +344,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] Type specifiedPrincipalType,
             [CanBeNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
-        {
-            Check.NotNull(specifiedPrincipalType, nameof(specifiedPrincipalType));
-
-            return ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalType), configurationSource)
+            => ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalType), configurationSource)
                 .PrincipalKey(properties, configurationSource);
-        }
 
         public virtual InternalRelationshipBuilder PrincipalKey(
             [NotNull] Type specifiedPrincipalType,
             [CanBeNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
-        {
-            Check.NotNull(specifiedPrincipalType, nameof(specifiedPrincipalType));
-
-            return ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalType), configurationSource)
+            => ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalType), configurationSource)
                 .PrincipalKey(propertyNames, configurationSource);
-        }
 
         private InternalRelationshipBuilder ReferenceInvertIfNeeded(EntityType entityType, ConfigurationSource configurationSource)
         {
@@ -450,14 +422,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             bool? isRequired,
             ConfigurationSource configurationSource)
         {
-            var entityTypeBuilder = ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource);
-            var replacedConfigurationSource = entityTypeBuilder.RemoveRelationship(Metadata, ConfigurationSource.Explicit);
-            if (!replacedConfigurationSource.HasValue)
-            {
-                return null;
-            }
+            var replacedConfigurationSource = ModelBuilder
+                .Entity(Metadata.EntityType.Name, configurationSource)
+                .RemoveRelationship(Metadata, ConfigurationSource.Explicit);
 
-            return AddRelationship(principalType, dependentType, navigationToPrincipalName, navigationToDependentName, foreignKeyProperties, principalProperties, isUnique, isRequired, configurationSource, replacedConfigurationSource);
+            return !replacedConfigurationSource.HasValue
+                ? null
+                : AddRelationship(
+                    principalType, 
+                    dependentType, 
+                    navigationToPrincipalName, 
+                    navigationToDependentName, 
+                    foreignKeyProperties, 
+                    principalProperties, 
+                    isUnique, 
+                    isRequired, 
+                    configurationSource, 
+                    replacedConfigurationSource);
         }
 
         private InternalRelationshipBuilder AddRelationship(

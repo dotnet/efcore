@@ -31,8 +31,8 @@ namespace Microsoft.Data.Entity.Query
             foreach (var resultOperator
                 in queryModel.ResultOperators
                     .Where(ro => ro is IncludeResultOperator
-                            || ro is AsNoTrackingResultOperator
-                            || ro is AnnotateQueryResultOperator)
+                                 || ro is AsNoTrackingResultOperator
+                                 || ro is AnnotateQueryResultOperator)
                     .ToList())
             {
                 queryAnnotations.Add(

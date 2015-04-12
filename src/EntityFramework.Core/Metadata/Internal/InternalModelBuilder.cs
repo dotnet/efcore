@@ -23,8 +23,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public InternalModelBuilder([NotNull] Model metadata, [NotNull] ConventionSet conventions)
             : base(metadata)
         {
-            Check.NotNull(conventions, nameof(conventions));
-
             ConventionDispatcher = new ConventionDispatcher(conventions);
         }
 
@@ -34,14 +32,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalEntityTypeBuilder Entity([NotNull] string name, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(name, nameof(name));
-
-            if (!CanAdd(name, configurationSource))
-            {
-                return null;
-            }
-
-            return _entityTypeBuilders.GetOrAdd(
+            return !CanAdd(name, configurationSource) 
+                ? null 
+                : _entityTypeBuilders.GetOrAdd(
                 () => Metadata.FindEntityType(name),
                 () => Metadata.AddEntityType(name),
                 entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
@@ -51,14 +44,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalEntityTypeBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
         {
-            Check.NotNull(type, nameof(type));
-
-            if (!CanAdd(type.FullName, configurationSource))
-            {
-                return null;
-            }
-
-            return _entityTypeBuilders.GetOrAdd(
+            return !CanAdd(type.FullName, configurationSource) 
+                ? null 
+                : _entityTypeBuilders.GetOrAdd(
                 () => Metadata.FindEntityType(type),
                 () => Metadata.AddEntityType(type),
                 entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
@@ -88,17 +76,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
-        public virtual bool Ignore([NotNull] Type type, ConfigurationSource configurationSource)
-        {
-            Check.NotNull(type, nameof(type));
-
-            return Ignore(type.FullName, configurationSource);
-        }
+        public virtual bool Ignore([NotNull] Type type, ConfigurationSource configurationSource) 
+            => Ignore(type.FullName, configurationSource);
 
         public virtual bool Ignore([NotNull] string name, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(name, nameof(name));
-
             ConfigurationSource ignoredConfigurationSource;
             if (_ignoredEntityTypeNames.Value.TryGetValue(name, out ignoredConfigurationSource))
             {
@@ -186,9 +168,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return roots;
         }
 
-        public virtual InternalModelBuilder Initialize()
-        {
-            return ConventionDispatcher.InitializingModel(this);
-        }
+        public virtual InternalModelBuilder Initialize() 
+            => ConventionDispatcher.InitializingModel(this);
     }
 }

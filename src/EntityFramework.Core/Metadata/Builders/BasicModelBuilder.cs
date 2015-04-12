@@ -26,15 +26,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             _builder = new InternalModelBuilder(model, new ConventionSet());
         }
 
-        public virtual Model Model
-        {
-            get { return Metadata; }
-        }
+        public virtual Model Model => Metadata;
 
-        public virtual Model Metadata
-        {
-            get { return Builder.Metadata; }
-        }
+        public virtual Model Metadata => Builder.Metadata;
 
         public virtual BasicModelBuilder Annotation([NotNull] string annotation, [NotNull] object value)
         {
@@ -46,15 +40,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
-        protected virtual InternalModelBuilder Builder
-        {
-            get { return _builder; }
-        }
+        protected virtual InternalModelBuilder Builder => _builder;
 
-        public virtual EntityTypeBuilder<TEntity> Entity<TEntity>() where TEntity : class
-        {
-            return new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
-        }
+        public virtual EntityTypeBuilder<TEntity> Entity<TEntity>() where TEntity : class 
+            => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
 
         public virtual EntityTypeBuilder Entity([NotNull] Type entityType)
         {
@@ -120,10 +109,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 return this;
             }
 
-            public virtual EntityType Metadata
-            {
-                get { return Builder.Metadata; }
-            }
+            public virtual EntityType Metadata => Builder.Metadata;
 
             public virtual KeyBuilder Key([NotNull] params string[] propertyNames)
             {
@@ -173,10 +159,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
                 protected virtual InternalKeyBuilder Builder { get; }
 
-                public virtual Key Metadata
-                {
-                    get { return Builder.Metadata; }
-                }
+                public virtual Key Metadata => Builder.Metadata;
 
                 public virtual KeyBuilder Annotation([NotNull] string annotation, [NotNull] object value)
                 {
@@ -200,10 +183,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
                 protected virtual InternalPropertyBuilder Builder { get; }
 
-                public virtual Property Metadata
-                {
-                    get { return Builder.Metadata; }
-                }
+                public virtual Property Metadata => Builder.Metadata;
 
                 public virtual PropertyBuilder Annotation([NotNull] string annotation, [NotNull] object value)
                 {
@@ -269,10 +249,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
                 protected virtual InternalRelationshipBuilder Builder { get; }
 
-                public virtual ForeignKey Metadata
-                {
-                    get { return Builder.Metadata; }
-                }
+                public virtual ForeignKey Metadata => Builder.Metadata;
 
                 public virtual ForeignKeyBuilder Annotation([NotNull] string annotation, [NotNull] object value)
                 {
@@ -301,10 +278,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
                 protected virtual InternalIndexBuilder Builder { get; }
 
-                public virtual Index Metadata
-                {
-                    get { return Builder.Metadata; }
-                }
+                public virtual Index Metadata => Builder.Metadata;
 
                 public virtual IndexBuilder Annotation([NotNull] string annotation, [NotNull] object value)
                 {

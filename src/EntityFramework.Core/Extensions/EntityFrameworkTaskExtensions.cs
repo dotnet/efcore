@@ -74,10 +74,7 @@ namespace System.Threading.Tasks
             /// <summary>Gets an awaiter used to await this <see cref="Task{TResult}" />.</summary>
             /// <returns>An awaiter instance.</returns>
             /// <remarks>This method is intended for compiler user rather than use directly in code.</remarks>
-            public CultureAwaiter<T> GetAwaiter()
-            {
-                return this;
-            }
+            public CultureAwaiter<T> GetAwaiter() => this;
 
             /// <summary>
             ///     Gets whether this <see cref="Task">Task</see> has completed.
@@ -88,20 +85,14 @@ namespace System.Threading.Tasks
             ///     <see cref="TaskStatus.Faulted">Faulted</see>, or
             ///     <see cref="TaskStatus.Canceled">Canceled</see>.
             /// </remarks>
-            public bool IsCompleted
-            {
-                get { return _task.IsCompleted; }
-            }
+            public bool IsCompleted => _task.IsCompleted;
 
             /// <summary>Ends the await on the completed <see cref="Task{TResult}" />.</summary>
             /// <returns>The result of the completed <see cref="Task{TResult}" />.</returns>
             /// <exception cref="System.NullReferenceException">The awaiter was not properly initialized.</exception>
             /// <exception cref="TaskCanceledException">The task was canceled.</exception>
             /// <exception cref="System.Exception">The task completed in a Faulted state.</exception>
-            public T GetResult()
-            {
-                return _task.GetAwaiter().GetResult();
-            }
+            public T GetResult() => _task.GetAwaiter().GetResult();
 
             /// <summary>This method is not implemented and should not be called.</summary>
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
@@ -170,10 +161,7 @@ namespace System.Threading.Tasks
             /// <summary>Gets an awaiter used to await this <see cref="Task" />.</summary>
             /// <returns>An awaiter instance.</returns>
             /// <remarks>This method is intended for compiler user rather than use directly in code.</remarks>
-            public CultureAwaiter GetAwaiter()
-            {
-                return this;
-            }
+            public CultureAwaiter GetAwaiter() => this;
 
             /// <summary>
             ///     Gets whether this <see cref="Task">Task</see> has completed.
@@ -184,19 +172,13 @@ namespace System.Threading.Tasks
             ///     <see cref="TaskStatus.Faulted">Faulted</see>, or
             ///     <see cref="TaskStatus.Canceled">Canceled</see>.
             /// </remarks>
-            public bool IsCompleted
-            {
-                get { return _task.IsCompleted; }
-            }
+            public bool IsCompleted => _task.IsCompleted;
 
             /// <summary>Ends the await on the completed <see cref="Task" />.</summary>
             /// <exception cref="System.NullReferenceException">The awaiter was not properly initialized.</exception>
             /// <exception cref="TaskCanceledException">The task was canceled.</exception>
             /// <exception cref="System.Exception">The task completed in a Faulted state.</exception>
-            public void GetResult()
-            {
-                _task.GetAwaiter().GetResult();
-            }
+            public void GetResult() => _task.GetAwaiter().GetResult();
 
             /// <summary>This method is not implemented and should not be called.</summary>
             /// <param name="continuation">The action to invoke when the await operation completes.</param>

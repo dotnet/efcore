@@ -24,7 +24,8 @@ namespace Microsoft.Data.Entity.ValueGeneration
             for (var i = 0; i < poolSize; i++)
             {
                 _pool[i] = new HiLoValue(-1, 0);
-                _locks[i] = new object();;
+                _locks[i] = new object();
+                ;
             }
         }
 

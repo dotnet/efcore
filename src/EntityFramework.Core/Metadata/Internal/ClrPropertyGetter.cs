@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -14,16 +13,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public ClrPropertyGetter([NotNull] Func<TEntity, TValue> getter)
         {
-            Check.NotNull(getter, nameof(getter));
-
             _getter = getter;
         }
 
-        public virtual object GetClrValue(object instance)
-        {
-            Check.NotNull(instance, nameof(instance));
-
-            return _getter((TEntity)instance);
-        }
+        public virtual object GetClrValue(object instance) => _getter((TEntity)instance);
     }
 }

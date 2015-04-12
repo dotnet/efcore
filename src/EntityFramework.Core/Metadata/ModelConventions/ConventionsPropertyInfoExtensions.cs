@@ -9,22 +9,13 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
     internal static class ConventionsPropertyInfoExtensions
     {
         public static bool IsCandidateProperty(this PropertyInfo propertyInfo)
-        {
-            return !propertyInfo.IsStatic()
-                   && propertyInfo.GetIndexParameters().Length == 0
-                   && propertyInfo.CanRead
-                   && propertyInfo.CanWrite;
-        }
+            => !propertyInfo.IsStatic()
+               && propertyInfo.GetIndexParameters().Length == 0
+               && propertyInfo.CanRead
+               && propertyInfo.CanWrite;
 
         public static bool IsCandidatePrimitiveProperty(this PropertyInfo propertyInfo)
-        {
-            if (!IsCandidateProperty(propertyInfo))
-            {
-                return false;
-            }
-
-            return propertyInfo.PropertyType.IsPrimitive();
-        }
+            => IsCandidateProperty(propertyInfo) && propertyInfo.PropertyType.IsPrimitive();
 
         public static bool IsCandidateNavigationProperty(this PropertyInfo propertyInfo, out Type targetType)
         {

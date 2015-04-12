@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     ///         Provides access to change tracking information and operations for a given entity.
     ///     </para>
     ///     <para>
-    ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker"/> API and it is 
+    ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker" /> API and it is
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
@@ -25,8 +25,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly InternalEntityEntry _internalEntityEntry;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EntityEntry"/> class. Instances of this class are returned from 
-        ///     methods when using the <see cref="ChangeTracker"/> API and it is not designed to be directly constructed in 
+        ///     Initializes a new instance of the <see cref="EntityEntry" /> class. Instances of this class are returned from
+        ///     methods when using the <see cref="ChangeTracker" /> API and it is not designed to be directly constructed in
         ///     your application code.
         /// </summary>
         /// <param name="context"> The context that is tracking the entity. </param>
@@ -51,9 +51,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     </para>
         ///     <para>
         ///         When setting the state, the entity will always end up in the specified state. For example, if you
-        ///         change the state to <see cref="EntityState.Deleted"/> the entity will be marked for deletion regardless
-        ///         of its current state. This is different than calling <see cref="DbSet{TEntity}.Remove"/> where the entity
-        ///         will be disconnected (rather than marked for deletion) if it is in the <see cref="EntityState.Added"/> state.
+        ///         change the state to <see cref="EntityState.Deleted" /> the entity will be marked for deletion regardless
+        ///         of its current state. This is different than calling <see cref="DbSet{TEntity}.Remove" /> where the entity
+        ///         will be disconnected (rather than marked for deletion) if it is in the <see cref="EntityState.Added" /> state.
         ///     </para>
         /// </summary>
         public virtual EntityState State
@@ -98,11 +98,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// <summary>
         ///     <para>
         ///         Gets a value indicating if the key values of this entity have been assigned a value.
-        ///         False if one or more of the key properties is assigned null or <see cref="IProperty.SentinelValue"/>, 
+        ///         False if one or more of the key properties is assigned null or <see cref="IProperty.SentinelValue" />,
         ///         otherwise true.
         ///     </para>
         ///     <para>
-        ///         By default <see cref="IProperty.SentinelValue"/> is set to the CLR default for the type of
+        ///         By default <see cref="IProperty.SentinelValue" /> is set to the CLR default for the type of
         ///         the property (i.e. null for string, 0 for int, etc.)
         ///     </para>
         /// </summary>

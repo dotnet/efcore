@@ -2166,7 +2166,7 @@ namespace Microsoft.Data.Entity
 
         internal static readonly MethodInfo IncludeMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.Include))
+                .GetTypeInfo().GetDeclaredMethods(nameof(Include))
                 .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath"));
 
         // TODO API docs once we resolve #1709
@@ -2201,27 +2201,23 @@ namespace Microsoft.Data.Entity
             [NotNull] this IIncludableQueryable<TEntity, ICollection<TPreviousProperty>> source,
             [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
             where TEntity : class
-        {
-            return new IncludableQueryable<TEntity, TProperty>(
+            => new IncludableQueryable<TEntity, TProperty>(
                 source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         null,
                         ThenIncludeAfterCollectionMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
                         new[] { source.Expression, Expression.Quote(navigationPropertyPath) })));
-        }
 
         public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
-            [NotNull]this IIncludableQueryable<TEntity, TPreviousProperty> source,
-            [NotNull]Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
+            [NotNull] this IIncludableQueryable<TEntity, TPreviousProperty> source,
+            [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
             where TEntity : class
-        {
-            return new IncludableQueryable<TEntity, TProperty>(
+            => new IncludableQueryable<TEntity, TProperty>(
                 source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         null,
                         ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
                         new[] { source.Expression, Expression.Quote(navigationPropertyPath) })));
-        }
 
         private class IncludableQueryable<TEntity, TProperty> : IIncludableQueryable<TEntity, TProperty>, IAsyncEnumerable<TEntity>
         {
@@ -2236,20 +2232,12 @@ namespace Microsoft.Data.Entity
             public Type ElementType => _queryable.ElementType;
             public IQueryProvider Provider => _queryable.Provider;
 
-            public IEnumerator<TEntity> GetEnumerator()
-            {
-                return _queryable.GetEnumerator();
-            }
+            public IEnumerator<TEntity> GetEnumerator() => _queryable.GetEnumerator();
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
             IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetEnumerator()
-            {
-                return ((IAsyncEnumerable<TEntity>)_queryable).GetEnumerator();
-            }
+                => ((IAsyncEnumerable<TEntity>)_queryable).GetEnumerator();
         }
 
         #endregion
@@ -2297,7 +2285,7 @@ namespace Microsoft.Data.Entity
 
         internal static readonly MethodInfo AsNoTrackingMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
+                .GetTypeInfo().GetDeclaredMethod(nameof(AsNoTracking));
 
         /// <summary>
         ///     <para>
@@ -2318,8 +2306,8 @@ namespace Microsoft.Data.Entity
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
         /// <param name="source"> The source query. </param>
-        /// <returns> 
-        ///     A new query where the result set will not be tracked by the context. 
+        /// <returns>
+        ///     A new query where the result set will not be tracked by the context.
         /// </returns>
         public static IQueryable<TEntity> AsNoTracking<TEntity>([NotNull] this IQueryable<TEntity> source) where TEntity : class
         {
@@ -2618,10 +2606,8 @@ namespace Microsoft.Data.Entity
             IQueryable<TSource> source,
             LambdaExpression expression,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return ExecuteAsync<TSource, TResult>(
+            => ExecuteAsync<TSource, TResult>(
                 operatorMethodInfo, source, Expression.Quote(expression), cancellationToken);
-        }
 
         private static Task<TResult> ExecuteAsync<TSource, TResult>(
             MethodInfo operatorMethodInfo,
@@ -2651,21 +2637,17 @@ namespace Microsoft.Data.Entity
 
         private static MethodInfo GetMethod<TResult>(
             string name, int parameterCount = 0, Func<MethodInfo, bool> predicate = null)
-        {
-            return GetMethod(
+            => GetMethod(
                 name,
                 parameterCount,
                 mi => mi.ReturnType == typeof(TResult)
                       && (predicate == null || predicate(mi)));
-        }
 
         private static MethodInfo GetMethod(
             string name, int parameterCount = 0, Func<MethodInfo, bool> predicate = null)
-        {
-            return typeof(Queryable).GetTypeInfo().GetDeclaredMethods(name)
+            => typeof(Queryable).GetTypeInfo().GetDeclaredMethods(name)
                 .Single(mi => mi.GetParameters().Length == parameterCount + 1
                               && (predicate == null || predicate(mi)));
-        }
 
         #endregion
     }

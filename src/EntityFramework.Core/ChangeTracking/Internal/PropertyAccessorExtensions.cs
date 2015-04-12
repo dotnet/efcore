@@ -8,15 +8,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public static class PropertyAccessorExtensions
     {
-        [NotNull]
         public static EntityKey GetDependentKeyValue([NotNull] this IPropertyAccessor propertyAccessor, [NotNull] IForeignKey foreignKey)
             => propertyAccessor.InternalEntityEntry.CreateKey(foreignKey.PrincipalEntityType, foreignKey.Properties, propertyAccessor);
 
-        [NotNull]
         public static EntityKey GetPrincipalKeyValue([NotNull] this IPropertyAccessor propertyAccessor, [NotNull] IForeignKey foreignKey)
             => propertyAccessor.InternalEntityEntry.CreateKey(foreignKey.PrincipalEntityType, foreignKey.PrincipalKey.Properties, propertyAccessor);
 
-        [NotNull]
         public static EntityKey GetPrimaryKeyValue([NotNull] this IPropertyAccessor propertyAccessor)
         {
             var entityType = propertyAccessor.InternalEntityEntry.EntityType;

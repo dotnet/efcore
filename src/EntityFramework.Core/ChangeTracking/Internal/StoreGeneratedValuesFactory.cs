@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class StoreGeneratedValuesFactory : IStoreGeneratedValuesFactory
     {
-        public virtual StoreGeneratedValues Create( InternalEntityEntry entry, IEnumerable<IProperty> properties)
+        public virtual StoreGeneratedValues Create(InternalEntityEntry entry, IEnumerable<IProperty> properties)
             => new StoreGeneratedValues(entry, properties);
     }
 }

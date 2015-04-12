@@ -12,10 +12,7 @@ namespace System
     [DebuggerStepThrough]
     internal static class SharedTypeExtensions
     {
-        public static Type UnwrapNullableType(this Type type)
-        {
-            return Nullable.GetUnderlyingType(type) ?? type;
-        }
+        public static Type UnwrapNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
 
         public static bool IsNullableType(this Type type)
         {
@@ -80,14 +77,10 @@ namespace System
         }
 
         public static bool IsPrimitive(this Type type)
-        {
-            return type.IsInteger()
-                   || type.IsNonIntegerPrimitive();
-        }
+            => type.IsInteger()
+               || type.IsNonIntegerPrimitive();
 
         public static Type UnwrapEnumType(this Type type)
-        {
-            return type.GetTypeInfo().IsEnum ? Enum.GetUnderlyingType(type) : type;
-        }
+            => type.GetTypeInfo().IsEnum ? Enum.GetUnderlyingType(type) : type;
     }
 }

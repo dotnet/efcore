@@ -15,8 +15,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ConfigurationSource? _storeGeneratedPatternConfigurationSource;
 
         public InternalPropertyBuilder(
-            [NotNull] Property property, 
-            [NotNull] InternalModelBuilder modelBuilder, 
+            [NotNull] Property property,
+            [NotNull] InternalModelBuilder modelBuilder,
             ConfigurationSource configurationSource)
             : base(property, modelBuilder)
         {
@@ -44,11 +44,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return false;
         }
 
-        public virtual bool CanSetRequired(bool? isRequired, ConfigurationSource configurationSource)
-        {
-            return configurationSource.CanSet(_isRequiredConfigurationSource, Metadata.IsNullable.HasValue)
-                   || Metadata.IsNullable.Value == !isRequired;
-        }
+        public virtual bool CanSetRequired(bool? isRequired, ConfigurationSource configurationSource) 
+            => configurationSource.CanSet(_isRequiredConfigurationSource, Metadata.IsNullable.HasValue)
+            || Metadata.IsNullable.Value == !isRequired;
 
         public virtual bool MaxLength(int? maxLength, ConfigurationSource configurationSource)
         {

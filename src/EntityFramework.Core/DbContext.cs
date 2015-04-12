@@ -31,7 +31,8 @@ namespace Microsoft.Data.Entity
     ///         they are automatically initialized when the instance of the derived context is created.
     ///     </para>
     ///     <para>
-    ///         Override the <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method to configure the data store (and other
+    ///         Override the <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method to configure the data store (and
+    ///         other
     ///         options) to be
     ///         used for the context.
     ///     </para>
@@ -194,7 +195,7 @@ namespace Microsoft.Data.Entity
                 var dataStores = serviceProvider?.GetService<IEnumerable<IDataStoreSource>>()?.ToList()
                                  ?? new List<IDataStoreSource>();
 
-                if (dataStores.Count == 1 
+                if (dataStores.Count == 1
                     && !dataStores[0].IsConfigured(optionsBuilder.Options))
                 {
                     dataStores[0].AutoConfigure(optionsBuilder);
@@ -447,12 +448,12 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     <para>
-        ///         Gets an <see cref="EntityEntry" /> for the given entity. The entry provides 
+        ///         Gets an <see cref="EntityEntry" /> for the given entity. The entry provides
         ///         access to change tracking information and operations for the entity.
         ///     </para>
         ///     <para>
         ///         This method may be called on an entity that is not tracked. You can then
-        ///         set the <see cref="EntityEntry.State"/> property on the returned entry
+        ///         set the <see cref="EntityEntry.State" /> property on the returned entry
         ///         to have the context begin tracking the entity in the specified state.
         ///     </para>
         /// </summary>

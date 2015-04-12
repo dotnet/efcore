@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -17,7 +16,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         public static readonly MethodInfo[] SupportedMethods =
             {
                 EntityFrameworkQueryableExtensions.ThenIncludeAfterCollectionMethodInfo,
-                EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo,
+                EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo
             };
 
         private readonly LambdaExpression _navigationPropertyPathLambda;

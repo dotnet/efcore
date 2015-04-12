@@ -12,7 +12,6 @@ namespace Microsoft.Data.Entity.Internal
 {
     public class DbContextServices : IDbContextServices
     {
-
         private IServiceProvider _provider;
         private IDbContextOptions _contextOptions;
         private DbContext _context;
@@ -21,8 +20,8 @@ namespace Microsoft.Data.Entity.Internal
         private bool _inOnModelCreating;
 
         public virtual IDbContextServices Initialize(
-            IServiceProvider scopedProvider, 
-            IDbContextOptions contextOptions, 
+            IServiceProvider scopedProvider,
+            IDbContextOptions contextOptions,
             DbContext context,
             ServiceProviderSource serviceProviderSource)
         {

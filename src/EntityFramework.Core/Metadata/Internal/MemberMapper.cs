@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -17,8 +16,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public MemberMapper([NotNull] IFieldMatcher fieldMatcher)
         {
-            Check.NotNull(fieldMatcher, nameof(fieldMatcher));
-
             _fieldMatcher = fieldMatcher;
         }
 
@@ -26,8 +23,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         // Issue #757
         public virtual IEnumerable<Tuple<IProperty, MemberInfo>> MapPropertiesToMembers(IEntityType entityType)
         {
-            Check.NotNull(entityType, nameof(entityType));
-
             var fieldCache = new Dictionary<Type, Dictionary<string, FieldInfo>>();
             var propertyMappings = new List<Tuple<IProperty, MemberInfo>>();
 

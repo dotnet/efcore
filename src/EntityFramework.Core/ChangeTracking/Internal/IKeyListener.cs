@@ -8,6 +8,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public interface IKeyListener
     {
-        void KeyPropertyChanged([NotNull] InternalEntityEntry entry, [NotNull] IProperty property, [CanBeNull] object oldValue, [CanBeNull] object newValue);
+        void KeyPropertyChanged(
+            [NotNull] InternalEntityEntry entry, 
+            [NotNull] IProperty property, 
+            [CanBeNull] object oldValue, 
+            [CanBeNull] object newValue);
     }
 }

@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Storage
             throw new InvalidOperationException(Strings.NoDataStoreConfigured);
         }
 
-        private static string BuildStoreNamesString(IEnumerable<IDataStoreSource> available) 
+        private static string BuildStoreNamesString(IEnumerable<IDataStoreSource> available)
             => available.Select(e => e.Name).Aggregate("", (n, c) => n + "'" + c + "' ");
     }
 }

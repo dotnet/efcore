@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -14,15 +13,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public NullableEnumClrPropertySetter([NotNull] Action<TEntity, TValue> setter)
         {
-            Check.NotNull(setter, nameof(setter));
-
             _setter = setter;
         }
 
         public virtual void SetClrValue(object instance, object value)
         {
-            Check.NotNull(instance, nameof(instance));
-
             if (value != null)
             {
                 value = (TNonNullableEnumValue)value;

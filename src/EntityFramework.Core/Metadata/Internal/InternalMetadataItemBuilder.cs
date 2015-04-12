@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -13,8 +12,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         protected InternalMetadataItemBuilder([NotNull] TMetadata metadata, [NotNull] InternalModelBuilder modelBuilder)
             : base(metadata)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
             ModelBuilder = modelBuilder;
         }
 

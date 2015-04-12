@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     ///         Provides access to change tracking information and operations for a given property.
     ///     </para>
     ///     <para>
-    ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker"/> API and it is 
+    ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker" /> API and it is
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         where TEntity : class
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="PropertyEntry{TEntity, TProperty}"/> class. Instances of this class 
-        ///     are returned from methods when using the <see cref="ChangeTracker"/> API and it is not designed 
+        ///     Initializes a new instance of the <see cref="PropertyEntry{TEntity, TProperty}" /> class. Instances of this class
+        ///     are returned from methods when using the <see cref="ChangeTracker" /> API and it is not designed
         ///     to be directly constructed in your application code.
         /// </summary>
         /// <param name="internalEntry">  The internal entry tracking information about the entity the property belongs to. </param>
@@ -32,18 +32,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public virtual new TProperty CurrentValue
+        public new virtual TProperty CurrentValue
         {
             get { return (TProperty)base.CurrentValue; }
-            [param: CanBeNull]
-            set { base.CurrentValue = value; }
+            [param: CanBeNull] set { base.CurrentValue = value; }
         }
 
-        public virtual new TProperty OriginalValue
+        public new virtual TProperty OriginalValue
         {
             get { return (TProperty)base.OriginalValue; }
-            [param: CanBeNull]
-            set { base.OriginalValue = value; }
+            [param: CanBeNull] set { base.OriginalValue = value; }
         }
     }
 }

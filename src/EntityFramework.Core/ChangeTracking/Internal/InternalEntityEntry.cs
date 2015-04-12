@@ -30,7 +30,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _stateData = new StateData(entityType.GetProperties().Count());
         }
 
-        [CanBeNull]
         public abstract object Entity { get; }
 
         public virtual IEntityType EntityType { get; }
@@ -331,8 +330,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             => CreateKey(foreignKey.PrincipalEntityType, foreignKey.Properties, RelationshipsSnapshot);
 
         public virtual EntityKey GetPrincipalKey(
-            [NotNull] IForeignKey foreignKey, 
-            [NotNull] IEntityType principalEntityType, 
+            [NotNull] IForeignKey foreignKey,
+            [NotNull] IEntityType principalEntityType,
             [NotNull] IReadOnlyList<IProperty> principalProperties)
         {
             EntityKey result;

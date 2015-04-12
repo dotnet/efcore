@@ -3,21 +3,13 @@
 
 using System;
 using System.Reflection;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class ClrPropertyGetterSource : ClrAccessorSource<IClrPropertyGetter>
     {
         protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(PropertyInfo property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            // TODO: Handle case where there is not setter or setter is private on a base type
-            // Issue #753
-            var getterDelegate = (Func<TEntity, TValue>)property.GetMethod.CreateDelegate(typeof(Func<TEntity, TValue>));
-
-            return new ClrPropertyGetter<TEntity, TValue>(getterDelegate);
-        }
+            => new ClrPropertyGetter<TEntity, TValue>(
+                (Func<TEntity, TValue>)property.GetMethod.CreateDelegate(typeof(Func<TEntity, TValue>)));
     }
 }

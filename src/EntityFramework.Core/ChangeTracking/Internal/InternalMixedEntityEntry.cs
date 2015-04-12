@@ -35,7 +35,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _shadowValues = ExtractShadowValues(valueReader);
         }
 
-        [NotNull]
         public override object Entity { get; }
 
         protected override object ReadPropertyValue(IPropertyBase propertyBase)

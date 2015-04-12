@@ -36,12 +36,9 @@ namespace Microsoft.Data.Entity.Infrastructure
             return annotation;
         }
 
-        public virtual Annotation GetOrAddAnnotation([NotNull] string annotationName, [NotNull] string value)
-        {
-            return FindAnnotation(annotationName) ?? AddAnnotation(annotationName, value);
-        }
+        public virtual Annotation GetOrAddAnnotation([NotNull] string annotationName, [NotNull] string value) 
+            => FindAnnotation(annotationName) ?? AddAnnotation(annotationName, value);
 
-        [CanBeNull]
         public virtual Annotation FindAnnotation([NotNull] string annotationName)
         {
             Check.NotEmpty(annotationName, nameof(annotationName));

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -24,28 +23,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] Action<TEntity, TCollection> setCollection,
             [CanBeNull] Func<TEntity, Action<TEntity, TCollection>, TCollection> createAndSetCollection)
         {
-            Check.NotEmpty(propertyName, nameof(propertyName));
-            Check.NotNull(getCollection, nameof(getCollection));
-
             _propertyName = propertyName;
             _getCollection = getCollection;
             _setCollection = setCollection;
             _createAndSetCollection = createAndSetCollection;
         }
 
-        public virtual void Add(object instance, object value)
-        {
-            Check.NotNull(instance, nameof(instance));
-            Check.NotNull(value, nameof(value));
-
-            GetOrCreateCollection(instance).Add((TElement)value);
-        }
+        public virtual void Add(object instance, object value) 
+            => GetOrCreateCollection(instance).Add((TElement)value);
 
         public virtual void AddRange(object instance, IEnumerable<object> values)
         {
-            Check.NotNull(instance, nameof(instance));
-            Check.NotNull(values, nameof(values));
-
             var collection = GetOrCreateCollection(instance);
 
             foreach (TElement value in values)
@@ -81,25 +69,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool Contains(object instance, object value)
         {
-            Check.NotNull(instance, nameof(instance));
-            Check.NotNull(value, nameof(value));
-
             var collection = _getCollection((TEntity)instance);
 
             return collection != null && collection.Contains((TElement)value);
         }
 
-        public virtual void Remove(object instance, object value)
-        {
-            Check.NotNull(instance, nameof(instance));
-            Check.NotNull(value, nameof(value));
-
-            var collection = _getCollection((TEntity)instance);
-
-            if (collection != null)
-            {
-                collection.Remove((TElement)value);
-            }
-        }
+        public virtual void Remove(object instance, object value) 
+            => _getCollection((TEntity)instance)?.Remove((TElement)value);
     }
 }

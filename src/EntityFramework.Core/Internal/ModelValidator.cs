@@ -98,26 +98,23 @@ namespace Microsoft.Data.Entity.Internal
                             errorMessage = Strings.CircularDependency(cycle.Select(fk => fk.ToString()).Join());
                             continue;
                         }
-                        else
+                        rootPrincipal = VerifyRootPrincipal(nextPrincipalProperty, verifiedProperties, visitedForeignKeys.Add(foreignKey), out errorMessage);
+                        if (rootPrincipal == null)
                         {
-                            rootPrincipal = VerifyRootPrincipal(nextPrincipalProperty, verifiedProperties, visitedForeignKeys.Add(foreignKey), out errorMessage);
-                            if (rootPrincipal == null)
-                            {
-                                if (principalProperty.IsValueGeneratedOnAdd)
-                                {
-                                    rootPrincipals[principalProperty] = foreignKey;
-                                }
-                                continue;
-                            }
-
                             if (principalProperty.IsValueGeneratedOnAdd)
                             {
-                                ShowError(Strings.ForeignKeyValueGenerationOnAdd(
-                                    principalProperty.Name,
-                                    principalProperty.EntityType.DisplayName(),
-                                    Property.Format(foreignKey.Properties)));
-                                return principalProperty;
+                                rootPrincipals[principalProperty] = foreignKey;
                             }
+                            continue;
+                        }
+
+                        if (principalProperty.IsValueGeneratedOnAdd)
+                        {
+                            ShowError(Strings.ForeignKeyValueGenerationOnAdd(
+                                principalProperty.Name,
+                                principalProperty.EntityType.DisplayName(),
+                                Property.Format(foreignKey.Properties)));
+                            return principalProperty;
                         }
 
                         rootPrincipals[rootPrincipal] = foreignKey;

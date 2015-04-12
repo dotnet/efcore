@@ -279,7 +279,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     <para>
-        ///         Adds a <see cref="QueryAnnotation"/> to the query.
+        ///         Adds a <see cref="QueryAnnotation" /> to the query.
         ///     </para>
         ///     <para>
         ///         This method is intended for use by extension methods that need to add information to

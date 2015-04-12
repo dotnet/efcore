@@ -18,16 +18,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         protected InternalMetadataBuilder([NotNull] TMetadata metadata)
         {
-            Check.NotNull(metadata, nameof(metadata));
-
             _metadata = metadata;
         }
 
         public virtual bool Annotation(
             [NotNull] string annotation, [CanBeNull] object value, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(annotation, nameof(annotation));
-
             var existingValue = Metadata[annotation];
             if (existingValue != null)
             {
@@ -60,10 +56,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
-        public virtual TMetadata Metadata
-        {
-            get { return _metadata; }
-        }
+        public virtual TMetadata Metadata => _metadata;
 
         public abstract InternalModelBuilder ModelBuilder { get; }
     }

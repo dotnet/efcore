@@ -18,7 +18,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             Entity = entity;
         }
 
-        [NotNull]
         public override object Entity { get; }
     }
 }

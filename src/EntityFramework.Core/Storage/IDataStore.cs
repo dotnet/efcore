@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Storage
         int SaveChanges([NotNull] IReadOnlyList<InternalEntityEntry> entries);
 
         Task<int> SaveChangesAsync(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entries, 
+            [NotNull] IReadOnlyList<InternalEntityEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken));
 
         Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>([NotNull] QueryModel queryModel);

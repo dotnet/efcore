@@ -32,18 +32,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual InternalKeyBuilder PrimaryKey([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
-        {
-            Check.NotEmpty(propertyNames, nameof(propertyNames));
-
-            return PrimaryKey(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
-        }
+            => PrimaryKey(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
 
         public virtual InternalKeyBuilder PrimaryKey([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
-        {
-            Check.NotEmpty(clrProperties, nameof(clrProperties));
-
-            return PrimaryKey(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
-        }
+            => PrimaryKey(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
         private InternalKeyBuilder PrimaryKey(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
@@ -121,18 +113,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual InternalKeyBuilder Key([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
-        {
-            Check.NotEmpty(propertyNames, nameof(propertyNames));
-
-            return Key(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
-        }
+            => Key(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
 
         public virtual InternalKeyBuilder Key([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
-        {
-            Check.NotEmpty(clrProperties, nameof(clrProperties));
-
-            return Key(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
-        }
+            => Key(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
         public virtual InternalKeyBuilder Key([CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
@@ -157,8 +141,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual ConfigurationSource? RemoveKey([NotNull] Key key, ConfigurationSource configurationSource)
         {
-            Check.NotNull(key, nameof(key));
-
             var removedConfigurationSource = _keyBuilders.Remove(key, configurationSource);
             if (!removedConfigurationSource.HasValue)
             {
@@ -181,19 +163,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalPropertyBuilder Property(
             [NotNull] Type propertyType, [NotNull] string propertyName, ConfigurationSource configurationSource)
-        {
-            Check.NotNull(propertyType, nameof(propertyType));
-            Check.NotEmpty(propertyName, nameof(propertyName));
-
-            return InternalProperty(propertyType, propertyName, /*shadowProperty:*/ true, configurationSource);
-        }
+            => InternalProperty(propertyType, propertyName, /*shadowProperty:*/ true, configurationSource);
 
         public virtual InternalPropertyBuilder Property([NotNull] PropertyInfo clrProperty, ConfigurationSource configurationSource)
-        {
-            Check.NotNull(clrProperty, nameof(clrProperty));
-
-            return InternalProperty(clrProperty.PropertyType, clrProperty.Name, /*shadowProperty:*/ false, configurationSource);
-        }
+            => InternalProperty(clrProperty.PropertyType, clrProperty.Name, /*shadowProperty:*/ false, configurationSource);
 
         private InternalPropertyBuilder InternalProperty(Type propertyType, string propertyName, bool shadowProperty, ConfigurationSource configurationSource)
         {
@@ -216,12 +189,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual bool CanAddNavigation([NotNull] string navigationName, ConfigurationSource configurationSource)
-        {
-            Check.NotEmpty(navigationName, nameof(navigationName));
-
-            return CanAdd(navigationName, isNavigation: true, configurationSource: configurationSource)
-                   && Metadata.FindNavigation(navigationName) == null;
-        }
+            => CanAdd(navigationName, isNavigation: true, configurationSource: configurationSource)
+               && Metadata.FindNavigation(navigationName) == null;
 
         private bool CanAdd(string propertyName, bool isNavigation, ConfigurationSource configurationSource)
         {
@@ -283,8 +252,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource,
             bool canOverrideSameSource)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
             var navigation = pointsToPrincipal
                 ? foreignKey.DependentToPrincipal
                 : foreignKey.PrincipalToDependent;
@@ -362,8 +329,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool Ignore([NotNull] string propertyName, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(propertyName, nameof(propertyName));
-
             ConfigurationSource ignoredConfigurationSource;
             if (_ignoredProperties.Value.TryGetValue(propertyName, out ignoredConfigurationSource))
             {
@@ -473,25 +438,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] Type principalClrType, [NotNull] IReadOnlyList<PropertyInfo> clrProperties,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(principalClrType, nameof(principalClrType));
-            Check.NotNull(clrProperties, nameof(clrProperties));
 
             var principalType = ModelBuilder.Entity(principalClrType, configurationSource);
-            if (principalType == null)
-            {
-                return null;
-            }
-
-            return ForeignKey(principalType.Metadata, GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
+            return principalType == null 
+                ? null 
+                : ForeignKey(principalType.Metadata, GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
         }
 
-        private InternalRelationshipBuilder ForeignKey(EntityType principalType, IReadOnlyList<Property> dependentProperties, ConfigurationSource configurationSource)
-        {
-            return dependentProperties == null
-                ? null
-                : Relationship(principalType, Metadata, null, null, configurationSource, false)
-                    ?.ForeignKey(dependentProperties, configurationSource);
-        }
+        private InternalRelationshipBuilder ForeignKey(EntityType principalType, IReadOnlyList<Property> dependentProperties, ConfigurationSource configurationSource) 
+            => dependentProperties == null
+            ? null
+            : Relationship(principalType, Metadata, null, null, configurationSource, false)
+                ?.ForeignKey(dependentProperties, configurationSource);
 
         private RelationshipSnapshot DetachRelationship([NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
         {
@@ -629,35 +587,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
-        {
-            Check.NotNull(propertyNames, nameof(propertyNames));
+        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource) 
+            => Index(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
 
-            return Index(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
-        }
+        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource) 
+            => Index(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
-        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
-        {
-            Check.NotNull(clrProperties, nameof(clrProperties));
-
-            return Index(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
-        }
-
-        private InternalIndexBuilder Index(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
-        {
-            return properties == null
-                ? null
-                : _indexBuilders.Value.GetOrAdd(
-                    () => Metadata.FindIndex(properties),
-                    () => Metadata.AddIndex(properties),
-                    index => new InternalIndexBuilder(index, ModelBuilder),
-                    configurationSource);
-        }
+        private InternalIndexBuilder Index(IReadOnlyList<Property> properties, ConfigurationSource configurationSource) 
+            => properties == null
+            ? null
+            : _indexBuilders.Value.GetOrAdd(
+                () => Metadata.FindIndex(properties),
+                () => Metadata.AddIndex(properties),
+                index => new InternalIndexBuilder(index, ModelBuilder),
+                configurationSource);
 
         public virtual ConfigurationSource? RemoveIndex([NotNull] Index index, ConfigurationSource configurationSource)
         {
-            Check.NotNull(index, nameof(index));
-
             var removedConfigurationSource = _indexBuilders.Value.Remove(index, configurationSource);
             if (!removedConfigurationSource.HasValue)
             {
@@ -674,8 +620,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] ForeignKey foreignKey, bool existingForeignKey, ConfigurationSource configurationSource)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
             if (foreignKey.EntityType != Metadata)
             {
                 return ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention)
@@ -699,9 +643,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             bool? isUnique = null,
             bool strictPrincipal = true)
         {
-            Check.NotNull(principalType, nameof(principalType));
-            Check.NotNull(dependentType, nameof(dependentType));
-
             var principalEntityTypeBuilder = ModelBuilder.Entity(principalType, configurationSource);
             if (principalEntityTypeBuilder == null)
             {
@@ -733,9 +674,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             bool? isUnique = null,
             bool strictPrincipal = true)
         {
-            Check.NotNull(principalEntityType, nameof(principalEntityType));
-            Check.NotNull(dependentEntityType, nameof(dependentEntityType));
-
             var principalEntityTypeBuilder = ModelBuilder.Entity(principalEntityType.Name, configurationSource);
             Debug.Assert(principalEntityTypeBuilder != null);
 
@@ -1116,14 +1054,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 inverseNavigationName = inverseNavigationName == "" ? null : inverseNavigationName;
 
-                if (navigation.PointsToPrincipal())
-                {
-                    relationship = relationship.NavigationToDependent(inverseNavigationName, configurationSource);
-                }
-                else
-                {
-                    relationship = relationship.NavigationToPrincipal(inverseNavigationName, configurationSource);
-                }
+                relationship = navigation.PointsToPrincipal() 
+                    ? relationship.NavigationToDependent(inverseNavigationName, configurationSource) 
+                    : relationship.NavigationToPrincipal(inverseNavigationName, configurationSource);
             }
 
             return relationship;

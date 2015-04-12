@@ -71,6 +71,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         [UsedImplicitly]
         private string DebuggerDisplay
-            => string.Format("{0}({1})", _entityType.Name, string.Join(", ", _keyValueParts.Select(k => k.ToString())));
+            => $"{_entityType.Name}({string.Join(", ", _keyValueParts.Select(k => k.ToString()))})";
     }
 }

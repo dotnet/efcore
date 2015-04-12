@@ -6,7 +6,8 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public interface IAnnotatableQueryable<TEntity> where TEntity : class
+    public interface IAnnotatableQueryable<out TEntity>
+        where TEntity : class
     {
         IQueryable<TEntity> AnnotateQuery([NotNull] object annotation);
     }

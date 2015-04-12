@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         protected LazyRef<ILogger> Logger { get; }
-        
+
         protected override void ShowWarning(string message) => Logger.Value.LogWarning(message);
     }
 }

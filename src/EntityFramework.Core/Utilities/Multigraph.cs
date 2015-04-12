@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -152,7 +155,9 @@ namespace Microsoft.Data.Entity.Utilities
                     var candidateIndex = 0;
 
                     // Iterrate over the unsorted verticies
-                    while (candidateIndex < candidateVertices.Count && !broken && canBreakEdge != null)
+                    while (candidateIndex < candidateVertices.Count
+                           && !broken
+                           && canBreakEdge != null)
                     {
                         var candidateVertex = candidateVertices[candidateIndex];
 
@@ -210,21 +215,18 @@ namespace Microsoft.Data.Entity.Utilities
                                 Strings.CircularDependency(
                                     cycle.Select(vertex => vertex.ToString()).Join(" -> ")));
                         }
-                        else
-                        {
-                            // Build the cycle message data
-                            currentCycleVertex = cycle.First();
-                            var cycleData = new List<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>();
+                        // Build the cycle message data
+                        currentCycleVertex = cycle.First();
+                        var cycleData = new List<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>();
 
-                            foreach (var vertex in cycle.Skip(1))
-                            {
-                                cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
-                                currentCycleVertex = vertex;
-                            }
-                            throw new InvalidOperationException(
-                                Strings.CircularDependency(
-                                    formatCycle(cycleData)));
+                        foreach (var vertex in cycle.Skip(1))
+                        {
+                            cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
+                            currentCycleVertex = vertex;
                         }
+                        throw new InvalidOperationException(
+                            Strings.CircularDependency(
+                                formatCycle(cycleData)));
                     }
                 }
             }
@@ -324,33 +326,29 @@ namespace Microsoft.Data.Entity.Utilities
                         Strings.CircularDependency(
                             cycle.Select(vertex => vertex.ToString()).Join(" -> ")));
                 }
-                else
-                {
-                    // Build the cycle message data
-                    currentCycleVertex = cycle.First();
-                    var cycleData = new List<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>();
+                // Build the cycle message data
+                currentCycleVertex = cycle.First();
+                var cycleData = new List<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>();
 
-                    foreach (var vertex in cycle.Skip(1))
-                    {
-                        cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
-                        currentCycleVertex = vertex;
-                    }
-                    throw new InvalidOperationException(
-                        Strings.CircularDependency(
-                            formatCycle(cycleData)));
+                foreach (var vertex in cycle.Skip(1))
+                {
+                    cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
+                    currentCycleVertex = vertex;
                 }
+                throw new InvalidOperationException(
+                    Strings.CircularDependency(
+                        formatCycle(cycleData)));
             }
 
             return result;
         }
-
 
         public override IEnumerable<TVertex> Vertices
         {
             get { return _vertices; }
         }
 
-        public override IEnumerable<TVertex> GetOutgoingNeighbours([NotNull]TVertex from)
+        public override IEnumerable<TVertex> GetOutgoingNeighbours([NotNull] TVertex from)
         {
             Dictionary<TVertex, List<TEdge>> successorSet;
             if (_successorMap.TryGetValue(from, out successorSet))
@@ -360,7 +358,7 @@ namespace Microsoft.Data.Entity.Utilities
             return Enumerable.Empty<TVertex>();
         }
 
-        public override IEnumerable<TVertex> GetIncomingNeighbours([NotNull]TVertex to)
+        public override IEnumerable<TVertex> GetIncomingNeighbours([NotNull] TVertex to)
         {
             return _successorMap.Where(kvp => kvp.Value.ContainsKey(to)).Select(kvp => kvp.Key);
         }

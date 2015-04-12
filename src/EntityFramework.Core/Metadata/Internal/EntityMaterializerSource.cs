@@ -9,7 +9,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -25,16 +24,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public EntityMaterializerSource([NotNull] IMemberMapper memberMapper)
         {
-            Check.NotNull(memberMapper, nameof(memberMapper));
-
             _memberMapper = memberMapper;
         }
 
         public virtual Expression CreateReadValueExpression(Expression valueReader, Type type, int index)
         {
-            Check.NotNull(valueReader, nameof(valueReader));
-            Check.NotNull(type, nameof(type));
-
             var unwrappedTargetMemberType = type.UnwrapNullableType();
             var underlyingTargetMemberType = unwrappedTargetMemberType.UnwrapEnumType();
             var indexExpression = Expression.Constant(index);
@@ -68,9 +62,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Expression valueReaderExpression,
             int[] indexMap = null)
         {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(valueReaderExpression, nameof(valueReaderExpression));
-
             var materializer = entityType as IEntityMaterializer;
 
             if (materializer != null)

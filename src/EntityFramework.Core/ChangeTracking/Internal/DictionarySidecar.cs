@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -25,9 +24,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected override object ReadValue(IPropertyBase property) => _values[property];
 
-        protected override void WriteValue(IPropertyBase property, object value)
-        {
-            _values[property] = value;
-        }
+        protected override void WriteValue(IPropertyBase property, object value) => _values[property] = value;
     }
 }

@@ -18,20 +18,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private readonly ThreadSafeDictionaryCache<Tuple<Type, string>, TAccessor> _cache
             = new ThreadSafeDictionaryCache<Tuple<Type, string>, TAccessor>();
 
-        public virtual TAccessor GetAccessor(IPropertyBase property)
-        {
-            Check.NotNull(property, nameof(property));
+        public virtual TAccessor GetAccessor(IPropertyBase property) 
+            => property as TAccessor ?? GetAccessor(property.EntityType.ClrType, property.Name);
 
-            return property as TAccessor ?? GetAccessor(property.EntityType.ClrType, property.Name);
-        }
-
-        public virtual TAccessor GetAccessor(Type declaringType, string propertyName)
-        {
-            Check.NotNull(declaringType, nameof(declaringType));
-            Check.NotEmpty(propertyName, nameof(propertyName));
-
-            return _cache.GetOrAdd(Tuple.Create(declaringType, propertyName), k => Create(k.Item1.GetAnyProperty(k.Item2)));
-        }
+        public virtual TAccessor GetAccessor(Type declaringType, string propertyName) 
+            => _cache.GetOrAdd(Tuple.Create(declaringType, propertyName), k => Create(k.Item1.GetAnyProperty(k.Item2)));
 
         private TAccessor Create(PropertyInfo property)
         {

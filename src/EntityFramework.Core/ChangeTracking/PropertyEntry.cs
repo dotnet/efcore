@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     ///         Provides access to change tracking information and operations for a given property.
     ///     </para>
     ///     <para>
-    ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker"/> API and it is 
+    ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker" /> API and it is
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly InternalEntityEntry _internalEntry;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="PropertyEntry"/> class. Instances of this class 
-        ///     are returned from methods when using the <see cref="ChangeTracker"/> API and it is not designed 
+        ///     Initializes a new instance of the <see cref="PropertyEntry" /> class. Instances of this class
+        ///     are returned from methods when using the <see cref="ChangeTracker" /> API and it is not designed
         ///     to be directly constructed in your application code.
         /// </summary>
         /// <param name="internalEntry">  The internal entry tracking information about the entity the property belongs to. </param>
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         /// <summary>
         ///     Gets or sets a value indicating whether the value of this property has been modified
-        ///     and should be updated in the data store when <see cref="DbContext.SaveChanges()"/>
+        ///     and should be updated in the data store when <see cref="DbContext.SaveChanges()" />
         ///     is called.
         /// </summary>
         public virtual bool IsModified
@@ -54,8 +54,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual IProperty Metadata { get; }
 
         /// <summary>
-        ///     Gets or sets the value currently assigned to this property. If the current value is set using this property, 
-        ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges"/> is not required 
+        ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
+        ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
         ///     for the context to be aware of the change.
         /// </summary>
         public virtual object CurrentValue
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         /// <summary>
         ///     Gets or sets the value that was assigned to this property when it was retrieved from the data store.
-        ///     This property is populated when an entity is retrieved from the data store, but setting it may be 
+        ///     This property is populated when an entity is retrieved from the data store, but setting it may be
         ///     useful in disconnected scenarios where entities are retrieved with one context instance and
         ///     saved with a different context instance.
         /// </summary>

@@ -415,7 +415,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private static void SetForeignKeyValue(IForeignKey foreignKey, InternalEntityEntry dependentEntry, IReadOnlyList<object> principalValues)
         {
-
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
                 if (foreignKey.Properties[i].GetGenerationProperty() == null
