@@ -21,10 +21,7 @@ namespace Microsoft.Data.Entity.Query
             _task = task;
         }
 
-        public IAsyncEnumerator<T> GetEnumerator()
-        {
-            return new Enumerator(_task);
-        }
+        public IAsyncEnumerator<T> GetEnumerator() => new Enumerator(_task);
 
         private sealed class Enumerator : IAsyncEnumerator<T>
         {

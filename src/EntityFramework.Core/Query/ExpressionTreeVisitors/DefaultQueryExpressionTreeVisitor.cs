@@ -49,11 +49,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             return queryModelVisitor.Expression;
         }
 
-        protected EntityQueryModelVisitor CreateQueryModelVisitor()
-        {
-            return QueryModelVisitor.QueryCompilationContext
-                .CreateQueryModelVisitor(_entityQueryModelVisitor);
-        }
+        protected EntityQueryModelVisitor CreateQueryModelVisitor() 
+            => QueryModelVisitor.QueryCompilationContext
+            .CreateQueryModelVisitor(_entityQueryModelVisitor);
 
         protected override Expression VisitParameterExpression(ParameterExpression parameterExpression)
         {
@@ -75,9 +73,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 .GetTypeInfo().GetDeclaredMethod("GetParameterValue");
 
         [UsedImplicitly]
-        private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
-        {
-            return (T)queryContext.ParameterValues[parameterName];
-        }
+        private static T GetParameterValue<T>(QueryContext queryContext, string parameterName) 
+            => (T)queryContext.ParameterValues[parameterName];
     }
 }

@@ -86,9 +86,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 .GetTypeInfo().GetDeclaredMethod(nameof(GetValue));
 
         [UsedImplicitly]
-        private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property)
-        {
-            return (T)queryContext.QueryBuffer.GetPropertyValue(entity, property);
-        }
+        private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property) 
+            => (T)queryContext.QueryBuffer.GetPropertyValue(entity, property);
     }
 }

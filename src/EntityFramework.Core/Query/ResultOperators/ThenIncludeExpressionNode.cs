@@ -43,21 +43,15 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
             return queryModel;
         }
 
-        protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
-        {
-            // no-op
-            return null;
-        }
+        protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext) => null;
 
         public override Expression Resolve(
             ParameterExpression inputParameter,
             Expression expressionToBeResolved,
-            ClauseGenerationContext clauseGenerationContext)
-        {
-            return Source.Resolve(
+            ClauseGenerationContext clauseGenerationContext) 
+            => Source.Resolve(
                 inputParameter,
                 expressionToBeResolved,
                 clauseGenerationContext);
-        }
     }
 }

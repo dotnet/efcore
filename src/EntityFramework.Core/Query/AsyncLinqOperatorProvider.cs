@@ -28,9 +28,7 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _InterceptExceptions<T>(
             Func<IAsyncEnumerable<T>> source, QueryContext queryContext)
-        {
-            return new ExceptionInterceptor<T>(source, queryContext);
-        }
+            => new ExceptionInterceptor<T>(source, queryContext);
 
         public virtual MethodInfo InterceptExceptions => _interceptExceptions;
 
@@ -105,8 +103,7 @@ namespace Microsoft.Data.Entity.Query
             ICollection<Func<TIn, object>> entityAccessors)
             where TOut : class
             where TIn : TOut
-        {
-            return results.Select(result =>
+            => results.Select(result =>
                 {
                     if (result != null)
                     {
@@ -120,7 +117,6 @@ namespace Microsoft.Data.Entity.Query
 
                     return result;
                 });
-        }
 
         public virtual MethodInfo TrackEntities => _trackEntities;
 
@@ -130,9 +126,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _ToSequence<T>(T element)
-        {
-            return AsyncEnumerable.Return(element);
-        }
+            => AsyncEnumerable.Return(element);
 
         public virtual MethodInfo ToSequence => _toSequence;
 
@@ -142,9 +136,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IOrderedQueryable<TSource> _AsQueryable<TSource>(IAsyncEnumerable<TSource> source)
-        {
-            return new AsyncQueryableAdapter<TSource>(source);
-        }
+            => new AsyncQueryableAdapter<TSource>(source);
 
         private sealed class AsyncQueryableAdapter<T> : IOrderedQueryable<T>, IAsyncEnumerable<T>, IOrderedEnumerable<T>
         {
@@ -157,22 +149,15 @@ namespace Microsoft.Data.Entity.Query
 
             public IOrderedEnumerable<T> CreateOrderedEnumerable<TKey>(
                 Func<T, TKey> keySelector, IComparer<TKey> comparer, bool descending)
-            {
-                return
-                    !descending
-                        ? _source.ToEnumerable().OrderBy(keySelector, comparer)
-                        : _source.ToEnumerable().OrderByDescending(keySelector, comparer);
-            }
+                => !@descending
+                    ? _source.ToEnumerable().OrderBy(keySelector, comparer)
+                    : _source.ToEnumerable().OrderByDescending(keySelector, comparer);
 
             IEnumerator<T> IEnumerable<T>.GetEnumerator()
-            {
-                return _source.ToEnumerable().GetEnumerator();
-            }
+                => _source.ToEnumerable().GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator()
-            {
-                return ((IEnumerable<T>)this).GetEnumerator();
-            }
+                => ((IEnumerable<T>)this).GetEnumerator();
 
             public Type ElementType => typeof(T);
 
@@ -186,10 +171,7 @@ namespace Microsoft.Data.Entity.Query
                 get { throw new NotImplementedException(); }
             }
 
-            public IAsyncEnumerator<T> GetEnumerator()
-            {
-                return _source.GetEnumerator();
-            }
+            public IAsyncEnumerator<T> GetEnumerator() => _source.GetEnumerator();
         }
 
         public virtual MethodInfo AsQueryable => _asQueryable;
@@ -201,9 +183,7 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IAsyncEnumerable<TResult> _SelectMany<TSource, TResult>(
             IAsyncEnumerable<TSource> source, Func<TSource, IAsyncEnumerable<TResult>> selector)
-        {
-            return source.SelectMany(selector);
-        }
+            => source.SelectMany(selector);
 
         public virtual MethodInfo SelectMany => _selectMany;
 
@@ -218,9 +198,7 @@ namespace Microsoft.Data.Entity.Query
             Func<TOuter, TKey> outerKeySelector,
             Func<TInner, TKey> innerKeySelector,
             Func<TOuter, TInner, TResult> resultSelector)
-        {
-            return outer.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
-        }
+            => outer.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
 
         public virtual MethodInfo Join => _join;
 
@@ -235,9 +213,7 @@ namespace Microsoft.Data.Entity.Query
             Func<TOuter, TKey> outerKeySelector,
             Func<TInner, TKey> innerKeySelector,
             Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
-        {
-            return outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector);
-        }
+            => outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector);
 
         public virtual MethodInfo GroupJoin => _groupJoin;
 
@@ -248,9 +224,7 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
             IAsyncEnumerable<TSource> source, Func<TSource, TResult> selector)
-        {
-            return source.Select(selector);
-        }
+            => source.Select(selector);
 
         public virtual MethodInfo Select => _select;
 
@@ -261,11 +235,9 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IOrderedAsyncEnumerable<TSource> _OrderBy<TSource, TKey>(
             IAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
-        {
-            return orderingDirection == OrderingDirection.Asc
+            => orderingDirection == OrderingDirection.Asc
                 ? source.OrderBy(expression)
                 : source.OrderByDescending(expression);
-        }
 
         public virtual MethodInfo OrderBy => _orderBy;
 
@@ -276,11 +248,9 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IOrderedAsyncEnumerable<TSource> _ThenBy<TSource, TKey>(
             IOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
-        {
-            return orderingDirection == OrderingDirection.Asc
+            => orderingDirection == OrderingDirection.Asc
                 ? source.ThenBy(expression)
                 : source.ThenByDescending(expression);
-        }
 
         public virtual MethodInfo ThenBy => _thenBy;
 
@@ -291,9 +261,7 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IAsyncEnumerable<TSource> _Where<TSource>(
             IAsyncEnumerable<TSource> source, Func<TSource, bool> predicate)
-        {
-            return source.Where(predicate);
-        }
+            => source.Where(predicate);
 
         public virtual MethodInfo Where => _where;
 
@@ -328,9 +296,7 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IAsyncEnumerable<IAsyncGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
             IAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
-        {
-            return source.GroupBy(keySelector, elementSelector);
-        }
+            => source.GroupBy(keySelector, elementSelector);
 
         public virtual MethodInfo GroupBy => _groupBy;
 
@@ -401,9 +367,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _ToAsyncEnumerable<T>(IEnumerable<T> source)
-        {
-            return source.ToAsyncEnumerable();
-        }
+            => source.ToAsyncEnumerable();
 
         private static MethodInfo GetMethod(string name, int parameterCount = 0)
         {

@@ -12,23 +12,14 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
 {
     public class AsNoTrackingResultOperator : SequenceTypePreservingResultOperatorBase
     {
-        public override string ToString()
-        {
-            return "AsNoTracking()";
-        }
+        public override string ToString() => "AsNoTracking()";
 
-        public override ResultOperatorBase Clone([NotNull] CloneContext cloneContext)
-        {
-            return new AsNoTrackingResultOperator();
-        }
+        public override ResultOperatorBase Clone([NotNull] CloneContext cloneContext) => new AsNoTrackingResultOperator();
 
         public override void TransformExpressions([NotNull] Func<Expression, Expression> transformation)
         {
         }
 
-        public override StreamedSequence ExecuteInMemory<T>([NotNull] StreamedSequence input)
-        {
-            return input; // sequence is not changed by this operator
-        }
+        public override StreamedSequence ExecuteInMemory<T>([NotNull] StreamedSequence input) => input;
     }
 }

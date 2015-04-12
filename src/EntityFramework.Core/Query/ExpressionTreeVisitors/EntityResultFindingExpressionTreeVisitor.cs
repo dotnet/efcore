@@ -46,44 +46,20 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         // Prune these nodes...
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
-        {
-            return expression;
-        }
+        protected override Expression VisitSubQueryExpression(SubQueryExpression expression) => expression;
 
-        protected override Expression VisitMemberExpression(MemberExpression expression)
-        {
-            return expression;
-        }
+        protected override Expression VisitMemberExpression(MemberExpression expression) => expression;
 
-        protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
-        {
-            return expression;
-        }
+        protected override Expression VisitMethodCallExpression(MethodCallExpression expression) => expression;
 
-        protected override Expression VisitConditionalExpression(ConditionalExpression expression)
-        {
-            return expression;
-        }
+        protected override Expression VisitConditionalExpression(ConditionalExpression expression) => expression;
 
-        protected override Expression VisitBinaryExpression(BinaryExpression expression)
-        {
-            return expression;
-        }
+        protected override Expression VisitBinaryExpression(BinaryExpression expression) => expression;
 
-        protected override Expression VisitTypeBinaryExpression(TypeBinaryExpression expression)
-        {
-            return expression;
-        }
+        protected override Expression VisitTypeBinaryExpression(TypeBinaryExpression expression) => expression;
 
-        protected override Expression VisitLambdaExpression(LambdaExpression expression)
-        {
-            return expression;
-        }
+        protected override Expression VisitLambdaExpression(LambdaExpression expression) => expression;
 
-        protected override Expression VisitInvocationExpression(InvocationExpression expression)
-        {
-            return expression;
-        }
+        protected override Expression VisitInvocationExpression(InvocationExpression expression) => expression;
     }
 }

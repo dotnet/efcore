@@ -56,10 +56,7 @@ namespace Microsoft.Data.Entity.Query
 
             public virtual StringBuilder Text { get; }
 
-            public virtual IList<TreeNode> Children
-            {
-                get { return _children; }
-            }
+            public virtual IList<TreeNode> Children => _children;
 
             public virtual int Position { get; set; }
         }
@@ -189,7 +186,6 @@ namespace Microsoft.Data.Entity.Query
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
                 var argumentNodes = new List<TreeNode>();
-                var parameterNodes = new List<TreeNode>();
 
                 foreach (var argument in node.Arguments)
                 {
@@ -226,12 +222,9 @@ namespace Microsoft.Data.Entity.Query
 
             private string PrintType(Type type)
             {
-                if (type.IsConstructedGenericType)
-                {
-                    return type.Name.Substring(0, type.Name.IndexOf('`')) + "<" + string.Join(", ", type.GenericTypeArguments.Select(PrintType)) + ">";
-                }
-
-                return type.Name;
+                return type.IsConstructedGenericType 
+                    ? type.Name.Substring(0, type.Name.IndexOf('`')) + "<" + string.Join(", ", type.GenericTypeArguments.Select(PrintType)) + ">" 
+                    : type.Name;
             }
         }
     }

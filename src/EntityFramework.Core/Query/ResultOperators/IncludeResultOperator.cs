@@ -33,14 +33,12 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         public virtual IReadOnlyList<PropertyInfo> ChainedNavigationProperties => _chainedNavigationProperties;
 
         public override string ToString()
-        {
-            return "Include("
-                   + FormattingExpressionTreeVisitor.Format(NavigationPropertyPath)
-                   + (_chainedNavigationProperties != null
-                       ? "." + _chainedNavigationProperties.Select(p => p.Name).Join(".")
-                       : null)
-                   + ")";
-        }
+            => "Include("
+               + FormattingExpressionTreeVisitor.Format(NavigationPropertyPath)
+               + (_chainedNavigationProperties != null
+                   ? "." + _chainedNavigationProperties.Select(p => p.Name).Join(".")
+                   : null)
+               + ")";
 
         public override ResultOperatorBase Clone([NotNull] CloneContext cloneContext)
         {

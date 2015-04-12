@@ -18,10 +18,8 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         {
         }
 
-        protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
-        {
-            return new AsNoTrackingResultOperator();
-        }
+        protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext) 
+            => new AsNoTrackingResultOperator();
 
         public override Expression Resolve(
             ParameterExpression inputParameter,

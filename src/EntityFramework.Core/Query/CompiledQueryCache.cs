@@ -183,15 +183,12 @@ namespace Microsoft.Data.Entity.Query
 
             protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
             {
-                if (methodCallExpression.Method.IsGenericMethod
-                    && ReferenceEquals(
-                        methodCallExpression.Method.GetGenericMethodDefinition(),
-                        QueryExtensions.PropertyMethodInfo))
-                {
-                    return methodCallExpression;
-                }
-
-                return base.VisitMethodCallExpression(methodCallExpression);
+                return methodCallExpression.Method.IsGenericMethod
+                       && ReferenceEquals(
+                           methodCallExpression.Method.GetGenericMethodDefinition(),
+                           QueryExtensions.PropertyMethodInfo)
+                    ? methodCallExpression
+                    : base.VisitMethodCallExpression(methodCallExpression);
             }
 
             public override Expression VisitExpression(Expression expression)
@@ -353,8 +350,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static QueryParser CreateQueryParser()
-        {
-            return new QueryParser(
+            => new QueryParser(
                 new ExpressionTreeParser(
                     CreateNodeTypeProvider(),
                     new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
@@ -362,7 +358,6 @@ namespace Microsoft.Data.Entity.Query
                             new PartialEvaluatingExpressionTreeProcessor(),
                             new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
                         })));
-        }
 
         private static CompoundNodeTypeProvider CreateNodeTypeProvider()
         {

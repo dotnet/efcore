@@ -26,11 +26,9 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         public virtual ConstantExpression Expression => _annotationExpression;
 
         public override string ToString()
-        {
-            return "AnnotateQuery("
-                   + FormattingExpressionTreeVisitor.Format(_annotationExpression)
-                   + ")";
-        }
+            => "AnnotateQuery("
+               + FormattingExpressionTreeVisitor.Format(_annotationExpression)
+               + ")";
 
         public override ResultOperatorBase Clone([NotNull] CloneContext cloneContext)
         {
@@ -43,9 +41,6 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         {
         }
 
-        public override StreamedSequence ExecuteInMemory<T>([NotNull] StreamedSequence input)
-        {
-            return input;
-        }
+        public override StreamedSequence ExecuteInMemory<T>([NotNull] StreamedSequence input) => input;
     }
 }

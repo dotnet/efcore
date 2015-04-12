@@ -71,14 +71,10 @@ namespace Microsoft.Data.Entity.Query
         protected abstract ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor([NotNull] IQuerySource querySource);
 
         protected virtual ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor([NotNull] IQuerySource querySource)
-        {
-            return new ProjectionExpressionTreeVisitor(this);
-        }
+            => new ProjectionExpressionTreeVisitor(this);
 
         protected virtual ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor([NotNull] Ordering ordering)
-        {
-            return new DefaultQueryExpressionTreeVisitor(this);
-        }
+            => new DefaultQueryExpressionTreeVisitor(this);
 
         public virtual Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
@@ -205,9 +201,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _TaskToSequence<T>(Task<T> task)
-        {
-            return new TaskResultAsyncEnumerable<T>(task);
-        }
+            => new TaskResultAsyncEnumerable<T>(task);
 
         protected virtual void IncludeNavigations(
             [NotNull] QueryModel queryModel,
@@ -367,20 +361,17 @@ namespace Microsoft.Data.Entity.Query
         private static ICollection<Func<TResult, object>> GetEntityAccessors<TResult>(
             IEnumerable<QuerySourceReferenceExpression> querySourceReferenceExpressions,
             Expression selector)
-        {
-            return
-                (from qsre in querySourceReferenceExpressions
-                    select
-                        (Func<TResult, object>)
-                            AccessorFindingExpressionTreeVisitor
-                                .FindAccessorLambda(
-                                    qsre,
-                                    selector,
-                                    Expression.Parameter(typeof(TResult)))
-                                .Compile()
-                    )
-                    .ToList();
-        }
+            => (from qsre in querySourceReferenceExpressions
+                select
+                    (Func<TResult, object>)
+                        AccessorFindingExpressionTreeVisitor
+                            .FindAccessorLambda(
+                                qsre,
+                                selector,
+                                Expression.Parameter(typeof(TResult)))
+                            .Compile()
+                )
+                .ToList();
 
         protected virtual Func<QueryContext, TResults> CreateExecutorLambda<TResults>()
         {
@@ -844,10 +835,8 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private Expression ReplaceClauseReferences(Expression expression)
-        {
-            return new MemberAccessBindingExpressionTreeVisitor(_querySourceMapping, this)
+            => new MemberAccessBindingExpressionTreeVisitor(_querySourceMapping, this)
                 .VisitExpression(expression);
-        }
 
         public virtual Expression BindMethodCallToValueReader(
             [NotNull] MethodCallExpression methodCallExpression,

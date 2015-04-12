@@ -38,10 +38,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             return expressionStringBuilder.ToString();
         }
 
-        public override string ToString()
-        {
-            return _out.ToString();
-        }
+        public override string ToString() => _out.ToString();
 
         private void AddLabel(LabelTarget label)
         {
@@ -110,15 +107,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             return id;
         }
 
-        private void Out(string s)
-        {
-            _out.Append(s);
-        }
+        private void Out(string s) => _out.Append(s);
 
-        private void Out(char c)
-        {
-            _out.Append(c);
-        }
+        private void Out(char c) => _out.Append(c);
 
         private void VisitExpressions<T>(char open, IList<T> expressions, char close, string seperator = ", ")
             where T : Expression

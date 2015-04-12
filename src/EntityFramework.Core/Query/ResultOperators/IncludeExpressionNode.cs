@@ -47,12 +47,10 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         public override Expression Resolve(
             ParameterExpression inputParameter,
             Expression expressionToBeResolved,
-            ClauseGenerationContext clauseGenerationContext)
-        {
-            return Source.Resolve(
+            ClauseGenerationContext clauseGenerationContext) 
+            => Source.Resolve(
                 inputParameter,
                 expressionToBeResolved,
                 clauseGenerationContext);
-        }
     }
 }

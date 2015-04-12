@@ -33,9 +33,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 .GetDeclaredMethod("_Result");
 
         [UsedImplicitly]
-        private static T _Result<T>(Task<T> task)
-        {
-            return task.Result;
-        }
+        private static T _Result<T>(Task<T> task) => task.Result;
     }
 }

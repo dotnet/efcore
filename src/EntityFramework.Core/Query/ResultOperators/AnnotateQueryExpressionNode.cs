@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         private readonly ConstantExpression _annotationExpression;
 
         public AnnotateQueryExpressionNode(
-            [NotNull] MethodCallExpressionParseInfo parseInfo,
+            MethodCallExpressionParseInfo parseInfo,
             [NotNull] ConstantExpression annotationExpression)
             : base(
                 Check.NotNull(parseInfo, nameof(parseInfo)),

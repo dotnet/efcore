@@ -24,24 +24,20 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IQuerySource querySource,
             [NotNull] Expression result,
             [NotNull] Expression parentScope)
-        {
-            return Expression.Call(
+            => Expression.Call(
                 _createMethodInfo.MakeGenericMethod(result.Type),
                 Expression.Constant(querySource),
                 result,
                 parentScope);
-        }
 
         public static Expression GetResult(
             [NotNull] Expression querySourceScope,
             [NotNull] IQuerySource querySource,
             [NotNull] Type resultType)
-        {
-            return Expression.Call(
+            => Expression.Call(
                 querySourceScope,
                 _getResultMethodInfo.MakeGenericMethod(resultType),
                 Expression.Constant(querySource));
-        }
 
         private readonly QuerySourceScope _parentScope;
         private readonly IQuerySource _querySource;
@@ -55,24 +51,18 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static QuerySourceScope<TResult> Create<TResult>(
             IQuerySource querySource, TResult result, QuerySourceScope parentScope)
-        {
-            return new QuerySourceScope<TResult>(querySource, result, parentScope);
-        }
+            => new QuerySourceScope<TResult>(querySource, result, parentScope);
 
         [UsedImplicitly]
         private TResult GetResult<TResult>(IQuerySource querySource)
-        {
-            return _querySource == querySource
+            => _querySource == querySource
                 ? ((QuerySourceScope<TResult>)this).Result
                 : _parentScope.GetResult<TResult>(querySource);
-        }
 
         public virtual object GetResult([NotNull] IQuerySource querySource)
-        {
-            return _querySource == querySource
+            => _querySource == querySource
                 ? UntypedResult
                 : _parentScope.GetResult(querySource);
-        }
 
         public abstract object UntypedResult { get; }
     }

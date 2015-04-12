@@ -10,12 +10,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
     public abstract class ExpressionTreeVisitorBase : ExpressionTreeVisitor
     {
         public override Expression VisitExpression([CanBeNull] Expression expression)
-        {
-            return
-                expression == null
-                || expression.NodeType == ExpressionType.Block
-                    ? expression
-                    : base.VisitExpression(expression);
-        }
+            => expression == null
+               || expression.NodeType == ExpressionType.Block
+                ? expression
+                : base.VisitExpression(expression);
     }
 }
