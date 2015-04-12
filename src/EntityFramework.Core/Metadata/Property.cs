@@ -190,10 +190,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public static bool AreCompatible([NotNull] IReadOnlyList<Property> principalProperties,
             [NotNull] IReadOnlyList<Property> dependentProperties)
-        {
-            return ArePropertyCountsEqual(principalProperties, dependentProperties)
-                   && ArePropertyTypesCompatible(principalProperties, dependentProperties);
-        }
+            => ArePropertyCountsEqual(principalProperties, dependentProperties)
+               && ArePropertyTypesCompatible(principalProperties, dependentProperties);
 
         public static void EnsureCompatible([NotNull] IReadOnlyList<Property> principalProperties,
             [NotNull] IReadOnlyList<Property> dependentProperties)
@@ -218,15 +216,11 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        private static bool ArePropertyCountsEqual(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties)
-        {
-            return principalProperties.Count == dependentProperties.Count;
-        }
+        private static bool ArePropertyCountsEqual(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties) 
+            => principalProperties.Count == dependentProperties.Count;
 
-        private static bool ArePropertyTypesCompatible(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties)
-        {
-            return principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
-        }
+        private static bool ArePropertyTypesCompatible(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties) 
+            => principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
 
         bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;
 

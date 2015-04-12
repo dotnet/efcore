@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -90,12 +89,10 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        [NotNull]
         public virtual IReadOnlyList<Property> Properties { get; }
 
         public virtual EntityType EntityType => Properties[0].EntityType;
 
-        [NotNull]
         public virtual Key PrincipalKey => _principalKey;
 
         public virtual EntityType PrincipalEntityType { get; }
@@ -139,10 +136,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        protected virtual bool DefaultIsRequired
-        {
-            get { return !((IForeignKey)this).Properties.Any(p => p.IsNullable); }
-        }
+        protected virtual bool DefaultIsRequired => !((IForeignKey)this).Properties.Any(p => p.IsNullable);
 
         IReadOnlyList<IProperty> IForeignKey.Properties => Properties;
 
@@ -160,15 +154,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         bool IForeignKey.IsRequired => IsRequired ?? DefaultIsRequired;
 
-        public override string ToString()
-        {
-            return string.Format(
-                CultureInfo.CurrentCulture,
-                "'{0}' {1} -> '{2}' {3}",
-                EntityType.DisplayName(),
-                Property.Format(Properties),
-                PrincipalEntityType.DisplayName(),
-                Property.Format(PrincipalKey.Properties));
-        }
+        public override string ToString() 
+            => $"'{EntityType.DisplayName()}' {Property.Format(Properties)} -> '{PrincipalEntityType.DisplayName()}' {Property.Format(PrincipalKey.Properties)}";
     }
 }

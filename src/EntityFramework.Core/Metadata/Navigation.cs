@@ -47,9 +47,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         IForeignKey INavigation.ForeignKey => ForeignKey;
 
-        public override string ToString()
-        {
-            return EntityType + "." + Name;
-        }
+        public override string ToString() => EntityType + "." + Name;
     }
 }

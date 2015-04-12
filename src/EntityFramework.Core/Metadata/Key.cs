@@ -13,28 +13,18 @@ namespace Microsoft.Data.Entity.Metadata
         public Key([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
-            Check.HasNoNulls(properties, "properties");
+            Check.HasNoNulls(properties, nameof(properties));
             MetadataHelper.CheckSameEntityType(properties, "properties");
 
             Properties = properties;
         }
 
-        [NotNull]
         public virtual IReadOnlyList<Property> Properties { get; }
 
-        public virtual EntityType EntityType
-        {
-            get { return Properties[0].EntityType; }
-        }
+        public virtual EntityType EntityType => Properties[0].EntityType;
 
-        IReadOnlyList<IProperty> IKey.Properties
-        {
-            get { return Properties; }
-        }
+        IReadOnlyList<IProperty> IKey.Properties => Properties;
 
-        IEntityType IKey.EntityType
-        {
-            get { return EntityType; }
-        }
+        IEntityType IKey.EntityType => EntityType;
     }
 }

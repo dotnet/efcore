@@ -24,9 +24,6 @@ namespace Microsoft.Data.Entity.Metadata
         // Issue #246
         public abstract EntityType EntityType { get; }
 
-        IEntityType IPropertyBase.EntityType
-        {
-            get { return EntityType; }
-        }
+        IEntityType IPropertyBase.EntityType => EntityType;
     }
 }

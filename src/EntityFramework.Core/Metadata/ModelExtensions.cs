@@ -9,11 +9,9 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class ModelExtensions
     {
+        // TODO: Perf: consider not needing to do a full scan here
         public static IEnumerable<INavigation> GetNavigations(
-            [NotNull] this IModel model, [NotNull] IForeignKey foreignKey)
-        {
-            // TODO: Perf: consider not needing to do a full scan here
-            return model.EntityTypes.SelectMany(e => e.GetNavigations()).Where(n => n.ForeignKey == foreignKey);
-        }
+            [NotNull] this IModel model, [NotNull] IForeignKey foreignKey) 
+            => model.EntityTypes.SelectMany(e => e.GetNavigations()).Where(n => n.ForeignKey == foreignKey);
     }
 }

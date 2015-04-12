@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata
         public Index([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
-            Check.HasNoNulls(properties, "properties");
+            Check.HasNoNulls(properties, nameof(properties));
             MetadataHelper.CheckSameEntityType(properties, "properties");
 
             Properties = properties;
@@ -21,31 +21,16 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual bool? IsUnique { get; set; }
 
-        protected virtual bool DefaultIsUnique
-        {
-            get { return false; }
-        }
+        protected virtual bool DefaultIsUnique => false;
 
         public virtual IReadOnlyList<Property> Properties { get; }
 
-        public virtual EntityType EntityType
-        {
-            get { return Properties[0].EntityType; }
-        }
+        public virtual EntityType EntityType => Properties[0].EntityType;
 
-        IReadOnlyList<IProperty> IIndex.Properties
-        {
-            get { return Properties; }
-        }
+        IReadOnlyList<IProperty> IIndex.Properties => Properties;
 
-        IEntityType IIndex.EntityType
-        {
-            get { return EntityType; }
-        }
+        IEntityType IIndex.EntityType => EntityType;
 
-        bool IIndex.IsUnique
-        {
-            get { return IsUnique ?? DefaultIsUnique; }
-        }
+        bool IIndex.IsUnique => IsUnique ?? DefaultIsUnique;
     }
 }

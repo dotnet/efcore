@@ -8,9 +8,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class EntityTypeNameComparer : IComparer<EntityType>
     {
-        public virtual int Compare(EntityType x, EntityType y)
-        {
-            return StringComparer.Ordinal.Compare(x.Name, y.Name);
-        }
+        public virtual int Compare(EntityType x, EntityType y) 
+            => StringComparer.Ordinal.Compare(x.Name, y.Name);
     }
 }

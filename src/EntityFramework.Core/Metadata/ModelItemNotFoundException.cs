@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
@@ -16,13 +15,11 @@ namespace Microsoft.Data.Entity.Metadata
         public ModelItemNotFoundException([NotNull] string message)
             : base(message)
         {
-            Check.NotEmpty(message, nameof(message));
         }
 
         public ModelItemNotFoundException([NotNull] string message, [CanBeNull] Exception innerException)
             : base(message, innerException)
         {
-            Check.NotEmpty(message, nameof(message));
         }
     }
 }

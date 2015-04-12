@@ -62,20 +62,11 @@ namespace Microsoft.Data.Entity.Metadata
             return type;
         }
 
-        public virtual object Value
-        {
-            get { return _value; }
-        }
+        public virtual object Value => _value;
 
-        public virtual string ValueString
-        {
-            get { return _value == null ? null : Serialize(); }
-        }
+        public virtual string ValueString => _value == null ? null : Serialize();
 
-        public virtual string TypeString
-        {
-            get { return _value == null ? null : _value.GetType().FullName; }
-        }
+        public virtual string TypeString => _value?.GetType().FullName;
 
         private string Serialize()
         {

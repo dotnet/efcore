@@ -47,17 +47,12 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType;
         }
 
-        public virtual EntityType GetOrAddEntityType([NotNull] Type type)
-        {
-            return FindEntityType(type) ?? AddEntityType(type);
-        }
+        public virtual EntityType GetOrAddEntityType([NotNull] Type type) 
+            => FindEntityType(type) ?? AddEntityType(type);
 
-        public virtual EntityType GetOrAddEntityType([NotNull] string name)
-        {
-            return FindEntityType(name) ?? AddEntityType(name);
-        }
+        public virtual EntityType GetOrAddEntityType([NotNull] string name) 
+            => FindEntityType(name) ?? AddEntityType(name);
 
-        [CanBeNull]
         public virtual EntityType FindEntityType([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -65,7 +60,6 @@ namespace Microsoft.Data.Entity.Metadata
             return type.GetTypeInfo().IsClass ? FindEntityType(new EntityType(type, this)) : null;
         }
 
-        [CanBeNull]
         public virtual EntityType FindEntityType([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -73,12 +67,10 @@ namespace Microsoft.Data.Entity.Metadata
             return FindEntityType(new EntityType(name, this));
         }
 
-        private EntityType FindEntityType(EntityType entityType)
-        {
-            return _entities.TryGetValue(entityType, out entityType)
-                ? entityType
-                : null;
-        }
+        private EntityType FindEntityType(EntityType entityType) 
+            => _entities.TryGetValue(entityType, out entityType)
+            ? entityType
+            : null;
 
         public virtual EntityType GetEntityType([NotNull] Type type)
         {
@@ -127,10 +119,7 @@ namespace Microsoft.Data.Entity.Metadata
             return removedEntityType;
         }
 
-        public virtual IReadOnlyList<EntityType> EntityTypes
-        {
-            get { return _entities; }
-        }
+        public virtual IReadOnlyList<EntityType> EntityTypes => _entities;
 
         public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IEntityType entityType)
         {
@@ -164,44 +153,23 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual string StorageName { get; [param: CanBeNull] set; }
 
-        IEntityType IModel.FindEntityType(Type type)
-        {
-            return FindEntityType(type);
-        }
+        IEntityType IModel.FindEntityType(Type type) => FindEntityType(type);
 
-        IEntityType IModel.GetEntityType(Type type)
-        {
-            return GetEntityType(type);
-        }
+        IEntityType IModel.GetEntityType(Type type) => GetEntityType(type);
 
-        IEntityType IModel.FindEntityType(string name)
-        {
-            return FindEntityType(name);
-        }
+        IEntityType IModel.FindEntityType(string name) => FindEntityType(name);
 
-        IEntityType IModel.GetEntityType(string name)
-        {
-            return GetEntityType(name);
-        }
+        IEntityType IModel.GetEntityType(string name) => GetEntityType(name);
 
-        IReadOnlyList<IEntityType> IModel.EntityTypes
-        {
-            get { return EntityTypes; }
-        }
+        IReadOnlyList<IEntityType> IModel.EntityTypes => EntityTypes;
 
-        IEnumerable<IForeignKey> IModel.GetReferencingForeignKeys(IEntityType entityType)
-        {
-            return GetReferencingForeignKeys(entityType);
-        }
+        IEnumerable<IForeignKey> IModel.GetReferencingForeignKeys(IEntityType entityType) 
+            => GetReferencingForeignKeys(entityType);
 
-        IEnumerable<IForeignKey> IModel.GetReferencingForeignKeys(IKey key)
-        {
-            return GetReferencingForeignKeys(key);
-        }
+        IEnumerable<IForeignKey> IModel.GetReferencingForeignKeys(IKey key) 
+            => GetReferencingForeignKeys(key);
 
-        IEnumerable<IForeignKey> IModel.GetReferencingForeignKeys(IProperty property)
-        {
-            return GetReferencingForeignKeys(property);
-        }
+        IEnumerable<IForeignKey> IModel.GetReferencingForeignKeys(IProperty property) 
+            => GetReferencingForeignKeys(property);
     }
 }

@@ -99,7 +99,6 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType.GetProperties().Concat<IPropertyBase>(entityType.GetNavigations());
         }
 
-        [NotNull]
         public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
