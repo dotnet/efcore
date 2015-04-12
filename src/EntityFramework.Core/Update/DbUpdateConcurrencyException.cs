@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Update
 {
@@ -15,32 +14,36 @@ namespace Microsoft.Data.Entity.Update
         {
         }
 
-        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] DbContext context)
+        public DbUpdateConcurrencyException(
+            [NotNull] string message, 
+            [NotNull] DbContext context)
             : base(message, context)
         {
-            Check.NotEmpty(message, nameof(message));
-            Check.NotNull(context, nameof(context));
         }
 
-        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException)
+        public DbUpdateConcurrencyException(
+            [NotNull] string message, 
+            [NotNull] DbContext context, 
+            [CanBeNull] Exception innerException)
             : base(message, context, innerException)
         {
-            Check.NotEmpty(message, nameof(message));
-            Check.NotNull(context, nameof(context));
         }
 
-        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] DbContext context, [NotNull] IReadOnlyList<InternalEntityEntry> entries)
+        public DbUpdateConcurrencyException(
+            [NotNull] string message, 
+            [NotNull] DbContext context, 
+            [NotNull] IReadOnlyList<InternalEntityEntry> entries)
             : base(message, context, entries)
         {
-            Check.NotEmpty(message, nameof(message));
-            Check.NotNull(context, nameof(context));
         }
 
-        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException, [NotNull] IReadOnlyList<InternalEntityEntry> entries)
+        public DbUpdateConcurrencyException(
+            [NotNull] string message, 
+            [NotNull] DbContext context, 
+            [CanBeNull] Exception innerException, 
+            [NotNull] IReadOnlyList<InternalEntityEntry> entries)
             : base(message, context, innerException, entries)
         {
-            Check.NotEmpty(message, nameof(message));
-            Check.NotNull(context, nameof(context));
         }
     }
 }

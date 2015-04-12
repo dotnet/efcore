@@ -71,9 +71,6 @@ namespace Microsoft.Data.Entity.Utilities
             while (Interlocked.CompareExchange(ref _value, newValue, originalValue) != originalValue);
         }
 
-        public bool HasValue
-        {
-            get { return _value != null; }
-        }
+        public bool HasValue => _value != null;
     }
 }

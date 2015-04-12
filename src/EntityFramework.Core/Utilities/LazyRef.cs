@@ -47,10 +47,7 @@ namespace Microsoft.Data.Entity.Utilities
             }
         }
 
-        public bool HasValue
-        {
-            get { return _initializer == null; }
-        }
+        public bool HasValue => _initializer == null;
 
         public void Reset([NotNull] Func<T> initializer)
         {

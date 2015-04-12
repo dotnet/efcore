@@ -15,10 +15,7 @@ namespace Microsoft.Data.Entity.Utilities
         private readonly HashSet<TEdge> _edges = new HashSet<TEdge>();
         private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap = new Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>>();
 
-        public virtual IEnumerable<TEdge> Edges
-        {
-            get { return _edges; }
-        }
+        public virtual IEnumerable<TEdge> Edges => _edges;
 
         public virtual IEnumerable<TEdge> GetEdges([NotNull] TVertex from, [NotNull] TVertex to)
         {
@@ -48,10 +45,8 @@ namespace Microsoft.Data.Entity.Utilities
             _vertices.UnionWith(verticies);
         }
 
-        public virtual void AddEdge([NotNull] TVertex from, [NotNull] TVertex to, [NotNull] TEdge edge)
-        {
-            AddEdges(from, to, new[] { edge });
-        }
+        public virtual void AddEdge([NotNull] TVertex from, [NotNull] TVertex to, [NotNull] TEdge edge) 
+            => AddEdges(@from, to, new[] { edge });
 
         public virtual void AddEdges([NotNull] TVertex from, [NotNull] TVertex to, [NotNull] IEnumerable<TEdge> edges)
         {
@@ -87,22 +82,15 @@ namespace Microsoft.Data.Entity.Utilities
             _edges.UnionWith(edges);
         }
 
-        public virtual IReadOnlyList<TVertex> TopologicalSort()
-        {
-            return TopologicalSort(null, null);
-        }
+        public virtual IReadOnlyList<TVertex> TopologicalSort() => TopologicalSort(null, null);
 
         public virtual IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> canBreakEdge)
-        {
-            return TopologicalSort(canBreakEdge, null);
-        }
+            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> canBreakEdge) 
+            => TopologicalSort(canBreakEdge, null);
 
         public virtual IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
-        {
-            return TopologicalSort(null, formatCycle);
-        }
+            [CanBeNull] Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle) 
+            => TopologicalSort(null, formatCycle);
 
         public virtual IReadOnlyList<TVertex> TopologicalSort(
             [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> canBreakEdge,
@@ -233,10 +221,8 @@ namespace Microsoft.Data.Entity.Utilities
             return sortedQueue;
         }
 
-        public virtual IReadOnlyList<List<TVertex>> BatchingTopologicalSort()
-        {
-            return BatchingTopologicalSort(null);
-        }
+        public virtual IReadOnlyList<List<TVertex>> BatchingTopologicalSort() 
+            => BatchingTopologicalSort(null);
 
         public virtual IReadOnlyList<List<TVertex>> BatchingTopologicalSort(
             [CanBeNull] Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
@@ -343,24 +329,18 @@ namespace Microsoft.Data.Entity.Utilities
             return result;
         }
 
-        public override IEnumerable<TVertex> Vertices
-        {
-            get { return _vertices; }
-        }
+        public override IEnumerable<TVertex> Vertices => _vertices;
 
         public override IEnumerable<TVertex> GetOutgoingNeighbours([NotNull] TVertex from)
         {
             Dictionary<TVertex, List<TEdge>> successorSet;
-            if (_successorMap.TryGetValue(from, out successorSet))
-            {
-                return successorSet.Keys;
-            }
-            return Enumerable.Empty<TVertex>();
+
+            return _successorMap.TryGetValue(@from, out successorSet) 
+                ? successorSet.Keys 
+                : Enumerable.Empty<TVertex>();
         }
 
-        public override IEnumerable<TVertex> GetIncomingNeighbours([NotNull] TVertex to)
-        {
-            return _successorMap.Where(kvp => kvp.Value.ContainsKey(to)).Select(kvp => kvp.Key);
-        }
+        public override IEnumerable<TVertex> GetIncomingNeighbours([NotNull] TVertex to) 
+            => _successorMap.Where(kvp => kvp.Value.ContainsKey(to)).Select(kvp => kvp.Key);
     }
 }

@@ -49,10 +49,7 @@ namespace Microsoft.Data.Entity.Utilities
                 _asyncLock = asyncLock;
             }
 
-            public void Dispose()
-            {
-                _asyncLock._semaphore.Release();
-            }
+            public void Dispose() => _asyncLock._semaphore.Release();
         }
     }
 }

@@ -90,15 +90,9 @@ namespace Microsoft.Data.Entity.Utilities
             return this;
         }
 
-        public virtual IDisposable Indent()
-        {
-            return new Indenter(this);
-        }
+        public virtual IDisposable Indent() => new Indenter(this);
 
-        public override string ToString()
-        {
-            return _stringBuilder.ToString();
-        }
+        public override string ToString() => _stringBuilder.ToString();
 
         private void DoIndent()
         {

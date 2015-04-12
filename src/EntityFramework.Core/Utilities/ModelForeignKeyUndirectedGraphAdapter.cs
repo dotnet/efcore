@@ -19,20 +19,13 @@ namespace Microsoft.Data.Entity.Utilities
             _model = model;
         }
 
-        public override IEnumerable<EntityType> Vertices
-        {
-            get { return _model.EntityTypes; }
-        }
+        public override IEnumerable<EntityType> Vertices => _model.EntityTypes;
 
         public override IEnumerable<EntityType> GetOutgoingNeighbours(EntityType from)
-        {
-            return from.ForeignKeys.Select(fk => fk.PrincipalEntityType)
-                .Union(_model.GetReferencingForeignKeys(from).Select(fk => fk.EntityType));
-        }
+            => @from.ForeignKeys.Select(fk => fk.PrincipalEntityType)
+                .Union(_model.GetReferencingForeignKeys(@from).Select(fk => fk.EntityType));
 
         public override IEnumerable<EntityType> GetIncomingNeighbours(EntityType to)
-        {
-            return GetOutgoingNeighbours(to);
-        }
+            => GetOutgoingNeighbours(to);
     }
 }

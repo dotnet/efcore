@@ -28,7 +28,7 @@ namespace System.Linq.Expressions
             {
                 throw new ArgumentException(
                     Strings.InvalidPropertyExpression(propertyAccessExpression),
-                    "propertyAccessExpression");
+                    nameof(propertyAccessExpression));
             }
 
             return propertyInfo;
@@ -45,7 +45,7 @@ namespace System.Linq.Expressions
             {
                 throw new ArgumentException(
                     Strings.InvalidPropertiesExpression(propertyAccessExpression),
-                    "propertyAccessExpression");
+                    nameof(propertyAccessExpression));
             }
 
             return propertyPaths;
@@ -102,7 +102,7 @@ namespace System.Linq.Expressions
             {
                 throw new ArgumentException(
                     Strings.InvalidPropertiesExpression(propertyAccessExpression),
-                    "propertyAccessExpression");
+                    nameof(propertyAccessExpression));
             }
 
             return propertyPath;
