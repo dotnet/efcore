@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Storage;
@@ -12,30 +11,20 @@ namespace Microsoft.Data.Entity.Relational
     public class RelationalObjectArrayValueReader : IValueReader
     {
         private readonly object[] _values;
+        private readonly int _offset;
 
-        public RelationalObjectArrayValueReader([NotNull] DbDataReader dataReader)
+        public RelationalObjectArrayValueReader([NotNull] object[] values, int offset)
         {
-            Debug.Assert(dataReader != null); // hot path
+            Debug.Assert(values != null); // hot path
 
-            _values = new object[dataReader.FieldCount];
-
-            dataReader.GetValues(_values);
+            _values = values;
+            _offset = offset;
         }
 
-        public virtual bool IsNull(int index)
-        {
-            Debug.Assert(index >= 0 && index < Count);
+        public virtual bool IsNull(int index) => ReferenceEquals(_values[_offset + index], DBNull.Value);
 
-            return ReferenceEquals(_values[index], DBNull.Value);
-        }
+        public virtual T ReadValue<T>(int index) => (T)_values[_offset + index];
 
-        public virtual T ReadValue<T>(int index)
-        {
-            Debug.Assert(index >= 0 && index < Count);
-
-            return (T)_values[index];
-        }
-
-        public virtual int Count => _values.Length;
+        public virtual int Count => _values.Length - _offset;
     }
 }

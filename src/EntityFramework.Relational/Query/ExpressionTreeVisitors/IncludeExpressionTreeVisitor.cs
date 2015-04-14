@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -262,10 +263,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         [UsedImplicitly]
         private static IValueReader CreateValueReaderForInclude(
-            QueryContext queryContext, DbDataReader dataReader, IEntityType entityType)
-        {
-            return ((RelationalQueryContext)queryContext).ValueReaderFactory.CreateValueReader(dataReader);
-        }
+            QueryContext queryContext, DbDataReader dataReader, IEntityType entityType) 
+            => ((RelationalQueryContext)queryContext).ValueReaderFactory.CreateValueReader(dataReader, entityType.GetValueTypes(), 0);
 
         private Expression BuildJoinEqualityExpression(
             INavigation navigation,

@@ -145,13 +145,11 @@ namespace Microsoft.Data.Entity.Relational.Query
                 _materializer = materializer;
             }
 
-            public IEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<IValueReader, EntityKey> keyFactory)
+            public IEnumerable<EntityLoadInfo> GetRelatedValues(IEntityType entityType, EntityKey key, Func<IValueReader, EntityKey> keyFactory)
             {
                 yield return
                     new EntityLoadInfo(
-                        new OffsetValueReaderDecorator(
-                            _queryContext.CreateValueReader(_readerIndex),
-                            _readerOffset),
+                        _queryContext.CreateValueReader(entityType, _readerIndex, _readerOffset),
                         _materializer);
             }
 
@@ -187,11 +185,11 @@ namespace Microsoft.Data.Entity.Relational.Query
                     = new IncludeCollectionIterator(relatedValueReaders.GetEnumerator());
             }
 
-            public IEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<IValueReader, EntityKey> keyFactory)
+            public IEnumerable<EntityLoadInfo> GetRelatedValues(IEntityType entityType, EntityKey key, Func<IValueReader, EntityKey> keyFactory)
             {
                 return
                     _includeCollectionIterator
-                        .GetRelatedValues(key, keyFactory)
+                        .GetRelatedValues(entityType, key, keyFactory)
                         .Select(vr => new EntityLoadInfo(vr, _materializer));
             }
 

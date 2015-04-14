@@ -436,11 +436,12 @@ namespace Microsoft.Data.Entity.Relational.Query
             IQuerySource querySource,
             QueryContext queryContext,
             QuerySourceScope parentQuerySourceScope,
-            DbDataReader dataReader)
+            DbDataReader dataReader,
+            Func<IEnumerable<Type>> valueTypes)
         {
             return new QuerySourceScope<IValueReader>(
                 querySource,
-                ((RelationalQueryContext)queryContext).ValueReaderFactory.CreateValueReader(dataReader),
+                ((RelationalQueryContext)queryContext).ValueReaderFactory.CreateValueReader(dataReader, valueTypes(), 0),
                 parentQuerySourceScope);
         }
 
@@ -459,17 +460,12 @@ namespace Microsoft.Data.Entity.Relational.Query
             bool queryStateManager,
             EntityKeyFactory entityKeyFactory,
             IReadOnlyList<IProperty> keyProperties,
-            Func<IValueReader, object> materializer)
+            Func<IValueReader, object> materializer,
+            Func<IEnumerable<Type>> valueTypes)
             where TEntity : class
         {
             var valueReader
-                = ((RelationalQueryContext)queryContext).ValueReaderFactory
-                    .CreateValueReader(dataReader);
-
-            if (readerOffset > 0)
-            {
-                valueReader = new OffsetValueReaderDecorator(valueReader, readerOffset);
-            }
+                = ((RelationalQueryContext)queryContext).ValueReaderFactory.CreateValueReader(dataReader, valueTypes(), readerOffset);
 
             var entityKey
                 = entityKeyFactory.Create(entityType, keyProperties, valueReader);

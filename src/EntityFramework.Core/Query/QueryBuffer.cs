@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.Query
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
+                relatedEntitiesLoaders[currentNavigationIndex](targetEntityType, primaryKey, relatedKeyFactory)
                     .Select(eli =>
                         {
                             var targetEntity
@@ -268,7 +268,9 @@ namespace Microsoft.Data.Entity.Query
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory), async (eli, ct) =>
+                await AsyncEnumerableExtensions.Select(
+                    relatedEntitiesLoaders[currentNavigationIndex](targetEntityType, primaryKey, relatedKeyFactory), 
+                    async (eli, ct) =>
                     {
                         var targetEntity
                             = GetTargetEntity(

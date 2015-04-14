@@ -4,7 +4,9 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -45,8 +47,15 @@ namespace Microsoft.Data.Entity.Relational.Query
             _activeDataReaders.Add(dataReader);
         }
 
-        public virtual IValueReader CreateValueReader(int readerIndex) 
-            => ValueReaderFactory.CreateValueReader(_activeDataReaders[_activeReaderOffset + readerIndex]);
+        public virtual IValueReader CreateValueReader([NotNull] IEntityType entityType, int readerIndex, int readerOffset)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return ValueReaderFactory.CreateValueReader(
+                _activeDataReaders[_activeReaderOffset + readerIndex],
+                entityType.GetValueTypes(),
+                readerOffset);
+        }
 
         public virtual void BeginIncludeScope() => _activeReaderOffset = _activeDataReaders.Count;
 

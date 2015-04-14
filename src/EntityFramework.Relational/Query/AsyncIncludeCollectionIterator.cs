@@ -29,9 +29,11 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         public virtual IAsyncEnumerable<IValueReader> GetRelatedValues(
+            [NotNull] IEntityType entityType,
             [NotNull] EntityKey primaryKey,
             [NotNull] Func<IValueReader, EntityKey> relatedKeyFactory)
         {
+            Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(primaryKey, nameof(primaryKey));
             Check.NotNull(relatedKeyFactory, nameof(relatedKeyFactory));
 
