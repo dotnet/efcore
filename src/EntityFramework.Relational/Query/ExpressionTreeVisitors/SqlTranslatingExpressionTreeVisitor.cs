@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     {
                         return expressionType == ExpressionType.Equal
                             ? (Expression)new IsNullExpression(columnExpression)
-                            : new IsNotNullExpression(columnExpression);
+                            : Expression.Not(new IsNullExpression(columnExpression));
                     }
                 }
             }

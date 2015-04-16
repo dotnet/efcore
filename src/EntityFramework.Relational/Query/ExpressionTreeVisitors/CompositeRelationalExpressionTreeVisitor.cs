@@ -16,28 +16,61 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var inExpressionOptimized = 
                 new EqualityPredicateInExpressionOptimizer().VisitExpression(currentExpression);
 
-            if (inExpressionOptimized != null)
-            {
-                currentExpression = inExpressionOptimized;
-            }
+            currentExpression = inExpressionOptimized;
 
-            var equalityExpanded = 
+            var negationOptimized1 =
+                new PredicateNegationExpressionOptimizer()
+                .VisitExpression(currentExpression);
+
+            currentExpression = negationOptimized1;
+
+            var equalityExpanded =
                 new EqualityPredicateExpandingVisitor().VisitExpression(currentExpression);
 
-            if (equalityExpanded != null)
+            currentExpression = equalityExpanded;
+
+            var negationOptimized2 =
+                new PredicateNegationExpressionOptimizer()
+                .VisitExpression(currentExpression);
+
+            currentExpression = negationOptimized2;
+
+            var optimizedNullExpansionVisitor = new NullSemanticsOptimizedExpandingVisitor();
+            var nullSemanticsExpandedOptimized = optimizedNullExpansionVisitor.VisitExpression(currentExpression);
+            if (optimizedNullExpansionVisitor.OptimizedExpansionPossible)
             {
-                currentExpression = equalityExpanded;
+                currentExpression = nullSemanticsExpandedOptimized;
+            }
+            else
+            {
+                currentExpression = new NullSemanticsExpandingVisitor()
+                    .VisitExpression(currentExpression);
             }
 
-            var negationOptimized =
-                new PredicateNegationExpressionOptimizer().VisitExpression(currentExpression);
+            var negationOptimized3 =
+                new PredicateNegationExpressionOptimizer()
+                .VisitExpression(currentExpression);
 
-            if (negationOptimized != null)
+            currentExpression = negationOptimized3;
+
+            var reducedExpression = new ReducingExpressionVisitor()
+                .VisitExpression(currentExpression);
+
+            return reducedExpression;
+        }
+
+        private class ReducingExpressionVisitor : ExpressionTreeVisitor
+        {
+            public override Expression VisitExpression(Expression node)
             {
-                currentExpression = negationOptimized;
-            }
+                if (node != null && node.CanReduce)
+                {
+                    var reduced = node.Reduce();
+                    return base.VisitExpression(reduced);
+                }
 
-            return currentExpression;
+                return base.VisitExpression(node);
+            }
         }
     }
 }

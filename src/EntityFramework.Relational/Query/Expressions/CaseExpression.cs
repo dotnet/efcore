@@ -38,7 +38,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {
-            return this;
+            var when = visitor.VisitExpression(When);
+
+            return new CaseExpression(when);
         }
     }
 }

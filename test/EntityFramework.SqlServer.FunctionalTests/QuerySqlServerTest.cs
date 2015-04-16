@@ -349,7 +349,7 @@ WHERE [o].[CustomerID] = 'ALFKI'",
             Assert.Equal(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] > 10) AND ([o].[CustomerID] <> 'ALFKI')",
+WHERE ([o].[OrderID] > 10) AND (([o].[CustomerID] <> 'ALFKI') OR [o].[CustomerID] IS NULL)",
                 Sql);
         }
 
@@ -437,7 +437,7 @@ WHERE @__ClientEvalPredicateStateless_1 = 1",
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] <> 'ALFKI'",
+WHERE ([o].[CustomerID] <> 'ALFKI') OR [o].[CustomerID] IS NULL",
                 Sql);
         }
 
@@ -741,33 +741,6 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
-        //public override void All_client()
-        //{
-        //    base.All_client();
-
-        //    Assert.Equal(
-        //        @"",
-        //        Sql);
-        //}
-
-        //public override void All_client_and_server_top_level()
-        //{
-        //    base.All_client_and_server_top_level();
-
-        //    Assert.Equal(
-        //        @"",
-        //        Sql);
-        //}
-
-        //public override void All_client_or_server_top_level()
-        //{
-        //    base.All_client_or_server_top_level();
-
-        //    Assert.Equal(
-        //        @"",
-        //        Sql);
-        //}
-
         public override void Select_scalar()
         {
             base.Select_scalar();
@@ -882,7 +855,7 @@ FROM [Customers] AS [c]",
             Assert.Equal(
     @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] <> 'AROUT'",
+WHERE ([c].[CustomerID] <> 'AROUT') OR [c].[CustomerID] IS NULL",
     Sql);
         }
 
@@ -913,7 +886,7 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] <> 'ALFKI'",
+WHERE ([c].[CustomerID] <> 'ALFKI') OR [c].[CustomerID] IS NULL",
                 Sql);
         }
 
@@ -1125,7 +1098,7 @@ WHERE 'London' = [c].[City]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[City] = [c].[City]",
+WHERE ([c].[City] = [c].[City]) OR ([c].[City] IS NULL AND [c].[City] IS NULL)",
                 Sql);
         }
 
@@ -1212,7 +1185,7 @@ WHERE [c].[City] IN ('London', 'Berlin') OR ([c].[CustomerID] = 'ALFKI') OR ([c]
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE ([c].[City] <> 'London') AND ([e].[City] <> 'London')",
+WHERE (([c].[City] <> 'London') OR [c].[City] IS NULL) AND (([e].[City] <> 'London') OR [e].[City] IS NULL)",
                 Sql);
         }
 
@@ -1528,7 +1501,7 @@ FROM [Orders] AS [o]",
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE [c].[City] = [e].[City]
+WHERE ([c].[City] = [e].[City]) OR ([c].[City] IS NULL AND [e].[City] IS NULL)
 ORDER BY [e].[City], [c].[CustomerID] DESC",
                 Sql);
         }
@@ -1805,7 +1778,9 @@ WHERE (([p].[ProductID] > 100) AND [p].[Discontinued] = 1) OR ([p].[Discontinued
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ([p].[Discontinued] = 1 AND ([p].[ProductID] > 50)) OR ([p].[Discontinued] = 0 AND ([p].[ProductID] <= 50))",
+WHERE CASE WHEN (
+    [p].[Discontinued] = 1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END = CASE WHEN (
+    [p].[ProductID] > 50) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 Sql);
         }
 
@@ -1816,7 +1791,9 @@ WHERE ([p].[Discontinued] = 1 AND ([p].[ProductID] > 50)) OR ([p].[Discontinued]
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ([p].[Discontinued] = 0 AND ([p].[ProductID] > 50)) OR ([p].[Discontinued] = 1 AND ([p].[ProductID] <= 50))",
+WHERE CASE WHEN (
+    [p].[Discontinued] = 1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END <> CASE WHEN (
+    [p].[ProductID] > 50) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 Sql);
         }
 
@@ -1827,7 +1804,7 @@ WHERE ([p].[Discontinued] = 0 AND ([p].[ProductID] > 50)) OR ([p].[Discontinued]
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ([p].[Discontinued] = 0 AND [p].[Discontinued] = 0) OR ([p].[Discontinued] = 1 AND [p].[Discontinued] = 1)",
+WHERE [p].[Discontinued] = [p].[Discontinued]",
                 Sql);
         }
 
@@ -1838,7 +1815,9 @@ WHERE ([p].[Discontinued] = 0 AND [p].[Discontinued] = 0) OR ([p].[Discontinued]
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (([p].[ProductID] <= 50) AND ([p].[ProductID] <= 20)) OR (([p].[ProductID] > 50) AND ([p].[ProductID] > 20))",
+WHERE CASE WHEN (
+    [p].[ProductID] > 50) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END = CASE WHEN (
+    [p].[ProductID] > 20) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 Sql);
         }
 
@@ -1851,7 +1830,9 @@ WHERE (([p].[ProductID] <= 50) AND ([p].[ProductID] <= 20)) OR (([p].[ProductID]
 
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (([p].[ProductID] > 50) AND @__prm_0 = 0) OR (([p].[ProductID] <= 50) AND @__prm_0 = 1)",
+WHERE CASE WHEN (
+    [p].[ProductID] > 50) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END <> CASE WHEN (
+    @__prm_0 = 1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 Sql);
         }
 
@@ -1864,7 +1845,11 @@ WHERE (([p].[ProductID] > 50) AND @__prm_0 = 0) OR (([p].[ProductID] <= 50) AND 
 
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ([p].[Discontinued] = 1 AND ((([p].[ProductID] > 50) AND @__prm_0 = 0) OR (([p].[ProductID] <= 50) AND @__prm_0 = 1))) OR ([p].[Discontinued] = 0 AND (([p].[ProductID] <= 50) OR @__prm_0 = 1) AND (([p].[ProductID] > 50) OR @__prm_0 = 0))",
+WHERE CASE WHEN (
+    [p].[Discontinued] = 1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END = CASE WHEN (
+    CASE WHEN (
+        [p].[ProductID] > 50) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END <> CASE WHEN (
+        @__prm_0 = 1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 Sql);
         }
 

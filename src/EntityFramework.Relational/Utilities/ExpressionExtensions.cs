@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
 
-namespace System.Linq
+namespace System.Linq.Expressions
 {
     public static class ExpressionExtensions
     {

@@ -14,6 +14,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         protected override Expression VisitBinaryExpression(
             [NotNull]BinaryExpression expression)
         {
+            var left = VisitExpression(expression.Left);
+            var right = VisitExpression(expression.Right);
+
             if ((expression.NodeType == ExpressionType.Equal
                 || expression.NodeType == ExpressionType.NotEqual)
                 && expression.Left.Type == typeof(bool)
@@ -28,29 +31,27 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     || expression.Right is ConstantExpression);
 
                 if (complexLeft || complexRight)
-                { 
-                    var left = VisitExpression(expression.Left);
-                    var right = VisitExpression(expression.Right);
-
-                    return expression.NodeType == ExpressionType.Equal ?
-                        Expression.OrElse(
-                            Expression.AndAlso(
-                                left,
-                                right),
-                            Expression.AndAlso(
-                                Expression.Not(expression.Left),
-                                Expression.Not(right)))
-                        : Expression.OrElse(
-                            Expression.AndAlso(
-                                left,
-                                Expression.Not(right)),
-                            Expression.AndAlso(
-                                Expression.Not(left),
-                                right));
+                {
+                    {
+                        return expression.NodeType == ExpressionType.Equal 
+                            ? Expression.Equal(
+                                new CaseExpression(left),
+                                new CaseExpression(right))
+                            : Expression.NotEqual(
+                                new CaseExpression(left),
+                                new CaseExpression(right));
+                    }
                 }
             }
 
-            return base.VisitBinaryExpression(expression);
+            if (left == expression.Left && right == expression.Right)
+            {
+                return expression;
+            }
+            else
+            {
+                return Expression.MakeBinary(expression.NodeType, left, right);
+            }
         }
     }
 }
