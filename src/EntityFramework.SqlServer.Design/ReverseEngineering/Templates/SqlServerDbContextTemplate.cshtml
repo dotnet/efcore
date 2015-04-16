@@ -34,7 +34,7 @@ var firstEntity = true;
 @:
         }
         firstConfig = false;
-@:                entity@(entityFacet.ToString());
+@:                entity.@(entityFacet.ToString());
     }                        
     var firstFacet = true;
     @foreach(var propertyConfig in @entityConfig.PropertyConfigurations)
@@ -61,31 +61,16 @@ var firstEntity = true;
             }
         }
     }
-@:            });
-}
-
-@{
-var firstNavigation = true;
-}
-@foreach(var navigationConfig in Model.Helper.NavigationConfigurations)
-{
-    var firstConfig = true;
-    @if(!firstNavigation)
+    var firstNavigation = true;
+    @foreach (var navigationConfig in @entityConfig.NavigationConfigurations)
     {
-@:
-    }
-    firstNavigation = false;
-@:            modelBuilder.Entity<@navigationConfig.EntityType.DisplayName()>(entity =>
-@:            {
-    @foreach(var navigationFacet in @navigationConfig.FacetConfigurations)
-    {
-        @if(!firstConfig)
+        @if (!firstConfig || !firstNavigation)
         {
 @:
         }
-        firstConfig = false;
-@:                entity@(navigationFacet.ToString());
-    }                        
+        firstNavigation = false;
+@:                entity.@Model.Generator.ModelUtilities.ConstructNavigationConfiguration(navigationConfig);
+    }
 @:            });
 }
         }@* End of OnModelCreating() *@
