@@ -944,7 +944,7 @@ namespace Microsoft.Data.Entity.Query
             return BindMemberExpressionCore(memberExpression, querySource,
                 (ps, qs) =>
                     {
-                        var property = ps.Single() as IProperty;
+                        var property = ps.OfType<IProperty>().SingleOrDefault();
 
                         return property != null
                             ? memberBinder(property, qs)
