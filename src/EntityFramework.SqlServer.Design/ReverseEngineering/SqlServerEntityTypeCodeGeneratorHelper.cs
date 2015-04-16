@@ -6,7 +6,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuration;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
@@ -27,11 +27,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        public virtual IEnumerable<SqlServerNavPropInitializer> NavPropInitializers
+        public virtual IEnumerable<SqlServerNavigationPropertyInitializer> NavPropInitializers
         {
             get
             {
-                var navPropInitializers = new List<SqlServerNavPropInitializer>();
+                var navPropInitializers = new List<SqlServerNavigationPropertyInitializer>();
 
                 foreach (var otherEntityType in GeneratorModel.EntityType.Model
                     .EntityTypes.Where(et => et != GeneratorModel.EntityType))
@@ -48,7 +48,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                             if (!foreignKey.IsUnique)
                             {
                                 navPropInitializers.Add(
-                                    new SqlServerNavPropInitializer(navigationPropertyName, otherEntityType.Name));
+                                    new SqlServerNavigationPropertyInitializer(
+                                        navigationPropertyName, otherEntityType.Name));
                             }
                         }
                     }
@@ -108,43 +109,5 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 return navProps;
             }
         }
-    }
-
-    public class SqlServerNavigationProperty
-    {
-        public SqlServerNavigationProperty([NotNull]string errorAnnotation)
-        {
-            Check.NotEmpty(errorAnnotation, nameof(errorAnnotation));
-
-            ErrorAnnotation = errorAnnotation;
-        }
-
-        public SqlServerNavigationProperty([NotNull]string type, [NotNull]string name)
-        {
-            Check.NotNull(type, nameof(type));
-            Check.NotEmpty(name, nameof(name));
-
-            Type = type;
-            Name = name;
-        }
-
-        public virtual string ErrorAnnotation { get;[param: NotNull]private set; }
-        public virtual string Type { get;[param: NotNull]private set; }
-        public virtual string Name { get;[param: NotNull]private set; }
-    }
-
-    public class SqlServerNavPropInitializer
-    {
-        public SqlServerNavPropInitializer([NotNull]string navPropName, [NotNull]string principalEntityTypeName)
-        {
-            Check.NotEmpty(navPropName, nameof(navPropName));
-            Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
-
-            NavigationPropertyName = navPropName;
-            PrincipalEntityTypeName = principalEntityTypeName;
-        }
-
-        public virtual string NavigationPropertyName { get;[param: NotNull]private set; }
-        public virtual string PrincipalEntityTypeName { get;[param: NotNull]private set; }
     }
 }

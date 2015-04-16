@@ -4,10 +4,12 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.ModelConventions;
+using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
@@ -64,38 +66,17 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
                     AddEntityFacetsConfiguration(entityConfiguration);
                     AddEntityPropertiesConfiguration(entityConfiguration);
+                    AddNavigationsConfiguration(entityConfiguration);
 
                     if (entityConfiguration.FacetConfigurations.Any()
-                        || entityConfiguration.PropertyConfigurations.Any())
+                        || entityConfiguration.PropertyConfigurations.Any()
+                        || entityConfiguration.NavigationConfigurations.Any())
                     {
                         entityConfigurations.Add(entityConfiguration);
                     }
                 }
 
                 return entityConfigurations;
-            }
-        }
-
-
-        public virtual IEnumerable<NavigationConfiguration> NavigationConfigurations
-        {
-            get
-            {
-                var navigationConfigurations = new List<NavigationConfiguration>();
-
-                foreach (var entityType in OrderedEntityTypes())
-                {
-                    var navigationConfiguration = new NavigationConfiguration(entityType);
-
-                    AddNavigationFacetsConfiguration(navigationConfiguration);
-
-                    if (navigationConfiguration.FacetConfigurations.Any())
-                    {
-                        navigationConfigurations.Add(navigationConfiguration);
-                    }
-                }
-
-                return navigationConfigurations;
             }
         }
 
@@ -107,8 +88,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             AddTableNameFacetConfiguration(entityConfiguration);
         }
 
-        public abstract void AddNavigationFacetsConfiguration(
-            [NotNull]NavigationConfiguration navigationConfiguration);
+        public abstract void AddNavigationsConfiguration([NotNull]EntityConfiguration entityConfiguration);
 
         public virtual void AddEntityKeyConfiguration([NotNull]EntityConfiguration entityConfiguration)
         {
@@ -131,7 +111,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 return;
             }
 
-            entityConfiguration.AddFacetConfiguration(
+            entityConfiguration.FacetConfigurations.Add(
                 new FacetConfiguration(
                     "Key(e => "
                     + GeneratorModel.Generator.ModelUtilities.GenerateLambdaToKey(key.Properties, "e")
@@ -146,7 +126,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             if (entityType.Relational().Schema != null
                 && entityType.Relational().Schema != "dbo")
             {
-                entityConfiguration.AddFacetConfiguration(
+                entityConfiguration.FacetConfigurations.Add(
                     new FacetConfiguration(
                         "ForRelational()",
                         string.Format(CultureInfo.InvariantCulture, "Table({0}, {1})",
@@ -156,7 +136,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             else if (entityType.Relational().Table != null
                      && entityType.Relational().Table != entityType.DisplayName())
             {
-                entityConfiguration.AddFacetConfiguration(
+                entityConfiguration.FacetConfigurations.Add(
                     new FacetConfiguration(
                         "ForRelational()",
                         string.Format(CultureInfo.InvariantCulture, "Table({0})",
@@ -176,7 +156,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
                 if (propertyConfiguration.FacetConfigurations.Any())
                 {
-                    entityConfiguration.AddPropertyConfiguration(propertyConfiguration);
+                    entityConfiguration.PropertyConfigurations.Add(propertyConfiguration);
                 }
             }
         }
@@ -312,112 +292,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                                 CSharpUtilities.Instance.DelimitString(
                                     propertyConfiguration.Property.Relational().DefaultExpression))));
             }
-        }
-    }
-
-    public class EntityConfiguration
-    {
-        public EntityConfiguration([NotNull]IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            EntityType = entityType;
-        }
-
-        public virtual IEntityType EntityType { get;[param: NotNull]private set; }
-        public virtual List<FacetConfiguration> FacetConfigurations { get; } = new List<FacetConfiguration>();
-        public virtual List<PropertyConfiguration> PropertyConfigurations { get; } = new List<PropertyConfiguration>();
-
-        public virtual void AddFacetConfiguration([NotNull]FacetConfiguration entityTypeFacetConfiguration)
-        {
-            Check.NotNull(entityTypeFacetConfiguration, nameof(entityTypeFacetConfiguration));
-
-            FacetConfigurations.Add(entityTypeFacetConfiguration);
-        }
-
-        public virtual void AddPropertyConfiguration([NotNull]PropertyConfiguration propertyConfiguration)
-        {
-            Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
-
-            PropertyConfigurations.Add(propertyConfiguration);
-        }
-    }
-
-    public class FacetConfiguration
-    {
-        public FacetConfiguration([NotNull]string methodBody)
-        {
-            Check.NotNull(methodBody, nameof(methodBody));
-
-            MethodBody = methodBody;
-        }
-
-        public FacetConfiguration([NotNull]string @for, [NotNull]string methodBody)
-        {
-            Check.NotNull(@for, nameof(@for));
-            Check.NotNull(methodBody, nameof(methodBody));
-
-            For = @for;
-            MethodBody = methodBody;
-        }
-
-        public virtual string For { get;[param: NotNull]private set; }
-        public virtual string MethodBody { get;[param: NotNull]private set; }
-
-        public override string ToString()
-        {
-            return (For == null ? "." + MethodBody : "." + For + "." + MethodBody);
-        }
-    }
-
-    public class PropertyConfiguration
-    {
-        public PropertyConfiguration(
-            [NotNull]EntityConfiguration entityConfiguration, [NotNull]IProperty property)
-        {
-            Check.NotNull(entityConfiguration, nameof(entityConfiguration));
-            Check.NotNull(property, nameof(property));
-
-            EntityConfiguration = entityConfiguration;
-            Property = property;
-        }
-
-        public virtual EntityConfiguration EntityConfiguration { get;[param: NotNull]private set; }
-        public virtual IProperty Property { get;[param: NotNull]private set; }
-        public virtual Dictionary<string, List<string>> FacetConfigurations { get; } = new Dictionary<string, List<string>>();
-
-        public virtual void AddFacetConfiguration([NotNull]FacetConfiguration facetConfiguration)
-        {
-            Check.NotNull(facetConfiguration, nameof(facetConfiguration));
-
-            var @for = facetConfiguration.For ?? string.Empty;
-            List<string> listOfFacetMethodBodies; 
-            if (!FacetConfigurations.TryGetValue(@for, out listOfFacetMethodBodies))
-            {
-                listOfFacetMethodBodies = new List<string>();
-                FacetConfigurations.Add(@for, listOfFacetMethodBodies);
-            }
-            listOfFacetMethodBodies.Add(facetConfiguration.MethodBody);
-        }
-    }
-
-    public class NavigationConfiguration
-    {
-        public NavigationConfiguration([NotNull]IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            EntityType = entityType;
-        }
-
-        public virtual IEntityType EntityType { get;[param: NotNull]private set; }
-        public virtual List<FacetConfiguration> FacetConfigurations { get; } = new List<FacetConfiguration>();
-
-        public virtual void AddFacetConfiguration([NotNull]FacetConfiguration navigationFacetConfiguration)
-        {
-            Check.NotNull(navigationFacetConfiguration, nameof(navigationFacetConfiguration));
-
-            FacetConfigurations.Add(navigationFacetConfiguration);
         }
     }
 }

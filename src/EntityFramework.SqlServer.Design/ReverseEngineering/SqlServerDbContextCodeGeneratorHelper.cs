@@ -3,13 +3,12 @@
 
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -47,56 +46,21 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return base.ClassName(connectionString);
         }
 
-        public override void AddNavigationFacetsConfiguration(
-            [NotNull]NavigationConfiguration navigationConfiguration)
+        public override void AddNavigationsConfiguration(
+            [NotNull]EntityConfiguration entityConfiguration)
         {
-            Check.NotNull(navigationConfiguration, nameof(navigationConfiguration));
+            Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
-            foreach (var foreignKey in navigationConfiguration.EntityType.GetForeignKeys())
+            foreach (var foreignKey in entityConfiguration.EntityType.GetForeignKeys())
             {
                 var dependentEndNavigationPropertyName =
                     (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName];
                 var principalEndNavigationPropertyName =
                     (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
 
-                var sb = new StringBuilder();
-                sb.Append("Reference");
-                sb.Append("(d => d.");
-                sb.Append(dependentEndNavigationPropertyName);
-                sb.Append(")");
-
-                if (foreignKey.IsUnique)
-                {
-                    sb.Append(".InverseReference(");
-                }
-                else
-                {
-                    sb.Append(".InverseCollection(");
-                }
-                if (!string.IsNullOrEmpty(principalEndNavigationPropertyName))
-                {
-                    sb.Append("p => p.");
-                    sb.Append(principalEndNavigationPropertyName);
-                }
-                sb.Append(")");
-
-                sb.Append(".ForeignKey");
-                if (foreignKey.IsUnique)
-                {
-                    // If the relationship is 1:1 need to define to which end
-                    // the ForeignKey properties belong.
-                    sb.Append("<");
-                    sb.Append(navigationConfiguration.EntityType.Name);
-                    sb.Append(">");
-                }
-
-                sb.Append("(d => ");
-                sb.Append(GeneratorModel.Generator.ModelUtilities
-                            .GenerateLambdaToKey(foreignKey.Properties, "d"));
-                sb.Append(")");
-
-                navigationConfiguration.AddFacetConfiguration(
-                    new FacetConfiguration(sb.ToString()));
+                entityConfiguration.NavigationConfigurations.Add(
+                    new NavigationConfiguration(entityConfiguration, foreignKey,
+                        dependentEndNavigationPropertyName, principalEndNavigationPropertyName));
             }
         }
 

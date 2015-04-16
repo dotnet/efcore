@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.Utilities
@@ -78,6 +79,48 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             return foreignKey.EntityType.DisplayName();
+        }
+
+        public virtual string ConstructNavigationConfiguration([NotNull]NavigationConfiguration navigationConfiguration)
+        {
+            Check.NotNull(navigationConfiguration, nameof(navigationConfiguration));
+
+            var sb = new StringBuilder();
+            sb.Append("Reference");
+            sb.Append("(d => d.");
+            sb.Append(navigationConfiguration.DependentEndNavigationPropertyName);
+            sb.Append(")");
+
+            if (navigationConfiguration.ForeignKey.IsUnique)
+            {
+                sb.Append(".InverseReference(");
+            }
+            else
+            {
+                sb.Append(".InverseCollection(");
+            }
+            if (!string.IsNullOrEmpty(navigationConfiguration.PrincipalEndNavigationPropertyName))
+            {
+                sb.Append("p => p.");
+                sb.Append(navigationConfiguration.PrincipalEndNavigationPropertyName);
+            }
+            sb.Append(")");
+
+            sb.Append(".ForeignKey");
+            if (navigationConfiguration.ForeignKey.IsUnique)
+            {
+                // If the relationship is 1:1 need to define to which end
+                // the ForeignKey properties belong.
+                sb.Append("<");
+                sb.Append(navigationConfiguration.EntityConfiguration.EntityType.DisplayName());
+                sb.Append(">");
+            }
+
+            sb.Append("(d => ");
+            sb.Append(GenerateLambdaToKey(navigationConfiguration.ForeignKey.Properties, "d"));
+            sb.Append(")");
+
+            return sb.ToString();
         }
 
         private string FindCommonPrefix(IEnumerable<string> stringsEnumerable)
