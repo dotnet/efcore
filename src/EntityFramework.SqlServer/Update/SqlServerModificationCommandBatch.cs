@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)
             {
-                throw new ArgumentOutOfRangeException("maxBatchSize", RelationalStrings.InvalidCommandTimeout);
+                throw new ArgumentOutOfRangeException(nameof(maxBatchSize), RelationalStrings.InvalidMaxBatchSize);
             }
 
             _maxBatchSize = Math.Min(maxBatchSize ?? Int32.MaxValue, MaxRowCount);

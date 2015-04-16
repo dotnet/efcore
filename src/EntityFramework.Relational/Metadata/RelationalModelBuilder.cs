@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual RelationalSequenceBuilder Sequence([CanBeNull] string name = null, [CanBeNull] string schema = null)
         {
-            Check.NullButNotEmpty(name, "name");
-            Check.NullButNotEmpty(schema, "schema");
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
 
             return new RelationalSequenceBuilder(_model.Relational().GetOrAddSequence(name, schema));
         }

@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((Key)Key)[NameAnnotation] = value;
             }

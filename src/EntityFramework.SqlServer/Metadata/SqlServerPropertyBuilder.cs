@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public virtual SqlServerPropertyBuilder Column([CanBeNull] string columnName)
         {
-            Check.NullButNotEmpty(columnName, "columnName");
+            Check.NullButNotEmpty(columnName, nameof(columnName));
 
             _property.SqlServer().Column = columnName;
 
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public virtual SqlServerPropertyBuilder ColumnType([CanBeNull] string columnType)
         {
-            Check.NullButNotEmpty(columnType, "columnType");
+            Check.NullButNotEmpty(columnType, nameof(columnType));
 
             _property.SqlServer().ColumnType = columnType;
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public virtual SqlServerPropertyBuilder DefaultExpression([CanBeNull] string expression)
         {
-            Check.NullButNotEmpty(expression, "expression");
+            Check.NullButNotEmpty(expression, nameof(expression));
 
             _property.SqlServer().DefaultExpression = expression;
 
@@ -63,10 +63,12 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public virtual SqlServerPropertyBuilder UseSequence()
         {
+            var sequence = _property.EntityType.Model.SqlServer().GetOrAddSequence();
+
             _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
             _property.StoreGeneratedPattern = StoreGeneratedPattern.Identity;
-            _property.SqlServer().SequenceName = null;
-            _property.SqlServer().SequenceSchema = null;
+            _property.SqlServer().SequenceName = sequence.Name;
+            _property.SqlServer().SequenceSchema = sequence.Schema;
 
             return this;
         }
@@ -74,7 +76,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public virtual SqlServerPropertyBuilder UseSequence([NotNull] string name, [CanBeNull] string schema = null)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, "schema");
+            Check.NullButNotEmpty(schema, nameof(schema));
 
             var sequence = _property.EntityType.Model.SqlServer().GetOrAddSequence(name, schema);
 

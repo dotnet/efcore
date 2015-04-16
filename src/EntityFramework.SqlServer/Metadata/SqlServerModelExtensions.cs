@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             set
             {
                 // TODO: Issue #777: Non-string annotations
-                ((Model)Model)[SqlServerValueGenerationAnnotation] = value == null ? null : value.ToString();
+                ((Model)Model)[SqlServerValueGenerationAnnotation] = value?.ToString();
             }
         }
 
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((Model)Model)[SqlServerDefaultSequenceNameAnnotation] = value;
             }
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((Model)Model)[SqlServerDefaultSequenceSchemaAnnotation] = value;
             }
@@ -64,13 +64,33 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public virtual Sequence GetOrAddSequence([CanBeNull] string name = null, [CanBeNull] string schema = null)
         {
-            Check.NullButNotEmpty(name, "name");
-            Check.NullButNotEmpty(schema, "schema");
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
 
             name = name ?? Sequence.DefaultName;
 
             return ((Model)Model).SqlServer().TryGetSequence(name, schema)
                    ?? AddOrReplaceSequence(new Sequence(name, schema));
+        }
+
+        public virtual void RemoveSequence([NotNull] Sequence sequence)
+        {
+            Check.NotNull(sequence, nameof(sequence));
+
+            var model = (Model)Model;
+            model[SqlServerSequenceAnnotation + sequence.Schema + "." + sequence.Name] = null;
+        }
+
+        public virtual void RemoveSequence([CanBeNull] string name = null, [CanBeNull] string schema = null)
+        {
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            name = name ?? DefaultSequenceName;
+            schema = schema ?? DefaultSequenceSchema;
+
+            var model = (Model)Model;
+            model[SqlServerSequenceAnnotation + schema + "." + name] = null;
         }
     }
 }

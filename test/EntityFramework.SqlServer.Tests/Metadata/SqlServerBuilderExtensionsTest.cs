@@ -753,11 +753,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Null(sqlServerExtensions.DefaultSequenceName);
+            Assert.Same(Sequence.DefaultName, sqlServerExtensions.DefaultSequenceName);
             Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
-            Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.NotNull(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
         }
 
         [Fact]
@@ -772,11 +772,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Null(sqlServerExtensions.DefaultSequenceName);
+            Assert.Same(Sequence.DefaultName, sqlServerExtensions.DefaultSequenceName);
             Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
-            Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.NotNull(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
         }
 
         private static void ValidateDefaultSequence(Sequence sequence)
@@ -1068,10 +1068,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
-            Assert.Null(property.SqlServer().SequenceName);
+            Assert.Same(Sequence.DefaultName, property.SqlServer().SequenceName);
 
             Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
-            Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+            Assert.NotNull(model.SqlServer().TryGetSequence(Sequence.DefaultName));
         }
 
         [Fact]
@@ -1089,10 +1089,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
-            Assert.Null(property.SqlServer().SequenceName);
+            Assert.Same(Sequence.DefaultName, property.SqlServer().SequenceName);
 
             Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
-            Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+            Assert.NotNull(model.SqlServer().TryGetSequence(Sequence.DefaultName));
         }
 
         [Fact]

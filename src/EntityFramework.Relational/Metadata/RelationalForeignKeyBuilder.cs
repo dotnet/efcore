@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual RelationalForeignKeyBuilder Name([CanBeNull] string name)
         {
-            Check.NullButNotEmpty(name, "name");
+            Check.NullButNotEmpty(name, nameof(name));
 
             _foreignKey.Relational().Name = name;
 

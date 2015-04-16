@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((EntityType)EntityType)[SqlServerTableAnnotation] = value;
             }
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((EntityType)EntityType)[SqlServerSchemaAnnotation] = value;
             }

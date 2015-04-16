@@ -27,8 +27,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual Sequence GetOrAddSequence([CanBeNull] string name = null, [CanBeNull] string schema = null)
         {
-            Check.NullButNotEmpty(name, "name");
-            Check.NullButNotEmpty(schema, "schema");
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
 
             name = name ?? Sequence.DefaultName;
 

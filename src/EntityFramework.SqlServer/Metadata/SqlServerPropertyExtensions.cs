@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((Property)Property)[SqlServerNameAnnotation] = value;
             }
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((Property)Property)[SqlServerColumnTypeAnnotation] = value;
             }
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((Property)Property)[SqlServerDefaultExpressionAnnotation] = value;
             }
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((Property)Property)[SqlServerSequenceNameAnnotation] = value;
             }
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((Property)Property)[SqlServerSequenceSchemaAnnotation] = value;
             }

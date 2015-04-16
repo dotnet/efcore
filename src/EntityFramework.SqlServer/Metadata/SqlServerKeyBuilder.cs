@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public virtual SqlServerKeyBuilder Name([CanBeNull] string name)
         {
-            Check.NullButNotEmpty(name, "name");
+            Check.NullButNotEmpty(name, nameof(name));
 
             _key.SqlServer().Name = name;
 

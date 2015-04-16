@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((Index)Index)[SqlServerNameAnnotation] = value;
             }

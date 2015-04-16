@@ -38,13 +38,13 @@ namespace Microsoft.Data.Entity.Relational
             parameter.Direction = ParameterDirection.Input;
             if (useOriginalValue)
             {
-                Check.NotNull(columnModification.OriginalParameterName, "columnModification", "OriginalParameterName");
+                Check.NotNull(columnModification.OriginalParameterName, nameof(columnModification), "OriginalParameterName");
                 parameter.ParameterName = columnModification.OriginalParameterName;
                 parameter.Value = columnModification.OriginalValue ?? DBNull.Value;
             }
             else
             {
-                Check.NotNull(columnModification.ParameterName, "columnModification", "ParameterName");
+                Check.NotNull(columnModification.ParameterName, nameof(columnModification), "ParameterName");
                 parameter.ParameterName = columnModification.ParameterName;
                 parameter.Value = columnModification.Value ?? DBNull.Value;
             }

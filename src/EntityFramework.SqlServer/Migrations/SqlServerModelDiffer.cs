@@ -46,11 +46,11 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
 
         private bool DefaultSequenceUsed(IModel model) =>
             model != null
-            && model.SqlServer().DefaultSequenceName == null
+            && (model.SqlServer().DefaultSequenceName == null || model.SqlServer().DefaultSequenceName == Sequence.DefaultName)
             && (model.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.Sequence
                 || model.EntityTypes.SelectMany(t => t.GetProperties()).Any(
                     p => p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.Sequence
-                         && p.SqlServer().SequenceName == null));
+                         && (p.SqlServer().SequenceName == null || p.SqlServer().SequenceName == Sequence.DefaultName)));
 
         #endregion
 

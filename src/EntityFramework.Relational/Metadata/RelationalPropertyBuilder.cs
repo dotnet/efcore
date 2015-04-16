@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual RelationalPropertyBuilder Column([CanBeNull] string columnName)
         {
-            Check.NullButNotEmpty(columnName, "columnName");
+            Check.NullButNotEmpty(columnName, nameof(columnName));
 
             _property.Relational().Column = columnName;
 
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual RelationalPropertyBuilder ColumnType([CanBeNull] string columnType)
         {
-            Check.NullButNotEmpty(columnType, "columnType");
+            Check.NullButNotEmpty(columnType, nameof(columnType));
 
             _property.Relational().ColumnType = columnType;
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual RelationalPropertyBuilder DefaultExpression([CanBeNull] string expression)
         {
-            Check.NullButNotEmpty(expression, "expression");
+            Check.NullButNotEmpty(expression, nameof(expression));
 
             _property.Relational().DefaultExpression = expression;
 

@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((Property)Property)[NameAnnotation] = value;
             }
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((Property)Property)[ColumnTypeAnnotation] = value;
             }
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NullButNotEmpty(value, "value");
+                Check.NullButNotEmpty(value, nameof(value));
 
                 ((Property)Property)[DefaultExpressionAnnotation] = value;
             }
