@@ -32,15 +32,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                 if (complexLeft || complexRight)
                 {
-                    {
-                        return expression.NodeType == ExpressionType.Equal 
-                            ? Expression.Equal(
-                                new CaseExpression(left),
-                                new CaseExpression(right))
-                            : Expression.NotEqual(
-                                new CaseExpression(left),
-                                new CaseExpression(right));
-                    }
+                    var leftOperand = complexLeft ? new CaseExpression(left) : left;
+                    var rightOperand = complexRight ? new CaseExpression(right) : right;
+
+                    return expression.NodeType == ExpressionType.Equal
+                        ? Expression.Equal(leftOperand, rightOperand)
+                        : Expression.NotEqual(leftOperand, rightOperand);
                 }
             }
 

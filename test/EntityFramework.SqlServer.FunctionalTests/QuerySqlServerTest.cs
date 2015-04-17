@@ -1778,8 +1778,7 @@ WHERE (([p].[ProductID] > 100) AND [p].[Discontinued] = 1) OR ([p].[Discontinued
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE CASE WHEN (
-    [p].[Discontinued] = 1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END = CASE WHEN (
+WHERE [p].[Discontinued] = CASE WHEN (
     [p].[ProductID] > 50) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 Sql);
         }
@@ -1791,8 +1790,7 @@ WHERE CASE WHEN (
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE CASE WHEN (
-    [p].[Discontinued] = 1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END <> CASE WHEN (
+WHERE [p].[Discontinued] <> CASE WHEN (
     [p].[ProductID] > 50) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 Sql);
         }
@@ -1831,8 +1829,7 @@ WHERE CASE WHEN (
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE CASE WHEN (
-    [p].[ProductID] > 50) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END <> CASE WHEN (
-    @__prm_0 = 1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
+    [p].[ProductID] > 50) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END <> @__prm_0",
                 Sql);
         }
 
@@ -1845,11 +1842,9 @@ WHERE CASE WHEN (
 
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE CASE WHEN (
-    [p].[Discontinued] = 1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END = CASE WHEN (
+WHERE [p].[Discontinued] = CASE WHEN (
     CASE WHEN (
-        [p].[ProductID] > 50) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END <> CASE WHEN (
-        @__prm_0 = 1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
+        [p].[ProductID] > 50) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END <> @__prm_0) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 Sql);
         }
 
