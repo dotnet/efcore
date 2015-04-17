@@ -1004,6 +1004,113 @@ WHERE [e].[EmployeeID] = 1",
                 Sql);
         }
 
+        public override void Where_equals_using_object_overload_on_mismatched_types()
+        {
+            base.Where_equals_using_object_overload_on_mismatched_types();
+
+            Assert.Equal(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE 1 = 0",
+                Sql);
+
+            Assert.True(TestSqlLoggerFactory.Log.Contains(
+                "Possible unintended use of method Equals(object) for arguments of different types: 'e.EmployeeID', '__longPrm_0'. This comparison will always return 'false'."));
+        }
+
+        public override void Where_equals_using_int_overload_on_mismatched_types()
+        {
+            base.Where_equals_using_int_overload_on_mismatched_types();
+
+            Assert.Equal(
+                @"__p_0: 1
+
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[EmployeeID] = @__p_0",
+                Sql);
+        }
+
+        public override void Where_equals_on_mismatched_types_int_nullable_int()
+        {
+            base.Where_equals_on_mismatched_types_int_nullable_int();
+
+            Assert.Equal(
+                @"__intPrm_0: 2
+
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] = @__intPrm_0
+
+__intPrm_0: 2
+
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE @__intPrm_0 = [e].[ReportsTo]",
+                Sql);
+        }
+
+        public override void Where_equals_on_mismatched_types_nullable_int_long()
+        {
+            base.Where_equals_on_mismatched_types_nullable_int_long();
+
+            Assert.Equal(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE 1 = 0
+
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE 1 = 0",
+                Sql);
+
+           Assert.True(TestSqlLoggerFactory.Log.Contains(
+                "Possible unintended use of method Equals(object) for arguments of different types: 'e.ReportsTo', '__longPrm_0'. This comparison will always return 'false'."));
+
+           Assert.True(TestSqlLoggerFactory.Log.Contains(
+                "Possible unintended use of method Equals(object) for arguments of different types: '__longPrm_0', 'e.ReportsTo'. This comparison will always return 'false'."));
+        }
+
+        public override void Where_equals_on_mismatched_types_nullable_long_nullable_int()
+        {
+            base.Where_equals_on_mismatched_types_nullable_long_nullable_int();
+
+            Assert.Equal(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE 1 = 0
+
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE 1 = 0",
+                Sql);
+
+           Assert.True(TestSqlLoggerFactory.Log.Contains(
+                 "Possible unintended use of method Equals(object) for arguments of different types: '__nullableLongPrm_0', 'e.ReportsTo'. This comparison will always return 'false'."));
+
+            Assert.True(TestSqlLoggerFactory.Log.Contains(
+                 "Possible unintended use of method Equals(object) for arguments of different types: 'e.ReportsTo', '__nullableLongPrm_0'. This comparison will always return 'false'."));
+        }
+
+        public override void Where_equals_on_matched_nullable_int_types()
+        {
+            base.Where_equals_on_matched_nullable_int_types();
+
+            Assert.Equal(
+                @"__nullableIntPrm_0: 2
+
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE @__nullableIntPrm_0 = [e].[ReportsTo]
+
+__nullableIntPrm_0: 2
+
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] = @__nullableIntPrm_0",
+                Sql);
+        }
+
         public override void Where_string_length()
         {
             base.Where_string_length();

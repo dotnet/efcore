@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Relational
                     new LinqOperatorProvider(),
                     new RelationalResultOperatorHandler(),
                     new QueryMethodProvider(),
-                    new CompositeMethodCallTranslator());
+                    new CompositeMethodCallTranslator(Logger));
 
             return queryCompilationContext
                 .CreateQueryModelVisitor()
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Relational
                     new AsyncLinqOperatorProvider(),
                     new RelationalResultOperatorHandler(),
                     new AsyncQueryMethodProvider(),
-                    new CompositeMethodCallTranslator());
+                    new CompositeMethodCallTranslator(Logger));
 
             return queryCompilationContext
                 .CreateQueryModelVisitor()

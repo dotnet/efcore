@@ -324,6 +324,14 @@ namespace Microsoft.Data.Entity.Relational
             get { return GetString("AmbientTransaction"); }
         }
 
+        /// <summary>
+        /// Possible unintended use of method Equals(object) for arguments of different types: '{left}', '{right}'. This comparison will always return 'false'.
+        /// </summary>
+        public static string PossibleUnintendedUseOfEquals([CanBeNull] object left, [CanBeNull] object right)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PossibleUnintendedUseOfEquals", "left", "right"), left, right);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

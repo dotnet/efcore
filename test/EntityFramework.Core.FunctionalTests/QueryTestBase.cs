@@ -692,6 +692,83 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_equals_using_object_overload_on_mismatched_types()
+        {
+            long longPrm = 1;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.EmployeeID.Equals(longPrm)),
+                entryCount: 0);
+        }
+
+        [Fact]
+        public virtual void Where_equals_using_int_overload_on_mismatched_types()
+        {
+            short shortPrm = 1;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.EmployeeID.Equals(shortPrm)),
+                entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_equals_on_mismatched_types_nullable_int_long()
+        {
+            long longPrm = 2;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo.Equals(longPrm)),
+                entryCount: 0);
+
+            AssertQuery<Employee>(
+                es => es.Where(e => longPrm.Equals(e.ReportsTo)),
+                entryCount: 0);
+        }
+
+        [Fact]
+        public virtual void Where_equals_on_mismatched_types_int_nullable_int()
+        {
+            int intPrm = 2;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo.Equals(intPrm)),
+                entryCount: 5);
+
+            AssertQuery<Employee>(
+                es => es.Where(e => intPrm.Equals(e.ReportsTo)),
+                entryCount: 5);
+
+        }
+
+        [Fact]
+        public virtual void Where_equals_on_mismatched_types_nullable_long_nullable_int()
+        {
+            long? nullableLongPrm = 2;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => nullableLongPrm.Equals(e.ReportsTo)),
+                entryCount: 0);
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo.Equals(nullableLongPrm)),
+                entryCount: 0);
+        }
+
+        [Fact]
+        public virtual void Where_equals_on_matched_nullable_int_types()
+        {
+            int? nullableIntPrm = 2;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => nullableIntPrm.Equals(e.ReportsTo)),
+                entryCount: 5);
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo.Equals(nullableIntPrm)),
+                entryCount: 5);
+        }
+
+        [Fact]
         public virtual void Where_comparison_nullable_type_not_null()
         {
             AssertQuery<Employee>(
