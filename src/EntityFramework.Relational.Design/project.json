@@ -28,6 +28,7 @@
                 "Microsoft.CSharp": "4.0.0-beta-*",
                 "System.Data.Common": "4.0.0-beta-*",
                 "System.Data.SqlClient": "4.0.0-beta-*",
+                "System.IO.FileSystem": "4.0.0-beta-*",
                 "System.Reflection.Extensions": "4.0.0-beta-*",
                 "System.Text.RegularExpressions": "4.0.10-beta-*"
             }
