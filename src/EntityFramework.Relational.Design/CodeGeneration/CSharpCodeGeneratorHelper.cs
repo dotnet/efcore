@@ -122,7 +122,8 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
                 { typeof(string), "string" },
                 { typeof(decimal), "decimal" },
             };
-        private string GetTypeName([NotNull] Type propertyType)
+
+        public virtual string GetTypeName([NotNull] Type propertyType)
         {
             Check.NotNull(propertyType, nameof(propertyType));
 

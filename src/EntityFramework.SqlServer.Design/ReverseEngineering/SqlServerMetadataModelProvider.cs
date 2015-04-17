@@ -5,11 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model;
@@ -33,6 +36,13 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public const string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";
 
         public const string NavigationNameUniquifyingSuffix = "Navigation";
+
+        public static readonly string SqlServerDbContextTemplateResourceName =
+            typeof(SqlServerMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
+            + ".ReverseEngineering.Templates.SqlServerDbContextTemplate.cshtml";
+        public static readonly string SqlServerEntityTypeTemplateResourceName =
+            typeof(SqlServerMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
+            + ".ReverseEngineering.Templates.SqlServerEntityTypeTemplate.cshtml";
 
         private ILogger _logger;
         private ModelUtilities _modelUtilities;
@@ -104,32 +114,39 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return CreateModel();
         }
 
-
-        public virtual DbContextCodeGenerator GetContextModelCodeGenerator(
-            [NotNull] ReverseEngineeringGenerator generator,
-            [NotNull] DbContextGeneratorModel dbContextGeneratorModel)
+        public virtual string DbContextTemplate
         {
-            Check.NotNull(generator, nameof(generator));
-            Check.NotNull(dbContextGeneratorModel, nameof(dbContextGeneratorModel));
-
-            return new SqlServerDbContextCodeGenerator(
-                generator,
-                dbContextGeneratorModel.MetadataModel,
-                dbContextGeneratorModel.Namespace,
-                dbContextGeneratorModel.ClassName,
-                dbContextGeneratorModel.ConnectionString);
+            get
+            {
+                return ReadFromResource(
+                    typeof(SqlServerMetadataModelProvider).GetTypeInfo().Assembly,
+                    SqlServerDbContextTemplateResourceName);
+            }
         }
-        public virtual EntityTypeCodeGenerator GetEntityTypeModelCodeGenerator(
-           [NotNull]  ReverseEngineeringGenerator generator,
-           [NotNull] EntityTypeGeneratorModel entityTypeGeneratorModel)
-        {
-            Check.NotNull(generator, nameof(generator));
-            Check.NotNull(entityTypeGeneratorModel, nameof(entityTypeGeneratorModel));
 
-            return new SqlServerEntityTypeCodeGenerator(
-                generator,
-                entityTypeGeneratorModel.EntityType,
-                entityTypeGeneratorModel.Namespace);
+        public virtual DbContextCodeGeneratorHelper DbContextCodeGeneratorHelper(DbContextGeneratorModel model)
+        {
+            return new SqlServerDbContextCodeGeneratorHelper(model);
+        }
+
+        public virtual string EntityTypeTemplate
+        {
+            get
+            {
+                return ReadFromResource(
+                    typeof(SqlServerMetadataModelProvider).GetTypeInfo().Assembly,
+                    SqlServerEntityTypeTemplateResourceName);
+            }
+        }
+
+        public virtual EntityTypeCodeGeneratorHelper EntityTypeCodeGeneratorHelper(EntityTypeGeneratorModel model)
+        {
+            return new SqlServerEntityTypeCodeGeneratorHelper(model);
+        }
+
+        public virtual void AddReferencesForTemplates(MetadataReferencesProvider metadataReferencesProvider)
+        {
+            metadataReferencesProvider.AddReferenceFromName("EntityFramework.SqlServer.Design");
         }
 
         public virtual Dictionary<string, T> LoadData<T>(
@@ -338,12 +355,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 }
                 else
                 {
-                    var errorMessage = "Attempt to generate EntityType " + codeGenEntityType.Name
-                        + " failed. We could identify no primary key columns in the underlying SQL Server table "
-                        + _tables[relationalEntityType.Name].SchemaName + "." + _tables[relationalEntityType.Name].TableName + ".";
+                    var errorMessage = Strings.NoPrimaryKeyColumns(
+                        codeGenEntityType.Name,
+                        _tables[relationalEntityType.Name].SchemaName,
+                        _tables[relationalEntityType.Name].TableName);
                     codeGenEntityType.AddAnnotation(AnnotationNameEntityTypeError, errorMessage);
-                    _logger.LogWarning(
-                        Strings.CannotGenerateEntityType(codeGenEntityType.Name, errorMessage));
+                    _logger.LogWarning(Strings.CannotGenerateEntityType(codeGenEntityType.Name, errorMessage));
                 }
             } // end of loop over all relational EntityTypes
 
@@ -613,6 +630,20 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         Strings.UnableToConvertDefaultValue(
                             tableColumn.Id, tableColumn.DefaultValue,
                             property.ClrType, property.Name, property.EntityType.Name));
+                }
+            }
+        }
+
+        public virtual string ReadFromResource([NotNull]Assembly assembly, [NotNull]string resourceName)
+        {
+            Check.NotNull(assembly, nameof(assembly));
+            Check.NotEmpty(resourceName, nameof(resourceName));
+
+            using (var resourceStream = assembly.GetManifestResourceStream(resourceName))
+            {
+                using (var streamReader = new StreamReader(resourceStream))
+                {
+                    return streamReader.ReadToEnd();
                 }
             }
         }

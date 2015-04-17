@@ -1,0 +1,48 @@
+@inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
+@using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
+//
+// Generated code
+//
+@{
+string errorMessageAnnotation = Model.Helper.ErrorMessageAnnotation;
+}@if(errorMessageAnnotation != null) {
+@:
+@:// @errorMessageAnnotation
+}
+else {
+@:using System;
+@:using System.Collections.Generic;
+@:using Microsoft.Data.Entity;
+@:using Microsoft.Data.Entity.Metadata;
+
+@:namespace @Model.Namespace
+@:{
+@:    public class @Model.EntityType.Name
+@:    {
+@:        public @(Model.EntityType.Name)()
+@:        {
+    @foreach(var navPropInitializer in Model.Helper.NavPropInitializers)
+    {
+@:            @navPropInitializer.NavigationPropertyName = new HashSet<@navPropInitializer.PrincipalEntityTypeName>();
+    }
+@:        }
+@:
+@:        // Properties
+    @foreach(var property in Model.Helper.OrderedEntityProperties)
+    {
+@:        public @Model.Generator.CSharpCodeGeneratorHelper.GetTypeName(@property.ClrType) @property.Name { get; set; }
+    }
+@:
+@:        // Navigation Properties
+    @foreach(var navProp in Model.Helper.NavigationProperties)
+    {
+        @if(navProp.ErrorAnnotation != null) {
+@:        // @navProp.ErrorAnnotation
+        }
+        else {
+@:        public virtual @navProp.Type @navProp.Name { get; set; }
+        }
+    }
+@:    }
+@:}
+}

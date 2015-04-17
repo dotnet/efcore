@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 
@@ -61,31 +62,31 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 Namespace = configuration.Namespace,
                 ProviderAssembly = configuration.ProviderAssembly.FullName,
                 ConnectionString = configuration.ConnectionString,
+                Generator = this,
                 MetadataModel = metadataModel
             };
+            var dbContextCodeGeneratorHelper = provider.DbContextCodeGeneratorHelper(dbContextGeneratorModel);
+            dbContextGeneratorModel.Helper = dbContextCodeGeneratorHelper;
 
-            //TODO - check to see whether user has an override class for this in the current project first
-            var dbContextCodeGenerator =
-                provider.GetContextModelCodeGenerator(this, dbContextGeneratorModel);
-            if (dbContextCodeGenerator == null)
+            var dbContextClassName = configuration.ContextClassName
+                ?? dbContextCodeGeneratorHelper.ClassName(configuration.ConnectionString);
+            CheckOutputFiles(configuration.OutputPath, dbContextClassName, metadataModel);
+
+            var templating = _serviceProvider.GetRequiredService<ITemplating>();
+            var dbContextTemplate = provider.DbContextTemplate;
+            var templateResult = await templating.RunTemplateAsync(dbContextTemplate, dbContextGeneratorModel, provider);
+            if (templateResult.ProcessingException != null)
             {
                 throw new InvalidOperationException(
-                    Strings.NoContextModelCodeGenerator(provider.GetType().FullName));
+                    Strings.ErrorRunningDbContextTemplate(templateResult.ProcessingException.Message));
             }
-
-            CheckOutputFiles(configuration.OutputPath, dbContextCodeGenerator.ClassName, metadataModel);
-
-            var contextStringBuilder = new IndentedStringBuilder();
-            dbContextCodeGenerator.Generate(contextStringBuilder);
 
             // output DbContext .cs file
-            var dbContextFileName = dbContextCodeGenerator.ClassName + FileExtension;
-            using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(contextStringBuilder.ToString())))
-            {
-                await OutputFile(configuration.OutputPath, dbContextFileName, sourceStream);
-            }
+            var dbContextFileName = dbContextClassName + FileExtension;
+            OutputFile(configuration.OutputPath, dbContextFileName, templateResult.GeneratedText);
             resultingFiles.Add(Path.Combine(configuration.OutputPath, dbContextFileName));
 
+            var entityTypeTemplate = provider.EntityTypeTemplate;
             foreach (var entityType in metadataModel.EntityTypes)
             {
                 var entityTypeGeneratorModel = new EntityTypeGeneratorModel()
@@ -94,29 +95,22 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     Namespace = configuration.Namespace,
                     ProviderAssembly = configuration.ProviderAssembly.FullName,
                     ConnectionString = configuration.ConnectionString,
+                    Generator = this
                 };
+                var entityTypeCodeGeneratorHelper = provider.EntityTypeCodeGeneratorHelper(entityTypeGeneratorModel);
+                entityTypeGeneratorModel.Helper = entityTypeCodeGeneratorHelper;
 
-                //TODO - check to see whether user has an override class for this in the current project first
-                var entityTypeCodeGenerator =
-                    provider.GetEntityTypeModelCodeGenerator(
-                        this,
-                        entityTypeGeneratorModel);
-                if (entityTypeCodeGenerator == null)
+                templateResult = await templating.RunTemplateAsync(entityTypeTemplate, entityTypeGeneratorModel, provider);
+                if (templateResult.ProcessingException != null)
                 {
                     throw new InvalidOperationException(
-                        Strings.NoEntityTypeModelCodeGenerator(provider.GetType().FullName));
+                        Strings.ErrorRunningEntityTypeTemplate(templateResult.ProcessingException.Message));
                 }
-
-                var entityTypeStringBuilder = new IndentedStringBuilder();
-                entityTypeCodeGenerator.Generate(entityTypeStringBuilder);
 
                 // output EntityType poco .cs file
-                using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeStringBuilder.ToString())))
-                {
-                    var entityTypeFileName = entityType.Name + FileExtension;
-                    await OutputFile(configuration.OutputPath, entityTypeFileName, sourceStream);
-                    resultingFiles.Add(Path.Combine(configuration.OutputPath, entityTypeFileName));
-                }
+                var entityTypeFileName = entityType.DisplayName() + FileExtension;
+                OutputFile(configuration.OutputPath, entityTypeFileName, templateResult.GeneratedText);
+                resultingFiles.Add(Path.Combine(configuration.OutputPath, entityTypeFileName));
             }
 
             return resultingFiles;
@@ -178,7 +172,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     dbContextClassName + FileExtension
                 };
             filesToTest.AddRange(metadataModel.EntityTypes
-                .Select(entityType => entityType.Name + FileExtension));
+                .Select(entityType => entityType.DisplayName() + FileExtension));
 
             var readOnlyFiles = new List<string>();
             foreach (var fileName in filesToTest)
@@ -202,15 +196,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        private async Task OutputFile(string outputDirectoryName, string outputFileName, Stream sourceStream)
+        private void OutputFile(string outputDirectoryName, string outputFileName, string contents)
         {
             Directory.CreateDirectory(outputDirectoryName);
-
             var fullFileName = Path.Combine(outputDirectoryName, outputFileName);
-            using (var writeStream = new FileStream(fullFileName, FileMode.Create, FileAccess.Write))
-            {
-                await sourceStream.CopyToAsync(writeStream);
-            }
+            File.WriteAllText(fullFileName, contents);
         }
 
         private static void CheckConfiguration(ReverseEngineeringConfiguration configuration)
