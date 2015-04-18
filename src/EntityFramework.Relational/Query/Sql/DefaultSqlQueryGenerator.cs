@@ -299,13 +299,24 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         public virtual Expression VisitInExpression(InExpression inExpression)
         {
             var inValues = ProcessInExpressionValues(inExpression.Values);
-            if (inValues.Count > 0)
+            var inValuesNotNull = ExtractNonNullExpressionValues(inValues);
+
+            if (inValues.Count != inValuesNotNull.Count)
             {
-                VisitExpression(inExpression.Alias);
+                var nullSemanticsInExpression = Expression.OrElse(
+                    new InExpression(inExpression.Operand, inValuesNotNull),
+                    new IsNullExpression(inExpression.Operand));
+
+                return VisitExpression(nullSemanticsInExpression);
+            }
+
+            if (inValuesNotNull.Count > 0)
+            {
+                VisitExpression(inExpression.Operand);
 
                 _sql.Append(" IN (");
 
-                VisitJoin(inValues);
+                VisitJoin(inValuesNotNull);
 
                 _sql.Append(")");
             }
@@ -320,9 +331,20 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         protected virtual Expression VisitNotInExpression(InExpression inExpression)
         {
             var inValues = ProcessInExpressionValues(inExpression.Values);
+            var inValuesNotNull = ExtractNonNullExpressionValues(inValues);
+
+            if (inValues.Count != inValuesNotNull.Count)
+            {
+                var nullSemanticsNotInExpression = Expression.AndAlso(
+                    Expression.Not(new InExpression(inExpression.Operand, inValuesNotNull)),
+                    Expression.Not(new IsNullExpression(inExpression.Operand)));
+
+                return VisitExpression(nullSemanticsNotInExpression);
+            }
+
             if (inValues.Count > 0)
             {
-                VisitExpression(inExpression.Alias);
+                VisitExpression(inExpression.Operand);
 
                 _sql.Append(" NOT IN (");
 
@@ -374,6 +396,29 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
 
             return inConstants;
+        }
+
+        protected virtual IReadOnlyList<Expression> ExtractNonNullExpressionValues(
+            IReadOnlyList<Expression> inExpressionValues)
+        {
+            var inValuesNotNull = new List<Expression>();
+            foreach (var inValue in inExpressionValues)
+            {
+                var inConstant = inValue as ConstantExpression;
+                if (inConstant?.Value != null)
+                {
+                    inValuesNotNull.Add(inValue);
+                    continue;
+                }
+
+                var inParameter = inValue as ParameterExpression;
+                if (inParameter != null && _parameterValues[inParameter.Name] != null)
+                {
+                    inValuesNotNull.Add(inValue);
+                }
+            }
+
+            return inValuesNotNull;
         }
 
         public virtual Expression VisitInnerJoinExpression(InnerJoinExpression innerJoinExpression)

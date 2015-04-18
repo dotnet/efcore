@@ -258,6 +258,71 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual void Contains_with_local_array_closure_with_null()
+        {
+            string[] ids = { "Foo", null };
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => ids.Contains(e.NullableStringA)));
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_array_closure_with_multiple_nulls()
+        {
+            string[] ids = { null, "Foo", null, null };
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => ids.Contains(e.NullableStringA)));
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_array_closure_false_with_null()
+        {
+            string[] ids = { "Foo", null };
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => !ids.Contains(e.NullableStringA)));
+        }
+
+        [Fact]
+        public virtual void Where_select_many_or_with_null()
+        {
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableStringA == "Foo" || e.NullableStringA == "Blah" || e.NullableStringA == null));
+        }
+
+        [Fact]
+        public virtual void Where_select_many_and_with_null()
+        {
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableStringA != "Foo" && e.NullableStringA != "Blah" && e.NullableStringA != null));
+        }
+
+        [Fact]
+        public virtual void Where_select_many_or_with_nullable_parameter()
+        {
+            string prm = null;
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableStringA == "Foo" || e.NullableStringA == prm));
+        }
+
+        [Fact]
+        public virtual void Where_select_many_and_with_nullable_parameter_and_constant()
+        {
+
+
+            string prm1 = null;
+            string prm2 = null;
+            string prm3 = "Blah";
+
+            // wrong results!
+            //AssertQuery<NullSemanticsEntity1>(es => es.Where(e => 
+            //    e.NullableStringB != null 
+            //    && e.NullableStringA != "Foo" 
+            //    && e.NullableStringA != prm1 
+            //    && e.NullableStringA != prm2 
+            //    && e.NullableStringA != prm3));
+
+
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e =>
+                e.NullableStringA != "Foo"
+                && e.NullableStringA != prm1
+                && e.NullableStringA != prm2
+                && e.NullableStringA != prm3));
+        }
+
         protected void AssertQuery<TItem>(Func<IQueryable<TItem>, IQueryable<TItem>> query)
             where TItem : NullSemanticsEntityBase
         {

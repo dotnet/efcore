@@ -567,6 +567,85 @@ INNER JOIN [NullSemanticsEntity2] AS [e2] ON [e1].[NullableIntA] = [e2].[Nullabl
                 Sql);
         }
 
+        public override void Contains_with_local_array_closure_with_null()
+        {
+            base.Contains_with_local_array_closure_with_null();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableStringA] IN ('Foo') OR [e].[NullableStringA] IS NULL",
+                Sql);
+        }
+
+        public override void Contains_with_local_array_closure_false_with_null()
+        {
+            base.Contains_with_local_array_closure_false_with_null();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableStringA] NOT IN ('Foo') AND [e].[NullableStringA] IS NOT NULL",
+                Sql);
+        }
+
+        public override void Contains_with_local_array_closure_with_multiple_nulls()
+        {
+            base.Contains_with_local_array_closure_with_multiple_nulls();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableStringA] IN ('Foo') OR [e].[NullableStringA] IS NULL",
+                Sql);
+        }
+
+        public override void Where_select_many_or_with_null()
+        {
+            base.Where_select_many_or_with_null();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableStringA] IN ('Foo', 'Blah') OR [e].[NullableStringA] IS NULL",
+                Sql);
+        }
+
+        public override void Where_select_many_and_with_null()
+        {
+            base.Where_select_many_and_with_null();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableStringA] NOT IN ('Foo', 'Blah') AND [e].[NullableStringA] IS NOT NULL",
+                Sql);
+        }
+
+        public override void Where_select_many_or_with_nullable_parameter()
+        {
+            base.Where_select_many_or_with_nullable_parameter();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableStringA] IN ('Foo') OR [e].[NullableStringA] IS NULL",
+                Sql);
+        }
+
+        public override void Where_select_many_and_with_nullable_parameter_and_constant()
+        {
+            base.Where_select_many_and_with_nullable_parameter_and_constant();
+
+            Assert.Equal(
+                @"__prm3_2: Blah
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableStringA] NOT IN ('Foo', @__prm3_2) AND [e].[NullableStringA] IS NOT NULL",
+                Sql);
+        }
+
         private static string Sql
         {
             get { return TestSqlLoggerFactory.Sql; }

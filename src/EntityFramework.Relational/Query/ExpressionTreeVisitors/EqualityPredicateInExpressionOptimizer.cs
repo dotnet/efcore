@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             {
                 values = inExpression.Values;
 
-                return inExpression.Alias;
+                return inExpression.Operand;
             }
 
             return null;
