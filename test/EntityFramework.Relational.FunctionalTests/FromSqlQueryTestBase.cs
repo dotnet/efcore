@@ -148,6 +148,49 @@ FROM Customers").Where(c => c.City == "London"),
         }
 
         [Fact]
+        public virtual void From_sql_queryable_stored_procedure()
+        {
+            AssertQuery<Product>(
+                cs => cs.FromSql("EXEC ProductsOnOrder"),
+                cs => cs.Where(p => p.UnitsOnOrder > 0),
+                entryCount: 17);
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_simple_composed_stored_procedure()
+        {
+            AssertQuery<Product>(
+                cs => cs.FromSql(@"EXEC ProductsOnOrder").Where(p => p.UnitsInStock > 10),
+                cs => cs.Where(p => p.UnitsOnOrder > 0 && p.UnitsInStock > 10),
+                entryCount: 9);
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_composed_stored_procedure()
+        {
+            AssertQuery<Product>(
+                cs => cs.FromSql(@"EXEC ProductsOnOrder").OrderBy(p => p.ProductID).Where(p => p.UnitsInStock > 10).Count(p => p.ProductName.Contains("e")),
+                cs => cs.OrderBy(p => p.ProductID).Where(p => p.UnitsOnOrder > 0 && p.UnitsInStock > 10).Count(p => p.ProductName.Contains("e")));
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_stored_procedure_with_include_throws()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    Strings.StoredProcedureIncludeNotSupported,
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>()
+                                .FromSql("exec ProductsOnOrder")
+                                .Include(p => p.OrderDetails)
+                                .ToArray()
+                        ).Message);
+            }
+        }
+
+        [Fact]
         public virtual void From_sql_annotations_do_not_affect_successive_calls()
         {
             using (var context = CreateContext())
@@ -195,6 +238,21 @@ FROM Customers").Where(c => c.City == "London"),
                     assertOrder);
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        private void AssertQuery<TItem>(
+            Func<DbSet<TItem>, int> relationalQuery,
+            Func<IQueryable<TItem>, int> l2oQuery,
+            bool assertOrder = false)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { l2oQuery(NorthwindData.Set<TItem>()) },
+                    new[] { relationalQuery(context.Set<TItem>()) },
+                    assertOrder);
             }
         }
     }

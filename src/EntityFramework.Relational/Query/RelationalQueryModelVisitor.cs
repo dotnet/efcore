@@ -30,8 +30,6 @@ namespace Microsoft.Data.Entity.Relational.Query
         private readonly Dictionary<IQuerySource, SelectExpression> _queriesBySource
             = new Dictionary<IQuerySource, SelectExpression>();
 
-        private bool _requiresClientFilter;
-
         private RelationalProjectionExpressionTreeVisitor _projectionTreeVisitor;
 
         public RelationalQueryModelVisitor(
@@ -42,7 +40,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             _parentQueryModelVisitor = parentQueryModelVisitor;
         }
 
-        public virtual bool RequiresClientFilter => _requiresClientFilter;
+        public virtual bool RequiresClientFilter { get; set; }
+
         public virtual bool RequiresClientProjection => _projectionTreeVisitor.RequiresClientEval;
 
         public new virtual RelationalQueryCompilationContext QueryCompilationContext
@@ -77,7 +76,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            return _projectionTreeVisitor 
+            return _projectionTreeVisitor
                 = new RelationalProjectionExpressionTreeVisitor(this, querySource);
         }
 
@@ -248,12 +247,12 @@ namespace Microsoft.Data.Entity.Relational.Query
                 }
             }
 
-            if (requiresClientEval)
+            RequiresClientFilter |= requiresClientEval;
+
+            if (RequiresClientFilter)
             {
                 base.VisitWhereClause(whereClause, queryModel, index);
             }
-
-            _requiresClientFilter |= requiresClientEval;
         }
 
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)

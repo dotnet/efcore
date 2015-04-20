@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Relational
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
-	using JetBrains.Annotations;
+    using JetBrains.Annotations;
 
     public static class Strings
     {
@@ -266,6 +266,14 @@ namespace Microsoft.Data.Entity.Relational
         public static string MigrationNotFound([CanBeNull] object migrationName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MigrationNotFound", "migrationName"), migrationName);
+        }
+
+        /// <summary>
+        /// The Include operation is not supported when calling a stored procedure.
+        /// </summary>
+        public static string StoredProcedureIncludeNotSupported
+        {
+            get { return GetString("StoredProcedureIncludeNotSupported"); }
         }
 
         /// <summary>
