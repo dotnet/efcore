@@ -26,8 +26,6 @@ namespace Microsoft.Data.Entity.Query
             EntityLoadInfo entityLoadInfo,
             bool queryStateManager);
 
-        object GetPropertyValue([NotNull] object entity, [NotNull] IProperty property);
-
         void StartTracking([NotNull] object entity);
 
         void Include(

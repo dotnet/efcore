@@ -136,7 +136,7 @@ SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
             Assert.Equal(
                 @"SELECT * FROM Customers
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 INNER JOIN (
     SELECT DISTINCT [c].[CustomerID]
@@ -160,7 +160,7 @@ FROM (
 WHERE [c].[City] = 'London'
 ORDER BY [c].[CustomerID]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 INNER JOIN (
     SELECT DISTINCT [c].[CustomerID]

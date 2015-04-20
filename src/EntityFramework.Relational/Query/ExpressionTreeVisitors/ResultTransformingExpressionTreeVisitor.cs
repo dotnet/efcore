@@ -17,6 +17,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         private readonly IQuerySource _outerQuerySource;
         private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
 
+        private MethodCallExpression _root;
+
         public ResultTransformingExpressionTreeVisitor(
             [NotNull] IQuerySource outerQuerySource,
             [NotNull] RelationalQueryCompilationContext relationalQueryCompilationContext)
@@ -31,6 +33,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
+            _root = _root ?? methodCallExpression;
 
             var newObject = VisitExpression(methodCallExpression.Object);
 
@@ -62,10 +66,15 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 if (methodCallExpression.Method.MethodIsClosedFormOf(
                     _relationalQueryCompilationContext.LinqOperatorProvider.Select))
                 {
-                    return ResultOperatorHandler.CallWithPossibleCancellationToken(
-                        _relationalQueryCompilationContext.QueryMethodProvider.GetResultMethod
-                            .MakeGenericMethod(typeof(TResult)),
-                        newArguments[0]);
+                    if (methodCallExpression == _root)
+                    {
+                        return ResultOperatorHandler.CallWithPossibleCancellationToken(
+                            _relationalQueryCompilationContext.QueryMethodProvider.GetResultMethod
+                                .MakeGenericMethod(typeof(TResult)),
+                            newArguments[0]);
+                    }
+
+                    return newArguments[0];
                 }
 
                 if (methodCallExpression.Method.MethodIsClosedFormOf(

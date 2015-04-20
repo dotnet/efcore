@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
+using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -49,6 +50,8 @@ namespace Microsoft.Data.Entity.Query
         public virtual IEntityMaterializerSource EntityMaterializerSource { get; }
 
         public virtual IEntityKeyFactorySource EntityKeyFactorySource { get; }
+
+        public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
 
         public virtual ICollection<QueryAnnotation> QueryAnnotations
         {

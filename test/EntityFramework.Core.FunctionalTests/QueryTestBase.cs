@@ -308,7 +308,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                  orderby c.CustomerID, o.OrderID
                  select new { c, o })
                     .Take(1)
+                    .Cast<object>()
                     .Single());
+        }
+
+        [Fact]
+        public virtual void Cast_results_to_object()
+        {
+            AssertQuery<Customer>(cs => from c in cs.Cast<object>() select c, entryCount: 91);
         }
 
         [Fact]
@@ -628,6 +635,35 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Select(e => e.Property<string>("Title")));
         }
 
+        public virtual void Where_simple_shadow_projection_mixed()
+        {
+            AssertQuery<Employee>(
+                es => es.Where(e => e.Property<string>("Title") == "Sales Representative")
+                    .Select(e => new { e, Title = e.Property<string>("Title") }),
+                entryCount: 6);
+        }
+
+        [Fact]
+        public virtual void Where_simple_shadow_subquery()
+        {
+            AssertQuery<Employee>(
+                es => from e in es.OrderBy(e => e.EmployeeID).Take(5)
+                      where e.Property<string>("Title") == "Sales Representative"
+                      select e,
+                entryCount: 3);
+        }
+
+        [Fact]
+        public virtual void Where_shadow_subquery_first()
+        {
+            AssertQuery<Employee>(es =>
+                from e in es
+                where e.Property<string>("Title")
+                      == es.OrderBy(e2 => e2.Property<string>("Title")).First().Property<string>("Title")
+                select e,
+                entryCount: 1);
+        }
+
         [Fact]
         public virtual void Where_client()
         {
@@ -746,12 +782,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             long? nullableLongPrm = 2;
 
             AssertQuery<Employee>(
-                es => es.Where(e => nullableLongPrm.Equals(e.ReportsTo)),
-                entryCount: 0);
+                es => es.Where(e => nullableLongPrm.Equals(e.ReportsTo)));
 
             AssertQuery<Employee>(
-                es => es.Where(e => e.ReportsTo.Equals(nullableLongPrm)),
-                entryCount: 0);
+                es => es.Where(e => e.ReportsTo.Equals(nullableLongPrm)));
         }
 
         [Fact]
@@ -999,6 +1033,32 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_primitive_tracked()
+        {
+            AssertQuery<Employee>(
+                es => es.Take(9).Where(e => e.EmployeeID == 5),
+                entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_primitive_tracked2()
+        {
+            AssertQuery<Employee>(
+                es => es.Take(9).Select(e => new { e }).Where(e => e.e.EmployeeID == 5),
+                entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_subquery_anon()
+        {
+            AssertQuery<Employee, Order>((es, os) =>
+                from e in es.Take(9).Select(e => new { e })
+                from o in os.Take(1000).Select(o => new { o })
+                where e.e.EmployeeID == o.o.EmployeeID
+                select new { e, o });
+        }
+
+        [Fact]
         public virtual void Where_bool_member()
         {
             AssertQuery<Product>(ps => ps.Where(p => p.Discontinued), entryCount: 8);
@@ -1013,6 +1073,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Where_bool_member_negated_twice()
         {
+            // ReSharper disable once NegativeEqualityExpression
+            // ReSharper disable once DoubleNegationOperator
+            // ReSharper disable once RedundantBoolCompare
             AssertQuery<Product>(ps => ps.Where(p => !!(p.Discontinued == true)), entryCount: 8);
         }
 
@@ -1068,14 +1131,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Where_bool_parameter_compared_to_binary_expression()
         {
-            bool prm = true;
+            var prm = true;
             AssertQuery<Product>(ps => ps.Where(p => (p.ProductID > 50) != prm), entryCount: 50);
         }
 
         [Fact]
         public virtual void Where_bool_member_and_parameter_compared_to_binary_expression_nested()
         {
-            bool prm = true;
+            var prm = true;
             AssertQuery<Product>(ps => ps.Where(p => p.Discontinued == ((p.ProductID > 50) != prm)), entryCount: 33);
         }
 
@@ -1414,8 +1477,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
-                select os
-                    .OrderBy(o => c.CustomerID),
+                select os.Where(o => o.CustomerID == c.CustomerID),
                 asserter:
                     (l2oResults, efResults) =>
                         {
@@ -1771,6 +1833,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Join_customers_orders_with_subquery_anonymous_property_method()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o1 in
+                    (from o2 in os orderby o2.OrderID select new { o2 }) on c.CustomerID equals o1.o2.CustomerID
+                where o1.o2.Property<string>("CustomerID") == "ALFKI"
+                select new { o1, o1.o2, Shadow = o1.o2.Property<DateTime?>("OrderDate") });
+        }
+
+        [Fact]
         public virtual void Join_customers_orders_with_subquery_predicate()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -1865,13 +1938,51 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void GroupJoin_default_if_empty()
+        public virtual void Default_if_empty_top_level()
         {
-            AssertQuery<Customer, Order>((cs, os) =>
-                from c in cs
-                join o in os on c.CustomerID equals o.CustomerID into orders
-                from o1 in orders.DefaultIfEmpty()
-                select new { c, o1 });
+            AssertQuery<Employee>(cs =>
+                from c in cs.Where(c => c.EmployeeID == -1).DefaultIfEmpty()
+                select c);
+        }
+
+        [Fact]
+        public virtual void Default_if_empty_top_level_arg()
+        {
+            AssertQuery<Employee>(cs =>
+                from c in cs.Where(c => c.EmployeeID == -1).DefaultIfEmpty(new Employee())
+                select c);
+        }
+
+        [Fact]
+        public virtual void GroupJoin_customers_employees_shadow()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                (from c in cs
+                 join e in es on c.City equals e.City into employees
+                 select employees)
+                    .SelectMany(emps => emps)
+                    .Select(e =>
+                        new
+                        {
+                            Title = e.Property<string>("Title"),
+                            Id = e.EmployeeID
+                        }));
+        }
+
+        [Fact]
+        public virtual void GroupJoin_customers_employees_subquery_shadow()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                (from c in cs
+                 join e in es.OrderBy(e => e.City) on c.City equals e.City into employees
+                 select employees)
+                    .SelectMany(emps => emps)
+                    .Select(e =>
+                        new
+                        {
+                            Title = e.Property<string>("Title"),
+                            Id = e.EmployeeID
+                        }));
         }
 
         [Fact]
@@ -2123,6 +2234,60 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void GroupBy_simple()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID),
+                entryCount: 830,
+                asserter: (l2oResults, efResults) =>
+                {
+                    var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
+
+                    foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
+                    {
+                        var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                        Assert.Equal(l2oGrouping.OrderBy(o => o.OrderID), efGrouping.OrderBy(o => o.OrderID));
+                    }
+                });
+        }
+
+        [Fact]
+        public virtual void GroupBy_simple2()
+        {
+            AssertQuery<Order>(
+                os => os.GroupBy(o => o.CustomerID).Select(g => g),
+                entryCount: 830,
+                asserter: (l2oResults, efResults) =>
+                {
+                    var efGroupings = efResults.Cast<IGrouping<string, Order>>().ToList();
+
+                    foreach (IGrouping<string, Order> l2oGrouping in l2oResults)
+                    {
+                        var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                        Assert.Equal(l2oGrouping.OrderBy(o => o.OrderID), efGrouping.OrderBy(o => o.OrderID));
+                    }
+                });
+        }
+
+        [Fact]
+        public virtual void GroupBy_first()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.CustomerID == "ALFKI").GroupBy(o => o.CustomerID).Cast<object>().First(),
+                asserter: (l2oResult, efResult) =>
+                {
+                    var l2oGrouping = (IGrouping<string, Order>)l2oResult;
+                    var efGrouping = (IGrouping<string, Order>)efResult;
+
+                    Assert.Equal(l2oGrouping.Key, efGrouping.Key);
+                    Assert.Equal(l2oGrouping.OrderBy(o => o.OrderID), efGrouping.OrderBy(o => o.OrderID));
+                },
+                entryCount: 6);
+        }
+
+        [Fact]
         public virtual void GroupBy_Sum()
         {
             AssertQuery<Order>(os =>
@@ -2141,6 +2306,35 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID).Select(g => g.LongCount()));
+        }
+
+        [Fact]
+        public virtual void GroupBy_Shadow()
+        {
+            AssertQuery<Employee>(es =>
+                es.Where(e => e.Property<string>("Title") == "Sales Representative"
+                              && e.EmployeeID == 1)
+                    .GroupBy(e => e.Property<string>("Title"))
+                    .Select(g => g.First().Property<string>("Title")));
+        }
+
+        [Fact]
+        public virtual void GroupBy_Shadow2()
+        {
+            AssertQuery<Employee>(es =>
+                es.Where(e => e.Property<string>("Title") == "Sales Representative"
+                              && e.EmployeeID == 1)
+                    .GroupBy(e => e.Property<string>("Title"))
+                    .Select(g => g.First()));
+        }
+
+        [Fact]
+        public virtual void GroupBy_Shadow3()
+        {
+            AssertQuery<Employee>(es =>
+                es.Where(e => e.EmployeeID == 1)
+                    .GroupBy(e => e.EmployeeID)
+                    .Select(g => g.First().Property<string>("Title")));
         }
 
         [Fact]
@@ -2178,6 +2372,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Sum()));
         }
 
+
+
         [Fact]
         public virtual void GroupBy_with_element_selector()
         {
@@ -2185,6 +2381,50 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 os.GroupBy(o => o.CustomerID, o => o.OrderID)
                     .OrderBy(g => g.Key)
                     .Select(g => g.OrderBy(o => o)),
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<int>)q1));
+
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<int>)q1));
+
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
+        }
+
+        [Fact]
+        public virtual void GroupBy_with_element_selector2()
+        {
+            AssertQuery<Order>(os =>
+                os.GroupBy(o => o.CustomerID)
+                    .OrderBy(g => g.Key)
+                    .Select(g => g.OrderBy(o => o.OrderID)),
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1));
+
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1));
+
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
+        }
+
+        [Fact]
+        public virtual void GroupBy_with_element_selector3()
+        {
+            AssertQuery<Employee>(es =>
+                es.GroupBy(e => e.EmployeeID)
+                    .OrderBy(g => g.Key)
+                    .Select(g => g.Select(e => new { Title = e.Property<string>("Title"), e }).ToList()),
                 assertOrder: true);
         }
 
@@ -2229,6 +2469,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .GroupBy(o => o.CustomerID)
                     .SelectMany(g => g),
                 entryCount: 830);
+        }
+
+        [Fact]
+        public virtual void OrderBy_GroupBy_SelectMany_shadow()
+        {
+            AssertQuery<Employee>(es =>
+                es.OrderBy(e => e.EmployeeID)
+                    .GroupBy(e => e.EmployeeID)
+                    .SelectMany(g => g)
+                    .Select(g => g.Property<string>("Title")));
         }
 
         [Fact]
@@ -2719,13 +2969,53 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void JoinInto_DefaultIfEmpty()
+        public virtual void GroupJoin_simple()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
-                join o in os on c.CustomerID equals o.CustomerID into ords
-                from o in ords.DefaultIfEmpty()
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders
+                select o);
+        }
+
+        [Fact]
+        public virtual void GroupJoin_projection()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders
                 select new { c, o });
+        }
+
+        [Fact]
+        public virtual void GroupJoin_DefaultIfEmpty()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders.DefaultIfEmpty()
+                select new { c, o });
+        }
+
+        [Fact]
+        public virtual void GroupJoin_DefaultIfEmpty2()
+        {
+            AssertQuery<Employee, Order>((es, os) =>
+                from e in es
+                join o in os on e.EmployeeID equals o.EmployeeID into orders
+                from o in orders.DefaultIfEmpty()
+                select new { e, o });
+        }
+
+        [Fact]
+        public virtual void GroupJoin_DefaultIfEmpty3()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs//.Take(1)
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders.DefaultIfEmpty()
+                select o);
         }
 
         [Fact]
@@ -2744,6 +3034,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 from c in cs
                 from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
                 select new { c.ContactName, o });
+        }
+
+        [Fact]
+        public virtual void SelectMany_Joined_DefaultIfEmpty2()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                select o);
         }
 
         [Fact]
@@ -2849,7 +3148,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             string[] ids = { "ABCDE", "ALFKI" };
             AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID) && (c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE")), entryCount: 0);
+                cs.Where(c => ids.Contains(c.CustomerID) && (c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE")));
         }
 
         [Fact]
@@ -2866,14 +3165,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
             string[] ids = new string[0];
 
             AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 0);
+                cs.Where(c => ids.Contains(c.CustomerID)));
         }
 
         [Fact]
         public virtual void Contains_with_local_collection_empty_inline()
         {
             AssertQuery<Customer>(cs =>
-                cs.Where(c => !(new List<string> { }.Contains(c.CustomerID))), entryCount: 91);
+                cs.Where(c => !(new List<string>().Contains(c.CustomerID))), entryCount: 91);
         }
 
         [Fact]
@@ -2942,16 +3241,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Select_take_null_coalesce_operator()
         {
             AssertQuery<Customer>(
-            cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(5),
-            entryCount: 0);
+            cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(5));
         }
 
         [Fact]
         public virtual void Select_take_skip_null_coalesce_operator()
         {
                 AssertQuery<Customer>(
-                cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(10).Skip(5),
-                entryCount: 0);
+                cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(10).Skip(5));
         }
 
         [Fact]
@@ -3070,12 +3367,32 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         protected void AssertQuery<TItem>(
-            Func<IQueryable<TItem>, IQueryable<object>> query,
+             Func<IQueryable<TItem>, IQueryable<object>> query,
+             bool assertOrder = false,
+             int entryCount = 0,
+             Action<IList<object>, IList<object>> asserter = null)
+             where TItem : class
+        {
+            AssertQuery(query, query, assertOrder, entryCount, asserter);
+        }
+
+        protected void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, object> query,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            Action<object, object> asserter = null)
             where TItem : class
         {
-            AssertQuery(query, query, assertOrder, entryCount);
+            using (var context = CreateContext())
+            {
+                TestHelpers.AssertResults(
+                    new[] { query(NorthwindData.Set<TItem>()) },
+                    new[] { query(context.Set<TItem>()) },
+                    assertOrder,
+                    (l2os, efs) => asserter(l2os.Single(), efs.Single()));
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
         }
 
         private void AssertQuery<TItem1, TItem2>(
@@ -3112,7 +3429,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         private void AssertQuery<TItem>(
-            Func<IQueryable<TItem>, IQueryable<int>> query, bool assertOrder = false)
+            Func<IQueryable<TItem>, IQueryable<int>> query,
+            bool assertOrder = false,
+            int entryCount = 0)
             where TItem : class
         {
             using (var context = CreateContext())
@@ -3121,6 +3440,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     query(context.Set<TItem>()).ToArray(),
                     assertOrder);
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -3141,7 +3462,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<object>> efQuery,
             Func<IQueryable<TItem>, IQueryable<object>> l2oQuery,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            Action<IList<object>, IList<object>> asserter = null)
             where TItem : class
         {
             using (var context = CreateContext())
@@ -3149,7 +3471,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 TestHelpers.AssertResults(
                     l2oQuery(NorthwindData.Set<TItem>()).ToArray(),
                     efQuery(context.Set<TItem>()).ToArray(),
-                    assertOrder);
+                    assertOrder,
+                    asserter);
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }

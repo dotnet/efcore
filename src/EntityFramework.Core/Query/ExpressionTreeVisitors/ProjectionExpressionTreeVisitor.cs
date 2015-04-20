@@ -1,21 +1,25 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
+using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
     public class ProjectionExpressionTreeVisitor : DefaultQueryExpressionTreeVisitor
     {
-        public ProjectionExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
-            : base(Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)))
+        public ProjectionExpressionTreeVisitor(
+            [NotNull] EntityQueryModelVisitor entityQueryModelVisitor,
+            [NotNull] IQuerySource outerQuerySource)
+            : base(
+                Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)),
+                Check.NotNull(outerQuerySource, nameof(outerQuerySource)))
         {
         }
 
@@ -27,41 +31,81 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
             var subExpression = queryModelVisitor.Expression;
 
-            var streamedSequenceInfo
-                = subQueryExpression.QueryModel.GetOutputDataInfo() as StreamedSequenceInfo;
+            var resultItemType
+                = queryModelVisitor.StreamedSequenceInfo?.ResultItemType
+                  ?? subExpression.Type;
 
-            if (streamedSequenceInfo == null)
+            var resultItemTypeInfo = resultItemType.GetTypeInfo();
+
+            if (resultItemTypeInfo.IsGenericType
+                && resultItemTypeInfo.GetGenericTypeDefinition() == typeof(QuerySourceScope<>))
+            {
+                resultItemType = resultItemTypeInfo.GenericTypeArguments[0];
+
+                subExpression
+                    = Expression.Call(
+                        (queryModelVisitor.StreamedSequenceInfo != null
+                            ? QueryModelVisitor.QueryCompilationContext.LinqOperatorProvider
+                                .UnwrapQueryResults
+                            : _unwrapSingleResult)
+                            .MakeGenericMethod(resultItemType),
+                        subExpression);
+            }
+
+            if (queryModelVisitor.StreamedSequenceInfo == null)
             {
                 return subExpression;
             }
 
-            var typeInfo = subQueryExpression.Type.GetTypeInfo();
-
-            if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(typeInfo))
+            if (subExpression.Type != subQueryExpression.Type)
             {
-                subExpression
-                    = Expression.Call(
-                        QueryModelVisitor.LinqOperatorProvider.AsQueryable
-                            .MakeGenericMethod(streamedSequenceInfo.ResultItemType),
-                        subExpression);
-            }
-            else if (typeInfo.IsGenericType
-                     && typeInfo.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
-            {
-                var elementType
-                    = subExpression.Type.TryGetElementType(typeof(IOrderedAsyncEnumerable<>));
+                var subQueryExpressionTypeInfo = subQueryExpression.Type.GetTypeInfo();
 
-                if (elementType != null)
+                if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(subQueryExpressionTypeInfo))
                 {
                     subExpression
                         = Expression.Call(
-                            QueryModelVisitor.LinqOperatorProvider.AsQueryable
-                                .MakeGenericMethod(streamedSequenceInfo.ResultItemType),
+                            QueryModelVisitor.LinqOperatorProvider.ToQueryable
+                                .MakeGenericMethod(resultItemType),
                             subExpression);
+                }
+                else if (subQueryExpressionTypeInfo.IsGenericType)
+                {
+                    var genericTypeDefinition = subQueryExpressionTypeInfo.GetGenericTypeDefinition();
+
+                    if (genericTypeDefinition == typeof(IOrderedEnumerable<>))
+                    {
+                        subExpression
+                            = Expression.Call(
+                                QueryModelVisitor.LinqOperatorProvider.ToOrdered
+                                    .MakeGenericMethod(resultItemType),
+                                subExpression);
+                    }
+                    else if (genericTypeDefinition == typeof(IEnumerable<>))
+                    {
+                        subExpression
+                            = Expression.Call(
+                                QueryModelVisitor.LinqOperatorProvider.ToEnumerable
+                                    .MakeGenericMethod(resultItemType),
+                                subExpression);
+                    }
                 }
             }
 
-            return Expression.Convert(subExpression, subQueryExpression.Type);
+            return subExpression;
+        }
+
+        private static readonly MethodInfo _unwrapSingleResult
+            = typeof(ProjectionExpressionTreeVisitor)
+                .GetTypeInfo().GetDeclaredMethod("UnwrapSingleResult");
+
+        [UsedImplicitly]
+        private static TResult UnwrapSingleResult<TResult>(
+            QuerySourceScope<TResult> querySourceScope)
+            where TResult : class
+        {
+            // ReSharper disable once MergeConditionalExpression
+            return querySourceScope != null ? querySourceScope.Result : default(TResult);
         }
     }
 }

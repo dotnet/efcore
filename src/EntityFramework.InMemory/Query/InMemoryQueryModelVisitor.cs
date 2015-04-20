@@ -84,9 +84,9 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .GetDeclaredMethod("Include");
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> Include<TResult>(
+        private static IEnumerable<QuerySourceScope<TResult>> Include<TResult>(
             QueryContext queryContext,
-            IEnumerable<TResult> source,
+            IEnumerable<QuerySourceScope<TResult>> source,
             IReadOnlyList<INavigation> navigationPath,
             Func<TResult, object> accessorLambda,
             IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
@@ -94,16 +94,20 @@ namespace Microsoft.Data.Entity.InMemory.Query
         {
             return
                 source
-                    .Select(result =>
+                    .Select(qss =>
                         {
-                            queryContext.QueryBuffer
-                                .Include(
-                                    accessorLambda.Invoke(result),
-                                    navigationPath,
-                                    relatedEntitiesLoaders,
-                                    querySourceRequiresTracking);
+                            if (qss != null
+                                && qss.Result != null)
+                            {
+                                queryContext.QueryBuffer
+                                    .Include(
+                                        accessorLambda.Invoke(qss.Result),
+                                        navigationPath,
+                                        relatedEntitiesLoaders,
+                                        querySourceRequiresTracking);
+                            }
 
-                            return result;
+                            return qss;
                         });
         }
 
@@ -122,8 +126,9 @@ namespace Microsoft.Data.Entity.InMemory.Query
             return ((InMemoryQueryContext)queryContext).Database
                 .GetTables(targetType)
                 .SelectMany(t =>
-                    t.Select(vs => new EntityLoadInfo(
-                        new ObjectArrayValueReader(vs), vr => materializer(t.EntityType, vr)))
+                    t.Select(vs =>
+                        new EntityLoadInfo(
+                            new ObjectArrayValueReader(vs), vr => materializer(t.EntityType, vr)))
                         .Where(eli => relatedKeyFactory(eli.ValueReader).Equals(primaryKey)));
         }
 
@@ -132,8 +137,10 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .GetDeclaredMethod("EntityQuery");
 
         [UsedImplicitly]
-        private static IEnumerable<TEntity> EntityQuery<TEntity>(
+        private static IEnumerable<QuerySourceScope<TEntity>> EntityQuery<TEntity>(
+            IQuerySource querySource,
             QueryContext queryContext,
+            QuerySourceScope parentQuerySourceScope,
             IEntityType entityType,
             Func<IValueReader, EntityKey> entityKeyFactory,
             Func<IEntityType, IValueReader, object> materializer,
@@ -146,17 +153,21 @@ namespace Microsoft.Data.Entity.InMemory.Query
                     t.Select(vs =>
                         {
                             var valueReader = new ObjectArrayValueReader(vs);
-                            var entityKey = entityKeyFactory(valueReader);
 
-                            return (TEntity)queryContext
-                                .QueryBuffer
-                                .GetEntity(
-                                    entityType,
-                                    entityKey,
-                                    new EntityLoadInfo(
-                                        valueReader,
-                                        vr => materializer(t.EntityType, vr)),
-                                    queryStateManager);
+                            return
+                                new QuerySourceScope<TEntity>(
+                                    querySource,
+                                    (TEntity)queryContext
+                                        .QueryBuffer
+                                        .GetEntity(
+                                            entityType,
+                                            entityKeyFactory(valueReader),
+                                            new EntityLoadInfo(
+                                                valueReader,
+                                                vr => materializer(t.EntityType, vr)),
+                                            queryStateManager),
+                                    parentQuerySourceScope,
+                                    valueReader);
                         }));
         }
 
@@ -165,24 +176,29 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .GetDeclaredMethod("ProjectionQuery");
 
         [UsedImplicitly]
-        private static IEnumerable<IValueReader> ProjectionQuery(
+        private static IEnumerable<QuerySourceScope<IValueReader>> ProjectionQuery(
+            IQuerySource querySource,
             QueryContext queryContext,
+            QuerySourceScope parentQuerySourceScope,
             IEntityType entityType)
         {
             return ((InMemoryQueryContext)queryContext).Database
                 .GetTables(entityType)
-                .SelectMany(t => t.Select(vs => new ObjectArrayValueReader(vs)));
+                .SelectMany(t =>
+                    t.Select(vs =>
+                        new QuerySourceScope<IValueReader>(
+                            querySource,
+                            new ObjectArrayValueReader(vs),
+                            parentQuerySourceScope,
+                            null)));
         }
 
         private class InMemoryEntityQueryableExpressionTreeVisitor : EntityQueryableExpressionTreeVisitor
         {
-            private readonly IQuerySource _querySource;
-
             public InMemoryEntityQueryableExpressionTreeVisitor(
                 EntityQueryModelVisitor entityQueryModelVisitor, IQuerySource querySource)
-                : base(entityQueryModelVisitor)
+                : base(entityQueryModelVisitor, querySource)
             {
-                _querySource = querySource;
             }
 
             private new InMemoryQueryModelVisitor QueryModelVisitor => (InMemoryQueryModelVisitor)base.QueryModelVisitor;
@@ -212,20 +228,24 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         .EntityMaterializerSource)
                         .CreateMaterializer(entityType);
 
-                if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
+                if (QueryModelVisitor.QuerySourceRequiresMaterialization(QuerySource))
                 {
                     return Expression.Call(
                         _entityQueryMethodInfo.MakeGenericMethod(elementType),
+                        Expression.Constant(QuerySource),
                         QueryContextParameter,
+                        QuerySourceScopeParameter,
                         Expression.Constant(entityType),
                         Expression.Constant(entityKeyFactory),
                         materializer,
-                        Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));
+                        Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(QuerySource)));
                 }
 
                 return Expression.Call(
                     _projectionQueryMethodInfo,
+                    Expression.Constant(QuerySource),
                     QueryContextParameter,
+                    QuerySourceScopeParameter,
                     Expression.Constant(entityType));
             }
         }

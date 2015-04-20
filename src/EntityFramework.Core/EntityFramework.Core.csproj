@@ -196,6 +196,7 @@
     <Compile Include="Query\Annotations\AsNoTrackingQueryAnnotation.cs" />
     <Compile Include="Query\Annotations\IncludeQueryAnnotation.cs" />
     <Compile Include="Query\EntityLoadInfo.cs" />
+    <Compile Include="Query\EntityTrackingInfo.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ExpressionStringBuilder.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ExpressionTreeVisitorBase.cs" />
     <Compile Include="Query\IEntityQueryProvider.cs" />

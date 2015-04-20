@@ -20,6 +20,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(2, animals.Count);
                 Assert.IsType<Kiwi>(animals[0]);
                 Assert.IsType<Eagle>(animals[1]);
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -33,6 +34,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(2, animals.Count);
                 Assert.IsType<Kiwi>(animals[0]);
                 Assert.IsType<Eagle>(animals[1]);
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Can_use_of_type_bird_first()
+        {
+            using (var context = CreateContext())
+            {
+                var bird = context.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species).First();
+
+                Assert.NotNull(bird);
+                Assert.IsType<Kiwi>(bird);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -45,6 +60,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.Equal(1, animals.Count);
                 Assert.IsType<Kiwi>(animals[0]);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
             }
         }
 

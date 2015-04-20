@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
@@ -18,8 +16,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
     public class RelationalProjectionExpressionTreeVisitor : ProjectionExpressionTreeVisitor
     {
-        private readonly IQuerySource _querySource;
-
         private readonly SqlTranslatingExpressionTreeVisitor _sqlTranslatingExpressionTreeVisitor;
 
         private bool _requiresClientEval;
@@ -27,10 +23,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         public RelationalProjectionExpressionTreeVisitor(
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [NotNull] IQuerySource querySource)
-            : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
+            : base(
+                Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)),
+                Check.NotNull(querySource, nameof(querySource)))
         {
-            _querySource = querySource;
-
             _sqlTranslatingExpressionTreeVisitor
                 = new SqlTranslatingExpressionTreeVisitor(queryModelVisitor);
         }
@@ -39,6 +35,29 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             => (RelationalQueryModelVisitor)base.QueryModelVisitor;
 
         public virtual bool RequiresClientEval => _requiresClientEval;
+
+        protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.IsGenericMethod
+                && ReferenceEquals(
+                    methodCallExpression.Method.GetGenericMethodDefinition(),
+                    QueryExtensions.PropertyMethodInfo))
+            {
+                var newArg0 = VisitExpression(methodCallExpression.Arguments[0]);
+
+                if (newArg0 != methodCallExpression.Arguments[0])
+                {
+                    return Expression.Call(
+                        methodCallExpression.Method,
+                        newArg0,
+                        methodCallExpression.Arguments[1]);
+                }
+
+                return methodCallExpression;
+            }
+
+            return base.VisitMethodCallExpression(methodCallExpression);
+        }
 
         public override Expression VisitExpression(Expression expression)
         {
@@ -55,13 +74,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 else
                 {
                     var selectExpression
-                        = QueryModelVisitor.TryGetQuery(_querySource);
+                        = QueryModelVisitor.TryGetQuery(QuerySource);
 
                     Debug.Assert(selectExpression != null);
 
                     if (!(expression is NewExpression))
                     {
-                        var aliasExpression = sqlExpression as AliasExpression;
+                        //var aliasExpression = sqlExpression as AliasExpression;
                         var columnExpression = sqlExpression.GetColumnExpression();
 
                         if (columnExpression != null)
@@ -78,7 +97,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 expression.Type,
                                 QuerySourceScope.GetResult(
                                     EntityQueryModelVisitor.QuerySourceScopeParameter,
-                                    _querySource,
+                                    QuerySource,
                                     typeof(IValueReader)),
                                 index);
                     }

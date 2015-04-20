@@ -38,7 +38,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             modelBuilder.Entity<Order>(e =>
                 {
-                    e.Ignore(o => o.EmployeeID);
                     e.Ignore(o => o.Freight);
                     e.Ignore(o => o.RequiredDate);
                     e.Ignore(o => o.ShipAddress);

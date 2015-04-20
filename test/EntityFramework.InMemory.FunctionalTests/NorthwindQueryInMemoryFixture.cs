@@ -36,7 +36,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
         public override NorthwindContext CreateContext()
         {
-            return new NorthwindContext(_serviceProvider, _options);
+            var context = new NorthwindContext(_serviceProvider, _options);
+
+            context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+            return context;
         }
     }
 }

@@ -10,6 +10,10 @@ namespace Microsoft.Data.Entity.Query
 {
     public interface ILinqOperatorProvider
     {
+        MethodInfo TrackEntities { get; }
+        MethodInfo TrackGroupedEntities { get; }
+        MethodInfo InterceptExceptions { get; }
+
         MethodInfo SelectMany { get; }
         MethodInfo Join { get; }
         MethodInfo GroupJoin { get; }
@@ -17,10 +21,10 @@ namespace Microsoft.Data.Entity.Query
         MethodInfo OrderBy { get; }
         MethodInfo ThenBy { get; }
         MethodInfo Where { get; }
-        MethodInfo ToSequence { get; }
         MethodInfo Any { get; }
         MethodInfo All { get; }
         MethodInfo Cast { get; }
+        MethodInfo CastWrappedResult { get; }
         MethodInfo Count { get; }
         MethodInfo Contains { get; }
         MethodInfo DefaultIfEmpty { get; }
@@ -36,12 +40,20 @@ namespace Microsoft.Data.Entity.Query
         MethodInfo SingleOrDefault { get; }
         MethodInfo Skip { get; }
         MethodInfo Take { get; }
-        MethodInfo AsQueryable { get; }
-        MethodInfo TrackEntities { get; }
-        MethodInfo InterceptExceptions { get; }
         MethodInfo OfType { get; }
+        MethodInfo OfTypeWrappedResult { get; }
+
+        MethodInfo UnwrapQueryResults { get; }
+        MethodInfo UnwrapGroupedQueryResults { get; }
+        MethodInfo UnwrapGrouping { get; }
+        MethodInfo RewrapQueryResults { get; }
+
+        MethodInfo ToSequence { get; }
+        MethodInfo ToOrdered { get; }
+        MethodInfo ToEnumerable { get; }
+        MethodInfo ToQueryable { get; }
+        Expression AdjustSequenceType([NotNull] Expression expression);
 
         MethodInfo GetAggregateMethod([NotNull] string methodName, [NotNull] Type elementType);
-        Expression AdjustSequenceType([NotNull] Expression expression);
     }
 }

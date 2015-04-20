@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Query
                     joinClause.InnerSequence
                         = subQueryExpression.QueryModel.MainFromClause.FromExpression;
 
-                    foreach (var queryAnnotation 
+                    foreach (var queryAnnotation
                         in _queryAnnotations
                             .Where(qa => qa.QuerySource == subQueryExpression.QueryModel.MainFromClause))
                     {
@@ -68,47 +68,46 @@ namespace Microsoft.Data.Entity.Query
 
             VisitQueryModel(subQueryModel);
 
-            if (subQueryModel.ResultOperators
-                .Any(ro => !(ro is OfTypeResultOperator))
-                || subQueryModel.BodyClauses.Any(bc => bc is OrderByClause))
+            if ((subQueryModel.ResultOperators
+                .All(ro => (ro is OfTypeResultOperator || ro is CastResultOperator))
+                 && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause))
+                || (queryModel.IsIdentityQuery()
+                    && !queryModel.ResultOperators.Any()))
             {
-                return;
-            }
+                var innerMainFromClause = subQueryExpression.QueryModel.MainFromClause;
 
-            var innerMainFromClause
-                = subQueryExpression.QueryModel.MainFromClause;
+                CopyFromClauseData(innerMainFromClause, fromClause);
 
-            CopyFromClauseData(innerMainFromClause, fromClause);
+                var innerSelectorMapping = new QuerySourceMapping();
 
-            var innerSelectorMapping = new QuerySourceMapping();
+                innerSelectorMapping.AddMapping(fromClause, subQueryExpression.QueryModel.SelectClause.Selector);
 
-            innerSelectorMapping.AddMapping(fromClause, subQueryExpression.QueryModel.SelectClause.Selector);
+                queryModel.TransformExpressions(
+                    ex => ReferenceReplacingExpressionTreeVisitor
+                        .ReplaceClauseReferences(ex, innerSelectorMapping, false));
 
-            queryModel.TransformExpressions(
-                ex => ReferenceReplacingExpressionTreeVisitor
-                    .ReplaceClauseReferences(ex, innerSelectorMapping, false));
+                InsertBodyClauses(subQueryExpression.QueryModel.BodyClauses, queryModel, destinationIndex);
 
-            InsertBodyClauses(subQueryExpression.QueryModel.BodyClauses, queryModel, destinationIndex);
+                foreach (var resultOperator in subQueryModel.ResultOperators.Reverse())
+                {
+                    queryModel.ResultOperators.Insert(0, resultOperator);
+                }
 
-            var innerBodyClauseMapping = new QuerySourceMapping();
+                var innerBodyClauseMapping = new QuerySourceMapping();
 
-            innerBodyClauseMapping
-                .AddMapping(innerMainFromClause, new QuerySourceReferenceExpression(fromClause));
+                innerBodyClauseMapping
+                    .AddMapping(innerMainFromClause, new QuerySourceReferenceExpression(fromClause));
 
-            queryModel.TransformExpressions(ex =>
-                ReferenceReplacingExpressionTreeVisitor.ReplaceClauseReferences(ex, innerBodyClauseMapping, false));
+                queryModel.TransformExpressions(ex =>
+                    ReferenceReplacingExpressionTreeVisitor.ReplaceClauseReferences(ex, innerBodyClauseMapping, false));
 
-            foreach (var resultOperator in subQueryModel.ResultOperators.Reverse())
-            {
-                queryModel.ResultOperators.Insert(0, resultOperator);
-            }
-
-            foreach (var queryAnnotation 
-                in _queryAnnotations
-                    .Where(qa => qa.QuerySource == subQueryExpression.QueryModel.MainFromClause))
-            {
-                queryAnnotation.QueryModel = queryModel;
-                queryAnnotation.QuerySource = fromClause;
+                foreach (var queryAnnotation
+                    in _queryAnnotations
+                        .Where(qa => qa.QuerySource == subQueryExpression.QueryModel.MainFromClause))
+                {
+                    queryAnnotation.QuerySource = fromClause;
+                    queryAnnotation.QueryModel = queryModel;
+                }
             }
         }
 
@@ -116,8 +115,8 @@ namespace Microsoft.Data.Entity.Query
         {
             if (resultOperator is ValueFromSequenceResultOperatorBase
                 && !(resultOperator is ChoiceResultOperatorBase)
-                && !queryModel.ResultOperators.Any(r => r is TakeResultOperator)
-                && !queryModel.ResultOperators.Any(r => r is SkipResultOperator))
+                && !queryModel.ResultOperators
+                    .Any(r => r is TakeResultOperator || r is SkipResultOperator))
             {
                 for (var i = queryModel.BodyClauses.Count - 1; i >= 0; i--)
                 {

@@ -50,8 +50,18 @@ namespace Microsoft.Data.Entity.Relational.Query
             public Expression EvalOnServer => QueryModelVisitor.Expression;
 
             public Expression EvalOnClient
-                => _resultOperatorHandler
-                    .HandleResultOperator(QueryModelVisitor, ResultOperator, QueryModel);
+            {
+                get
+                {
+                    if (!(ResultOperator is CastResultOperator))
+                    {
+                        QueryModelVisitor.RequiresClientResultOperator = true;
+                    }
+
+                    return _resultOperatorHandler
+                        .HandleResultOperator(QueryModelVisitor, ResultOperator, QueryModel);
+                }
+            }
         }
 
         private static readonly Dictionary<Type, Func<HandlerContext, Expression>>
@@ -101,6 +111,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             Func<HandlerContext, Expression> resultHandler;
             if (relationalQueryModelVisitor.RequiresClientFilter
+                || relationalQueryModelVisitor.RequiresClientResultOperator
                 || !_resultHandlers.TryGetValue(resultOperator.GetType(), out resultHandler)
                 || selectExpression == null)
             {
@@ -295,6 +306,14 @@ namespace Microsoft.Data.Entity.Relational.Query
                         discriminatorPredicate,
                         handlerContext.QueryModel.MainFromClause)
                         .VisitExpression(handlerContext.SelectExpression.Predicate);
+            }
+
+            if (handlerContext.QueryModelVisitor.IsWrappingResults)
+            {
+                return Expression.Call(
+                    handlerContext.QueryModelVisitor.LinqOperatorProvider.CastWrappedResult
+                        .MakeGenericMethod(ofTypeResultOperator.SearchedItemType),
+                    handlerContext.QueryModelVisitor.Expression);
             }
 
             return Expression.Call(

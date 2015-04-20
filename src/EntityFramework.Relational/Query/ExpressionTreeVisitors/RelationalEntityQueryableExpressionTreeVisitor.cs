@@ -23,16 +23,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         private static readonly ParameterExpression _readerParameter
             = Expression.Parameter(typeof(DbDataReader));
 
-        private readonly IQuerySource _querySource;
-
         public RelationalEntityQueryableExpressionTreeVisitor(
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [NotNull] IQuerySource querySource)
-            : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
+            : base(
+                Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)),
+                Check.NotNull(querySource, nameof(querySource)))
         {
-            Check.NotNull(querySource, nameof(querySource));
-
-            _querySource = querySource;
         }
 
         private new RelationalQueryModelVisitor QueryModelVisitor => (RelationalQueryModelVisitor)base.QueryModelVisitor;
@@ -71,7 +68,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return base.VisitMethodCallExpression(methodCallExpression);
         }
 
-        protected override Expression VisitEntityQueryable([NotNull] Type elementType)
+        protected override Expression VisitEntityQueryable(Type elementType)
         {
             Check.NotNull(elementType, nameof(elementType));
 
@@ -82,14 +79,14 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var selectExpression = new SelectExpression();
             var tableName = QueryModelVisitor.QueryCompilationContext.GetTableName(entityType);
 
-            var alias = _querySource.ItemName.StartsWith("<generated>_")
+            var alias = QuerySource.ItemName.StartsWith("<generated>_")
                 ? tableName[0].ToString().ToLower()
-                : _querySource.ItemName;
+                : QuerySource.ItemName;
 
-            var fromSqlAnnotation = QueryModelVisitor.QueryCompilationContext.QueryAnnotations
-                .OfType<FromSqlQueryAnnotation>()
-                .Where(a => a.QuerySource == _querySource)
-                .SingleOrDefault();
+            var fromSqlAnnotation
+                = QueryModelVisitor.QueryCompilationContext.QueryAnnotations
+                    .OfType<FromSqlQueryAnnotation>()
+                    .SingleOrDefault(a => a.QuerySource == QuerySource);
 
             selectExpression.AddTable(
                 (fromSqlAnnotation != null)
@@ -97,12 +94,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         fromSqlAnnotation.Sql,
                         fromSqlAnnotation.Parameters,
                         alias,
-                        _querySource)
+                        QuerySource)
                     : new TableExpression(
                         tableName,
                         QueryModelVisitor.QueryCompilationContext.GetSchema(entityType),
                         alias,
-                        _querySource));
+                        QuerySource));
 
             var composed = true;
             if (fromSqlAnnotation != null)
@@ -125,18 +122,18 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
             }
 
-            QueryModelVisitor.AddQuery(_querySource, selectExpression);
+            QueryModelVisitor.AddQuery(QuerySource, selectExpression);
 
             var queryMethodArguments
                 = new List<Expression>
                     {
-                        Expression.Constant(_querySource),
+                        Expression.Constant(QuerySource),
                         EntityQueryModelVisitor.QueryContextParameter,
                         EntityQueryModelVisitor.QuerySourceScopeParameter,
                         _readerParameter
                     };
 
-            if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
+            if (QueryModelVisitor.QuerySourceRequiresMaterialization(QuerySource))
             {
                 var materializer
                     = new MaterializerFactory(
@@ -150,8 +147,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 se.AddToProjection(
                                     QueryModelVisitor.QueryCompilationContext.GetColumnName(p),
                                     p,
-                                    _querySource),
-                            _querySource);
+                                    QuerySource),
+                            QuerySource);
 
                 queryMethodInfo
                     = RelationalQueryModelVisitor.CreateEntityMethodInfo
@@ -169,7 +166,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         {
                             Expression.Constant(0),
                             Expression.Constant(entityType),
-                            Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
+                            Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(QuerySource)),
                             Expression.Constant(keyFactory),
                             Expression.Constant(keyProperties),
                             materializer

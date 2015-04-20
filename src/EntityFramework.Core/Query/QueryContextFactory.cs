@@ -12,7 +12,6 @@ namespace Microsoft.Data.Entity.Query
     public abstract class QueryContextFactory : IQueryContextFactory
     {
         private readonly LazyRef<ILogger> _logger;
-        private readonly IStateManager _stateManager;
         private readonly IClrCollectionAccessorSource _collectionAccessorSource;
         private readonly IClrAccessorSource<IClrPropertySetter> _propertySetterSource;
         private readonly IEntityKeyFactorySource _entityKeyFactorySource;
@@ -30,7 +29,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(propertySetterSource, nameof(propertySetterSource));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
 
-            _stateManager = stateManager;
+            StateManager = stateManager;
             _entityKeyFactorySource = entityKeyFactorySource;
             _collectionAccessorSource = collectionAccessorSource;
             _propertySetterSource = propertySetterSource;
@@ -41,8 +40,10 @@ namespace Microsoft.Data.Entity.Query
         public virtual ILogger Logger => _logger.Value;
 
         protected virtual IQueryBuffer CreateQueryBuffer()
-            => new QueryBuffer(_stateManager, _entityKeyFactorySource, _collectionAccessorSource, _propertySetterSource);
+            => new QueryBuffer(StateManager, _entityKeyFactorySource, _collectionAccessorSource, _propertySetterSource);
 
         public abstract QueryContext CreateQueryContext();
+
+        public virtual IStateManager StateManager { get; }
     }
 }

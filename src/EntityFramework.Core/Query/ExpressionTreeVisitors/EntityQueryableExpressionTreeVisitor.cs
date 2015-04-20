@@ -7,22 +7,30 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
+using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
     public abstract class EntityQueryableExpressionTreeVisitor : DefaultQueryExpressionTreeVisitor
     {
-        protected EntityQueryableExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
-            : base(Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)))
+        protected EntityQueryableExpressionTreeVisitor(
+            [NotNull] EntityQueryModelVisitor entityQueryModelVisitor,
+            [NotNull] IQuerySource querySource)
+            : base(
+                Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)),
+                Check.NotNull(querySource, nameof(querySource)))
         {
         }
 
         protected override Expression VisitConstantExpression(ConstantExpression constantExpression)
         {
-            return constantExpression.Type.GetTypeInfo().IsGenericType
-                   && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>)
-                ? VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType)
-                : constantExpression;
+            if (constantExpression.Type.GetTypeInfo().IsGenericType
+                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>))
+            {
+                return VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType);
+            }
+
+            return constantExpression;
         }
 
         protected abstract Expression VisitEntityQueryable([NotNull] Type elementType);

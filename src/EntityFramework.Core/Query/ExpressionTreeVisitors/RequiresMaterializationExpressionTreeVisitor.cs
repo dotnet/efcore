@@ -23,8 +23,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             _queryModelVisitor = queryModelVisitor;
         }
 
-        public virtual ISet<IQuerySource> QuerySourcesRequiringMaterialization 
-            => new HashSet<IQuerySource>(_querySources.Where(kv => kv.Value > 0).Select(kv => kv.Key));
+        public virtual ISet<IQuerySource> QuerySourcesRequiringMaterialization
+        {
+            get { return new HashSet<IQuerySource>(_querySources.Where(kv => kv.Value > 0).Select(kv => kv.Key)); }
+        }
 
         protected override Expression VisitQuerySourceReferenceExpression(
             QuerySourceReferenceExpression querySourceReferenceExpression)
@@ -34,7 +36,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 _querySources.Add(querySourceReferenceExpression.ReferencedQuerySource, 0);
             }
 
-            _querySources[querySourceReferenceExpression.ReferencedQuerySource]++;
+            if (_queryModelVisitor.QueryCompilationContext.Model
+                .FindEntityType(querySourceReferenceExpression.Type) != null)
+            {
+                _querySources[querySourceReferenceExpression.ReferencedQuerySource]++;
+            }
 
             return base.VisitQuerySourceReferenceExpression(querySourceReferenceExpression);
         }
@@ -46,7 +52,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             _queryModelVisitor
                 .BindMemberExpression(
                     memberExpression,
-                    (property, querySource) => _querySources[querySource]--);
+                    (property, querySource) =>
+                        {
+                            if (querySource != null)
+                            {
+                                _querySources[querySource]--;
+                            }
+                        });
 
             return newExpression;
         }
@@ -58,7 +70,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             _queryModelVisitor
                 .BindMethodCallExpression(
                     methodCallExpression,
-                    (property, querySource) => _querySources[querySource]--);
+                    (property, querySource) =>
+                        {
+                            if (querySource != null)
+                            {
+                                _querySources[querySource]--;
+                            }
+                        });
 
             return newExpression;
         }

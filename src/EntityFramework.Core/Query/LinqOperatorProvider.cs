@@ -15,10 +15,148 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq.Clauses;
 
+// ReSharper disable InconsistentNaming
+
 namespace Microsoft.Data.Entity.Query
 {
     public class LinqOperatorProvider : ILinqOperatorProvider
     {
+        public virtual MethodInfo UnwrapQueryResults => _unwrapQueryResults;
+
+        private static readonly MethodInfo _unwrapQueryResults
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("UnwrapResults");
+
+        [UsedImplicitly]
+        private static IEnumerable<TResult> UnwrapResults<TResult>(
+            IEnumerable<QuerySourceScope<TResult>> results)
+        {
+            // ReSharper disable once MergeConditionalExpression
+            return results.Select(qss => qss != null ? qss.Result : default(TResult));
+        }
+
+        public virtual MethodInfo ToEnumerable => _toEnumerable;
+
+        private static readonly MethodInfo _toEnumerable
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("_ToEnumerable");
+
+        [UsedImplicitly]
+        private static IEnumerable<TResult> _ToEnumerable<TResult>(IEnumerable<TResult> results)
+        {
+            return results;
+        }
+
+        public virtual MethodInfo ToOrdered => _toOrdered;
+
+        private static readonly MethodInfo _toOrdered
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("_ToOrdered");
+
+        [UsedImplicitly]
+        private static OrderedEnumerableAdapter<TResult> _ToOrdered<TResult>(IEnumerable<TResult> results)
+        {
+            return new OrderedEnumerableAdapter<TResult>(results);
+        }
+
+        private class OrderedEnumerableAdapter<TResult> : IOrderedEnumerable<TResult>
+        {
+            private readonly IEnumerable<TResult> _results;
+
+            public OrderedEnumerableAdapter(IEnumerable<TResult> results)
+            {
+                _results = results;
+            }
+
+            public IOrderedEnumerable<TResult> CreateOrderedEnumerable<TKey>(
+                Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool @descending)
+            {
+                return
+                    !@descending
+                        ? _results.OrderBy(keySelector, comparer)
+                        : _results.OrderByDescending(keySelector, comparer);
+            }
+
+            public IEnumerator<TResult> GetEnumerator()
+            {
+                return _results.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+
+        public virtual MethodInfo UnwrapGrouping => _unwrapGrouping;
+
+        private static readonly MethodInfo _unwrapGrouping
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("_UnwrapGrouping");
+
+        [UsedImplicitly]
+        private static IGrouping<TKey, TResult> _UnwrapGrouping<TKey, TResult>(
+            IGrouping<TKey, QuerySourceScope<TResult>> grouping)
+        {
+            return new UnwrappingGrouping<TKey, TResult>(grouping);
+        }
+
+        public virtual MethodInfo UnwrapGroupedQueryResults => _unwrapGroupedQueryResults;
+
+        private static readonly MethodInfo _unwrapGroupedQueryResults
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("UnwrapGroupedResults");
+
+        [UsedImplicitly]
+        private static IEnumerable<IGrouping<TKey, TResult>> UnwrapGroupedResults<TKey, TResult>(
+            IEnumerable<IGrouping<TKey, QuerySourceScope<TResult>>> groupings)
+        {
+            return groupings.Select(g => new UnwrappingGrouping<TKey, TResult>(g));
+        }
+
+        private class UnwrappingGrouping<TKey, TResult> : IGrouping<TKey, TResult>
+        {
+            private readonly IGrouping<TKey, QuerySourceScope<TResult>> _grouping;
+
+            public UnwrappingGrouping(IGrouping<TKey, QuerySourceScope<TResult>> grouping)
+            {
+                _grouping = grouping;
+            }
+
+            public TKey Key => _grouping.Key;
+
+            public IEnumerator<TResult> GetEnumerator()
+            {
+                return _grouping.Select(qss => qss.Result).GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+
+        public virtual MethodInfo RewrapQueryResults => _rewrapQueryResults;
+
+        private static readonly MethodInfo _rewrapQueryResults
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("RewrapResults");
+
+        [UsedImplicitly]
+        private static IEnumerable<QuerySourceScope<TResult>> RewrapResults<TResult>(
+            IEnumerable<QuerySourceScope<TResult>> results,
+            IQuerySource querySource)
+        {
+            return
+                results.Select(qss =>
+                    new QuerySourceScope<TResult>(
+                        querySource,
+                        // ReSharper disable once MergeConditionalExpression
+                        qss != null ? qss.Result : default(TResult),
+                        qss,
+                        null));
+        }
+
         private static readonly MethodInfo _interceptExceptions
             = typeof(LinqOperatorProvider)
                 .GetTypeInfo().GetDeclaredMethod("_InterceptExceptions");
@@ -26,7 +164,9 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IEnumerable<T> _InterceptExceptions<T>(
             Func<IEnumerable<T>> source, QueryContext queryContext)
-            => new ExceptionInterceptor<T>(source, queryContext);
+        {
+            return new ExceptionInterceptor<T>(source, queryContext);
+        }
 
         public virtual MethodInfo InterceptExceptions => _interceptExceptions;
 
@@ -41,9 +181,15 @@ namespace Microsoft.Data.Entity.Query
                 _queryContext = queryContext;
             }
 
-            public IEnumerator<T> GetEnumerator() => new EnumeratorExceptionInterceptor(this);
+            public IEnumerator<T> GetEnumerator()
+            {
+                return new EnumeratorExceptionInterceptor(this);
+            }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
 
             [DebuggerStepThrough]
             private sealed class EnumeratorExceptionInterceptor : IEnumerator<T>
@@ -84,9 +230,15 @@ namespace Microsoft.Data.Entity.Query
                     }
                 }
 
-                public void Reset() => _inner?.Reset();
+                public void Reset()
+                {
+                    _inner?.Reset();
+                }
 
-                public void Dispose() => _inner?.Dispose();
+                public void Dispose()
+                {
+                    _inner?.Dispose();
+                }
             }
         }
 
@@ -95,49 +247,146 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod("_TrackEntities");
 
         [UsedImplicitly]
-        private static IEnumerable<TOut> _TrackEntities<TOut, TIn>(
-            IEnumerable<TOut> results,
+        private static IEnumerable<QuerySourceScope<TOut>> _TrackEntities<TOut, TIn>(
+            IEnumerable<QuerySourceScope<TOut>> results,
             QueryContext queryContext,
-            ICollection<Func<TIn, object>> entityAccessors)
-            where TOut : class
-            where TIn : TOut
+            IList<EntityTrackingInfo> entityTrackingInfos,
+            IList<Func<TIn, object>> entityAccessors)
+            where TIn : class
         {
-            return results.Select(result =>
+            return results.Select(qss =>
                 {
-                    if (result != null)
+                    if (qss != null)
                     {
-                        foreach (var entity in entityAccessors
-                            .Select(entityAccessor => entityAccessor((TIn)result))
-                            .Where(entity => entity != null))
+                        for (var i = 0; i < entityTrackingInfos.Count; i++)
                         {
-                            queryContext.QueryBuffer.StartTracking(entity);
+                            var entity = entityAccessors[i](qss.Result as TIn);
+
+                            if (entity != null)
+                            {
+                                var valueReader = qss.GetValueReader(entity);
+
+                                if (valueReader != null)
+                                {
+                                    queryContext.StartTracking(
+                                        entityTrackingInfos[i].EntityType,
+                                        entity,
+                                        valueReader);
+                                }
+                            }
                         }
                     }
 
-                    return result;
+                    return qss;
                 });
         }
 
         public virtual MethodInfo TrackEntities => _trackEntities;
+
+        private static readonly MethodInfo _trackGroupedEntities
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("_TrackGroupedEntities");
+
+        [UsedImplicitly]
+        private static IEnumerable<IGrouping<TKey, QuerySourceScope<TOut>>> _TrackGroupedEntities<TKey, TOut, TIn>(
+            IEnumerable<IGrouping<TKey, QuerySourceScope<TOut>>> groupings,
+            QueryContext queryContext,
+            IList<EntityTrackingInfo> entityTrackingInfos,
+            IList<Func<TIn, object>> entityAccessors)
+            where TIn : class
+        {
+            return groupings
+                .Select(g =>
+                    new TrackingGrouping<TKey, TOut, TIn>(
+                        g,
+                        queryContext,
+                        entityTrackingInfos,
+                        entityAccessors));
+        }
+
+        public virtual MethodInfo TrackGroupedEntities => _trackGroupedEntities;
+
+        private class TrackingGrouping<TKey, TOut, TIn> : IGrouping<TKey, QuerySourceScope<TOut>>
+            where TIn : class
+        {
+            private readonly IGrouping<TKey, QuerySourceScope<TOut>> _grouping;
+            private readonly QueryContext _queryContext;
+            private readonly IList<EntityTrackingInfo> _entityTrackingInfos;
+            private readonly IList<Func<TIn, object>> _entityAccessors;
+
+            public TrackingGrouping(
+                IGrouping<TKey, QuerySourceScope<TOut>> grouping,
+                QueryContext queryContext,
+                IList<EntityTrackingInfo> entityTrackingInfos,
+                IList<Func<TIn, object>> entityAccessors)
+            {
+                _grouping = grouping;
+                _queryContext = queryContext;
+                _entityTrackingInfos = entityTrackingInfos;
+                _entityAccessors = entityAccessors;
+            }
+
+            public TKey Key => _grouping.Key;
+
+            public IEnumerator<QuerySourceScope<TOut>> GetEnumerator()
+            {
+                return _grouping.Select(qss =>
+                    {
+                        if (qss != null)
+                        {
+                            for (var i = 0; i < _entityTrackingInfos.Count; i++)
+                            {
+                                var entity = _entityAccessors[i](qss.Result as TIn);
+
+                                if (entity != null)
+                                {
+                                    var valueReader = qss.GetValueReader(entity);
+
+                                    if (valueReader != null)
+                                    {
+                                        _queryContext.StartTracking(
+                                            _entityTrackingInfos[i].EntityType,
+                                            entity,
+                                            qss.GetValueReader(entity));
+                                    }
+                                }
+                            }
+                        }
+
+                        return qss;
+                    })
+                    .GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
 
         private static readonly MethodInfo _toSequence
             = typeof(LinqOperatorProvider)
                 .GetTypeInfo().GetDeclaredMethod("_ToSequence");
 
         [UsedImplicitly]
-        private static IEnumerable<T> _ToSequence<T>(T element) => new[] { element };
+        private static IEnumerable<T> _ToSequence<T>(T element)
+        {
+            return new[] { element };
+        }
 
         public virtual MethodInfo ToSequence => _toSequence;
 
-        private static readonly MethodInfo _asQueryable
+        private static readonly MethodInfo _toQueryable
             = typeof(LinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_AsQueryable");
+                .GetTypeInfo().GetDeclaredMethod("_ToQueryable");
 
         [UsedImplicitly]
-        private static IOrderedQueryable<TSource> _AsQueryable<TSource>(IEnumerable<TSource> source)
-            => new EnumerableQuery<TSource>(source);
+        private static IOrderedQueryable<TSource> _ToQueryable<TSource>(IEnumerable<TSource> source)
+        {
+            return new EnumerableQuery<TSource>(source);
+        }
 
-        public virtual MethodInfo AsQueryable => _asQueryable;
+        public virtual MethodInfo ToQueryable => _toQueryable;
 
         private static readonly MethodInfo _selectMany
             = typeof(LinqOperatorProvider)
@@ -146,7 +395,9 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IEnumerable<TResult> _SelectMany<TSource, TResult>(
             IEnumerable<TSource> source, Func<TSource, IEnumerable<TResult>> selector)
-            => source.SelectMany(selector);
+        {
+            return source.SelectMany(selector);
+        }
 
         public virtual MethodInfo SelectMany => _selectMany;
 
@@ -161,7 +412,9 @@ namespace Microsoft.Data.Entity.Query
             Func<TOuter, TKey> outerKeySelector,
             Func<TInner, TKey> innerKeySelector,
             Func<TOuter, TInner, TResult> resultSelector)
-            => outer.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
+        {
+            return outer.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
+        }
 
         public virtual MethodInfo Join => _join;
 
@@ -176,7 +429,9 @@ namespace Microsoft.Data.Entity.Query
             Func<TOuter, TKey> outerKeySelector,
             Func<TInner, TKey> innerKeySelector,
             Func<TOuter, IEnumerable<TInner>, TResult> resultSelector)
-            => outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector);
+        {
+            return outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector);
+        }
 
         public virtual MethodInfo GroupJoin => _groupJoin;
 
@@ -187,7 +442,9 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IEnumerable<TResult> _Select<TSource, TResult>(
             IEnumerable<TSource> source, Func<TSource, TResult> selector)
-            => source.Select(selector);
+        {
+            return source.Select(selector);
+        }
 
         public virtual MethodInfo Select => _select;
 
@@ -198,9 +455,11 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IOrderedEnumerable<TSource> _OrderBy<TSource, TKey>(
             IEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
-            => orderingDirection == OrderingDirection.Asc
+        {
+            return orderingDirection == OrderingDirection.Asc
                 ? source.OrderBy(expression)
                 : source.OrderByDescending(expression);
+        }
 
         public virtual MethodInfo OrderBy => _orderBy;
 
@@ -211,9 +470,11 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IOrderedEnumerable<TSource> _ThenBy<TSource, TKey>(
             IOrderedEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
-            => orderingDirection == OrderingDirection.Asc
+        {
+            return orderingDirection == OrderingDirection.Asc
                 ? source.ThenBy(expression)
                 : source.ThenByDescending(expression);
+        }
 
         public virtual MethodInfo ThenBy => _thenBy;
 
@@ -224,7 +485,9 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IEnumerable<TSource> _Where<TSource>(
             IEnumerable<TSource> source, Func<TSource, bool> predicate)
-            => source.Where(predicate);
+        {
+            return source.Where(predicate);
+        }
 
         public virtual MethodInfo Where => _where;
 
@@ -243,7 +506,28 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo Any => _any;
         public virtual MethodInfo All => _all;
+
         public virtual MethodInfo Cast => _cast;
+
+        public virtual MethodInfo CastWrappedResult => _castWrappedResult;
+
+        private static readonly MethodInfo _castWrappedResult
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("_CastWrappedResult");
+
+        public static IEnumerable<QuerySourceScope<TResult>> _CastWrappedResult<TResult>(
+            [NotNull] IEnumerable<QuerySourceScope> source)
+        {
+            Check.NotNull(source, nameof(source));
+
+            return source.Select(qss =>
+                new QuerySourceScope<TResult>(
+                    qss.QuerySource,
+                    (TResult)qss.UntypedResult,
+                    qss,
+                    null));
+        }
+
         public virtual MethodInfo Count => _count;
         public virtual MethodInfo Contains => _contains;
         public virtual MethodInfo DefaultIfEmpty => _defaultIfEmpty;
@@ -258,7 +542,9 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
             IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
-            => source.GroupBy(keySelector, elementSelector);
+        {
+            return source.GroupBy(keySelector, elementSelector);
+        }
 
         public virtual MethodInfo GroupBy => _groupBy;
 
@@ -275,6 +561,29 @@ namespace Microsoft.Data.Entity.Query
         public virtual MethodInfo LastOrDefault => _lastOrDefault;
         public virtual MethodInfo LongCount => _longCount;
         public virtual MethodInfo OfType => _ofType;
+
+        public virtual MethodInfo OfTypeWrappedResult => _ofTypeWrappedResult;
+
+        private static readonly MethodInfo _ofTypeWrappedResult
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("_OfTypeWrappedResult");
+
+        public static IEnumerable<QuerySourceScope<TDerived>> _OfTypeWrappedResult<TBase, TDerived>(
+            [NotNull] IEnumerable<QuerySourceScope<TBase>> source)
+            where TDerived : TBase
+        {
+            Check.NotNull(source, nameof(source));
+
+            return source
+                .Where(qss => qss.Result is TDerived)
+                .Select(qss =>
+                    new QuerySourceScope<TDerived>(
+                        qss.QuerySource,
+                        (TDerived)qss.Result,
+                        qss,
+                        null));
+        }
+
         public virtual MethodInfo Single => _single;
         public virtual MethodInfo SingleOrDefault => _singleOrDefault;
         public virtual MethodInfo Skip => _skip;
@@ -295,13 +604,20 @@ namespace Microsoft.Data.Entity.Query
                     .MakeGenericMethod(elementType);
         }
 
-        public virtual Expression AdjustSequenceType(Expression expression) => expression;
+        public virtual Expression AdjustSequenceType(Expression expression)
+        {
+            return expression;
+        }
 
         private static MethodInfo GetMethod(string name, int parameterCount = 0)
-            => GetMethods(name, parameterCount).Single();
+        {
+            return GetMethods(name, parameterCount).Single();
+        }
 
         private static IEnumerable<MethodInfo> GetMethods(string name, int parameterCount = 0)
-            => typeof(Enumerable).GetTypeInfo().GetDeclaredMethods(name)
+        {
+            return typeof(Enumerable).GetTypeInfo().GetDeclaredMethods(name)
                 .Where(mi => mi.GetParameters().Length == parameterCount + 1);
+        }
     }
 }

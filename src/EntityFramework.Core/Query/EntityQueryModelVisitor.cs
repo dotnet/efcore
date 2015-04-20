@@ -12,13 +12,13 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
-using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ExpressionTreeVisitors;
+using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing;
 
@@ -32,7 +32,8 @@ namespace Microsoft.Data.Entity.Query
         public static readonly ParameterExpression QuerySourceScopeParameter
             = Expression.Parameter(typeof(QuerySourceScope));
 
-        private readonly QuerySourceMapping _querySourceMapping = new QuerySourceMapping();
+        private readonly QuerySourceMapping _querySourceMapping;
+
         private readonly QueryCompilationContext _queryCompilationContext;
 
         private Expression _expression;
@@ -49,6 +50,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             _queryCompilationContext = queryCompilationContext;
+            _querySourceMapping = _queryCompilationContext.QuerySourceMapping;
         }
 
         public virtual Expression Expression
@@ -69,13 +71,20 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual StreamedSequenceInfo StreamedSequenceInfo => _streamedSequenceInfo;
 
+        public virtual bool IsWrappingResults { get; private set; }
+
         protected abstract ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor([NotNull] IQuerySource querySource);
 
         protected virtual ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor([NotNull] IQuerySource querySource)
-            => new ProjectionExpressionTreeVisitor(this);
+        {
+            return new ProjectionExpressionTreeVisitor(this, querySource);
+        }
 
-        protected virtual ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor([NotNull] Ordering ordering)
-            => new DefaultQueryExpressionTreeVisitor(this);
+        protected virtual ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor(
+            [NotNull] Ordering ordering, [NotNull] IQuerySource querySource)
+        {
+            return new DefaultQueryExpressionTreeVisitor(this, querySource);
+        }
 
         public virtual Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
@@ -93,11 +102,13 @@ namespace Microsoft.Data.Entity.Query
 
                 VisitQueryModel(queryModel);
 
-                SingleResultToSequence(queryModel, typeof(TResult));
+                SingleResultToSequence(queryModel);
 
                 IncludeNavigations(queryModel, typeof(TResult));
 
                 TrackEntitiesInResults<TResult>(queryModel);
+
+                UnwrapQueryResults(queryModel);
 
                 InterceptExceptions(typeof(TResult));
 
@@ -121,11 +132,13 @@ namespace Microsoft.Data.Entity.Query
 
                 VisitQueryModel(queryModel);
 
-                AsyncSingleResultToSequence(queryModel, typeof(TResult));
+                AsyncSingleResultToSequence(queryModel);
 
                 IncludeNavigations(queryModel, typeof(TResult));
 
                 TrackEntitiesInResults<TResult>(queryModel);
+
+                UnwrapQueryResults(queryModel);
 
                 InterceptExceptions(typeof(TResult));
 
@@ -140,7 +153,7 @@ namespace Microsoft.Data.Entity.Query
             _expression
                 = Expression.Call(
                     LinqOperatorProvider.InterceptExceptions
-                        .MakeGenericMethod(resultType),
+                        .MakeGenericMethod(_expression.Type.GetSequenceType()),
                     Expression.Lambda(_expression),
                     QueryContextParameter);
         }
@@ -163,35 +176,30 @@ namespace Microsoft.Data.Entity.Query
                 .LogInformation(queryModel, Strings.LogOptimizedQueryModel);
         }
 
-        protected virtual void SingleResultToSequence(
-            [NotNull] QueryModel queryModel,
-            [NotNull] Type resultType)
+        protected virtual void SingleResultToSequence([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
-            Check.NotNull(resultType, nameof(resultType));
 
             if (!(queryModel.GetOutputDataInfo() is StreamedSequenceInfo))
             {
                 _expression
                     = Expression.Call(
                         LinqOperatorProvider.ToSequence
-                            .MakeGenericMethod(resultType),
+                            .MakeGenericMethod(_expression.Type),
                         _expression);
             }
         }
 
-        protected virtual void AsyncSingleResultToSequence(
-            [NotNull] QueryModel queryModel,
-            [NotNull] Type resultType)
+        protected virtual void AsyncSingleResultToSequence([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
-            Check.NotNull(resultType, nameof(resultType));
 
             if (!(queryModel.GetOutputDataInfo() is StreamedSequenceInfo))
             {
                 _expression
                     = Expression.Call(
-                        _taskToSequence.MakeGenericMethod(resultType),
+                        _taskToSequence.MakeGenericMethod(
+                            _expression.Type.GetTypeInfo().GenericTypeArguments[0]),
                         _expression);
             }
         }
@@ -202,7 +210,9 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _TaskToSequence<T>(Task<T> task)
-            => new TaskResultAsyncEnumerable<T>(task);
+        {
+            return new TaskResultAsyncEnumerable<T>(task);
+        }
 
         protected virtual void IncludeNavigations(
             [NotNull] QueryModel queryModel,
@@ -215,8 +225,8 @@ namespace Microsoft.Data.Entity.Query
                 .Select(annotation =>
                     {
                         var navigationPath = BindNavigationPathMemberExpression(
-                           (MemberExpression)annotation.NavigationPropertyPath,
-                           (ns, _) => BindChainedNavigations(ns, annotation.ChainedNavigationProperties).ToArray());
+                            (MemberExpression)annotation.NavigationPropertyPath,
+                            (ns, _) => BindChainedNavigations(ns, annotation.ChainedNavigationProperties).ToArray());
 
                         if (navigationPath == null)
                         {
@@ -224,10 +234,10 @@ namespace Microsoft.Data.Entity.Query
                                 Strings.IncludeNonBindableExpression(annotation.NavigationPropertyPath));
                         }
                         return new
-                        {
-                            Annotation = annotation,
-                            NavigationPath = navigationPath
-                        };
+                            {
+                                Annotation = annotation,
+                                NavigationPath = navigationPath
+                            };
                     });
 
             var querySourceTracingExpressionTreeVisitor
@@ -300,7 +310,6 @@ namespace Microsoft.Data.Entity.Query
             bool querySourceRequiresTracking)
         {
             // template method
-
             throw new NotImplementedException(Strings.IncludeNotImplemented);
         }
 
@@ -309,44 +318,73 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            if (!typeof(TResult).GetTypeInfo()
-                .IsAssignableFrom(queryModel.SelectClause.Selector.Type.GetTypeInfo()))
+            if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo)
             {
                 return;
             }
 
-            var querySourceReferenceExpressionsToTrack
+            var entityTrackingInfos
                 = new EntityResultFindingExpressionTreeVisitor(QueryCompilationContext.Model)
                     .FindEntitiesInResult(queryModel.SelectClause.Selector)
-                    .Where(qsre => !QueryCompilationContext.QueryAnnotations
-                        .OfType<AsNoTrackingQueryAnnotation>()
-                        .Any(qa => qa.QuerySource == qsre.ReferencedQuerySource))
+                    .Where(eti =>
+                        QueryCompilationContext.QueryAnnotations
+                            .OfType<AsNoTrackingQueryAnnotation>()
+                            .All(qa => qa.QuerySource != eti.QuerySource))
                     .ToList();
 
-            if (querySourceReferenceExpressionsToTrack.Any())
+            if (entityTrackingInfos.Any())
             {
                 QueryCompilationContext.Logger
                     .LogInformation(
-                        querySourceReferenceExpressionsToTrack,
+                        entityTrackingInfos,
                         qsres => Strings.LogTrackingQuerySources(
-                            qsres.Select(qsre => qsre.ReferencedQuerySource.ItemName).Join()));
+                            qsres.Select(eti => eti.QuerySource.ItemName).Join()));
+
+                var resultItemTypeInfo
+                    = (_streamedSequenceInfo?.ResultItemType
+                       ?? _expression.Type.GetSequenceType())
+                        .GetTypeInfo();
+
+                MethodInfo trackingMethod;
+
+                if (resultItemTypeInfo.IsGenericType
+                    && (resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>)
+                        || resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>)))
+                {
+                    trackingMethod
+                        = LinqOperatorProvider.TrackGroupedEntities
+                            .MakeGenericMethod(
+                                resultItemTypeInfo.GenericTypeArguments[0],
+                                resultItemTypeInfo.GenericTypeArguments[1]
+                                    .GetTypeInfo()
+                                    .GenericTypeArguments[0],
+                                queryModel.SelectClause.Selector.Type);
+                }
+                else
+                {
+                    trackingMethod
+                        = LinqOperatorProvider.TrackEntities
+                            .MakeGenericMethod(
+                                resultItemTypeInfo.GenericTypeArguments[0],
+                                queryModel.SelectClause.Selector.Type);
+                }
 
                 _expression
                     = Expression.Call(
-                        LinqOperatorProvider.TrackEntities
-                            .MakeGenericMethod(
-                                typeof(TResult),
-                                queryModel.SelectClause.Selector.Type),
+                        trackingMethod,
                         _expression,
                         QueryContextParameter,
+                        Expression.Constant(entityTrackingInfos),
                         Expression.Constant(
                             _getEntityAccessors
                                 .MakeGenericMethod(queryModel.SelectClause.Selector.Type)
-                                .Invoke(null, new object[]
-                                    {
-                                        querySourceReferenceExpressionsToTrack,
-                                        queryModel.SelectClause.Selector
-                                    })));
+                                .Invoke(
+                                    null,
+                                    new object[]
+                                        {
+                                            entityTrackingInfos,
+                                            queryModel.SelectClause.Selector
+                                        })));
             }
         }
 
@@ -356,19 +394,59 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static ICollection<Func<TResult, object>> GetEntityAccessors<TResult>(
-            IEnumerable<QuerySourceReferenceExpression> querySourceReferenceExpressions,
+            IEnumerable<EntityTrackingInfo> entityTrackingInfos,
             Expression selector)
-            => (from qsre in querySourceReferenceExpressions
-                select
-                    (Func<TResult, object>)
-                        AccessorFindingExpressionTreeVisitor
-                            .FindAccessorLambda(
-                                qsre,
-                                selector,
-                                Expression.Parameter(typeof(TResult)))
-                            .Compile()
-                )
-                .ToList();
+        {
+            return
+                (from entityTrackingInfo in entityTrackingInfos
+                    select
+                        (Func<TResult, object>)
+                            AccessorFindingExpressionTreeVisitor
+                                .FindAccessorLambda(
+                                    entityTrackingInfo.QuerySourceReferenceExpression,
+                                    selector,
+                                    Expression.Parameter(typeof(TResult)))
+                                .Compile()
+                    )
+                    .ToList();
+        }
+
+        private void UnwrapQueryResults([NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            var sequenceType = _expression.Type.GetSequenceType();
+            var sequenceTypeInfo = sequenceType.GetTypeInfo();
+
+            if (sequenceTypeInfo.IsGenericType)
+            {
+                var genericTypeDefinition
+                    = sequenceTypeInfo.GetGenericTypeDefinition();
+
+                if (genericTypeDefinition == typeof(IGrouping<,>)
+                    || genericTypeDefinition == typeof(IAsyncGrouping<,>))
+                {
+                    _expression
+                        = Expression.Call(
+                            LinqOperatorProvider.UnwrapGroupedQueryResults
+                                .MakeGenericMethod(
+                                    sequenceTypeInfo.GenericTypeArguments[0],
+                                    sequenceTypeInfo.GenericTypeArguments[1]
+                                        .GetTypeInfo()
+                                        .GenericTypeArguments[0]),
+                            _expression);
+                }
+                else if (genericTypeDefinition == typeof(QuerySourceScope<>))
+                {
+                    _expression
+                        = Expression.Call(
+                            LinqOperatorProvider.UnwrapQueryResults
+                                .MakeGenericMethod(
+                                    sequenceTypeInfo.GenericTypeArguments[0]),
+                            _expression);
+                }
+            }
+        }
 
         protected virtual Func<QueryContext, TResults> CreateExecutorLambda<TResults>()
         {
@@ -453,10 +531,30 @@ namespace Microsoft.Data.Entity.Query
             if (elementScoped)
             {
                 elementType = sequenceType.GetTypeInfo().GenericTypeArguments[0];
+
+                if (fromClause.FromExpression is QuerySourceReferenceExpression)
+                {
+                    var itemParameter = Expression.Parameter(sequenceType);
+
+                    _expression
+                        = Expression.Call(
+                            LinqOperatorProvider.Select
+                                .MakeGenericMethod(sequenceType, typeof(QuerySourceScope)),
+                            _expression,
+                            Expression.Lambda(
+                                QuerySourceScope
+                                    .Create(
+                                        fromClause,
+                                        QuerySourceScope
+                                            .GetResult(itemParameter, sequenceType.GenericTypeArguments[0]),
+                                        itemParameter),
+                                itemParameter));
+                }
             }
             else
             {
                 elementType = sequenceType;
+
                 _expression = CreateScope(_expression, elementType, fromClause);
             }
 
@@ -470,14 +568,12 @@ namespace Microsoft.Data.Entity.Query
                         QuerySourceScopeParameter),
                     Expression.Lambda(_expression, QuerySourceScopeParameter));
 
-            _querySourceMapping.AddMapping(
-                fromClause,
-                QuerySourceScope.GetResult(QuerySourceScopeParameter, fromClause, elementType));
-
-            if (fromClause.ItemType.GetTypeInfo().IsGenericType
-                && fromClause.ItemType.GetTypeInfo().GetGenericTypeDefinition() == typeof(IGrouping<,>))
+            if (!_querySourceMapping.ContainsMapping(fromClause))
             {
-                queryModel.TransformExpressions(ReplaceClauseReferences);
+                _querySourceMapping.AddMapping(
+                    fromClause,
+                    QuerySourceScope
+                        .GetResult(QuerySourceScopeParameter, fromClause, elementType));
             }
         }
 
@@ -502,10 +598,26 @@ namespace Microsoft.Data.Entity.Query
             {
                 innerElementType
                     = innerSequenceType.GetTypeInfo().GenericTypeArguments[0];
+
+                var innerItemParameter = Expression.Parameter(innerSequenceType);
+
+                innerExpression
+                    = Expression.Call(
+                        LinqOperatorProvider.Select
+                            .MakeGenericMethod(innerSequenceType, typeof(QuerySourceScope)),
+                        innerExpression,
+                        Expression.Lambda(
+                            QuerySourceScope
+                                .Join(
+                                    fromClause,
+                                    innerItemParameter,
+                                    QuerySourceScopeParameter),
+                            innerItemParameter));
             }
             else
             {
                 innerElementType = innerSequenceType;
+
                 innerExpression = CreateScope(innerExpression, innerElementType, fromClause);
             }
 
@@ -575,14 +687,19 @@ namespace Microsoft.Data.Entity.Query
                     Expression.Lambda(outerKeySelector, QuerySourceScopeParameter),
                     Expression.Lambda(innerKeySelector, innerItemParameter),
                     Expression.Lambda(
-                        QuerySourceScope
-                            .Create(
-                                joinClause,
-                                innerElementScoped
-                                    ? QuerySourceScope.GetResult(innerItemParameter, joinClause, innerElementType)
-                                    : innerItemParameter,
-                                QuerySourceScopeParameter),
-                        QuerySourceScopeParameter, innerItemParameter));
+                        innerElementScoped
+                            ? QuerySourceScope
+                                .Join(
+                                    joinClause,
+                                    innerItemParameter,
+                                    QuerySourceScopeParameter)
+                            : QuerySourceScope
+                                .Create(
+                                    joinClause,
+                                    innerItemParameter,
+                                    QuerySourceScopeParameter),
+                        QuerySourceScopeParameter,
+                        innerItemParameter));
 
             _querySourceMapping.ReplaceMapping(
                 joinClause,
@@ -611,11 +728,9 @@ namespace Microsoft.Data.Entity.Query
                 = innerSequenceType.IsConstructedGenericType
                   && innerSequenceType.GetGenericTypeDefinition() == typeof(QuerySourceScope<>);
 
-            Type innerElementType;
-
             if (innerElementScoped)
             {
-                innerElementType = innerSequenceType.GetTypeInfo().GenericTypeArguments[0];
+                var innerElementType = innerSequenceType.GetTypeInfo().GenericTypeArguments[0];
 
                 _querySourceMapping.AddMapping(
                     groupJoinClause.JoinClause,
@@ -623,8 +738,6 @@ namespace Microsoft.Data.Entity.Query
             }
             else
             {
-                innerElementType = innerSequenceType;
-
                 _querySourceMapping.AddMapping(groupJoinClause.JoinClause, innerItemParameter);
             }
 
@@ -634,53 +747,50 @@ namespace Microsoft.Data.Entity.Query
             var innerItemsParameter
                 = Expression.Parameter(innerExpression.Type);
 
+            var innerElementSelector
+                = innerElementScoped
+                    ? QuerySourceScope
+                        .Join(
+                            groupJoinClause.JoinClause,
+                            innerItemParameter,
+                            QuerySourceScopeParameter)
+                    : QuerySourceScope
+                        .Create(
+                            groupJoinClause.JoinClause,
+                            innerItemParameter,
+                            QuerySourceScopeParameter);
+
+            var resultSelector
+                = QuerySourceScope
+                    .Create(
+                        groupJoinClause,
+                        Expression.Call(
+                            LinqOperatorProvider.Select
+                                .MakeGenericMethod(innerSequenceType, innerElementSelector.Type),
+                            innerItemsParameter,
+                            Expression.Lambda(
+                                innerElementSelector,
+                                innerItemParameter)),
+                        QuerySourceScopeParameter);
+
             _expression
                 = Expression.Call(
-                    LinqOperatorProvider.GroupJoin.MakeGenericMethod(
-                        typeof(QuerySourceScope),
-                        innerSequenceType,
-                        outerKeySelector.Type,
-                        typeof(QuerySourceScope)),
+                    LinqOperatorProvider.GroupJoin
+                        .MakeGenericMethod(
+                            typeof(QuerySourceScope),
+                            innerSequenceType,
+                            outerKeySelector.Type,
+                            resultSelector.Type),
                     _expression,
                     innerExpression,
                     Expression.Lambda(outerKeySelector, QuerySourceScopeParameter),
                     Expression.Lambda(innerKeySelector, innerItemParameter),
-                    Expression.Lambda(
-                        QuerySourceScope
-                            .Create(
-                                groupJoinClause,
-                                innerElementScoped
-                                    ? Expression.Call(
-                                        LinqOperatorProvider.Select
-                                            .MakeGenericMethod(
-                                                innerSequenceType,
-                                                innerElementType),
-                                        innerItemsParameter,
-                                        Expression.Lambda(
-                                            QuerySourceScope.GetResult(
-                                                innerItemParameter,
-                                                groupJoinClause.JoinClause,
-                                                innerElementType),
-                                            innerItemParameter))
-                                    : (Expression)innerItemsParameter,
-                                QuerySourceScopeParameter),
-                        QuerySourceScopeParameter, innerItemsParameter));
-
-            var expressionTypeInfo = _expression.Type.GetTypeInfo();
+                    Expression.Lambda(resultSelector, QuerySourceScopeParameter, innerItemsParameter));
 
             _querySourceMapping.AddMapping(
                 groupJoinClause,
                 QuerySourceScope
-                    .GetResult(
-                        QuerySourceScopeParameter,
-                        groupJoinClause,
-                        expressionTypeInfo.GetGenericTypeDefinition()
-                            .MakeGenericType(innerElementType)));
-
-            if (expressionTypeInfo.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>))
-            {
-                queryModel.TransformExpressions(ReplaceClauseReferences);
-            }
+                    .GetResult(QuerySourceScopeParameter, groupJoinClause, innerItemsParameter.Type));
         }
 
         public override void VisitWhereClause(
@@ -730,7 +840,7 @@ namespace Microsoft.Data.Entity.Query
             }
 
             var expression
-                = CreateOrderingExpressionTreeVisitor(ordering)
+                = CreateOrderingExpressionTreeVisitor(ordering, queryModel.MainFromClause)
                     .VisitExpression(ordering.Expression);
 
             if (expression != null)
@@ -763,7 +873,20 @@ namespace Microsoft.Data.Entity.Query
             var selector
                 = ReplaceClauseReferences(
                     CreateProjectionExpressionTreeVisitor(queryModel.MainFromClause)
-                        .VisitExpression(selectClause.Selector));
+                        .VisitExpression(selectClause.Selector),
+                    inProjection: true);
+
+            if (_querySourcesRequiringMaterialization.Any()
+                && !(queryModel.GetOutputDataInfo() is StreamedScalarValueInfo))
+            {
+                selector
+                    = QuerySourceScope.Create(
+                        queryModel.MainFromClause,
+                        selector,
+                        QuerySourceScopeParameter);
+
+                IsWrappingResults = true;
+            }
 
             _expression
                 = Expression.Call(
@@ -773,8 +896,9 @@ namespace Microsoft.Data.Entity.Query
                     Expression.Lambda(selector, QuerySourceScopeParameter));
 
             _streamedSequenceInfo
-                = (StreamedSequenceInfo)selectClause.GetOutputDataInfo()
-                    .AdjustDataType(typeof(IEnumerable<>));
+                = new StreamedSequenceInfo(
+                    typeof(IEnumerable<>).MakeGenericType(selector.Type),
+                    selector);
         }
 
         public override void VisitResultOperator(
@@ -791,9 +915,20 @@ namespace Microsoft.Data.Entity.Query
             {
                 _expression = expression;
 
-                _streamedSequenceInfo
-                    = resultOperator.GetOutputDataInfo(_streamedSequenceInfo)
-                        as StreamedSequenceInfo;
+                if (_streamedSequenceInfo != null
+                    && resultOperator is SequenceFromSequenceResultOperatorBase)
+                {
+                    var sequenceType = _expression.Type.GetSequenceType();
+
+                    _streamedSequenceInfo
+                        = new StreamedSequenceInfo(
+                            typeof(IEnumerable<>).MakeGenericType(sequenceType),
+                            Expression.Default(sequenceType));
+                }
+                else
+                {
+                    _streamedSequenceInfo = null;
+                }
             }
         }
 
@@ -832,9 +967,15 @@ namespace Microsoft.Data.Entity.Query
                             .VisitExpression(expression)));
         }
 
-        private Expression ReplaceClauseReferences(Expression expression)
-            => new MemberAccessBindingExpressionTreeVisitor(_querySourceMapping, this)
-                .VisitExpression(expression);
+        public virtual Expression ReplaceClauseReferences(
+            [NotNull] Expression expression, bool inProjection = false)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            return
+                new MemberAccessBindingExpressionTreeVisitor(_querySourceMapping, this, inProjection)
+                    .VisitExpression(expression);
+        }
 
         public virtual Expression BindMethodCallToValueReader(
             [NotNull] MethodCallExpression methodCallExpression,
@@ -1022,6 +1163,22 @@ namespace Microsoft.Data.Entity.Query
             return BindMethodCallExpression(methodCallExpression, null, methodCallBinder);
         }
 
+        public virtual void BindMethodCallExpression(
+            [NotNull] MethodCallExpression methodCallExpression,
+            [NotNull] Action<IProperty, IQuerySource> methodCallBinder)
+        {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(methodCallBinder, nameof(methodCallBinder));
+
+            BindMethodCallExpression(methodCallExpression, null,
+                (property, querySource) =>
+                    {
+                        methodCallBinder(property, querySource);
+
+                        return default(object);
+                    });
+        }
+
         public virtual TResult BindMethodCallExpression<TResult>(
             [NotNull] MethodCallExpression methodCallExpression,
             [CanBeNull] IQuerySource querySource,
@@ -1035,17 +1192,33 @@ namespace Microsoft.Data.Entity.Query
                     methodCallExpression.Method.GetGenericMethodDefinition(),
                     QueryExtensions.PropertyMethodInfo))
             {
-                var querySourceReferenceExpression
-                    = methodCallExpression.Arguments[0] as QuerySourceReferenceExpression;
+                var targetExpression = methodCallExpression.Arguments[0];
 
-                if (querySourceReferenceExpression != null
-                    && (querySource == null
-                        || querySource == querySourceReferenceExpression.ReferencedQuerySource))
+                MemberExpression memberExpression;
+                while ((memberExpression = targetExpression as MemberExpression) != null)
                 {
+                    targetExpression = memberExpression.Expression;
+                }
+
+                var querySourceReferenceExpression
+                    = targetExpression as QuerySourceReferenceExpression;
+
+                if (querySourceReferenceExpression == null
+                    || querySource == null
+                    || querySource == querySourceReferenceExpression.ReferencedQuerySource)
+                {
+                    var itemType = methodCallExpression.Arguments[0].Type;
+                    var itemTypeInfo = itemType.GetTypeInfo();
+
+                    if (itemTypeInfo.IsGenericType
+                        && itemTypeInfo.GetGenericTypeDefinition() == typeof(QuerySourceScope<>))
+                    {
+                        itemType = itemTypeInfo.GenericTypeArguments[0];
+                    }
+
                     var entityType
                         = QueryCompilationContext.Model
-                            .FindEntityType(
-                                querySourceReferenceExpression.ReferencedQuerySource.ItemType);
+                            .FindEntityType(itemType);
 
                     if (entityType != null)
                     {
@@ -1056,7 +1229,7 @@ namespace Microsoft.Data.Entity.Query
                         {
                             return methodCallBinder(
                                 property,
-                                querySourceReferenceExpression.ReferencedQuerySource);
+                                querySourceReferenceExpression?.ReferencedQuerySource);
                         }
                     }
                 }

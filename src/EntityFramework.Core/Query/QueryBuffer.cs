@@ -109,25 +109,6 @@ namespace Microsoft.Data.Entity.Query
             return bufferedEntity.Instance;
         }
 
-        public virtual object GetPropertyValue(object entity, IProperty property)
-        {
-            Check.NotNull(entity, nameof(entity));
-            Check.NotNull(property, nameof(property));
-
-            var entry = _stateManager.TryGetEntry(entity);
-
-            if (entry != null)
-            {
-                return entry[property];
-            }
-
-            var valueReader = _byEntityInstance[entity][0].ValueReader;
-
-            return valueReader.IsNull(property.Index)
-                ? null
-                : valueReader.ReadValue<object>(property.Index);
-        }
-
         public virtual void StartTracking(object entity)
         {
             Check.NotNull(entity, nameof(entity));
@@ -135,7 +116,7 @@ namespace Microsoft.Data.Entity.Query
             List<BufferedEntity> bufferedEntities;
             if (_byEntityInstance.TryGetValue(entity, out bufferedEntities))
             {
-                foreach (var bufferedEntity in bufferedEntities.Where(e => e != null))
+                foreach (var bufferedEntity in bufferedEntities.Skip(1).Where(e => e != null))
                 {
                     bufferedEntity.StartTracking(_stateManager);
                 }
@@ -268,28 +249,29 @@ namespace Microsoft.Data.Entity.Query
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory), async (eli, ct) =>
-                    {
-                        var targetEntity
-                            = GetTargetEntity(
-                                targetEntityType,
-                                entityKeyFactory,
-                                keyProperties,
-                                eli,
-                                bufferedEntities,
-                                querySourceRequiresTracking);
+                await relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
+                    .Select(async (eli, ct) =>
+                        {
+                            var targetEntity
+                                = GetTargetEntity(
+                                    targetEntityType,
+                                    entityKeyFactory,
+                                    keyProperties,
+                                    eli,
+                                    bufferedEntities,
+                                    querySourceRequiresTracking);
 
-                        await IncludeAsync(
-                            targetEntity,
-                            navigationPath,
-                            relatedEntitiesLoaders,
-                            ct,
-                            currentNavigationIndex + 1,
-                            querySourceRequiresTracking)
-                            .WithCurrentCulture();
+                            await IncludeAsync(
+                                targetEntity,
+                                navigationPath,
+                                relatedEntitiesLoaders,
+                                ct,
+                                currentNavigationIndex + 1,
+                                querySourceRequiresTracking)
+                                .WithCurrentCulture();
 
-                        return targetEntity;
-                    })
+                            return targetEntity;
+                        })
                     .Where(e => e != null)
                     .ToList(cancellationToken)
                     .WithCurrentCulture());

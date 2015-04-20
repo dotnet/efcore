@@ -40,7 +40,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public override NorthwindContext CreateContext()
         {
-            return new SqlServerNorthwindContext(_serviceProvider, _options);
+            var context = new SqlServerNorthwindContext(_serviceProvider, _options);
+
+            context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+            return context;
         }
 
         public void Dispose()

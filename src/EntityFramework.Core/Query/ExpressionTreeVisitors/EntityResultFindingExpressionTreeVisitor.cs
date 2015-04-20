@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
     {
         private readonly IModel _model;
 
-        private List<QuerySourceReferenceExpression> _querySourceReferenceExpressions;
+        private List<EntityTrackingInfo> _entityTrackingInfos;
 
         public EntityResultFindingExpressionTreeVisitor([NotNull] IModel model)
         {
@@ -23,43 +23,70 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             _model = model;
         }
 
-        public virtual IEnumerable<QuerySourceReferenceExpression> FindEntitiesInResult([NotNull] Expression expression)
+        public virtual IEnumerable<EntityTrackingInfo> FindEntitiesInResult([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
-            _querySourceReferenceExpressions = new List<QuerySourceReferenceExpression>();
+            _entityTrackingInfos = new List<EntityTrackingInfo>();
 
             VisitExpression(expression);
 
-            return _querySourceReferenceExpressions;
+            return _entityTrackingInfos;
         }
 
-        protected override Expression VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
+        protected override Expression VisitQuerySourceReferenceExpression(
+            QuerySourceReferenceExpression querySourceReferenceExpression)
         {
-            if (_model.FindEntityType(expression.Type) != null)
+            var entityType = _model.FindEntityType(querySourceReferenceExpression.Type);
+
+            if (entityType != null)
             {
-                _querySourceReferenceExpressions.Add(expression);
+                _entityTrackingInfos.Add(new EntityTrackingInfo(querySourceReferenceExpression, entityType));
             }
 
-            return expression;
+            return querySourceReferenceExpression;
         }
 
         // Prune these nodes...
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression expression) => expression;
+        protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+        {
+            return expression;
+        }
 
-        protected override Expression VisitMemberExpression(MemberExpression expression) => expression;
+        protected override Expression VisitMemberExpression(MemberExpression expression)
+        {
+            return expression;
+        }
 
-        protected override Expression VisitMethodCallExpression(MethodCallExpression expression) => expression;
+        protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
+        {
+            return expression;
+        }
 
-        protected override Expression VisitConditionalExpression(ConditionalExpression expression) => expression;
+        protected override Expression VisitConditionalExpression(ConditionalExpression expression)
+        {
+            return expression;
+        }
 
-        protected override Expression VisitBinaryExpression(BinaryExpression expression) => expression;
+        protected override Expression VisitBinaryExpression(BinaryExpression expression)
+        {
+            return expression;
+        }
 
-        protected override Expression VisitTypeBinaryExpression(TypeBinaryExpression expression) => expression;
+        protected override Expression VisitTypeBinaryExpression(TypeBinaryExpression expression)
+        {
+            return expression;
+        }
 
-        protected override Expression VisitLambdaExpression(LambdaExpression expression) => expression;
+        protected override Expression VisitLambdaExpression(LambdaExpression expression)
+        {
+            return expression;
+        }
 
-        protected override Expression VisitInvocationExpression(InvocationExpression expression) => expression;
+        protected override Expression VisitInvocationExpression(InvocationExpression expression)
+        {
+            return expression;
+        }
     }
 }

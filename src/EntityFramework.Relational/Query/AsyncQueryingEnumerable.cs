@@ -97,13 +97,13 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 if (!_disposed)
                 {
+                    _disposed = true;
+
                     if (_reader != null)
                     {
                         _reader.Dispose();
                         _enumerable._relationalQueryContext.Connection?.Close();
                     }
-
-                    _disposed = true;
                 }
             }
         }
