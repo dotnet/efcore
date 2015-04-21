@@ -12,7 +12,7 @@
         "EntityFramework.SqlServer.Strings": "Properties/Strings.resx"
     },
     "frameworks": {
-        "net451": { },
+        "net45": { },
         "dnx451": { },
         "dnxcore50": {
             "dependencies": {

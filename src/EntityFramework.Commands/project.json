@@ -17,7 +17,7 @@
         "EntityFramework.Commands.Strings": "Properties/Strings.resx"
     },
     "frameworks": {
-        "net451": { },
+        "net45": { },
         "dnx451": {
             "dependencies": {
                 "Microsoft.AspNet.Hosting": "1.0.0-*",

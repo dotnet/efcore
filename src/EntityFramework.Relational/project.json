@@ -12,7 +12,7 @@
         "EntityFramework.Relational.Strings": "Properties/Strings.resx"
     },
     "frameworks": {
-        "net451": {
+        "net45": {
             "frameworkAssemblies": {
                 "System.Data": "",
                 "System.Transactions": ""
@@ -30,7 +30,7 @@
                 "System.Text.RegularExpressions": "4.0.10-beta-*"
             }
         },
-        "netcore451": {
+        ".NETPortable,Version=v4.5,Profile=Profile7": {
             "dependencies": {
                 "System.Data.Common": "4.0.0-beta-*"
             },

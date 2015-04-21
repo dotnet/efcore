@@ -11,7 +11,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EntityFramework.Microbenchmarks.EF6</RootNamespace>
     <AssemblyName>EntityFramework.Microbenchmarks.EF6</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>e69ad63a</NuGetPackageImportStamp>
   </PropertyGroup>

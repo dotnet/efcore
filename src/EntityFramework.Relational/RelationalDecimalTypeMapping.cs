@@ -28,8 +28,13 @@ namespace Microsoft.Data.Entity.Relational
             // Note: Precision/scale should not be set for input parameters because this will cause truncation
             if (parameter.Direction == ParameterDirection.Output)
             {
+#if NET45
+                ((IDbDataParameter)parameter).Scale = _scale;
+                ((IDbDataParameter)parameter).Precision = _precision;
+#else
                 parameter.Scale = _scale;
                 parameter.Precision = _precision;
+#endif
             }
 
             base.ConfigureParameter(parameter, columnModification);

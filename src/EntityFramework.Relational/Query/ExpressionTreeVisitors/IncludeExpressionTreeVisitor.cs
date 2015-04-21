@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             {
                 var targetEntityType = navigation.GetTargetType();
                 var targetTableName = _queryCompilationContext.GetTableName(targetEntityType);
-                var targetTableAlias = targetTableName.First().ToString().ToLower();
+                var targetTableAlias = targetTableName[0].ToString().ToLower();
 
                 if (!navigation.IsCollection())
                 {

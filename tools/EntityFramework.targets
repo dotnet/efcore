@@ -7,7 +7,7 @@
   <ItemDefinitionGroup>
     <PackageReference>
       <Visible>False</Visible>
-      <TargetFramework>portable-net451+win81+wpa81</TargetFramework>
+      <TargetFramework>portable-net45+win</TargetFramework>
       <Assemblies />
     </PackageReference>
   </ItemDefinitionGroup>

@@ -13,7 +13,7 @@
         "EntityFramework.Relational.Design.Strings": "Properties/Strings.resx"
     },
     "frameworks": {
-        "net451": {
+        "net45": {
             "frameworkAssemblies": {
                 "System.Data": ""
             }

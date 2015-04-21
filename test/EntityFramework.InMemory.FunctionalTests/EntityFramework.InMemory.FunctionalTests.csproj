@@ -11,7 +11,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Data.Entity.InMemory.FunctionalTests</RootNamespace>
     <AssemblyName>EntityFramework.InMemory.FunctionalTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>6edf0372</NuGetPackageImportStamp>
   </PropertyGroup>
