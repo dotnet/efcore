@@ -147,7 +147,7 @@ FROM Customers").Where(c => c.City == "London"),
                 entryCount: 52);
         }
 
-        [Fact]
+        //[Fact]
         public virtual void From_sql_queryable_stored_procedure()
         {
             AssertQuery<Product>(
@@ -156,7 +156,7 @@ FROM Customers").Where(c => c.City == "London"),
                 entryCount: 17);
         }
 
-        [Fact]
+        //[Fact]
         public virtual void From_sql_queryable_simple_composed_stored_procedure()
         {
             AssertQuery<Product>(
@@ -165,7 +165,7 @@ FROM Customers").Where(c => c.City == "London"),
                 entryCount: 9);
         }
 
-        [Fact]
+        //[Fact]
         public virtual void From_sql_queryable_composed_stored_procedure()
         {
             AssertQuery<Product>(
