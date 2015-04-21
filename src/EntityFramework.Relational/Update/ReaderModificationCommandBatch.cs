@@ -14,7 +14,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -23,20 +22,15 @@ namespace Microsoft.Data.Entity.Relational.Update
 {
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
-        private readonly IRelationalValueReaderFactory _valueReaderFactory;
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
         private readonly List<bool> _resultSetEnd = new List<bool>();
         protected StringBuilder CachedCommandText { get; set; }
         protected int LastCachedCommandIndex;
 
         protected ReaderModificationCommandBatch(
-            [NotNull] ISqlGenerator sqlGenerator,
-            [NotNull] IRelationalValueReaderFactory valueReaderFactory)
+            [NotNull] ISqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
-            Check.NotNull(valueReaderFactory, nameof(valueReaderFactory));
-
-            _valueReaderFactory = valueReaderFactory;
         }
 
         public override IReadOnlyList<ModificationCommand> ModificationCommands => _modificationCommands;
@@ -292,7 +286,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         AggregateEntries(commandIndex, expectedRowsAffected));
                 }
 
-                tableModification.PropagateResults(_valueReaderFactory.CreateValueReader(reader));
+                tableModification.PropagateResults(tableModification.ValueReaderFactory.CreateValueReader(reader));
                 rowsAffected++;
             }
             while (++commandIndex < ResultSetEnds.Count
@@ -324,7 +318,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         AggregateEntries(commandIndex, expectedRowsAffected));
                 }
 
-                tableModification.PropagateResults(_valueReaderFactory.CreateValueReader(reader));
+                tableModification.PropagateResults(tableModification.ValueReaderFactory.CreateValueReader(reader));
                 rowsAffected++;
             }
             while (++commandIndex < ResultSetEnds.Count

@@ -5,23 +5,16 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Update
 {
     public class SqlServerModificationCommandBatchFactory : ModificationCommandBatchFactory, ISqlServerModificationCommandBatchFactory
     {
-        private readonly ISqlServerValueReaderFactory _valueReaderFactory;
-
         public SqlServerModificationCommandBatchFactory(
-            [NotNull] ISqlServerSqlGenerator sqlGenerator,
-            [NotNull] ISqlServerValueReaderFactory valueReaderFactory)
+            [NotNull] ISqlServerSqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
-            Check.NotNull(valueReaderFactory, nameof(valueReaderFactory));
-
-            _valueReaderFactory = valueReaderFactory;
         }
 
         public override ModificationCommandBatch Create(IDbContextOptions options)
@@ -32,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
             var maxBatchSize = optionsExtension?.MaxBatchSize;
 
-            return new SqlServerModificationCommandBatch((ISqlServerSqlGenerator)SqlGenerator, _valueReaderFactory, maxBatchSize);
+            return new SqlServerModificationCommandBatch((ISqlServerSqlGenerator)SqlGenerator, maxBatchSize);
         }
     }
 }

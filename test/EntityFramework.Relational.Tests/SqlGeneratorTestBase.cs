@@ -411,7 +411,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             }
 
             Func<IProperty, IRelationalPropertyExtensions> func = p => p.Relational();
-            var commandMock = new Mock<ModificationCommand>("Ducks", SchemaName, new ParameterNameGenerator(), func, new BoxedValueReaderSource()) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>("Ducks", SchemaName, new ParameterNameGenerator(), func, new BoxedValueReaderSource(), Mock.Of<IRelationalValueReaderFactoryFactory>()) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
@@ -442,7 +442,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 };
 
             Func<IProperty, IRelationalPropertyExtensions> func = p => p.Relational();
-            var commandMock = new Mock<ModificationCommand>("Ducks", SchemaName, new ParameterNameGenerator(), func, new BoxedValueReaderSource()) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>("Ducks", SchemaName, new ParameterNameGenerator(), func, new BoxedValueReaderSource(), Mock.Of<IRelationalValueReaderFactoryFactory>()) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
@@ -464,7 +464,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 };
 
             Func<IProperty, IRelationalPropertyExtensions> func = p => p.Relational();
-            var commandMock = new Mock<ModificationCommand>("Ducks", SchemaName, new ParameterNameGenerator(), func, new BoxedValueReaderSource()) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>("Ducks", SchemaName, new ParameterNameGenerator(), func, new BoxedValueReaderSource(), Mock.Of<IRelationalValueReaderFactoryFactory>()) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;

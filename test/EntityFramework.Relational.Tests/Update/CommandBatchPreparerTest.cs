@@ -270,13 +270,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             modificationCommandBatchFactory =
                 modificationCommandBatchFactory ?? new TestModificationCommandBatchFactory(
-                    Mock.Of<ISqlGenerator>(), 
-                    Mock.Of<IRelationalValueReaderFactory>());
+                    Mock.Of<ISqlGenerator>());
 
             return new TestCommandBatchPreparer(modificationCommandBatchFactory,
                 new ParameterNameGeneratorFactory(),
                 new ModificationCommandComparer(),
-                new BoxedValueReaderSource());
+                new BoxedValueReaderSource(),
+                Mock.Of<IRelationalValueReaderFactoryFactory>());
         }
 
         private static IModel CreateSimpleFKModel()
@@ -342,8 +342,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 IModificationCommandBatchFactory modificationCommandBatchFactory,
                 IParameterNameGeneratorFactory parameterNameGeneratorFactory,
                 IComparer<ModificationCommand> modificationCommandComparer,
-                IBoxedValueReaderSource boxedValueReaderSource)
-                : base(modificationCommandBatchFactory, parameterNameGeneratorFactory, modificationCommandComparer, boxedValueReaderSource)
+                IBoxedValueReaderSource boxedValueReaderSource,
+                IRelationalValueReaderFactoryFactory valueReaderFactoryFactory)
+                : base(
+                      modificationCommandBatchFactory, 
+                      parameterNameGeneratorFactory, 
+                      modificationCommandComparer, 
+                      boxedValueReaderSource,
+                      valueReaderFactoryFactory)
             {
             }
 
@@ -360,28 +366,23 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
         {
-            private readonly IRelationalValueReaderFactory _valueReaderFactory;
-
             public TestModificationCommandBatchFactory(
-                ISqlGenerator sqlGenerator,
-                IRelationalValueReaderFactory valueReaderFactory)
+                ISqlGenerator sqlGenerator)
                 : base(sqlGenerator)
             {
-                _valueReaderFactory = valueReaderFactory;
             }
 
             public override ModificationCommandBatch Create(IDbContextOptions options)
             {
-                return new TestModificationCommandBatch(SqlGenerator, _valueReaderFactory);
+                return new TestModificationCommandBatch(SqlGenerator);
             }
         }
 
         private class TestModificationCommandBatch : SingularModificationCommandBatch
         {
             public TestModificationCommandBatch(
-                ISqlGenerator sqlGenerator,
-                IRelationalValueReaderFactory valueReaderFactory)
-                : base(sqlGenerator, valueReaderFactory)
+                ISqlGenerator sqlGenerator)
+                : base(sqlGenerator)
             {
             }
 

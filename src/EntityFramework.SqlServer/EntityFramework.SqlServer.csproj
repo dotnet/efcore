@@ -107,11 +107,12 @@
     <Compile Include="Migrations\ISqlServerModelDiffer.cs" />
     <Compile Include="Migrations\SqlServerHistoryRepository.cs" />
     <Compile Include="Query\ISqlServerQueryContextFactory.cs" />
-    <Compile Include="Query\ISqlServerValueReaderFactory.cs" />
+    <Compile Include="Query\ISqlServerValueReaderFactoryFactory.cs" />
     <Compile Include="Query\SqlServerQueryCompilationContext.cs" />
     <Compile Include="Query\SqlServerQueryContextFactory.cs" />
     <Compile Include="Query\SqlServerQueryGenerator.cs" />
     <Compile Include="Query\SqlServerValueReaderFactory.cs" />
+    <Compile Include="Query\SqlServerValueReaderFactoryFactory.cs" />
     <Compile Include="SqlServerBuilderExtensions.cs" />
     <Compile Include="SqlServerDatabase.cs" />
     <Compile Include="SqlServerDatabaseExtensions.cs" />

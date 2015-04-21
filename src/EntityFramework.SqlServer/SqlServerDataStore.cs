@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] ISqlServerBatchExecutor batchExecutor,
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] ISqlServerValueReaderFactory valueReaderFactory)
+            [NotNull] ISqlServerValueReaderFactoryFactory valueReaderFactoryFactory)
             : base(
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 Check.NotNull(batchExecutor, nameof(batchExecutor)),
                 Check.NotNull(options, nameof(options)),
                 Check.NotNull(loggerFactory, nameof(loggerFactory)),
-                Check.NotNull(valueReaderFactory, nameof(valueReaderFactory)))
+                Check.NotNull(valueReaderFactoryFactory, nameof(valueReaderFactoryFactory)))
         {
         }
 
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 EntityKeyFactorySource,
                 enumerableMethodProvider,
                 methodCallTranslator,
-                (ISqlServerValueReaderFactory)ValueReaderFactory);
+                (ISqlServerValueReaderFactoryFactory)ValueReaderFactoryFactory);
         }
     }
 }

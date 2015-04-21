@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var relationalConnectionMock = new Mock<IRelationalConnection>();
             var commandBatchPreparerMock = new Mock<ICommandBatchPreparer>();
             var batchExecutorMock = new Mock<IBatchExecutor>();
-            var valueReaderMock = new Mock<IRelationalValueReaderFactory>();
+            var valueReaderMock = new Mock<IRelationalValueReaderFactoryFactory>();
 
             var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var relationalConnectionMock = new Mock<IRelationalConnection>();
             var commandBatchPreparerMock = new Mock<ICommandBatchPreparer>();
             var batchExecutorMock = new Mock<IBatchExecutor>();
-            var valueReaderMock = new Mock<IRelationalValueReaderFactory>();
+            var valueReaderMock = new Mock<IRelationalValueReaderFactoryFactory>();
 
             var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 IBatchExecutor batchExecutor,
                 IDbContextOptions options,
                 ILoggerFactory loggerFactory,
-                IRelationalValueReaderFactory valueReaderFactory)
+                IRelationalValueReaderFactoryFactory valueReaderFactoryFactory)
                 : base(
                       model, 
                       entityKeyFactorySource, 
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                       batchExecutor, 
                       options, 
                       loggerFactory,
-                      valueReaderFactory)
+                      valueReaderFactoryFactory)
             {
             }
         }

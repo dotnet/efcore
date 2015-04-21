@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
@@ -18,8 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void Create_returns_new_instances()
         {
             var factory = new TestModificationCommandBatchFactory(
-                Mock.Of<ISqlGenerator>(),
-                Mock.Of<IRelationalValueReaderFactory>());
+                Mock.Of<ISqlGenerator>());
 
             var options = new Mock<IDbContextOptions>().Object;
 
@@ -35,7 +33,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void AddCommand_delegates()
         {
             var sqlGenerator = new Mock<ISqlGenerator>().Object;
-            var factory = new TestModificationCommandBatchFactory(sqlGenerator, Mock.Of<IRelationalValueReaderFactory>());
+            var factory = new TestModificationCommandBatchFactory(sqlGenerator);
 
             var modificationCommandBatchMock = new Mock<ModificationCommandBatch>(sqlGenerator);
             var mockModificationCommand = new Mock<ModificationCommand>(
@@ -43,7 +41,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 "S", 
                 new ParameterNameGenerator(), 
                 (Func<IProperty, IRelationalPropertyExtensions>)(p => p.Relational()), 
-                Mock.Of<IBoxedValueReaderSource>()).Object;
+                Mock.Of<IBoxedValueReaderSource>(),
+                Mock.Of<IRelationalValueReaderFactoryFactory>()).Object;
 
             factory.AddCommand(modificationCommandBatchMock.Object, mockModificationCommand);
 
@@ -55,25 +54,22 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             private readonly IRelationalValueReaderFactory _valueReaderFactory;
 
             public TestModificationCommandBatchFactory(
-                ISqlGenerator sqlGenerator,
-                IRelationalValueReaderFactory valueReaderFactory)
+                ISqlGenerator sqlGenerator)
                 : base(sqlGenerator)
             {
-                _valueReaderFactory = valueReaderFactory;
             }
 
             public override ModificationCommandBatch Create(IDbContextOptions options)
             {
-                return new TestModificationCommandBatch(SqlGenerator, _valueReaderFactory);
+                return new TestModificationCommandBatch(SqlGenerator);
             }
         }
 
         private class TestModificationCommandBatch : SingularModificationCommandBatch
         {
             public TestModificationCommandBatch(
-                ISqlGenerator sqlGenerator,
-                IRelationalValueReaderFactory valueReaderFactory)
-                : base(sqlGenerator, valueReaderFactory)
+                ISqlGenerator sqlGenerator)
+                : base(sqlGenerator)
             {
             }
 
