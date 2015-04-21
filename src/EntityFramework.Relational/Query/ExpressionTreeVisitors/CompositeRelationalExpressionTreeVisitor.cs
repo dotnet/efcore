@@ -35,16 +35,22 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             currentExpression = negationOptimized2;
 
-            var optimizedNullExpansionVisitor = new NullSemanticsOptimizedExpandingVisitor();
-            var nullSemanticsExpandedOptimized = optimizedNullExpansionVisitor.VisitExpression(currentExpression);
-            if (optimizedNullExpansionVisitor.OptimizedExpansionPossible)
+            var parameterDectector = new ParameterExpressionDetectingVisitor();
+            parameterDectector.VisitExpression(currentExpression);
+
+            if (!parameterDectector.ContainsParameters)
             {
-                currentExpression = nullSemanticsExpandedOptimized;
-            }
-            else
-            {
-                currentExpression = new NullSemanticsExpandingVisitor()
-                    .VisitExpression(currentExpression);
+                var optimizedNullExpansionVisitor = new NullSemanticsOptimizedExpandingVisitor();
+                var nullSemanticsExpandedOptimized = optimizedNullExpansionVisitor.VisitExpression(currentExpression);
+                if (optimizedNullExpansionVisitor.OptimizedExpansionPossible)
+                {
+                    currentExpression = nullSemanticsExpandedOptimized;
+                }
+                else
+                {
+                    currentExpression = new NullSemanticsExpandingVisitor()
+                        .VisitExpression(currentExpression);
+                }
             }
 
             var negationOptimized3 =
@@ -70,6 +76,18 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
 
                 return base.VisitExpression(node);
+            }
+        }
+
+        private class ParameterExpressionDetectingVisitor : ExpressionTreeVisitor
+        {
+            public bool ContainsParameters { get; set; }
+
+            protected override Expression VisitParameterExpression(ParameterExpression expression)
+            {
+                ContainsParameters = true;
+
+                return base.VisitParameterExpression(expression);
             }
         }
     }

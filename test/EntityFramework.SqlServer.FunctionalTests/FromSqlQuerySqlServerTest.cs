@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 FROM (
     SELECT * FROM Customers
 ) AS [c]
-WHERE [c].[ContactName] LIKE '%' + 'z' + '%'",
+WHERE [c].[ContactName] LIKE ('%' + 'z' + '%')",
                 Sql);
         }
 
