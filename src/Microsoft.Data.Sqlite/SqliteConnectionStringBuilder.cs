@@ -86,7 +86,7 @@ namespace Microsoft.Data.Sqlite
                         DataSource = Convert.ToString(value, CultureInfo.InvariantCulture);
                         return;
 
-#if !NETCORE451
+#if NET45 || DNX451 || DNXCORE50
                     default:
                         Debug.Fail("Unexpected keyword: " + keyword);
                         return;
@@ -155,7 +155,7 @@ namespace Microsoft.Data.Sqlite
                     return DataSource;
 
                 default:
-#if !NETCORE451
+#if NET45 || DNX451 || DNXCORE50
                     Debug.Fail("Unexpected keyword: " + index);
 #endif
                     return null;
@@ -181,7 +181,7 @@ namespace Microsoft.Data.Sqlite
                     _dataSource = string.Empty;
                     return;
 
-#if !NETCORE451
+#if NET45 || DNX451 || DNXCORE50
                 default:
                     Debug.Fail("Unexpected keyword: " + index);
                     return;

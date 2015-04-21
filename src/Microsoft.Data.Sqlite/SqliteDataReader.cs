@@ -9,6 +9,10 @@ using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Data.Sqlite.Interop;
 
+#if NET45 || DNX451
+using System.Data;
+#endif
+
 namespace Microsoft.Data.Sqlite
 {
     public class SqliteDataReader : DbDataReader
@@ -64,7 +68,7 @@ namespace Microsoft.Data.Sqlite
 
         public override IEnumerator GetEnumerator()
         {
-#if NET451 || DNX451
+#if NET45 || DNX451
             return new DbEnumerator(this);
 #else
             // TODO: Remove when the System.Data.Common includes DbEnumerator
@@ -113,9 +117,14 @@ namespace Microsoft.Data.Sqlite
         }
 
 
-#if NET451 || DNX451
+#if NET45 || DNX451
         // TODO: Remove when fixed in System.Data.Common
         public override void Close() => Dispose(true);
+
+        public override DataTable GetSchemaTable()
+        {
+            throw new NotSupportedException();
+        }
 #endif
 
         protected override void Dispose(bool disposing)
@@ -207,7 +216,7 @@ namespace Microsoft.Data.Sqlite
                     return "INTEGER";
 
                 default:
-#if !NETCORE451
+#if NET45 || DNX451 || DNXCORE50
                     Debug.Fail("Unexpected column type: " + sqliteType);
 #endif
                     return "INTEGER";
@@ -240,7 +249,7 @@ namespace Microsoft.Data.Sqlite
                     return typeof(int);
 
                 default:
-#if !NETCORE451
+#if NET45 || DNX451 || DNXCORE50
                     Debug.Fail("Unexpected column type: " + sqliteType);
 #endif
                     return typeof(int);
@@ -446,7 +455,7 @@ namespace Microsoft.Data.Sqlite
                     return DBNull.Value;
 
                 default:
-#if !NETCORE451
+#if NET45 || DNX451 || DNXCORE50
                     Debug.Fail("Unexpected column type: " + sqliteType);
 #endif
                     return GetInt32(ordinal);

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if !NETCORE451
+#if NET45 || DNX451 || DNXCORE50
 
 using System;
 using System.IO;
@@ -28,7 +28,7 @@ namespace Microsoft.Framework.Internal
         public static bool TryLoad(string dllName)
         {
             string applicationBase;
-#if NET451
+#if NET45
             applicationBase = AppDomain.CurrentDomain.BaseDirectory;
 #elif DNX451 || DNXCORE50
             applicationBase = CallContextServiceLocator

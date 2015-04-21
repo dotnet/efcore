@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-#if !NETCORE451
+#if NET45 || DNX451 || DNXCORE50
 
 using Microsoft.Framework.Internal;
 
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Sqlite.Interop
 {
     internal static class NativeMethods
     {
-#if !NETCORE451
+#if NET45 || DNX451 || DNXCORE50
         static NativeMethods()
         {
             try
