@@ -14,6 +14,6 @@ namespace Microsoft.Data.Entity.Relational.Query
     public interface IIncludeRelatedValuesStrategy : IDisposable
     {
         IEnumerable<EntityLoadInfo> GetRelatedValues(
-            [NotNull] EntityKey key, [NotNull] Func<IValueReader, EntityKey> keyFactory);
+            [NotNull] IEntityType entityType, [NotNull] EntityKey key, [NotNull] Func<IValueReader, EntityKey> keyFactory);
     }
 }

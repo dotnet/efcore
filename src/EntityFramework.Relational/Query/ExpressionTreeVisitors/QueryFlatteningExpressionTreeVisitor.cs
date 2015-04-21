@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -91,6 +93,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             = Expression.Constant(
                                 _readerOffset
                                 + (int)((ConstantExpression)newArguments[4]).Value);
+                        newArguments[10]
+                            = Expression.Constant(
+                                AddSkip(
+                                    (Func<IEnumerable<Type>>)((ConstantExpression)newArguments[10]).Value,
+                                    _readerOffset));
                     }
 
                     newExpression
@@ -122,6 +129,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             }
 
             return newExpression;
+        }
+
+        private static Func<IEnumerable<Type>> AddSkip(Func<IEnumerable<Type>> valueTypes, int offset)
+        {
+            return () => valueTypes().Skip(offset);
         }
     }
 }

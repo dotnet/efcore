@@ -627,12 +627,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
-            return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null :  "Test" });
-        }
-
-        private class TestValueReaderFactory : IRelationalValueReaderFactory
-        {
-            public virtual IValueReader CreateValueReader(DbDataReader dataReader) => new RelationalTypedValueReader(dataReader);
+            return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null : "Test" });
         }
 
         private class ModificationCommandBatchFake : ReaderModificationCommandBatch
@@ -640,14 +635,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             private readonly DbDataReader _reader;
 
             public ModificationCommandBatchFake(ISqlGenerator sqlGenerator = null)
-                : base(sqlGenerator ?? new FakeSqlGenerator(), new TestValueReaderFactory())
+                : base(sqlGenerator ?? new FakeSqlGenerator(), new TypedValueReaderFactory())
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;
             }
 
             public ModificationCommandBatchFake(DbDataReader reader, ISqlGenerator sqlGenerator = null)
-                : base(sqlGenerator ?? new FakeSqlGenerator(), new TestValueReaderFactory())
+                : base(sqlGenerator ?? new FakeSqlGenerator(), new TypedValueReaderFactory())
             {
                 _reader = reader;
                 ShouldAddCommand = true;

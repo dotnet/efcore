@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Query.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Sql;
@@ -154,6 +155,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             materializer
                         });
             }
+
+            queryMethodArguments.Add(Expression.Constant((Func<IEnumerable<Type>>)(
+                () => (QueryModelVisitor.TryGetQuery(_querySource) ?? selectExpression).GetProjectionTypes())));
 
             CommandBuilder commandBuilder = null;
 

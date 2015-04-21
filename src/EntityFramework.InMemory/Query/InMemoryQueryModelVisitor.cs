@@ -42,6 +42,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             Check.NotNull(accessorLambda, nameof(accessorLambda));
             Check.NotNull(navigationPath, nameof(navigationPath));
 
+            var entityTypeParameter = Expression.Parameter(typeof(IEntityType));
             var primaryKeyParameter = Expression.Parameter(typeof(EntityKey));
             var relatedKeyFactoryParameter = Expression.Parameter(typeof(Func<IValueReader, EntityKey>));
 
@@ -73,6 +74,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                                             primaryKeyParameter,
                                             relatedKeyFactoryParameter,
                                             materializer),
+                                        entityTypeParameter,
                                         primaryKeyParameter,
                                         relatedKeyFactoryParameter);
                                 })),

@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Creates_RelationalObjectArrayValueReader()
         {
             Assert.IsType<RelationalObjectArrayValueReader>(
-                new SqlServerValueReaderFactory().CreateValueReader(Mock.Of<DbDataReader>()));
+                new SqlServerValueReaderFactory().CreateValueReader(Mock.Of<DbDataReader>(), new[] { typeof(int) }, 0));
         }
     }
 }

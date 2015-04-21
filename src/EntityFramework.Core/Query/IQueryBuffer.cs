@@ -13,10 +13,10 @@ using Microsoft.Data.Entity.Storage;
 namespace Microsoft.Data.Entity.Query
 {
     public delegate IEnumerable<EntityLoadInfo> RelatedEntitiesLoader(
-        EntityKey primaryKey, Func<IValueReader, EntityKey> foreignKeyFactory);
+        IEntityType entityType, EntityKey primaryKey, Func<IValueReader, EntityKey> foreignKeyFactory);
 
     public delegate IAsyncEnumerable<EntityLoadInfo> AsyncRelatedEntitiesLoader(
-        EntityKey primaryKey, Func<IValueReader, EntityKey> foreignKeyFactory);
+        IEntityType entityType, EntityKey primaryKey, Func<IValueReader, EntityKey> foreignKeyFactory);
 
     public interface IQueryBuffer
     {

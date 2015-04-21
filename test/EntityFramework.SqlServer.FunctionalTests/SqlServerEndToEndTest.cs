@@ -5,21 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.SqlServer.Query;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -88,9 +83,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        public class TestTypedValueReaderFactory : ISqlServerValueReaderFactory
+        public class TestTypedValueReaderFactory : TypedValueReaderFactory, ISqlServerValueReaderFactory
         {
-            public virtual IValueReader CreateValueReader(DbDataReader dataReader) => new RelationalTypedValueReader(dataReader);
         }
 
         [Fact]
@@ -151,18 +145,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     db.Entry(toDelete).State = EntityState.Deleted;
 
                     var toAdd = db.Add(new Blog
-                    {
-                        Name = "Blog to Insert",
-                        George = true,
-                        TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
-                        NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
-                        ToEat = 64,
-                        OrNothing = 0.123456789,
-                        Fuse = 777,
-                        WayRound = 9876543210,
-                        Away = 0.12345f,
-                        AndChew = new byte[16]
-                    }).Entity;
+                        {
+                            Name = "Blog to Insert",
+                            George = true,
+                            TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
+                            NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                            ToEat = 64,
+                            OrNothing = 0.123456789,
+                            Fuse = 777,
+                            WayRound = 9876543210,
+                            Away = 0.12345f,
+                            AndChew = new byte[16]
+                        }).Entity;
                     var addedId = toAdd.Id;
 
                     await db.SaveChangesAsync();
@@ -218,18 +212,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var blogs = await CreateBlogDatabaseAsync<Blog>(db);
 
                     var toAdd = db.Blogs.Add(new Blog
-                    {
-                        Name = "Blog to Insert",
-                        George = true,
-                        TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
-                        NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
-                        ToEat = 64,
-                        OrNothing = 0.123456789,
-                        Fuse = 777,
-                        WayRound = 9876543210,
-                        Away = 0.12345f,
-                        AndChew = new byte[16]
-                    }).Entity;
+                        {
+                            Name = "Blog to Insert",
+                            George = true,
+                            TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
+                            NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                            ToEat = 64,
+                            OrNothing = 0.123456789,
+                            Fuse = 777,
+                            WayRound = 9876543210,
+                            Away = 0.12345f,
+                            AndChew = new byte[16]
+                        }).Entity;
                     db.Entry(toAdd).State = EntityState.Detached;
 
                     var toUpdate = blogs[0];
@@ -465,41 +459,41 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             await context.Database.EnsureCreatedAsync();
             var blog1 = context.Add(new TBlog
-            {
-                Name = "Blog1",
-                George = true,
-                TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
-                NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
-                ToEat = 64,
-                //CupOfChar = 'C', // TODO: Conversion failed when converting the nvarchar value 'C' to data type int.
-                OrNothing = 0.123456789,
-                Fuse = 777,
-                WayRound = 9876543210,
-                //NotToEat = -64, // TODO: The parameter data type of SByte is invalid.
-                Away = 0.12345f,
-                //OrULong = 888, // TODO: The parameter data type of UInt16 is invalid.
-                //OrUSkint = 8888888, // TODO: The parameter data type of UInt32 is invalid.
-                //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
-                AndChew = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
-            }).Entity;
+                {
+                    Name = "Blog1",
+                    George = true,
+                    TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
+                    NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                    ToEat = 64,
+                    //CupOfChar = 'C', // TODO: Conversion failed when converting the nvarchar value 'C' to data type int.
+                    OrNothing = 0.123456789,
+                    Fuse = 777,
+                    WayRound = 9876543210,
+                    //NotToEat = -64, // TODO: The parameter data type of SByte is invalid.
+                    Away = 0.12345f,
+                    //OrULong = 888, // TODO: The parameter data type of UInt16 is invalid.
+                    //OrUSkint = 8888888, // TODO: The parameter data type of UInt32 is invalid.
+                    //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
+                    AndChew = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
+                }).Entity;
             var blog2 = context.Add(new TBlog
-            {
-                Name = "Blog2",
-                George = false,
-                TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9CF"),
-                NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 778),
-                ToEat = 65,
-                //CupOfChar = 'D', // TODO: Conversion failed when converting the nvarchar value 'C' to data type int.
-                OrNothing = 0.987654321,
-                Fuse = 778,
-                WayRound = 98765432100,
-                //NotToEat = -64, // TODO: The parameter data type of SByte is invalid.
-                Away = 0.12345f,
-                //OrULong = 888, // TODO: The parameter data type of UInt16 is invalid.
-                //OrUSkint = 8888888, // TODO: The parameter data type of UInt32 is invalid.
-                //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
-                AndChew = new byte[16]
-            }).Entity;
+                {
+                    Name = "Blog2",
+                    George = false,
+                    TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9CF"),
+                    NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 778),
+                    ToEat = 65,
+                    //CupOfChar = 'D', // TODO: Conversion failed when converting the nvarchar value 'C' to data type int.
+                    OrNothing = 0.987654321,
+                    Fuse = 778,
+                    WayRound = 98765432100,
+                    //NotToEat = -64, // TODO: The parameter data type of SByte is invalid.
+                    Away = 0.12345f,
+                    //OrULong = 888, // TODO: The parameter data type of UInt16 is invalid.
+                    //OrUSkint = 8888888, // TODO: The parameter data type of UInt32 is invalid.
+                    //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
+                    AndChew = new byte[16]
+                }).Entity;
             await context.SaveChangesAsync();
 
             return new[] { blog1, blog2 };

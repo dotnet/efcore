@@ -600,6 +600,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return this;
         }
 
+        public virtual IEnumerable<Type> GetProjectionTypes()
+        {
+            return _projection.Select(p => p.Type)
+                .Concat(_tables.OfType<SelectExpression>().SelectMany(e => e.GetProjectionTypes()));
+        }
+
         public override string ToString()
         {
             return new DefaultSqlQueryGenerator(this).GenerateSql(new Dictionary<string, object>());
