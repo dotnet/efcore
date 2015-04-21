@@ -25,7 +25,8 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IQueryMethodProvider queryMethodProvider,
-            [NotNull] IMethodCallTranslator methodCallTranslator)
+            [NotNull] IMethodCallTranslator methodCallTranslator,
+            [NotNull] ISqlServerValueReaderFactory valueReaderFactory)
             : base(
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(logger, nameof(logger)),
@@ -34,11 +35,12 @@ namespace Microsoft.Data.Entity.SqlServer.Query
                 Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
                 Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
-                Check.NotNull(methodCallTranslator, nameof(methodCallTranslator)))
+                Check.NotNull(methodCallTranslator, nameof(methodCallTranslator)),
+                Check.NotNull(valueReaderFactory, nameof(valueReaderFactory)))
         {
         }
 
-        public override ISqlQueryGenerator CreateSqlQueryGenerator([NotNull] SelectExpression selectExpression)
+        public override ISqlQueryGenerator CreateSqlQueryGenerator(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 

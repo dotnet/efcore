@@ -12,7 +12,6 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalQueryContextFactory : QueryContextFactory, IRelationalQueryContextFactory
     {
-        private readonly IRelationalValueReaderFactory _valueReaderFactory;
         private readonly IRelationalConnection _connection;
 
         public RelationalQueryContextFactory(
@@ -20,19 +19,16 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
-            [NotNull] IRelationalValueReaderFactory valueReaderFactory,
             [NotNull] IRelationalConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, loggerFactory)
         {
             Check.NotNull(connection, nameof(connection));
-            Check.NotNull(valueReaderFactory, nameof(valueReaderFactory));
 
-            _valueReaderFactory = valueReaderFactory;
             _connection = connection;
         }
 
         public override QueryContext CreateQueryContext()
-            => new RelationalQueryContext(Logger, CreateQueryBuffer(), StateManager, _connection, _valueReaderFactory);
+            => new RelationalQueryContext(Logger, CreateQueryBuffer(), StateManager, _connection);
     }
 }

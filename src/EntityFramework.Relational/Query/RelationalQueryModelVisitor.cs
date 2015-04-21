@@ -438,11 +438,12 @@ namespace Microsoft.Data.Entity.Relational.Query
             IQuerySource querySource,
             QueryContext queryContext,
             QuerySourceScope parentQuerySourceScope,
+            IRelationalValueReaderFactory valueReaderFactory,
             DbDataReader dataReader)
         {
             return new QuerySourceScope<IValueReader>(
                 querySource,
-                ((RelationalQueryContext)queryContext).ValueReaderFactory.CreateValueReader(dataReader),
+                valueReaderFactory.CreateValueReader(dataReader),
                 parentQuerySourceScope,
                 null);
         }
@@ -456,6 +457,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             IQuerySource querySource,
             QueryContext queryContext,
             QuerySourceScope parentQuerySourceScope,
+            IRelationalValueReaderFactory valueReaderFactory,
             DbDataReader dataReader,
             int readerOffset,
             IEntityType entityType,
@@ -465,9 +467,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             Func<IValueReader, object> materializer)
             where TEntity : class
         {
-            var valueReader
-                = ((RelationalQueryContext)queryContext).ValueReaderFactory
-                    .CreateValueReader(dataReader);
+            var valueReader = valueReaderFactory.CreateValueReader(dataReader);
 
             if (readerOffset > 0)
             {

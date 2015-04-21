@@ -30,7 +30,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IQueryMethodProvider queryMethodProvider,
-            [NotNull] IMethodCallTranslator methodCallTranslator)
+            [NotNull] IMethodCallTranslator methodCallTranslator,
+            [NotNull] IRelationalValueReaderFactory valueReaderFactory)
             : base(
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(logger, nameof(logger)),
@@ -41,9 +42,11 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
             Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
+            Check.NotNull(valueReaderFactory, nameof(valueReaderFactory));
 
             QueryMethodProvider = queryMethodProvider;
             MethodCallTranslator = methodCallTranslator;
+            ValueReaderFactory = valueReaderFactory;
         }
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor(
@@ -73,6 +76,8 @@ namespace Microsoft.Data.Entity.Relational.Query
         public virtual IQueryMethodProvider QueryMethodProvider { get; }
 
         public virtual IMethodCallTranslator MethodCallTranslator { get; }
+
+        public virtual IRelationalValueReaderFactory ValueReaderFactory { get; }
 
         public virtual ISqlQueryGenerator CreateSqlQueryGenerator([NotNull] SelectExpression selectExpression)
         {

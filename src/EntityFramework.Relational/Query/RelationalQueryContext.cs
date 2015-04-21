@@ -6,7 +6,6 @@ using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -22,22 +21,16 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer,
             [NotNull] IStateManager stateManager,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] IRelationalValueReaderFactory valueReaderFactory)
+            [NotNull] IRelationalConnection connection)
             : base(
                 Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(queryBuffer, nameof(queryBuffer)),
                 Check.NotNull(stateManager, nameof(stateManager)))
         {
             Check.NotNull(connection, nameof(connection));
-            Check.NotNull(valueReaderFactory, nameof(valueReaderFactory));
 
             Connection = connection;
-            ValueReaderFactory = valueReaderFactory;
         }
-
-        // TODO: Move this to compilation context
-        public virtual IRelationalValueReaderFactory ValueReaderFactory { get; }
 
         public virtual IRelationalConnection Connection { get; }
 
@@ -48,8 +41,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             _activeDataReaders.Add(dataReader);
         }
 
-        public virtual IValueReader CreateValueReader(int readerIndex)
-            => ValueReaderFactory.CreateValueReader(_activeDataReaders[_activeReaderOffset + readerIndex]);
+        public virtual DbDataReader GetDataReader(int readerIndex) => _activeDataReaders[_activeReaderOffset + readerIndex];
 
         public virtual void BeginIncludeScope() => _activeReaderOffset = _activeDataReaders.Count;
 

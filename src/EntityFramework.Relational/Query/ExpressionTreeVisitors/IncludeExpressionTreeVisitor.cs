@@ -156,6 +156,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 _queryCompilationContext.QueryMethodProvider
                                     .CreateReferenceIncludeRelatedValuesStrategyMethod,
                                 Expression.Convert(EntityQueryModelVisitor.QueryContextParameter, typeof(RelationalQueryContext)),
+                                Expression.Constant(_queryCompilationContext.ValueReaderFactory),
                                 Expression.Constant(readerIndex),
                                 Expression.Constant(readerOffset),
                                 materializer));
@@ -229,7 +230,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             targetTableExpression,
                             innerJoinExpression);
 
-                    var readerParameter = Expression.Parameter(typeof(DbDataReader));
+                    var readerParameter = Expression.Parameter(typeof(DbDataReader), "dataReader");
 
                     selectExpression = targetSelectExpression;
                     readerIndex++;
@@ -243,29 +244,23 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                     _queryCompilationContext.QueryMethodProvider.QueryMethod
                                         .MakeGenericMethod(typeof(IValueReader)),
                                     EntityQueryModelVisitor.QueryContextParameter,
-                                    Expression.Constant(new CommandBuilder(_queryCompilationContext.CreateSqlQueryGenerator(targetSelectExpression))),
+                                    Expression.Constant(
+                                        new CommandBuilder(
+                                            _queryCompilationContext.CreateSqlQueryGenerator(targetSelectExpression))),
                                     Expression.Lambda(
                                         Expression.Call(
-                                            _createValueReaderForIncludeMethodInfo,
-                                            EntityQueryModelVisitor.QueryContextParameter,
-                                            readerParameter,
-                                            Expression.Constant(targetEntityType)),
+                                            Expression.Constant(_queryCompilationContext.ValueReaderFactory),
+                                            _createValueReaderMethod,
+                                            readerParameter),
                                         readerParameter)),
                                 materializer));
                 }
             }
         }
 
-        private static readonly MethodInfo _createValueReaderForIncludeMethodInfo
-            = typeof(IncludeExpressionTreeVisitor).GetTypeInfo()
-                .GetDeclaredMethod("CreateValueReaderForInclude");
-
-        [UsedImplicitly]
-        private static IValueReader CreateValueReaderForInclude(
-            QueryContext queryContext, DbDataReader dataReader, IEntityType entityType)
-        {
-            return ((RelationalQueryContext)queryContext).ValueReaderFactory.CreateValueReader(dataReader);
-        }
+        private static readonly MethodInfo _createValueReaderMethod
+            = typeof(IRelationalValueReaderFactory).GetTypeInfo()
+                .GetDeclaredMethod("CreateValueReader");
 
         private Expression BuildJoinEqualityExpression(
             INavigation navigation,

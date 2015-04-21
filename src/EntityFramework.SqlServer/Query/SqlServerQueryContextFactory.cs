@@ -16,7 +16,6 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
-            [NotNull] ISqlServerValueReaderFactory valueReaderFactory,
             [NotNull] ISqlServerConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
             : base(
@@ -24,7 +23,6 @@ namespace Microsoft.Data.Entity.SqlServer.Query
                   entityKeyFactorySource, 
                   collectionAccessorSource, 
                   propertySetterSource, 
-                  valueReaderFactory, 
                   connection, 
                   loggerFactory)
         {

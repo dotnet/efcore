@@ -87,10 +87,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     if (newArguments.Count == RelationalQueryModelVisitor.CreateEntityMethodInfo.GetParameters().Length)
                     {
-                        newArguments[4]
+                        newArguments[5]
                             = Expression.Constant(
                                 _readerOffset
-                                + (int)((ConstantExpression)newArguments[4]).Value);
+                                + (int)((ConstantExpression)newArguments[5]).Value);
                     }
 
                     newExpression

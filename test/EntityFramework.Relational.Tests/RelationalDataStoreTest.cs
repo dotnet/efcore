@@ -24,11 +24,13 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var relationalConnectionMock = new Mock<IRelationalConnection>();
             var commandBatchPreparerMock = new Mock<ICommandBatchPreparer>();
             var batchExecutorMock = new Mock<IBatchExecutor>();
+            var valueReaderMock = new Mock<IRelationalValueReaderFactory>();
 
             var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
                 .AddInstance(commandBatchPreparerMock.Object)
                 .AddInstance(batchExecutorMock.Object)
+                .AddInstance(valueReaderMock.Object)
                 .AddScoped<FakeRelationalDataStore>();
 
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
@@ -50,11 +52,13 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var relationalConnectionMock = new Mock<IRelationalConnection>();
             var commandBatchPreparerMock = new Mock<ICommandBatchPreparer>();
             var batchExecutorMock = new Mock<IBatchExecutor>();
+            var valueReaderMock = new Mock<IRelationalValueReaderFactory>();
 
             var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
                 .AddInstance(commandBatchPreparerMock.Object)
                 .AddInstance(batchExecutorMock.Object)
+                .AddInstance(valueReaderMock.Object)
                 .AddScoped<FakeRelationalDataStore>();
 
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
@@ -79,8 +83,18 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 ICommandBatchPreparer batchPreparer,
                 IBatchExecutor batchExecutor,
                 IDbContextOptions options,
-                ILoggerFactory loggerFactory)
-                : base(model, entityKeyFactorySource, entityMaterializerSource, connection, batchPreparer, batchExecutor, options, loggerFactory)
+                ILoggerFactory loggerFactory,
+                IRelationalValueReaderFactory valueReaderFactory)
+                : base(
+                      model, 
+                      entityKeyFactorySource, 
+                      entityMaterializerSource, 
+                      connection, 
+                      batchPreparer, 
+                      batchExecutor, 
+                      options, 
+                      loggerFactory,
+                      valueReaderFactory)
             {
             }
         }

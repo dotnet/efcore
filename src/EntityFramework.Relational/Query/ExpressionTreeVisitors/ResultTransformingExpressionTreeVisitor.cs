@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                  || ReferenceEquals(methodCallExpression.Method, RelationalQueryModelVisitor.CreateValueReaderMethodInfo))
                 && ((ConstantExpression)methodCallExpression.Arguments[0]).Value == _outerQuerySource)
             {
-                return methodCallExpression.Arguments[3];
+                return methodCallExpression.Arguments[4];
             }
 
             if (newArguments != methodCallExpression.Arguments)
