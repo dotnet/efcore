@@ -63,7 +63,7 @@ ORDER BY [a].[Species]",
             Assert.Equal(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
-WHERE [a].[Discriminator] IN ('Kiwi', 'Eagle') AND ([a].[Name] = 'Great spotted kiwi')
+WHERE ([a].[Discriminator] IN ('Kiwi', 'Eagle') AND [a].[Name] = 'Great spotted kiwi')
 ORDER BY [a].[Species]",
                 Sql);
         }
@@ -108,7 +108,7 @@ INNER JOIN (
     FROM [Animal] AS [e]
     WHERE [e].[Discriminator] = 'Eagle'
 ) AS [e] ON [a].[EagleId] = [e].[Species]
-WHERE ([a].[Discriminator] = 'Kiwi') OR ([a].[Discriminator] = 'Eagle')
+WHERE ([a].[Discriminator] = 'Kiwi' OR [a].[Discriminator] = 'Eagle')
 ORDER BY [e].[Species]",
                 Sql);
         }
@@ -128,7 +128,7 @@ INNER JOIN (
     SELECT DISTINCT [c].[Name], [c].[Id]
     FROM [Country] AS [c]
 ) AS [c] ON [a].[CountryId] = [c].[Id]
-WHERE ([a].[Discriminator] = 'Kiwi') OR ([a].[Discriminator] = 'Eagle')
+WHERE ([a].[Discriminator] = 'Kiwi' OR [a].[Discriminator] = 'Eagle')
 ORDER BY [c].[Name], [c].[Id]",
                 Sql);
         }

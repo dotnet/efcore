@@ -134,7 +134,7 @@ FROM [Order] AS [o]
 INNER JOIN (
     SELECT DISTINCT [c].[FirstName], [c].[LastName]
     FROM [Customer] AS [c]
-) AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])
+) AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName] AND [o].[CustomerLastName] = [c].[LastName])
 ORDER BY [c].[FirstName], [c].[LastName]";
 
                 Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
@@ -169,7 +169,7 @@ ORDER BY [c].[FirstName], [c].[LastName]";
                 var expectedSql =
                     @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [c].[FirstName], [c].[LastName]
 FROM [Order] AS [o]
-LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])";
+LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName] AND [o].[CustomerLastName] = [c].[LastName])";
 
                 Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
             }
@@ -404,7 +404,7 @@ __8__locals1_details_LastName_1: Bar
 
 SELECT [c].[FirstName], [c].[LastName]
 FROM [Customer] AS [c]
-WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_details_LastName_1)";
+WHERE ([c].[FirstName] = @__firstName_0 AND [c].[LastName] = @__8__locals1_details_LastName_1)";
 
                 Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
             }
