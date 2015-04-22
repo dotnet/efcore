@@ -8,9 +8,8 @@ namespace Microsoft.Data.Entity.Relational.Update
     public abstract class SingularModificationCommandBatch : ReaderModificationCommandBatch
     {
         protected SingularModificationCommandBatch(
-            [NotNull] ISqlGenerator sqlGenerator,
-            [NotNull] IRelationalValueReaderFactory valueReaderFactory)
-            : base(sqlGenerator, valueReaderFactory)
+            [NotNull] ISqlGenerator sqlGenerator)
+            : base(sqlGenerator)
         {
         }
 

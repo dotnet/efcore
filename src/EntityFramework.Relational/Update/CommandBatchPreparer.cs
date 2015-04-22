@@ -18,22 +18,26 @@ namespace Microsoft.Data.Entity.Relational.Update
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly IComparer<ModificationCommand> _modificationCommandComparer;
         private readonly IBoxedValueReaderSource _boxedValueReaderSource;
+        private readonly IRelationalValueReaderFactoryFactory _valueReaderFactoryFactory;
 
         protected CommandBatchPreparer(
             [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
-            [NotNull] IBoxedValueReaderSource boxedValueReaderSource)
+            [NotNull] IBoxedValueReaderSource boxedValueReaderSource,
+            [NotNull] IRelationalValueReaderFactoryFactory valueReaderFactoryFactory)
         {
             Check.NotNull(modificationCommandBatchFactory, nameof(modificationCommandBatchFactory));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
             Check.NotNull(modificationCommandComparer, nameof(modificationCommandComparer));
             Check.NotNull(boxedValueReaderSource, nameof(boxedValueReaderSource));
+            Check.NotNull(valueReaderFactoryFactory, nameof(valueReaderFactoryFactory));
 
             _modificationCommandBatchFactory = modificationCommandBatchFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
             _modificationCommandComparer = modificationCommandComparer;
             _boxedValueReaderSource = boxedValueReaderSource;
+            _valueReaderFactoryFactory = valueReaderFactoryFactory;
         }
 
         public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<InternalEntityEntry> entries, IDbContextOptions options)
@@ -73,7 +77,8 @@ namespace Microsoft.Data.Entity.Relational.Update
                     GetEntityTypeExtensions(e.EntityType).Schema,
                     parameterNameGenerator,
                     GetPropertyExtensions,
-                    _boxedValueReaderSource)
+                    _boxedValueReaderSource,
+                    _valueReaderFactoryFactory)
                     .AddEntry(e));
         }
 

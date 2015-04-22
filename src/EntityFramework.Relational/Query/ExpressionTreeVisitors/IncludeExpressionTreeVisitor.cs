@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 _queryCompilationContext.QueryMethodProvider
                                     .CreateReferenceIncludeRelatedValuesStrategyMethod,
                                 Expression.Convert(EntityQueryModelVisitor.QueryContextParameter, typeof(RelationalQueryContext)),
-                                Expression.Constant(_queryCompilationContext.ValueReaderFactory),
+                                Expression.Constant(_queryCompilationContext.ValueReaderFactoryFactory.CreateValueReaderFactory()),
                                 Expression.Constant(readerIndex),
                                 Expression.Constant(readerOffset),
                                 materializer));
@@ -249,7 +249,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                             _queryCompilationContext.CreateSqlQueryGenerator(targetSelectExpression))),
                                     Expression.Lambda(
                                         Expression.Call(
-                                            Expression.Constant(_queryCompilationContext.ValueReaderFactory),
+                                            Expression.Constant(_queryCompilationContext.ValueReaderFactoryFactory.CreateValueReaderFactory()),
                                             _createValueReaderMethod,
                                             readerParameter),
                                         readerParameter)),

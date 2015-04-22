@@ -23,6 +23,8 @@ namespace Microsoft.Data.Entity.Relational.Update
         private readonly LazyRef<IReadOnlyList<ColumnModification>> _columnModifications
             = new LazyRef<IReadOnlyList<ColumnModification>>(() => new ColumnModification[0]);
 
+        private readonly IRelationalValueReaderFactory _valueReaderFactory;
+
         private bool _requiresResultPropagation;
 
         public ModificationCommand(
@@ -30,7 +32,8 @@ namespace Microsoft.Data.Entity.Relational.Update
             [CanBeNull] string schemaName,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
             [NotNull] Func<IProperty, IRelationalPropertyExtensions> getPropertyExtensions,
-            [NotNull] IBoxedValueReaderSource boxedValueReaderSource)
+            [NotNull] IBoxedValueReaderSource boxedValueReaderSource,
+            [NotNull] IRelationalValueReaderFactoryFactory valueReaderFactoryFactory)
         {
             Check.NotEmpty(tableName, nameof(tableName));
             Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
@@ -42,6 +45,9 @@ namespace Microsoft.Data.Entity.Relational.Update
             ParameterNameGenerator = parameterNameGenerator;
             _getPropertyExtensions = getPropertyExtensions;
             _boxedValueReaderSource = boxedValueReaderSource;
+
+            // TODO: Use type information to create value reader factory
+            _valueReaderFactory = valueReaderFactoryFactory.CreateValueReaderFactory();
         }
 
         public virtual string TableName { get; }
@@ -53,6 +59,8 @@ namespace Microsoft.Data.Entity.Relational.Update
         public virtual EntityState EntityState => _entries.FirstOrDefault()?.EntityState ?? EntityState.Detached;
 
         public virtual IReadOnlyList<ColumnModification> ColumnModifications => _columnModifications.Value;
+
+        public virtual IRelationalValueReaderFactory ValueReaderFactory => _valueReaderFactory;
 
         public virtual bool RequiresResultPropagation
         {

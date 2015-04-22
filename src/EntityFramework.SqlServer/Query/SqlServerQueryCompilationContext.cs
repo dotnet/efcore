@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator methodCallTranslator,
-            [NotNull] ISqlServerValueReaderFactory valueReaderFactory)
+            [NotNull] ISqlServerValueReaderFactoryFactory valueReaderFactoryFactory)
             : base(
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(logger, nameof(logger)),
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
                 Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
                 Check.NotNull(methodCallTranslator, nameof(methodCallTranslator)),
-                Check.NotNull(valueReaderFactory, nameof(valueReaderFactory)))
+                Check.NotNull(valueReaderFactoryFactory, nameof(valueReaderFactoryFactory)))
         {
         }
 

@@ -69,6 +69,7 @@
     <Compile Include="IRelationalDataStore.cs" />
     <Compile Include="IRelationalDataStoreCreator.cs" />
     <Compile Include="IRelationalTypeMapper.cs" />
+    <Compile Include="IRelationalValueReaderFactoryFactory.cs" />
     <Compile Include="ISqlGenerator.cs" />
     <Compile Include="Migrations\Builders\ColumnsBuilder.cs" />
     <Compile Include="Migrations\Builders\CreateTableBuilder.cs" />

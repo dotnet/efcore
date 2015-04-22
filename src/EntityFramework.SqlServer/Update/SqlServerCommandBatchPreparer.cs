@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Update
@@ -17,8 +18,14 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             [NotNull] ISqlServerModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
-            [NotNull] IBoxedValueReaderSource boxedValueReaderSource)
-            : base(modificationCommandBatchFactory, parameterNameGeneratorFactory, modificationCommandComparer, boxedValueReaderSource)
+            [NotNull] IBoxedValueReaderSource boxedValueReaderSource,
+            [NotNull] ISqlServerValueReaderFactoryFactory valueReaderFactoryFactory)
+            : base(
+                  modificationCommandBatchFactory, 
+                  parameterNameGeneratorFactory, 
+                  modificationCommandComparer, 
+                  boxedValueReaderSource,
+                  valueReaderFactoryFactory)
         {
         }
 

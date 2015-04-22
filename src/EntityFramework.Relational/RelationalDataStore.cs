@@ -37,20 +37,20 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] IBatchExecutor batchExecutor,
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] IRelationalValueReaderFactory valueReaderFactory)
+            [NotNull] IRelationalValueReaderFactoryFactory valueReaderFactoryFactory)
             : base(
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
                 Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
                 Check.NotNull(loggerFactory, nameof(loggerFactory)))
         {
-            ValueReaderFactory = valueReaderFactory;
+            ValueReaderFactoryFactory = valueReaderFactoryFactory;
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(batchPreparer, nameof(batchPreparer));
             Check.NotNull(batchExecutor, nameof(batchExecutor));
             Check.NotNull(options, nameof(options));
             Check.NotNull(options, nameof(options));
-            Check.NotNull(valueReaderFactory, nameof(valueReaderFactory));
+            Check.NotNull(valueReaderFactoryFactory, nameof(valueReaderFactoryFactory));
 
             _batchPreparer = batchPreparer;
             _batchExecutor = batchExecutor;
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Relational
             _options = options;
         }
 
-        public virtual IRelationalValueReaderFactory ValueReaderFactory { get; }
+        public virtual IRelationalValueReaderFactoryFactory ValueReaderFactoryFactory { get; }
 
         public virtual IDbContextOptions DbContextOptions => _options;
 
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Relational
                 EntityKeyFactorySource,
                 queryMethodProvider,
                 methodCallTranslator,
-                ValueReaderFactory);
+                ValueReaderFactoryFactory);
         }
     }
 }

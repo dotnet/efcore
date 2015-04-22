@@ -2,10 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.Common;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Storage;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests.Update
@@ -18,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0]);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -55,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0], isTemporary: false);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -91,7 +93,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -127,7 +129,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -163,7 +165,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -199,7 +201,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -235,7 +237,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Deleted);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -260,7 +262,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Deleted, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -296,7 +298,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Unchanged);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
 
             Assert.Equal(
                 Strings.ModificationFunctionInvalidEntityState(EntityState.Unchanged),
@@ -308,7 +310,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Detached);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
 
             Assert.Equal(
                 Strings.ModificationFunctionInvalidEntityState(EntityState.Detached),
@@ -321,7 +323,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var entry = CreateEntry(
                 EntityState.Deleted, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -333,7 +335,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var entry = CreateEntry(
                 EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.True(command.RequiresResultPropagation);
@@ -344,7 +346,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -356,7 +358,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var entry = CreateEntry(
                 EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.True(command.RequiresResultPropagation);
@@ -367,7 +369,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
             command.AddEntry(entry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -407,6 +409,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
             return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null :  "Test" });
+        }
+
+        private class TestValueReaderFactoryFactory : IRelationalValueReaderFactoryFactory
+        {
+            public IRelationalValueReaderFactory CreateValueReaderFactory() => new TestValueReaderFactory();
+        }
+
+        private class TestValueReaderFactory : IRelationalValueReaderFactory
+        {
+            public IValueReader CreateValueReader(DbDataReader dataReader) => new RelationalTypedValueReader(dataReader);
         }
     }
 }

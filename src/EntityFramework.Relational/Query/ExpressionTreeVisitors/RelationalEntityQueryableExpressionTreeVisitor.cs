@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         Expression.Constant(QuerySource),
                         EntityQueryModelVisitor.QueryContextParameter,
                         EntityQueryModelVisitor.QuerySourceScopeParameter,
-                        Expression.Constant(QueryModelVisitor.QueryCompilationContext.ValueReaderFactory),
+                        Expression.Constant(QueryModelVisitor.QueryCompilationContext.ValueReaderFactoryFactory.CreateValueReaderFactory()),
                         _readerParameter
                     };
 

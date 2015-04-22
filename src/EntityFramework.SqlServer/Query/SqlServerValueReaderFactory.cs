@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.SqlServer.Query
 {
-    public class SqlServerValueReaderFactory : ISqlServerValueReaderFactory
+    public class SqlServerValueReaderFactory : IRelationalValueReaderFactory
     {
         public virtual IValueReader CreateValueReader(DbDataReader dataReader)
         {
