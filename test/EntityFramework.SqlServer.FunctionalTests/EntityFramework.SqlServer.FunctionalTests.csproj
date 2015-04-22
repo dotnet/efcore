@@ -69,8 +69,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncFromSqlQuerySqlServerTest.cs" />
+    <Compile Include="AsyncFromSqlSprocQuerySqlServerTest.cs" />
     <Compile Include="CommandConfigurationTests.cs" />
     <Compile Include="ComputedColumnTest.cs" />
+    <Compile Include="FromSqlSprocQuerySqlServerTest.cs" />
+    <Compile Include="NorthwindSprocQuerySqlServerFixture.cs" />
     <Compile Include="FromSqlQuerySqlServerTest.cs" />
     <Compile Include="NavigationTest.cs" />
     <Compile Include="InheritanceSqlServerFixture.cs" />

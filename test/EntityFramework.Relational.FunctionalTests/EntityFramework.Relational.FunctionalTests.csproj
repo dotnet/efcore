@@ -66,6 +66,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncFromSqlQueryTestBase.cs" />
+    <Compile Include="AsyncFromSqlSprocQueryTestBase.cs" />
+    <Compile Include="FromSqlSprocQueryTestBase.cs" />
+    <Compile Include="NorthwindSprocQueryRelationalFixture.cs" />
     <Compile Include="MappingQueryTestBase.cs" />
     <Compile Include="MappingQueryFixtureBase.cs" />
     <Compile Include="NullSemanticsQueryRelationalFixture.cs" />
@@ -77,6 +80,8 @@
     <Compile Include="NorthwindQueryRelationalFixture.cs" />
     <Compile Include="FromSqlQueryTestBase.cs" />
     <Compile Include="RelationalTestStore.cs" />
+    <Compile Include="TestModels\NorthwindSproc\CustomerOrderHistory.cs" />
+    <Compile Include="TestModels\NorthwindSproc\MostExpensiveProduct.cs" />
     <Compile Include="TestSqlLoggerFactory.cs" />
     <Compile Include="TransactionFixtureBase.cs" />
     <Compile Include="TransactionTestBase.cs" />

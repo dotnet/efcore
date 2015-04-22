@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
-using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
@@ -18,51 +15,296 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         [Fact]
         public virtual async Task From_sql_queryable_simple()
         {
-            Assert.Equal(91,
-                await AssertQuery<Customer>(
-                    cs => cs.FromSql("SELECT * FROM Customers"),
-                    cs => cs));
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql("SELECT * FROM Customers")
+                    .ToArrayAsync();
+
+                Assert.Equal(91, actual.Length);
+                Assert.Equal(91, context.ChangeTracker.Entries().Count());
+            }
         }
 
         [Fact]
         public virtual async Task From_sql_queryable_filter()
         {
-            Assert.Equal(14,
-                await AssertQuery<Customer>(
-                    cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'"),
-                    cs => cs.Where(c => c.ContactName.Contains("z"))));
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'")
+                    .ToArrayAsync();
+
+                Assert.Equal(14, actual.Length);
+                Assert.Equal(14, context.ChangeTracker.Entries().Count());
+            }
         }
 
         [Fact]
-        public virtual async Task From_sql_queryable_cached_by_query()
+        public virtual async Task From_sql_queryable_composed()
         {
-            Assert.Equal(6,
-                await AssertQuery<Customer>(
-                    cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.City = 'London'"),
-                    cs => cs.Where(c => c.City == "London")));
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql("SELECT * FROM Customers")
+                    .Where(c => c.ContactName.Contains("z"))
+                    .ToArrayAsync();
 
-            Assert.Equal(1,
-                await AssertQuery<Customer>(
-                    cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.City = 'Seattle'"),
-                    cs => cs.Where(c => c.City == "Seattle")));
+                Assert.Equal(14, actual.Length);
+            }
+        }
+
+        //[Fact]
+        public virtual async Task From_sql_queryable_multiple_line_query()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql(@"SELECT *
+FROM Customers
+WHERE Customers.City = 'London'")
+                    .ToArrayAsync();
+
+                Assert.Equal(6, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+            }
         }
 
         [Fact]
-        public virtual async Task From_sql_queryable_where_simple_closure_via_query_cache()
+        public virtual async Task From_sql_queryable_composed_multiple_line_query()
         {
-            var title = "Sales Associate";
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql(@"SELECT *
+FROM Customers")
+                    .Where(c => c.City == "London")
+                    .ToArrayAsync();
 
-            Assert.Equal(4,
-                await AssertQuery<Customer>(
-                    cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%o%'").Where(c => c.ContactTitle == title),
-                    cs => cs.Where(c => c.ContactName.Contains("o")).Where(c => c.ContactTitle == title)));
+                Assert.Equal(6, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+            }
+        }
 
-            title = "Sales Manager";
+        //[Fact]
+        public virtual async Task From_sql_queryable_with_columns_reordered()
+        {
+            using (var context = CreateContext())
+            {
+                var ascending = (await context.Set<Customer>()
+                    .FromSql(@"SELECT
+    Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
+FROM
+    Customers
+WHERE
+    CustomerID = 'ALFKI'")
+                    .ToArrayAsync())
+                    .Single();
 
-            Assert.Equal(7,
-                await AssertQuery<Customer>(
-                    cs => cs.FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%o%'").Where(c => c.ContactTitle == title),
-                    cs => cs.Where(c => c.ContactName.Contains("o")).Where(c => c.ContactTitle == title)));
+                var descending = (await context.Set<Customer>()
+                    .FromSql(@"SELECT
+    Region, PostalCode, Phone, Fax, CustomerID, Country, ContactTitle, ContactName, CompanyName, City, Address
+FROM
+    Customers
+WHERE
+    CustomerID = 'ALFKI'")
+                    .ToArrayAsync())
+                    .Single();
+
+                foreach (var actual in new[] { ascending, descending })
+                {
+                    Assert.Equal("ALFKI", actual.CustomerID);
+                    Assert.Equal("Alfreds Futterkiste", actual.CompanyName);
+                    Assert.Equal("Maria Anders", actual.ContactName);
+                    Assert.Equal("Sales Representative", actual.ContactTitle);
+                    Assert.Equal("Obere Str. 57", actual.Address);
+                    Assert.Equal("Berlin", actual.City);
+                    Assert.Null(actual.Region);
+                    Assert.Equal("12209", actual.PostalCode);
+                    Assert.Equal("Germany", actual.Country);
+                    Assert.Equal("030-0074321", actual.Phone);
+                    Assert.Equal("030-0076545", actual.Fax);
+                }
+            }
+        }
+
+        //[Fact]
+        public virtual async Task From_sql_queryable_with_parameters()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql(@"SELECT * FROM Customers WHERE City = {0} AND ContactTitle = {1}", city, contactTitle)
+                    .ToArrayAsync();
+
+                Assert.Equal(3, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+                Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+            }
+        }
+
+        [Fact]
+        public virtual async Task From_sql_queryable_with_parameters_and_closure()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql(@"SELECT * FROM Customers WHERE City = {0}", city)
+                    .Where(c => c.ContactTitle == contactTitle)
+                    .ToArrayAsync();
+
+                Assert.Equal(3, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+                Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+            }
+        }
+
+        //[Fact]
+        public virtual async Task From_sql_queryable_simple_cache_key_includes_query_string()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql("SELECT * FROM Customers WHERE Customers.City = 'London'")
+                    .ToArrayAsync();
+
+                Assert.Equal(6, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+
+                actual = await context.Set<Customer>()
+                    .FromSql("SELECT * FROM Customers WHERE Customers.City = 'Seattle'")
+                    .ToArrayAsync();
+
+                Assert.Equal(1, actual.Length);
+                Assert.True(actual.All(c => c.City == "Seattle"));
+            }
+        }
+
+        //[Fact]
+        public virtual async Task From_sql_queryable_with_parameters_cache_key_includes_parameters()
+        {
+            var city = "London";
+            var contactTitle = "Sales Representative";
+            var sql = @"SELECT * FROM Customers WHERE City = {0} AND ContactTitle = {1}";
+
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql(sql, city, contactTitle)
+                    .ToArrayAsync();
+
+                Assert.Equal(3, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+                Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+
+                city = "Madrid";
+                contactTitle = "Accounting Manager";
+
+                actual = await context.Set<Customer>()
+                    .FromSql(sql, city, contactTitle)
+                    .ToArrayAsync();
+
+                Assert.Equal(2, actual.Length);
+                Assert.True(actual.All(c => c.City == "Madrid"));
+                Assert.True(actual.All(c => c.ContactTitle == "Accounting Manager"));
+            }
+        }
+
+        [Fact]
+        public virtual async Task From_sql_queryable_simple_as_no_tracking_not_composed()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql("SELECT * FROM Customers")
+                    .AsNoTracking()
+                    .ToArrayAsync();
+
+                Assert.Equal(91, actual.Length);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual async Task From_sql_queryable_simple_include()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql("SELECT * FROM Customers")
+                    .Include(c => c.Orders)
+                    .ToArrayAsync();
+
+                Assert.Equal(830, actual.SelectMany(c => c.Orders).Count());
+            }
+        }
+
+        [Fact]
+        public virtual async Task From_sql_queryable_simple_composed_include()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql("SELECT * FROM Customers")
+                    .Where(c => c.City == "London")
+                    .Include(c => c.Orders)
+                    .ToArrayAsync();
+
+                Assert.Equal(46, actual.SelectMany(c => c.Orders).Count());
+            }
+        }
+
+        [Fact]
+        public virtual async Task From_sql_annotations_do_not_affect_successive_calls()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = await context.Customers
+                    .FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'")
+                    .ToArrayAsync();
+
+                Assert.Equal(14, actual.Length);
+
+                actual = await context.Customers
+                    .ToArrayAsync();
+
+                Assert.Equal(91, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual async Task From_sql_composed_with_nullable_predicate()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql("SELECT * FROM Customers")
+                    .Where(c => c.ContactName == c.CompanyName)
+                    .ToArrayAsync();
+
+                Assert.Equal(0, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual async Task From_sql_composed_with_relational_null_comparison()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .UseRelationalNullSemantics()
+                    .FromSql("SELECT * FROM Customers")
+                    .Where(c => c.ContactName == c.CompanyName)
+                    .ToArrayAsync();
+
+                Assert.Equal(0, actual.Length);
+            }
         }
 
         protected NorthwindContext CreateContext()
@@ -76,23 +318,5 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         protected TFixture Fixture { get; }
-
-        private async Task<int> AssertQuery<TItem>(
-            Func<DbSet<TItem>, IQueryable<object>> relationalQuery,
-            Func<IQueryable<TItem>, IQueryable<object>> l2oQuery,
-            bool assertOrder = false,
-            Action<IList<object>, IList<object>> asserter = null)
-            where TItem : class
-        {
-            using (var context = CreateContext())
-            {
-                return TestHelpers.AssertResults(
-                    l2oQuery(NorthwindData.Set<TItem>()).ToArray(),
-                    await relationalQuery(context.Set<TItem>()).ToArrayAsync(),
-                    assertOrder,
-                    asserter);
-            }
-        }
-
     }
 }

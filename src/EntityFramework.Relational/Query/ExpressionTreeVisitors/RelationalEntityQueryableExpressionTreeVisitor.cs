@@ -106,14 +106,17 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var composed = true;
             if (fromSqlAnnotation != null)
             {
-                if (!fromSqlAnnotation.Sql.TrimStart().StartsWith("SELECT", StringComparison.OrdinalIgnoreCase))
+                var sqlStart = fromSqlAnnotation.Sql.Cast<char>().SkipWhile(char.IsWhiteSpace).Take(7).ToArray();
+
+                if (sqlStart.Length != 7
+                    || !char.IsWhiteSpace(sqlStart.Last())
+                    || !new string(sqlStart).StartsWith("SELECT", StringComparison.OrdinalIgnoreCase))
                 {
                     if (QueryModelVisitor.QueryCompilationContext.QueryAnnotations.OfType<IncludeQueryAnnotation>().Any())
                     {
                         throw new InvalidOperationException(Strings.StoredProcedureIncludeNotSupported);
                     }
-                    // Note: All client eval flags should be set here
-                    QueryModelVisitor.RequiresClientFilter = true;
+                    QueryModelVisitor.RequiresClientEval = true;
                     composed = false;
                 }
 
@@ -139,7 +142,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         _readerParameter
                     };
 
-            if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
+            if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource) || QueryModelVisitor.RequiresClientEval)
             {
                 var materializer
                     = new MaterializerFactory(
