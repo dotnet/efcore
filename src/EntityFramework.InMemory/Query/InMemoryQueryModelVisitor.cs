@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         private static readonly MethodInfo _includeMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
-                .GetDeclaredMethod("Include");
+                .GetDeclaredMethod(nameof(Include));
 
         [UsedImplicitly]
         private static IEnumerable<QuerySourceScope<TResult>> Include<TResult>(
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         private static readonly MethodInfo _getRelatedValueReadersMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
-                .GetDeclaredMethod("GetRelatedValueReaders");
+                .GetDeclaredMethod(nameof(GetRelatedValueReaders));
 
         [UsedImplicitly]
         private static IEnumerable<EntityLoadInfo> GetRelatedValueReaders(
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         private static readonly MethodInfo _entityQueryMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
-                .GetDeclaredMethod("EntityQuery");
+                .GetDeclaredMethod(nameof(EntityQuery));
 
         [UsedImplicitly]
         private static IEnumerable<QuerySourceScope<TEntity>> EntityQuery<TEntity>(
@@ -173,7 +173,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         private static readonly MethodInfo _projectionQueryMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
-                .GetDeclaredMethod("ProjectionQuery");
+                .GetDeclaredMethod(nameof(ProjectionQuery));
 
         [UsedImplicitly]
         private static IEnumerable<QuerySourceScope<IValueReader>> ProjectionQuery(

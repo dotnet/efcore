@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static readonly MethodInfo _getResultMethodInfo
             = typeof(QueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("GetResult");
+                .GetDeclaredMethod(nameof(GetResult));
 
         [UsedImplicitly]
         private static TResult GetResult<TResult>(IEnumerable<DbDataReader> dataReaders)
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static readonly MethodInfo _queryMethodInfo
             = typeof(QueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("_Query");
+                .GetDeclaredMethod(nameof(_Query));
 
         [UsedImplicitly]
         private static IEnumerable<T> _Query<T>(
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static readonly MethodInfo _includeMethodInfo
             = typeof(QueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("_Include");
+                .GetDeclaredMethod(nameof(_Include));
 
         [UsedImplicitly]
         private static IEnumerable<T> _Include<T>(
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static readonly MethodInfo _createReferenceIncludeStrategyMethodInfo
             = typeof(QueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("_CreateReferenceIncludeStrategy");
+                .GetDeclaredMethod(nameof(_CreateReferenceIncludeStrategy));
 
         [UsedImplicitly]
         private static IIncludeRelatedValuesStrategy _CreateReferenceIncludeStrategy(
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static readonly MethodInfo _createCollectionIncludeStrategyMethodInfo
             = typeof(QueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("_CreateCollectionIncludeStrategy");
+                .GetDeclaredMethod(nameof(_CreateCollectionIncludeStrategy));
 
         [UsedImplicitly]
         private static IIncludeRelatedValuesStrategy _CreateCollectionIncludeStrategy(

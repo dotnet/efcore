@@ -260,7 +260,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         private static readonly MethodInfo _createValueReaderMethod
             = typeof(IRelationalValueReaderFactory).GetTypeInfo()
-                .GetDeclaredMethod("CreateValueReader");
+                .GetDeclaredMethod(nameof(IRelationalValueReaderFactory.CreateValueReader));
 
         private Expression BuildJoinEqualityExpression(
             INavigation navigation,

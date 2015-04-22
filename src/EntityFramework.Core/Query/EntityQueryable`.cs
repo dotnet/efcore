@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Query
         {
         }
 
-        IAsyncEnumerator<TResult> IAsyncEnumerable<TResult>.GetEnumerator() 
+        IAsyncEnumerator<TResult> IAsyncEnumerable<TResult>.GetEnumerator()
             => ((IAsyncQueryProvider)Provider).ExecuteAsync<TResult>(Expression).GetEnumerator();
     }
 }

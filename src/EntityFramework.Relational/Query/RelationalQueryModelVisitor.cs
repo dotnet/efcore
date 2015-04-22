@@ -431,7 +431,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public static readonly MethodInfo CreateValueReaderMethodInfo
             = typeof(RelationalQueryModelVisitor).GetTypeInfo()
-                .GetDeclaredMethod("CreateValueReader");
+                .GetDeclaredMethod(nameof(CreateValueReader));
 
         [UsedImplicitly]
         private static QuerySourceScope<IValueReader> CreateValueReader(
@@ -450,7 +450,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public static readonly MethodInfo CreateEntityMethodInfo
             = typeof(RelationalQueryModelVisitor).GetTypeInfo()
-                .GetDeclaredMethod("CreateEntity");
+                .GetDeclaredMethod(nameof(CreateEntity));
 
         [UsedImplicitly]
         private static QuerySourceScope<TEntity> CreateEntity<TEntity>(

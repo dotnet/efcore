@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Query
     public static class QueryExtensions
     {
         public static readonly MethodInfo PropertyMethodInfo
-            = typeof(QueryExtensions).GetTypeInfo().GetDeclaredMethod("Property");
+            = typeof(QueryExtensions).GetTypeInfo().GetDeclaredMethod(nameof(Property));
 
         public static TProperty Property<TProperty>(
             [NotNull] this object entity, [NotNull] string propertyName)

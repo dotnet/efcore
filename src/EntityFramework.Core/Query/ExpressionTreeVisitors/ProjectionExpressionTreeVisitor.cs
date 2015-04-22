@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         private static readonly MethodInfo _unwrapSingleResult
             = typeof(ProjectionExpressionTreeVisitor)
-                .GetTypeInfo().GetDeclaredMethod("UnwrapSingleResult");
+                .GetTypeInfo().GetDeclaredMethod(nameof(UnwrapSingleResult));
 
         [UsedImplicitly]
         private static TResult UnwrapSingleResult<TResult>(

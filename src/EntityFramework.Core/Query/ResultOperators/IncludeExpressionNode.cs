@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         public override Expression Resolve(
             ParameterExpression inputParameter,
             Expression expressionToBeResolved,
-            ClauseGenerationContext clauseGenerationContext) 
+            ClauseGenerationContext clauseGenerationContext)
             => Source.Resolve(
                 inputParameter,
                 expressionToBeResolved,

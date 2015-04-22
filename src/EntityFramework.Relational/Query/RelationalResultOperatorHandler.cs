@@ -383,7 +383,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static readonly MethodInfo _transformClientExpressionMethodInfo
             = typeof(RelationalResultOperatorHandler).GetTypeInfo()
-                .GetDeclaredMethod("TransformClientExpression");
+                .GetDeclaredMethod(nameof(TransformClientExpression));
 
         private static Expression TransformClientExpression<TResult>(HandlerContext handlerContext)
         {

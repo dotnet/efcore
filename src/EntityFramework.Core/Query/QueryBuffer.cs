@@ -249,29 +249,28 @@ namespace Microsoft.Data.Entity.Query
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
-                    .Select(async (eli, ct) =>
-                        {
-                            var targetEntity
-                                = GetTargetEntity(
-                                    targetEntityType,
-                                    entityKeyFactory,
-                                    keyProperties,
-                                    eli,
-                                    bufferedEntities,
-                                    querySourceRequiresTracking);
+                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory), async (eli, ct) =>
+                    {
+                        var targetEntity
+                            = GetTargetEntity(
+                                targetEntityType,
+                                entityKeyFactory,
+                                keyProperties,
+                                eli,
+                                bufferedEntities,
+                                querySourceRequiresTracking);
 
-                            await IncludeAsync(
-                                targetEntity,
-                                navigationPath,
-                                relatedEntitiesLoaders,
-                                ct,
-                                currentNavigationIndex + 1,
-                                querySourceRequiresTracking)
-                                .WithCurrentCulture();
+                        await IncludeAsync(
+                            targetEntity,
+                            navigationPath,
+                            relatedEntitiesLoaders,
+                            ct,
+                            currentNavigationIndex + 1,
+                            querySourceRequiresTracking)
+                            .WithCurrentCulture();
 
-                            return targetEntity;
-                        })
+                        return targetEntity;
+                    })
                     .Where(e => e != null)
                     .ToList(cancellationToken)
                     .WithCurrentCulture());

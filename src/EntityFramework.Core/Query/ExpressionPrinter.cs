@@ -222,8 +222,8 @@ namespace Microsoft.Data.Entity.Query
 
             private string PrintType(Type type)
             {
-                return type.IsConstructedGenericType 
-                    ? type.Name.Substring(0, type.Name.IndexOf('`')) + "<" + string.Join(", ", type.GenericTypeArguments.Select(PrintType)) + ">" 
+                return type.IsConstructedGenericType
+                    ? type.Name.Substring(0, type.Name.IndexOf('`')) + "<" + string.Join(", ", type.GenericTypeArguments.Select(PrintType)) + ">"
                     : type.Name;
             }
         }

@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         private static readonly MethodInfo _resultMethodInfo
             = typeof(TaskBlockingExpressionTreeVisitor).GetTypeInfo()
-                .GetDeclaredMethod("_Result");
+                .GetDeclaredMethod(nameof(_Result));
 
         [UsedImplicitly]
         private static T _Result<T>(Task<T> task) => task.Result;

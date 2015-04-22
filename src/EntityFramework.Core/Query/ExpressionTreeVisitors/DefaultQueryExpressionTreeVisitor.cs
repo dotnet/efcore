@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         private static readonly MethodInfo _rewrapSingleResult
             = typeof(DefaultQueryExpressionTreeVisitor)
-                .GetTypeInfo().GetDeclaredMethod("RewrapSingleResult");
+                .GetTypeInfo().GetDeclaredMethod(nameof(RewrapSingleResult));
 
         [UsedImplicitly]
         private static QuerySourceScope<TResult> RewrapSingleResult<TResult>(
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         private static readonly MethodInfo _getParameterValueMethodInfo
             = typeof(DefaultQueryExpressionTreeVisitor)
-                .GetTypeInfo().GetDeclaredMethod("GetParameterValue");
+                .GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue));
 
         [UsedImplicitly]
         private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)

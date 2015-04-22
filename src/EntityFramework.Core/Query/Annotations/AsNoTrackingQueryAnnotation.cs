@@ -5,8 +5,6 @@ namespace Microsoft.Data.Entity.Query.Annotations
 {
     public class AsNoTrackingQueryAnnotation : QueryAnnotation
     {
-        public AsNoTrackingQueryAnnotation() { }
-
         public override string ToString()
             => "AsNoTracking()";
     }

@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _unwrapQueryResults
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("UnwrapResults");
+                .GetTypeInfo().GetDeclaredMethod(nameof(UnwrapResults));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<TResult> UnwrapResults<TResult>(
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _toEnumerable
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_ToEnumerable");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_ToEnumerable));
 
         [UsedImplicitly]
         private static EnumerableAdapter<TResult> _ToEnumerable<TResult>(IAsyncEnumerable<TResult> results)
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _toOrdered
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_ToOrdered");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_ToOrdered));
 
         [UsedImplicitly]
         private static OrderedEnumerableAdapter<TResult> _ToOrdered<TResult>(IAsyncEnumerable<TResult> results)
@@ -95,10 +95,10 @@ namespace Microsoft.Data.Entity.Query
             }
 
             IOrderedAsyncEnumerable<TResult> IOrderedAsyncEnumerable<TResult>.CreateOrderedEnumerable<TKey>(
-                Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool @descending)
+                Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending)
             {
                 return
-                    !@descending
+                    !descending
                         ? _results.OrderBy(keySelector, comparer)
                         : _results.OrderByDescending(keySelector, comparer);
             }
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _unwrapGrouping
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_UnwrapGrouping");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_UnwrapGrouping));
 
         [UsedImplicitly]
         private static IAsyncGrouping<TKey, TResult> _UnwrapGrouping<TKey, TResult>(
@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _unwrapGroupedQueryResults
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("UnwrapGroupedResults");
+                .GetTypeInfo().GetDeclaredMethod(nameof(UnwrapGroupedResults));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<IGrouping<TKey, TResult>> UnwrapGroupedResults<TKey, TResult>(
@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _rewrapQueryResults
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("RewrapResults");
+                .GetTypeInfo().GetDeclaredMethod(nameof(RewrapResults));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<QuerySourceScope<TResult>> RewrapResults<TResult>(
@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _interceptExceptions
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_InterceptExceptions");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_InterceptExceptions));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _InterceptExceptions<T>(
@@ -274,7 +274,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _trackEntities
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_TrackEntities");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_TrackEntities));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<QuerySourceScope<TOut>> _TrackEntities<TOut, TIn>(
@@ -315,7 +315,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _trackGroupedEntities
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_TrackGroupedEntities");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_TrackGroupedEntities));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<IAsyncGrouping<TKey, QuerySourceScope<TOut>>> _TrackGroupedEntities<TKey, TOut, TIn>(
@@ -391,7 +391,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _toSequence
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_ToSequence");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_ToSequence));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _ToSequence<T>(T element)
@@ -403,7 +403,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _toQueryable
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_ToQueryable");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_ToQueryable));
 
         [UsedImplicitly]
         private static IOrderedQueryable<TSource> _ToQueryable<TSource>(IAsyncEnumerable<TSource> source)
@@ -447,7 +447,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _selectMany
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_SelectMany");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_SelectMany));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<TResult> _SelectMany<TSource, TResult>(
@@ -460,7 +460,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _join
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_Join");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_Join));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<TResult> _Join<TOuter, TInner, TKey, TResult>(
@@ -477,7 +477,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _groupJoin
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_GroupJoin");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
@@ -494,7 +494,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _select
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_Select");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_Select));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
@@ -507,7 +507,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _orderBy
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_OrderBy");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_OrderBy));
 
         [UsedImplicitly]
         private static IOrderedAsyncEnumerable<TSource> _OrderBy<TSource, TKey>(
@@ -522,7 +522,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _thenBy
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_ThenBy");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_ThenBy));
 
         [UsedImplicitly]
         private static IOrderedAsyncEnumerable<TSource> _ThenBy<TSource, TKey>(
@@ -537,7 +537,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _where
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_Where");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_Where));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<TSource> _Where<TSource>(
@@ -570,7 +570,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _castWrappedResult
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_CastWrappedResult");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_CastWrappedResult));
 
         public static IAsyncEnumerable<QuerySourceScope<TResult>> _CastWrappedResult<TResult>(
             [NotNull] IAsyncEnumerable<QuerySourceScope> source)
@@ -595,7 +595,7 @@ namespace Microsoft.Data.Entity.Query
         public virtual MethodInfo FirstOrDefault => _firstOrDefault;
 
         private static readonly MethodInfo _groupBy
-            = typeof(AsyncLinqOperatorProvider).GetTypeInfo().GetDeclaredMethod("_GroupBy");
+            = typeof(AsyncLinqOperatorProvider).GetTypeInfo().GetDeclaredMethod(nameof(_GroupBy));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<IAsyncGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
@@ -624,7 +624,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _ofTypeWrappedResult
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_OfTypeWrappedResult");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_OfTypeWrappedResult));
 
         public static IAsyncEnumerable<QuerySourceScope<TDerived>> _OfTypeWrappedResult<TBase, TDerived>(
             [NotNull] IAsyncEnumerable<QuerySourceScope<TBase>> source)
@@ -692,7 +692,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _toAsyncEnumerable
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("_ToAsyncEnumerable");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_ToAsyncEnumerable));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _ToAsyncEnumerable<T>(IEnumerable<T> source)

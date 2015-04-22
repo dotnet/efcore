@@ -206,7 +206,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _taskToSequence
             = typeof(EntityQueryModelVisitor)
-                .GetTypeInfo().GetDeclaredMethod("_TaskToSequence");
+                .GetTypeInfo().GetDeclaredMethod(nameof(_TaskToSequence));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _TaskToSequence<T>(Task<T> task)
@@ -390,7 +390,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _getEntityAccessors
             = typeof(EntityQueryModelVisitor)
-                .GetTypeInfo().GetDeclaredMethod("GetEntityAccessors");
+                .GetTypeInfo().GetDeclaredMethod(nameof(GetEntityAccessors));
 
         [UsedImplicitly]
         private static ICollection<Func<TResult, object>> GetEntityAccessors<TResult>(

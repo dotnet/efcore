@@ -15,17 +15,16 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
     public class QueryAnnotationResultOperator : SequenceTypePreservingResultOperatorBase
     {
         private readonly ConstantExpression _annotationExpression;
-        private readonly QueryAnnotation _queryAnnotation;
 
         public QueryAnnotationResultOperator([NotNull] ConstantExpression annotationExpression)
         {
             Check.NotNull(annotationExpression, nameof(annotationExpression));
 
             _annotationExpression = annotationExpression;
-            _queryAnnotation = (QueryAnnotation)annotationExpression.Value;
+            Annotation = (QueryAnnotation)annotationExpression.Value;
         }
 
-        public virtual QueryAnnotation Annotation => _queryAnnotation;
+        public virtual QueryAnnotation Annotation { get; }
 
         public override string ToString()
             => "AnnotateQuery("

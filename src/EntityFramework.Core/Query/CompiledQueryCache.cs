@@ -210,8 +210,8 @@ namespace Microsoft.Data.Entity.Query
                 {
                     var unaryExpression = (UnaryExpression)expression;
 
-                    if ((unaryExpression.Type.IsNullableType() 
-                        && !unaryExpression.Operand.Type.IsNullableType())
+                    if ((unaryExpression.Type.IsNullableType()
+                         && !unaryExpression.Operand.Type.IsNullableType())
                         || unaryExpression.Type == typeof(object))
                     {
                         e = unaryExpression.Operand;

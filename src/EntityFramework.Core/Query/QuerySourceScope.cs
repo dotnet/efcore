@@ -15,19 +15,19 @@ namespace Microsoft.Data.Entity.Query
     {
         private static readonly MethodInfo _createMethodInfo
             = typeof(QuerySourceScope).GetTypeInfo()
-                .GetDeclaredMethods("Create").FirstOrDefault(m => m.IsStatic && !m.IsPublic);
+                .GetDeclaredMethods(nameof(Create)).FirstOrDefault(m => m.IsStatic && !m.IsPublic);
 
         private static readonly MethodInfo _getResultMethodInfo
             = typeof(QuerySourceScope).GetTypeInfo()
-                .GetDeclaredMethods("GetResult").FirstOrDefault(m => !m.IsStatic && !m.IsPublic);
+                .GetDeclaredMethods(nameof(GetResult)).FirstOrDefault(m => !m.IsStatic && !m.IsPublic);
 
         private static readonly MethodInfo _getFirstResultMethodInfo
             = typeof(QuerySourceScope).GetTypeInfo()
-                .GetDeclaredMethods("GetFirstResult").FirstOrDefault(m => !m.IsStatic && !m.IsPublic);
+                .GetDeclaredMethods(nameof(GetFirstResult)).FirstOrDefault(m => !m.IsStatic && !m.IsPublic);
 
         private static readonly MethodInfo _joinMethodInfo
             = typeof(QuerySourceScope).GetTypeInfo()
-                .GetDeclaredMethods("Join").FirstOrDefault(m => m.IsStatic && !m.IsPublic);
+                .GetDeclaredMethods(nameof(Join)).FirstOrDefault(m => m.IsStatic && !m.IsPublic);
 
         public static Expression Join(
             [NotNull] IQuerySource querySource,

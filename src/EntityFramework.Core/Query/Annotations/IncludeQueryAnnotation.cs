@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Query.Annotations
 {
     public class IncludeQueryAnnotation : QueryAnnotation
     {
-        private List<PropertyInfo> _chainedNavigationProperties;
+        private readonly List<PropertyInfo> _chainedNavigationProperties;
 
         public virtual Expression NavigationPropertyPath { get; }
 
@@ -36,10 +36,10 @@ namespace Microsoft.Data.Entity.Query.Annotations
 
         public override string ToString()
             => "Include("
-                + FormattingExpressionTreeVisitor.Format(NavigationPropertyPath)
-                    + (_chainedNavigationProperties.Count > 0
-                        ? _chainedNavigationProperties.Select(p => p.Name).Join(".")
-                        : string.Empty)
-                + ")";
+               + FormattingExpressionTreeVisitor.Format(NavigationPropertyPath)
+               + (_chainedNavigationProperties.Count > 0
+                   ? _chainedNavigationProperties.Select(p => p.Name).Join(".")
+                   : string.Empty)
+               + ")";
     }
 }

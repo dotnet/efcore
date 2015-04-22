@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static readonly MethodInfo _getResultMethodInfo
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("GetResult");
+                .GetDeclaredMethod(nameof(GetResult));
 
         [UsedImplicitly]
         private static async Task<TResult> GetResult<TResult>(
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static readonly MethodInfo _queryMethodInfo
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("_Query");
+                .GetDeclaredMethod(nameof(_Query));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _Query<T>(
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static readonly MethodInfo _includeMethodInfo
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("_Include");
+                .GetDeclaredMethod(nameof(_Include));
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _Include<T>(
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static readonly MethodInfo _createReferenceIncludeStrategyMethodInfo
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("_CreateReferenceIncludeStrategy");
+                .GetDeclaredMethod(nameof(_CreateReferenceIncludeStrategy));
 
         [UsedImplicitly]
         private static IAsyncIncludeRelatedValuesStrategy _CreateReferenceIncludeStrategy(
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static readonly MethodInfo _createCollectionIncludeStrategyMethodInfo
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod("_CreateCollectionIncludeStrategy");
+                .GetDeclaredMethod(nameof(_CreateCollectionIncludeStrategy));
 
         [UsedImplicitly]
         private static IAsyncIncludeRelatedValuesStrategy _CreateCollectionIncludeStrategy(
