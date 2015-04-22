@@ -145,12 +145,15 @@
     <Compile Include="Migrations\Sql\IMigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Sql\MigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Infrastructure\ModelDiffer.cs" />
+    <Compile Include="NonTypedValueReaderFactory.cs" />
+    <Compile Include="NonTypedValueReaderFactoryFactory.cs" />
     <Compile Include="Query\Annotations\FromSqlQueryAnnotation.cs" />
     <Compile Include="Query\AsyncQueryingEnumerable.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\CommandBuilder.cs" />
     <Compile Include="Query\CommandParameter.cs" />
     <Compile Include="Query\Expressions\NotNullableExpression.cs" />
+    <Compile Include="Query\Expressions\ValueReaderFactoryExpression.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\CompositeRelationalExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EqualityPredicateExpandingVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EqualityPredicateInExpressionOptimizer.cs" />
@@ -180,7 +183,6 @@
     <Compile Include="Query\ExpressionTreeVisitors\QueryFlatteningExpressionTreeVisitor.cs" />
     <Compile Include="Query\IRelationalQueryContextFactory.cs" />
     <Compile Include="Query\Methods\ContainsTranslator.cs" />
-    <Compile Include="Query\OffsetValueReaderDecorator.cs" />
     <Compile Include="Query\QueryingEnumerable.cs" />
     <Compile Include="Query\QueryMethodProvider.cs" />
     <Compile Include="Query\Expressions\CountExpression.cs" />
@@ -244,6 +246,8 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+    <Compile Include="TypedValueReaderFactory.cs" />
+    <Compile Include="TypedValueReaderFactoryFactory.cs" />
     <Compile Include="Update\BatchExecutor.cs" />
     <Compile Include="Update\ColumnModification.cs" />
     <Compile Include="Update\CommandBatchPreparer.cs" />

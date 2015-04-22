@@ -111,7 +111,6 @@
     <Compile Include="Query\SqlServerQueryCompilationContext.cs" />
     <Compile Include="Query\SqlServerQueryContextFactory.cs" />
     <Compile Include="Query\SqlServerQueryGenerator.cs" />
-    <Compile Include="Query\SqlServerValueReaderFactory.cs" />
     <Compile Include="Query\SqlServerValueReaderFactoryFactory.cs" />
     <Compile Include="SqlServerBuilderExtensions.cs" />
     <Compile Include="SqlServerDatabase.cs" />

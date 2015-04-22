@@ -716,10 +716,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class TestValueReaderFactoryFactory : IRelationalValueReaderFactoryFactory
         {
-            public IRelationalValueReaderFactory CreateValueReaderFactory()
-            {
-                return new TestValueReaderFactory();
-            }
+            public virtual IRelationalValueReaderFactory CreateValueReaderFactory(IEnumerable<Type> valueTypes, int offset)
+                => new TestValueReaderFactory();
         }
     }
 }

@@ -155,10 +155,14 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             Expression.Call(
                                 _queryCompilationContext.QueryMethodProvider
                                     .CreateReferenceIncludeRelatedValuesStrategyMethod,
-                                Expression.Convert(EntityQueryModelVisitor.QueryContextParameter, typeof(RelationalQueryContext)),
-                                Expression.Constant(_queryCompilationContext.ValueReaderFactoryFactory.CreateValueReaderFactory()),
+                                Expression.Convert(
+                                    EntityQueryModelVisitor.QueryContextParameter, 
+                                    typeof(RelationalQueryContext)),
+                                Expression.Constant(
+                                    _queryCompilationContext.ValueReaderFactoryFactory.CreateValueReaderFactory(
+                                        selectExpression.GetProjectionTypes().Skip(readerOffset),
+                                        readerOffset)),
                                 Expression.Constant(readerIndex),
-                                Expression.Constant(readerOffset),
                                 materializer));
                 }
                 else
@@ -249,7 +253,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                             _queryCompilationContext.CreateSqlQueryGenerator(targetSelectExpression))),
                                     Expression.Lambda(
                                         Expression.Call(
-                                            Expression.Constant(_queryCompilationContext.ValueReaderFactoryFactory.CreateValueReaderFactory()),
+                                            Expression.Constant(
+                                                _queryCompilationContext.ValueReaderFactoryFactory.CreateValueReaderFactory(
+                                                    selectExpression.GetProjectionTypes(), 
+                                                    0)),
                                             _createValueReaderMethod,
                                             readerParameter),
                                         readerParameter)),

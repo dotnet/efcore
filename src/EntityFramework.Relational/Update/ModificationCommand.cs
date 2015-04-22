@@ -18,12 +18,13 @@ namespace Microsoft.Data.Entity.Relational.Update
     {
         private readonly Func<IProperty, IRelationalPropertyExtensions> _getPropertyExtensions;
         private readonly IBoxedValueReaderSource _boxedValueReaderSource;
+        private readonly IRelationalValueReaderFactoryFactory _valueReaderFactoryFactory;
         private readonly List<InternalEntityEntry> _entries = new List<InternalEntityEntry>();
 
         private readonly LazyRef<IReadOnlyList<ColumnModification>> _columnModifications
             = new LazyRef<IReadOnlyList<ColumnModification>>(() => new ColumnModification[0]);
 
-        private readonly IRelationalValueReaderFactory _valueReaderFactory;
+        private readonly LazyRef<IRelationalValueReaderFactory> _valueReaderFactory;
 
         private bool _requiresResultPropagation;
 
@@ -39,15 +40,16 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
             Check.NotNull(getPropertyExtensions, nameof(getPropertyExtensions));
             Check.NotNull(boxedValueReaderSource, nameof(boxedValueReaderSource));
+            Check.NotNull(valueReaderFactoryFactory, nameof(valueReaderFactoryFactory));
 
             TableName = tableName;
             SchemaName = schemaName;
             ParameterNameGenerator = parameterNameGenerator;
             _getPropertyExtensions = getPropertyExtensions;
             _boxedValueReaderSource = boxedValueReaderSource;
+            _valueReaderFactoryFactory = valueReaderFactoryFactory;
 
-            // TODO: Use type information to create value reader factory
-            _valueReaderFactory = valueReaderFactoryFactory.CreateValueReaderFactory();
+            _valueReaderFactory = new LazyRef<IRelationalValueReaderFactory>(CreateValueReaderFactory);
         }
 
         public virtual string TableName { get; }
@@ -60,7 +62,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public virtual IReadOnlyList<ColumnModification> ColumnModifications => _columnModifications.Value;
 
-        public virtual IRelationalValueReaderFactory ValueReaderFactory => _valueReaderFactory;
+        public virtual IRelationalValueReaderFactory ValueReaderFactory => _valueReaderFactory.Value;
 
         public virtual bool RequiresResultPropagation
         {
@@ -97,6 +99,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             _entries.Add(entry);
             _columnModifications.Reset(GenerateColumnModifications);
+            _valueReaderFactory.Reset(CreateValueReaderFactory);
 
             return this;
         }
@@ -142,6 +145,13 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             return columnModifications;
         }
+
+        private IRelationalValueReaderFactory CreateValueReaderFactory()
+            => _valueReaderFactoryFactory
+                .CreateValueReaderFactory(
+                    ColumnModifications
+                        .Where(c => c.IsRead)
+                        .Select(c => c.Property.ClrType), 0);
 
         public virtual void PropagateResults([NotNull] IValueReader reader)
         {

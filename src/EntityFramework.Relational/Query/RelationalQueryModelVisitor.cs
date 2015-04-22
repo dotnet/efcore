@@ -65,6 +65,11 @@ namespace Microsoft.Data.Entity.Relational.Query
                 : _queriesBySource.Values.SingleOrDefault(se => se.HandlesQuerySource(querySource)));
         }
 
+        public virtual IEnumerable<Type> GetProjectionTypes([NotNull] IQuerySource querySource)
+            => (TryGetQuery(Check.NotNull(querySource, nameof(querySource)))
+                ?? _queriesBySource.First().Value)
+                .GetProjectionTypes();
+
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -459,7 +464,6 @@ namespace Microsoft.Data.Entity.Relational.Query
             QuerySourceScope parentQuerySourceScope,
             IRelationalValueReaderFactory valueReaderFactory,
             DbDataReader dataReader,
-            int readerOffset,
             IEntityType entityType,
             bool queryStateManager,
             EntityKeyFactory entityKeyFactory,
@@ -468,11 +472,6 @@ namespace Microsoft.Data.Entity.Relational.Query
             where TEntity : class
         {
             var valueReader = valueReaderFactory.CreateValueReader(dataReader);
-
-            if (readerOffset > 0)
-            {
-                valueReader = new OffsetValueReaderDecorator(valueReader, readerOffset);
-            }
 
             var entityKey
                 = entityKeyFactory.Create(entityType, keyProperties, valueReader);

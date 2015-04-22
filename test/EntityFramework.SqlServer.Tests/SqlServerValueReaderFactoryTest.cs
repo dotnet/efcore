@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer.Query;
@@ -15,7 +16,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Creates_RelationalObjectArrayValueReader()
         {
             Assert.IsType<RelationalObjectArrayValueReader>(
-                new SqlServerValueReaderFactory().CreateValueReader(Mock.Of<DbDataReader>()));
+                new SqlServerValueReaderFactoryFactory().CreateValueReaderFactory(new Type[0], 0)
+                    .CreateValueReader(Mock.Of<DbDataReader>()));
         }
     }
 }
