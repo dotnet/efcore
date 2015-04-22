@@ -2,12 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.Common;
+using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -93,12 +92,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class TestValueReaderFactoryFactory : IRelationalValueReaderFactoryFactory
         {
-            public IRelationalValueReaderFactory CreateValueReaderFactory() => new TestValueReaderFactory();
-        }
-
-        private class TestValueReaderFactory : IRelationalValueReaderFactory
-        {
-            public IValueReader CreateValueReader(DbDataReader dataReader) => new RelationalTypedValueReader(dataReader);
+            public virtual IRelationalValueReaderFactory CreateValueReaderFactory(IEnumerable<Type> valueTypes, int offset)
+                => new NonTypedValueReaderFactory(offset);
         }
     }
 }

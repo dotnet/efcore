@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public interface IRelationalValueReaderFactoryFactory
+    public class NonTypedValueReaderFactoryFactory : IRelationalValueReaderFactoryFactory
     {
-        IRelationalValueReaderFactory CreateValueReaderFactory([NotNull] IEnumerable<Type> valueTypes, int offset);
+        public virtual IRelationalValueReaderFactory CreateValueReaderFactory(IEnumerable<Type> valueTypes, int offset)
+            => new NonTypedValueReaderFactory(offset);
     }
 }

@@ -90,7 +90,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public class TestTypedValueReaderFactoryFactory : ISqlServerValueReaderFactoryFactory
         {
-            public IRelationalValueReaderFactory CreateValueReaderFactory() => new TestTypedValueReaderFactory();
+            public IRelationalValueReaderFactory CreateValueReaderFactory(IEnumerable<Type> valueTypes, int offset) 
+                => new TestTypedValueReaderFactory();
         }
 
         public class TestTypedValueReaderFactory : IRelationalValueReaderFactory

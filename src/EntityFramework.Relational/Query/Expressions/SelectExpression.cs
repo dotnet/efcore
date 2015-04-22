@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         private Expression _projectionExpression;
         private bool _isDistinct;
 
-        public virtual Expression Predicate { get;[param: CanBeNull] set; }
+        public virtual Expression Predicate { get; [param: CanBeNull] set; }
 
         public SelectExpression()
             : base(null, null)
@@ -51,14 +51,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var selectExpression
                 = new SelectExpression(alias)
-                {
-                    _limit = _limit,
-                    _offset = _offset,
-                    _isDistinct = _isDistinct,
-                    _subqueryDepth = _subqueryDepth,
-                    _projectStar = _projectStar,
-                    Predicate = Predicate
-                };
+                    {
+                        _limit = _limit,
+                        _offset = _offset,
+                        _isDistinct = _isDistinct,
+                        _subqueryDepth = _subqueryDepth,
+                        _projectStar = _projectStar,
+                        Predicate = Predicate
+                    };
 
             selectExpression._projection.AddRange(_projection);
 
@@ -196,7 +196,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             foreach (var aliasExpression in _projection.OfType<AliasExpression>())
             {
                 var columnExpression = aliasExpression.GetColumnExpression();
-                if (columnExpression != null && subquery._projection.OfType<AliasExpression>().Any(ae => 
+                if (columnExpression != null
+                    && subquery._projection.OfType<AliasExpression>().Any(ae =>
                         ae.ColumnExpression()?.Name == columnExpression.Name))
                 {
                     aliasExpression.Alias = "c" + columnAliasCounter++;
@@ -249,7 +250,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 projectionIndex = _projection.Count;
 
                 AddAliasToProjection(
-                    alias: null, 
+                    alias: null,
                     expression: new ColumnExpression(column, property, FindTableForQuerySource(querySource)));
             }
 
@@ -292,23 +293,25 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             projectionIndex
                 = _projection
                     .FindIndex(e =>
-                    {
-                        var ae = e as AliasExpression;
-                        var ce = e.GetColumnExpression();
+                        {
+                            var ae = e as AliasExpression;
+                            var ce = e.GetColumnExpression();
 
-                        return (ce != null && ce.Property == columnExpression?.Property
-                                && ce.TableAlias == columnExpression.TableAlias)
-                                || ae?.Expression == expression;
-                    });
+                            return (ce != null && ce.Property == columnExpression?.Property
+                                    && ce.TableAlias == columnExpression.TableAlias)
+                                   || ae?.Expression == expression;
+                        });
 
             if (projectionIndex == -1)
             {
-                if (Alias != null || columnExpression == null)
+                if (Alias != null
+                    || columnExpression == null)
                 {
                     var currentAlias = alias ?? columnExpression?.Name ?? expression.NodeType.ToString();
                     var uniqueAlias = CreateUniqueProjectionAlias(currentAlias);
 
-                    if (columnExpression == null || !string.Equals(currentAlias, uniqueAlias, StringComparison.OrdinalIgnoreCase))
+                    if (columnExpression == null
+                        || !string.Equals(currentAlias, uniqueAlias, StringComparison.OrdinalIgnoreCase))
                     {
                         alias = uniqueAlias;
                     }
@@ -332,6 +335,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             return projectionIndex;
         }
+
+        public virtual IEnumerable<Type> GetProjectionTypes()
+            => _projection.Select(p => p.Type)
+                .Concat(_tables.OfType<SelectExpression>().SelectMany(e => e.GetProjectionTypes()));
 
         public virtual int AddToProjection([NotNull] ColumnExpression columnExpression)
         {
@@ -629,6 +636,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 }
             }
         }
+
         private static Ordering UpdateColumnExpression(Ordering ordering, TableExpressionBase tableExpression)
         {
             var newExpression = UpdateColumnExpression(ordering.Expression, tableExpression);
@@ -653,20 +661,20 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             switch (expression.NodeType)
             {
                 case ExpressionType.Coalesce:
-                    {
-                        var binaryExpression = expression as BinaryExpression;
-                        var left = UpdateColumnExpression(binaryExpression.Left, tableExpression);
-                        var right = UpdateColumnExpression(binaryExpression.Right, tableExpression);
-                        return binaryExpression.Update(left, binaryExpression.Conversion, right);
-                    }
+                {
+                    var binaryExpression = expression as BinaryExpression;
+                    var left = UpdateColumnExpression(binaryExpression.Left, tableExpression);
+                    var right = UpdateColumnExpression(binaryExpression.Right, tableExpression);
+                    return binaryExpression.Update(left, binaryExpression.Conversion, right);
+                }
                 case ExpressionType.Conditional:
-                    {
-                        var conditionalExpression = expression as ConditionalExpression;
-                        var test = UpdateColumnExpression(conditionalExpression.Test, tableExpression);
-                        var ifTrue = UpdateColumnExpression(conditionalExpression.IfTrue, tableExpression);
-                        var ifFalse = UpdateColumnExpression(conditionalExpression.IfFalse, tableExpression);
-                        return conditionalExpression.Update(test, ifTrue, ifFalse);
-                    }
+                {
+                    var conditionalExpression = expression as ConditionalExpression;
+                    var test = UpdateColumnExpression(conditionalExpression.Test, tableExpression);
+                    var ifTrue = UpdateColumnExpression(conditionalExpression.IfTrue, tableExpression);
+                    var ifFalse = UpdateColumnExpression(conditionalExpression.IfFalse, tableExpression);
+                    return conditionalExpression.Update(test, ifTrue, ifFalse);
+                }
             }
             return expression;
         }

@@ -121,11 +121,10 @@ namespace Microsoft.Data.Entity.Relational.Query
             RelationalQueryContext relationalQueryContext,
             IRelationalValueReaderFactory valueReaderFactory,
             int readerIndex,
-            int readerOffset,
             Func<IValueReader, object> materializer)
         {
             return new ReferenceIncludeRelatedValuesStrategy(
-                relationalQueryContext, valueReaderFactory, readerIndex, readerOffset, materializer);
+                relationalQueryContext, valueReaderFactory, readerIndex, materializer);
         }
 
         private class ReferenceIncludeRelatedValuesStrategy : IIncludeRelatedValuesStrategy
@@ -133,20 +132,17 @@ namespace Microsoft.Data.Entity.Relational.Query
             private readonly RelationalQueryContext _queryContext;
             private readonly IRelationalValueReaderFactory _valueReaderFactory;
             private readonly int _readerIndex;
-            private readonly int _readerOffset;
             private readonly Func<IValueReader, object> _materializer;
 
             public ReferenceIncludeRelatedValuesStrategy(
                 RelationalQueryContext queryContext,
                 IRelationalValueReaderFactory valueReaderFactory,
                 int readerIndex,
-                int readerOffset,
                 Func<IValueReader, object> materializer)
             {
                 _queryContext = queryContext;
                 _valueReaderFactory = valueReaderFactory;
                 _readerIndex = readerIndex;
-                _readerOffset = readerOffset;
                 _materializer = materializer;
             }
 
@@ -154,9 +150,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 yield return
                     new EntityLoadInfo(
-                        new OffsetValueReaderDecorator(
-                            _valueReaderFactory.CreateValueReader(_queryContext.GetDataReader(_readerIndex)),
-                            _readerOffset),
+                        _valueReaderFactory.CreateValueReader(_queryContext.GetDataReader(_readerIndex)),
                         _materializer);
             }
 

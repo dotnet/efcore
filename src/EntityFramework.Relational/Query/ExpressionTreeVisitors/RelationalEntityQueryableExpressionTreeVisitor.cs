@@ -130,8 +130,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         Expression.Constant(QuerySource),
                         EntityQueryModelVisitor.QueryContextParameter,
                         EntityQueryModelVisitor.QuerySourceScopeParameter,
-                        Expression.Constant(QueryModelVisitor.QueryCompilationContext.ValueReaderFactoryFactory.CreateValueReaderFactory()),
-                        _readerParameter
+                        new ValueReaderFactoryExpression(
+                            QueryModelVisitor.QueryCompilationContext.ValueReaderFactoryFactory,
+                            () => QueryModelVisitor.GetProjectionTypes(QuerySource),
+                            0),
+                        _readerParameter,
                     };
 
             if (QueryModelVisitor.QuerySourceRequiresMaterialization(QuerySource))
@@ -165,7 +168,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 queryMethodArguments.AddRange(
                     new[]
                         {
-                            Expression.Constant(0),
                             Expression.Constant(entityType),
                             Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(QuerySource)),
                             Expression.Constant(keyFactory),

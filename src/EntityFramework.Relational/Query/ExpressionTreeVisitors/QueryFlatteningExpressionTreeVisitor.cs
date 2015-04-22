@@ -1,12 +1,15 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
+using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -87,10 +90,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     if (newArguments.Count == RelationalQueryModelVisitor.CreateEntityMethodInfo.GetParameters().Length)
                     {
-                        newArguments[5]
-                            = Expression.Constant(
-                                _readerOffset
-                                + (int)((ConstantExpression)newArguments[5]).Value);
+                        var oldValueReaderFactory = (ValueReaderFactoryExpression)newArguments[3];
+
+                        newArguments[3] = new ValueReaderFactoryExpression(
+                            _relationalQueryCompilationContext.ValueReaderFactoryFactory,
+                            () => oldValueReaderFactory.TypesFactory().Skip(oldValueReaderFactory.Offset),
+                            _readerOffset + oldValueReaderFactory.Offset);
                     }
 
                     newExpression
