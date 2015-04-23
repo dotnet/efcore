@@ -162,10 +162,26 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual bool IsAbstract => ClrType?.GetTypeInfo().IsAbstract ?? false;
 
-        public virtual string Name => ClrType?.FullName ?? (string)_typeOrName;
+        public virtual string Name
+        {
+            get
+            {
+                if (ClrType != null)
+                {
+                    return TypeNameHelper.GetTypeDisplayName(ClrType) ?? (string)_typeOrName;
+                }
+                return (string)_typeOrName;
+            }
+        }
 
-        public virtual string DisplayName() => ClrType?.Name ?? ParseSimpleName();
-
+        public virtual string DisplayName()
+        {
+            if (ClrType != null)
+            {
+                return TypeNameHelper.GetTypeDisplayName(ClrType, false) ?? ParseSimpleName();
+            }
+            return ParseSimpleName();
+        }
         private string ParseSimpleName()
         {
             var fullName = (string)_typeOrName;

@@ -277,20 +277,28 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Simple_name_is_simple_CLR_name()
+        public void Display_name_is_prettified_CLR_name()
         {
             Assert.Equal("EntityTypeTest", new EntityType(typeof(EntityTypeTest), new Model()).DisplayName());
             Assert.Equal("Customer", new EntityType(typeof(Customer), new Model()).DisplayName());
-            Assert.Equal("List`1", new EntityType(typeof(List<Customer>), new Model()).DisplayName());
+            Assert.Equal("List<Customer>", new EntityType(typeof(List<Customer>), new Model()).DisplayName());
         }
 
         [Fact]
-        public void Simple_name_is_part_of_name_following_final_separator_when_no_CLR_type()
+        public void Display_name_is_part_of_name_following_final_separator_when_no_CLR_type()
         {
             Assert.Equal("Everything", new EntityType("Everything", new Model()).DisplayName());
             Assert.Equal("Is", new EntityType("Everything.Is", new Model()).DisplayName());
             Assert.Equal("Awesome", new EntityType("Everything.Is.Awesome", new Model()).DisplayName());
             Assert.Equal("WhenWe`reLivingOurDream", new EntityType("Everything.Is.Awesome+WhenWe`reLivingOurDream", new Model()).DisplayName());
+        }
+
+        [Fact]
+        public void Name_is_prettified_CLR_full_name()
+        {
+            Assert.Equal("Microsoft.Data.Entity.Tests.Metadata.EntityTypeTest", new EntityType(typeof(EntityTypeTest), new Model()).Name);
+            Assert.Equal("Microsoft.Data.Entity.Tests.Metadata.EntityTypeTest+Customer", new EntityType(typeof(Customer), new Model()).Name);
+            Assert.Equal("System.Collections.Generic.List<Microsoft.Data.Entity.Tests.Metadata.EntityTypeTest+Customer>", new EntityType(typeof(List<Customer>), new Model()).Name);
         }
 
         [Fact]

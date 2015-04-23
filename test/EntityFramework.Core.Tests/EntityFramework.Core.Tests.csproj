@@ -167,6 +167,7 @@
     <Compile Include="Utilities\ThreadSafeDictionaryCacheTest.cs" />
     <Compile Include="Utilities\ThreadSafeLazyRefTest.cs" />
     <Compile Include="Utilities\TypeExtensionsTest.cs" />
+    <Compile Include="Utilities\TypeNameHelperTest.cs" />
     <Compile Include="ValueGeneration\GuidValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\SequentialGuidValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorCacheTest.cs" />

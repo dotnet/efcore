@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
 
@@ -29,7 +30,7 @@ namespace Microsoft.Data.Entity.Tests
             var model = CreateDefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object, new ModelBuilderFactory());
 
             Assert.Equal(
-                new[] { typeof(object).FullName, typeof(Random).FullName },
+                new[] { TypeNameHelper.GetTypeDisplayName(typeof(Random)), TypeNameHelper.GetTypeDisplayName(typeof(object)) },
                 model.EntityTypes.Select(e => e.Name).ToArray());
         }
 
