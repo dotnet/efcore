@@ -239,15 +239,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Order>(
                 os => os.Select(o => new
-                    {
-                        o.OrderID,
-                        Double = o.OrderID * 2,
-                        Add = o.OrderID + 23,
-                        Sub = 100000 - o.OrderID,
-                        Divide = o.OrderID / (o.OrderID / 2),
-                        Literal = 42,
-                        o
-                    }),
+                {
+                    o.OrderID,
+                    Double = o.OrderID * 2,
+                    Add = o.OrderID + 23,
+                    Sub = 100000 - o.OrderID,
+                    Divide = o.OrderID / (o.OrderID / 2),
+                    Literal = 42,
+                    o
+                }),
                 entryCount: 830);
         }
 
@@ -258,14 +258,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 from o in os
                 from e in es
                 select new
-                    {
-                        Add = e.EmployeeID + o.OrderID,
-                        o.OrderID,
-                        o,
-                        Literal = 42,
-                        e.EmployeeID,
-                        e
-                    });
+                {
+                    Add = e.EmployeeID + o.OrderID,
+                    o.OrderID,
+                    o,
+                    Literal = 42,
+                    e.EmployeeID,
+                    e
+                });
         }
 
         [Fact]
@@ -275,14 +275,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 from o in os.Select(o2 => new { o2, Mod = o2.OrderID % 2 })
                 from e in es.Select(e2 => new { e2, Square = e2.EmployeeID ^ 2 })
                 select new
-                    {
-                        Add = e.e2.EmployeeID + o.o2.OrderID,
-                        e.Square,
-                        e.e2,
-                        Literal = 42,
-                        o.o2,
-                        o.Mod
-                    });
+                {
+                    Add = e.e2.EmployeeID + o.o2.OrderID,
+                    e.Square,
+                    e.e2,
+                    Literal = 42,
+                    o.o2,
+                    o.Mod
+                });
         }
 
         [Fact]
@@ -700,7 +700,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Where_client_deep_inside_predicate_and_server_top_level()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.CustomerID != "ALFKI" && (c.CustomerID == "FUBAR" || (c.CustomerID != "AROUT" && c.IsLondon)) ),
+                cs => cs.Where(c => c.CustomerID != "ALFKI" && (c.CustomerID == "FUBAR" || (c.CustomerID != "AROUT" && c.IsLondon))),
                 entryCount: 5);
         }
 
@@ -1435,17 +1435,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .OrderBy(o => o),
                 asserter:
                     (l2oResults, efResults) =>
-                        {
-                            var l2oObjects
-                                = l2oResults
-                                    .SelectMany(q1 => ((IEnumerable<int>)q1));
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<int>)q1));
 
-                            var efObjects
-                                = efResults
-                                    .SelectMany(q1 => ((IEnumerable<int>)q1));
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<int>)q1));
 
-                            Assert.Equal(l2oObjects, efObjects);
-                        });
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
         }
 
         [Fact]
@@ -1457,19 +1457,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Where(o => o.CustomerID == c.CustomerID),
                 asserter:
                     (l2oResults, efResults) =>
-                        {
-                            var l2oObjects
-                                = l2oResults
-                                    .SelectMany(q1 => ((IEnumerable<Order>)q1))
-                                    .OrderBy(o => o.OrderID);
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
 
-                            var efObjects
-                                = efResults
-                                    .SelectMany(q1 => ((IEnumerable<Order>)q1))
-                                    .OrderBy(o => o.OrderID);
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
 
-                            Assert.Equal(l2oObjects, efObjects);
-                        });
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
         }
 
         [Fact]
@@ -1480,19 +1480,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select os.Where(o => o.CustomerID == c.CustomerID),
                 asserter:
                     (l2oResults, efResults) =>
-                        {
-                            var l2oObjects
-                                = l2oResults
-                                    .SelectMany(q1 => ((IEnumerable<Order>)q1))
-                                    .OrderBy(o => o.OrderID);
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
 
-                            var efObjects
-                                = efResults
-                                    .SelectMany(q1 => ((IEnumerable<Order>)q1))
-                                    .OrderBy(o => o.OrderID);
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                .OrderBy(o => o.OrderID);
 
-                            Assert.Equal(l2oObjects, efObjects);
-                        });
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
         }
 
         // TODO: Re-linq parser
@@ -1522,14 +1522,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 },
                 asserter:
                     (l2oResults, efResults) =>
-                        {
-                            dynamic l2oResult = l2oResults.Single();
-                            dynamic efResult = efResults.Single();
+                    {
+                        dynamic l2oResult = l2oResults.Single();
+                        dynamic efResult = efResults.Single();
 
-                            Assert.Equal(l2oResult.CustomerId, efResult.CustomerId);
-                            Assert.Equal((IEnumerable<int>)l2oResult.OrderIds, (IEnumerable<int>)efResult.OrderIds);
-                            Assert.Equal(l2oResult.Customer, efResult.Customer);
-                        });
+                        Assert.Equal(l2oResult.CustomerId, efResult.CustomerId);
+                        Assert.Equal((IEnumerable<int>)l2oResult.OrderIds, (IEnumerable<int>)efResult.OrderIds);
+                        Assert.Equal(l2oResult.Customer, efResult.Customer);
+                    });
         }
 
         [Fact]
@@ -1544,19 +1544,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
                                     select e3)),
                 asserter:
                     (l2oResults, efResults) =>
-                        {
-                            var l2oObjects
-                                = l2oResults
-                                    .SelectMany(q1 => ((IEnumerable<object>)q1)
-                                        .SelectMany(q2 => (IEnumerable<object>)q2));
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<object>)q1)
+                                    .SelectMany(q2 => (IEnumerable<object>)q2));
 
-                            var efObjects
-                                = efResults
-                                    .SelectMany(q1 => ((IEnumerable<object>)q1)
-                                        .SelectMany(q2 => (IEnumerable<object>)q2));
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<object>)q1)
+                                    .SelectMany(q2 => (IEnumerable<object>)q2));
 
-                            Assert.Equal(l2oObjects, efObjects);
-                        });
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
         }
 
         // TODO: [Fact] See #153
@@ -1613,19 +1613,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
                                 select o1.OrderID)),
                 asserter:
                     (l2oResults, efResults) =>
-                        {
-                            var l2oObjects
-                                = l2oResults
-                                    .SelectMany(q1 => ((IEnumerable<object>)q1)
-                                        .SelectMany(q2 => (IEnumerable<int>)q2));
+                    {
+                        var l2oObjects
+                            = l2oResults
+                                .SelectMany(q1 => ((IEnumerable<object>)q1)
+                                    .SelectMany(q2 => (IEnumerable<int>)q2));
 
-                            var efObjects
-                                = efResults
-                                    .SelectMany(q1 => ((IEnumerable<object>)q1)
-                                        .SelectMany(q2 => (IEnumerable<int>)q2));
+                        var efObjects
+                            = efResults
+                                .SelectMany(q1 => ((IEnumerable<object>)q1)
+                                    .SelectMany(q2 => (IEnumerable<int>)q2));
 
-                            Assert.Equal(l2oObjects, efObjects);
-                        });
+                        Assert.Equal(l2oObjects, efObjects);
+                    });
         }
 
         [Fact]
@@ -1917,15 +1917,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 join o in os.OrderBy(o => o.OrderID) on c.CustomerID equals o.CustomerID into orders
                 select new { customer = c, orders = orders.ToList() },
                 asserter: (l2oItems, efItems) =>
+                {
+                    foreach (var pair in
+                        from dynamic l2oItem in l2oItems
+                        join dynamic efItem in efItems on l2oItem.customer equals efItem.customer
+                        select new { l2oItem, efItem })
                     {
-                        foreach (var pair in
-                            from dynamic l2oItem in l2oItems
-                            join dynamic efItem in efItems on l2oItem.customer equals efItem.customer
-                            select new { l2oItem, efItem })
-                        {
-                            Assert.Equal(pair.l2oItem.orders, pair.efItem.orders);
-                        }
-                    });
+                        Assert.Equal(pair.l2oItem.orders, pair.efItem.orders);
+                    }
+                });
         }
 
         [Fact]
@@ -2009,8 +2009,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 (from c in cs
-                     from o in os
-                     select c.CustomerID).LongCount());
+                 from o in os
+                 select c.CustomerID).LongCount());
         }
 
         [Fact]
@@ -3100,7 +3100,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Contains_with_local_list_inline()
         {
             AssertQuery<Customer>(cs =>
-                cs.Where(c => new List<string>{ "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+                cs.Where(c => new List<string> { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [Fact]
@@ -3247,8 +3247,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Select_take_skip_null_coalesce_operator()
         {
-                AssertQuery<Customer>(
-                cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(10).Skip(5));
+            AssertQuery<Customer>(
+            cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(10).Skip(5));
         }
 
         [Fact]
@@ -3257,8 +3257,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var customers = (from c in context.Set<Customer>()
-                    orderby c.Region ?? "ZZ"
-                    select c)
+                                 orderby c.Region ?? "ZZ"
+                                 select c)
                     .ToList();
 
                 Assert.Equal(91, customers.Count);

@@ -28,7 +28,6 @@ namespace Microsoft.Data.Entity.InMemory.Query
             _dataStore = dataStore;
         }
 
-        public override QueryContext CreateQueryContext()
-            => new InMemoryQueryContext(Logger, CreateQueryBuffer(), StateManager, _dataStore.Database);
+        public override QueryContext CreateQueryContext() => new InMemoryQueryContext(Logger, CreateQueryBuffer(), _dataStore.Database);
     }
 }

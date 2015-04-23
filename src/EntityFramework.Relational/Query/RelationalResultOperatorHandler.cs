@@ -312,14 +312,6 @@ namespace Microsoft.Data.Entity.Relational.Query
                         .VisitExpression(handlerContext.SelectExpression.Predicate);
             }
 
-            if (handlerContext.QueryModelVisitor.IsWrappingResults)
-            {
-                return Expression.Call(
-                    handlerContext.QueryModelVisitor.LinqOperatorProvider.CastWrappedResult
-                        .MakeGenericMethod(ofTypeResultOperator.SearchedItemType),
-                    handlerContext.QueryModelVisitor.Expression);
-            }
-
             return Expression.Call(
                 handlerContext.QueryModelVisitor.LinqOperatorProvider.Cast
                     .MakeGenericMethod(ofTypeResultOperator.SearchedItemType),

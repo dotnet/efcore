@@ -59,13 +59,30 @@ namespace Microsoft.Data.Entity.Utilities
             while (firstEnumerator.MoveNext())
             {
                 if (!secondEnumerator.MoveNext()
-                    || !StructuralComparisons.StructuralEqualityComparer.Equals(firstEnumerator.Current, secondEnumerator.Current))
+                    || !StructuralComparisons.StructuralEqualityComparer
+                        .Equals(firstEnumerator.Current, secondEnumerator.Current))
                 {
                     return false;
                 }
             }
 
             return !secondEnumerator.MoveNext();
+        }
+
+        public static IEnumerable<TSource> Finally<TSource>(
+            [NotNull] this IEnumerable<TSource> source, [NotNull] Action finallyAction)
+        {
+            try
+            {
+                foreach (var item in source)
+                {
+                    yield return item;
+                }
+            }
+            finally
+            {
+                finallyAction();
+            }
         }
     }
 }

@@ -1012,6 +1012,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicatePropertiesOnBase", "entityType", "baseType", "properties"), entityType, baseType, properties);
         }
 
+        /// <summary>
+        /// The instance of entity type '{entityType}' cannot be loaded because it has an invalid (e.g. null or CLR default) primary key.
+        /// </summary>
+        public static string InvalidEntityKeyOnQuery([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEntityKeyOnQuery", "entityType"), entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

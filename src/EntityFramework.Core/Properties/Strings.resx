@@ -492,4 +492,7 @@
   <data name="DuplicatePropertiesOnBase" xml:space="preserve">
     <value>The type '{entityType}' cannot have base type '{baseType}' because both types include the properties: {properties}.</value>
   </data>
+  <data name="InvalidEntityKeyOnQuery" xml:space="preserve">
+    <value>The instance of entity type '{entityType}' cannot be loaded because it has an invalid (e.g. null or CLR default) primary key.</value>
+  </data>
 </root>

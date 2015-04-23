@@ -40,7 +40,6 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         public virtual bool RequiresClientFilter { get; set; }
-
         public virtual bool RequiresClientProjection => _projectionTreeVisitor.RequiresClientEval;
         public virtual bool RequiresClientResultOperator { get; set; }
 
@@ -449,8 +448,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             return new QuerySourceScope<ValueBuffer>(
                 querySource,
                 valueBufferFactory.CreateValueBuffer(dataReader),
-                parentQuerySourceScope,
-                new ValueBuffer());
+                parentQuerySourceScope);
         }
 
         public static readonly MethodInfo CreateEntityMethodInfo
@@ -486,8 +484,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                             valueBuffer,
                             materializer),
                         queryStateManager),
-                parentQuerySourceScope,
-                valueBuffer);
+                parentQuerySourceScope);
         }
     }
 }

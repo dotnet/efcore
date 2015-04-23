@@ -32,6 +32,7 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] IModel model,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] IRelationalConnection connection,
             [NotNull] ICommandBatchPreparer batchPreparer,
             [NotNull] IBatchExecutor batchExecutor,
@@ -42,6 +43,7 @@ namespace Microsoft.Data.Entity.Relational
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
                 Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
+                Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)),
                 Check.NotNull(loggerFactory, nameof(loggerFactory)))
         {
             ValueBufferFactoryFactory = valueBufferFactoryFactory;
@@ -110,6 +112,7 @@ namespace Microsoft.Data.Entity.Relational
                 Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
                 EntityMaterializerSource,
                 EntityKeyFactorySource,
+                ClrPropertyGetterSource,
                 Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
                 Check.NotNull(methodCallTranslator, nameof(methodCallTranslator)),
                 ValueBufferFactoryFactory);

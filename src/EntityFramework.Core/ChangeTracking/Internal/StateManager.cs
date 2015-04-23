@@ -23,7 +23,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             = new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
 
         private readonly Dictionary<EntityKey, InternalEntityEntry> _identityMap = new Dictionary<EntityKey, InternalEntityEntry>();
-        private readonly IEntityKeyFactorySource _keyFactorySource;
         private readonly IInternalEntityEntryFactory _factory;
         private readonly IInternalEntityEntrySubscriber _subscriber;
         private readonly IModel _model;
@@ -31,14 +30,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public StateManager(
             [NotNull] IInternalEntityEntryFactory factory,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IInternalEntityEntrySubscriber subscriber,
             [NotNull] IInternalEntityEntryNotifier notifier,
             [NotNull] IValueGenerationManager valueGeneration,
             [NotNull] IModel model,
             [NotNull] IDataStore dataStore)
         {
-            _keyFactorySource = entityKeyFactorySource;
             _factory = factory;
             _subscriber = subscriber;
             Notify = notifier;
@@ -76,18 +73,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return entry;
         }
 
-        public virtual InternalEntityEntry StartTracking(IEntityType entityType, object entity, ValueBuffer valueBuffer)
+        public virtual InternalEntityEntry StartTracking(
+            IEntityType entityType, EntityKey entityKey, object entity, ValueBuffer valueBuffer)
         {
-            // TODO: Perf: Pre-compute this for speed
-            var keyProperties = entityType.GetPrimaryKey().Properties;
-            var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueBuffer);
-
-            if (keyValue == EntityKey.InvalidEntityKey)
+            if (entityKey == EntityKey.InvalidEntityKey)
             {
                 throw new InvalidOperationException(Strings.InvalidPrimaryKey(entityType.DisplayName()));
             }
 
-            var existingEntry = TryGetEntry(keyValue);
+            var existingEntry = TryGetEntry(entityKey);
 
             if (existingEntry != null)
             {
@@ -101,7 +95,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity, valueBuffer));
 
-            _identityMap.Add(keyValue, newEntry);
+            _identityMap.Add(entityKey, newEntry);
             _entityReferenceMap[entity] = newEntry;
 
             newEntry.SetEntityState(EntityState.Unchanged);
@@ -242,6 +236,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (keyValue == EntityKey.InvalidEntityKey)
             {
+                // TODO: Check message text here
                 throw new InvalidOperationException(Strings.InvalidPrimaryKey(entry.EntityType.Name));
             }
 

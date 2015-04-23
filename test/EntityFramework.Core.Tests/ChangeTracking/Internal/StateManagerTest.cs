@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -41,14 +40,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var categoryType = model.GetEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
+            var entityKey = new SimpleEntityKey<int>(categoryType, 77);
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
-            stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueBuffer);
+            stateManager.StartTracking(categoryType, entityKey, new Category { Id = 77 }, valueBuffer);
 
             Assert.Equal(
                 Strings.IdentityConflict("Category"),
                 Assert.Throws<InvalidOperationException>(
-                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueBuffer)).Message);
+                    () => stateManager.StartTracking(categoryType, entityKey, new Category { Id = 77 }, valueBuffer)).Message);
         }
 
         [Fact]
@@ -59,30 +59,16 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var stateManager = CreateStateManager(model);
 
             var category = new Category { Id = 77 };
+            var entityKey = new SimpleEntityKey<int>(categoryType, 77);
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
-            var entry = stateManager.StartTracking(categoryType, category, valueBuffer);
+            var entry = stateManager.StartTracking(categoryType, entityKey, category, valueBuffer);
 
-            Assert.Same(entry, stateManager.StartTracking(categoryType, category, valueBuffer));
+            Assert.Same(entry, stateManager.StartTracking(categoryType, entityKey, category, valueBuffer));
         }
 
         [Fact]
-        public void StartTracking_throws_for_null_entity_key_in_value_reader()
-        {
-            var model = BuildModel();
-            var categoryType = model.GetEntityType(typeof(Category));
-            var stateManager = CreateStateManager(model);
-
-            var valueBuffer = new ValueBuffer(new object[] { null, "Bjork", null });
-
-            Assert.Equal(
-                Strings.InvalidPrimaryKey("Category"),
-                Assert.Throws<InvalidOperationException>(
-                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueBuffer)).Message);
-        }
-
-        [Fact]
-        public void StartTracking_throws_for_sentinel_entity_key_in_value_reader()
+        public void StartTracking_throws_for_invalid_entity_key()
         {
             var model = BuildModel();
             var categoryType = model.GetEntityType(typeof(Category));
@@ -93,23 +79,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(
                 Strings.InvalidPrimaryKey("Category"),
                 Assert.Throws<InvalidOperationException>(
-                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueBuffer)).Message);
-        }
-
-        [Fact]
-        public void StartTracking_throws_for_non_default_sentinel_entity_key_in_value_reader()
-        {
-            var model = BuildModel();
-            var categoryType = model.GetEntityType(typeof(Category));
-            categoryType.GetProperty("Id").SentinelValue = 7;
-            var stateManager = CreateStateManager(model);
-
-            var valueBuffer = new ValueBuffer(new object[] { 7, "Bjork", null });
-
-            Assert.Equal(
-                Strings.InvalidPrimaryKey("Category"),
-                Assert.Throws<InvalidOperationException>(
-                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueBuffer)).Message);
+                    () => stateManager.StartTracking(categoryType, EntityKey.InvalidEntityKey, new Category { Id = 0 }, valueBuffer)).Message);
         }
 
         [Fact]
@@ -544,7 +514,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry3.EntityState);
             Assert.Equal(EntityState.Deleted, entry4.EntityState);
         }
-        
+
         [Fact]
         public void AcceptAllChanges_processes_all_tracked_entities()
         {
@@ -564,7 +534,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entry4.SetEntityState(EntityState.Deleted);
 
             stateManager.AcceptAllChanges();
-            
+
             Assert.Equal(3, stateManager.Entries.Count());
             Assert.Contains(entry1, stateManager.Entries);
             Assert.Contains(entry2, stateManager.Entries);

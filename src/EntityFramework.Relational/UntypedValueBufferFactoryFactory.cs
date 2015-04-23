@@ -8,9 +8,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class NonTypedValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
+    public class UntypedValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
     {
         public virtual IRelationalValueBufferFactory CreateValueBufferFactory(IEnumerable<Type> valueTypes, int offset)
-            => new NonTypedValueBufferFactory(offset, Check.NotNull(valueTypes, nameof(valueTypes)).Count());
+            => new UntypedValueBufferFactory(offset, Check.NotNull(valueTypes, nameof(valueTypes)).Count());
     }
 }

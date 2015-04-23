@@ -24,6 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator methodCallTranslator,
             [NotNull] ISqlServerValueBufferFactoryFactory valueBufferFactoryFactory)
@@ -34,6 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query
                 Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
                 Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
+                Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)),
                 Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
                 Check.NotNull(methodCallTranslator, nameof(methodCallTranslator)),
                 Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory)))

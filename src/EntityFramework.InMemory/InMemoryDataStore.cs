@@ -29,6 +29,7 @@ namespace Microsoft.Data.Entity.InMemory
             [NotNull] IModel model,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] IInMemoryDatabase persistentDatabase,
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory)
@@ -36,6 +37,7 @@ namespace Microsoft.Data.Entity.InMemory
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
                 Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
+                Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)),
                 Check.NotNull(loggerFactory, nameof(loggerFactory)))
         {
             Check.NotNull(persistentDatabase, nameof(persistentDatabase));
@@ -67,7 +69,8 @@ namespace Microsoft.Data.Entity.InMemory
                 Model,
                 Logger,
                 EntityMaterializerSource,
-                EntityKeyFactorySource)
+                EntityKeyFactorySource,
+                ClrPropertyGetterSource)
                 .CreateQueryModelVisitor()
                 .CreateQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
 

@@ -26,19 +26,25 @@ namespace Microsoft.Data.Entity.Query
             EntityLoadInfo entityLoadInfo,
             bool queryStateManager);
 
-        void StartTracking([NotNull] object entity);
+        object GetPropertyValue(
+            [NotNull] object entity,
+            [NotNull] IProperty property);
+
+        void StartTracking(
+            [NotNull] object entity,
+            [NotNull] EntityTrackingInfo entityTrackingInfo);
 
         void Include(
             [CanBeNull] object entity,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
             [NotNull] IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
-            bool querySourceRequiresTracking);
+            bool queryStateManager);
 
         Task IncludeAsync(
             [CanBeNull] object entity,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
             [NotNull] IReadOnlyList<AsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
             CancellationToken cancellationToken,
-            bool querySourceRequiresTracking);
+            bool queryStateManager);
     }
 }

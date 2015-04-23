@@ -1069,11 +1069,11 @@ FROM [Employees] AS [e]
 WHERE 1 = 0",
                 Sql);
 
-           Assert.True(TestSqlLoggerFactory.Log.Contains(
-                "Possible unintended use of method Equals(object) for arguments of different types: 'e.ReportsTo', '__longPrm_0'. This comparison will always return 'false'."));
+            Assert.True(TestSqlLoggerFactory.Log.Contains(
+                 "Possible unintended use of method Equals(object) for arguments of different types: 'e.ReportsTo', '__longPrm_0'. This comparison will always return 'false'."));
 
-           Assert.True(TestSqlLoggerFactory.Log.Contains(
-                "Possible unintended use of method Equals(object) for arguments of different types: '__longPrm_0', 'e.ReportsTo'. This comparison will always return 'false'."));
+            Assert.True(TestSqlLoggerFactory.Log.Contains(
+                 "Possible unintended use of method Equals(object) for arguments of different types: '__longPrm_0', 'e.ReportsTo'. This comparison will always return 'false'."));
         }
 
         public override void Where_equals_on_mismatched_types_nullable_long_nullable_int()
@@ -1090,8 +1090,8 @@ FROM [Employees] AS [e]
 WHERE 1 = 0",
                 Sql);
 
-           Assert.True(TestSqlLoggerFactory.Log.Contains(
-                 "Possible unintended use of method Equals(object) for arguments of different types: '__nullableLongPrm_0', 'e.ReportsTo'. This comparison will always return 'false'."));
+            Assert.True(TestSqlLoggerFactory.Log.Contains(
+                  "Possible unintended use of method Equals(object) for arguments of different types: '__nullableLongPrm_0', 'e.ReportsTo'. This comparison will always return 'false'."));
 
             Assert.True(TestSqlLoggerFactory.Log.Contains(
                  "Possible unintended use of method Equals(object) for arguments of different types: 'e.ReportsTo', '__nullableLongPrm_0'. This comparison will always return 'false'."));
@@ -1217,7 +1217,7 @@ WHERE ([c].[City] = [c].[City] OR ([c].[City] IS NULL AND [c].[City] IS NULL))",
         public override void Where_select_many_or()
         {
             base.Where_select_many_or();
-            
+
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
@@ -2617,7 +2617,7 @@ FROM (
     FROM [Customers] AS [c]
     ORDER BY [Coalesce]
 ) AS [t0]
-ORDER BY [Coalesce] OFFSET 5 ROWS", 
+ORDER BY [Coalesce] OFFSET 5 ROWS",
             Sql);
         }
 

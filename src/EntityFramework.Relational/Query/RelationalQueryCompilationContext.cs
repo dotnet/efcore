@@ -29,6 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator methodCallTranslator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
@@ -38,7 +39,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                 Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
                 Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
                 Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
-                Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)))
+                Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
+                Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)))
         {
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
             Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));

@@ -15,6 +15,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
     public class RelationalProjectionExpressionTreeVisitor : ProjectionExpressionTreeVisitor
     {
+        private readonly IQuerySource _querySource;
+
         private readonly SqlTranslatingExpressionTreeVisitor _sqlTranslatingExpressionTreeVisitor;
 
         private bool _requiresClientEval;
@@ -22,10 +24,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         public RelationalProjectionExpressionTreeVisitor(
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [NotNull] IQuerySource querySource)
-            : base(
-                Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)),
-                Check.NotNull(querySource, nameof(querySource)))
+            : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
+            _querySource = querySource;
+
             _sqlTranslatingExpressionTreeVisitor
                 = new SqlTranslatingExpressionTreeVisitor(queryModelVisitor);
         }
@@ -76,13 +78,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 else
                 {
                     var selectExpression
-                        = QueryModelVisitor.TryGetQuery(QuerySource);
+                        = QueryModelVisitor.TryGetQuery(_querySource);
 
                     Debug.Assert(selectExpression != null);
 
                     if (!(expression is NewExpression))
                     {
-                        //var aliasExpression = sqlExpression as AliasExpression;
                         var columnExpression = sqlExpression.GetColumnExpression();
 
                         if (columnExpression != null)
@@ -99,7 +100,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 expression.Type,
                                 QuerySourceScope.GetResult(
                                     EntityQueryModelVisitor.QuerySourceScopeParameter,
-                                    QuerySource,
+                                    _querySource,
                                     typeof(ValueBuffer)),
                                 index);
                     }

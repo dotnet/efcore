@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.Query
 {
     public class QueryOptimizer : SubQueryFromClauseFlattener
     {
-        private readonly ICollection<QueryAnnotation> _queryAnnotations;
+        private readonly IReadOnlyCollection<QueryAnnotation> _queryAnnotations;
 
-        public QueryOptimizer([NotNull] ICollection<QueryAnnotation> queryAnnotations)
+        public QueryOptimizer([NotNull] IReadOnlyCollection<QueryAnnotation> queryAnnotations)
         {
             Check.NotNull(queryAnnotations, nameof(queryAnnotations));
 

@@ -23,6 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] IModel model,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] ISqlServerConnection connection,
             [NotNull] ISqlServerCommandBatchPreparer batchPreparer,
             [NotNull] ISqlServerBatchExecutor batchExecutor,
@@ -33,6 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
                 Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
+                Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)),
                 Check.NotNull(connection, nameof(connection)),
                 Check.NotNull(batchPreparer, nameof(batchPreparer)),
                 Check.NotNull(batchExecutor, nameof(batchExecutor)),
@@ -47,15 +49,23 @@ namespace Microsoft.Data.Entity.SqlServer
             IResultOperatorHandler resultOperatorHandler,
             IQueryMethodProvider enumerableMethodProvider,
             IMethodCallTranslator methodCallTranslator)
-            => new SqlServerQueryCompilationContext(
+        {
+            Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
+            Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
+            Check.NotNull(enumerableMethodProvider, nameof(enumerableMethodProvider));
+            Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
+
+            return new SqlServerQueryCompilationContext(
                 Model,
                 Logger,
-                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
-                Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
+                linqOperatorProvider,
+                resultOperatorHandler,
                 EntityMaterializerSource,
                 EntityKeyFactorySource,
-                Check.NotNull(enumerableMethodProvider, nameof(enumerableMethodProvider)),
-                Check.NotNull(methodCallTranslator, nameof(methodCallTranslator)),
+                ClrPropertyGetterSource,
+                enumerableMethodProvider,
+                methodCallTranslator,
                 (ISqlServerValueBufferFactoryFactory)ValueBufferFactoryFactory);
+        }
     }
 }

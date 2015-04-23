@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ExpressionTreeVisitors;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
@@ -35,13 +34,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             _inProjection = inProjection;
         }
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
-        {
-            subQueryExpression.QueryModel.TransformExpressions(VisitExpression);
-
-            return subQueryExpression;
-        }
-
         protected override Expression VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
         {
             var newExpression
@@ -56,8 +48,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
                 if (genericTypeDefinition == typeof(IOrderedAsyncEnumerable<>))
                 {
-                    newExpression = TryUnwrap(newExpression);
-
                     newExpression
                         = Expression.Call(
                             _queryModelVisitor.LinqOperatorProvider.ToOrdered
@@ -66,41 +56,18 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 }
                 else if (genericTypeDefinition == typeof(IAsyncEnumerable<>))
                 {
-                    newExpression = TryUnwrap(newExpression);
-
                     newExpression
                         = Expression.Call(
                             _queryModelVisitor.LinqOperatorProvider.ToEnumerable
                                 .MakeGenericMethod(newExpression.Type.GenericTypeArguments[0]),
                             newExpression);
                 }
-                else if (genericTypeDefinition == typeof(IEnumerable<>))
-                {
-                    newExpression = TryUnwrap(newExpression);
-                }
             }
 
             return newExpression;
         }
 
-        private Expression TryUnwrap(Expression expression)
-        {
-            var sequenceType = expression.Type.GenericTypeArguments[0];
-
-            if (sequenceType.IsConstructedGenericType
-                && sequenceType.GetGenericTypeDefinition() == typeof(QuerySourceScope<>))
-            {
-                expression
-                    = Expression.Call(
-                        _queryModelVisitor.LinqOperatorProvider.UnwrapQueryResults
-                            .MakeGenericMethod(sequenceType.GenericTypeArguments[0]),
-                        expression);
-            }
-
-            return expression;
-        }
-
-        protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
+        protected override Expression VisitMemberExpression(MemberExpression memberExpression)
         {
             var newExpression = VisitExpression(memberExpression.Expression);
 
@@ -115,37 +82,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 var member = memberExpression.Member;
                 var typeInfo = newExpression.Type.GetTypeInfo();
 
-                if (typeInfo.IsGenericType)
+                if (typeInfo.IsGenericType
+                    && typeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>))
                 {
-                    var genericTypeDefinition = typeInfo.GetGenericTypeDefinition();
-                    var asyncGrouping = genericTypeDefinition == typeof(IAsyncGrouping<,>);
-
-                    if (genericTypeDefinition == typeof(IGrouping<,>)
-                        || asyncGrouping)
-                    {
-                        newExpression
-                            = Expression.Call(
-                                _queryModelVisitor.LinqOperatorProvider
-                                    .UnwrapGrouping
-                                    .MakeGenericMethod(
-                                        typeInfo.GenericTypeArguments[0],
-                                        typeInfo.GenericTypeArguments[1]
-                                            .GetTypeInfo()
-                                            .GenericTypeArguments[0]),
-                                newExpression);
-
-                        if (asyncGrouping)
-                        {
-                            member = newExpression.Type.GetTypeInfo().GetDeclaredProperty("Key");
-                        }
-                    }
-                    else if (genericTypeDefinition == typeof(QuerySourceScope<>))
-                    {
-                        newExpression
-                            = Expression.Convert(
-                                newExpression,
-                                typeInfo.GenericTypeArguments[0]);
-                    }
+                    member = typeInfo.GetDeclaredProperty("Key");
                 }
 
                 return Expression.MakeMemberAccess(newExpression, member);
@@ -154,7 +94,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             return memberExpression;
         }
 
-        protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
         {
             MethodCallExpression newExpression = null;
 
@@ -169,9 +109,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 if (newArguments[0].Type == typeof(ValueBuffer))
                 {
                     // Compensate for ValueBuffer being a struct, and hence not compatible with Object method
-                    newExpression = Expression.Call(
-                        QueryExtensions.ValueBufferPropertyMethodInfo.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()),
-                        newArguments);
+                    newExpression
+                        = Expression.Call(
+                            QueryExtensions.ValueBufferPropertyMethodInfo
+                                .MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()),
+                            newArguments);
                 }
             }
 
@@ -194,54 +136,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             return _queryModelVisitor
                 .BindMethodCallExpression(
                     methodCallExpression,
-                    (property, _) =>
-                        {
-                            var querySourceScopeExpression
-                                = new QuerySourceScopeFindingExpressionTreeVisitor()
-                                    .Find(newExpression.Arguments[0]);
-
-                            return Expression.Call(
-                                _getValueMethodInfo.MakeGenericMethod(newExpression.Method.GetGenericArguments()[0]),
-                                EntityQueryModelVisitor.QueryContextParameter,
-                                newExpression.Arguments[0],
-                                querySourceScopeExpression,
-                                Expression.Constant(property));
-                        })
+                    (property, _) => Expression.Call(
+                        _getValueMethodInfo.MakeGenericMethod(newExpression.Method.GetGenericArguments()[0]),
+                        EntityQueryModelVisitor.QueryContextParameter,
+                        newExpression.Arguments[0],
+                        Expression.Constant(property)))
                    ?? newExpression;
-        }
-
-        private class QuerySourceScopeFindingExpressionTreeVisitor : ExpressionTreeVisitor
-        {
-            private Expression _result;
-
-            public Expression Find(Expression expression)
-            {
-                _result = null;
-
-                VisitExpression(expression);
-
-                return _result;
-            }
-
-            public override Expression VisitExpression(Expression expression)
-            {
-                if (_result == null
-                    && expression != null)
-                {
-                    if ((expression.Type.IsConstructedGenericType
-                         && expression.Type.GetGenericTypeDefinition() == typeof(QuerySourceScope<>))
-                        || expression.Type == typeof(QuerySourceScope))
-                    {
-                        _result = expression;
-                    }
-                    else
-                    {
-                        return base.VisitExpression(expression);
-                    }
-                }
-
-                return expression;
-            }
         }
 
         private static readonly MethodInfo _getValueMethodInfo
@@ -249,13 +149,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 .GetTypeInfo().GetDeclaredMethod(nameof(GetValue));
 
         [UsedImplicitly]
-        private static T GetValue<T>(
-            QueryContext queryContext,
-            object entity,
-            QuerySourceScope querySourceScope,
-            IProperty property)
-        {
-            return (T)queryContext.GetPropertyValue(entity, querySourceScope, property);
-        }
+        private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property)
+            => (T)queryContext.QueryBuffer.GetPropertyValue(entity, property);
     }
 }

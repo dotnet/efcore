@@ -15,13 +15,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         public ThrowingMonsterStateManager(
             IInternalEntityEntryFactory factory,
-            IEntityKeyFactorySource entityKeyFactorySource,
             IInternalEntityEntrySubscriber subscriber,
             IInternalEntityEntryNotifier notifier,
             IValueGenerationManager valueGeneration,
             IModel model,
             IDataStore dataStore)
-            : base(factory, entityKeyFactorySource, subscriber, notifier, valueGeneration, model, dataStore)
+            : base(factory, subscriber, notifier, valueGeneration, model, dataStore)
         {
         }
 

@@ -1,32 +1,33 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
 {
     public struct ValueBuffer
     {
+        public static readonly ValueBuffer Empty = new ValueBuffer();
+
         private readonly object[] _values;
         private readonly int _offset;
 
         public ValueBuffer([NotNull] object[] values)
-            : this(values, 0, values.Length)
+            : this(values, 0)
         {
         }
 
-        public ValueBuffer([NotNull] object[] values, int offset, int count)
+        public ValueBuffer([NotNull] object[] values, int offset)
         {
-            Check.NotNull(values, nameof(values));
+            Debug.Assert(values != null);
 
             _values = values;
             _offset = offset;
-            Count = count;
         }
 
         public object this[int index] => _values[_offset + index];
 
-        public int Count { get; }
+        public int Count => _values.Length - _offset;
     }
 }

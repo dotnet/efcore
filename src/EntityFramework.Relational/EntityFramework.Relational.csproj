@@ -147,8 +147,8 @@
     <Compile Include="Migrations\Sql\IMigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Sql\MigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Infrastructure\ModelDiffer.cs" />
-    <Compile Include="NonTypedValueBufferFactory.cs" />
-    <Compile Include="NonTypedValueBufferFactoryFactory.cs" />
+    <Compile Include="UntypedValueBufferFactory.cs" />
+    <Compile Include="UntypedValueBufferFactoryFactory.cs" />
     <Compile Include="Query\Annotations\FromSqlQueryAnnotation.cs" />
     <Compile Include="Query\AsyncQueryingEnumerable.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />

@@ -36,7 +36,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             await AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
+                cs => cs.Where(c => c.ContactName.Contains("M") 
+                                     || c.ContactName.Contains("m")), // case-sensitive
                 entryCount: 34);
         }
 
@@ -44,7 +45,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             await AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1()) || c.ContactName.Contains(LocalMethod2())), // case-sensitive
+                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1()) 
+                                    || c.ContactName.Contains(LocalMethod2())), // case-sensitive
                 entryCount: 34);
         }
 

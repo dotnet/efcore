@@ -23,6 +23,7 @@
                 "System.Collections": { "version": "", "type": "build" },
                 "System.Diagnostics.Debug": { "version": "", "type": "build" },
                 "System.Diagnostics.Tools": { "version": "", "type": "build" },
+                "System.Dynamic.Runtime": { "version": "", "type": "build" },
                 "System.Globalization": { "version": "", "type": "build" },
                 "System.Linq": { "version": "", "type": "build" },
                 "System.Linq.Expressions": { "version": "", "type": "build" },
@@ -42,6 +43,7 @@
                 "System.Collections": "",
                 "System.Diagnostics.Debug": "",
                 "System.Diagnostics.Tools": "",
+                "System.Dynamic.Runtime": "",
                 "System.Globalization": "",
                 "System.Linq": "",
                 "System.Linq.Expressions": "",
@@ -59,6 +61,7 @@
         "dnxcore50": {
             "dependencies": {
                 "System.Diagnostics.Contracts": "4.0.0-beta-*",
+                "System.Dynamic.Runtime": "4.0.10-beta-*",
                 "System.Linq.Queryable": "4.0.0-beta-*",
                 "System.ObjectModel": "4.0.10-beta-*",
                 "System.Reflection.Extensions": "4.0.0-beta-*"
@@ -67,6 +70,7 @@
         ".NETPortable,Version=v4.5,Profile=Profile7": {
             "frameworkAssemblies": {
                 "System.Diagnostics.Contracts": "",
+                "System.Dynamic.Runtime": "",
                 "System.IO": "",
                 "System.Linq.Queryable": "",
                 "System.ObjectModel": "",

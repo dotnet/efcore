@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.Sqlite.Query
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator methodCallTranslator,
@@ -33,6 +34,7 @@ namespace Microsoft.Data.Entity.Sqlite.Query
                   resultOperatorHandler,
                   entityMaterializerSource,
                   entityKeyFactorySource,
+                  clrPropertyGetterSource,
                   queryMethodProvider,
                   methodCallTranslator,
                   valueBufferFactoryFactory)

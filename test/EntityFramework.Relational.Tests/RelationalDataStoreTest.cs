@@ -79,6 +79,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 IModel model,
                 IEntityKeyFactorySource entityKeyFactorySource,
                 IEntityMaterializerSource entityMaterializerSource,
+                IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
                 IRelationalConnection connection,
                 ICommandBatchPreparer batchPreparer,
                 IBatchExecutor batchExecutor,
@@ -88,7 +89,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 : base(
                       model, 
                       entityKeyFactorySource, 
-                      entityMaterializerSource, 
+                      entityMaterializerSource,
+                      clrPropertyGetterSource,
                       connection, 
                       batchPreparer, 
                       batchExecutor, 

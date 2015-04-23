@@ -29,6 +29,6 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         public override QueryContext CreateQueryContext()
-            => new RelationalQueryContext(Logger, CreateQueryBuffer(), StateManager, _connection);
+            => new RelationalQueryContext(Logger, CreateQueryBuffer(), _connection);
     }
 }

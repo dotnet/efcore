@@ -231,6 +231,7 @@
     <Compile Include="Query\ExpressionTreeVisitors\MemberAccessBindingExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ProjectionExpressionTreeVisitor.cs" />
     <Compile Include="Query\ICompiledQueryCache.cs" />
+    <Compile Include="Query\IncludeSpecification.cs" />
     <Compile Include="Query\IQueryContextFactory.cs" />
     <Compile Include="Query\QueryAnnotation.cs" />
     <Compile Include="Query\QueryAnnotationExtensions.cs" />

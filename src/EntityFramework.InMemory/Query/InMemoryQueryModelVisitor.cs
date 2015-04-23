@@ -26,7 +26,9 @@ namespace Microsoft.Data.Entity.InMemory.Query
         }
 
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
-            => new InMemoryEntityQueryableExpressionTreeVisitor(this, querySource);
+        {
+            return new InMemoryEntityQueryableExpressionTreeVisitor(this, querySource);
+        }
 
         protected override void IncludeNavigations(
             IQuerySource querySource,
@@ -82,29 +84,28 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .GetDeclaredMethod(nameof(Include));
 
         [UsedImplicitly]
-        private static IEnumerable<QuerySourceScope<TResult>> Include<TResult>(
+        private static IEnumerable<TResult> Include<TResult>(
             QueryContext queryContext,
-            IEnumerable<QuerySourceScope<TResult>> source,
+            IEnumerable<TResult> source,
             IReadOnlyList<INavigation> navigationPath,
             Func<TResult, object> accessorLambda,
             IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
             bool querySourceRequiresTracking)
-            => source
-                .Select(qss =>
-                    {
-                        if (qss != null
-                            && qss.Result != null)
+        {
+            return
+                source
+                    .Select(result =>
                         {
                             queryContext.QueryBuffer
                                 .Include(
-                                    accessorLambda.Invoke(qss.Result),
+                                    accessorLambda.Invoke(result),
                                     navigationPath,
                                     relatedEntitiesLoaders,
                                     querySourceRequiresTracking);
-                        }
 
-                        return qss;
-                    });
+                            return result;
+                        });
+        }
 
         private static readonly MethodInfo _getRelatedValueBuffersMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
@@ -117,77 +118,71 @@ namespace Microsoft.Data.Entity.InMemory.Query
             EntityKey primaryKey,
             Func<ValueBuffer, EntityKey> relatedKeyFactory,
             Func<IEntityType, ValueBuffer, object> materializer)
-            => ((InMemoryQueryContext)queryContext).Database
+        {
+            return ((InMemoryQueryContext)queryContext).Database
                 .GetTables(targetType)
                 .SelectMany(t =>
-                    t.Select(vs =>
-                        new EntityLoadInfo(
-                            new ValueBuffer(vs), vr => materializer(t.EntityType, vr)))
+                    t.Select(vs => new EntityLoadInfo(
+                        new ValueBuffer(vs), vb => materializer(t.EntityType, vb)))
                         .Where(eli => relatedKeyFactory(eli.ValueBuffer).Equals(primaryKey)));
+        }
 
         private static readonly MethodInfo _entityQueryMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(EntityQuery));
 
         [UsedImplicitly]
-        private static IEnumerable<QuerySourceScope<TEntity>> EntityQuery<TEntity>(
-            IQuerySource querySource,
+        private static IEnumerable<TEntity> EntityQuery<TEntity>(
             QueryContext queryContext,
-            QuerySourceScope parentQuerySourceScope,
             IEntityType entityType,
             Func<ValueBuffer, EntityKey> entityKeyFactory,
             Func<IEntityType, ValueBuffer, object> materializer,
             bool queryStateManager)
             where TEntity : class
-            => ((InMemoryQueryContext)queryContext).Database
+        {
+            return ((InMemoryQueryContext)queryContext).Database
                 .GetTables(entityType)
                 .SelectMany(t =>
                     t.Select(vs =>
                         {
                             var valueBuffer = new ValueBuffer(vs);
+                            var entityKey = entityKeyFactory(valueBuffer);
 
-                            return
-                                new QuerySourceScope<TEntity>(
-                                    querySource,
-                                    (TEntity)queryContext
-                                        .QueryBuffer
-                                        .GetEntity(
-                                            entityType,
-                                            entityKeyFactory(valueBuffer),
-                                            new EntityLoadInfo(
-                                                valueBuffer,
-                                                vr => materializer(t.EntityType, vr)),
-                                            queryStateManager),
-                                    parentQuerySourceScope,
-                                    valueBuffer);
+                            return (TEntity)queryContext
+                                .QueryBuffer
+                                .GetEntity(
+                                    entityType,
+                                    entityKey,
+                                    new EntityLoadInfo(
+                                        valueBuffer,
+                                        vr => materializer(t.EntityType, vr)),
+                                    queryStateManager);
                         }));
+        }
 
         private static readonly MethodInfo _projectionQueryMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(ProjectionQuery));
 
         [UsedImplicitly]
-        private static IEnumerable<QuerySourceScope<ValueBuffer>> ProjectionQuery(
-            IQuerySource querySource,
+        private static IEnumerable<ValueBuffer> ProjectionQuery(
             QueryContext queryContext,
-            QuerySourceScope parentQuerySourceScope,
             IEntityType entityType)
-            => ((InMemoryQueryContext)queryContext).Database
+        {
+            return ((InMemoryQueryContext)queryContext).Database
                 .GetTables(entityType)
-                .SelectMany(t =>
-                    t.Select(vs =>
-                        new QuerySourceScope<ValueBuffer>(
-                            querySource,
-                            new ValueBuffer(vs),
-                            parentQuerySourceScope,
-                            new ValueBuffer())));
+                .SelectMany(t => t.Select(vs => new ValueBuffer(vs)));
+        }
 
         private class InMemoryEntityQueryableExpressionTreeVisitor : EntityQueryableExpressionTreeVisitor
         {
+            private readonly IQuerySource _querySource;
+
             public InMemoryEntityQueryableExpressionTreeVisitor(
                 EntityQueryModelVisitor entityQueryModelVisitor, IQuerySource querySource)
-                : base(entityQueryModelVisitor, querySource)
+                : base(entityQueryModelVisitor)
             {
+                _querySource = querySource;
             }
 
             private new InMemoryQueryModelVisitor QueryModelVisitor => (InMemoryQueryModelVisitor)base.QueryModelVisitor;
@@ -217,24 +212,20 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         .EntityMaterializerSource)
                         .CreateMaterializer(entityType);
 
-                if (QueryModelVisitor.QuerySourceRequiresMaterialization(QuerySource))
+                if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
                     return Expression.Call(
                         _entityQueryMethodInfo.MakeGenericMethod(elementType),
-                        Expression.Constant(QuerySource),
                         QueryContextParameter,
-                        QuerySourceScopeParameter,
                         Expression.Constant(entityType),
                         Expression.Constant(entityKeyFactory),
                         materializer,
-                        Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(QuerySource)));
+                        Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));
                 }
 
                 return Expression.Call(
                     _projectionQueryMethodInfo,
-                    Expression.Constant(QuerySource),
                     QueryContextParameter,
-                    QuerySourceScopeParameter,
                     Expression.Constant(entityType));
             }
         }

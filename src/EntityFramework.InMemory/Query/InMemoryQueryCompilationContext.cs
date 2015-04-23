@@ -17,14 +17,16 @@ namespace Microsoft.Data.Entity.InMemory.Query
             [NotNull] IModel model,
             [NotNull] ILogger logger,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource)
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource)
             : base(
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(logger, nameof(logger)),
                 new LinqOperatorProvider(),
                 new ResultOperatorHandler(),
                 Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
-                Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)))
+                Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
+                Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)))
         {
             Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
         }

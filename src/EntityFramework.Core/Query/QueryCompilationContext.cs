@@ -14,7 +14,8 @@ namespace Microsoft.Data.Entity.Query
 {
     public abstract class QueryCompilationContext
     {
-        private ICollection<QueryAnnotation> _queryAnnotations;
+        private IReadOnlyCollection<QueryAnnotation> _queryAnnotations;
+        private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
 
         protected QueryCompilationContext(
             [NotNull] IModel model,
@@ -22,7 +23,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource)
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(logger, nameof(logger));
@@ -30,6 +32,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
             Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
+            Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource));
 
             Model = model;
             Logger = logger;
@@ -37,23 +40,20 @@ namespace Microsoft.Data.Entity.Query
             ResultOperatorHandler = resultOperatorHandler;
             EntityMaterializerSource = entityMaterializerSource;
             EntityKeyFactorySource = entityKeyFactorySource;
+            ClrPropertyGetterSource = clrPropertyGetterSource;
         }
 
         public virtual IModel Model { get; }
-
         public virtual ILogger Logger { get; }
-
         public virtual ILinqOperatorProvider LinqOperatorProvider { get; }
-
         public virtual IResultOperatorHandler ResultOperatorHandler { get; }
-
         public virtual IEntityMaterializerSource EntityMaterializerSource { get; }
-
         public virtual IEntityKeyFactorySource EntityKeyFactorySource { get; }
+        public virtual IClrAccessorSource<IClrPropertyGetter> ClrPropertyGetterSource { get; }
 
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
 
-        public virtual ICollection<QueryAnnotation> QueryAnnotations
+        public virtual IReadOnlyCollection<QueryAnnotation> QueryAnnotations
         {
             get { return _queryAnnotations; }
             [param: NotNull]
@@ -69,5 +69,39 @@ namespace Microsoft.Data.Entity.Query
 
         public abstract EntityQueryModelVisitor CreateQueryModelVisitor(
             [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor);
+
+        public virtual void AddTrackableInclude(
+            [NotNull] IQuerySource querySource, [NotNull] IReadOnlyList<INavigation> navigationPath)
+        {
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(navigationPath, nameof(navigationPath));
+
+            if (_trackableIncludes == null)
+            {
+                _trackableIncludes = new Dictionary<IQuerySource, List<IReadOnlyList<INavigation>>>();
+            }
+
+            List<IReadOnlyList<INavigation>> includes;
+            if (!_trackableIncludes.TryGetValue(querySource, out includes))
+            {
+                _trackableIncludes.Add(querySource, includes = new List<IReadOnlyList<INavigation>>());
+            }
+
+            includes.Add(navigationPath);
+        }
+
+        public virtual IReadOnlyList<IReadOnlyList<INavigation>> GetTrackableIncludes([NotNull] IQuerySource querySource)
+        {
+            Check.NotNull(querySource, nameof(querySource));
+
+            if (_trackableIncludes == null)
+            {
+                return null;
+            }
+
+            List<IReadOnlyList<INavigation>> includes;
+
+            return _trackableIncludes.TryGetValue(querySource, out includes) ? includes : null;
+        }
     }
 }

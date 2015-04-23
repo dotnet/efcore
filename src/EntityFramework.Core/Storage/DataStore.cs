@@ -25,28 +25,29 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] IModel model,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
+            Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
 
             Model = model;
 
             EntityKeyFactorySource = entityKeyFactorySource;
             EntityMaterializerSource = entityMaterializerSource;
+            ClrPropertyGetterSource = clrPropertyGetterSource;
 
             _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<DataStore>);
         }
 
         public virtual ILogger Logger => _logger.Value;
-
         public virtual IModel Model { get; }
-
         public virtual IEntityKeyFactorySource EntityKeyFactorySource { get; }
-
         public virtual IEntityMaterializerSource EntityMaterializerSource { get; }
+        public virtual IClrAccessorSource<IClrPropertyGetter> ClrPropertyGetterSource { get; }
 
         public abstract int SaveChanges(IReadOnlyList<InternalEntityEntry> entries);
 

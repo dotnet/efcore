@@ -8,12 +8,12 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class NonTypedValueBufferFactory : IRelationalValueBufferFactory
+    public class UntypedValueBufferFactory : IRelationalValueBufferFactory
     {
         private readonly int _offset;
         private readonly int _bufferSize;
 
-        public NonTypedValueBufferFactory(int offset, int count)
+        public UntypedValueBufferFactory(int offset, int count)
         {
             _offset = offset;
             _bufferSize = offset + count;
@@ -23,7 +23,12 @@ namespace Microsoft.Data.Entity.Relational
         {
             Debug.Assert(dataReader != null); // hot path
 
-            var values = new object[dataReader.FieldCount];
+            if (_bufferSize == 0)
+            {
+                return ValueBuffer.Empty;
+            }
+
+            var values = new object[_bufferSize];
 
             dataReader.GetValues(values);
 
@@ -35,7 +40,7 @@ namespace Microsoft.Data.Entity.Relational
                 }
             }
 
-            return new ValueBuffer(values, _offset, _bufferSize - _offset);
+            return new ValueBuffer(values, _offset);
         }
     }
 }
