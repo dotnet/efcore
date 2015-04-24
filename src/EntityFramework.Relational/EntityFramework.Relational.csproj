@@ -228,7 +228,6 @@
     <Compile Include="RelationalEntityServicesBuilderExtensions.cs" />
     <Compile Include="RelationalLoggerExtensions.cs" />
     <Compile Include="RelationalLoggingEventIds.cs" />
-    <Compile Include="RelationalObjectArrayValueReader.cs" />
     <Compile Include="Query\RelationalQueryContext.cs" />
     <Compile Include="RelationalTransaction.cs" />
     <Compile Include="RelationalTypedValueReader.cs" />
