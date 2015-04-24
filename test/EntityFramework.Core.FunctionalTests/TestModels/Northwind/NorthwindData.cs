@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 
         private static DateTime ParseDate(string date)
         {
-            return DateTime.Parse(date, new CultureInfo("en-US"));
+            return DateTime.Parse(date, new CultureInfo("en-US", false));
         }
 
         #region Customers
