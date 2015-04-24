@@ -623,8 +623,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                         op = " OR ";
                         break;
                     case ExpressionType.Add:
-                        op = " " + ConcatOperator + " ";
-                        break;
+                        op = IsNumericType(binaryExpression.Left.Type) && IsNumericType(binaryExpression.Right.Type)
+                            ? " + "
+                            : " " + ConcatOperator + " "; break;
                     case ExpressionType.Subtract:
                         op = " - ";
                         break;
@@ -931,6 +932,37 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
                 return base.VisitBinaryExpression(expression);
             }
+        }
+
+        protected static bool IsNumericType(Type type)
+        {
+            if (type == null)
+            {
+                return false;
+            }
+
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Byte:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.SByte:
+                case TypeCode.Single:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                    return true;
+                case TypeCode.Object:
+                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    {
+                        return IsNumericType(Nullable.GetUnderlyingType(type));
+                    }
+                    return false;
+            }
+            return false;
         }
     }
 }
