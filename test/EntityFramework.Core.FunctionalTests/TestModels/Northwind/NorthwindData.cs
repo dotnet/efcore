@@ -147,10 +147,14 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 
         private static DateTime ParseDate(string date)
         {
+#if !DNXCORE50
             return DateTime.Parse(date, new CultureInfo("en-US", useUserOverride: false));
+#else
+            return DateTime.Parse(date, new CultureInfo("en-US"));
+#endif
         }
 
-        #region Customers
+#region Customers
 
         private static readonly Customer[] _customers = CreateCustomers();
 
@@ -1435,9 +1439,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
                 };
         }
 
-        #endregion
+#endregion
 
-        #region Employees
+#region Employees
 
         private static readonly Employee[] _employees = CreateEmployees();
 
@@ -1666,9 +1670,9 @@ Winchester Way",
                 };
         }
 
-        #endregion
+#endregion
 
-        #region Products
+#region Products
 
         private static readonly Product[] _products = CreateProducts();
 
@@ -2680,9 +2684,9 @@ Winchester Way",
                 };
         }
 
-        #endregion
+#endregion
 
-        #region Orders
+#region Orders
 
         private static readonly Order[] _orders = CreateOrders();
 
@@ -16803,9 +16807,9 @@ Winchester Way",
                 };
         }
 
-        #endregion
+#endregion
 
-        #region OrderDetails
+#region OrderDetails
 
         private static readonly OrderDetail[] _orderDetails = CreateOrderDetails();
 
@@ -23456,6 +23460,6 @@ Winchester Way",
                 };
         }
 
-        #endregion
+#endregion
     }
 }
