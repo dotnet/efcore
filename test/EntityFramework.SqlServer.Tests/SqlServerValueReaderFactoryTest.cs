@@ -3,8 +3,8 @@
 
 using System;
 using System.Data.Common;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer.Query;
+using Microsoft.Data.Entity.Storage;
 using Moq;
 using Xunit;
 
@@ -13,9 +13,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     public class SqlServerValueReaderFactoryTest
     {
         [Fact]
-        public void Creates_RelationalObjectArrayValueReader()
+        public void Creates_ObjectArrayValueReader()
         {
-            Assert.IsType<RelationalObjectArrayValueReader>(
+            Assert.IsType<ObjectArrayValueReader>(
                 new SqlServerValueReaderFactoryFactory().CreateValueReaderFactory(new Type[0], 0)
                     .CreateValueReader(Mock.Of<DbDataReader>()));
         }

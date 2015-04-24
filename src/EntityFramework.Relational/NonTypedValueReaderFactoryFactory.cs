@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
     public class NonTypedValueReaderFactoryFactory : IRelationalValueReaderFactoryFactory
     {
         public virtual IRelationalValueReaderFactory CreateValueReaderFactory(IEnumerable<Type> valueTypes, int offset)
-            => new NonTypedValueReaderFactory(offset);
+            => new NonTypedValueReaderFactory(offset, Check.NotNull(valueTypes, nameof(valueTypes)).Count());
     }
 }

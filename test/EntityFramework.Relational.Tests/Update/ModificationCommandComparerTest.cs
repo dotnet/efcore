@@ -33,19 +33,19 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var entry1 = stateManager.GetOrCreateEntry(new object());
             entry1[key] = 1;
             entry1.SetEntityState(EntityState.Added);
-            var modificationCommandAdded = new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
+            var modificationCommandAdded = new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory());
             modificationCommandAdded.AddEntry(entry1);
 
             var entry2 = stateManager.GetOrCreateEntry(new object());
             entry2[key] = 2;
             entry2.SetEntityState(EntityState.Modified);
-            var modificationCommandModified = new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
+            var modificationCommandModified = new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory());
             modificationCommandModified.AddEntry(entry2);
 
             var entry3 = stateManager.GetOrCreateEntry(new object());
             entry3[key] = 3;
             entry3.SetEntityState(EntityState.Deleted);
-            var modificationCommandDeleted = new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory());
+            var modificationCommandDeleted = new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory());
             modificationCommandDeleted.AddEntry(entry3);
 
             var mCC = new ModificationCommandComparer();
@@ -53,32 +53,32 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             Assert.True(0 == mCC.Compare(modificationCommandAdded, modificationCommandAdded));
             Assert.True(0 == mCC.Compare(null, null));
             Assert.True(0 == mCC.Compare(
-                new ModificationCommand("A", "dbo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory()),
-                new ModificationCommand("A", "dbo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory())));
+                new ModificationCommand("A", "dbo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory()),
+                new ModificationCommand("A", "dbo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory())));
 
-            Assert.True(0 > mCC.Compare(null, new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory())));
-            Assert.True(0 < mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory()), null));
-
-            Assert.True(0 > mCC.Compare(
-                new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory()),
-                new ModificationCommand("A", "dbo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory())));
-            Assert.True(0 < mCC.Compare(
-                new ModificationCommand("A", "dbo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory()),
-                new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory())));
+            Assert.True(0 > mCC.Compare(null, new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory())));
+            Assert.True(0 < mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory()), null));
 
             Assert.True(0 > mCC.Compare(
-                new ModificationCommand("A", "dbo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory()),
-                new ModificationCommand("A", "foo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory())));
+                new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory()),
+                new ModificationCommand("A", "dbo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory())));
             Assert.True(0 < mCC.Compare(
-                new ModificationCommand("A", "foo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory()),
-                new ModificationCommand("A", "dbo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory())));
+                new ModificationCommand("A", "dbo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory()),
+                new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory())));
 
             Assert.True(0 > mCC.Compare(
-                new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory()),
-                new ModificationCommand("B", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory())));
+                new ModificationCommand("A", "dbo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory()),
+                new ModificationCommand("A", "foo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory())));
             Assert.True(0 < mCC.Compare(
-                new ModificationCommand("B", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory()),
-                new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new TestValueReaderFactoryFactory())));
+                new ModificationCommand("A", "foo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory()),
+                new ModificationCommand("A", "dbo", new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory())));
+
+            Assert.True(0 > mCC.Compare(
+                new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory()),
+                new ModificationCommand("B", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory())));
+            Assert.True(0 < mCC.Compare(
+                new ModificationCommand("B", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory()),
+                new ModificationCommand("A", null, new ParameterNameGenerator(), p => p.Relational(), new BoxedValueReaderSource(), new NonTypedValueReaderFactoryFactory())));
 
             Assert.True(0 > mCC.Compare(modificationCommandModified, modificationCommandAdded));
             Assert.True(0 < mCC.Compare(modificationCommandAdded, modificationCommandModified));
@@ -88,12 +88,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             Assert.True(0 > mCC.Compare(modificationCommandDeleted, modificationCommandModified));
             Assert.True(0 < mCC.Compare(modificationCommandModified, modificationCommandDeleted));
-        }
-
-        private class TestValueReaderFactoryFactory : IRelationalValueReaderFactoryFactory
-        {
-            public virtual IRelationalValueReaderFactory CreateValueReaderFactory(IEnumerable<Type> valueTypes, int offset)
-                => new NonTypedValueReaderFactory(offset);
         }
     }
 }
