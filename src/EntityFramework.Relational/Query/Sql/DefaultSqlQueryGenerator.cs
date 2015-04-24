@@ -53,6 +53,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual string ParameterPrefix => "@";
 
+        protected virtual string TruthLiteral => "1";
+
         public virtual Expression VisitSelectExpression(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -138,7 +140,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     if (selectExpression.Predicate is ParameterExpression
                         || selectExpression.Predicate.IsAliasWithColumnExpression())
                     {
-                        _sql.Append(" = 1");
+                        _sql.Append(" = ");
+                        _sql.Append(TruthValue);
                     }
                 }
             }
@@ -535,7 +538,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                         || caseExpression.When is ParameterExpression
                         || caseExpression.When.IsAliasWithColumnExpression())
                     {
-                        _sql.Append(" = 1");
+                        _sql.Append(" = ");
+                        _sql.Append(TruthValue);
                     }
                 }
 
@@ -591,7 +595,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                         || binaryExpression.Left is ParameterExpression
                         || binaryExpression.Left.IsAliasWithColumnExpression()))
                 {
-                    _sql.Append(" = 1");
+                    _sql.Append(" = ");
+                    _sql.Append(TruthValue);
                 }
 
                 string op;
@@ -647,7 +652,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                         || binaryExpression.Right is ParameterExpression
                         || binaryExpression.Right.IsAliasWithColumnExpression()))
                 {
-                    _sql.Append(" = 1");
+                    _sql.Append(" = ");
+                    _sql.Append(TruthValue);
                 }
 
                 if (needParentheses)
