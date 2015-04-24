@@ -45,6 +45,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual string ParameterPrefix => "@";
 
+        protected virtual string TruthLiteral => "1";
+
         public virtual Expression VisitSelectExpression(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -111,7 +113,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     if (selectExpression.Predicate is ColumnExpression
                         || selectExpression.Predicate is ParameterExpression)
                     {
-                        _sql.Append(" = 1");
+                        _sql.Append(" = ");
+                        _sql.Append(TruthLiteral);
                     }
                 }
             }
@@ -494,7 +497,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 && (binaryExpression.Left is ColumnExpression
                     || binaryExpression.Left is ParameterExpression))
             {
-                _sql.Append(" = 1");
+                _sql.Append(" = ");
+                _sql.Append(TruthLiteral);
             }
 
             if (needClosingParen)
@@ -566,7 +570,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 && (binaryExpression.Right is ColumnExpression
                     || binaryExpression.Right is ParameterExpression))
             {
-                _sql.Append(" = 1");
+                _sql.Append(" = ");
+                _sql.Append(TruthLiteral);
             }
 
             if (needClosingParen)
