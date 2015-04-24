@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -31,14 +32,26 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 if (enumerator.MoveNext())
                 {
+                    Debug.Assert(typeof(TResult) == typeof(int) 
+                        || typeof(TResult) == typeof(bool) 
+                        || typeof(TResult) == typeof(long));
+
                     return enumerator.Current.IsDBNull(0)
                         ? default(TResult)
-                        : (TResult)enumerator.Current.GetValue(0);
+                        : ReadValue<TResult>(enumerator.Current);
                 }
             }
 
             return default(TResult);
         }
+
+        // TODO: Replace with GetFieldValue<> when supported on Mono
+        private static TResult ReadValue<TResult>(DbDataReader reader)
+            => (TResult)(typeof(TResult) == typeof(int)
+                ? reader.GetInt32(0)
+                : typeof(TResult) == typeof(bool)
+                    ? (object)reader.GetBoolean(0)
+                    : reader.GetInt64(0));
 
         public virtual MethodInfo QueryMethod => _queryMethodInfo;
 
