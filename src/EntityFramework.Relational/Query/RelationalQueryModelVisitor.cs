@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         public virtual IEnumerable<Type> GetProjectionTypes([NotNull] IQuerySource querySource)
             => (TryGetQuery(Check.NotNull(querySource, nameof(querySource)))
                 ?? _queriesBySource.First().Value)
-                .GetProjectionTypes();
+                .GetProjectionTypes(0);
 
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
