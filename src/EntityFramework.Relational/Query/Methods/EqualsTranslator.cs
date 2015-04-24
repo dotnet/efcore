@@ -3,16 +3,16 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.Framework.Logging;
 using JetBrains.Annotations;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Query.Methods
 {
     public class EqualsTranslator : IMethodCallTranslator
     {
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
-        public EqualsTranslator([NotNull]ILogger logger)
+        public EqualsTranslator([NotNull] ILogger logger)
         {
             _logger = logger;
         }
@@ -28,7 +28,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
                     && @object.Type != argument.Type)
                 {
                     var unaryArgument = argument as UnaryExpression;
-                    if (unaryArgument != null && argument.NodeType == ExpressionType.Convert)
+                    if (unaryArgument != null
+                        && argument.NodeType == ExpressionType.Convert)
                     {
                         argument = unaryArgument.Operand;
                     }
@@ -44,7 +45,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
 
                     _logger.LogInformation(
                         Strings.PossibleUnintendedUseOfEquals(
-                            methodCallExpression.Object.ToString(), 
+                            methodCallExpression.Object.ToString(),
                             argument.ToString()));
 
                     // Equals(object) always returns false if when comparing objects of different types

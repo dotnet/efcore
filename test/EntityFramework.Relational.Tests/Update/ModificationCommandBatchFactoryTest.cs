@@ -51,8 +51,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
         {
-            private readonly IRelationalValueReaderFactory _valueReaderFactory;
-
             public TestModificationCommandBatchFactory(
                 ISqlGenerator sqlGenerator)
                 : base(sqlGenerator)

@@ -19,11 +19,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 {
     public class DefaultSqlQueryGenerator : ThrowingExpressionTreeVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
     {
+        private readonly SelectExpression _selectExpression;
+
         private IndentedStringBuilder _sql;
         private List<CommandParameter> _commandParameters;
         private IDictionary<string, object> _parameterValues;
-
-        protected SelectExpression _selectExpression;
 
         public DefaultSqlQueryGenerator([NotNull] SelectExpression selectExpression)
         {
@@ -50,11 +50,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         protected virtual IndentedStringBuilder Sql => _sql;
 
         protected virtual string ConcatOperator => "+";
-
         protected virtual string ParameterPrefix => "@";
-
         protected virtual string TrueLiteral => "1";
-
         protected virtual string FalseLiteral => "0";
 
         public virtual Expression VisitSelectExpression(SelectExpression selectExpression)
@@ -215,7 +212,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
         }
 
-        public virtual Expression VisitRawSqlDerivedTableExpression([NotNull] RawSqlDerivedTableExpression rawSqlDerivedTableExpression)
+        public virtual Expression VisitRawSqlDerivedTableExpression(RawSqlDerivedTableExpression rawSqlDerivedTableExpression)
         {
             Check.NotNull(rawSqlDerivedTableExpression, nameof(rawSqlDerivedTableExpression));
 
@@ -223,13 +220,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             using (_sql.Indent())
             {
-                var substitutions = new string[rawSqlDerivedTableExpression.Parameters.Count()];
+                var substitutions = new object[rawSqlDerivedTableExpression.Parameters.Count()];
 
                 for (var index = 0; index < rawSqlDerivedTableExpression.Parameters.Count(); index++)
                 {
                     var parameterName = "p" + index;
 
                     _commandParameters.Add(new CommandParameter(parameterName, rawSqlDerivedTableExpression.Parameters[index]));
+
                     substitutions[index] = ParameterPrefix + parameterName;
                 }
 
@@ -407,10 +405,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                         && parameterValue.GetType() != typeof(string)
                         && parameterValue.GetType() != typeof(byte[]))
                     {
-                        foreach (var value in valuesCollection)
-                        {
-                            inConstants.Add(Expression.Constant(value));
-                        }
+                        inConstants.AddRange(valuesCollection.Cast<object>().Select(Expression.Constant));
                     }
                     else
                     {
@@ -436,7 +431,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 }
 
                 var inParameter = inValue as ParameterExpression;
-                if (inParameter != null && _parameterValues[inParameter.Name] != null)
+                if (inParameter != null
+                    && _parameterValues[inParameter.Name] != null)
                 {
                     inValuesNotNull.Add(inValue);
                 }
@@ -581,9 +577,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
             else
             {
-                var needParentheses = !IsSimpleExpression(binaryExpression.Left) 
-                    || !IsSimpleExpression(binaryExpression.Right)
-                    || binaryExpression.IsLogicalOperation();
+                var needParentheses = !IsSimpleExpression(binaryExpression.Left)
+                                      || !IsSimpleExpression(binaryExpression.Right)
+                                      || binaryExpression.IsLogicalOperation();
 
                 if (needParentheses)
                 {
@@ -630,9 +626,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                         op = " OR ";
                         break;
                     case ExpressionType.Add:
-                        op = IsNumericType(binaryExpression.Left.Type) && IsNumericType(binaryExpression.Right.Type)
-                            ? " + "
-                            : " " + ConcatOperator + " "; break;
+                        op = (binaryExpression.Left.Type == typeof(string)
+                              && binaryExpression.Right.Type == typeof(string))
+                            ? " " + ConcatOperator + " "
+                            : " + ";
+                        break;
                     case ExpressionType.Subtract:
                         op = " - ";
                         break;
@@ -671,16 +669,17 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         private bool IsSimpleExpression(Expression expression)
         {
             var unaryExpression = expression as UnaryExpression;
-            if (unaryExpression != null && unaryExpression.NodeType == ExpressionType.Convert)
+            if (unaryExpression != null
+                && unaryExpression.NodeType == ExpressionType.Convert)
             {
                 return IsSimpleExpression(unaryExpression.Operand);
             }
 
             return expression is ConstantExpression
-                || expression is ColumnExpression
-                || expression is ParameterExpression
-                || expression is LiteralExpression
-                || expression.IsAliasWithColumnExpression();
+                   || expression is ColumnExpression
+                   || expression is ParameterExpression
+                   || expression is LiteralExpression
+                   || expression.IsAliasWithColumnExpression();
         }
 
         public virtual Expression VisitColumnExpression(ColumnExpression columnExpression)
@@ -713,7 +712,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return aliasExpression;
         }
 
-        public virtual Expression VisitIsNullExpression([NotNull] IsNullExpression isNullExpression)
+        public virtual Expression VisitIsNullExpression(IsNullExpression isNullExpression)
         {
             Check.NotNull(isNullExpression, nameof(isNullExpression));
 
@@ -775,8 +774,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     return VisitIsNotNullExpression(isNullExpression);
                 }
 
-                var isColumnOrParameterOperand = 
-                    unaryExpression.Operand is ColumnExpression 
+                var isColumnOrParameterOperand =
+                    unaryExpression.Operand is ColumnExpression
                     || unaryExpression.Operand is ParameterExpression
                     || unaryExpression.Operand.IsAliasWithColumnExpression();
 
@@ -821,7 +820,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             _sql.Append(ParameterPrefix + parameterExpression.Name);
 
-            if (!_commandParameters.Any(commandParameter => commandParameter.Name == parameterExpression.Name))
+            if (_commandParameters.All(commandParameter => commandParameter.Name != parameterExpression.Name))
             {
                 _commandParameters.Add(new CommandParameter(parameterExpression.Name, _parameterValues[parameterExpression.Name]));
             }
@@ -904,7 +903,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         private class NullComparisonTransformingVisitor : ExpressionTreeVisitor
         {
-            private IDictionary<string, object> _parameterValues;
+            private readonly IDictionary<string, object> _parameterValues;
 
             public NullComparisonTransformingVisitor(IDictionary<string, object> parameterValues)
             {
@@ -941,37 +940,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
                 return base.VisitBinaryExpression(expression);
             }
-        }
-
-        protected static bool IsNumericType(Type type)
-        {
-            if (type == null)
-            {
-                return false;
-            }
-
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Byte:
-                case TypeCode.Decimal:
-                case TypeCode.Double:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.SByte:
-                case TypeCode.Single:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                    return true;
-                case TypeCode.Object:
-                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                    {
-                        return IsNumericType(Nullable.GetUnderlyingType(type));
-                    }
-                    return false;
-            }
-            return false;
         }
     }
 }
