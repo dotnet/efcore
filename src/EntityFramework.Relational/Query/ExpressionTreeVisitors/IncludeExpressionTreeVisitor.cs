@@ -150,6 +150,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     targetTableExpression = joinedTableExpression;
 
+                    selectExpression.RegisterReaderOffset(readerOffset);
+
                     yield return
                         Expression.Lambda(
                             Expression.Call(
@@ -160,7 +162,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                     typeof(RelationalQueryContext)),
                                 Expression.Constant(
                                     _queryCompilationContext.ValueReaderFactoryFactory.CreateValueReaderFactory(
-                                        selectExpression.GetProjectionTypes().Skip(readerOffset),
+                                        selectExpression.GetProjectionTypes(readerOffset),
                                         readerOffset)),
                                 Expression.Constant(readerIndex),
                                 materializer));
@@ -255,7 +257,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                         Expression.Call(
                                             Expression.Constant(
                                                 _queryCompilationContext.ValueReaderFactoryFactory.CreateValueReaderFactory(
-                                                    selectExpression.GetProjectionTypes(), 
+                                                    selectExpression.GetProjectionTypes(0), 
                                                     0)),
                                             _createValueReaderMethod,
                                             readerParameter),

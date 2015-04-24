@@ -33,6 +33,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         private Expression _projectionExpression;
         private bool _isDistinct;
 
+        private readonly IList<int> _offsets = new List<int> { 0 };
+
         public virtual Expression Predicate { get; [param: CanBeNull] set; }
 
         public SelectExpression()
@@ -336,8 +338,29 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return projectionIndex;
         }
 
-        public virtual IEnumerable<Type> GetProjectionTypes()
-            => _projection.Select(p => p.Type)
+        public virtual void RegisterReaderOffset(int offset)
+        {
+            _offsets.Add(offset);
+        }
+
+        public virtual IEnumerable<Type> GetProjectionTypes(int readerOffset)
+        {
+            var types = GetProjectionTypes();
+
+            if (readerOffset > 0)
+            {
+                types = types.Skip(readerOffset);
+            }
+
+            var offsetIndex = _offsets.IndexOf(readerOffset) + 1;
+
+            return offsetIndex < _offsets.Count 
+                ? types.Take(_offsets[offsetIndex] - _offsets[offsetIndex - 1]) 
+                : types;
+        }
+
+        private IEnumerable<Type> GetProjectionTypes()
+            => _projection.Select(e => e.Type)
                 .Concat(_tables.OfType<SelectExpression>().SelectMany(e => e.GetProjectionTypes()));
 
         public virtual int AddToProjection([NotNull] ColumnExpression columnExpression)
