@@ -53,6 +53,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual string ParameterPrefix => "@";
 
+        protected virtual string TrueLiteral => "1";
+
+        protected virtual string FalseLiteral => "0";
+
         public virtual Expression VisitSelectExpression(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -138,7 +142,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     if (selectExpression.Predicate is ParameterExpression
                         || selectExpression.Predicate.IsAliasWithColumnExpression())
                     {
-                        _sql.Append(" = 1");
+                        _sql.Append(" = ");
+                        _sql.Append(TrueLiteral);
                     }
                 }
             }
@@ -535,7 +540,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                         || caseExpression.When is ParameterExpression
                         || caseExpression.When.IsAliasWithColumnExpression())
                     {
-                        _sql.Append(" = 1");
+                        _sql.Append(" = ");
+                        _sql.Append(TrueLiteral);
                     }
                 }
 
@@ -591,7 +597,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                         || binaryExpression.Left is ParameterExpression
                         || binaryExpression.Left.IsAliasWithColumnExpression()))
                 {
-                    _sql.Append(" = 1");
+                    _sql.Append(" = ");
+                    _sql.Append(TrueLiteral);
                 }
 
                 string op;
@@ -647,7 +654,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                         || binaryExpression.Right is ParameterExpression
                         || binaryExpression.Right.IsAliasWithColumnExpression()))
                 {
-                    _sql.Append(" = 1");
+                    _sql.Append(" = ");
+                    _sql.Append(TrueLiteral);
                 }
 
                 if (needParentheses)
@@ -780,7 +788,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 else
                 {
                     VisitExpression(unaryExpression.Operand);
-                    _sql.Append(" = 0");
+                    _sql.Append(" = ");
+                    _sql.Append(FalseLiteral);
                 }
 
                 return unaryExpression;
@@ -836,7 +845,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual string GenerateLiteral(bool value)
         {
-            return value ? "1" : "0";
+            return value ? TrueLiteral : FalseLiteral;
         }
 
         protected virtual string GenerateLiteral([NotNull] string value)
