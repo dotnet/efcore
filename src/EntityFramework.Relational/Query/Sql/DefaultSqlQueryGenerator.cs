@@ -45,7 +45,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual string ParameterPrefix => "@";
 
-        protected virtual string TruthLiteral => "1";
+        protected virtual string TrueLiteral => "1";
+
+        protected virtual string FalseLiteral => "0";
 
         public virtual Expression VisitSelectExpression(SelectExpression selectExpression)
         {
@@ -114,7 +116,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                         || selectExpression.Predicate is ParameterExpression)
                     {
                         _sql.Append(" = ");
-                        _sql.Append(TruthLiteral);
+                        _sql.Append(TrueLiteral);
                     }
                 }
             }
@@ -498,7 +500,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     || binaryExpression.Left is ParameterExpression))
             {
                 _sql.Append(" = ");
-                _sql.Append(TruthLiteral);
+                _sql.Append(TrueLiteral);
             }
 
             if (needClosingParen)
@@ -571,7 +573,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     || binaryExpression.Right is ParameterExpression))
             {
                 _sql.Append(" = ");
-                _sql.Append(TruthLiteral);
+                _sql.Append(TrueLiteral);
             }
 
             if (needClosingParen)
@@ -700,7 +702,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 else
                 {
                     VisitExpression(unaryExpression.Operand);
-                    _sql.Append(" = 0");
+                    _sql.Append(" = ");
+                    _sql.Append(FalseLiteral);
                 }
 
                 return unaryExpression;
@@ -756,7 +759,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual string GenerateLiteral(bool value)
         {
-            return value ? "1" : "0";
+            return value ? TrueLiteral : FalseLiteral;
         }
 
         protected virtual string GenerateLiteral([NotNull] string value)
