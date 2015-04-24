@@ -47,11 +47,14 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder
-                .Append("ALTER TABLE ")
-                .Append(_sql.DelimitIdentifier(operation.Name))
-                .Append(" RENAME TO ")
-                .Append(_sql.DelimitIdentifier(operation.NewName));
+            if (operation.NewName != null)
+            {
+                builder
+                    .Append("ALTER TABLE ")
+                    .Append(_sql.DelimitIdentifier(operation.Name))
+                    .Append(" RENAME TO ")
+                    .Append(_sql.DelimitIdentifier(operation.NewName));
+            }
         }
 
         public override void Generate(RenameIndexOperation operation, IModel model, SqlBatchBuilder builder)

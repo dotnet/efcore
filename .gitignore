@@ -25,3 +25,4 @@ nuget.exe
 *.ipch
 *.sln.ide
 *.lock.json
+*.db

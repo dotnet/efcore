@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory.FunctionalTests;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Sqlite.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Xunit;
 
@@ -107,6 +108,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
     }
 
+    public class SqliteEndToEndTest : EndToEndTest<SqliteTestStore, SqliteCrossStoreFixture>, IClassFixture<SqliteCrossStoreFixture>
+    {
+        public SqliteEndToEndTest(SqliteCrossStoreFixture fixture)
+            : base(fixture)
+        {
+        }
+    }
+
     [Collection("SharedEndToEndCollection")]
     public class SharedInMemoryEndToEndTest : EndToEndTest<InMemoryTestStore, SharedCrossStoreFixture>
     {
@@ -114,13 +123,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
             : base(fixture)
         {
         }
-
-#if DNXCORE50
-        [Fact(Skip = "Fails on Core CLR")]
-        public override void Can_save_changes_and_query()
-        {
-        }
-#endif
     }
 
     [Collection("SharedEndToEndCollection")]

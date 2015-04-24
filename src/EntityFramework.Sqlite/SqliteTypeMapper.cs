@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Sqlite
             bool isKey,
             bool isConcurrencyToken)
         {
-            propertyType = propertyType.UnwrapNullableType();
+            propertyType = propertyType.UnwrapNullableType().UnwrapEnumType();
 
             if (propertyType == typeof(bool)
                 || propertyType == typeof(byte)

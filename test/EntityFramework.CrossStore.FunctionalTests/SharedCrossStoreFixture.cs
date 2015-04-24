@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.InMemory.FunctionalTests;
+using Microsoft.Data.Entity.Sqlite.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 
@@ -18,6 +19,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             : this(new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryStore()
+                .AddSqlite()
                 .AddSqlServer()
                 .ServiceCollection()
                 .BuildServiceProvider())
@@ -41,6 +43,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 return SqlServerTestStore.CreateScratch();
             }
 
+            if (testStoreType == typeof(SqliteTestStore))
+            {
+                return SqliteTestStore.CreateScratch();
+            }
+
             throw new NotImplementedException();
         }
 
@@ -53,6 +60,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 optionsBuilder.UseInMemoryStore();
 
                 return new CrossStoreContext(_serviceProvider, optionsBuilder.Options);
+            }
+
+            var sqliteTestStore = testStore as SqliteTestStore;
+            if (sqliteTestStore != null)
+            {
+                var optionsBuilder = new DbContextOptionsBuilder();
+                optionsBuilder.UseSqlite(sqliteTestStore.Connection);
+
+                var context = new CrossStoreContext(_serviceProvider, optionsBuilder.Options);
+                context.Database.EnsureCreated();
+                context.Database.AsRelational().Connection.UseTransaction(sqliteTestStore.Transaction);
+
+                return context;
             }
 
             var sqlServerTestStore = testStore as SqlServerTestStore;

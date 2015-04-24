@@ -35,6 +35,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <PackageReference Include="Microsoft.Data.Sqlite">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -77,6 +80,10 @@
       <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
       <Name>EntityFramework.InMemory</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Sqlite\EntityFramework.Sqlite.csproj">
+      <Project>{e340807b-ecbb-41df-a164-23fe833c76de}</Project>
+      <Name>EntityFramework.Sqlite</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
       <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>
       <Name>EntityFramework.SqlServer</Name>
@@ -93,6 +100,10 @@
       <Project>{82fad20c-28c6-4b48-b7e4-971ac821e27a}</Project>
       <Name>EntityFramework.Relational.FunctionalTests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Sqlite.FunctionalTests\EntityFramework.Sqlite.FunctionalTests.csproj">
+      <Project>{664b4d75-6cb7-4d90-a8e1-2a201500c859}</Project>
+      <Name>EntityFramework.Sqlite.FunctionalTests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EntityFramework.SqlServer.FunctionalTests\EntityFramework.SqlServer.FunctionalTests.csproj">
       <Project>{fa789ed6-2aac-4baa-a4fb-b600be2da956}</Project>
       <Name>EntityFramework.SqlServer.FunctionalTests</Name>
@@ -107,6 +118,7 @@
     <Compile Include="EndToEndTest.cs" />
     <Compile Include="InMemoryCrossStoreFixture.cs" />
     <Compile Include="SharedCrossStoreFixture.cs" />
+    <Compile Include="SqliteCrossStoreFixture.cs" />
     <Compile Include="SqlServerCrossStoreFixture.cs" />
     <Compile Include="TestModels\CrossStoreContext.cs" />
     <Compile Include="TestModels\SimpleEntity.cs" />
