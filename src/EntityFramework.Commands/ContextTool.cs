@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 #if DNX451 || DNXCORE50
 using System.Threading.Tasks;
 using Microsoft.AspNet.Hosting;
+using Microsoft.Framework.Runtime.Infrastructure;
 #endif
 
 namespace Microsoft.Data.Entity.Commands
@@ -31,7 +32,8 @@ namespace Microsoft.Data.Entity.Commands
 #if DNX451 || DNXCORE50
             try
             {
-                return WebHost.CreateEngine()
+                return new WebHostBuilder(CallContextServiceLocator.Locator.ServiceProvider)
+                    .Build()
                     .ApplicationServices
                     .GetService(type) as DbContext;
             }
