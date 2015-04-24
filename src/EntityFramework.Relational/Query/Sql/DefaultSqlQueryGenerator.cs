@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual string TrueLiteral => "1";
 
-        protected virtual string FalseLiteral => "1";
+        protected virtual string FalseLiteral => "0";
 
         public virtual Expression VisitSelectExpression(SelectExpression selectExpression)
         {
