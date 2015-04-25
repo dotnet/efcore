@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -13,21 +12,21 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class IncludeCollectionIterator : IDisposable
     {
-        private readonly IEnumerator<IValueReader> _relatedValuesEnumerator;
+        private readonly IEnumerator<ValueBuffer> _relatedValuesEnumerator;
 
         private bool _hasRemainingRows;
         private bool _initialized;
 
-        public IncludeCollectionIterator([NotNull] IEnumerator<IValueReader> relatedValuesEnumerator)
+        public IncludeCollectionIterator([NotNull] IEnumerator<ValueBuffer> relatedValuesEnumerator)
         {
             Check.NotNull(relatedValuesEnumerator, nameof(relatedValuesEnumerator));
 
             _relatedValuesEnumerator = relatedValuesEnumerator;
         }
 
-        public virtual IEnumerable<IValueReader> GetRelatedValues(
+        public virtual IEnumerable<ValueBuffer> GetRelatedValues(
             [NotNull] EntityKey primaryKey,
-            [NotNull] Func<IValueReader, EntityKey> relatedKeyFactory)
+            [NotNull] Func<ValueBuffer, EntityKey> relatedKeyFactory)
         {
             Check.NotNull(primaryKey, nameof(primaryKey));
             Check.NotNull(relatedKeyFactory, nameof(relatedKeyFactory));

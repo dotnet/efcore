@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             Check.NotNull(navigationPath, nameof(navigationPath));
 
             var primaryKeyParameter = Expression.Parameter(typeof(EntityKey));
-            var relatedKeyFactoryParameter = Expression.Parameter(typeof(Func<IValueReader, EntityKey>));
+            var relatedKeyFactoryParameter = Expression.Parameter(typeof(Func<ValueBuffer, EntityKey>));
 
             Expression
                 = Expression.Call(
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
                                     return Expression.Lambda<RelatedEntitiesLoader>(
                                         Expression.Call(
-                                            _getRelatedValueReadersMethodInfo,
+                                            _getRelatedValueBuffersMethodInfo,
                                             QueryContextParameter,
                                             Expression.Constant(targetType),
                                             primaryKeyParameter,
@@ -111,25 +111,25 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         });
         }
 
-        private static readonly MethodInfo _getRelatedValueReadersMethodInfo
+        private static readonly MethodInfo _getRelatedValueBuffersMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(GetRelatedValueReaders));
+                .GetDeclaredMethod(nameof(GetRelatedValueBuffers));
 
         [UsedImplicitly]
-        private static IEnumerable<EntityLoadInfo> GetRelatedValueReaders(
+        private static IEnumerable<EntityLoadInfo> GetRelatedValueBuffers(
             QueryContext queryContext,
             IEntityType targetType,
             EntityKey primaryKey,
-            Func<IValueReader, EntityKey> relatedKeyFactory,
-            Func<IEntityType, IValueReader, object> materializer)
+            Func<ValueBuffer, EntityKey> relatedKeyFactory,
+            Func<IEntityType, ValueBuffer, object> materializer)
         {
             return ((InMemoryQueryContext)queryContext).Database
                 .GetTables(targetType)
                 .SelectMany(t =>
                     t.Select(vs =>
                         new EntityLoadInfo(
-                            new ObjectArrayValueReader(vs), vr => materializer(t.EntityType, vr)))
-                        .Where(eli => relatedKeyFactory(eli.ValueReader).Equals(primaryKey)));
+                            new ValueBuffer(vs), vr => materializer(t.EntityType, vr)))
+                        .Where(eli => relatedKeyFactory(eli.ValueBuffer).Equals(primaryKey)));
         }
 
         private static readonly MethodInfo _entityQueryMethodInfo
@@ -142,8 +142,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
             QueryContext queryContext,
             QuerySourceScope parentQuerySourceScope,
             IEntityType entityType,
-            Func<IValueReader, EntityKey> entityKeyFactory,
-            Func<IEntityType, IValueReader, object> materializer,
+            Func<ValueBuffer, EntityKey> entityKeyFactory,
+            Func<IEntityType, ValueBuffer, object> materializer,
             bool queryStateManager)
             where TEntity : class
         {
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .SelectMany(t =>
                     t.Select(vs =>
                         {
-                            var valueReader = new ObjectArrayValueReader(vs);
+                            var valueBuffer = new ValueBuffer(vs);
 
                             return
                                 new QuerySourceScope<TEntity>(
@@ -161,13 +161,13 @@ namespace Microsoft.Data.Entity.InMemory.Query
                                         .QueryBuffer
                                         .GetEntity(
                                             entityType,
-                                            entityKeyFactory(valueReader),
+                                            entityKeyFactory(valueBuffer),
                                             new EntityLoadInfo(
-                                                valueReader,
+                                                valueBuffer,
                                                 vr => materializer(t.EntityType, vr)),
                                             queryStateManager),
                                     parentQuerySourceScope,
-                                    valueReader);
+                                    valueBuffer);
                         }));
         }
 
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .GetDeclaredMethod(nameof(ProjectionQuery));
 
         [UsedImplicitly]
-        private static IEnumerable<QuerySourceScope<IValueReader>> ProjectionQuery(
+        private static IEnumerable<QuerySourceScope<ValueBuffer>> ProjectionQuery(
             IQuerySource querySource,
             QueryContext queryContext,
             QuerySourceScope parentQuerySourceScope,
@@ -186,11 +186,11 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .GetTables(entityType)
                 .SelectMany(t =>
                     t.Select(vs =>
-                        new QuerySourceScope<IValueReader>(
+                        new QuerySourceScope<ValueBuffer>(
                             querySource,
-                            new ObjectArrayValueReader(vs),
+                            new ValueBuffer(vs),
                             parentQuerySourceScope,
-                            null)));
+                            new ValueBuffer())));
         }
 
         private class InMemoryEntityQueryableExpressionTreeVisitor : EntityQueryableExpressionTreeVisitor
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         .QueryCompilationContext
                         .EntityKeyFactorySource.GetKeyFactory(keyProperties);
 
-                Func<IValueReader, EntityKey> entityKeyFactory
+                Func<ValueBuffer, EntityKey> entityKeyFactory
                     = vr => keyFactory.Create(entityType, keyProperties, vr);
 
                 var materializer

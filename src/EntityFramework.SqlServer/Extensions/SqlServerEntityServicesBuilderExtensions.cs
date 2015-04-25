@@ -33,7 +33,7 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddSingleton<ISqlServerModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
                     .AddSingleton<ISqlServerCommandBatchPreparer, SqlServerCommandBatchPreparer>()
                     .AddSingleton<ISqlServerModelSource, SqlServerModelSource>()
-                    .AddSingleton<ISqlServerValueReaderFactoryFactory, SqlServerValueReaderFactoryFactory>()
+                    .AddSingleton<ISqlServerValueBufferFactoryFactory, SqlServerValueBufferFactoryFactory>()
                     .AddScoped<ISqlServerQueryContextFactory, SqlServerQueryContextFactory>()
                     .AddScoped<ISqlServerValueGeneratorSelector, SqlServerValueGeneratorSelector>()
                     .AddScoped<ISqlServerBatchExecutor, SqlServerBatchExecutor>()

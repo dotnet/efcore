@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var typeMock = materializerMock.As<IEntityType>();
             typeMock.SetupGet(et => et.ClrType).Returns(typeof(string));
 
-            var reader = Mock.Of<IValueReader>();
+            var reader = new ValueBuffer();
             GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), typeMock.Object)(reader);
 
             materializerMock.Verify(m => m.CreateEntity(reader));
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntity)factory(new ObjectArrayValueReader(new object[] { 0, "Fu", gu, 77, 0 }));
+            var entity = (SomeEntity)factory(new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntityWithFields)factory(new ObjectArrayValueReader(new object[] { 0, "Fu", gu, 77, null }));
+            var entity = (SomeEntityWithFields)factory(new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, null }));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -74,16 +74,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Fields_flagged_as_null_are_converted_to_nulls()
+        public void Can_read_nulls()
         {
-            var valueReaderMock = new Mock<IValueReader>();
-            valueReaderMock.Setup(m => m.ReadValue<int>(2)).Returns(77);
-            valueReaderMock.Setup(m => m.ReadValue<string>(0)).Throws(new InvalidCastException("Attempt to cast DBNull value."));
-            valueReaderMock.Setup(m => m.ReadValue<Guid?>(1)).Throws(new InvalidCastException("Attempt to cast DBNull value."));
-            valueReaderMock.Setup(m => m.IsNull(2)).Returns(false);
-            valueReaderMock.Setup(m => m.IsNull(0)).Returns(true);
-            valueReaderMock.Setup(m => m.IsNull(1)).Returns(true);
-
             var entityType = new Model().AddEntityType(typeof(SomeEntity));
             entityType.GetOrAddProperty("Id", typeof(int));
             entityType.GetOrAddProperty("Foo", typeof(string));
@@ -91,7 +83,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
 
-            var entity = (SomeEntity)factory(valueReaderMock.Object);
+            var entity = (SomeEntity)factory(new ValueBuffer(new object[] { null, null, 77 }));
 
             Assert.Equal(77, entity.Id);
             Assert.Null(entity.Foo);
@@ -112,7 +104,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntity)factory(new ObjectArrayValueReader(new object[] { "Fu", "FuS", gu, Guid.NewGuid(), 77, 777 }));
+            var entity = (SomeEntity)factory(new ValueBuffer(new object[] { "Fu", "FuS", gu, Guid.NewGuid(), 77, 777 }));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
@@ -120,11 +112,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         private static readonly ParameterExpression _readerParameter
-            = Expression.Parameter(typeof(IValueReader), "valueReader");
+            = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
-        public virtual Func<IValueReader, object> GetMaterializer(IEntityMaterializerSource source, IEntityType entityType)
+        public virtual Func<ValueBuffer, object> GetMaterializer(IEntityMaterializerSource source, IEntityType entityType)
         {
-            return Expression.Lambda<Func<IValueReader, object>>(
+            return Expression.Lambda<Func<ValueBuffer, object>>(
                 source.CreateMaterializeExpression(entityType, _readerParameter),
                 _readerParameter)
                 .Compile();

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -17,14 +16,13 @@ namespace Microsoft.Data.Entity.Relational.Update
     public class ModificationCommand
     {
         private readonly Func<IProperty, IRelationalPropertyExtensions> _getPropertyExtensions;
-        private readonly IBoxedValueReaderSource _boxedValueReaderSource;
-        private readonly IRelationalValueReaderFactoryFactory _valueReaderFactoryFactory;
+        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly List<InternalEntityEntry> _entries = new List<InternalEntityEntry>();
 
         private readonly LazyRef<IReadOnlyList<ColumnModification>> _columnModifications
             = new LazyRef<IReadOnlyList<ColumnModification>>(() => new ColumnModification[0]);
 
-        private readonly LazyRef<IRelationalValueReaderFactory> _valueReaderFactory;
+        private readonly LazyRef<IRelationalValueBufferFactory> _valueBufferFactory;
 
         private bool _requiresResultPropagation;
 
@@ -33,23 +31,20 @@ namespace Microsoft.Data.Entity.Relational.Update
             [CanBeNull] string schemaName,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
             [NotNull] Func<IProperty, IRelationalPropertyExtensions> getPropertyExtensions,
-            [NotNull] IBoxedValueReaderSource boxedValueReaderSource,
-            [NotNull] IRelationalValueReaderFactoryFactory valueReaderFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
         {
             Check.NotEmpty(tableName, nameof(tableName));
             Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
             Check.NotNull(getPropertyExtensions, nameof(getPropertyExtensions));
-            Check.NotNull(boxedValueReaderSource, nameof(boxedValueReaderSource));
-            Check.NotNull(valueReaderFactoryFactory, nameof(valueReaderFactoryFactory));
+            Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
             TableName = tableName;
             SchemaName = schemaName;
             ParameterNameGenerator = parameterNameGenerator;
             _getPropertyExtensions = getPropertyExtensions;
-            _boxedValueReaderSource = boxedValueReaderSource;
-            _valueReaderFactoryFactory = valueReaderFactoryFactory;
+            _valueBufferFactoryFactory = valueBufferFactoryFactory;
 
-            _valueReaderFactory = new LazyRef<IRelationalValueReaderFactory>(CreateValueReaderFactory);
+            _valueBufferFactory = new LazyRef<IRelationalValueBufferFactory>(CreateValueBufferFactory);
         }
 
         public virtual string TableName { get; }
@@ -62,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public virtual IReadOnlyList<ColumnModification> ColumnModifications => _columnModifications.Value;
 
-        public virtual IRelationalValueReaderFactory ValueReaderFactory => _valueReaderFactory.Value;
+        public virtual IRelationalValueBufferFactory ValueBufferFactory => _valueBufferFactory.Value;
 
         public virtual bool RequiresResultPropagation
         {
@@ -99,7 +94,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             _entries.Add(entry);
             _columnModifications.Reset(GenerateColumnModifications);
-            _valueReaderFactory.Reset(CreateValueReaderFactory);
+            _valueBufferFactory.Reset(CreateValueBufferFactory);
 
             return this;
         }
@@ -134,7 +129,6 @@ namespace Microsoft.Data.Entity.Relational.Update
                             property,
                             _getPropertyExtensions(property),
                             ParameterNameGenerator,
-                            readValue ? _boxedValueReaderSource.GetReader(property) : null,
                             readValue,
                             writeValue,
                             isKey,
@@ -146,23 +140,23 @@ namespace Microsoft.Data.Entity.Relational.Update
             return columnModifications;
         }
 
-        private IRelationalValueReaderFactory CreateValueReaderFactory()
-            => _valueReaderFactoryFactory
-                .CreateValueReaderFactory(
+        private IRelationalValueBufferFactory CreateValueBufferFactory()
+            => _valueBufferFactoryFactory
+                .CreateValueBufferFactory(
                     ColumnModifications
                         .Where(c => c.IsRead)
                         .Select(c => c.Property.ClrType), 0);
 
-        public virtual void PropagateResults([NotNull] IValueReader reader)
+        public virtual void PropagateResults(ValueBuffer valueBuffer)
         {
-            Check.NotNull(reader, nameof(reader));
+            Check.NotNull(valueBuffer, nameof(valueBuffer));
 
             // Note that this call sets the value into a sidecar and will only commit to the actual entity
             // if SaveChanges is successful.
             var index = 0;
             foreach (var modification in ColumnModifications.Where(o => o.IsRead))
             {
-                modification.Value = modification.BoxedValueReader.ReadValue(reader, index++);
+                modification.Value = valueBuffer[index++];
             }
         }
     }

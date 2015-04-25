@@ -24,13 +24,13 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var relationalConnectionMock = new Mock<IRelationalConnection>();
             var commandBatchPreparerMock = new Mock<ICommandBatchPreparer>();
             var batchExecutorMock = new Mock<IBatchExecutor>();
-            var valueReaderMock = new Mock<IRelationalValueReaderFactoryFactory>();
+            var valueBufferMock = new Mock<IRelationalValueBufferFactoryFactory>();
 
             var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
                 .AddInstance(commandBatchPreparerMock.Object)
                 .AddInstance(batchExecutorMock.Object)
-                .AddInstance(valueReaderMock.Object)
+                .AddInstance(valueBufferMock.Object)
                 .AddScoped<FakeRelationalDataStore>();
 
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
@@ -52,13 +52,13 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var relationalConnectionMock = new Mock<IRelationalConnection>();
             var commandBatchPreparerMock = new Mock<ICommandBatchPreparer>();
             var batchExecutorMock = new Mock<IBatchExecutor>();
-            var valueReaderMock = new Mock<IRelationalValueReaderFactoryFactory>();
+            var valueBufferMock = new Mock<IRelationalValueBufferFactoryFactory>();
 
             var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
                 .AddInstance(commandBatchPreparerMock.Object)
                 .AddInstance(batchExecutorMock.Object)
-                .AddInstance(valueReaderMock.Object)
+                .AddInstance(valueBufferMock.Object)
                 .AddScoped<FakeRelationalDataStore>();
 
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 IBatchExecutor batchExecutor,
                 IDbContextOptions options,
                 ILoggerFactory loggerFactory,
-                IRelationalValueReaderFactoryFactory valueReaderFactoryFactory)
+                IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
                 : base(
                       model, 
                       entityKeyFactorySource, 
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                       batchExecutor, 
                       options, 
                       loggerFactory,
-                      valueReaderFactoryFactory)
+                      valueBufferFactoryFactory)
             {
             }
         }

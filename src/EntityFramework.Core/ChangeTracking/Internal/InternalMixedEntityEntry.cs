@@ -28,11 +28,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IEntityType entityType,
             [NotNull] IEntityEntryMetadataServices metadataServices,
             [NotNull] object entity,
-            [NotNull] IValueReader valueReader)
+            ValueBuffer valueBuffer)
             : base(stateManager, entityType, metadataServices)
         {
             Entity = entity;
-            _shadowValues = ExtractShadowValues(valueReader);
+            _shadowValues = ExtractShadowValues(valueBuffer);
         }
 
         public override object Entity { get; }
@@ -61,13 +61,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        private object[] ExtractShadowValues(IValueReader valueReader)
+        private object[] ExtractShadowValues(ValueBuffer valueBuffer)
         {
             var shadowValues = new object[EntityType.ShadowPropertyCount()];
 
             foreach (var property in EntityType.GetProperties().Where(property => property.IsShadowProperty))
             {
-                shadowValues[property.GetShadowIndex()] = MetadataServices.ReadValueFromReader(valueReader, property);
+                shadowValues[property.GetShadowIndex()] = valueBuffer[property.Index];
             }
 
             return shadowValues;

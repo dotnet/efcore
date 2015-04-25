@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Data.Entity.SqlServer.Query
 {
-    public class SqlServerValueReaderFactoryFactory : NonTypedValueReaderFactoryFactory, ISqlServerValueReaderFactoryFactory
+    public interface ISqlServerValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
     {
     }
 }

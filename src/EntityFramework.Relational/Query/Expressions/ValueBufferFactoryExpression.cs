@@ -12,15 +12,15 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class ValueReaderFactoryExpression : ExtensionExpression
+    public class ValueBufferFactoryExpression : ExtensionExpression
     {
-        private readonly IRelationalValueReaderFactoryFactory _factoryFactory;
+        private readonly IRelationalValueBufferFactoryFactory _factoryFactory;
 
-        public ValueReaderFactoryExpression(
-            [NotNull] IRelationalValueReaderFactoryFactory factoryFactory,
+        public ValueBufferFactoryExpression(
+            [NotNull] IRelationalValueBufferFactoryFactory factoryFactory,
             [NotNull] Func<IEnumerable<Type>> typesFactory,
             int offset)
-            : base(typeof(IRelationalValueReaderFactory))
+            : base(typeof(IRelationalValueBufferFactory))
         {
             Check.NotNull(factoryFactory, nameof(factoryFactory));
             Check.NotNull(typesFactory, nameof(typesFactory));
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override Expression Reduce()
             => Constant(
-                _factoryFactory.CreateValueReaderFactory(
+                _factoryFactory.CreateValueBufferFactory(
                     TypesFactory().Skip(Offset),
                     Offset));
 

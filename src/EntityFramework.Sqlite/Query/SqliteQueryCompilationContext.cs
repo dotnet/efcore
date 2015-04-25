@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Sqlite.Query
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator methodCallTranslator,
-            [NotNull] ISqliteValueReaderFactoryFactory valueReaderFactoryFactory)
+            [NotNull] ISqliteValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
                   model,
                   logger,
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Sqlite.Query
                   entityKeyFactorySource,
                   queryMethodProvider,
                   methodCallTranslator,
-                  valueReaderFactoryFactory)
+                  valueBufferFactoryFactory)
         {
         }
 

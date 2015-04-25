@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -128,7 +129,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                     // ReSharper disable once MergeConditionalExpression
                     querySourceScope != null ? querySourceScope.Result : default(TResult),
                     querySourceScope,
-                    null);
+                    new ValueBuffer());
         }
 
         protected EntityQueryModelVisitor CreateQueryModelVisitor()

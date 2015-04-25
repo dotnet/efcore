@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
@@ -32,7 +30,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
                 Mock.Of<IProperty>(),
                 Mock.Of<IRelationalPropertyExtensions>(),
                 new ParameterNameGenerator(),
-                Mock.Of<IBoxedValueReader>(),
                 false, false, false, false);
 
             columnModificationMock.Setup(m => m.Property).Returns(new Mock<IProperty>().Object);
@@ -60,7 +57,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
                 Mock.Of<IProperty>(),
                 Mock.Of<IRelationalPropertyExtensions>(),
                 new ParameterNameGenerator(),
-                Mock.Of<IBoxedValueReader>(),
                 false, false, false, false);
 
             columnModificationMock.Setup(m => m.Property).Returns(new Mock<IProperty>().Object);

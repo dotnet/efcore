@@ -106,9 +106,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
             if (newExpression != memberExpression.Expression)
             {
-                if (newExpression.Type == typeof(IValueReader))
+                if (newExpression.Type == typeof(ValueBuffer))
                 {
-                    return _queryModelVisitor.BindMemberToValueReader(memberExpression, newExpression)
+                    return _queryModelVisitor.BindMemberToValueBuffer(memberExpression, newExpression)
                            ?? memberExpression;
                 }
 
@@ -156,16 +156,38 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
         {
-            var newExpression
-                = (MethodCallExpression)base.VisitMethodCallExpression(methodCallExpression);
+            MethodCallExpression newExpression = null;
+
+            if (methodCallExpression.Method.IsGenericMethod
+                && ReferenceEquals(
+                    methodCallExpression.Method.GetGenericMethodDefinition(),
+                    QueryExtensions.PropertyMethodInfo))
+            {
+                var newArguments
+                    = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCallExpression");
+
+                if (newArguments[0].Type == typeof(ValueBuffer))
+                {
+                    // Compensate for ValueBuffer being a struct, and hence not compatible with Object method
+                    newExpression = Expression.Call(
+                        QueryExtensions.ValueBufferPropertyMethodInfo.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()),
+                        newArguments);
+                }
+            }
+
+            if (newExpression == null)
+            {
+                newExpression 
+                    = (MethodCallExpression)base.VisitMethodCallExpression(methodCallExpression);
+            }
 
             if (newExpression != methodCallExpression
                 && newExpression.Arguments.Any()
-                && newExpression.Arguments[0].Type == typeof(IValueReader))
+                && newExpression.Arguments[0].Type == typeof(ValueBuffer))
             {
                 return
                     _queryModelVisitor
-                        .BindMethodCallToValueReader(methodCallExpression, newExpression.Arguments[0])
+                        .BindMethodCallToValueBuffer(methodCallExpression, newExpression.Arguments[0])
                     ?? newExpression;
             }
 

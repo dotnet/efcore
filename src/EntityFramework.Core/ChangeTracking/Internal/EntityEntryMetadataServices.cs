@@ -3,10 +3,8 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -18,7 +16,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private readonly IRelationshipsSnapshotFactory _relationshipsSnapshotFactory;
         private readonly IStoreGeneratedValuesFactory _storeGeneratedValuesFactory;
         private readonly IEntityKeyFactorySource _entityKeyFactorySource;
-        private readonly IBoxedValueReaderSource _boxedValueReaderSource;
 
         public EntityEntryMetadataServices(
             [NotNull] IClrAccessorSource<IClrPropertyGetter> getterSource,
@@ -26,8 +23,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IOriginalValuesFactory originalValuesFactory,
             [NotNull] IRelationshipsSnapshotFactory relationshipsSnapshotFactory,
             [NotNull] IStoreGeneratedValuesFactory storeGeneratedValuesFactory,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] IBoxedValueReaderSource boxedValueReaderSource)
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource)
         {
             _getterSource = getterSource;
             _setterSource = setterSource;
@@ -35,7 +31,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _relationshipsSnapshotFactory = relationshipsSnapshotFactory;
             _storeGeneratedValuesFactory = storeGeneratedValuesFactory;
             _entityKeyFactorySource = entityKeyFactorySource;
-            _boxedValueReaderSource = boxedValueReaderSource;
         }
 
         public virtual object ReadValue(object entity, IPropertyBase propertyBase)
@@ -57,8 +52,5 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             => _entityKeyFactorySource
                 .GetKeyFactory(properties)
                 .Create(entityType, properties, propertyAccessor);
-
-        public virtual object ReadValueFromReader(IValueReader valueReader, IProperty property)
-            => _boxedValueReaderSource.GetReader(property).ReadValue(valueReader, property.Index);
     }
 }

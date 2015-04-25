@@ -299,7 +299,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             base.VisitOrderByClause(orderByClause, queryModel, index);
         }
 
-        public override Expression BindMemberToValueReader(MemberExpression memberExpression, Expression expression)
+        public override Expression BindMemberToValueBuffer(MemberExpression memberExpression, Expression expression)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
             Check.NotNull(expression, nameof(expression));
@@ -316,7 +316,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     });
         }
 
-        public override Expression BindMethodCallToValueReader(
+        public override Expression BindMethodCallToValueBuffer(
             MethodCallExpression methodCallExpression, Expression expression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
@@ -434,23 +434,23 @@ namespace Microsoft.Data.Entity.Relational.Query
             return default(TResult);
         }
 
-        public static readonly MethodInfo CreateValueReaderMethodInfo
+        public static readonly MethodInfo CreateValueBufferMethodInfo
             = typeof(RelationalQueryModelVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(CreateValueReader));
+                .GetDeclaredMethod(nameof(CreateValueBuffer));
 
         [UsedImplicitly]
-        private static QuerySourceScope<IValueReader> CreateValueReader(
+        private static QuerySourceScope<ValueBuffer> CreateValueBuffer(
             IQuerySource querySource,
             QueryContext queryContext,
             QuerySourceScope parentQuerySourceScope,
-            IRelationalValueReaderFactory valueReaderFactory,
+            IRelationalValueBufferFactory valueBufferFactory,
             DbDataReader dataReader)
         {
-            return new QuerySourceScope<IValueReader>(
+            return new QuerySourceScope<ValueBuffer>(
                 querySource,
-                valueReaderFactory.CreateValueReader(dataReader),
+                valueBufferFactory.CreateValueBuffer(dataReader),
                 parentQuerySourceScope,
-                null);
+                new ValueBuffer());
         }
 
         public static readonly MethodInfo CreateEntityMethodInfo
@@ -462,19 +462,19 @@ namespace Microsoft.Data.Entity.Relational.Query
             IQuerySource querySource,
             QueryContext queryContext,
             QuerySourceScope parentQuerySourceScope,
-            IRelationalValueReaderFactory valueReaderFactory,
+            IRelationalValueBufferFactory valueBufferFactory,
             DbDataReader dataReader,
             IEntityType entityType,
             bool queryStateManager,
             EntityKeyFactory entityKeyFactory,
             IReadOnlyList<IProperty> keyProperties,
-            Func<IValueReader, object> materializer)
+            Func<ValueBuffer, object> materializer)
             where TEntity : class
         {
-            var valueReader = valueReaderFactory.CreateValueReader(dataReader);
+            var valueBuffer = valueBufferFactory.CreateValueBuffer(dataReader);
 
             var entityKey
-                = entityKeyFactory.Create(entityType, keyProperties, valueReader);
+                = entityKeyFactory.Create(entityType, keyProperties, valueBuffer);
 
             return new QuerySourceScope<TEntity>(
                 querySource,
@@ -483,11 +483,11 @@ namespace Microsoft.Data.Entity.Relational.Query
                         entityType,
                         entityKey,
                         new EntityLoadInfo(
-                            valueReader,
+                            valueBuffer,
                             materializer),
                         queryStateManager),
                 parentQuerySourceScope,
-                valueReader);
+                valueBuffer);
         }
     }
 }

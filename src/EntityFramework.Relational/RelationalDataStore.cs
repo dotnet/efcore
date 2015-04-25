@@ -37,20 +37,20 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] IBatchExecutor batchExecutor,
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] IRelationalValueReaderFactoryFactory valueReaderFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
                 Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
                 Check.NotNull(loggerFactory, nameof(loggerFactory)))
         {
-            ValueReaderFactoryFactory = valueReaderFactoryFactory;
+            ValueBufferFactoryFactory = valueBufferFactoryFactory;
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(batchPreparer, nameof(batchPreparer));
             Check.NotNull(batchExecutor, nameof(batchExecutor));
             Check.NotNull(options, nameof(options));
             Check.NotNull(options, nameof(options));
-            Check.NotNull(valueReaderFactoryFactory, nameof(valueReaderFactoryFactory));
+            Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
             _batchPreparer = batchPreparer;
             _batchExecutor = batchExecutor;
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Relational
             _options = options;
         }
 
-        public virtual IRelationalValueReaderFactoryFactory ValueReaderFactoryFactory { get; }
+        public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
 
         public virtual IDbContextOptions DbContextOptions => _options;
 
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Relational
                 EntityKeyFactorySource,
                 queryMethodProvider,
                 methodCallTranslator,
-                ValueReaderFactoryFactory);
+                ValueBufferFactoryFactory);
         }
     }
 }

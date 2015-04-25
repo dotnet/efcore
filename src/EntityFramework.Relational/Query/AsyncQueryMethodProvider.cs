@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     .Select(f => f())
                     .ToList();
 
-            var relatedValueReaders
+            var relatedValueBuffers
                 = includeRelatedValuesStrategies
                     .Select<IAsyncIncludeRelatedValuesStrategy, AsyncRelatedEntitiesLoader>(s => s.GetRelatedValues)
                     .ToArray();
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                                 .IncludeAsync(
                                     querySourceScope.GetResult(querySource),
                                     navigationPath,
-                                    relatedValueReaders,
+                                    relatedValueBuffers,
                                     cancellationToken,
                                     querySourceRequiresTracking);
 
@@ -128,38 +128,38 @@ namespace Microsoft.Data.Entity.Relational.Query
         [UsedImplicitly]
         private static IAsyncIncludeRelatedValuesStrategy _CreateReferenceIncludeStrategy(
             RelationalQueryContext relationalQueryContext,
-            IRelationalValueReaderFactory valueReaderFactory,
+            IRelationalValueBufferFactory valueBufferFactory,
             int readerIndex,
-            Func<IValueReader, object> materializer)
+            Func<ValueBuffer, object> materializer)
         {
             return new ReferenceIncludeRelatedValuesStrategy(
-                relationalQueryContext, valueReaderFactory, readerIndex, materializer);
+                relationalQueryContext, valueBufferFactory, readerIndex, materializer);
         }
 
         private class ReferenceIncludeRelatedValuesStrategy : IAsyncIncludeRelatedValuesStrategy
         {
             private readonly RelationalQueryContext _queryContext;
-            private readonly IRelationalValueReaderFactory _valueReaderFactory;
+            private readonly IRelationalValueBufferFactory _valueBufferFactory;
             private readonly int _readerIndex;
-            private readonly Func<IValueReader, object> _materializer;
+            private readonly Func<ValueBuffer, object> _materializer;
 
             public ReferenceIncludeRelatedValuesStrategy(
                 RelationalQueryContext queryContext,
-                IRelationalValueReaderFactory valueReaderFactory,
+                IRelationalValueBufferFactory valueBufferFactory,
                 int readerIndex,
-                Func<IValueReader, object> materializer)
+                Func<ValueBuffer, object> materializer)
             {
                 _queryContext = queryContext;
-                _valueReaderFactory = valueReaderFactory;
+                _valueBufferFactory = valueBufferFactory;
                 _readerIndex = readerIndex;
                 _materializer = materializer;
             }
 
-            public IAsyncEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<IValueReader, EntityKey> keyFactory)
+            public IAsyncEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<ValueBuffer, EntityKey> keyFactory)
             {
                 return new AsyncEnumerableAdapter<EntityLoadInfo>(
                     new EntityLoadInfo(
-                        _valueReaderFactory.CreateValueReader(_queryContext.GetDataReader(_readerIndex)),
+                        _valueBufferFactory.CreateValueBuffer(_queryContext.GetDataReader(_readerIndex)),
                         _materializer));
             }
 
@@ -221,25 +221,25 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         [UsedImplicitly]
         private static IAsyncIncludeRelatedValuesStrategy _CreateCollectionIncludeStrategy(
-            IAsyncEnumerable<IValueReader> relatedValueReaders, Func<IValueReader, object> materializer)
+            IAsyncEnumerable<ValueBuffer> relatedValueBuffers, Func<ValueBuffer, object> materializer)
         {
-            return new CollectionIncludeRelatedValuesStrategy(relatedValueReaders, materializer);
+            return new CollectionIncludeRelatedValuesStrategy(relatedValueBuffers, materializer);
         }
 
         private class CollectionIncludeRelatedValuesStrategy : IAsyncIncludeRelatedValuesStrategy
         {
             private readonly AsyncIncludeCollectionIterator _includeCollectionIterator;
-            private readonly Func<IValueReader, object> _materializer;
+            private readonly Func<ValueBuffer, object> _materializer;
 
             public CollectionIncludeRelatedValuesStrategy(
-                IAsyncEnumerable<IValueReader> relatedValueReaders, Func<IValueReader, object> materializer)
+                IAsyncEnumerable<ValueBuffer> relatedValueBuffers, Func<ValueBuffer, object> materializer)
             {
                 _materializer = materializer;
                 _includeCollectionIterator
-                    = new AsyncIncludeCollectionIterator(relatedValueReaders.GetEnumerator());
+                    = new AsyncIncludeCollectionIterator(relatedValueBuffers.GetEnumerator());
             }
 
-            public IAsyncEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<IValueReader, EntityKey> keyFactory)
+            public IAsyncEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<ValueBuffer, EntityKey> keyFactory)
             {
                 return _includeCollectionIterator
                     .GetRelatedValues(key, keyFactory)

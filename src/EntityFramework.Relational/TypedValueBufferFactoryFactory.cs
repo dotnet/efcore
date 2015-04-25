@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class TypedValueReaderFactoryFactory : IRelationalValueReaderFactoryFactory
+    public class TypedValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
     {
         private readonly MethodInfo _getFieldValueMethod
             = typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod("GetFieldValue");
@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.Relational
             = new ThreadSafeDictionaryCache<IEnumerable<Type>, Func<DbDataReader, int, object[]>>(
                 new ReferenceEnumerableEqualityComparer<IEnumerable<Type>, Type>());
 
-        public virtual IRelationalValueReaderFactory CreateValueReaderFactory(IEnumerable<Type> valueTypes, int offset)
-            => new TypedValueReaderFactory(
+        public virtual IRelationalValueBufferFactory CreateValueBufferFactory(IEnumerable<Type> valueTypes, int offset)
+            => new TypedValueBufferFactory(
                 _cache.GetOrAdd(
                     Check.NotNull(valueTypes, nameof(valueTypes)),
                     CreateArrayInitializer),

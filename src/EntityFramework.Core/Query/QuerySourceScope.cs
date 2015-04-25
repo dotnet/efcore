@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Query
                 Reparent(scope, parentScope);
             }
 
-            return new QuerySourceScope<TResult>(querySource, scope.Result, scope, null);
+            return new QuerySourceScope<TResult>(querySource, scope.Result, scope, new ValueBuffer());
         }
 
         private static void Reparent(QuerySourceScope scope, QuerySourceScope parentScope)
@@ -73,14 +73,14 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IQuerySource querySource,
             [NotNull] Expression result,
             [NotNull] Expression parentScope,
-            [CanBeNull] Expression valueReader = null)
+            [CanBeNull] Expression valueBuffer = null)
         {
             return Expression.Call(
                 _createMethodInfo.MakeGenericMethod(result.Type),
                 Expression.Constant(querySource),
                 result,
                 parentScope,
-                valueReader ?? Expression.Constant(null, typeof(IValueReader)));
+                valueBuffer ?? Expression.Constant(new ValueBuffer()));
         }
 
         public static Expression GetResult(
@@ -103,33 +103,33 @@ namespace Microsoft.Data.Entity.Query
                 _getFirstResultMethodInfo.MakeGenericMethod(resultType));
         }
 
-        private readonly IValueReader _valueReader;
+        private readonly ValueBuffer _valueBuffer;
 
         protected QuerySourceScope(
             IQuerySource querySource,
             QuerySourceScope parentScope,
-            IValueReader valueReader)
+            ValueBuffer valueBuffer)
         {
             QuerySource = querySource;
             ParentScope = parentScope;
 
-            _valueReader = valueReader;
+            _valueBuffer = valueBuffer;
         }
 
         public abstract object UntypedResult { get; }
 
         public virtual IQuerySource QuerySource { get; }
         public virtual QuerySourceScope ParentScope { get; private set; }
-        public virtual IValueReader ValueReader => _valueReader;
+        public virtual ValueBuffer ValueBuffer => _valueBuffer;
 
         [UsedImplicitly]
         private static QuerySourceScope<TResult> Create<TResult>(
             IQuerySource querySource,
             TResult result,
             QuerySourceScope parentScope,
-            IValueReader valueReader)
+            ValueBuffer valueBuffer)
         {
-            return new QuerySourceScope<TResult>(querySource, result, parentScope, valueReader);
+            return new QuerySourceScope<TResult>(querySource, result, parentScope, valueBuffer);
         }
 
         [UsedImplicitly]
@@ -153,12 +153,13 @@ namespace Microsoft.Data.Entity.Query
                 : ParentScope.GetResult(querySource);
         }
 
-        public virtual IValueReader GetValueReader([NotNull] object result)
+        public virtual ValueBuffer GetValueBuffer([NotNull] object result)
         {
             return UntypedResult == result
-                   && _valueReader != null
-                ? _valueReader
-                : ParentScope?.GetValueReader(result);
+                   && _valueBuffer.Count > 0
+                ? _valueBuffer
+                : ParentScope?.GetValueBuffer(result)
+                  ?? new ValueBuffer();
         }
     }
 }

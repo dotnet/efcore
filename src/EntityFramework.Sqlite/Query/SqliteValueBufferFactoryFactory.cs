@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Data.Entity.Sqlite.Query
 {
-    public interface ISqliteValueReaderFactoryFactory : IRelationalValueReaderFactoryFactory
+    public class SqliteValueBufferFactoryFactory : TypedValueBufferFactoryFactory, ISqliteValueBufferFactoryFactory
     {
     }
 }

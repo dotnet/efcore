@@ -76,11 +76,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return entry;
         }
 
-        public virtual InternalEntityEntry StartTracking(IEntityType entityType, object entity, IValueReader valueReader)
+        public virtual InternalEntityEntry StartTracking(IEntityType entityType, object entity, ValueBuffer valueBuffer)
         {
             // TODO: Perf: Pre-compute this for speed
             var keyProperties = entityType.GetPrimaryKey().Properties;
-            var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueReader);
+            var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueBuffer);
 
             if (keyValue == EntityKey.InvalidEntityKey)
             {
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return existingEntry;
             }
 
-            var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity, valueReader));
+            var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity, valueBuffer));
 
             _identityMap.Add(keyValue, newEntry);
             _entityReferenceMap[entity] = newEntry;

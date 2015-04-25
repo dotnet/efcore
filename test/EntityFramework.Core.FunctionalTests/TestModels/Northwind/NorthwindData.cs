@@ -126,19 +126,19 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 
         private class ShadowStateAccessRewriter : ExpressionTreeVisitorBase
         {
-            private static readonly MethodInfo _propertyMethodInfo
-                = typeof(QueryExtensions).GetTypeInfo().GetDeclaredMethod("Property");
-
             protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
             {
-                if (methodCallExpression.Method.IsGenericMethod
-                    && ReferenceEquals(
-                        methodCallExpression.Method.GetGenericMethodDefinition(),
-                        _propertyMethodInfo))
+                if (methodCallExpression.Method.IsGenericMethod)
                 {
-                    return Expression.Property(
-                        methodCallExpression.Arguments[0],
-                        (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value);
+                    var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
+
+                    if (ReferenceEquals(methodInfo, QueryExtensions.PropertyMethodInfo)
+                        || ReferenceEquals(methodInfo, QueryExtensions.ValueBufferPropertyMethodInfo))
+                    {
+                        return Expression.Property(
+                            methodCallExpression.Arguments[0],
+                            (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value);
+                    }
                 }
 
                 return base.VisitMethodCallExpression(methodCallExpression);

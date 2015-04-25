@@ -30,20 +30,20 @@ namespace Microsoft.Data.Entity.InMemory.Query
             var entityTypeParameter
                 = Expression.Parameter(typeof(IEntityType));
 
-            var valueReaderParameter
-                = Expression.Parameter(typeof(IValueReader));
+            var valueBufferParameter
+                = Expression.Parameter(typeof(ValueBuffer));
 
             var concreteEntityTypes
                 = entityType.GetConcreteTypesInHierarchy().ToArray();
 
             if (concreteEntityTypes.Length == 1)
             {
-                return Expression.Lambda<Func<IEntityType, IValueReader, object>>(
+                return Expression.Lambda<Func<IEntityType, ValueBuffer, object>>(
                     _entityMaterializerSource
                         .CreateMaterializeExpression(
-                            concreteEntityTypes[0], valueReaderParameter),
+                            concreteEntityTypes[0], valueBufferParameter),
                     entityTypeParameter,
-                    valueReaderParameter);
+                    valueBufferParameter);
             }
 
             var returnLabelTarget = Expression.Label(typeof(object));
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                                 returnLabelTarget,
                                 _entityMaterializerSource
                                     .CreateMaterializeExpression(
-                                        concreteEntityTypes[0], valueReaderParameter))),
+                                        concreteEntityTypes[0], valueBufferParameter))),
                         Expression.Label(
                             returnLabelTarget,
                             Expression.Default(returnLabelTarget.Type))
@@ -75,14 +75,14 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         Expression.Return(
                             returnLabelTarget,
                             _entityMaterializerSource
-                                .CreateMaterializeExpression(concreteEntityType, valueReaderParameter)),
+                                .CreateMaterializeExpression(concreteEntityType, valueBufferParameter)),
                         blockExpressions[0]);
             }
 
-            return Expression.Lambda<Func<IEntityType, IValueReader, object>>(
+            return Expression.Lambda<Func<IEntityType, ValueBuffer, object>>(
                 Expression.Block(blockExpressions),
                 entityTypeParameter,
-                valueReaderParameter);
+                valueBufferParameter);
         }
     }
 }

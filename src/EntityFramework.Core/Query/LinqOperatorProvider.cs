@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.Query
                         // ReSharper disable once MergeConditionalExpression
                         qss != null ? qss.Result : default(TResult),
                         qss,
-                        null));
+                        new ValueBuffer()));
         }
 
         private static readonly MethodInfo _interceptExceptions
@@ -264,14 +264,14 @@ namespace Microsoft.Data.Entity.Query
 
                             if (entity != null)
                             {
-                                var valueReader = qss.GetValueReader(entity);
+                                var valueBuffer = qss.GetValueBuffer(entity);
 
-                                if (valueReader != null)
+                                if (valueBuffer.Count > 0)
                                 {
                                     queryContext.StartTracking(
                                         entityTrackingInfos[i].EntityType,
                                         entity,
-                                        valueReader);
+                                        valueBuffer);
                                 }
                             }
                         }
@@ -340,14 +340,14 @@ namespace Microsoft.Data.Entity.Query
 
                                 if (entity != null)
                                 {
-                                    var valueReader = qss.GetValueReader(entity);
+                                    var valueBuffer = qss.GetValueBuffer(entity);
 
-                                    if (valueReader != null)
+                                    if (valueBuffer.Count > 0)
                                     {
                                         _queryContext.StartTracking(
                                             _entityTrackingInfos[i].EntityType,
                                             entity,
-                                            qss.GetValueReader(entity));
+                                            qss.GetValueBuffer(entity));
                                     }
                                 }
                             }
@@ -525,7 +525,7 @@ namespace Microsoft.Data.Entity.Query
                     qss.QuerySource,
                     (TResult)qss.UntypedResult,
                     qss,
-                    null));
+                    new ValueBuffer()));
         }
 
         public virtual MethodInfo Count => _count;
@@ -581,7 +581,7 @@ namespace Microsoft.Data.Entity.Query
                         qss.QuerySource,
                         (TDerived)qss.Result,
                         qss,
-                        null));
+                        new ValueBuffer()));
         }
 
         public virtual MethodInfo Single => _single;

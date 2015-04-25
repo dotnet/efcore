@@ -27,19 +27,19 @@ namespace Microsoft.Data.Entity.Query
         {
             private readonly IEntityType _entityType;
 
-            public BufferedEntity(IEntityType entityType, IValueReader valueReader)
+            public BufferedEntity(IEntityType entityType, ValueBuffer valueBuffer)
             {
                 _entityType = entityType;
-                ValueReader = valueReader;
+                ValueBuffer = valueBuffer;
             }
 
             public object Instance { get; set; }
 
-            public IValueReader ValueReader { get; }
+            public ValueBuffer ValueBuffer { get; }
 
             public void StartTracking(IStateManager stateManager)
             {
-                stateManager.StartTracking(_entityType, Instance, ValueReader);
+                stateManager.StartTracking(_entityType, Instance, ValueBuffer);
             }
         }
 
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Query
             if (!_byEntityKey.TryGetValue(entityKey, out bufferedEntity))
             {
                 bufferedEntity
-                    = new BufferedEntity(entityType, entityLoadInfo.ValueReader)
+                    = new BufferedEntity(entityType, entityLoadInfo.ValueBuffer)
                         {
                             // TODO: Optimize this by not materializing when not required for query execution. i.e.
                             //       entity is only needed in final results
@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.Query
 
             EntityKey primaryKey;
             List<BufferedEntity> bufferedEntities;
-            Func<IValueReader, EntityKey> relatedKeyFactory;
+            Func<ValueBuffer, EntityKey> relatedKeyFactory;
 
             var targetEntityType
                 = IncludeCore(
@@ -228,7 +228,7 @@ namespace Microsoft.Data.Entity.Query
 
             EntityKey primaryKey;
             List<BufferedEntity> bufferedEntities;
-            Func<IValueReader, EntityKey> relatedKeyFactory;
+            Func<ValueBuffer, EntityKey> relatedKeyFactory;
 
             var targetEntityType
                 = IncludeCore(
@@ -281,7 +281,7 @@ namespace Microsoft.Data.Entity.Query
             INavigation navigation,
             out EntityKey primaryKey,
             out List<BufferedEntity> bufferedEntities,
-            out Func<IValueReader, EntityKey> relatedKeyFactory)
+            out Func<ValueBuffer, EntityKey> relatedKeyFactory)
         {
             var primaryKeyFactory
                 = _entityKeyFactorySource
@@ -329,34 +329,34 @@ namespace Microsoft.Data.Entity.Query
                                 .Create(
                                     targetEntityType,
                                     navigation.ForeignKey.Properties,
-                                    bufferedEntities[0].ValueReader)
+                                    bufferedEntities[0].ValueBuffer)
                             : primaryKeyFactory
                                 .Create(
                                     navigation.EntityType,
                                     navigation.ForeignKey.PrincipalKey.Properties,
-                                    bufferedEntities[0].ValueReader);
+                                    bufferedEntities[0].ValueBuffer);
                 }
             }
 
             if (navigation.PointsToPrincipal())
             {
                 relatedKeyFactory
-                    = valueReader =>
+                    = valueBuffer =>
                         primaryKeyFactory
                             .Create(
                                 targetEntityType,
                                 navigation.ForeignKey.PrincipalKey.Properties,
-                                valueReader);
+                                valueBuffer);
             }
             else
             {
                 relatedKeyFactory
-                    = valueReader =>
+                    = valueBuffer =>
                         foreignKeyFactory
                             .Create(
                                 navigation.EntityType,
                                 navigation.ForeignKey.Properties,
-                                valueReader);
+                                valueBuffer);
             }
 
             return targetEntityType;
@@ -443,7 +443,7 @@ namespace Microsoft.Data.Entity.Query
         {
             var entityKey
                 = entityKeyFactory
-                    .Create(targetEntityType, keyProperties, entityLoadInfo.ValueReader);
+                    .Create(targetEntityType, keyProperties, entityLoadInfo.ValueBuffer);
 
             var targetEntity
                 = GetEntity(
@@ -458,7 +458,7 @@ namespace Microsoft.Data.Entity.Query
                 bufferedEntities.Add(
                     _byEntityInstance.TryGetValue(targetEntity, out bufferedTargetEntities)
                         ? bufferedTargetEntities[0]
-                        : new BufferedEntity(targetEntityType, entityLoadInfo.ValueReader)
+                        : new BufferedEntity(targetEntityType, entityLoadInfo.ValueBuffer)
                             {
                                 Instance = targetEntity
                             });

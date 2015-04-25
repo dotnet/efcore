@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var type = model.GetEntityType(typeof(Banana));
 
             var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(0).Create(
-                type, new[] { type.GetProperty("P2") }, new ObjectArrayValueReader(new object[] { 7, 77 }));
+                type, new[] { type.GetProperty("P2") }, new ValueBuffer(new object[] { 7, 77 }));
 
             Assert.Equal(77, key.Value);
         }
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
                 new SimpleEntityKeyFactory<int>(0).Create(
-                    type, new[] { type.GetProperty("P2") }, new ObjectArrayValueReader(new object[] { 7, null })));
+                    type, new[] { type.GetProperty("P2") }, new ValueBuffer(new object[] { 7, null })));
         }
 
         [Fact]

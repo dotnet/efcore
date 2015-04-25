@@ -15,22 +15,22 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class AsyncIncludeCollectionIterator : IDisposable
     {
-        private readonly IAsyncEnumerator<IValueReader> _relatedValuesEnumerator;
+        private readonly IAsyncEnumerator<ValueBuffer> _relatedValuesEnumerator;
 
         private bool _hasRemainingRows;
         private bool _moveNextPending = true;
 
         public AsyncIncludeCollectionIterator(
-            [NotNull] IAsyncEnumerator<IValueReader> relatedValuesEnumerator)
+            [NotNull] IAsyncEnumerator<ValueBuffer> relatedValuesEnumerator)
         {
             Check.NotNull(relatedValuesEnumerator, nameof(relatedValuesEnumerator));
 
             _relatedValuesEnumerator = relatedValuesEnumerator;
         }
 
-        public virtual IAsyncEnumerable<IValueReader> GetRelatedValues(
+        public virtual IAsyncEnumerable<ValueBuffer> GetRelatedValues(
             [NotNull] EntityKey primaryKey,
-            [NotNull] Func<IValueReader, EntityKey> relatedKeyFactory)
+            [NotNull] Func<ValueBuffer, EntityKey> relatedKeyFactory)
         {
             Check.NotNull(primaryKey, nameof(primaryKey));
             Check.NotNull(relatedKeyFactory, nameof(relatedKeyFactory));
@@ -38,28 +38,28 @@ namespace Microsoft.Data.Entity.Relational.Query
             return new RelatedValuesEnumerable(this, primaryKey, relatedKeyFactory);
         }
 
-        private sealed class RelatedValuesEnumerable : IAsyncEnumerable<IValueReader>
+        private sealed class RelatedValuesEnumerable : IAsyncEnumerable<ValueBuffer>
         {
             private readonly AsyncIncludeCollectionIterator _iterator;
             private readonly EntityKey _primaryKey;
-            private readonly Func<IValueReader, EntityKey> _relatedKeyFactory;
+            private readonly Func<ValueBuffer, EntityKey> _relatedKeyFactory;
 
             public RelatedValuesEnumerable(
                 AsyncIncludeCollectionIterator iterator,
                 EntityKey primaryKey,
-                Func<IValueReader, EntityKey> relatedKeyFactory)
+                Func<ValueBuffer, EntityKey> relatedKeyFactory)
             {
                 _iterator = iterator;
                 _primaryKey = primaryKey;
                 _relatedKeyFactory = relatedKeyFactory;
             }
 
-            public IAsyncEnumerator<IValueReader> GetEnumerator()
+            public IAsyncEnumerator<ValueBuffer> GetEnumerator()
             {
                 return new RelatedValuesEnumerator(this);
             }
 
-            private sealed class RelatedValuesEnumerator : IAsyncEnumerator<IValueReader>
+            private sealed class RelatedValuesEnumerator : IAsyncEnumerator<ValueBuffer>
             {
                 private readonly RelatedValuesEnumerable _relatedValuesEnumerable;
 
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     return false;
                 }
 
-                public IValueReader Current { get; private set; }
+                public ValueBuffer Current { get; private set; }
 
                 public void Dispose()
                 {

@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Sqlite
             [NotNull] ISqliteBatchExecutor batchExecutor,
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] ISqliteValueReaderFactoryFactory valueReaderFactoryFactory)
+            [NotNull] ISqliteValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
                   model,
                   entityKeyFactorySource,
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Sqlite
                   batchExecutor,
                   options,
                   loggerFactory,
-                  valueReaderFactoryFactory)
+                  valueBufferFactoryFactory)
         {
         }
 
@@ -55,6 +55,6 @@ namespace Microsoft.Data.Entity.Sqlite
                 EntityKeyFactorySource,
                 queryMethodProvider,
                 methodCallTranslator,
-                (ISqliteValueReaderFactoryFactory)ValueReaderFactoryFactory);
+                (ISqliteValueBufferFactoryFactory)ValueBufferFactoryFactory);
     }
 }

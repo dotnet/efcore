@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                     EntityQueryModelVisitor.QueryContextParameter, 
                                     typeof(RelationalQueryContext)),
                                 Expression.Constant(
-                                    _queryCompilationContext.ValueReaderFactoryFactory.CreateValueReaderFactory(
+                                    _queryCompilationContext.ValueBufferFactoryFactory.CreateValueBufferFactory(
                                         selectExpression.GetProjectionTypes(readerOffset),
                                         readerOffset)),
                                 Expression.Constant(readerIndex),
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                     .CreateCollectionIncludeRelatedValuesStrategyMethod,
                                 Expression.Call(
                                     _queryCompilationContext.QueryMethodProvider.QueryMethod
-                                        .MakeGenericMethod(typeof(IValueReader)),
+                                        .MakeGenericMethod(typeof(ValueBuffer)),
                                     EntityQueryModelVisitor.QueryContextParameter,
                                     Expression.Constant(
                                         new CommandBuilder(
@@ -256,10 +256,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                     Expression.Lambda(
                                         Expression.Call(
                                             Expression.Constant(
-                                                _queryCompilationContext.ValueReaderFactoryFactory.CreateValueReaderFactory(
+                                                _queryCompilationContext.ValueBufferFactoryFactory.CreateValueBufferFactory(
                                                     selectExpression.GetProjectionTypes(0), 
                                                     0)),
-                                            _createValueReaderMethod,
+                                            _createValueBufferMethod,
                                             readerParameter),
                                         readerParameter)),
                                 materializer));
@@ -267,9 +267,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             }
         }
 
-        private static readonly MethodInfo _createValueReaderMethod
-            = typeof(IRelationalValueReaderFactory).GetTypeInfo()
-                .GetDeclaredMethod(nameof(IRelationalValueReaderFactory.CreateValueReader));
+        private static readonly MethodInfo _createValueBufferMethod
+            = typeof(IRelationalValueBufferFactory).GetTypeInfo()
+                .GetDeclaredMethod(nameof(IRelationalValueBufferFactory.CreateValueBuffer));
 
         private Expression BuildJoinEqualityExpression(
             INavigation navigation,

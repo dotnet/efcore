@@ -158,8 +158,6 @@
     <Compile Include="Infrastructure\CoreOptionsExtension.cs" />
     <Compile Include="Infrastructure\DbContextOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptions`.cs" />
-    <Compile Include="Infrastructure\IBoxedValueReader.cs" />
-    <Compile Include="Infrastructure\IBoxedValueReaderSource.cs" />
     <Compile Include="Infrastructure\IDatabaseFactory.cs" />
     <Compile Include="Infrastructure\IDbContextOptions.cs" />
     <Compile Include="Infrastructure\IOptionsBuilderExtender.cs" />
@@ -179,8 +177,6 @@
     <Compile Include="Internal\LoggingModelValidator.cs" />
     <Compile Include="Internal\ModelSource.cs" />
     <Compile Include="Internal\ModelValidator.cs" />
-    <Compile Include="Internal\BoxedValueReaderSource.cs" />
-    <Compile Include="Internal\GenericBoxedValueReader.cs" />
     <Compile Include="Internal\ServiceProviderSource.cs" />
     <Compile Include="Metadata\Internal\IClrAccessorSource.cs" />
     <Compile Include="Metadata\Internal\IClrCollectionAccessorSource.cs" />
@@ -306,7 +302,7 @@
     <Compile Include="Metadata\INavigation.cs" />
     <Compile Include="Metadata\IProperty.cs" />
     <Compile Include="Metadata\IPropertyBase.cs" />
-    <Compile Include="Storage\IValueReader.cs" />
+    <Compile Include="Storage\ValueBuffer.cs" />
     <Compile Include="Metadata\Key.cs" />
     <Compile Include="Metadata\Internal\MemberMapper.cs" />
     <Compile Include="Infrastructure\Annotatable.cs" />
@@ -315,7 +311,6 @@
     <Compile Include="Metadata\ModelItemNotFoundException.cs" />
     <Compile Include="Metadata\PropertyBase.cs" />
     <Compile Include="Metadata\Navigation.cs" />
-    <Compile Include="Storage\ObjectArrayValueReader.cs" />
     <Compile Include="Metadata\Property.cs" />
     <Compile Include="Metadata\ModelConventions\IEntityTypeConvention.cs" />
     <Compile Include="Metadata\ModelConventions\KeyDiscoveryConvention.cs" />

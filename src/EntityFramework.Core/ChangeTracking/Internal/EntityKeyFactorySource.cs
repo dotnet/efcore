@@ -6,8 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -15,18 +13,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class EntityKeyFactorySource : IEntityKeyFactorySource
     {
-        private readonly IBoxedValueReaderSource _boxedValueReaderSource;
-
         private readonly ThreadSafeDictionaryCache<IReadOnlyList<IProperty>, EntityKeyFactory> _cache
             = new ThreadSafeDictionaryCache<IReadOnlyList<IProperty>, EntityKeyFactory>(
                 new ReferenceEnumerableEqualityComparer<IReadOnlyList<IProperty>, IProperty>());
 
-        public EntityKeyFactorySource([NotNull] IBoxedValueReaderSource boxedValueReaderSource)
-        {
-            _boxedValueReaderSource = boxedValueReaderSource;
-        }
-
-        public virtual EntityKeyFactory GetKeyFactory([NotNull] IReadOnlyList<IProperty> keyProperties)
+        public virtual EntityKeyFactory GetKeyFactory(IReadOnlyList<IProperty> keyProperties)
             => _cache.GetOrAdd(
                 keyProperties,
                 k =>
@@ -49,9 +40,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                             }
                         }
 
-                        return new CompositeEntityKeyFactory(
-                            k.Select(p => p.SentinelValue).ToList(),
-                            k.Select(p => _boxedValueReaderSource.GetReader(p)).ToList());
+                        return new CompositeEntityKeyFactory(k.Select(p => p.SentinelValue).ToList().ToList());
                     });
     }
 }

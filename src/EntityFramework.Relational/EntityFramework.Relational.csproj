@@ -69,7 +69,7 @@
     <Compile Include="IRelationalDataStore.cs" />
     <Compile Include="IRelationalDataStoreCreator.cs" />
     <Compile Include="IRelationalTypeMapper.cs" />
-    <Compile Include="IRelationalValueReaderFactoryFactory.cs" />
+    <Compile Include="IRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="ISqlGenerator.cs" />
     <Compile Include="Migrations\Builders\ColumnsBuilder.cs" />
     <Compile Include="Migrations\Builders\CreateTableBuilder.cs" />
@@ -145,15 +145,15 @@
     <Compile Include="Migrations\Sql\IMigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Sql\MigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Infrastructure\ModelDiffer.cs" />
-    <Compile Include="NonTypedValueReaderFactory.cs" />
-    <Compile Include="NonTypedValueReaderFactoryFactory.cs" />
+    <Compile Include="NonTypedValueBufferFactory.cs" />
+    <Compile Include="NonTypedValueBufferFactoryFactory.cs" />
     <Compile Include="Query\Annotations\FromSqlQueryAnnotation.cs" />
     <Compile Include="Query\AsyncQueryingEnumerable.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\CommandBuilder.cs" />
     <Compile Include="Query\CommandParameter.cs" />
     <Compile Include="Query\Expressions\NotNullableExpression.cs" />
-    <Compile Include="Query\Expressions\ValueReaderFactoryExpression.cs" />
+    <Compile Include="Query\Expressions\ValueBufferFactoryExpression.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\CompositeRelationalExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EqualityPredicateExpandingVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EqualityPredicateInExpressionOptimizer.cs" />
@@ -230,8 +230,7 @@
     <Compile Include="RelationalLoggingEventIds.cs" />
     <Compile Include="Query\RelationalQueryContext.cs" />
     <Compile Include="RelationalTransaction.cs" />
-    <Compile Include="RelationalTypedValueReader.cs" />
-    <Compile Include="IRelationalValueReaderFactory.cs" />
+    <Compile Include="IRelationalValueBufferFactory.cs" />
     <Compile Include="SqlBatch.cs" />
     <Compile Include="SqlBatchBuilder.cs" />
     <Compile Include="SqlGenerator.cs" />
@@ -245,8 +244,8 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="TypedValueReaderFactory.cs" />
-    <Compile Include="TypedValueReaderFactoryFactory.cs" />
+    <Compile Include="TypedValueBufferFactory.cs" />
+    <Compile Include="TypedValueBufferFactoryFactory.cs" />
     <Compile Include="Update\BatchExecutor.cs" />
     <Compile Include="Update\ColumnModification.cs" />
     <Compile Include="Update\CommandBatchPreparer.cs" />

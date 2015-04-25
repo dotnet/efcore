@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
@@ -18,14 +17,12 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             [NotNull] ISqlServerModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
-            [NotNull] IBoxedValueReaderSource boxedValueReaderSource,
-            [NotNull] ISqlServerValueReaderFactoryFactory valueReaderFactoryFactory)
+            [NotNull] ISqlServerValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
                   modificationCommandBatchFactory, 
                   parameterNameGeneratorFactory, 
                   modificationCommandComparer, 
-                  boxedValueReaderSource,
-                  valueReaderFactoryFactory)
+                  valueBufferFactoryFactory)
         {
         }
 

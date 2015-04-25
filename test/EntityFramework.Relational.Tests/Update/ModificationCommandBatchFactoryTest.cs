@@ -41,8 +41,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 "S", 
                 new ParameterNameGenerator(), 
                 (Func<IProperty, IRelationalPropertyExtensions>)(p => p.Relational()), 
-                Mock.Of<IBoxedValueReaderSource>(),
-                Mock.Of<IRelationalValueReaderFactoryFactory>()).Object;
+                Mock.Of<IRelationalValueBufferFactoryFactory>()).Object;
 
             factory.AddCommand(modificationCommandBatchMock.Object, mockModificationCommand);
 

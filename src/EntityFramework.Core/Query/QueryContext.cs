@@ -49,13 +49,13 @@ namespace Microsoft.Data.Entity.Query
         public virtual void StartTracking(
             [NotNull] IEntityType entityType,
             [NotNull] object instance,
-            [NotNull] IValueReader valueReader)
+            ValueBuffer valueBuffer)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(instance, nameof(instance));
-            Check.NotNull(valueReader, nameof(valueReader));
+            Check.NotNull(valueBuffer, nameof(valueBuffer));
 
-            _stateManager.StartTracking(entityType, instance, valueReader);
+            _stateManager.StartTracking(entityType, instance, valueBuffer);
 
             // TODO: Remove #2015, #2016
             QueryBuffer.StartTracking(instance);
@@ -72,16 +72,9 @@ namespace Microsoft.Data.Entity.Query
 
             var entry = _stateManager.TryGetEntry(entity);
 
-            if (entry != null)
-            {
-                return entry[property];
-            }
-
-            var valueReader = querySourceScope.GetValueReader(entity);
-
-            return valueReader.IsNull(property.Index)
-                ? null
-                : valueReader.ReadValue<object>(property.Index);
+            return entry != null 
+                ? entry[property] 
+                : querySourceScope.GetValueBuffer(entity)[property.Index];
         }
     }
 }

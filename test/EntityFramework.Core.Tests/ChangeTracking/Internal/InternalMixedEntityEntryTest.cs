@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                  configuration,
                  entityType,
                  new SomeEntity { Id = 1, Name = "Kool" },
-                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             var entity = (SomeEntity)entry.Entity;
 
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var idProperty = entityType.GetProperty("Id");
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
-            var entry = CreateInternalEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+            var entry = CreateInternalEntry(configuration, entityType, new ValueBuffer(new object[] { 1, "Kool" }));
 
             Assert.Equal(
                 Strings.OriginalValueNotTracked("Id", typeof(FullNotificationEntity).FullName),

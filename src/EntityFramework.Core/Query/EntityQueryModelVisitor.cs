@@ -977,7 +977,7 @@ namespace Microsoft.Data.Entity.Query
                     .VisitExpression(expression);
         }
 
-        public virtual Expression BindMethodCallToValueReader(
+        public virtual Expression BindMethodCallToValueBuffer(
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Expression expression)
         {
@@ -990,7 +990,7 @@ namespace Microsoft.Data.Entity.Query
                     => BindReadValueMethod(methodCallExpression.Type, expression, property.Index));
         }
 
-        public virtual Expression BindMemberToValueReader(
+        public virtual Expression BindMemberToValueBuffer(
             [NotNull] MemberExpression memberExpression,
             [NotNull] Expression expression)
         {
@@ -1187,49 +1187,52 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
             Check.NotNull(methodCallBinder, nameof(methodCallBinder));
 
-            if (methodCallExpression.Method.IsGenericMethod
-                && ReferenceEquals(
-                    methodCallExpression.Method.GetGenericMethodDefinition(),
-                    QueryExtensions.PropertyMethodInfo))
+            if (methodCallExpression.Method.IsGenericMethod)
             {
-                var targetExpression = methodCallExpression.Arguments[0];
+                var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
 
-                MemberExpression memberExpression;
-                while ((memberExpression = targetExpression as MemberExpression) != null)
+                if (ReferenceEquals(methodInfo, QueryExtensions.PropertyMethodInfo)
+                    || ReferenceEquals(methodInfo, QueryExtensions.ValueBufferPropertyMethodInfo))
                 {
-                    targetExpression = memberExpression.Expression;
-                }
+                    var targetExpression = methodCallExpression.Arguments[0];
 
-                var querySourceReferenceExpression
-                    = targetExpression as QuerySourceReferenceExpression;
-
-                if (querySourceReferenceExpression == null
-                    || querySource == null
-                    || querySource == querySourceReferenceExpression.ReferencedQuerySource)
-                {
-                    var itemType = methodCallExpression.Arguments[0].Type;
-                    var itemTypeInfo = itemType.GetTypeInfo();
-
-                    if (itemTypeInfo.IsGenericType
-                        && itemTypeInfo.GetGenericTypeDefinition() == typeof(QuerySourceScope<>))
+                    MemberExpression memberExpression;
+                    while ((memberExpression = targetExpression as MemberExpression) != null)
                     {
-                        itemType = itemTypeInfo.GenericTypeArguments[0];
+                        targetExpression = memberExpression.Expression;
                     }
 
-                    var entityType
-                        = QueryCompilationContext.Model
-                            .FindEntityType(itemType);
+                    var querySourceReferenceExpression
+                        = targetExpression as QuerySourceReferenceExpression;
 
-                    if (entityType != null)
+                    if (querySourceReferenceExpression == null
+                        || querySource == null
+                        || querySource == querySourceReferenceExpression.ReferencedQuerySource)
                     {
-                        var propertyName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-                        var property = entityType.FindProperty(propertyName);
+                        var itemType = methodCallExpression.Arguments[0].Type;
+                        var itemTypeInfo = itemType.GetTypeInfo();
 
-                        if (property != null)
+                        if (itemTypeInfo.IsGenericType
+                            && itemTypeInfo.GetGenericTypeDefinition() == typeof(QuerySourceScope<>))
                         {
-                            return methodCallBinder(
-                                property,
-                                querySourceReferenceExpression?.ReferencedQuerySource);
+                            itemType = itemTypeInfo.GenericTypeArguments[0];
+                        }
+
+                        var entityType
+                            = QueryCompilationContext.Model
+                                .FindEntityType(itemType);
+
+                        if (entityType != null)
+                        {
+                            var propertyName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                            var property = entityType.FindProperty(propertyName);
+
+                            if (property != null)
+                            {
+                                return methodCallBinder(
+                                    property,
+                                    querySourceReferenceExpression?.ReferencedQuerySource);
+                            }
                         }
                     }
                 }

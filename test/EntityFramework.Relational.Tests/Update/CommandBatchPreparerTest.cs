@@ -275,8 +275,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             return new TestCommandBatchPreparer(modificationCommandBatchFactory,
                 new ParameterNameGeneratorFactory(),
                 new ModificationCommandComparer(),
-                new BoxedValueReaderSource(),
-                Mock.Of<IRelationalValueReaderFactoryFactory>());
+                Mock.Of<IRelationalValueBufferFactoryFactory>());
         }
 
         private static IModel CreateSimpleFKModel()
@@ -342,14 +341,12 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 IModificationCommandBatchFactory modificationCommandBatchFactory,
                 IParameterNameGeneratorFactory parameterNameGeneratorFactory,
                 IComparer<ModificationCommand> modificationCommandComparer,
-                IBoxedValueReaderSource boxedValueReaderSource,
-                IRelationalValueReaderFactoryFactory valueReaderFactoryFactory)
+                IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
                 : base(
                       modificationCommandBatchFactory, 
                       parameterNameGeneratorFactory, 
                       modificationCommandComparer, 
-                      boxedValueReaderSource,
-                      valueReaderFactoryFactory)
+                      valueBufferFactoryFactory)
             {
             }
 

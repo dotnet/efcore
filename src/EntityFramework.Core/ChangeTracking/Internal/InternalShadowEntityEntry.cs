@@ -27,15 +27,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] IEntityEntryMetadataServices metadataServices,
-            [NotNull] IValueReader valueReader)
+            ValueBuffer valueBuffer)
             : base(stateManager, entityType, metadataServices)
         {
-            _propertyValues = new object[valueReader.Count];
+            _propertyValues = new object[valueBuffer.Count];
 
             var index = 0;
             foreach (var property in entityType.GetProperties())
             {
-                _propertyValues[index++] = metadataServices.ReadValueFromReader(valueReader, property);
+                _propertyValues[index++] = valueBuffer[property.Index];
             }
         }
 

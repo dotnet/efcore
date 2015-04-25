@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -22,7 +20,6 @@ namespace Microsoft.Data.Entity.Relational.Update
             [NotNull] IProperty property,
             [NotNull] IRelationalPropertyExtensions propertyExtensions,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
-            [CanBeNull] IBoxedValueReader boxedValueReader,
             bool isRead,
             bool isWrite,
             bool isKey,
@@ -32,8 +29,6 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(property, nameof(property));
             Check.NotNull(propertyExtensions, nameof(propertyExtensions));
             Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
-
-            Debug.Assert(!isRead || boxedValueReader != null);
 
             Entry = entry;
             Property = property;
@@ -48,8 +43,6 @@ namespace Microsoft.Data.Entity.Relational.Update
             _outputParameterName = isRead
                 ? new LazyRef<string>(parameterNameGenerator.GenerateNext)
                 : new LazyRef<string>((string)null);
-
-            BoxedValueReader = boxedValueReader;
 
             IsRead = isRead;
             IsWrite = isWrite;
@@ -88,7 +81,5 @@ namespace Microsoft.Data.Entity.Relational.Update
             get { return Entry[Property]; }
             [param: CanBeNull] set { Entry[Property] = value; }
         }
-
-        public virtual IBoxedValueReader BoxedValueReader { get; }
     }
 }

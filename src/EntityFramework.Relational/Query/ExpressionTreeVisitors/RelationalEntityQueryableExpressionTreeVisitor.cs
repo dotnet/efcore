@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         {
             Check.NotNull(elementType, nameof(elementType));
 
-            var queryMethodInfo = RelationalQueryModelVisitor.CreateValueReaderMethodInfo;
+            var queryMethodInfo = RelationalQueryModelVisitor.CreateValueBufferMethodInfo;
 
             var entityType = QueryModelVisitor.QueryCompilationContext.Model.GetEntityType(elementType);
 
@@ -130,8 +130,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         Expression.Constant(QuerySource),
                         EntityQueryModelVisitor.QueryContextParameter,
                         EntityQueryModelVisitor.QuerySourceScopeParameter,
-                        new ValueReaderFactoryExpression(
-                            QueryModelVisitor.QueryCompilationContext.ValueReaderFactoryFactory,
+                        new ValueBufferFactoryExpression(
+                            QueryModelVisitor.QueryCompilationContext.ValueBufferFactoryFactory,
                             () => QueryModelVisitor.GetProjectionTypes(QuerySource),
                             0),
                         _readerParameter,

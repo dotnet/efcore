@@ -38,22 +38,25 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.IsGenericMethod
-                && ReferenceEquals(
-                    methodCallExpression.Method.GetGenericMethodDefinition(),
-                    QueryExtensions.PropertyMethodInfo))
+            if (methodCallExpression.Method.IsGenericMethod)
             {
-                var newArg0 = VisitExpression(methodCallExpression.Arguments[0]);
+                var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
 
-                if (newArg0 != methodCallExpression.Arguments[0])
+                if (ReferenceEquals(methodInfo, QueryExtensions.PropertyMethodInfo)
+                    || ReferenceEquals(methodInfo, QueryExtensions.ValueBufferPropertyMethodInfo))
                 {
-                    return Expression.Call(
-                        methodCallExpression.Method,
-                        newArg0,
-                        methodCallExpression.Arguments[1]);
-                }
+                    var newArg0 = VisitExpression(methodCallExpression.Arguments[0]);
 
-                return methodCallExpression;
+                    if (newArg0 != methodCallExpression.Arguments[0])
+                    {
+                        return Expression.Call(
+                            methodCallExpression.Method,
+                            newArg0,
+                            methodCallExpression.Arguments[1]);
+                    }
+
+                    return methodCallExpression;
+                }
             }
 
             return base.VisitMethodCallExpression(methodCallExpression);
@@ -98,7 +101,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 QuerySourceScope.GetResult(
                                     EntityQueryModelVisitor.QuerySourceScopeParameter,
                                     QuerySource,
-                                    typeof(IValueReader)),
+                                    typeof(ValueBuffer)),
                                 index);
                     }
                 }

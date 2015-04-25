@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
             }
 
-            if (ReferenceEquals(newExpression.Method, RelationalQueryModelVisitor.CreateValueReaderMethodInfo)
+            if (ReferenceEquals(newExpression.Method, RelationalQueryModelVisitor.CreateValueBufferMethodInfo)
                 || newExpression.Method.MethodIsClosedFormOf(RelationalQueryModelVisitor.CreateEntityMethodInfo))
             {
                 var constantExpression = (ConstantExpression)newExpression.Arguments[0];
@@ -90,12 +90,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     if (newArguments.Count == RelationalQueryModelVisitor.CreateEntityMethodInfo.GetParameters().Length)
                     {
-                        var oldValueReaderFactory = (ValueReaderFactoryExpression)newArguments[3];
+                        var oldValueBufferFactory = (ValueBufferFactoryExpression)newArguments[3];
 
-                        newArguments[3] = new ValueReaderFactoryExpression(
-                            _relationalQueryCompilationContext.ValueReaderFactoryFactory,
-                            () => oldValueReaderFactory.TypesFactory().Skip(oldValueReaderFactory.Offset),
-                            _readerOffset + oldValueReaderFactory.Offset);
+                        newArguments[3] = new ValueBufferFactoryExpression(
+                            _relationalQueryCompilationContext.ValueBufferFactoryFactory,
+                            () => oldValueBufferFactory.TypesFactory().Skip(oldValueBufferFactory.Offset),
+                            _readerOffset + oldValueBufferFactory.Offset);
                     }
 
                     newExpression

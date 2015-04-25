@@ -32,7 +32,7 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddSingleton<ISqliteModificationCommandBatchFactory, SqliteModificationCommandBatchFactory>()
                     .AddScoped<ISqliteCommandBatchPreparer, SqliteCommandBatchPreparer>()
                     .AddSingleton<ISqliteModelSource, SqliteModelSource>()
-                    .AddSingleton<ISqliteValueReaderFactoryFactory, SqliteValueReaderFactoryFactory>()
+                    .AddSingleton<ISqliteValueBufferFactoryFactory, SqliteValueBufferFactoryFactory>()
                     .AddScoped<ISqliteQueryContextFactory, SqliteQueryContextFactory>()
                     .AddScoped<ISqliteValueGeneratorSelector, SqliteValueGeneratorSelector>()
                     .AddScoped<ISqliteBatchExecutor, SqliteBatchExecutor>()

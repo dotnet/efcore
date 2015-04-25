@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IQuerySource querySource,
             [CanBeNull] TResult result,
             [CanBeNull] QuerySourceScope parentScope,
-            [CanBeNull] IValueReader valueReader)
-            : base(querySource, parentScope, valueReader)
+            ValueBuffer valueBuffer)
+            : base(querySource, parentScope, valueBuffer)
         {
             Result = result;
         }

@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -116,7 +115,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         private static IEntityKeyFactorySource CreateKeyFactorySource()
         {
-            return new EntityKeyFactorySource(new BoxedValueReaderSource());
+            return new EntityKeyFactorySource();
         }
 
         private static IEntityType GetEntityType()

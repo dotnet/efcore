@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var type = BuildModel().GetEntityType(typeof(Banana));
 
             var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(0).Create(
-                type, type.GetPrimaryKey().Properties, new ObjectArrayValueReader(new object[] { 7, "Ate" }));
+                type, type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { 7, "Ate" }));
 
             Assert.Equal(7, key.Value);
         }
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var type = BuildModel().GetEntityType(typeof(Banana));
 
             var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(0).Create(
-                type, new[] { type.GetProperty("P2") }, new ObjectArrayValueReader(new object[] { 7, 8 }));
+                type, new[] { type.GetProperty("P2") }, new ValueBuffer(new object[] { 7, 8 }));
 
             Assert.Equal(8, key.Value);
         }
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var type = BuildModel().GetEntityType(typeof(Kiwi));
 
             var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>(null).Create(
-                type, type.GetPrimaryKey().Properties, new ObjectArrayValueReader(new object[] { "7", "Ate" }));
+                type, type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { "7", "Ate" }));
 
             Assert.Equal("7", key.Value);
         }
@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var type = BuildModel().GetEntityType(typeof(Kiwi));
 
             var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>(null).Create(
-                type, new[] { type.GetProperty("P2") }, new ObjectArrayValueReader(new object[] { "7", "Ate" }));
+                type, new[] { type.GetProperty("P2") }, new ValueBuffer(new object[] { "7", "Ate" }));
 
             Assert.Equal("Ate", key.Value);
         }
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
-                new SimpleEntityKeyFactory<int>(0).Create(type, new[] { type.GetProperty("P1") }, new ObjectArrayValueReader(new object[] { 0, 8 })));
+                new SimpleEntityKeyFactory<int>(0).Create(type, new[] { type.GetProperty("P1") }, new ValueBuffer(new object[] { 0, 8 })));
         }
 
         [Fact]
@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
-                new SimpleEntityKeyFactory<int>(0).Create(type, new[] { type.GetProperty("P2") }, new ObjectArrayValueReader(new object[] { 7, 0 })));
+                new SimpleEntityKeyFactory<int>(0).Create(type, new[] { type.GetProperty("P2") }, new ValueBuffer(new object[] { 7, 0 })));
         }
 
         [Fact]
@@ -196,7 +196,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var type = BuildModel().GetEntityType(typeof(Banana));
 
             var key = (SimpleEntityKey<int?>)new SimpleEntityKeyFactory<int?>(null).Create(
-                type, new[] { type.GetProperty("P2") }, new ObjectArrayValueReader(new object[] { 7, 0 }));
+                type, new[] { type.GetProperty("P2") }, new ValueBuffer(new object[] { 7, 0 }));
 
             Assert.Equal(0, key.Value);
         }
@@ -208,7 +208,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
-                new SimpleEntityKeyFactory<int>(7).Create(type, new[] { type.GetProperty("P1") }, new ObjectArrayValueReader(new object[] { 7, 8 })));
+                new SimpleEntityKeyFactory<int>(7).Create(type, new[] { type.GetProperty("P1") }, new ValueBuffer(new object[] { 7, 8 })));
         }
 
         [Fact]
@@ -217,7 +217,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var type = BuildModel().GetEntityType(typeof(Banana));
 
             var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(7).Create(
-                type, new[] { type.GetProperty("P1") }, new ObjectArrayValueReader(new object[] { 0, 8 }));
+                type, new[] { type.GetProperty("P1") }, new ValueBuffer(new object[] { 0, 8 }));
 
             Assert.Equal(0, key.Value);
         }

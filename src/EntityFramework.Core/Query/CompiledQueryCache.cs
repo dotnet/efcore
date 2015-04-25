@@ -183,12 +183,18 @@ namespace Microsoft.Data.Entity.Query
 
             protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
             {
-                return methodCallExpression.Method.IsGenericMethod
-                       && ReferenceEquals(
-                           methodCallExpression.Method.GetGenericMethodDefinition(),
-                           QueryExtensions.PropertyMethodInfo)
-                    ? methodCallExpression
-                    : base.VisitMethodCallExpression(methodCallExpression);
+                if (methodCallExpression.Method.IsGenericMethod)
+                {
+                    var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
+
+                    if (ReferenceEquals(methodInfo, QueryExtensions.PropertyMethodInfo)
+                        || ReferenceEquals(methodInfo, QueryExtensions.ValueBufferPropertyMethodInfo))
+                    {
+                        return methodCallExpression;
+                    }
+                }
+
+                return base.VisitMethodCallExpression(methodCallExpression);
             }
 
             public override Expression VisitExpression(Expression expression)

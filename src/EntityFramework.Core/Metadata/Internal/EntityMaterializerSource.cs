@@ -15,10 +15,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public class EntityMaterializerSource : IEntityMaterializerSource
     {
         private static readonly MethodInfo _readValue
-            = typeof(IValueReader).GetTypeInfo().GetDeclaredMethods("ReadValue").Single();
-
-        private static readonly MethodInfo _isNull
-            = typeof(IValueReader).GetTypeInfo().GetDeclaredMethods("IsNull").Single();
+            = typeof(ValueBuffer).GetTypeInfo().DeclaredProperties.Single(p => p.GetIndexParameters().Any()).GetMethod;
 
         private readonly IMemberMapper _memberMapper;
 
@@ -27,39 +24,34 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _memberMapper = memberMapper;
         }
 
-        public virtual Expression CreateReadValueExpression(Expression valueReader, Type type, int index)
+        public virtual Expression CreateReadValueExpression(Expression valueBuffer, Type type, int index)
         {
-            var unwrappedTargetMemberType = type.UnwrapNullableType();
-            var underlyingTargetMemberType = unwrappedTargetMemberType.UnwrapEnumType();
-            var indexExpression = Expression.Constant(index);
-
-            Expression readValueExpression
-                = Expression.Call(
-                    valueReader,
-                    _readValue.MakeGenericMethod(underlyingTargetMemberType),
-                    indexExpression);
-
-            if (underlyingTargetMemberType != type)
-            {
-                readValueExpression
-                    = Expression.Convert(readValueExpression, type);
-            }
+            Expression expression = Expression.Call(valueBuffer, _readValue, Expression.Constant(index));
 
             if (type.IsNullableType())
             {
-                readValueExpression
-                    = Expression.Condition(
-                        Expression.Call(valueReader, _isNull, indexExpression),
+                var underlyingType = type.UnwrapNullableType();
+                if (underlyingType.GetTypeInfo().IsEnum)
+                {
+                    return Expression.Condition(
+                        Expression.ReferenceEqual(
+                            expression,
+                            Expression.Constant(null)),
                         Expression.Constant(null, type),
-                        readValueExpression);
+                        Expression.Convert(
+                            Expression.Convert(
+                                expression,
+                                underlyingType.UnwrapEnumType()),
+                            type));
+                }
             }
 
-            return readValueExpression;
+            return Expression.Convert(expression, type);
         }
 
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,
-            Expression valueReaderExpression,
+            Expression valueBufferExpression,
             int[] indexMap = null)
         {
             var materializer = entityType as IEntityMaterializer;
@@ -68,8 +60,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 return Expression.Call(
                     Expression.Constant(materializer),
-                    ((Func<IValueReader, object>)materializer.CreateEntity).GetMethodInfo(),
-                    valueReaderExpression);
+                    ((Func<ValueBuffer, object>)materializer.CreateEntity).GetMethodInfo(),
+                    valueBufferExpression);
             }
 
             if (!entityType.HasClrType())
@@ -103,7 +95,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     Expression.Assign(
                         targetMember,
                         CreateReadValueExpression(
-                            valueReaderExpression,
+                            valueBufferExpression,
                             targetMember.Type,
                             indexMap?[mapping.Item1.Index] ?? mapping.Item1.Index)));
 

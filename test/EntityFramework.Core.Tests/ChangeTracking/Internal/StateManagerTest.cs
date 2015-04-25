@@ -41,14 +41,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var categoryType = model.GetEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            var valueReader = new ObjectArrayValueReader(new object[] { 77, "Bjork", null });
+            var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
-            stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueReader);
+            stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueBuffer);
 
             Assert.Equal(
                 Strings.IdentityConflict("Category"),
                 Assert.Throws<InvalidOperationException>(
-                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueReader)).Message);
+                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueBuffer)).Message);
         }
 
         [Fact]
@@ -59,11 +59,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var stateManager = CreateStateManager(model);
 
             var category = new Category { Id = 77 };
-            var valueReader = new ObjectArrayValueReader(new object[] { 77, "Bjork", null });
+            var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
-            var entry = stateManager.StartTracking(categoryType, category, valueReader);
+            var entry = stateManager.StartTracking(categoryType, category, valueBuffer);
 
-            Assert.Same(entry, stateManager.StartTracking(categoryType, category, valueReader));
+            Assert.Same(entry, stateManager.StartTracking(categoryType, category, valueBuffer));
         }
 
         [Fact]
@@ -73,12 +73,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var categoryType = model.GetEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            var valueReader = new ObjectArrayValueReader(new object[] { null, "Bjork", null });
+            var valueBuffer = new ValueBuffer(new object[] { null, "Bjork", null });
 
             Assert.Equal(
                 Strings.InvalidPrimaryKey("Category"),
                 Assert.Throws<InvalidOperationException>(
-                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueReader)).Message);
+                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueBuffer)).Message);
         }
 
         [Fact]
@@ -88,12 +88,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var categoryType = model.GetEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            var valueReader = new ObjectArrayValueReader(new object[] { 0, "Bjork", null });
+            var valueBuffer = new ValueBuffer(new object[] { 0, "Bjork", null });
 
             Assert.Equal(
                 Strings.InvalidPrimaryKey("Category"),
                 Assert.Throws<InvalidOperationException>(
-                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueReader)).Message);
+                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueBuffer)).Message);
         }
 
         [Fact]
@@ -104,12 +104,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             categoryType.GetProperty("Id").SentinelValue = 7;
             var stateManager = CreateStateManager(model);
 
-            var valueReader = new ObjectArrayValueReader(new object[] { 7, "Bjork", null });
+            var valueBuffer = new ValueBuffer(new object[] { 7, "Bjork", null });
 
             Assert.Equal(
                 Strings.InvalidPrimaryKey("Category"),
                 Assert.Throws<InvalidOperationException>(
-                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueReader)).Message);
+                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueBuffer)).Message);
         }
 
         [Fact]

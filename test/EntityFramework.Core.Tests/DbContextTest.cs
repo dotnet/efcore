@@ -249,7 +249,7 @@ namespace Microsoft.Data.Entity.Tests
                 throw new NotImplementedException();
             }
 
-            public InternalEntityEntry StartTracking(IEntityType entityType, object entity, IValueReader valueReader)
+            public InternalEntityEntry StartTracking(IEntityType entityType, object entity, ValueBuffer valueBuffer)
             {
                 throw new NotImplementedException();
             }

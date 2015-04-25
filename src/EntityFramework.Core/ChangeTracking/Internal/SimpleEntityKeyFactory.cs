@@ -18,26 +18,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public override EntityKey Create(
-            IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
-        {
-            var index = properties[0].Index;
-            if (!valueReader.IsNull(index))
-            {
-                var value = valueReader.ReadValue<TKey>(index);
-                if (!EqualityComparer<TKey>.Default.Equals(value, _sentinel))
-                {
-                    return new SimpleEntityKey<TKey>(entityType, value);
-                }
-            }
-
-            return EntityKey.InvalidEntityKey;
-        }
+            IEntityType entityType, IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer) 
+            => Create(entityType, valueBuffer[properties[0].Index]);
 
         public override EntityKey Create(
-            IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
-        {
-            var value = propertyAccessor[properties[0]];
+            IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor) 
+            => Create(entityType, propertyAccessor[properties[0]]);
 
+        private EntityKey Create(IEntityType entityType, object value)
+        {
             if (value != null)
             {
                 var typedValue = (TKey)value;

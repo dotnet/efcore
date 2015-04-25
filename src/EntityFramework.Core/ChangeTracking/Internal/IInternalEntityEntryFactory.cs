@@ -18,6 +18,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] object entity,
-            [NotNull] IValueReader valueReader);
+            ValueBuffer valueBuffer);
     }
 }

@@ -108,7 +108,6 @@
     <Compile Include="Infrastructure\LoggingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\NonThrowingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\ThrowingModelValidatorTest.cs" />
-    <Compile Include="Internal\BoxedValueReaderSourceTest.cs" />
     <Compile Include="Metadata\BasicModelBuilderTest.cs" />
     <Compile Include="Metadata\CollectionTyoeFactoryTest.cs" />
     <Compile Include="Metadata\EntityTypeExtensionsTest.cs" />
@@ -148,7 +147,6 @@
     <Compile Include="Infrastructure\AnnotatableTest.cs" />
     <Compile Include="Metadata\ModelTest.cs" />
     <Compile Include="Metadata\NavigationTest.cs" />
-    <Compile Include="Metadata\ObjectArrayValueReaderTest.cs" />
     <Compile Include="Metadata\PropertyTest.cs" />
     <Compile Include="Metadata\ModelConventions\KeyDiscoveryConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\PropertyDiscoveryConventionTest.cs" />

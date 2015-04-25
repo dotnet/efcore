@@ -10,21 +10,20 @@ namespace Microsoft.Data.Entity.Query
 {
     public struct EntityLoadInfo
     {
-        private readonly Func<IValueReader, object> _materializer;
+        private readonly Func<ValueBuffer, object> _materializer;
 
         public EntityLoadInfo(
-            [NotNull] IValueReader valueReader, [NotNull] Func<IValueReader, object> materializer)
+            ValueBuffer valueBuffer, [NotNull] Func<ValueBuffer, object> materializer)
         {
             // hot path
-            Debug.Assert(valueReader != null);
             Debug.Assert(materializer != null);
 
-            ValueReader = valueReader;
+            ValueBuffer = valueBuffer;
             _materializer = materializer;
         }
 
-        public IValueReader ValueReader { get; }
+        public ValueBuffer ValueBuffer { get; }
 
-        public object Materialize() => _materializer(ValueReader);
+        public object Materialize() => _materializer(ValueBuffer);
     }
 }

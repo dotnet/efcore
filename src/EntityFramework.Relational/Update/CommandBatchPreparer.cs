@@ -17,27 +17,23 @@ namespace Microsoft.Data.Entity.Relational.Update
         private readonly IModificationCommandBatchFactory _modificationCommandBatchFactory;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly IComparer<ModificationCommand> _modificationCommandComparer;
-        private readonly IBoxedValueReaderSource _boxedValueReaderSource;
-        private readonly IRelationalValueReaderFactoryFactory _valueReaderFactoryFactory;
+        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
 
         protected CommandBatchPreparer(
             [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
-            [NotNull] IBoxedValueReaderSource boxedValueReaderSource,
-            [NotNull] IRelationalValueReaderFactoryFactory valueReaderFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
         {
             Check.NotNull(modificationCommandBatchFactory, nameof(modificationCommandBatchFactory));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
             Check.NotNull(modificationCommandComparer, nameof(modificationCommandComparer));
-            Check.NotNull(boxedValueReaderSource, nameof(boxedValueReaderSource));
-            Check.NotNull(valueReaderFactoryFactory, nameof(valueReaderFactoryFactory));
+            Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
             _modificationCommandBatchFactory = modificationCommandBatchFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
             _modificationCommandComparer = modificationCommandComparer;
-            _boxedValueReaderSource = boxedValueReaderSource;
-            _valueReaderFactoryFactory = valueReaderFactoryFactory;
+            _valueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
         public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<InternalEntityEntry> entries, IDbContextOptions options)
@@ -77,8 +73,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                     GetEntityTypeExtensions(e.EntityType).Schema,
                     parameterNameGenerator,
                     GetPropertyExtensions,
-                    _boxedValueReaderSource,
-                    _valueReaderFactoryFactory)
+                    _valueBufferFactoryFactory)
                     .AddEntry(e));
         }
 

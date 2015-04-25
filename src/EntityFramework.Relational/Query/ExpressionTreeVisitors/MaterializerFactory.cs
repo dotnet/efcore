@@ -36,8 +36,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(projectionAdder, nameof(projectionAdder));
 
-            var valueReaderParameter
-                = Expression.Parameter(typeof(IValueReader));
+            var valueBufferParameter
+                = Expression.Parameter(typeof(ValueBuffer));
 
             var concreteEntityTypes
                 = entityType.GetConcreteTypesInHierarchy().ToArray();
@@ -54,12 +54,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var materializer
                 = _entityMaterializerSource
                     .CreateMaterializeExpression(
-                        concreteEntityTypes[0], valueReaderParameter, indexMap);
+                        concreteEntityTypes[0], valueBufferParameter, indexMap);
 
             if (concreteEntityTypes.Length == 1
                 && concreteEntityTypes[0].RootType() == concreteEntityTypes[0])
             {
-                return Expression.Lambda<Func<IValueReader, object>>(materializer, valueReaderParameter);
+                return Expression.Lambda<Func<ValueBuffer, object>>(materializer, valueBufferParameter);
             }
 
             var discriminatorProperty
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 selectExpression.Predicate
                     = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);
 
-                return Expression.Lambda<Func<IValueReader, object>>(materializer, valueReaderParameter);
+                return Expression.Lambda<Func<ValueBuffer, object>>(materializer, valueBufferParameter);
             }
 
             var discriminatorValueVariable
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             discriminatorValueVariable,
                             _entityMaterializerSource
                                 .CreateReadValueExpression(
-                                    valueReaderParameter,
+                                    valueBufferParameter,
                                     discriminatorProperty.ClrType,
                                     discriminatorProperty.Index)),
                         Expression.IfThenElse(
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                 materializer
                     = _entityMaterializerSource
-                        .CreateMaterializeExpression(concreteEntityType, valueReaderParameter, indexMap);
+                        .CreateMaterializeExpression(concreteEntityType, valueBufferParameter, indexMap);
 
                 blockExpressions[1]
                     = Expression.IfThenElse(
@@ -146,9 +146,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             selectExpression.Predicate
                 = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);
 
-            return Expression.Lambda<Func<IValueReader, object>>(
+            return Expression.Lambda<Func<ValueBuffer, object>>(
                 Expression.Block(new[] { discriminatorValueVariable }, blockExpressions),
-                valueReaderParameter);
+                valueBufferParameter);
         }
 
         private static readonly MethodInfo _createUnableToDiscriminateException

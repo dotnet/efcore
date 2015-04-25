@@ -4,26 +4,22 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class TypedValueReaderFactory : IRelationalValueReaderFactory
+    public class NonTypedValueBufferFactory : IRelationalValueBufferFactory
     {
-        private readonly Func<DbDataReader, int, object[]> _reader;
         private readonly int _offset;
+        private readonly int _bufferSize;
 
-        public TypedValueReaderFactory([NotNull] Func<DbDataReader, int, object[]> reader, int offset)
+        public NonTypedValueBufferFactory(int offset, int count)
         {
-            Check.NotNull(reader, nameof(reader));
-
-            _reader = reader;
             _offset = offset;
+            _bufferSize = offset + count;
         }
 
-        public virtual IValueReader CreateValueReader(DbDataReader dataReader)
+        public virtual ValueBuffer CreateValueBuffer(DbDataReader dataReader)
         {
             Debug.Assert(dataReader != null); // hot path
 
@@ -31,7 +27,15 @@ namespace Microsoft.Data.Entity.Relational
 
             dataReader.GetValues(values);
 
-            return new ObjectArrayValueReader(_reader(dataReader, _offset));
+            for (var i = _offset; i < _bufferSize; i++)
+            {
+                if (ReferenceEquals(values[i], DBNull.Value))
+                {
+                    values[i] = null;
+                }
+            }
+
+            return new ValueBuffer(values, _offset, _bufferSize - _offset);
         }
     }
 }

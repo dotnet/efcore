@@ -660,7 +660,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 configuration,
                 entityType,
                 new SomeEntity { Id = 1, Name = "Kool" },
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             Assert.Equal(1, entry[keyProperty]);
         }
@@ -677,7 +677,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 configuration,
                 entityType,
                 new SomeEntity { Id = 1, Name = "Kool" },
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry[keyProperty] = 77;
 
@@ -738,7 +738,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 configuration, 
                 entityType, 
                 entity, 
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -789,7 +789,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
-            var entry = CreateInternalEntry(configuration, entityType, entity, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+            var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
 
             Assert.Equal("Kool", entry.OriginalValues[nameProperty]);
@@ -832,7 +832,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
-            var entry = CreateInternalEntry(configuration, entityType, entity, new ObjectArrayValueReader(new object[] { 1, null }));
+            var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, null }));
             entry.SetEntityState(EntityState.Unchanged);
 
             Assert.Null(entry.OriginalValues[nameProperty]);
@@ -870,7 +870,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
-            var entry = CreateInternalEntry(configuration, entityType, entity, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+            var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
 
             Assert.False(entry.IsPropertyModified(idProperty));
@@ -899,7 +899,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
-            var entry = CreateInternalEntry(configuration, entityType, entity, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+            var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
 
             Assert.False(entry.IsPropertyModified(nameProperty));
@@ -946,7 +946,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 configuration, 
                 entityType, 
                 new SomeEntity { Id = 1, Name = "Kool" }, 
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(entityState);
 
@@ -978,7 +978,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 configuration, 
                 entityType, 
                 new SomeEntity { Id = 1, Name = "Kool" }, 
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(entityState);
 
@@ -1004,7 +1004,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 configuration, 
                 entityType, 
                 new SomeEntity { Id = 1, Name = "Kool" }, 
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(EntityState.Modified);
 
@@ -1028,7 +1028,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 configuration, 
                 entityType, 
                 new SomeEntity { Id = 1, Name = "Kool" }, 
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(EntityState.Deleted);
 
@@ -1045,7 +1045,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 TestHelpers.Instance.CreateContextServices(model),
                 model.GetEntityType(typeof(SomeEntity).FullName),
                 new SomeEntity { Id = 1, Name = "Kool" }, 
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             var sidecarMock1 = new Mock<Sidecar>(entry);
             sidecarMock1.Setup(m => m.Name).Returns("IMZ-Ural");
@@ -1113,7 +1113,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 TestHelpers.Instance.CreateContextServices(model),
                 entityType, 
                 new SomeEntity { Id = 1, Name = "Kool" }, 
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }));
 
@@ -1143,7 +1143,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 TestHelpers.Instance.CreateContextServices(model),
                 entityType, 
                 new SomeEntity { Id = 1, Name = "Kool" }, 
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }, transparentRead: true));
 
@@ -1181,7 +1181,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 TestHelpers.Instance.CreateContextServices(model),
                 entityType, 
                 new SomeEntity { Id = 1, Name = "Kool" }, 
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }, transparentWrite: true));
 
@@ -1218,7 +1218,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new SomeEntity { Id = 1, Name = "Kool" },
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }, autoCommit: true));
 
@@ -1247,7 +1247,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new SomeEntity { Id = 1, Name = "Kool" },
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }, autoCommit: true));
 
@@ -1301,7 +1301,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 TestHelpers.Instance.CreateContextServices(customServices, model),
                 entityType,
                 new SomeEntity { Id = 1, Name = "Kool" },
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(EntityState.Added);
             entry.PrepareToSave();
@@ -1322,7 +1322,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new SomeEntity { Id = 1, Name = "Kool" },
-                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(EntityState.Added);
             entry.PrepareToSave();
@@ -1341,7 +1341,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new SomeEntity { Id = 1 },
-                new ObjectArrayValueReader(new object[] { 1, null }));
+                new ValueBuffer(new object[] { 1, null }));
 
             entry.SetEntityState(EntityState.Added);
             entry.PrepareToSave();
@@ -1364,7 +1364,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new SomeEntity { Id = 1 },
-                new ObjectArrayValueReader(new object[] { 1, null }));
+                new ValueBuffer(new object[] { 1, null }));
 
             entry.SetEntityState(EntityState.Added);
             entry.PrepareToSave();
@@ -1388,7 +1388,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 TestHelpers.Instance.CreateContextServices(customServices, model),
                 entityType,
                 new SecondDependent { Id = 1 },
-                new ObjectArrayValueReader(new object[] { 1 }));
+                new ValueBuffer(new object[] { 1 }));
 
             entry.SetEntityState(EntityState.Added);
             entry.PrepareToSave();
@@ -1409,7 +1409,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new SecondDependent { Id = 1 },
-                new ObjectArrayValueReader(new object[] { 1 }));
+                new ValueBuffer(new object[] { 1 }));
 
             entry.SetEntityState(EntityState.Added);
             entry.PrepareToSave();
@@ -1491,12 +1491,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                     .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity));
         }
 
-        protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity, IValueReader valueReader)
+        protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity, ValueBuffer valueBuffer)
         {
             return contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(
                 new InternalEntityEntryFactory(
                     contextServices.GetRequiredService<IEntityEntryMetadataServices>())
-                    .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity, valueReader));
+                    .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity, valueBuffer));
         }
 
         protected virtual Model BuildModel()

@@ -88,12 +88,11 @@
     <Compile Include="Migrations\SqliteHistoryRepository.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGenerator.cs" />
     <Compile Include="Migrations\SqliteModelDiffer.cs" />
-    <Compile Include="Query\ISqliteValueReaderFactoryFactory.cs" />
+    <Compile Include="Query\ISqliteValueBufferFactoryFactory.cs" />
     <Compile Include="Query\SqliteQueryCompilationContext.cs" />
     <Compile Include="Query\SqliteQueryContextFactory.cs" />
     <Compile Include="Query\SqliteQueryGenerator.cs" />
-    <Compile Include="Query\SqliteValueReaderFactory.cs" />
-    <Compile Include="Query\SqliteValueReaderFactoryFactory.cs" />
+    <Compile Include="Query\SqliteValueBufferFactoryFactory.cs" />
     <Compile Include="SqliteDatabaseFactory.cs" />
     <Compile Include="SqliteDataStoreConnection.cs" />
     <Compile Include="SqliteDataStoreCreator.cs" />

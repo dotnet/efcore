@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddEntityFramework()
                     .AddSqlServer();
 
-                serviceCollection.AddSingleton<ISqlServerValueReaderFactoryFactory, TestTypedValueReaderFactoryFactory>();
+                serviceCollection.AddSingleton<ISqlServerValueBufferFactoryFactory, TestTypedValueBufferFactoryFactory>();
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 using (var db = new NorthwindContext(serviceProvider))
@@ -88,15 +88,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        public class TestTypedValueReaderFactoryFactory : ISqlServerValueReaderFactoryFactory
+        public class TestTypedValueBufferFactoryFactory : TypedValueBufferFactoryFactory, ISqlServerValueBufferFactoryFactory
         {
-            public IRelationalValueReaderFactory CreateValueReaderFactory(IEnumerable<Type> valueTypes, int offset) 
-                => new TestTypedValueReaderFactory();
-        }
-
-        public class TestTypedValueReaderFactory : IRelationalValueReaderFactory
-        {
-            public virtual IValueReader CreateValueReader(DbDataReader dataReader) => new RelationalTypedValueReader(dataReader);
         }
 
         [Fact]
