@@ -53,6 +53,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         protected virtual string ParameterPrefix => "@";
         protected virtual string TrueLiteral => "1";
         protected virtual string FalseLiteral => "0";
+        protected virtual string TypedTrueLiteral => "CAST(1 AS BIT)";
+        protected virtual string TypedFalseLiteral => "CAST(0 AS BIT)";
 
         public virtual Expression VisitSelectExpression(SelectExpression selectExpression)
         {
@@ -541,7 +543,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     }
                 }
 
-                _sql.Append(") THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END");
+                _sql.Append(") THEN ");
+                _sql.Append(TypedTrueLiteral);
+                _sql.Append(" ELSE ");
+                _sql.Append(TypedFalseLiteral);
+                _sql.Append(" END");
             }
             return caseExpression;
         }
