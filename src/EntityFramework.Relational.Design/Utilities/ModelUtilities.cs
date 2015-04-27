@@ -40,9 +40,9 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var primaryKeyProperties =
+            var primaryKeyProperties = 
                 ((EntityType)entityType).FindPrimaryKey()?.Properties.ToList()
-                ?? new List<Property>();
+                ?? Enumerable.Empty<Property>();
 
             foreach (var property in primaryKeyProperties)
             {

@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         }
 
         /// <summary>
-        /// The SQL Server EntityType CodeGenerator is unable to generate EntityType {entityTypeName}. Error message: {errorMessage}.
+        /// Unable to generate EntityType {entityTypeName}. Error message: {errorMessage}
         /// </summary>
         public static string CannotGenerateEntityType([CanBeNull] object entityTypeName, [CanBeNull] object errorMessage)
         {
@@ -74,6 +74,22 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         public static string DataTypeDoesNotAllowIdentityStrategy([CanBeNull] object columnId, [CanBeNull] object sqlServerDataType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DataTypeDoesNotAllowIdentityStrategy", "columnId", "sqlServerDataType"), columnId, sqlServerDataType);
+        }
+
+        /// <summary>
+        /// Attempt to generate EntityType {entityTypeName} failed. Unable to identify any primary key columns in the underlying SQL Server table {schemaName}.{tableName}.
+        /// </summary>
+        public static string NoPrimaryKeyColumns([CanBeNull] object entityTypeName, [CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoPrimaryKeyColumns", "entityTypeName", "schemaName", "tableName"), entityTypeName, schemaName, tableName);
+        }
+
+        /// <summary>
+        /// Unable to add a Navigation Property referencing type {referencedEntityTypeName} because of errors generating that EntityType.
+        /// </summary>
+        public static string UnableToAddNavigationProperty([CanBeNull] object referencedEntityTypeName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToAddNavigationProperty", "referencedEntityTypeName"), referencedEntityTypeName);
         }
 
         /// <summary>

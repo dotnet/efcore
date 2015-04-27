@@ -1,0 +1,101 @@
+@inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
+// Generated using Provider Assembly: @Model.ProviderAssembly
+// And Database Connection String: @Model.ConnectionString
+
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace @Model.Namespace
+{
+@{
+var className = Model.ClassName ?? Model.Helper.ClassName(Model.ConnectionString);
+}    public partial class @className : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlServer(@Model.Helper.VerbatimStringLiteral(@Model.ConnectionString));
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+@{
+var firstEntity = true;
+}@foreach(var entityConfig in Model.Helper.EntityConfigurations)
+{
+    var firstConfig = true;
+    @if(!firstEntity)
+    {
+@:
+    }
+    firstEntity = false;
+@:            modelBuilder.Entity<@entityConfig.EntityType.DisplayName()>(entity =>
+@:            {
+    @foreach(var entityFacet in @entityConfig.FacetConfigurations)
+    {
+        @if(!firstConfig)
+        {
+@:
+        }
+        firstConfig = false;
+@:                entity@(entityFacet.ToString());
+    }                        
+    var firstFacet = true;
+    @foreach(var propertyConfig in @entityConfig.PropertyConfigurations)
+    {
+        @foreach(var keyValuePair in @propertyConfig.FacetConfigurations)
+        {
+            @foreach(var facetMethodBody in @keyValuePair.Value)
+            {
+                @if(!firstConfig || !firstFacet)
+                {
+@:
+                }
+                firstFacet = false;
+                @if(string.IsNullOrEmpty(keyValuePair.Key))
+                {
+@:                entity.Property(e => e.@(propertyConfig.Property.Name))
+@:                    .@(facetMethodBody.ToString());
+                }
+                else
+                {
+@:                entity.Property(e => e.@(propertyConfig.Property.Name))
+@:                    .@(keyValuePair.Key).@(facetMethodBody.ToString());
+                }
+            }
+        }
+    }
+@:            });
+}
+
+@{
+var firstNavigation = true;
+}
+@foreach(var navigationConfig in Model.Helper.NavigationConfigurations)
+{
+    var firstConfig = true;
+    @if(!firstNavigation)
+    {
+@:
+    }
+    firstNavigation = false;
+@:            modelBuilder.Entity<@navigationConfig.EntityType.DisplayName()>(entity =>
+@:            {
+    @foreach(var navigationFacet in @navigationConfig.FacetConfigurations)
+    {
+        @if(!firstConfig)
+        {
+@:
+        }
+        firstConfig = false;
+@:                entity@(navigationFacet.ToString());
+    }                        
+@:            });
+}
+        }@* End of OnModelCreating() *@
+
+@foreach(var et in Model.Helper.OrderedEntityTypes())
+{
+@:        public virtual DbSet<@et.Name> @et.Name { get; set; }
+}
+    }
+}

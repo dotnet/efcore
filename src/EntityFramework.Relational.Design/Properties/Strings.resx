@@ -123,6 +123,12 @@
   <data name="ConnectionStringRequired" xml:space="preserve">
     <value>ConnectionString is required to generate code.</value>
   </data>
+  <data name="ErrorRunningDbContextTemplate" xml:space="preserve">
+    <value>There was an error running the DbContext template. Message: {errorMessage}</value>
+  </data>
+  <data name="ErrorRunningEntityTypeTemplate" xml:space="preserve">
+    <value>There was an error running the EntityType template. Message: {errorMessage}</value>
+  </data>
   <data name="NamespaceRequired" xml:space="preserve">
     <value>Namespace is required to generate code.</value>
   </data>
@@ -143,5 +149,11 @@
   </data>
   <data name="ReadOnlyFiles" xml:space="preserve">
     <value>No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.</value>
+  </data>
+  <data name="TemplateProcessingFailed" xml:space="preserve">
+    <value>Template Processing Failed: {errorMessages}</value>
+  </data>
+  <data name="UnableToCreateMetadataReference" xml:space="preserve">
+    <value>Unable to create metadata reference from name {0}.</value>
   </data>
 </root>
