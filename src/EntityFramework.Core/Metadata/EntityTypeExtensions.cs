@@ -91,6 +91,13 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType.BaseType?.RootType() ?? entityType;
         }
 
+        public static IEnumerable<IProperty> GetDeclaredProperties([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return entityType.GetProperties().Where(p => p.EntityType == entityType);
+        }
+
         public static IEnumerable<IPropertyBase> GetPropertiesAndNavigations(
             [NotNull] this IEntityType entityType)
         {

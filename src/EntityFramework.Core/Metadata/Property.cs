@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     SetRequiredFlag(value, PropertyFlags.IsShadowProperty);
 
-                    EntityType.OnPropertyMetadataChanged(this, this);
+                    EntityType.PropertyMetadataChanged(this);
                 }
 
                 SetRequiredFlag(value, PropertyFlags.IsShadowProperty);
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     SetFlag(value, PropertyFlags.IsConcurrencyToken);
 
-                    EntityType.OnPropertyMetadataChanged(this, this);
+                    EntityType.PropertyMetadataChanged(this);
                 }
             }
         }

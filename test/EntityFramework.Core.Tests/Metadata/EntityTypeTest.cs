@@ -51,10 +51,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             //       \
             //        D
 
-            var a = new EntityType(typeof(A), model);
-            var b = new EntityType(typeof(B), model) { BaseType = a };
-            var c = new EntityType(typeof(C), model) { BaseType = a };
-            var d = new EntityType(typeof(D), model) { BaseType = c };
+            var a = model.AddEntityType(typeof(A));
+            var b = model.AddEntityType(typeof(B));
+            var c = model.AddEntityType(typeof(C));
+            var d = model.AddEntityType(typeof(D));
+
+            b.BaseType = a;
+            c.BaseType = a;
+            d.BaseType = c;
 
             Assert.Equal(
                 Strings.CircularInheritance(a, a),
@@ -78,15 +82,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             //   / \
             //  B   C
 
-            var a = new EntityType(typeof(A), model);
+            var a = model.AddEntityType(typeof(A));
             a.AddProperty("G", typeof(string));
             a.AddProperty("E", typeof(string));
 
-            var b = new EntityType(typeof(B), model);
+            var b = model.AddEntityType(typeof(B));
             b.AddProperty("H", typeof(string));
             b.AddProperty("F", typeof(string));
 
-            var c = new EntityType(typeof(C), model);
+            var c = model.AddEntityType(typeof(C));
             c.AddProperty("H", typeof(string), true);
             c.AddProperty("I", typeof(string), true);
 
@@ -113,9 +117,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             //   / \
             //  B   C
 
-            var a = new EntityType(typeof(A), model);
-            var b = new EntityType(typeof(B), model);
-            var c = new EntityType(typeof(C), model);
+            var a = model.AddEntityType(typeof(A));
+            var b = model.AddEntityType(typeof(B));
+            var c = model.AddEntityType(typeof(C));
 
             b.BaseType = a;
             c.BaseType = a;
@@ -137,14 +141,54 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Properties_should_be_updated_when_base_type_changes()
+        {
+            var model = new Model();
+
+            var b = model.AddEntityType(typeof(B));
+            b.AddProperty("H", typeof(string));
+            b.AddProperty("F", typeof(string));
+
+            var c = model.AddEntityType(typeof(C));
+            c.AddProperty("E", typeof(string));
+            c.AddProperty("G", typeof(string));
+            c.BaseType = b;
+
+            Assert.Equal(new[] { "F", "H" }, b.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "F", "H", "E", "G" }, c.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { 0, 1 }, b.Properties.Select(p => p.Index));
+            Assert.Equal(new[] { 0, 1, 2, 3 }, c.Properties.Select(p => p.Index));
+
+            c.BaseType = null;
+
+            Assert.Equal(new[] { "F", "H" }, b.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "E", "G" }, c.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { 0, 1 }, b.Properties.Select(p => p.Index));
+            Assert.Equal(new[] { 0, 1 }, c.Properties.Select(p => p.Index));
+
+            var a = model.AddEntityType(typeof(A));
+            a.AddProperty("E", typeof(string));
+            a.AddProperty("G", typeof(string));
+
+            b.BaseType = a;
+
+            Assert.Equal(new[] { "E", "G" }, a.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "E", "G", "F", "H" }, b.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "E", "G" }, c.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { 0, 1 }, a.Properties.Select(p => p.Index));
+            Assert.Equal(new[] { 0, 1, 2, 3 }, b.Properties.Select(p => p.Index));
+            Assert.Equal(new[] { 0, 1 }, c.Properties.Select(p => p.Index));
+        }
+
+        [Fact]
         public void Adding_property_throws_when_parent_type_has_property_with_same_name()
         {
             var model = new Model();
 
-            var a = new EntityType(typeof(A), model);
+            var a = model.AddEntityType(typeof(A));
             a.AddProperty("G", typeof(string));
 
-            var b = new EntityType(typeof(B), model);
+            var b = model.AddEntityType(typeof(B));
             b.BaseType = a;
 
             Assert.Equal(
@@ -157,13 +201,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
 
-            var a = new EntityType(typeof(A), model);
+            var a = model.AddEntityType(typeof(A));
             a.AddProperty("G", typeof(string));
 
-            var b = new EntityType(typeof(B), model);
+            var b = model.AddEntityType(typeof(B));
             b.BaseType = a;
 
-            var c = new EntityType(typeof(C), model);
+            var c = model.AddEntityType(typeof(C));
             c.BaseType = b;
 
             Assert.Equal(
@@ -176,9 +220,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
 
-            var a = new EntityType(typeof(A), model);
+            var a = model.AddEntityType(typeof(A));
 
-            var b = new EntityType(typeof(B), model);
+            var b = model.AddEntityType(typeof(B));
             b.BaseType = a;
 
             b.AddProperty("G", typeof(string));
@@ -193,12 +237,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
 
-            var a = new EntityType(typeof(A), model);
+            var a = model.AddEntityType(typeof(A));
 
-            var b = new EntityType(typeof(B), model);
+            var b = model.AddEntityType(typeof(B));
             b.BaseType = a;
 
-            var c = new EntityType(typeof(C), model);
+            var c = model.AddEntityType(typeof(C));
             c.BaseType = b;
 
             c.AddProperty("G", typeof(string));
@@ -213,14 +257,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
 
-            var a = new EntityType(typeof(A), model);
+            var a = model.AddEntityType(typeof(A));
             a.AddProperty("G", typeof(string));
 
-            var b = new EntityType(typeof(B), model);
+            var b = model.AddEntityType(typeof(B));
             b.AddProperty("G", typeof(string), true);
 
             Assert.Equal(
-                Strings.DuplicatePropertiesOnBase("G", typeof(B).FullName, typeof(A).FullName),
+                Strings.DuplicatePropertiesOnBase(typeof(B).FullName, typeof(A).FullName, "G"),
                 Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
         }
 
@@ -229,43 +273,42 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
 
-            var a = new EntityType(typeof(A), model);
+            var a = model.AddEntityType(typeof(A));
             a.AddProperty("E", typeof(string));
             a.AddProperty("G", typeof(string));
 
-            var b = new EntityType(typeof(B), model);
+            var b = model.AddEntityType(typeof(B));
             b.BaseType = a;
 
-            var c = new EntityType(typeof(C), model);
+            var c = model.AddEntityType(typeof(C));
             c.AddProperty("E", typeof(string));
             c.AddProperty("G", typeof(string));
 
             Assert.Equal(
-                Strings.DuplicatePropertiesOnBase("E, G", typeof(C).FullName, typeof(B).FullName),
+                Strings.DuplicatePropertiesOnBase(typeof(C).FullName, typeof(B).FullName, "E, G"),
                 Assert.Throws<InvalidOperationException>(() => c.BaseType = b).Message);
         }
 
-        //[Fact(Skip ="Issue 1954")]
+        [Fact]
         public void Setting_base_type_throws_when_child_and_parent_contain_duplicate_property()
         {
             var model = new Model();
 
-            var a = new EntityType(typeof(A), model);
+            var a = model.AddEntityType(typeof(A));
             a.AddProperty("E", typeof(string));
             a.AddProperty("G", typeof(string));
 
-            var b = new EntityType(typeof(B), model);
+            var b = model.AddEntityType(typeof(B));
 
-            var c = new EntityType(typeof(C), model);
+            var c = model.AddEntityType(typeof(C));
             c.AddProperty("E", typeof(string));
             c.AddProperty("G", typeof(string));
             c.BaseType = b;
 
             Assert.Equal(
-                Strings.DuplicatePropertiesOnBase("E, G", typeof(C).FullName, typeof(B).FullName),
+                Strings.DuplicatePropertiesOnBase(typeof(B).FullName, typeof(A).FullName, "E, G"),
                 Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
         }
-
 
         [Fact]
         public void Can_create_entity_type()

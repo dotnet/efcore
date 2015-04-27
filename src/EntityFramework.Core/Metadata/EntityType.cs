@@ -37,8 +37,6 @@ namespace Microsoft.Data.Entity.Metadata
         private Key _primaryKey;
         private EntityType _baseType;
 
-        public event EventHandler<Property> PropertyMetadataChanged;
-
         private int _shadowPropertyCount;
 
         private bool _useEagerSnapshots;
@@ -95,6 +93,8 @@ namespace Microsoft.Data.Entity.Metadata
                     return;
                 }
 
+                _baseType = null;
+
                 if (value != null)
                 {
                     if (value.InheritsFrom(this))
@@ -108,39 +108,22 @@ namespace Microsoft.Data.Entity.Metadata
                         throw new InvalidOperationException(Strings.DerivedEntityCannotHaveKeys(this));
                     }
 
-                    var collisions = value.Properties.Where(property => _properties.ContainsKey(property.Name)).ToList();
+                    var baseProperties = value.Properties.Select(p => p.Name).ToArray();
+                    var collisions = FindPropertyCollisions(baseProperties).ToList();
+
                     if (collisions.Count > 0)
                     {
                         throw new InvalidOperationException(
                             Strings.DuplicatePropertiesOnBase(
-                                string.Join(", ", collisions.Select(p => p.Name)),
                                 Name,
-                                value.Name));
+                                value.Name,
+                                string.Join(", ", collisions.Select(p => p.Name))));
                     }
 
-                    value.PropertyMetadataChanged += OnPropertyMetadataChanged;
-                }
-                else
-                {
-                    _baseType.PropertyMetadataChanged -= OnPropertyMetadataChanged;
+                    _baseType = value;
                 }
 
-                _baseType = value;
-
-                UpdateIndexes();
-                UpdateShadowIndexes();
-                UpdateOriginalValueIndexes();
-            }
-        }
-
-        private void ValidateNoNameCollision(EntityType entityType, Property property)
-        {
-            if (entityType._properties.ContainsKey(property.Name))
-            {
-                throw new InvalidOperationException(
-                    Strings.DuplicateProperty(
-                        property.Name,
-                        property.EntityType.Name));
+                PropertyMetadataChanged(null);
             }
         }
 
@@ -211,7 +194,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 _useEagerSnapshots = value;
 
-                UpdateOriginalValueIndexes();
+                PropertyMetadataChanged(null);
             }
         }
 
@@ -261,9 +244,7 @@ namespace Microsoft.Data.Entity.Metadata
                 }
             }
 
-            UpdateIndexes();
-            UpdateShadowIndexes();
-            UpdateOriginalValueIndexes();
+            PropertyMetadataChanged(null);
 
             return _primaryKey;
         }
@@ -459,7 +440,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             _foreignKeys.Add(properties, foreignKey);
 
-            UpdateOriginalValueIndexes();
+            PropertyMetadataChanged(null);
 
             return foreignKey;
         }
@@ -768,15 +749,18 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(name, nameof(name));
             Check.NotNull(propertyType, nameof(propertyType));
 
-            var property = new Property(name, propertyType, this, shadowProperty);
+            if (FindPropertyCollisions(name).Any())
+            {
+                throw new InvalidOperationException(Strings.DuplicateProperty(name, Name));
+            }
 
-            ValidateNoNameCollision(this, property);
+            var property = new Property(name, propertyType, this, shadowProperty);
 
             ValidateAgainstClrProperty(property);
 
             _properties.Add(name, property);
 
-            OnPropertyMetadataChanged(this, property);
+            PropertyMetadataChanged(property);
 
             return property;
         }
@@ -811,6 +795,28 @@ namespace Microsoft.Data.Entity.Metadata
                 ? property
                 : BaseType?.FindProperty(propertyName);
         }
+
+        private IEnumerable<Property> FindProperties(string[] propertyNames)
+            => propertyNames.Select(n => FindProperty(n)).Where(p => p != null);
+
+        private IEnumerable<Property> FindDerivedProperties(string propertyName)
+            => FindDerivedProperties(new[] { propertyName });
+
+        private IEnumerable<Property> FindDerivedProperties(string[] propertyNames)
+        {
+            var searchProperties = new HashSet<string>(propertyNames);
+
+            return this.GetDerivedTypes()
+                .SelectMany(et => et.GetDeclaredProperties()
+                .Where(p => searchProperties.Contains(p.Name)))
+                .Cast<Property>();
+        }
+
+        IEnumerable<Property> FindPropertyCollisions(string propertyName)
+            => FindPropertyCollisions(new[] { propertyName });
+
+        IEnumerable<Property> FindPropertyCollisions(string[] propertyNames)
+            => FindProperties(propertyNames).Concat(FindDerivedProperties(propertyNames));
 
         public virtual Property GetProperty([NotNull] PropertyInfo propertyInfo)
         {
@@ -849,7 +855,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 _properties.Remove(property.Name);
 
-                OnPropertyMetadataChanged(this, property);
+                PropertyMetadataChanged(property);
 
                 return removedProperty;
             }
@@ -887,60 +893,35 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        internal void OnPropertyMetadataChanged(object sender, Property property)
+        public virtual void PropertyMetadataChanged([CanBeNull] Property property)
         {
-            ValidateAgainstClrProperty(property);
-
-            var entityType = this;
-            if (entityType == property.EntityType)
+            if (property != null && property.EntityType == this)
             {
-                while ((entityType = entityType.BaseType) != null)
-                {
-                    ValidateNoNameCollision(entityType, property);
-                }
-            }
-            else
-            {
-                ValidateNoNameCollision(entityType, property);
+                ValidateAgainstClrProperty(property);
             }
 
-            UpdateIndexes();
-            UpdateShadowIndexes();
-            UpdateOriginalValueIndexes();
-
-            PropertyMetadataChanged?.Invoke(this, property);
-        }
-
-        private void UpdateIndexes()
-        {
             var index = BaseType?.PropertyCount ?? 0;
-
-            foreach (var property in _properties.Values)
-            {
-                property.Index = index++;
-            }
-        }
-
-        private void UpdateShadowIndexes()
-        {
             var shadowIndex = BaseType?.ShadowPropertyCount() ?? 0;
+            var originalValueIndex = BaseType?.OriginalValueCount() ?? 0;
 
-            foreach (var property in _properties.Values.Where(p => p.IsShadowProperty))
+            foreach (var indexedProperty in _properties.Values)
             {
-                property.SetShadowIndex(shadowIndex++);
+                indexedProperty.Index = index++;
+
+                if(indexedProperty.IsShadowProperty)
+                {
+                    indexedProperty.SetShadowIndex(shadowIndex++);
+                }
+
+                indexedProperty.SetOriginalValueIndex(
+                    RequiresOriginalValue(indexedProperty) ? originalValueIndex++ : -1);
             }
 
             _shadowPropertyCount = shadowIndex;
-        }
 
-        private void UpdateOriginalValueIndexes()
-        {
-            var originalValueIndex = BaseType?.OriginalValueCount() ?? 0;
-
-            foreach (var property in _properties.Values)
+            foreach(var derivedType in this.GetDerivedTypes().Where(et => et.BaseType == this).Cast<EntityType>())
             {
-                property.SetOriginalValueIndex(
-                    RequiresOriginalValue(property) ? originalValueIndex++ : -1);
+                derivedType.PropertyMetadataChanged(property);
             }
         }
 
