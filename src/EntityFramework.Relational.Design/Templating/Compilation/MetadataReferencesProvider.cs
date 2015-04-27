@@ -56,24 +56,25 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
 
 #if DNX451 || DNXCORE50
             var libraryManager = _serviceProvider.GetRequiredService<ILibraryManager>();
-            var metadataReference = libraryManager.GetLibraryExport(name).MetadataReferences.Single();
-
-            var roslynReference = metadataReference as IRoslynMetadataReference;
-            if (roslynReference != null)
+            foreach(var metadataReference in libraryManager.GetLibraryExport(name).MetadataReferences)
             {
-                _references.Add(roslynReference.MetadataReference);
-                return;
+                var roslynReference = metadataReference as IRoslynMetadataReference;
+                if (roslynReference != null)
+                {
+                    _references.Add(roslynReference.MetadataReference);
+                    return;
+                }
+
+                var fileMetadataReference = metadataReference as IMetadataFileReference;
+                if (fileMetadataReference != null)
+                {
+                    var metadata = AssemblyMetadata.CreateFromStream(File.OpenRead(fileMetadataReference.Path));
+                    _references.Add(metadata.GetReference());
+                    return;
+                }
             }
 
-            var fileMetadataReference = metadataReference as IMetadataFileReference;
-            if (fileMetadataReference != null)
-            {
-                var metadata = AssemblyMetadata.CreateFromStream(File.OpenRead(fileMetadataReference.Path));
-                _references.Add(metadata.GetReference());
-                return;
-            }
-
-            throw new InvalidOperationException("Unable to create " + typeof(MetadataReference).Name + " for name " + name);
+            throw new InvalidOperationException(Strings.UnableToCreateMetadataReference(name));
 #else
             _references.Add(MetadataReference.CreateFromAssembly(Assembly.Load(name)));
 #endif

@@ -73,8 +73,6 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
                         return CompiledAssemblyResult.FromErrorMessages(errorMessages);
                     }
 
-                    ms.Seek(0, SeekOrigin.Begin);
-
                     Assembly assembly;
                     if (PlatformHelper.IsMono)
                     {
@@ -89,8 +87,6 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
                     }
                     else
                     {
-                        pdb.Seek(0, SeekOrigin.Begin);
-
                         var assemblyLoadMethod = typeof(Assembly).GetTypeInfo().GetDeclaredMethods("Load")
                             .First(
                                 m =>

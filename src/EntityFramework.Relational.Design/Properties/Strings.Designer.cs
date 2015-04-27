@@ -108,6 +108,14 @@ namespace Microsoft.Data.Entity.Relational.Design
             return string.Format(CultureInfo.CurrentCulture, GetString("TemplateProcessingFailed", "errorMessages"), errorMessages);
         }
 
+        /// <summary>
+        /// Unable to create metadata reference from name {0}.
+        /// </summary>
+        public static string UnableToCreateMetadataReference([CanBeNull] object p0)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToCreateMetadataReference"), p0);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

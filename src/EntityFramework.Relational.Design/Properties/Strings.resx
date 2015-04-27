@@ -153,4 +153,7 @@
   <data name="TemplateProcessingFailed" xml:space="preserve">
     <value>Template Processing Failed: {errorMessages}</value>
   </data>
+  <data name="UnableToCreateMetadataReference" xml:space="preserve">
+    <value>Unable to create metadata reference from name {0}.</value>
+  </data>
 </root>
