@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Data.Sqlite.Interop;
+using Microsoft.Data.Sqlite.Utilities;
 
 #if NET45 || DNX451
 using System.Data;
@@ -335,31 +336,32 @@ namespace Microsoft.Data.Sqlite
 
         public override T GetFieldValue<T>(int ordinal)
         {
-            if (typeof(T) == typeof(bool))
+            var type = typeof(T).UnwrapNullableType().UnwrapEnumType();
+            if (type == typeof(bool))
             {
                 return (T)(object)GetBoolean(ordinal);
             }
-            else if (typeof(T) == typeof(byte))
+            else if (type == typeof(byte))
             {
                 return (T)(object)GetByte(ordinal);
             }
-            else if (typeof(T) == typeof(byte[]))
+            else if (type == typeof(byte[]))
             {
                 return (T)(object)GetBlob(ordinal);
             }
-            else if (typeof(T) == typeof(char))
+            else if (type == typeof(char))
             {
                 return (T)(object)GetChar(ordinal);
             }
-            else if (typeof(T) == typeof(DateTime))
+            else if (type == typeof(DateTime))
             {
                 return (T)(object)GetDateTime(ordinal);
             }
-            else if (typeof(T) == typeof(DateTimeOffset))
+            else if (type == typeof(DateTimeOffset))
             {
                 return (T)(object)DateTimeOffset.Parse(GetString(ordinal));
             }
-            else if (typeof(T) == typeof(DBNull))
+            else if (type == typeof(DBNull))
             {
                 if (!_stepped || _done)
                 {
@@ -368,55 +370,55 @@ namespace Microsoft.Data.Sqlite
 
                 return (T)(object)DBNull.Value;
             }
-            else if (typeof(T) == typeof(decimal))
+            else if (type == typeof(decimal))
             {
                 return (T)(object)GetDecimal(ordinal);
             }
-            else if (typeof(T) == typeof(double))
+            else if (type == typeof(double))
             {
                 return (T)(object)GetDouble(ordinal);
             }
-            else if (typeof(T) == typeof(float))
+            else if (type == typeof(float))
             {
                 return (T)(object)GetFloat(ordinal);
             }
-            else if (typeof(T) == typeof(Guid))
+            else if (type == typeof(Guid))
             {
                 return (T)(object)GetGuid(ordinal);
             }
-            else if (typeof(T) == typeof(int))
+            else if (type == typeof(int))
             {
                 return (T)(object)GetInt32(ordinal);
             }
-            else if (typeof(T) == typeof(long))
+            else if (type == typeof(long))
             {
                 return (T)(object)GetInt64(ordinal);
             }
-            else if (typeof(T) == typeof(sbyte))
+            else if (type == typeof(sbyte))
             {
                 return (T)(object)((sbyte)GetInt64(ordinal));
             }
-            else if (typeof(T) == typeof(short))
+            else if (type == typeof(short))
             {
                 return (T)(object)GetInt16(ordinal);
             }
-            else if (typeof(T) == typeof(string))
+            else if (type == typeof(string))
             {
                 return (T)(object)GetString(ordinal);
             }
-            else if (typeof(T) == typeof(TimeSpan))
+            else if (type == typeof(TimeSpan))
             {
                 return (T)(object)TimeSpan.Parse(GetString(ordinal));
             }
-            else if (typeof(T) == typeof(uint))
+            else if (type == typeof(uint))
             {
                 return (T)(object)((uint)GetInt64(ordinal));
             }
-            else if (typeof(T) == typeof(ulong))
+            else if (type == typeof(ulong))
             {
                 return (T)(object)((ulong)GetInt64(ordinal));
             }
-            else if (typeof(T) == typeof(ushort))
+            else if (type == typeof(ushort))
             {
                 return (T)(object)((ushort)GetInt64(ordinal));
             }

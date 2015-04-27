@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using Microsoft.Data.Sqlite.Interop;
+using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -133,7 +134,7 @@ namespace Microsoft.Data.Sqlite
 
             if (!_bindActionValid)
             {
-                var type = Value.GetType();
+                var type = Value.GetType().UnwrapNullableType().UnwrapEnumType();
                 if (type == typeof(bool))
                 {
                     var value = (bool)_value ? 1L : 0;

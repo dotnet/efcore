@@ -281,10 +281,23 @@ namespace Microsoft.Data.Sqlite
                 3.14m);
 
         [Fact]
+        public void GetFieldValue_of_Enum_works() =>
+            GetFieldValue_works(
+                "SELECT 1;",
+                MyEnum.One);
+
+        [Fact]
         public void GetFieldValue_of_Guid_works() =>
             GetFieldValue_works(
                 "SELECT X'0E7E0DDC5D364849AB9B8CA8056BF93A';",
                 new Guid("dc0d7e0e-365d-4948-ab9b-8ca8056bf93a"));
+
+        [Fact]
+        public void GetFieldValue_of_Nullable_works() =>
+            GetFieldValue_works(
+                "SELECT 1;",
+                (int?)1);
+
         [Fact]
         public void GetFieldValue_of_TimeSpan_works() =>
             GetFieldValue_works(
@@ -875,6 +888,11 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<InvalidOperationException>(() => action(reader));
                 Assert.Equal(Strings.FormatDataReaderClosed(operation), ex.Message);
             }
+        }
+
+        private enum MyEnum
+        {
+            One = 1
         }
     }
 }

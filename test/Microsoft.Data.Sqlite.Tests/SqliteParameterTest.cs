@@ -194,10 +194,16 @@ namespace Microsoft.Data.Sqlite
         public void Bind_works_when_decimal() => Bind_works(3.14m, "3.14");
 
         [Fact]
+        public void Bind_works_when_Enum() => Bind_works(MyEnum.One, 1L);
+
+        [Fact]
         public void Bind_works_when_Guid() =>
             Bind_works(
                 new Guid("1c902ddb-f4b6-4945-af38-0dc1b0760465"),
                 new byte[] { 0xDB, 0x2D, 0x90, 0x1C, 0xB6, 0xF4, 0x45, 0x49, 0xAF, 0x38, 0x0D, 0xC1, 0xB0, 0x76, 0x04, 0x65 });
+
+        [Fact]
+        public void Bind_works_when_Nullable() => Bind_works((int?)1, 1L);
 
         [Fact]
         public void Bind_works_when_TimeSpan() => Bind_works(new TimeSpan(11, 19, 32), "11:19:32");
@@ -232,6 +238,11 @@ namespace Microsoft.Data.Sqlite
 
                 Assert.Equal("testing", result);
             }
+        }
+
+        private enum MyEnum
+        {
+            One = 1
         }
     }
 }
