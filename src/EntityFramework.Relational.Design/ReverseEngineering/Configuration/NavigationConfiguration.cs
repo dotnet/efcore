@@ -11,11 +11,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
     {
         public NavigationConfiguration([NotNull]EntityConfiguration entityConfiguration,
             [NotNull]IForeignKey foreignKey, [NotNull]string dependentEndNavigationPropertyName,
-            [CanBeNull]string principalEndNavigationPropertyName)
+            [NotNull]string principalEndNavigationPropertyName)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotEmpty(dependentEndNavigationPropertyName, nameof(dependentEndNavigationPropertyName));
+            Check.NotEmpty(principalEndNavigationPropertyName, nameof(principalEndNavigationPropertyName));
 
             EntityConfiguration = entityConfiguration;
             ForeignKey = foreignKey;

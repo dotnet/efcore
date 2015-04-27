@@ -73,8 +73,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     foreach (var foreignKey in otherEntityType
                         .GetForeignKeys().Where(fk => fk.PrincipalEntityType == GeneratorModel.EntityType))
                     {
-                        var navigationPropertyName =
-                            (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
                         if (((EntityType)otherEntityType)
                             .FindAnnotation(SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) != null)
                         {
@@ -83,16 +81,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         }
                         else
                         {
-                            if (foreignKey.IsUnique)
-                            {
-                                navProps.Add(new SqlServerNavigationProperty(
-                                    otherEntityType.Name, navigationPropertyName));
-                            }
-                            else
-                            {
-                                navProps.Add(new SqlServerNavigationProperty(
-                                    "ICollection<" + otherEntityType.Name + ">", navigationPropertyName));
-                            }
+                            var referencedType = foreignKey.IsUnique
+                                ? otherEntityType.Name
+                                : "ICollection<" + otherEntityType.Name + ">";
+                            navProps.Add(new SqlServerNavigationProperty(
+                                referencedType,
+                                (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]));
                         }
                     }
                 }
@@ -100,10 +94,20 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 foreach (var foreignKey in GeneratorModel.EntityType.GetForeignKeys())
                 {
                     // set up the navigation property on this end of foreign keys owned by this EntityType
-                    var navigationPropertyName =
-                        (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName];
                     navProps.Add(new SqlServerNavigationProperty(
-                        foreignKey.PrincipalEntityType.Name, navigationPropertyName));
+                        foreignKey.PrincipalEntityType.Name,
+                        (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName]));
+
+                    // set up the other navigation property for self-referencing foreign keys owned by this EntityType
+                    if (((ForeignKey)foreignKey).IsSelfReferencing())
+                    {
+                        var referencedType = foreignKey.IsUnique
+                            ? foreignKey.EntityType.Name
+                            : "ICollection<" + foreignKey.EntityType.Name + ">";
+                        navProps.Add(new SqlServerNavigationProperty(
+                            referencedType,
+                            (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]));
+                    }
                 }
 
                 return navProps;

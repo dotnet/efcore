@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -35,7 +36,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public const string AnnotationNamePrincipalEndNavPropName = AnnotationPrefix + "PrincipalEndNavPropName";
         public const string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";
 
-        public const string NavigationNameUniquifyingSuffix = "Navigation";
+        public const string NavigationNameUniquifyingPattern = "{0}Navigation";
+        public const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
         public static readonly string SqlServerDbContextTemplateResourceName =
             typeof(SqlServerMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
@@ -412,8 +414,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         var codeGenForeignKey = codeGenEntityType
                             .GetOrAddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey);
 
-                        if (targetRelationalEntityType == fromColumnRelationalEntityType // self-referencing foreign key
-                            || _uniqueConstraintColumns.Contains(
+                        if (_uniqueConstraintColumns.Contains(
                                 ConstructIdForCombinationOfColumns(
                                     foreignKeyConstraintRelationalPropertyList
                                         .Select(p => p.Name)))) // relational property's name is the columnId
@@ -459,23 +460,25 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         dependentEndNavigationPropertyName);
                     dependentEndExistingIdentifiers.Add(dependentEndNavigationPropertyName);
 
-                    if (!foreignKey.IsSelfReferencing())
-                    {
-                        // set up the name of the navigation property on the principal end of the foreign key
-                        var principalEndExistingIdentifiers =
-                            entityTypeToExistingIdentifiers[foreignKey.PrincipalEntityType];
-                        var principalEndNavigationPropertyCandidateName =
-                            _modelUtilities.GetPrincipalEndCandidateNavigationPropertyName(foreignKey);
-                        var principalEndNavigationPropertyName =
-                            CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                                principalEndNavigationPropertyCandidateName,
-                                principalEndExistingIdentifiers,
-                                NavigationUniquifier);
-                        foreignKey.AddAnnotation(
-                            AnnotationNamePrincipalEndNavPropName,
-                            principalEndNavigationPropertyName);
-                        principalEndExistingIdentifiers.Add(principalEndNavigationPropertyName);
-                    }
+                    // set up the name of the navigation property on the principal end of the foreign key
+                    var principalEndExistingIdentifiers =
+                        entityTypeToExistingIdentifiers[foreignKey.PrincipalEntityType];
+                    var principalEndNavigationPropertyCandidateName =
+                        foreignKey.IsSelfReferencing()
+                            ? string.Format(
+                                CultureInfo.CurrentCulture,
+                                SelfReferencingPrincipalEndNavigationNamePattern,
+                                dependentEndNavigationPropertyName)
+                            : _modelUtilities.GetPrincipalEndCandidateNavigationPropertyName(foreignKey);
+                    var principalEndNavigationPropertyName =
+                        CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                            principalEndNavigationPropertyCandidateName,
+                            principalEndExistingIdentifiers,
+                            NavigationUniquifier);
+                    foreignKey.AddAnnotation(
+                        AnnotationNamePrincipalEndNavPropName,
+                        principalEndNavigationPropertyName);
+                    principalEndExistingIdentifiers.Add(principalEndNavigationPropertyName);
                 }
             }
         }
@@ -531,7 +534,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 return proposedIdentifier;
             }
 
-            string finalIdentifier = proposedIdentifier + NavigationNameUniquifyingSuffix;
+            string finalIdentifier =
+                string.Format(CultureInfo.CurrentCulture, NavigationNameUniquifyingPattern, proposedIdentifier);
             var suffix = 1;
             while (existingIdentifiers.Contains(finalIdentifier))
             {
