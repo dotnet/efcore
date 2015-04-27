@@ -32,5 +32,19 @@ namespace Microsoft.Data.Entity.Internal
                 _serviceProvider = null;
             }
         }
+
+        public static TContext CreateInstance<TContext>([NotNull] IServiceProvider serviceProvider, [NotNull] params object[] parameters)
+        {
+            try
+            {
+                _serviceProvider = serviceProvider;
+
+                return (TContext)ActivatorUtilities.CreateInstance(serviceProvider, typeof(TContext), parameters);
+            }
+            finally
+            {
+                _serviceProvider = null;
+            }
+        }
     }
 }
