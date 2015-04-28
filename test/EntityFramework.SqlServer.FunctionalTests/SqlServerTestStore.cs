@@ -407,6 +407,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
+        public int ExecuteNonQuery(string sql, params object[] parameters)
+        {
+            using (var command = CreateCommand(sql, parameters))
+            {
+                return command.ExecuteNonQuery();
+            }
+        }
+
         public Task<int> ExecuteNonQueryAsync(string sql, params object[] parameters)
         {
             using (var command = CreateCommand(sql, parameters))

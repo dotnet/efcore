@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             // TODO: Do this via migrations & update pipeline
 
-            testStore.ExecuteNonQueryAsync(@"
+            testStore.ExecuteNonQuery(@"
                 CREATE TABLE Country (
                     Id int NOT NULL PRIMARY KEY,
                     Name nvarchar(100) NOT NULL
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 INSERT Animal VALUES ('Aquila chrysaetos canadensis', 'American golden eagle', 2, 0, NULL, 1, NULL, 'Eagle');
                 INSERT Animal VALUES ('Apteryx owenii', 'Great spotted kiwi', 1, 1, 'Aquila chrysaetos canadensis', NULL, 1, 'Kiwi');
-            ").Wait();
+            ");
         }
 
         public override AnimalContext CreateContext()
