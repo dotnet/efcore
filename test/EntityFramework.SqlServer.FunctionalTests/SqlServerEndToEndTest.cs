@@ -344,7 +344,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 modelBuilder
                     .Entity<Jack>()
-                    .ForRelational(b => b.Table("Jack", "Apple"))
+                    .Table("Jack", "Apple")
                     .Key(e => e.MyKey);
 
                 modelBuilder
@@ -580,7 +580,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<TBlog>().ForRelational().Table("Blog", "dbo");
+                modelBuilder.Entity<TBlog>().Table("Blog", "dbo");
             }
 
             public DbSet<TBlog> Blogs { get; set; }

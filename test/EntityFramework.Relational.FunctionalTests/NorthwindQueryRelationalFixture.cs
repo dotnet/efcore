@@ -12,12 +12,12 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Customer>().ForRelational().Table("Customers");
-            modelBuilder.Entity<Employee>().ForRelational().Table("Employees");
-            modelBuilder.Entity<Product>().ForRelational().Table("Products");
+            modelBuilder.Entity<Customer>().Table("Customers");
+            modelBuilder.Entity<Employee>().Table("Employees");
+            modelBuilder.Entity<Product>().Table("Products");
             modelBuilder.Entity<Product>().Ignore(p => p.SupplierID);
-            modelBuilder.Entity<Order>().ForRelational().Table("Orders");
-            modelBuilder.Entity<OrderDetail>().ForRelational().Table("Order Details");
+            modelBuilder.Entity<Order>().Table("Orders");
+            modelBuilder.Entity<OrderDetail>().Table("Order Details");
         }
     }
 }

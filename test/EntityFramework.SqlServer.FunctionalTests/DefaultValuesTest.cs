@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<KettleChips>()
                     .Property(e => e.BestBuyDate)
                     .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
-                    .ForRelational().DefaultValue(new DateTime(2035, 9, 25));
+                    .DefaultValue(new DateTime(2035, 9, 25));
             }
         }
 

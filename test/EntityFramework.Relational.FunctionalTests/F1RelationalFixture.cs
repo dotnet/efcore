@@ -13,59 +13,15 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder
-                .Entity<Chassis>(b =>
-                    {
-                        b.ForRelational().Table("Chassis");
-                    });
-
-            modelBuilder
-                .Entity<Team>(b =>
-                    {
-
-                        b.ForRelational().Table("Teams");
-                    });
-
-            modelBuilder
-                .Entity<Driver>(b =>
-                    {
-                        b.ForRelational().Table("Drivers");
-                    });
-
-            modelBuilder
-                .Entity<Engine>(b =>
-                    {
-                        b.ForRelational().Table("Engines");
-                    });
-
-            modelBuilder
-                .Entity<EngineSupplier>(b =>
-                    {
-                        b.ForRelational().Table("EngineSuppliers");
-                    });
-
-            modelBuilder
-                .Entity<Gearbox>(b =>
-                    {
-                        b.ForRelational().Table("Gearboxes");
-                    });
-
-            modelBuilder
-                .Entity<Sponsor>(b =>
-                    {
-                        b.ForRelational().Table("Sponsors");
-                    });
-
-            modelBuilder
-                .Entity<TestDriver>(b =>
-                    {
-                        b.ForRelational().Table("TestDrivers");
-                    });
-
-            modelBuilder
-                .Entity<TitleSponsor>()
-                .ForRelational()
-                .Table("TitleSponsors");
+            modelBuilder.Entity<Chassis>().Table("Chassis");
+            modelBuilder.Entity<Team>().Table("Teams");
+            modelBuilder.Entity<Driver>().Table("Drivers");
+            modelBuilder.Entity<Engine>().Table("Engines");
+            modelBuilder.Entity<EngineSupplier>().Table("EngineSuppliers");
+            modelBuilder.Entity<Gearbox>().Table("Gearboxes");
+            modelBuilder.Entity<Sponsor>().Table("Sponsors");
+            modelBuilder.Entity<TestDriver>().Table("TestDrivers");
+            modelBuilder.Entity<TitleSponsor>().Table("TitleSponsors");
         }
     }
 }

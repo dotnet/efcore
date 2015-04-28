@@ -68,27 +68,21 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                             .UseIdentity();
 
                         b.Property(e => e.Identity)
-                            .ForRelational()
                             .DefaultValue("Banana Joe");
 
                         b.Property(e => e.IdentityReadOnlyBeforeSave)
-                            .ForRelational()
                             .DefaultValue("Doughnut Sheriff");
 
                         b.Property(e => e.IdentityReadOnlyAfterSave)
-                            .ForRelational()
                             .DefaultValue("Anton");
 
                         b.Property(e => e.Computed)
-                            .ForRelational()
                             .DefaultValue("Alan");
 
                         b.Property(e => e.ComputedReadOnlyBeforeSave)
-                            .ForRelational()
                             .DefaultValue("Carmen");
 
                         b.Property(e => e.ComputedReadOnlyAfterSave)
-                            .ForRelational()
                             .DefaultValue("Tina Rex");
                     });
             }

@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             modelBuilder.Entity<TransactionCustomer>(ps =>
                 {
                     ps.Property(c => c.Id).GenerateValueOnAdd(generateValue: false);
-                    ps.ForRelational().Table("Customers");
+                    ps.Table("Customers");
                 });
         }
 

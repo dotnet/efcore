@@ -436,8 +436,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
-            modelBuilder.ForRelational().Sequence("Heaven");
-            modelBuilder.ForRelational().Sequence("Rosie");
+            modelBuilder.Sequence("Heaven");
+            modelBuilder.Sequence("Rosie");
 
             modelBuilder.Entity<Led>(b =>
                 {
