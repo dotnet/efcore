@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Commands
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                                     BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                                    BuildReference.ByName("System.Reflection.Metadata, Version=1.0.19.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", copyLocal: true),
+                                    BuildReference.ByName("System.Reflection.Metadata", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                 BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                                 BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                                BuildReference.ByName("System.Reflection.Metadata, Version=1.0.19.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", copyLocal: true),
+                                BuildReference.ByName("System.Reflection.Metadata", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
@@ -270,8 +270,8 @@ namespace Microsoft.Data.Entity.Commands
                         TargetDir = targetDir,
                         References =
                             {
-                                BuildReference.ByName("System.Collections.Immutable, Version=1.1.34.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", copyLocal: true),
-                                BuildReference.ByName("System.Reflection.Metadata, Version=1.0.19.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", copyLocal: true),
+                                BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
+                                BuildReference.ByName("System.Reflection.Metadata", copyLocal: true),
                                 BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                                 BuildReference.ByName("EntityFramework.Core"),
                                 BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
