@@ -92,6 +92,10 @@
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
+    <Compile Include="ReverseEngineering\Configuration\EntityConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\FacetConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\NavigationConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\PropertyConfiguration.cs" />
     <Compile Include="ReverseEngineering\DbContextCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\DbContextGeneratorModel.cs" />
     <Compile Include="ReverseEngineering\EntityTypeCodeGeneratorHelper.cs" />

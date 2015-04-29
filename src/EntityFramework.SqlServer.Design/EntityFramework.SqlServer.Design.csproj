@@ -62,6 +62,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="ReverseEngineering\Configuration\SqlServerNavigationProperty.cs" />
+    <Compile Include="ReverseEngineering\Configuration\SqlServerNavigationPropertyInitializer.cs" />
     <Compile Include="ReverseEngineering\Model\ForeignKeyColumnMapping.cs" />
     <Compile Include="ReverseEngineering\Model\TableColumn.cs" />
     <Compile Include="ReverseEngineering\Model\TableConstraintColumn.cs" />
