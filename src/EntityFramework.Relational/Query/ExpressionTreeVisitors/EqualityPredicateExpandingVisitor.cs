@@ -22,18 +22,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 && expression.Left.Type == typeof(bool)
                 && expression.Right.Type == typeof(bool))
             {
-                var complexLeft = !(expression.Left.IsAliasWithColumnExpression()
-                    || expression.Left is ParameterExpression 
-                    || expression.Left is ConstantExpression);
+                var simpleLeft = expression.Left.IsSimpleExpression();
+                var simpleRight = expression.Right.IsSimpleExpression();
 
-                var complexRight = !(expression.Right.IsAliasWithColumnExpression()
-                    || expression.Right is ParameterExpression
-                    || expression.Right is ConstantExpression);
-
-                if (complexLeft || complexRight)
+                if (!simpleLeft || !simpleRight)
                 {
-                    var leftOperand = complexLeft ? new CaseExpression(left) : left;
-                    var rightOperand = complexRight ? new CaseExpression(right) : right;
+                    var leftOperand = simpleLeft ? left : new CaseExpression(left, typeof(bool));
+                    var rightOperand = simpleRight ? right : new CaseExpression(right, typeof(bool));
 
                     return expression.NodeType == ExpressionType.Equal
                         ? Expression.Equal(leftOperand, rightOperand)

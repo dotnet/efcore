@@ -118,7 +118,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var ifTrue = VisitExpression(expression.IfTrue);
             var ifFalse = VisitExpression(expression.IfFalse);
 
-            return new CaseExpression(expression.Update(test, ifTrue, ifFalse));
+            Check.Equals(ifTrue.Type, ifFalse.Type);
+
+            return new CaseExpression(expression.Update(test, ifTrue, ifFalse), ifTrue.Type);
         }
 
         private static Expression UnfoldStructuralComparison(ExpressionType expressionType, Expression expression)

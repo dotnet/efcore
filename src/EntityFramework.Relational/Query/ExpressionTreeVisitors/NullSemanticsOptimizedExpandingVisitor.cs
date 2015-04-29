@@ -24,26 +24,32 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 return expression;
             }
 
-            var leftNullables = ExtractNullableExpressions(left);
-            var rightNullables = ExtractNullableExpressions(right);
-            var leftNullable = leftNullables.Count > 0;
-            var rightNullable = rightNullables.Count > 0;
-
             if (expression.NodeType == ExpressionType.Equal
-                && leftNullable 
-                && rightNullable)
+                || expression.NodeType == ExpressionType.NotEqual)
             {
-                return Expression.OrElse(
-                    Expression.Equal(left, right),
-                    Expression.AndAlso(
-                        BuildIsNullExpression(leftNullables),
-                        BuildIsNullExpression(rightNullables)));
-            }
+                var leftIsNull = BuildIsNullExpression(left);
+                var rightIsNull = BuildIsNullExpression(right);
+                var leftNullable = leftIsNull != null;
+                var rightNullable = rightIsNull != null;
 
-            if (expression.NodeType == ExpressionType.NotEqual
-                && (leftNullable || rightNullable))
-            {
-                OptimizedExpansionPossible = false;
+                if (expression.NodeType == ExpressionType.Equal
+                    && leftNullable
+                    && rightNullable)
+                {
+                    return Expression.OrElse(
+                        Expression.Equal(left, right),
+                        Expression.AndAlso(
+                            leftIsNull,
+                            rightIsNull
+                        )
+                    );
+                }
+
+                if (expression.NodeType == ExpressionType.NotEqual
+                    && (leftNullable || rightNullable))
+                {
+                    OptimizedExpansionPossible = false;
+                }
             }
 
             if (left == expression.Left && right == expression.Right)

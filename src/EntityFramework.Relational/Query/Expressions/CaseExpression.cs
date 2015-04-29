@@ -7,13 +7,14 @@ using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
+using System;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public class CaseExpression : ExtensionExpression
     {
-        public CaseExpression([NotNull] Expression when)
-            : base(typeof(bool))
+        public CaseExpression([NotNull] Expression when, [NotNull] Type type)
+            : base(type)
         {
             Check.NotNull(when, nameof(when));
 
@@ -40,7 +41,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         {
             var when = visitor.VisitExpression(When);
 
-            return new CaseExpression(when);
+            var conditional = when as ConditionalExpression;
+            var type = conditional != null ? conditional.IfTrue.Type : typeof(bool);
+
+            return new CaseExpression(when, type);
         }
     }
 }

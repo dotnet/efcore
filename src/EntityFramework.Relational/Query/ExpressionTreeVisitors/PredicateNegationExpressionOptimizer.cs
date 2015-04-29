@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 var leftUnary = currentExpression.Left as UnaryExpression;
                 if (leftUnary != null && leftUnary.NodeType == ExpressionType.Not)
                 {
-                    var leftNullable = ExtractNullableExpressions(leftUnary.Operand).Count > 0;
-                    var rightNullable = ExtractNullableExpressions(currentExpression.Right).Count > 0;
+                    var leftNullable = BuildIsNullExpression(leftUnary.Operand) != null;
+                    var rightNullable = BuildIsNullExpression(currentExpression.Right) != null;
 
                     if (!leftNullable && !rightNullable)
                     {
@@ -47,8 +47,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 var rightUnary = currentExpression.Right as UnaryExpression;
                 if (rightUnary != null && rightUnary.NodeType == ExpressionType.Not)
                 {
-                    var leftNullable = ExtractNullableExpressions(currentExpression.Left).Count > 0;
-                    var rightNullable = ExtractNullableExpressions(rightUnary).Count > 0;
+                    var leftNullable = BuildIsNullExpression(currentExpression.Left) != null;
+                    var rightNullable = BuildIsNullExpression(rightUnary) != null;
 
                     if (!leftNullable && !rightNullable)
                     {
@@ -78,12 +78,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return expression;
         }
 
-        private List<Expression> ExtractNullableExpressions(Expression expression)
+        private Expression BuildIsNullExpression(Expression expression)
         {
-            var nullableExpressionsExtractor = new NullableExpressionsExtractingVisitor();
+            var nullableExpressionsExtractor = new IsNullExpressionBuildingVisitor();
             nullableExpressionsExtractor.VisitExpression(expression);
 
-            return nullableExpressionsExtractor.NullableExpressions;
+            return nullableExpressionsExtractor.ResultExpression;
         }
 
         protected override Expression VisitUnaryExpression(

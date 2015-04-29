@@ -519,36 +519,57 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             if (nodeType == ExpressionType.Conditional)
             {
                 var conditionalExpression = (ConditionalExpression)caseExpression.When;
-                _sql.Append("CASE WHEN (");
-                VisitExpression(conditionalExpression.Test);
-                _sql.Append(") THEN ");
-                VisitExpression(conditionalExpression.IfTrue);
-                _sql.Append(" ELSE ");
-                VisitExpression(conditionalExpression.IfFalse);
-                _sql.Append(" END");
+
+                _sql.AppendLine("CASE");
+                using (_sql.Indent())
+                {
+                    _sql.AppendLine("WHEN");
+
+                    using (_sql.Indent())
+                    {
+                        _sql.Append("(");
+                        VisitExpression(conditionalExpression.Test);
+                        _sql.AppendLine(")");
+                    }
+
+                    _sql.Append("THEN ");
+                     VisitExpression(conditionalExpression.IfTrue);
+                    _sql.Append(" ELSE ");
+                    VisitExpression(conditionalExpression.IfFalse);
+                    _sql.AppendLine();
+                }
+
+                _sql.Append("END");
             }
             else
             {
-                _sql.AppendLine("CASE WHEN (");
+                _sql.AppendLine("CASE");
 
                 using (_sql.Indent())
                 {
-                    VisitExpression(caseExpression.When);
-                    if (caseExpression.When is ColumnExpression
-                        || caseExpression.When is ParameterExpression
-                        || caseExpression.When.IsAliasWithColumnExpression())
+                    _sql.AppendLine("WHEN");
+                    using (_sql.Indent())
                     {
-                        _sql.Append(" = ");
-                        _sql.Append(TrueLiteral);
+                        _sql.Append("(");
+                        VisitExpression(caseExpression.When);
+                        if (caseExpression.When.IsSimpleExpression())
+                        {
+                            _sql.Append(" = ");
+                            _sql.Append(TrueLiteral);
+                        }
+
+                        _sql.AppendLine(")");
                     }
+
+                    _sql.Append("THEN ");
+                    _sql.Append(TypedTrueLiteral);
+                    _sql.Append(" ELSE ");
+                    _sql.AppendLine(TypedFalseLiteral);
                 }
 
-                _sql.Append(") THEN ");
-                _sql.Append(TypedTrueLiteral);
-                _sql.Append(" ELSE ");
-                _sql.Append(TypedFalseLiteral);
-                _sql.Append(" END");
+                _sql.Append("END");
             }
+
             return caseExpression;
         }
 
@@ -563,8 +584,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 VisitExpression(existsExpression.Expression);
             }
 
-            _sql.AppendLine()
-                .AppendLine(")");
+            _sql.AppendLine(")");
 
             return existsExpression;
         }
@@ -583,9 +603,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
             else
             {
-                var needParentheses = !IsSimpleExpression(binaryExpression.Left)
-                                      || !IsSimpleExpression(binaryExpression.Right)
-                                      || binaryExpression.IsLogicalOperation();
+                var needParentheses = !binaryExpression.Left.IsSimpleExpression() 
+                    || !binaryExpression.Right.IsSimpleExpression()
+                    || binaryExpression.IsLogicalOperation();
 
                 if (needParentheses)
                 {
@@ -595,9 +615,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 VisitExpression(binaryExpression.Left);
 
                 if (binaryExpression.IsLogicalOperation()
-                    && (binaryExpression.Left is ColumnExpression
-                        || binaryExpression.Left is ParameterExpression
-                        || binaryExpression.Left.IsAliasWithColumnExpression()))
+                    && binaryExpression.Left.IsSimpleExpression())
                 {
                     _sql.Append(" = ");
                     _sql.Append(TrueLiteral);
@@ -655,9 +673,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 VisitExpression(binaryExpression.Right);
 
                 if (binaryExpression.IsLogicalOperation()
-                    && (binaryExpression.Right is ColumnExpression
-                        || binaryExpression.Right is ParameterExpression
-                        || binaryExpression.Right.IsAliasWithColumnExpression()))
+                    && binaryExpression.Right.IsSimpleExpression())
                 {
                     _sql.Append(" = ");
                     _sql.Append(TrueLiteral);
@@ -670,22 +686,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
 
             return binaryExpression;
-        }
-
-        private bool IsSimpleExpression(Expression expression)
-        {
-            var unaryExpression = expression as UnaryExpression;
-            if (unaryExpression != null
-                && unaryExpression.NodeType == ExpressionType.Convert)
-            {
-                return IsSimpleExpression(unaryExpression.Operand);
-            }
-
-            return expression is ConstantExpression
-                   || expression is ColumnExpression
-                   || expression is ParameterExpression
-                   || expression is LiteralExpression
-                   || expression.IsAliasWithColumnExpression();
         }
 
         public virtual Expression VisitColumnExpression(ColumnExpression columnExpression)

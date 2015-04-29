@@ -39,5 +39,20 @@ namespace System.Linq.Expressions
         {
             return aliasExpression.Expression as ColumnExpression;
         }
+
+        public static bool IsSimpleExpression([NotNull] this Expression expression)
+        {
+            var unaryExpression = expression as UnaryExpression;
+            if (unaryExpression != null && unaryExpression.NodeType == ExpressionType.Convert)
+            {
+                return IsSimpleExpression(unaryExpression.Operand);
+            }
+
+            return expression is ConstantExpression
+                || expression is ColumnExpression
+                || expression is ParameterExpression
+                || expression is LiteralExpression
+                || expression.IsAliasWithColumnExpression();
+        }
     }
 }
