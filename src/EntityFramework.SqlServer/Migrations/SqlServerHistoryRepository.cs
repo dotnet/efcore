@@ -15,6 +15,8 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
     // TODO: Log
     public class SqlServerHistoryRepository : ISqlServerHistoryRepository
     {
+        public const string MigrationHistoryTableName = "__MigrationHistory";
+
         private readonly ISqlServerConnection _connection;
         private readonly ISqlServerDataStoreCreator _creator;
         private readonly Type _contextType;
@@ -49,7 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             var command = (SqlCommand)_connection.DbConnection.CreateCommand();
             command.CommandText =
                 @"SELECT 1 FROM [INFORMATION_SCHEMA].[TABLES]
-WHERE [TABLE_SCHEMA] = N'dbo' AND [TABLE_NAME] = '__MigrationHistory' AND [TABLE_TYPE] = 'BASE TABLE'";
+WHERE [TABLE_SCHEMA] = N'dbo' AND [TABLE_NAME] = '" + MigrationHistoryTableName + "' AND [TABLE_TYPE] = 'BASE TABLE'";
 
             _connection.Open();
             try
@@ -79,7 +81,7 @@ WHERE [TABLE_SCHEMA] = N'dbo' AND [TABLE_NAME] = '__MigrationHistory' AND [TABLE
                 var command = (SqlCommand)_connection.DbConnection.CreateCommand();
                 command.CommandText =
                     @"SELECT [MigrationId], [ProductVersion]
-FROM [dbo].[__MigrationHistory]
+FROM [dbo].[" + MigrationHistoryTableName + @"]
 WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
                 command.Parameters.AddWithValue("@ContextKey", _contextType.FullName);
 
@@ -105,12 +107,12 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
 
             if (ifNotExists)
             {
-                builder.AppendLine("IF NOT EXISTS(SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE[TABLE_SCHEMA] = N'dbo' AND[TABLE_NAME] = '__MigrationHistory' AND[TABLE_TYPE] = 'BASE TABLE')");
+                builder.AppendLine("IF NOT EXISTS(SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE[TABLE_SCHEMA] = N'dbo' AND[TABLE_NAME] = '" + MigrationHistoryTableName + "' AND[TABLE_TYPE] = 'BASE TABLE')");
                 builder.IncrementIndent();
             }
 
             builder
-                .AppendLine("CREATE TABLE [dbo].[__MigrationHistory] (");
+                .AppendLine("CREATE TABLE [dbo].[" + MigrationHistoryTableName + "] (");
             using (builder.Indent())
             {
                 builder
@@ -131,7 +133,7 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
             return new SqlOperation
             {
                 Sql = new StringBuilder()
-                    .AppendLine("DELETE FROM [dbo].[__MigrationHistory]")
+                    .AppendLine("DELETE FROM [dbo].[" + MigrationHistoryTableName + "]")
                     .Append("WHERE [MigrationId] = '").Append(_sql.EscapeLiteral(migrationId))
                         .Append("' AND [ContextKey] = '").Append(_sql.EscapeLiteral(_contextType.FullName))
                         .AppendLine("';")
@@ -146,7 +148,7 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
             return new SqlOperation
             {
                 Sql = new StringBuilder()
-                    .AppendLine("INSERT INTO [dbo].[__MigrationHistory] ([MigrationId], [ContextKey], [ProductVersion])")
+                    .AppendLine("INSERT INTO [dbo].[" + MigrationHistoryTableName + "] ([MigrationId], [ContextKey], [ProductVersion])")
                     .Append("VALUES ('").Append(_sql.EscapeLiteral(row.MigrationId)).Append("', '")
                         .Append(_sql.EscapeLiteral(_contextType.FullName)).Append("', '")
                         .Append(_sql.EscapeLiteral(row.ProductVersion)).AppendLine("');")
@@ -159,7 +161,7 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
             Check.NotEmpty(migrationId, nameof(migrationId));
 
             return new StringBuilder()
-                .Append("IF NOT EXISTS(SELECT * FROM [dbo].[__MigrationHistory] WHERE [MigrationId] = '")
+                .Append("IF NOT EXISTS(SELECT * FROM [dbo].[" + MigrationHistoryTableName + "] WHERE [MigrationId] = '")
                     .Append(_sql.EscapeLiteral(migrationId)).Append("' AND [ContextKey] = '")
                     .Append(_sql.EscapeLiteral(_contextType.FullName)).AppendLine("')")
                 .Append("BEGIN")
@@ -171,7 +173,7 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
             Check.NotEmpty(migrationId, nameof(migrationId));
 
             return new StringBuilder()
-                .Append("IF EXISTS(SELECT * FROM [dbo].[__MigrationHistory] WHERE [MigrationId] = '")
+                .Append("IF EXISTS(SELECT * FROM [dbo].[" + MigrationHistoryTableName + "] WHERE [MigrationId] = '")
                     .Append(_sql.EscapeLiteral(migrationId)).Append("' AND [ContextKey] = '")
                     .Append(_sql.EscapeLiteral(_contextType.FullName)).AppendLine("')")
                 .Append("BEGIN")

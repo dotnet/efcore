@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using System.Data.SqlClient;
+using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
@@ -32,7 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
   AND c.TABLE_SCHEMA = t.TABLE_SCHEMA
   AND c.TABLE_NAME = t.TABLE_NAME
   AND t.TABLE_TYPE = 'BASE TABLE'
-";
+  AND t.TABLE_NAME <> '" + SqlServerHistoryRepository.MigrationHistoryTableName + "'";
 
         public virtual string Id { get; [param: CanBeNull] set; }
         public virtual string TableId { get; [param: CanBeNull] set; }
