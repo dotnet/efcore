@@ -19,25 +19,17 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
             [NotNull] ISqlServerValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
-                  modificationCommandBatchFactory, 
-                  parameterNameGeneratorFactory, 
-                  modificationCommandComparer, 
-                  valueBufferFactoryFactory)
+                modificationCommandBatchFactory,
+                parameterNameGeneratorFactory,
+                modificationCommandComparer,
+                valueBufferFactoryFactory)
         {
         }
 
-        public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
+        public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property) 
+            => Check.NotNull(property, nameof(property)).SqlServer();
 
-            return property.SqlServer();
-        }
-
-        public override IRelationalEntityTypeExtensions GetEntityTypeExtensions(IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.SqlServer();
-        }
+        public override IRelationalEntityTypeExtensions GetEntityTypeExtensions(IEntityType entityType) 
+            => Check.NotNull(entityType, nameof(entityType)).SqlServer();
     }
 }

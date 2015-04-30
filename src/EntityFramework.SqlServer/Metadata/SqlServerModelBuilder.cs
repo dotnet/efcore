@@ -61,11 +61,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         }
 
         public virtual SqlServerSequenceBuilder Sequence([CanBeNull] string name = null, [CanBeNull] string schema = null)
-        {
-            Check.NullButNotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            return new SqlServerSequenceBuilder(_model.SqlServer().GetOrAddSequence(name, schema));
-        }
+            => new SqlServerSequenceBuilder(
+                _model.SqlServer().GetOrAddSequence(
+                    Check.NullButNotEmpty(name, nameof(name)),
+                    Check.NullButNotEmpty(schema, nameof(schema))));
     }
 }

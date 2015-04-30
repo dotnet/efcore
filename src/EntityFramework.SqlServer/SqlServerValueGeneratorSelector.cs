@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer
         private readonly ISqlServerValueGeneratorCache _cache;
         private readonly ISqlServerSequenceValueGeneratorFactory _sequenceFactory;
 
-        private readonly ValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory 
+        private readonly ValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory
             = new ValueGeneratorFactory<SequentialGuidValueGenerator>();
 
         private readonly ISqlServerConnection _connection;
@@ -40,21 +40,18 @@ namespace Microsoft.Data.Entity.SqlServer
 
             var strategy = property.SqlServer().ValueGenerationStrategy;
 
-            if (property.ClrType.IsInteger()
-                && strategy == SqlServerValueGenerationStrategy.Sequence)
-            {
-                return _sequenceFactory.Create(property, _cache.GetOrAddSequenceState(property), _connection);
-            }
-
-            return _cache.GetOrAdd(property, Create);
+            return property.ClrType.IsInteger()
+                   && strategy == SqlServerValueGenerationStrategy.Sequence
+                ? _sequenceFactory.Create(property, _cache.GetOrAddSequenceState(property), _connection)
+                : _cache.GetOrAdd(property, Create);
         }
 
         public override ValueGenerator Create(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
-            return property.ClrType == typeof(Guid) 
-                ? _sequentialGuidFactory.Create(property) 
+            return property.ClrType == typeof(Guid)
+                ? _sequentialGuidFactory.Create(property)
                 : base.Create(property);
         }
     }

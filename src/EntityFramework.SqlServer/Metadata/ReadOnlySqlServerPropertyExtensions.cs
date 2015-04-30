@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             => new TypedAnnotation(
                 Property[SqlServerDefaultValueTypeAnnotation] as string,
                 Property[SqlServerDefaultValueAnnotation] as string).Value
-                         ?? base.DefaultValue;
+               ?? base.DefaultValue;
 
         public virtual string ComputedExpression
             => Property[SqlServerComputedExpressionAnnotation] as string;

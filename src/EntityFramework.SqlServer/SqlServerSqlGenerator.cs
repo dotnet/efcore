@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Utilities;
@@ -107,63 +106,38 @@ namespace Microsoft.Data.Entity.SqlServer
         private void AppendOutputClause(
             StringBuilder commandStringBuilder,
             IReadOnlyList<ColumnModification> operations)
-        {
-            commandStringBuilder
+            => commandStringBuilder
                 .AppendLine()
                 .Append("OUTPUT ")
                 .AppendJoin(operations.Select(c => "INSERTED." + DelimitIdentifier(c.ColumnName)));
-        }
 
         public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string tableName, string schemaName)
-        {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(tableName, nameof(tableName));
-
-            commandStringBuilder
+            => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("SELECT @@ROWCOUNT")
                 .Append(BatchCommandSeparator).AppendLine();
-        }
 
         public override void AppendBatchHeader(StringBuilder commandStringBuilder)
-        {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-
-            commandStringBuilder
+            => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("SET NOCOUNT OFF")
                 .Append(BatchCommandSeparator).AppendLine();
-        }
 
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
-        {
-            commandStringBuilder
-                .Append(DelimitIdentifier(columnModification.ColumnName))
+            => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
+                .Append(DelimitIdentifier(Check.NotNull(columnModification, nameof(columnModification)).ColumnName))
                 .Append(" = ")
                 .Append("scope_identity()");
-        }
 
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
-        {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-
-            commandStringBuilder
+            => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("@@ROWCOUNT = " + expectedRowsAffected);
-        }
 
         public override string BatchSeparator => "GO";
 
         public override string DelimitIdentifier(string identifier)
-        {
-            Check.NotEmpty(identifier, nameof(identifier));
-
-            return "[" + EscapeIdentifier(identifier) + "]";
-        }
+            => "[" + EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier))) + "]";
 
         public override string EscapeIdentifier(string identifier)
-        {
-            Check.NotEmpty(identifier, nameof(identifier));
-
-            return identifier.Replace("]", "]]");
-        }
+            => Check.NotEmpty(identifier, nameof(identifier)).Replace("]", "]]");
 
         public override string GenerateLiteral(byte[] literal)
         {

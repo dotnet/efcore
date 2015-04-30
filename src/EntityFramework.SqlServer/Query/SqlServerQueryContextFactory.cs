@@ -19,12 +19,12 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             [NotNull] ISqlServerConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
             : base(
-                  stateManager, 
-                  entityKeyFactorySource, 
-                  collectionAccessorSource, 
-                  propertySetterSource, 
-                  connection, 
-                  loggerFactory)
+                stateManager,
+                entityKeyFactorySource,
+                collectionAccessorSource,
+                propertySetterSource,
+                connection,
+                loggerFactory)
         {
         }
     }

@@ -15,11 +15,7 @@ namespace Microsoft.Data.Entity
     {
         public static SqlServerPropertyBuilder ForSqlServer(
             [NotNull] this PropertyBuilder propertyBuilder)
-        {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
-            return new SqlServerPropertyBuilder(propertyBuilder.Metadata);
-        }
+            => new SqlServerPropertyBuilder(Check.NotNull(propertyBuilder, nameof(propertyBuilder)).Metadata);
 
         public static PropertyBuilder ForSqlServer(
             [NotNull] this PropertyBuilder propertyBuilder,
@@ -47,11 +43,7 @@ namespace Microsoft.Data.Entity
 
         public static SqlServerEntityTypeBuilder ForSqlServer(
             [NotNull] this EntityTypeBuilder entityTypeBuilder)
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
-            return new SqlServerEntityTypeBuilder(entityTypeBuilder.Metadata);
-        }
+            => new SqlServerEntityTypeBuilder(Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)).Metadata);
 
         public static EntityTypeBuilder ForSqlServer(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
@@ -78,11 +70,7 @@ namespace Microsoft.Data.Entity
 
         public static SqlServerKeyBuilder ForSqlServer(
             [NotNull] this KeyBuilder keyBuilder)
-        {
-            Check.NotNull(keyBuilder, nameof(keyBuilder));
-
-            return new SqlServerKeyBuilder(keyBuilder.Metadata);
-        }
+            => new SqlServerKeyBuilder(Check.NotNull(keyBuilder, nameof(keyBuilder)).Metadata);
 
         public static KeyBuilder ForSqlServer(
             [NotNull] this KeyBuilder keyBuilder,
@@ -98,11 +86,7 @@ namespace Microsoft.Data.Entity
 
         public static SqlServerIndexBuilder ForSqlServer(
             [NotNull] this IndexBuilder indexBuilder)
-        {
-            Check.NotNull(indexBuilder, nameof(indexBuilder));
-
-            return new SqlServerIndexBuilder(indexBuilder.Metadata);
-        }
+            => new SqlServerIndexBuilder(Check.NotNull(indexBuilder, nameof(indexBuilder)).Metadata);
 
         public static IndexBuilder ForSqlServer(
             [NotNull] this IndexBuilder indexBuilder,
@@ -118,11 +102,8 @@ namespace Microsoft.Data.Entity
 
         public static SqlServerForeignKeyBuilder ForSqlServer(
             [NotNull] this ReferenceCollectionBuilder referenceCollectionBuilder)
-        {
-            Check.NotNull(referenceCollectionBuilder, nameof(referenceCollectionBuilder));
-
-            return new SqlServerForeignKeyBuilder(referenceCollectionBuilder.Metadata);
-        }
+            => new SqlServerForeignKeyBuilder(
+                Check.NotNull(referenceCollectionBuilder, nameof(referenceCollectionBuilder)).Metadata);
 
         public static ReferenceCollectionBuilder ForSqlServer(
             [NotNull] this ReferenceCollectionBuilder referenceCollectionBuilder,
@@ -151,11 +132,8 @@ namespace Microsoft.Data.Entity
 
         public static SqlServerForeignKeyBuilder ForSqlServer(
             [NotNull] this CollectionReferenceBuilder collectionReferenceBuilder)
-        {
-            Check.NotNull(collectionReferenceBuilder, nameof(collectionReferenceBuilder));
-
-            return new SqlServerForeignKeyBuilder(collectionReferenceBuilder.Metadata);
-        }
+            => new SqlServerForeignKeyBuilder(
+                Check.NotNull(collectionReferenceBuilder, nameof(collectionReferenceBuilder)).Metadata);
 
         public static CollectionReferenceBuilder ForSqlServer(
             [NotNull] this CollectionReferenceBuilder collectionReferenceBuilder,
@@ -184,11 +162,8 @@ namespace Microsoft.Data.Entity
 
         public static SqlServerForeignKeyBuilder ForSqlServer(
             [NotNull] this ReferenceReferenceBuilder referenceReferenceBuilder)
-        {
-            Check.NotNull(referenceReferenceBuilder, nameof(referenceReferenceBuilder));
-
-            return new SqlServerForeignKeyBuilder(referenceReferenceBuilder.Metadata);
-        }
+            => new SqlServerForeignKeyBuilder(
+                Check.NotNull(referenceReferenceBuilder, nameof(referenceReferenceBuilder)).Metadata);
 
         public static ReferenceReferenceBuilder ForSqlServer(
             [NotNull] this ReferenceReferenceBuilder referenceReferenceBuilder,
@@ -216,11 +191,7 @@ namespace Microsoft.Data.Entity
 
         public static SqlServerModelBuilder ForSqlServer(
             [NotNull] this ModelBuilder modelBuilder)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
-            return new SqlServerModelBuilder(modelBuilder.Model);
-        }
+            => new SqlServerModelBuilder(Check.NotNull(modelBuilder, nameof(modelBuilder)).Model);
 
         public static ModelBuilder ForSqlServer(
             [NotNull] this ModelBuilder modelBuilder,

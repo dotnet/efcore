@@ -47,22 +47,15 @@ namespace Microsoft.Data.Entity.SqlServer
             IResultOperatorHandler resultOperatorHandler,
             IQueryMethodProvider enumerableMethodProvider,
             IMethodCallTranslator methodCallTranslator)
-        {
-            Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
-            Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
-            Check.NotNull(enumerableMethodProvider, nameof(enumerableMethodProvider));
-            Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
-
-            return new SqlServerQueryCompilationContext(
+            => new SqlServerQueryCompilationContext(
                 Model,
                 Logger,
-                linqOperatorProvider,
-                resultOperatorHandler,
+                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
+                Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
                 EntityMaterializerSource,
                 EntityKeyFactorySource,
-                enumerableMethodProvider,
-                methodCallTranslator,
+                Check.NotNull(enumerableMethodProvider, nameof(enumerableMethodProvider)),
+                Check.NotNull(methodCallTranslator, nameof(methodCallTranslator)),
                 (ISqlServerValueBufferFactoryFactory)ValueBufferFactoryFactory);
-        }
     }
 }

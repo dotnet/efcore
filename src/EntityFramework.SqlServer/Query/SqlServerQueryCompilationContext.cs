@@ -40,32 +40,16 @@ namespace Microsoft.Data.Entity.SqlServer.Query
         {
         }
 
-        public override ISqlQueryGenerator CreateSqlQueryGenerator(SelectExpression selectExpression)
-        {
-            Check.NotNull(selectExpression, nameof(selectExpression));
+        public override ISqlQueryGenerator CreateSqlQueryGenerator(SelectExpression selectExpression) 
+            => new SqlServerQueryGenerator(Check.NotNull(selectExpression, nameof(selectExpression)));
 
-            return new SqlServerQueryGenerator(selectExpression);
-        }
+        public override string GetTableName(IEntityType entityType) 
+            => Check.NotNull(entityType, nameof(entityType)).SqlServer().Table;
 
-        public override string GetTableName(IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
+        public override string GetSchema(IEntityType entityType) 
+            => Check.NotNull(entityType, nameof(entityType)).SqlServer().Schema;
 
-            return entityType.SqlServer().Table;
-        }
-
-        public override string GetSchema(IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.SqlServer().Schema;
-        }
-
-        public override string GetColumnName(IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return property.SqlServer().Column;
-        }
+        public override string GetColumnName(IProperty property) 
+            => Check.NotNull(property, nameof(property)).SqlServer().Column;
     }
 }

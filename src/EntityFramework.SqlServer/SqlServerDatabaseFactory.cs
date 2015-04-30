@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.SqlServer
             _loggerFactory = loggerFactory;
         }
 
-        public virtual Database CreateDatabase() 
+        public virtual Database CreateDatabase()
             => new SqlServerDatabase(_context, _dataStoreCreator, _connection, _migrator, _loggerFactory);
     }
 }

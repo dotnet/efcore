@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
 {
     public class DropDatabaseOperation : MigrationOperation
     {
-        public virtual string Name { get;[param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
     }
 }

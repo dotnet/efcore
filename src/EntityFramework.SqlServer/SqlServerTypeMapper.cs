@@ -4,10 +4,7 @@
 using System;
 using System.Data;
 using System.Linq;
-using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Metadata;
 
 namespace Microsoft.Data.Entity.SqlServer
 {

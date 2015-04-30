@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         private readonly int _maxBatchSize;
         private readonly List<ModificationCommand> _bulkInsertCommands = new List<ModificationCommand>();
         private int _commandsLeftToLengthCheck = 50;
-        
+
         public SqlServerModificationCommandBatch(
             [NotNull] ISqlServerSqlGenerator sqlGenerator,
             [CanBeNull] int? maxBatchSize)
@@ -101,9 +101,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         }
 
         protected override string GetCommandText()
-        {
-            return base.GetCommandText() + GetBulkInsertCommandText(ModificationCommands.Count);
-        }
+            => base.GetCommandText() + GetBulkInsertCommandText(ModificationCommands.Count);
 
         private string GetBulkInsertCommandText(int lastIndex)
         {
@@ -150,20 +148,14 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         }
 
         private bool CanBeInsertedInSameStatement(ModificationCommand firstCommand, ModificationCommand secondCommand)
-        {
-            return string.Equals(firstCommand.TableName, secondCommand.TableName, StringComparison.Ordinal)
-                   && string.Equals(firstCommand.SchemaName, secondCommand.SchemaName, StringComparison.Ordinal)
-                   && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(
-                       secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
-                   && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
-                       secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
-        }
+            => string.Equals(firstCommand.TableName, secondCommand.TableName, StringComparison.Ordinal)
+               && string.Equals(firstCommand.SchemaName, secondCommand.SchemaName, StringComparison.Ordinal)
+               && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(
+                   secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
+               && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
+                   secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
 
         public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return property.SqlServer();
-        }
+            => Check.NotNull(property, nameof(property)).SqlServer();
     }
 }

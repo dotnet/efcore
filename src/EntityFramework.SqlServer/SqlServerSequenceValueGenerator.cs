@@ -35,14 +35,13 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         protected override long GetNewLowValue()
-        {
-            var nextValue = _executor.ExecuteScalar(
-                _connection,
-                _connection.DbTransaction,
-                _sqlGenerator.GenerateNextSequenceValueOperation(_sequenceName));
-
-            return (long)Convert.ChangeType(nextValue, typeof(long), CultureInfo.InvariantCulture);
-        }
+            => (long)Convert.ChangeType(
+                _executor.ExecuteScalar(
+                    _connection,
+                    _connection.DbTransaction,
+                    _sqlGenerator.GenerateNextSequenceValueOperation(_sequenceName)),
+                typeof(long),
+                CultureInfo.InvariantCulture);
 
         public override bool GeneratesTemporaryValues => false;
     }

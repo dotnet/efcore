@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.Extensions
                 {
                     CommandTimeout = commandTimeout
                 };
-            
+
             ((IOptionsBuilderExtender)OptionsBuilder).AddOrUpdateExtension(extension);
 
             return this;
@@ -53,9 +53,9 @@ namespace Microsoft.Data.Entity.SqlServer.Extensions
         public virtual SqlServerDbContextOptionsBuilder SuppressAmbientTransactionWarning()
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
-            {
-                ThrowOnAmbientTransaction = false
-            };
+                {
+                    ThrowOnAmbientTransaction = false
+                };
 
             ((IOptionsBuilderExtender)OptionsBuilder).AddOrUpdateExtension(extension);
 

@@ -16,10 +16,8 @@ namespace Microsoft.Data.Entity.SqlServer.Query
         {
         }
 
-        protected override string DelimitIdentifier(string identifier)
-        {
-            return "[" + identifier.Replace("]", "]]") + "]";
-        }
+        protected override string DelimitIdentifier(string identifier) 
+            => "[" + identifier.Replace("]", "]]") + "]";
 
         public override Expression VisitCountExpression(CountExpression countExpression)
         {

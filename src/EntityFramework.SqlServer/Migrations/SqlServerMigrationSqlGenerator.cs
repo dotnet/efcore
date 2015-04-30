@@ -229,7 +229,7 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(builder, nameof(builder));
 
             var computedExpression = annotatable[SqlServerAnnotationNames.Prefix
-                + SqlServerAnnotationNames.ColumnComputedExpression];
+                                                 + SqlServerAnnotationNames.ColumnComputedExpression];
             if (computedExpression != null)
             {
                 builder
@@ -309,17 +309,17 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] AlterColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder) =>
-            ColumnDefinition(
-                operation.Schema,
-                operation.Table,
-                operation.Name,
-                operation.Type,
-                operation.IsNullable,
-                operation.DefaultValue,
-                operation.DefaultExpression,
-                operation,
-                model,
-                builder);
+                ColumnDefinition(
+                    operation.Schema,
+                    operation.Table,
+                    operation.Name,
+                    operation.Type,
+                    operation.IsNullable,
+                    operation.DefaultValue,
+                    operation.DefaultExpression,
+                    operation,
+                    model,
+                    builder);
 
         public override void IndexTraits(MigrationOperation operation, IModel model, SqlBatchBuilder builder)
         {

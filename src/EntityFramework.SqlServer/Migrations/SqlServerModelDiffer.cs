@@ -69,15 +69,15 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                     || sourceValueGenerationStrategy != targetValueGenerationStrategy))
             {
                 alterColumnOperation = new AlterColumnOperation
-                {
-                    Schema = source.EntityType.Relational().Schema,
-                    Table = source.EntityType.Relational().Table,
-                    Name = source.Relational().Column,
-                    Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
-                    IsNullable = target.IsNullable,
-                    DefaultValue = target.Relational().DefaultValue,
-                    DefaultExpression = target.Relational().DefaultExpression
-                };
+                    {
+                        Schema = source.EntityType.Relational().Schema,
+                        Table = source.EntityType.Relational().Table,
+                        Name = source.Relational().Column,
+                        Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
+                        IsNullable = target.IsNullable,
+                        DefaultValue = target.Relational().DefaultValue,
+                        DefaultExpression = target.Relational().DefaultExpression
+                    };
                 operations.Add(alterColumnOperation);
             }
 
@@ -183,13 +183,13 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 operations.AddRange(Remove(source));
 
                 createIndexOperation = new CreateIndexOperation
-                {
-                    Name = target.Relational().Name,
-                    Schema = target.EntityType.Relational().Schema,
-                    Table = target.EntityType.Relational().Table,
-                    Columns = target.Properties.Select(p => p.Relational().Column).ToArray(),
-                    IsUnique = target.IsUnique
-                };
+                    {
+                        Name = target.Relational().Name,
+                        Schema = target.EntityType.Relational().Schema,
+                        Table = target.EntityType.Relational().Table,
+                        Columns = target.Properties.Select(p => p.Relational().Column).ToArray(),
+                        IsUnique = target.IsUnique
+                    };
                 operations.Add(createIndexOperation);
             }
 

@@ -17,9 +17,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
         }
 
-        public override string Name 
-            => Index[SqlServerNameAnnotation] as string 
-                ?? base.Name;
+        public override string Name
+            => Index[SqlServerNameAnnotation] as string
+               ?? base.Name;
 
         public virtual bool? IsClustered
         {

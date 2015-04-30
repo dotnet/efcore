@@ -46,13 +46,8 @@ namespace Microsoft.Data.Entity.SqlServer
             return (sequence.Schema == null ? "" : (sequence.Schema + ".")) + sequence.Name;
         }
 
-        public virtual int GetPoolSize([NotNull] IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            // TODO: Allow configuration without creation of derived factory type
-            // Issue #778
-            return 5;
-        }
+        // TODO: Allow configuration without creation of derived factory type
+        // Issue #778
+        public virtual int GetPoolSize([NotNull] IProperty property) => 5;
     }
 }

@@ -13,87 +13,39 @@ namespace Microsoft.Data.Entity
     public static class SqlServerMetadataExtensions
     {
         public static SqlServerPropertyExtensions SqlServer([NotNull] this Property property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return new SqlServerPropertyExtensions(property);
-        }
+            => new SqlServerPropertyExtensions(Check.NotNull(property, nameof(property)));
 
         public static ISqlServerPropertyExtensions SqlServer([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return new ReadOnlySqlServerPropertyExtensions(property);
-        }
+            => new ReadOnlySqlServerPropertyExtensions(Check.NotNull(property, nameof(property)));
 
         public static SqlServerEntityTypeExtensions SqlServer([NotNull] this EntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return new SqlServerEntityTypeExtensions(entityType);
-        }
+            => new SqlServerEntityTypeExtensions(Check.NotNull(entityType, nameof(entityType)));
 
         public static ISqlServerEntityTypeExtensions SqlServer([NotNull] this IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return new ReadOnlySqlServerEntityTypeExtensions(entityType);
-        }
+            => new ReadOnlySqlServerEntityTypeExtensions(Check.NotNull(entityType, nameof(entityType)));
 
         public static SqlServerKeyExtensions SqlServer([NotNull] this Key key)
-        {
-            Check.NotNull(key, nameof(key));
-
-            return new SqlServerKeyExtensions(key);
-        }
+            => new SqlServerKeyExtensions(Check.NotNull(key, nameof(key)));
 
         public static ISqlServerKeyExtensions SqlServer([NotNull] this IKey key)
-        {
-            Check.NotNull(key, nameof(key));
-
-            return new ReadOnlySqlServerKeyExtensions(key);
-        }
+            => new ReadOnlySqlServerKeyExtensions(Check.NotNull(key, nameof(key)));
 
         public static SqlServerIndexExtensions SqlServer([NotNull] this Index index)
-        {
-            Check.NotNull(index, nameof(index));
-
-            return new SqlServerIndexExtensions(index);
-        }
+            => new SqlServerIndexExtensions(Check.NotNull(index, nameof(index)));
 
         public static ISqlServerIndexExtensions SqlServer([NotNull] this IIndex index)
-        {
-            Check.NotNull(index, nameof(index));
-
-            return new ReadOnlySqlServerIndexExtensions(index);
-        }
+            => new ReadOnlySqlServerIndexExtensions(Check.NotNull(index, nameof(index)));
 
         public static SqlServerForeignKeyExtensions SqlServer([NotNull] this ForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
-            return new SqlServerForeignKeyExtensions(foreignKey);
-        }
+            => new SqlServerForeignKeyExtensions(Check.NotNull(foreignKey, nameof(foreignKey)));
 
         public static ISqlServerForeignKeyExtensions SqlServer([NotNull] this IForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
-            return new ReadOnlySqlServerForeignKeyExtensions(foreignKey);
-        }
+            => new ReadOnlySqlServerForeignKeyExtensions(Check.NotNull(foreignKey, nameof(foreignKey)));
 
         public static SqlServerModelExtensions SqlServer([NotNull] this Model model)
-        {
-            Check.NotNull(model, nameof(model));
-
-            return new SqlServerModelExtensions(model);
-        }
+            => new SqlServerModelExtensions(Check.NotNull(model, nameof(model)));
 
         public static ISqlServerModelExtensions SqlServer([NotNull] this IModel model)
-        {
-            Check.NotNull(model, nameof(model));
-
-            return new ReadOnlySqlServerModelExtensions(model);
-        }
+            => new ReadOnlySqlServerModelExtensions(Check.NotNull(model, nameof(model)));
     }
 }
