@@ -10,7 +10,7 @@
         "dnx451": {
             "dependencies": {
                 "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*",
-                "Microsoft.Framework.DependencyInjection.Interfaces": "1.0.0-*"
+                "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-*"
             },
             "frameworkAssemblies": {
                 "System.Data": "4.0.0.0"
@@ -23,7 +23,7 @@
                 "System.IO.FileSystem": "4.0.0-*",
                 "System.Runtime.InteropServices": "4.0.20-*",
                 "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*",
-                "Microsoft.Framework.DependencyInjection.Interfaces": "1.0.0-*"
+                "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-*"
             }
         },
         ".NETPortable,Version=v4.5,Profile=Profile7": {
