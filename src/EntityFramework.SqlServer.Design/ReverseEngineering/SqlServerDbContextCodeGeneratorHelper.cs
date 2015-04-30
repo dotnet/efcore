@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             {
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration(
-                        "ForSqlServer()",
+                        "ForSqlServer",
                         "UseIdentity()"));
             }
         }
