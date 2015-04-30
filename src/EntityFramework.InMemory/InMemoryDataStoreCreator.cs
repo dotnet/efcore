@@ -31,12 +31,12 @@ namespace Microsoft.Data.Entity.InMemory
             return false;
         }
 
-        public virtual Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken)) 
+        public virtual Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
             => Task.FromResult(EnsureDeleted(model));
 
         public virtual bool EnsureCreated(IModel model) => _dataStore.EnsureDatabaseCreated(model);
 
-        public virtual Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken)) 
+        public virtual Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
             => Task.FromResult(_dataStore.EnsureDatabaseCreated(model));
     }
 }

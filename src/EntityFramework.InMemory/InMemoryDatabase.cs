@@ -49,9 +49,7 @@ namespace Microsoft.Data.Entity.InMemory
         }
 
         public virtual void Clear()
-        {
-            _tables.ExchangeValue(ts => ImmutableDictionary<IEntityType, InMemoryTable>.Empty);
-        }
+            => _tables.ExchangeValue(ts => ImmutableDictionary<IEntityType, InMemoryTable>.Empty);
 
         public virtual IEnumerable<InMemoryTable> GetTables(IEntityType entityType)
         {
@@ -120,16 +118,11 @@ namespace Microsoft.Data.Entity.InMemory
         }
 
         public virtual IEnumerator<InMemoryTable> GetEnumerator()
-        {
-            return _tables.HasValue
+            => _tables.HasValue
                 ? _tables.Value.Values.GetEnumerator()
                 : Enumerable.Empty<InMemoryTable>().GetEnumerator();
-        }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public class InMemoryTable : IEnumerable<object[]>
         {

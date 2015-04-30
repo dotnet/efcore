@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
         }
 
-        public override EntityQueryModelVisitor CreateQueryModelVisitor(EntityQueryModelVisitor parentEntityQueryModelVisitor) 
+        public override EntityQueryModelVisitor CreateQueryModelVisitor(EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => new InMemoryQueryModelVisitor(this);
     }
 }

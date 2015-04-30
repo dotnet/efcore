@@ -9,14 +9,10 @@ namespace Microsoft.Data.Entity.InMemory.Metadata
 {
     public class EntityTypeNameEqualityComparer : IEqualityComparer<IEntityType>
     {
-        public virtual bool Equals(IEntityType x, IEntityType y)
-        {
-            return StringComparer.Ordinal.Equals(x.Name, y.Name);
-        }
+        public virtual bool Equals(IEntityType x, IEntityType y) 
+            => StringComparer.Ordinal.Equals(x.Name, y.Name);
 
-        public virtual int GetHashCode(IEntityType obj)
-        {
-            return StringComparer.Ordinal.GetHashCode(obj.Name);
-        }
+        public virtual int GetHashCode(IEntityType obj) 
+            => StringComparer.Ordinal.GetHashCode(obj.Name);
     }
 }

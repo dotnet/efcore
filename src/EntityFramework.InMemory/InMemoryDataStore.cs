@@ -55,33 +55,21 @@ namespace Microsoft.Data.Entity.InMemory
         public virtual IInMemoryDatabase Database => _database.Value;
 
         public override int SaveChanges(IReadOnlyList<InternalEntityEntry> entries)
-        {
-            Check.NotNull(entries, nameof(entries));
-
-            return _database.Value.ExecuteTransaction(entries);
-        }
+            => _database.Value.ExecuteTransaction(Check.NotNull(entries, nameof(entries)));
 
         public override Task<int> SaveChangesAsync(
             IReadOnlyList<InternalEntityEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(entries, nameof(entries));
-
-            return Task.FromResult(_database.Value.ExecuteTransaction(entries));
-        }
+            => Task.FromResult(_database.Value.ExecuteTransaction(Check.NotNull(entries, nameof(entries))));
 
         public override Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
-        {
-            Check.NotNull(queryModel, nameof(queryModel));
-
-            return new InMemoryQueryCompilationContext(
+            => new InMemoryQueryCompilationContext(
                 Model,
                 Logger,
                 EntityMaterializerSource,
                 EntityKeyFactorySource)
                 .CreateQueryModelVisitor()
-                .CreateQueryExecutor<TResult>(queryModel);
-        }
+                .CreateQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
 
         public override Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
         {
@@ -93,10 +81,6 @@ namespace Microsoft.Data.Entity.InMemory
         }
 
         public virtual bool EnsureDatabaseCreated(IModel model)
-        {
-            Check.NotNull(model, nameof(model));
-
-            return _database.Value.EnsureCreated(model);
-        }
+            => _database.Value.EnsureCreated(Check.NotNull(model, nameof(model)));
     }
 }

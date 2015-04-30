@@ -13,10 +13,8 @@ namespace Microsoft.Data.Entity
     public static class InMemoryDbContextOptionsExtensions
     {
         public static void UseInMemoryStore([NotNull] this DbContextOptionsBuilder optionsBuilder, bool persist = true)
-        {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
-            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(new InMemoryOptionsExtension { Persist = persist });
-        }
+            => ((IOptionsBuilderExtender)Check.NotNull(optionsBuilder, nameof(optionsBuilder)))
+                .AddOrUpdateExtension(
+                    new InMemoryOptionsExtension { Persist = persist });
     }
 }
