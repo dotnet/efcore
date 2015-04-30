@@ -1,26 +1,24 @@
 {
-    "version": "7.0.0-*",
-    "description":  "Microsoft SQL Server data store for Entity Framework.",
-    "compilationOptions": {
-        "warningsAsErrors": true
-    },
-    "dependencies": {
-        "EntityFramework.Relational": "7.0.0-*"
-    },
-    "compile": "..\\Shared\\*.cs",
-    "namedResource": {
-        "EntityFramework.SqlServer.Strings": "Properties/Strings.resx"
-    },
-    "frameworks": {
-        "net45": { },
-        "dnx451": { },
-        "dnxcore50": {
-            "dependencies": {
-                "System.Data.SqlClient": "4.0.0-beta-*",
-                "System.Security.Principal.Windows": "4.0.0-beta-*",
-                "System.Threading.Thread": "4.0.0-beta-*",
-                "System.Text.Encoding.CodePages": "4.0.0-beta-*"
-            }
-        }
+  "version": "7.0.0-*",
+  "description": "Microsoft SQL Server data store for Entity Framework.",
+  "compilationOptions": {
+    "warningsAsErrors": true
+  },
+  "dependencies": {
+    "EntityFramework.Relational": "7.0.0-*"
+  },
+  "compile": "..\\Shared\\*.cs",
+  "namedResource": {
+    "EntityFramework.SqlServer.Strings": "Properties/Strings.resx"
+  },
+  "frameworks": {
+    "net45": { },
+    "dnxcore50": {
+      "dependencies": {
+        "System.Data.SqlClient": "4.0.0-*",
+        "System.Text.Encoding.CodePages": "4.0.0-*",
+        "System.Threading.Thread": "4.0.0-*"
+      }
     }
+  }
 }

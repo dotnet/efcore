@@ -3,12 +3,8 @@
 
 using System.Runtime.CompilerServices;
 
-#if !INTERNALS_INVISIBLE
-
 [assembly: InternalsVisibleTo("EntityFramework.SqlServer.Design.Tests")]
 
 // for Moq
 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
-
-#endif

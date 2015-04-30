@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET45
+#if !DNXCORE50
 
 using System;
 using System.Collections;
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Commands
         public virtual IEnumerable<IDictionary> GetMigrationsImpl([CanBeNull] string contextTypeName) =>
             // TODO: Determine safe names (See #1774)
             _migrationTool.GetMigrations(contextTypeName).Select(
-                m => new Hashtable { ["MigrationId"] = m.Id, ["MigrationName"] = m.Id, ["SafeName"] = m.Id });
+                m => new Hashtable {["MigrationId"] = m.Id,["MigrationName"] = m.Id,["SafeName"] = m.Id });
 
         public class ReverseEngineer : OperationBase
         {

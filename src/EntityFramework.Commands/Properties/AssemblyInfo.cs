@@ -6,7 +6,7 @@ using System.Resources;
 
 [assembly: NeutralResourcesLanguage("en-US")]
 
-#if VSBUILD
+#if CSPROJ
 
 [assembly: AssemblyInformationalVersion("7.0.0-vsbuild")]
 #endif

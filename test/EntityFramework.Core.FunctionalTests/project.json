@@ -1,17 +1,21 @@
 {
-    "dependencies": {
-        "EntityFramework.InMemory": "7.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+  "dependencies": {
+    "EntityFramework.InMemory": "7.0.0-*",
+    "xunit.runner.aspnet": "2.0.0-aspnet-*"
+  },
+  "commands": {
+    "test": "xunit.runner.aspnet"
+  },
+  "frameworks": {
+    "dnx451": {
+      "frameworkAssemblies": {
+        "WindowsBase": "4.0.0.0"
+      }
     },
-    "commands": {
-        "test": "xunit.runner.aspnet"
-    },
-    "frameworks": {
-        "dnx451": { },
-        "dnxcore50": {
-            "dependencies": {
-                "Microsoft.CSharp": "4.0.0-beta-*"
-            }
-        }
+    "dnxcore50": {
+      "dependencies": {
+        "Microsoft.CSharp": "4.0.0-beta-*"
+      }
     }
+  }
 }

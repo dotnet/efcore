@@ -26,3 +26,4 @@ nuget.exe
 *.sln.ide
 *.lock.json
 *.db
+.vs/

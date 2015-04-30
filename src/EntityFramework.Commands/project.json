@@ -1,39 +1,33 @@
 {
-    "version": "7.0.0-*",
-    "description": "Command line utilities for Entity Framework.",
-    "compilationOptions": {
-        "warningsAsErrors": true
+  "version": "7.0.0-*",
+  "description": "Command line utilities for Entity Framework.",
+  "compilationOptions": {
+    "warningsAsErrors": true
+  },
+  "dependencies": {
+    "EntityFramework.Relational.Design": "7.0.0-*",
+  },
+  "compile": "..\\Shared\\*.cs",
+  "exclude": "tools\\Handlers.cs",
+  "namedResource": {
+    "EntityFramework.Commands.Strings": "Properties/Strings.resx"
+  },
+  "frameworks": {
+    "net45": { },
+    "dnx451": {
+      "dependencies": {
+        "Microsoft.AspNet.Hosting": "1.0.0-*",
+        "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
+      }
     },
-    "dependencies": {
-        "EntityFramework.Relational": "7.0.0-*",
-        "EntityFramework.Relational.Design": "7.0.0-*",
-        "EntityFramework.SqlServer.Design": "7.0.0-*",
-        "Microsoft.CodeAnalysis.CSharp": "1.0.0-*",
-        "Microsoft.Framework.DependencyInjection": "1.0.0-*"
-    },
-    "compile": "..\\Shared\\*.cs",
-    "exclude": "tools\\Handlers.cs",
-    "namedResource": {
-        "EntityFramework.Commands.Strings": "Properties/Strings.resx"
-    },
-    "frameworks": {
-        "net45": { },
-        "dnx451": {
-            "dependencies": {
-                "Microsoft.AspNet.Hosting": "1.0.0-*",
-                "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",
-                "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
-            }
-        },
-        "dnxcore50": {
-            "dependencies": {
-                "Microsoft.AspNet.Hosting": "1.0.0-*",
-                "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",
-                "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
-            }
-        }
-    },
-    "commands": {
-        "ef": "EntityFramework.Commands"
+    "dnxcore50": {
+      "dependencies": {
+        "Microsoft.AspNet.Hosting": "1.0.0-*",
+        "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
+      }
     }
+  },
+  "commands": {
+    "ef": "EntityFramework.Commands"
+  }
 }

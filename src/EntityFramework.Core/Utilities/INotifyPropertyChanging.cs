@@ -4,7 +4,7 @@
 using System;
 using JetBrains.Annotations;
 
-#if !NET45 && !DNX451 && !DNXCORE50
+#if !NET45 && !DNXCORE50
 // TODO: Remove this file when VS can build against ".NET Portable 5.0"
 
 namespace Microsoft.Data.Entity

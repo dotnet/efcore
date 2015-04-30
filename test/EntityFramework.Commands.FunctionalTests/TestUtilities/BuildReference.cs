@@ -5,7 +5,7 @@ using System;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-#if DNX451
+#if DNX451 || DNXCORE50
 using System.Linq;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Runtime;
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 
         private static MetadataReference ResolveReference(string name)
         {
-#if DNX451
+#if DNX451 || DNXCORE50
             return CallContextServiceLocator
                 .Locator
                 .ServiceProvider

@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET45
+#if CSPROJ
 
 using System;
 using System.Linq;
@@ -49,9 +49,9 @@ namespace Microsoft.Data.Entity.Commands
                 public SimpleProject()
                 {
                     var source = new BuildSource
-                        {
-                            TargetDir = TargetDir,
-                            References =
+                    {
+                        TargetDir = TargetDir,
+                        References =
                                 {
                                     BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
                                     BuildReference.ByName("System.Data.Common", copyLocal: true),
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Commands
                                     BuildReference.ByName("Microsoft.Framework.OptionsModel", copyLocal: true),
                                     BuildReference.ByName("Remotion.Linq", copyLocal: true)
                                 },
-                            Source = @"
+                        Source = @"
                             using System;
                             using Microsoft.Data.Entity;
                             using Microsoft.Data.Entity.Metadata;
@@ -138,9 +138,9 @@ namespace Microsoft.Data.Entity.Commands
             {
                 var targetDir = directory.Path;
                 var source = new BuildSource
-                    {
-                        TargetDir = targetDir,
-                        References =
+                {
+                    TargetDir = targetDir,
+                    References =
                             {
                                 BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
                                 BuildReference.ByName("System.Data.Common", copyLocal: true),
@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByName("Microsoft.Framework.OptionsModel", copyLocal: true),
                                 BuildReference.ByName("Remotion.Linq", copyLocal: true)
                             },
-                        Source = @"
+                    Source = @"
                         using System;
                         using Microsoft.Data.Entity;
                         using Microsoft.Data.Entity.Metadata;
@@ -242,15 +242,15 @@ namespace Microsoft.Data.Entity.Commands
             {
                 var targetDir = directory.Path;
                 var contextsSource = new BuildSource
-                    {
-                        TargetDir = targetDir,
-                        References =
+                {
+                    TargetDir = targetDir,
+                    References =
                             {
                                 BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                                 BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Commands", copyLocal: true)
                             },
-                        Source = @"
+                    Source = @"
                         using Microsoft.Data.Entity;
 
                         namespace MyProject
@@ -263,12 +263,12 @@ namespace Microsoft.Data.Entity.Commands
                             {
                             }
                         }"
-                    };
+                };
                 var contextsBuild = contextsSource.Build();
                 var migrationsSource = new BuildSource
-                    {
-                        TargetDir = targetDir,
-                        References =
+                {
+                    TargetDir = targetDir,
+                    References =
                             {
                                 BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
                                 BuildReference.ByName("System.Reflection.Metadata", copyLocal: true),
@@ -281,7 +281,7 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByName("Microsoft.Framework.Logging.Abstractions", copyLocal: true),
                                 BuildReference.ByPath(contextsBuild.TargetPath)
                             },
-                        Source = @"
+                    Source = @"
                         using System;
                         using Microsoft.Data.Entity;
                         using Microsoft.Data.Entity.Metadata;
@@ -332,7 +332,7 @@ namespace Microsoft.Data.Entity.Commands
                                 }
                             }
                         }"
-                    };
+                };
                 var migrationsBuild = migrationsSource.Build();
                 using (var executor = new ExecutorWrapper(targetDir, migrationsBuild.TargetName + ".dll", targetDir, "MyProject"))
                 {

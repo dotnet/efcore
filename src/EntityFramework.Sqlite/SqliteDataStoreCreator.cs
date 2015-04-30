@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Sqlite.Migrations;
 using Microsoft.Data.Entity.Utilities;
 
-#if NET45 || DNX451 || DNXCORE50
+#if NET45 || DNXCORE50
 using System.IO;
 #else
 using System;
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Sqlite
 
             if (path != null)
             {
-#if NET45 || DNX451 || DNXCORE50
+#if NET45 || DNXCORE50
                 File.Delete(path);
 #else
                 // TODO: Remove with netcore451
