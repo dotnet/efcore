@@ -41,8 +41,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         Expression.AndAlso(
                             leftIsNull,
                             rightIsNull
-                        )
-                    );
+                            )
+                        );
                 }
 
                 if (expression.NodeType == ExpressionType.NotEqual
@@ -52,14 +52,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
             }
 
-            if (left == expression.Left && right == expression.Right)
+            if (left == expression.Left
+                && right == expression.Right)
             {
                 return expression;
             }
-            else
-            {
-                return Expression.MakeBinary(expression.NodeType, left, right);
-            }
+            return Expression.MakeBinary(expression.NodeType, left, right);
         }
 
         protected override Expression VisitUnaryExpression(UnaryExpression expression)
@@ -79,10 +77,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             {
                 return expression;
             }
-            else
-            {
-                return Expression.MakeUnary(expression.NodeType, operand, expression.Type);
-            }
+            return Expression.MakeUnary(expression.NodeType, operand, expression.Type);
         }
     }
 }

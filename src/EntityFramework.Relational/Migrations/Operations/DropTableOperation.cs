@@ -7,7 +7,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
 {
     public class DropTableOperation : MigrationOperation
     {
-        public virtual string Name { get;[param: NotNull] set; }
-        public virtual string Schema { get;[param: CanBeNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Schema { get; [param: CanBeNull] set; }
     }
 }

@@ -2,14 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Parsing;
-using System.Collections.Generic;
-using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
@@ -71,16 +69,16 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             IReadOnlyList<Expression> rightInValues = null;
 
             var leftAliasExpression
-                    = MatchEqualityExpression(
-                        leftExpression,
-                        equalityType,
-                        out leftNonColumnExpression);
+                = MatchEqualityExpression(
+                    leftExpression,
+                    equalityType,
+                    out leftNonColumnExpression);
 
             var rightAliasExpression
-                    = MatchEqualityExpression(
-                        rightExpression,
-                        equalityType,
-                        out rightNonColumnExpression);
+                = MatchEqualityExpression(
+                    rightExpression,
+                    equalityType,
+                    out rightNonColumnExpression);
 
             if (leftAliasExpression == null)
             {
@@ -126,7 +124,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     inArguments);
             }
 
-            if (leftExpression != binaryExpression.Left || rightExpression != binaryExpression.Right)
+            if (leftExpression != binaryExpression.Left
+                || rightExpression != binaryExpression.Right)
             {
                 return Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression);
             }
@@ -181,7 +180,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             ref IReadOnlyList<Expression> values)
         {
             var unaryExpression = expression as UnaryExpression;
-            if (unaryExpression != null && unaryExpression.NodeType == ExpressionType.Not)
+            if (unaryExpression != null
+                && unaryExpression.NodeType == ExpressionType.Not)
             {
                 return MatchInExpression(unaryExpression.Operand, ref values);
             }

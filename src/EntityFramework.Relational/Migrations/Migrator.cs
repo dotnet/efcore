@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         }
 
         public virtual string ScriptMigrations(
-            string fromMigrationName, 
+            string fromMigrationName,
             string toMigrationName,
             bool idempotent = false)
         {
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             {
                 var migrationsToApply = migrations.Where(
                     m => string.Compare(m.Id, fromMigrationName, StringComparison.OrdinalIgnoreCase) > 0
-                        && string.Compare(m.Id, toMigrationName, StringComparison.OrdinalIgnoreCase) <= 0);
+                         && string.Compare(m.Id, toMigrationName, StringComparison.OrdinalIgnoreCase) <= 0);
                 var checkFirst = true;
                 foreach (var migration in migrationsToApply)
                 {
@@ -232,7 +232,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
                 var migrationsToRevert = migrations
                     .Where(
                         m => string.Compare(m.Id, toMigrationName, StringComparison.OrdinalIgnoreCase) > 0
-                            && string.Compare(m.Id, fromMigrationName, StringComparison.OrdinalIgnoreCase) <= 0)
+                             && string.Compare(m.Id, fromMigrationName, StringComparison.OrdinalIgnoreCase) <= 0)
                     .OrderByDescending(m => m.Id);
                 foreach (var migration in migrationsToRevert)
                 {

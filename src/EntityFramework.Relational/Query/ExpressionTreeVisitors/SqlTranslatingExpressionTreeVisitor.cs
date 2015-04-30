@@ -4,9 +4,9 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
-using JetBrains.Annotations;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Parsing;
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         private readonly Expression _topLevelPredicate;
 
         public SqlTranslatingExpressionTreeVisitor(
-            [NotNull] RelationalQueryModelVisitor queryModelVisitor, 
+            [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [CanBeNull] Expression topLevelPredicate = null)
         {
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
@@ -68,7 +68,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     if (binaryExpression == _topLevelPredicate)
                     {
-                        if (left != null && right != null)
+                        if (left != null
+                            && right != null)
                         {
                             return Expression.AndAlso(left, right);
                         }
@@ -118,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var ifTrue = VisitExpression(expression.IfTrue);
             var ifFalse = VisitExpression(expression.IfFalse);
 
-            Check.Equals(ifTrue.Type, ifFalse.Type);
+            Equals(ifTrue.Type, ifFalse.Type);
 
             return new CaseExpression(expression.Update(test, ifTrue, ifFalse), ifTrue.Type);
         }
@@ -315,7 +316,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 {
                     var parameter = expression.QueryModel.MainFromClause.FromExpression as ParameterExpression;
                     var memberItem = contains.Item as MemberExpression;
-                    if (parameter != null && memberItem != null)
+                    if (parameter != null
+                        && memberItem != null)
                     {
                         var aliasExpression = (AliasExpression)VisitMemberExpression(memberItem);
 
@@ -359,8 +361,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             var underlyingType = constantExpression.Type.UnwrapNullableType().UnwrapEnumType();
 
-            return _supportedConstantTypes.Contains(underlyingType) 
-                ? constantExpression 
+            return _supportedConstantTypes.Contains(underlyingType)
+                ? constantExpression
                 : null;
         }
 
@@ -370,8 +372,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             var underlyingType = parameterExpression.Type.UnwrapNullableType().UnwrapEnumType();
 
-            return _supportedConstantTypes.Contains(underlyingType) 
-                ? parameterExpression 
+            return _supportedConstantTypes.Contains(underlyingType)
+                ? parameterExpression
                 : null;
         }
 

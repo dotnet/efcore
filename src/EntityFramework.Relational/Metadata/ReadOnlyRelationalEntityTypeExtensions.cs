@@ -23,11 +23,11 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             _entityType = entityType;
         }
 
-        public virtual string Table 
+        public virtual string Table
             => _entityType.RootType()[RelationalTableAnnotation] as string
-                ?? _entityType.RootType().DisplayName();
+               ?? _entityType.RootType().DisplayName();
 
-        public virtual string Schema 
+        public virtual string Schema
             => _entityType.RootType()[RelationalSchemaAnnotation] as string;
 
         public virtual IProperty DiscriminatorProperty
@@ -36,9 +36,9 @@ namespace Microsoft.Data.Entity.Relational.Metadata
                     (string)_entityType.RootType()
                         .GetAnnotation(DiscriminatorPropertyAnnotation).Value);
 
-        public virtual string DiscriminatorValue 
+        public virtual string DiscriminatorValue
             => _entityType[DiscriminatorValueAnnotation] as string
-                ?? _entityType.DisplayName();
+               ?? _entityType.DisplayName();
 
         protected virtual IEntityType EntityType => _entityType;
     }

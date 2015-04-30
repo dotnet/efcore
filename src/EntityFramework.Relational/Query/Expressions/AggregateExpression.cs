@@ -19,9 +19,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual Expression Expression { get; }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
-        {
-            return this;
-        }
+        protected override Expression VisitChildren(ExpressionTreeVisitor visitor) => this;
     }
 }

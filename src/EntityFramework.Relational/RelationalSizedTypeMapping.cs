@@ -11,12 +11,10 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class RelationalSizedTypeMapping : RelationalTypeMapping
     {
-        private readonly int _size;
-
         public RelationalSizedTypeMapping([NotNull] string storeTypeName, DbType storeType, int size)
             : base(storeTypeName, storeType)
         {
-            _size = size;
+            Size = size;
         }
 
         protected override void ConfigureParameter(DbParameter parameter, ColumnModification columnModification)
@@ -24,14 +22,11 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(parameter, nameof(parameter));
             Check.NotNull(columnModification, nameof(columnModification));
 
-            parameter.Size = _size;
+            parameter.Size = Size;
 
             base.ConfigureParameter(parameter, columnModification);
         }
 
-        public virtual int Size
-        {
-            get { return _size; }
-        }
+        public virtual int Size { get; }
     }
 }

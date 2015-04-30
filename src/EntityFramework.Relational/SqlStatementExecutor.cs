@@ -61,8 +61,8 @@ namespace Microsoft.Data.Entity.Relational
         protected virtual ILogger Logger => _logger.Value;
 
         public virtual Task ExecuteNonQueryAsync(
-            IRelationalConnection connection, 
-            DbTransaction transaction, 
+            IRelationalConnection connection,
+            DbTransaction transaction,
             IEnumerable<SqlBatch> sqlBatches,
             CancellationToken cancellationToken = default(CancellationToken))
         {

@@ -64,76 +64,54 @@ namespace Microsoft.Data.Entity.Relational
 
         public override int SaveChanges(
             IReadOnlyList<InternalEntityEntry> entries)
-        {
-            Check.NotNull(entries, nameof(entries));
-
-            var commandBatches = _batchPreparer.BatchCommands(entries, _options);
-
-            return _batchExecutor.Execute(commandBatches, _connection);
-        }
+            => _batchExecutor.Execute(
+                _batchPreparer.BatchCommands(
+                    Check.NotNull(entries, nameof(entries)), _options),
+                _connection);
 
         public override Task<int> SaveChangesAsync(
             IReadOnlyList<InternalEntityEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(entries, nameof(entries));
-
-            var commandBatches = _batchPreparer.BatchCommands(entries, _options);
-
-            return _batchExecutor.ExecuteAsync(commandBatches, _connection, cancellationToken);
-        }
+            => _batchExecutor.ExecuteAsync(
+                _batchPreparer.BatchCommands(
+                    Check.NotNull(entries, nameof(entries)), _options),
+                _connection,
+                cancellationToken);
 
         public override Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
-        {
-            Check.NotNull(queryModel, nameof(queryModel));
-
-            var queryCompilationContext
-                = CreateQueryCompilationContext(
-                    new LinqOperatorProvider(),
-                    new RelationalResultOperatorHandler(),
-                    new QueryMethodProvider(),
-                    new CompositeMethodCallTranslator(Logger));
-
-            return queryCompilationContext
+            => CreateQueryCompilationContext(
+                new LinqOperatorProvider(),
+                new RelationalResultOperatorHandler(),
+                new QueryMethodProvider(),
+                new CompositeMethodCallTranslator(Logger))
                 .CreateQueryModelVisitor()
-                .CreateQueryExecutor<TResult>(queryModel);
-        }
+                .CreateQueryExecutor<TResult>(
+                    Check.NotNull(queryModel, nameof(queryModel)));
 
         public override Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
-        {
-            var queryCompilationContext
-                = CreateQueryCompilationContext(
-                    new AsyncLinqOperatorProvider(),
-                    new RelationalResultOperatorHandler(),
-                    new AsyncQueryMethodProvider(),
-                    new CompositeMethodCallTranslator(Logger));
-
-            return queryCompilationContext
+            => CreateQueryCompilationContext(
+                new AsyncLinqOperatorProvider(),
+                new RelationalResultOperatorHandler(),
+                new AsyncQueryMethodProvider(),
+                new CompositeMethodCallTranslator(Logger))
                 .CreateQueryModelVisitor()
-                .CreateAsyncQueryExecutor<TResult>(queryModel);
-        }
+                .CreateAsyncQueryExecutor<TResult>(
+                    Check.NotNull(queryModel, nameof(queryModel)));
 
         protected virtual RelationalQueryCompilationContext CreateQueryCompilationContext(
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator methodCallTranslator)
-        {
-            Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
-            Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
-            Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
-            Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
-
-            return new RelationalQueryCompilationContext(
+            => new RelationalQueryCompilationContext(
                 Model,
                 Logger,
-                linqOperatorProvider,
-                resultOperatorHandler,
+                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
+                Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
                 EntityMaterializerSource,
                 EntityKeyFactorySource,
-                queryMethodProvider,
-                methodCallTranslator,
+                Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
+                Check.NotNull(methodCallTranslator, nameof(methodCallTranslator)),
                 ValueBufferFactoryFactory);
-        }
     }
 }

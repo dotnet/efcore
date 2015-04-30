@@ -11,29 +11,31 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
     public class PredicateNegationExpressionOptimizer : ExpressionTreeVisitor
     {
-        private static Dictionary<ExpressionType, ExpressionType> _nodeTypeMapping
+        private static readonly Dictionary<ExpressionType, ExpressionType> _nodeTypeMapping
             = new Dictionary<ExpressionType, ExpressionType>
-            {
-                { ExpressionType.GreaterThan, ExpressionType.LessThanOrEqual },
-                { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan },
-                { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThan },
-                { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual },
-            };
+                {
+                    { ExpressionType.GreaterThan, ExpressionType.LessThanOrEqual },
+                    { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan },
+                    { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThan },
+                    { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual }
+                };
 
         protected override Expression VisitBinaryExpression(
-            [NotNull]BinaryExpression expression)
+            [NotNull] BinaryExpression expression)
         {
             var currentExpression = expression;
             if (currentExpression.NodeType == ExpressionType.Equal
                 || currentExpression.NodeType == ExpressionType.NotEqual)
             {
                 var leftUnary = currentExpression.Left as UnaryExpression;
-                if (leftUnary != null && leftUnary.NodeType == ExpressionType.Not)
+                if (leftUnary != null
+                    && leftUnary.NodeType == ExpressionType.Not)
                 {
                     var leftNullable = BuildIsNullExpression(leftUnary.Operand) != null;
                     var rightNullable = BuildIsNullExpression(currentExpression.Right) != null;
 
-                    if (!leftNullable && !rightNullable)
+                    if (!leftNullable
+                        && !rightNullable)
                     {
                         // e.g. !a == b -> a != b
                         currentExpression = currentExpression.NodeType == ExpressionType.Equal
@@ -45,19 +47,21 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
 
                 var rightUnary = currentExpression.Right as UnaryExpression;
-                if (rightUnary != null && rightUnary.NodeType == ExpressionType.Not)
+                if (rightUnary != null
+                    && rightUnary.NodeType == ExpressionType.Not)
                 {
                     var leftNullable = BuildIsNullExpression(currentExpression.Left) != null;
                     var rightNullable = BuildIsNullExpression(rightUnary) != null;
 
-                    if (!leftNullable && !rightNullable)
+                    if (!leftNullable
+                        && !rightNullable)
                     {
                         // e.g. a != !b -> a == b
                         currentExpression = currentExpression.NodeType == ExpressionType.Equal
-                        ? Expression.MakeBinary(
-                            ExpressionType.NotEqual, currentExpression.Left, rightUnary.Operand)
-                        : Expression.MakeBinary(
-                            ExpressionType.Equal, currentExpression.Left, rightUnary.Operand);
+                            ? Expression.MakeBinary(
+                                ExpressionType.NotEqual, currentExpression.Left, rightUnary.Operand)
+                            : Expression.MakeBinary(
+                                ExpressionType.Equal, currentExpression.Left, rightUnary.Operand);
                     }
                 }
             }
@@ -69,7 +73,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         {
             conversionType = null;
             var unary = expression as UnaryExpression;
-            if (unary != null && unary.NodeType == ExpressionType.Convert)
+            if (unary != null
+                && unary.NodeType == ExpressionType.Convert)
             {
                 conversionType = unary.Type;
                 return unary.Operand;
@@ -87,12 +92,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         }
 
         protected override Expression VisitUnaryExpression(
-            [NotNull]UnaryExpression expression)
+            [NotNull] UnaryExpression expression)
         {
             if (expression.NodeType == ExpressionType.Not)
             {
                 var innerUnary = expression.Operand as UnaryExpression;
-                if (innerUnary != null && innerUnary.NodeType == ExpressionType.Not)
+                if (innerUnary != null
+                    && innerUnary.NodeType == ExpressionType.Not)
                 {
                     // !(!(a)) => a
                     return VisitExpression(innerUnary.Operand);
@@ -101,7 +107,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 var innerBinary = expression.Operand as BinaryExpression;
                 if (innerBinary != null)
                 {
-                    if (innerBinary.NodeType == ExpressionType.Equal 
+                    if (innerBinary.NodeType == ExpressionType.Equal
                         || innerBinary.NodeType == ExpressionType.NotEqual)
                     {
                         // TODO: this is only valid for non-nullable terms, or if null semantics expansion is performed
@@ -119,7 +125,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         return VisitExpression(
                             Expression.MakeBinary(
                                 ExpressionType.OrElse,
-                                Expression.Not(innerBinary.Left), 
+                                Expression.Not(innerBinary.Left),
                                 Expression.Not(innerBinary.Right)));
                     }
 

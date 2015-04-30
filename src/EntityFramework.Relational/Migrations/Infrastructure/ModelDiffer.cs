@@ -212,12 +212,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 || source.Relational().Table != target.Relational().Table)
             {
                 yield return new RenameTableOperation
-                {
-                    Schema = source.Relational().Schema,
-                    Name = source.Relational().Table,
-                    NewSchema = target.Relational().Schema,
-                    NewName = target.Relational().Table
-                };
+                    {
+                        Schema = source.Relational().Schema,
+                        Name = source.Relational().Table,
+                        NewSchema = target.Relational().Schema,
+                        NewName = target.Relational().Table
+                    };
             }
 
             var sourcePrimaryKey = source.GetPrimaryKey();
@@ -268,10 +268,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Add(IEntityType target)
         {
             var createTableOperation = new CreateTableOperation
-            {
-                Schema = target.Relational().Schema,
-                Name = target.Relational().Table
-            };
+                {
+                    Schema = target.Relational().Schema,
+                    Name = target.Relational().Table
+                };
 
             createTableOperation.Columns.AddRange(target.GetProperties().SelectMany(Add).Cast<AddColumnOperation>());
 
@@ -296,10 +296,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Remove(IEntityType source)
         {
             yield return new DropTableOperation
-            {
-                Schema = source.Relational().Schema,
-                Name = source.Relational().Table
-            };
+                {
+                    Schema = source.Relational().Schema,
+                    Name = source.Relational().Table
+                };
         }
 
         #endregion
@@ -314,12 +314,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             if (source.Relational().Column != target.Relational().Column)
             {
                 yield return new RenameColumnOperation
-                {
-                    Schema = source.EntityType.Relational().Schema,
-                    Table = source.EntityType.Relational().Table,
-                    Name = source.Relational().Column,
-                    NewName = target.Relational().Column
-                };
+                    {
+                        Schema = source.EntityType.Relational().Schema,
+                        Table = source.EntityType.Relational().Table,
+                        Name = source.Relational().Column,
+                        NewName = target.Relational().Column
+                    };
             }
 
             var sourceColumnType = TypeMapper.GetTypeMapping(source).StoreTypeName;
@@ -334,15 +334,15 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             {
                 // TODO: Determine if data loss
                 yield return new AlterColumnOperation
-                {
-                    Schema = source.EntityType.Relational().Schema,
-                    Table = source.EntityType.Relational().Table,
-                    Name = source.Relational().Column,
-                    Type = targetColumnType,
-                    IsNullable = target.IsNullable,
-                    DefaultValue = target.Relational().DefaultValue,
-                    DefaultExpression = target.Relational().DefaultExpression
-                };
+                    {
+                        Schema = source.EntityType.Relational().Schema,
+                        Table = source.EntityType.Relational().Table,
+                        Name = source.Relational().Column,
+                        Type = targetColumnType,
+                        IsNullable = target.IsNullable,
+                        DefaultValue = target.Relational().DefaultValue,
+                        DefaultExpression = target.Relational().DefaultExpression
+                    };
             }
         }
 
@@ -370,25 +370,25 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Add(IProperty target)
         {
             yield return new AddColumnOperation
-            {
-                Schema = target.EntityType.Relational().Schema,
-                Table = target.EntityType.Relational().Table,
-                Name = target.Relational().Column,
-                Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
-                IsNullable = target.IsNullable,
-                DefaultValue = target.Relational().DefaultValue,
-                DefaultExpression = target.Relational().DefaultExpression
-            };
+                {
+                    Schema = target.EntityType.Relational().Schema,
+                    Table = target.EntityType.Relational().Table,
+                    Name = target.Relational().Column,
+                    Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
+                    IsNullable = target.IsNullable,
+                    DefaultValue = target.Relational().DefaultValue,
+                    DefaultExpression = target.Relational().DefaultExpression
+                };
         }
 
         protected virtual IEnumerable<MigrationOperation> Remove(IProperty source)
         {
             yield return new DropColumnOperation
-            {
-                Schema = source.EntityType.Relational().Schema,
-                Table = source.EntityType.Relational().Table,
-                Name = source.Relational().Column
-            };
+                {
+                    Schema = source.EntityType.Relational().Schema,
+                    Table = source.EntityType.Relational().Table,
+                    Name = source.Relational().Column
+                };
         }
 
         #endregion
@@ -441,22 +441,22 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             if (target.IsPrimaryKey())
             {
                 yield return new AddPrimaryKeyOperation
-                {
-                    Schema = target.EntityType.Relational().Schema,
-                    Table = target.EntityType.Relational().Table,
-                    Name = Name(target),
-                    Columns = target.Properties.Select(p => p.Relational().Column).ToArray()
-                };
+                    {
+                        Schema = target.EntityType.Relational().Schema,
+                        Table = target.EntityType.Relational().Table,
+                        Name = Name(target),
+                        Columns = target.Properties.Select(p => p.Relational().Column).ToArray()
+                    };
             }
             else
             {
                 yield return new AddUniqueConstraintOperation
-                {
-                    Schema = target.EntityType.Relational().Schema,
-                    Table = target.EntityType.Relational().Table,
-                    Name = Name(target),
-                    Columns = target.Properties.Select(p => p.Relational().Column).ToArray()
-                };
+                    {
+                        Schema = target.EntityType.Relational().Schema,
+                        Table = target.EntityType.Relational().Table,
+                        Name = Name(target),
+                        Columns = target.Properties.Select(p => p.Relational().Column).ToArray()
+                    };
             }
         }
 
@@ -465,20 +465,20 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             if (source.IsPrimaryKey())
             {
                 yield return new DropPrimaryKeyOperation
-                {
-                    Schema = source.EntityType.Relational().Schema,
-                    Table = source.EntityType.Relational().Table,
-                    Name = Name(source)
-                };
+                    {
+                        Schema = source.EntityType.Relational().Schema,
+                        Table = source.EntityType.Relational().Table,
+                        Name = Name(source)
+                    };
             }
             else
             {
                 yield return new DropUniqueConstraintOperation
-                {
-                    Schema = source.EntityType.Relational().Schema,
-                    Table = source.EntityType.Relational().Table,
-                    Name = Name(source)
-                };
+                    {
+                        Schema = source.EntityType.Relational().Schema,
+                        Table = source.EntityType.Relational().Table,
+                        Name = Name(source)
+                    };
             }
         }
 
@@ -522,25 +522,25 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         {
             // TODO: Set CascadeOnDelete (See #1084)
             yield return new AddForeignKeyOperation
-            {
-                Schema = target.EntityType.Relational().Schema,
-                Table = target.EntityType.Relational().Table,
-                Name = Name(target),
-                Columns = target.Properties.Select(p => p.Relational().Column).ToArray(),
-                ReferencedSchema = target.PrincipalEntityType.Relational().Schema,
-                ReferencedTable = target.PrincipalEntityType.Relational().Table,
-                ReferencedColumns = target.PrincipalKey.Properties.Select(p => p.Relational().Column).ToArray()
-            };
+                {
+                    Schema = target.EntityType.Relational().Schema,
+                    Table = target.EntityType.Relational().Table,
+                    Name = Name(target),
+                    Columns = target.Properties.Select(p => p.Relational().Column).ToArray(),
+                    ReferencedSchema = target.PrincipalEntityType.Relational().Schema,
+                    ReferencedTable = target.PrincipalEntityType.Relational().Table,
+                    ReferencedColumns = target.PrincipalKey.Properties.Select(p => p.Relational().Column).ToArray()
+                };
         }
 
         protected virtual IEnumerable<MigrationOperation> Remove(IForeignKey source)
         {
             yield return new DropForeignKeyOperation
-            {
-                Schema = source.EntityType.Relational().Schema,
-                Table = source.EntityType.Relational().Table,
-                Name = Name(source)
-            };
+                {
+                    Schema = source.EntityType.Relational().Schema,
+                    Table = source.EntityType.Relational().Table,
+                    Name = Name(source)
+                };
         }
 
         #endregion
@@ -558,12 +558,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             if (sourceName != targetName)
             {
                 yield return new RenameIndexOperation
-                {
-                    Schema = source.EntityType.Relational().Schema,
-                    Table = source.EntityType.Relational().Table,
-                    Name = sourceName,
-                    NewName = targetName
-                };
+                    {
+                        Schema = source.EntityType.Relational().Schema,
+                        Table = source.EntityType.Relational().Table,
+                        Name = sourceName,
+                        NewName = targetName
+                    };
             }
 
             if (!source.Properties.Select(p => p.Relational().Column).SequenceEqual(
@@ -595,23 +595,23 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Add(IIndex target)
         {
             yield return new CreateIndexOperation
-            {
-                Name = Name(target),
-                Schema = target.EntityType.Relational().Schema,
-                Table = target.EntityType.Relational().Table,
-                Columns = target.Properties.Select(p => p.Relational().Column).ToArray(),
-                IsUnique = target.IsUnique
-            };
+                {
+                    Name = Name(target),
+                    Schema = target.EntityType.Relational().Schema,
+                    Table = target.EntityType.Relational().Table,
+                    Columns = target.Properties.Select(p => p.Relational().Column).ToArray(),
+                    IsUnique = target.IsUnique
+                };
         }
 
         protected virtual IEnumerable<MigrationOperation> Remove(IIndex source)
         {
             yield return new DropIndexOperation
-            {
-                Name = Name(source),
-                Schema = source.EntityType.Relational().Schema,
-                Table = source.EntityType.Relational().Table
-            };
+                {
+                    Name = Name(source),
+                    Schema = source.EntityType.Relational().Schema,
+                    Table = source.EntityType.Relational().Table
+                };
         }
 
         #endregion
@@ -627,12 +627,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 || source.Name != target.Name)
             {
                 yield return new RenameSequenceOperation
-                {
-                    Schema = source.Schema,
-                    Name = source.Name,
-                    NewSchema = target.Schema,
-                    NewName = target.Name
-                };
+                    {
+                        Schema = source.Schema,
+                        Name = source.Name,
+                        NewSchema = target.Schema,
+                        NewName = target.Name
+                    };
             }
 
             if (source.IncrementBy != target.IncrementBy
@@ -643,14 +643,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             {
                 // TODO: What about StartValue and StoreType?
                 yield return new AlterSequenceOperation
-                {
-                    Schema = source.Schema,
-                    Name = source.Name,
-                    IncrementBy = target.IncrementBy,
-                    MinValue = target.MinValue,
-                    MaxValue = target.MaxValue,
-                    Cycle = target.Cycle
-                };
+                    {
+                        Schema = source.Schema,
+                        Name = source.Name,
+                        IncrementBy = target.IncrementBy,
+                        MinValue = target.MinValue,
+                        MaxValue = target.MaxValue,
+                        Cycle = target.Cycle
+                    };
             }
         }
 
@@ -675,25 +675,25 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Add(ISequence target)
         {
             yield return new CreateSequenceOperation
-            {
-                Schema = target.Schema,
-                Name = target.Name,
-                Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
-                StartWith = target.StartValue,
-                IncrementBy = target.IncrementBy,
-                MinValue = target.MinValue,
-                MaxValue = target.MaxValue,
-                Cycle = target.Cycle
-            };
+                {
+                    Schema = target.Schema,
+                    Name = target.Name,
+                    Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
+                    StartWith = target.StartValue,
+                    IncrementBy = target.IncrementBy,
+                    MinValue = target.MinValue,
+                    MaxValue = target.MaxValue,
+                    Cycle = target.Cycle
+                };
         }
 
         protected virtual IEnumerable<MigrationOperation> Remove(ISequence source)
         {
             yield return new DropSequenceOperation
-            {
-                Schema = source.Schema,
-                Name = source.Name
-            };
+                {
+                    Schema = source.Schema,
+                    Name = source.Name
+                };
         }
 
         #endregion

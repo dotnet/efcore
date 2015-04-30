@@ -56,10 +56,7 @@ namespace System.Linq
 
                 public TResult Current { get; private set; }
 
-                public void Dispose()
-                {
-                    _enumerator.Dispose();
-                }
+                public void Dispose() => _enumerator.Dispose();
             }
         }
     }

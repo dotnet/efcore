@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             [NotNull] string alias,
             [NotNull] IQuerySource querySource)
             : base(
-                  Check.NotNull(querySource, nameof(querySource)),
-                  Check.NotEmpty(alias, nameof(alias)))
+                Check.NotNull(querySource, nameof(querySource)),
+                Check.NotEmpty(alias, nameof(alias)))
         {
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
@@ -43,9 +43,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 : base.Accept(visitor);
         }
 
-        public override string ToString()
-        {
-            return Sql + " " + Alias;
-        }
+        public override string ToString() => Sql + " " + Alias;
     }
 }

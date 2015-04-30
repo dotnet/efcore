@@ -27,9 +27,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 : base.Accept(visitor);
         }
 
-        public override string ToString()
-        {
-            return "INNER JOIN (" + _tableExpression + ") ON " + Predicate;
-        }
+        public override string ToString() 
+            => "INNER JOIN (" + _tableExpression + ") ON " + Predicate;
     }
 }

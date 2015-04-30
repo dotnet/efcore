@@ -16,13 +16,11 @@ namespace Microsoft.Data.Entity
             [NotNull] this ModelBuilder modelBuilder,
             [CanBeNull] string name = null,
             [CanBeNull] string schema = null)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NullButNotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            return new RelationalSequenceBuilder(modelBuilder.Model.Relational().GetOrAddSequence(name, schema));
-        }
+            => new RelationalSequenceBuilder(
+                Check.NotNull(modelBuilder, nameof(modelBuilder)).Model.Relational()
+                    .GetOrAddSequence(
+                        Check.NullButNotEmpty(name, nameof(name)),
+                        Check.NullButNotEmpty(schema, nameof(schema))));
 
         public static ModelBuilder Sequence(
             [NotNull] this ModelBuilder modelBuilder,

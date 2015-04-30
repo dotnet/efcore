@@ -33,8 +33,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                 if (enumerator.MoveNext())
                 {
                     Debug.Assert(typeof(TResult) == typeof(int)
-                        || typeof(TResult) == typeof(bool)
-                        || typeof(TResult) == typeof(long));
+                                 || typeof(TResult) == typeof(bool)
+                                 || typeof(TResult) == typeof(long));
 
                     return enumerator.Current.IsDBNull(0)
                         ? default(TResult)

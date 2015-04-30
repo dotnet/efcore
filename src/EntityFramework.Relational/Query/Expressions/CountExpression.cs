@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         {
         }
 
-        public CountExpression([NotNull]Type type)
+        public CountExpression([NotNull] Type type)
             : base(type)
         {
         }
@@ -29,17 +29,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            if (specificVisitor != null)
-            {
-                return specificVisitor.VisitCountExpression(this);
-            }
-
-            return base.Accept(visitor);
+            return specificVisitor != null 
+                ? specificVisitor.VisitCountExpression(this) 
+                : base.Accept(visitor);
         }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
-        {
-            return this;
-        }
+        protected override Expression VisitChildren(ExpressionTreeVisitor visitor) => this;
     }
 }

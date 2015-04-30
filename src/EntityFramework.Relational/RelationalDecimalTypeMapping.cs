@@ -40,14 +40,8 @@ namespace Microsoft.Data.Entity.Relational
             base.ConfigureParameter(parameter, columnModification);
         }
 
-        public virtual byte Precision
-        {
-            get { return _precision; }
-        }
+        public virtual byte Precision => _precision;
 
-        public virtual byte Scale
-        {
-            get { return _scale; }
-        }
+        public virtual byte Scale => _scale;
     }
 }

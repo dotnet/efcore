@@ -25,18 +25,16 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         protected virtual IModel Model => _model;
 
         public virtual IReadOnlyList<Sequence> Sequences => (
-                from a in _model.Annotations
-                where a.Name.StartsWith(RelationalSequenceAnnotation)
-                select Sequence.Deserialize((string)a.Value))
-                .ToList();
+            from a in _model.Annotations
+            where a.Name.StartsWith(RelationalSequenceAnnotation)
+            select Sequence.Deserialize((string)a.Value))
+            .ToList();
 
         public virtual Sequence TryGetSequence(string name, string schema = null)
-        {
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            return FindSequence(RelationalSequenceAnnotation + schema + "." + name);
-        }
+            => FindSequence(
+                RelationalSequenceAnnotation + Check.NullButNotEmpty(schema, nameof(schema))
+                + "."
+                + Check.NotEmpty(name, nameof(name)));
 
         protected virtual Sequence FindSequence([NotNull] string annotationName)
         {

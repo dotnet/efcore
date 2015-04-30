@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 _queryCompilationContext.QueryMethodProvider
                                     .CreateReferenceIncludeRelatedValuesStrategyMethod,
                                 Expression.Convert(
-                                    EntityQueryModelVisitor.QueryContextParameter, 
+                                    EntityQueryModelVisitor.QueryContextParameter,
                                     typeof(RelationalQueryContext)),
                                 Expression.Constant(
                                     _queryCompilationContext.ValueBufferFactoryFactory.CreateValueBufferFactory(
@@ -208,7 +208,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     var innerJoinSelectExpression
                         = selectExpression.Clone(
                             selectExpression.OrderBy.Select(o => o.Expression).Last(o => o.IsAliasWithColumnExpression())
-                            .GetColumnExpression().TableAlias);
+                                .GetColumnExpression().TableAlias);
 
                     innerJoinSelectExpression.IsDistinct = true;
                     innerJoinSelectExpression.ClearProjection();
@@ -257,7 +257,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                         Expression.Call(
                                             Expression.Constant(
                                                 _queryCompilationContext.ValueBufferFactoryFactory.CreateValueBufferFactory(
-                                                    selectExpression.GetProjectionTypes(0), 
+                                                    selectExpression.GetProjectionTypes(0),
                                                     0)),
                                             _createValueBufferMethod,
                                             readerParameter),

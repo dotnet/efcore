@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         public virtual string ColumnType => _property[ColumnTypeAnnotation] as string;
         public virtual string DefaultExpression => _property[DefaultExpressionAnnotation] as string;
 
-        public virtual object DefaultValue 
+        public virtual object DefaultValue
             => new TypedAnnotation(
                 _property[DefaultValueTypeAnnotation] as string,
                 _property[DefaultValueAnnotation] as string).Value;

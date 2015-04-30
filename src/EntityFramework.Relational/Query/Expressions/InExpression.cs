@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
-using JetBrains.Annotations;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
@@ -39,14 +39,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 : base.Accept(visitor);
         }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
-        {
-            return this;
-        }
+        protected override Expression VisitChildren(ExpressionTreeVisitor visitor) => this;
 
-        public override string ToString()
-        {
-            return Operand.Expression + " IN (" + string.Join(", ", Values) + ")";
-        }
+        public override string ToString() 
+            => Operand.Expression + " IN (" + string.Join(", ", Values) + ")";
     }
 }

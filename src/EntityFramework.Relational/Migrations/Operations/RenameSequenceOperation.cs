@@ -7,9 +7,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
 {
     public class RenameSequenceOperation : MigrationOperation
     {
-        public virtual string Name { get;[param: NotNull] set; }
-        public virtual string Schema { get;[param: CanBeNull] set; }
-        public virtual string NewName { get;[param: CanBeNull] set; }
-        public virtual string NewSchema { get;[param: CanBeNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string NewName { get; [param: CanBeNull] set; }
+        public virtual string NewSchema { get; [param: CanBeNull] set; }
     }
 }

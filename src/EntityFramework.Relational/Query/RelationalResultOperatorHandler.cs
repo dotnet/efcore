@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 SetProjectionCaseExpression(
                     handlerContext,
                     new CaseExpression(
-                        Expression.Not(new ExistsExpression(innerSelectExpression)), 
+                        Expression.Not(new ExistsExpression(innerSelectExpression)),
                         typeof(bool)));
 
                 return TransformClientExpression<bool>(handlerContext);
@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             SetProjectionCaseExpression(
                 handlerContext,
                 new CaseExpression(
-                    new ExistsExpression(innerSelectExpression), 
+                    new ExistsExpression(innerSelectExpression),
                     typeof(bool)));
 
             return TransformClientExpression<bool>(handlerContext);

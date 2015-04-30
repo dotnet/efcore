@@ -14,7 +14,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         {
             var left = VisitExpression(expression.Left);
             var right = VisitExpression(expression.Right);
-            if (expression.NodeType == ExpressionType.Equal || expression.NodeType == ExpressionType.NotEqual)
+            if (expression.NodeType == ExpressionType.Equal
+                || expression.NodeType == ExpressionType.NotEqual)
             {
                 var leftIsNull = BuildIsNullExpression(left);
                 var rightIsNull = BuildIsNullExpression(right);
@@ -110,14 +111,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
             }
 
-            if (left == expression.Left && right == expression.Right)
+            if (left == expression.Left
+                && right == expression.Right)
             {
                 return expression;
             }
-            else
-            {
-                return Expression.MakeBinary(expression.NodeType, left, right);
-            }
+            return Expression.MakeBinary(expression.NodeType, left, right);
         }
 
         protected override Expression VisitExtensionExpression(ExtensionExpression expression)
@@ -134,7 +133,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         private Expression UnwrapConvertExpression(Expression expression, out Type conversionResultType)
         {
             var unary = expression as UnaryExpression;
-            if (unary != null && unary.NodeType == ExpressionType.Convert)
+            if (unary != null
+                && unary.NodeType == ExpressionType.Convert)
             {
                 conversionResultType = unary.Type;
                 return unary.Operand;
@@ -182,14 +182,14 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         Expression.AndAlso(
                             Expression.Not(leftIsNull),
                             Expression.Not(rightIsNull)
-                        )
-                    ),
+                            )
+                        ),
                     Expression.AndAlso(
                         leftIsNull,
                         rightIsNull
+                        )
                     )
-                )
-            );
+                );
         }
 
         private Expression ExpandNegatedNullableEqualNullable(
@@ -230,14 +230,14 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         Expression.AndAlso(
                             Expression.Not(leftIsNull),
                             Expression.Not(rightIsNull)
-                        )
-                    ),
+                            )
+                        ),
                     Expression.AndAlso(
                         leftIsNull,
                         rightIsNull
+                        )
                     )
-                )
-            );
+                );
         }
 
         private Expression ExpandNullableEqualNonNullable(
@@ -259,8 +259,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 Expression.AndAlso(
                     Expression.Equal(left, right),
                     Expression.Not(leftIsNull)
-                )
-            );
+                    )
+                );
         }
 
         private Expression ExpandNegatedNullableEqualNonNullable(
@@ -282,8 +282,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 Expression.AndAlso(
                     Expression.NotEqual(left, right),
                     Expression.Not(leftIsNull)
-                )
-            );
+                    )
+                );
         }
 
         private Expression ExpandNonNullableEqualNullable(
@@ -305,8 +305,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 Expression.AndAlso(
                     Expression.Equal(left, right),
                     Expression.Not(rightIsNull)
-                )
-            );
+                    )
+                );
         }
 
         private Expression ExpandNegatedNonNullableEqualNullable(
@@ -328,8 +328,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 Expression.AndAlso(
                     Expression.NotEqual(left, right),
                     Expression.Not(rightIsNull)
-                )
-            );
+                    )
+                );
         }
 
         private Expression ExpandNullableNotEqualNullable(
@@ -370,14 +370,14 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         Expression.OrElse(
                             leftIsNull,
                             rightIsNull
-                        )
-                    ),
+                            )
+                        ),
                     Expression.OrElse(
                         Expression.Not(leftIsNull),
                         Expression.Not(rightIsNull)
+                        )
                     )
-                )
-            );
+                );
         }
 
         private Expression ExpandNegatedNullableNotEqualNullable(
@@ -418,14 +418,14 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         Expression.OrElse(
                             leftIsNull,
                             rightIsNull
-                        )
-                    ),
+                            )
+                        ),
                     Expression.OrElse(
                         Expression.Not(leftIsNull),
                         Expression.Not(rightIsNull)
+                        )
                     )
-                )
-            );
+                );
         }
 
         private Expression ExpandNullableNotEqualNonNullable(
@@ -447,8 +447,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 Expression.OrElse(
                     Expression.NotEqual(left, right),
                     leftIsNull
-                )
-            );
+                    )
+                );
         }
 
         private Expression ExpandNegatedNullableNotEqualNonNullable(
@@ -470,8 +470,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 Expression.OrElse(
                     Expression.Equal(left, right),
                     leftIsNull
-                )
-            );
+                    )
+                );
         }
 
         private Expression ExpandNonNullableNotEqualNullable(
@@ -493,8 +493,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 Expression.OrElse(
                     Expression.NotEqual(left, right),
                     rightIsNull
-                )
-            );
+                    )
+                );
         }
 
         private Expression ExpandNegatedNonNullableNotEqualNullable(
@@ -516,8 +516,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 Expression.OrElse(
                     Expression.Equal(left, right),
                     rightIsNull
-                )
-            );
+                    )
+                );
         }
     }
 }

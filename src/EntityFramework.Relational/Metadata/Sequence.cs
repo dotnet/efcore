@@ -147,25 +147,19 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         }
 
         private static long? AsLong(string value)
-        {
-            return value == null ? null : (long?)long.Parse(value, CultureInfo.InvariantCulture);
-        }
+            => value == null ? null : (long?)long.Parse(value, CultureInfo.InvariantCulture);
 
         private static Type AsType(string value)
-        {
-            return value == typeof(long).Name
+            => value == typeof(long).Name
                 ? typeof(long)
                 : value == typeof(int).Name
                     ? typeof(int)
                     : value == typeof(short).Name
                         ? typeof(short)
                         : typeof(byte);
-        }
 
         private static bool AsBool(string value)
-        {
-            return value != null && bool.Parse(value);
-        }
+            => value != null && bool.Parse(value);
 
         private static void EscapeAndQuote(StringBuilder builder, object value)
         {

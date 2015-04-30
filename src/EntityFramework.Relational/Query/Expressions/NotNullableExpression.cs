@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Utilities;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
-using Microsoft.Data.Entity.Relational.Query.Sql;
-using System;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
@@ -21,10 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _operand = operand;
         }
 
-        public virtual Expression Operand
-        {
-            get { return _operand; }
-        }
+        public virtual Expression Operand => _operand;
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {
@@ -37,14 +33,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override bool CanReduce => true;
 
-        public override Expression Reduce()
-        {
-            return _operand;
-        }
+        public override Expression Reduce() => _operand;
 
-        public override Type Type
-        {
-            get { return typeof(bool); }
-        }
+        public override Type Type => typeof(bool);
     }
 }

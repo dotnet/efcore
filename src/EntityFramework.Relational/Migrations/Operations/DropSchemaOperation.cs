@@ -7,6 +7,6 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
 {
     public class DropSchemaOperation : MigrationOperation
     {
-        public virtual string Name { get;[param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
     }
 }

@@ -8,7 +8,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 {
     public interface IRelationalModelExtensions
     {
-        [CanBeNull]
         Sequence TryGetSequence([NotNull] string name, [CanBeNull] string schema = null);
 
         IReadOnlyList<Sequence> Sequences { get; }

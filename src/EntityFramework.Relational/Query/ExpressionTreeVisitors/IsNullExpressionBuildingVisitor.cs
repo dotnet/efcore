@@ -10,10 +10,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
     public class IsNullExpressionBuildingVisitor : ExpressionTreeVisitor
     {
-        public IsNullExpressionBuildingVisitor()
-        {
-        }
-
         public virtual Expression ResultExpression { get; private set; }
 
         protected override Expression VisitConstantExpression(ConstantExpression expression)
@@ -49,7 +45,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             // a && b == null <-> a == null && b != false || a != false && b == null
             // this transformation would produce a query that is too complex
             // so we just wrap the whole expression into IsNullExpression instead.
-            if (expression.NodeType == ExpressionType.AndAlso 
+            if (expression.NodeType == ExpressionType.AndAlso
                 || expression.NodeType == ExpressionType.OrElse)
             {
                 AddToResult(new IsNullExpression(expression));
@@ -72,10 +68,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 return expression;
             }
 
-            var columnExpression = expression as ColumnExpression 
-                ?? expression.GetColumnExpression();
+            var columnExpression = expression as ColumnExpression
+                                   ?? expression.GetColumnExpression();
 
-            if (columnExpression != null && columnExpression.Property.IsNullable)
+            if (columnExpression != null
+                && columnExpression.Property.IsNullable)
             {
                 AddToResult(new IsNullExpression(expression));
 
@@ -127,16 +124,17 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             // so we just wrap the whole expression into IsNullExpression instead.
             //
             // small optimization: expression can only be nullable if either (or both) of the possible results (ifTrue, ifFalse) can be nullable
-            if (ifTrue != null || ifFalse != null)
+            if (ifTrue != null
+                || ifFalse != null)
             {
                 AddToResult(
                     new IsNullExpression(
                         new CaseExpression(
                             expression,
                             expression.Type
+                            )
                         )
-                    )
-                );
+                    );
             }
 
             return expression;
@@ -144,12 +142,14 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         private Expression CombineExpressions(Expression left, Expression right, ExpressionType expressionType)
         {
-            if (left == null && right == null)
+            if (left == null
+                && right == null)
             {
                 return null;
             }
 
-            if (left != null && right != null)
+            if (left != null
+                && right != null)
             {
                 return expressionType == ExpressionType.AndAlso
                     ? Expression.AndAlso(left, right)

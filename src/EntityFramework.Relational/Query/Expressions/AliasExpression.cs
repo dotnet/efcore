@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
@@ -28,12 +27,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _expression = expression;
         }
 
-        public virtual string Alias{ get; [param: NotNull] set; }
+        public virtual string Alias { get; [param: NotNull] set; }
 
-        public virtual Expression Expression
-        {
-            get { return _expression; }
-        }
+        public virtual Expression Expression => _expression;
 
         public virtual bool Projected { get; set; } = false;
 
@@ -48,7 +44,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 : base.Accept(visitor);
         }
 
-
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {
             var newInnerExpression = visitor.VisitExpression(_expression);
@@ -56,9 +51,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return newInnerExpression != _expression ? new AliasExpression(Alias, newInnerExpression) : this;
         }
 
-        public override string ToString()
-        {
-            return this.ColumnExpression()?.ToString() ?? Expression.NodeType + " " + Alias;
-        }
+        public override string ToString() 
+            => this.ColumnExpression()?.ToString() ?? Expression.NodeType + " " + Alias;
     }
 }

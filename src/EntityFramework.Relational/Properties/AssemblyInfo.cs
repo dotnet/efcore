@@ -10,4 +10,5 @@ using System.Resources;
 
 [assembly: AssemblyInformationalVersion("7.0.0-vsbuild")]
 #endif
+
 [assembly: AssemblyMetadata("Serviceable", "True")]

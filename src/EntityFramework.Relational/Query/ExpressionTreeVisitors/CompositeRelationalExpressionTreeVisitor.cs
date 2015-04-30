@@ -10,17 +10,17 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
     public class CompositePredicateExpressionTreeVisitor : ExpressionTreeVisitor
     {
         public override Expression VisitExpression(
-            [NotNull]Expression expression)
+            [NotNull] Expression expression)
         {
             var currentExpression = expression;
-            var inExpressionOptimized = 
+            var inExpressionOptimized =
                 new EqualityPredicateInExpressionOptimizer().VisitExpression(currentExpression);
 
             currentExpression = inExpressionOptimized;
 
             var negationOptimized1 =
                 new PredicateNegationExpressionOptimizer()
-                .VisitExpression(currentExpression);
+                    .VisitExpression(currentExpression);
 
             currentExpression = negationOptimized1;
 
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             var negationOptimized2 =
                 new PredicateNegationExpressionOptimizer()
-                .VisitExpression(currentExpression);
+                    .VisitExpression(currentExpression);
 
             currentExpression = negationOptimized2;
 
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             var negationOptimized3 =
                 new PredicateNegationExpressionOptimizer()
-                .VisitExpression(currentExpression);
+                    .VisitExpression(currentExpression);
 
             currentExpression = negationOptimized3;
 
@@ -69,7 +69,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         {
             public override Expression VisitExpression(Expression node)
             {
-                if (node != null && node.CanReduce)
+                if (node != null
+                    && node.CanReduce)
                 {
                     var reduced = node.Reduce();
                     return base.VisitExpression(reduced);

@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual string ParameterPrefix => "@";
 
-        public virtual string GenerateSql([NotNull]IDictionary<string, object> parameterValues)
+        public virtual string GenerateSql([NotNull] IDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 

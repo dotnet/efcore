@@ -11,11 +11,9 @@ namespace System.Reflection
     internal static class MethodInfoExtensions
     {
         public static bool MethodIsClosedFormOf(this MethodInfo methodInfo, MethodInfo genericMethod)
-        {
-            return methodInfo.IsGenericMethod
-                   && ReferenceEquals(
-                       methodInfo.GetGenericMethodDefinition(),
-                       genericMethod);
-        }
+            => methodInfo.IsGenericMethod
+               && ReferenceEquals(
+                   methodInfo.GetGenericMethodDefinition(),
+                   genericMethod);
     }
 }

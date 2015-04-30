@@ -402,29 +402,29 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             [NotNull] AlterSequenceOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder) =>
-            SequenceOptions(
-                operation.Schema,
-                operation.Name,
-                operation.IncrementBy,
-                operation.MinValue,
-                operation.MaxValue,
-                operation.Cycle,
-                model,
-                builder);
+                SequenceOptions(
+                    operation.Schema,
+                    operation.Name,
+                    operation.IncrementBy,
+                    operation.MinValue,
+                    operation.MaxValue,
+                    operation.Cycle,
+                    model,
+                    builder);
 
         public virtual void SequenceOptions(
             [NotNull] CreateSequenceOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder) =>
-            SequenceOptions(
-                operation.Schema,
-                operation.Name,
-                operation.IncrementBy,
-                operation.MinValue,
-                operation.MaxValue,
-                operation.Cycle,
-                model,
-                builder);
+                SequenceOptions(
+                    operation.Schema,
+                    operation.Name,
+                    operation.IncrementBy,
+                    operation.MinValue,
+                    operation.MaxValue,
+                    operation.Cycle,
+                    model,
+                    builder);
 
         private void SequenceOptions(
             [CanBeNull] string schema,
@@ -474,17 +474,17 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             [NotNull] AddColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder) =>
-            ColumnDefinition(
-                operation.Schema,
-                operation.Table,
-                operation.Name,
-                operation.Type,
-                operation.IsNullable,
-                operation.DefaultValue,
-                operation.DefaultExpression,
-                operation,
-                model,
-                builder);
+                ColumnDefinition(
+                    operation.Schema,
+                    operation.Table,
+                    operation.Name,
+                    operation.Type,
+                    operation.IsNullable,
+                    operation.DefaultValue,
+                    operation.DefaultExpression,
+                    operation,
+                    model,
+                    builder);
 
         public virtual void ColumnDefinition(
             [CanBeNull] string schema,
@@ -550,7 +550,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
                 .Append(") REFERENCES ")
                 .Append(_sql.DelimitIdentifier(operation.ReferencedTable, operation.ReferencedSchema));
 
-            if (operation.ReferencedColumns != null && operation.ReferencedColumns.Length != 0)
+            if (operation.ReferencedColumns != null
+                && operation.ReferencedColumns.Length != 0)
             {
                 builder
                     .Append(" (")

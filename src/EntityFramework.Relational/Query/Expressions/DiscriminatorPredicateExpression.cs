@@ -29,15 +29,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override bool CanReduce => true;
 
-        public override Expression Reduce()
-        {
-            return _predicate;
-        }
+        public override Expression Reduce() => _predicate;
 
-        public override string ToString()
-        {
-            return _predicate.ToString();
-        }
+        public override string ToString() => _predicate.ToString();
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {

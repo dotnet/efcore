@@ -22,12 +22,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            if (specificVisitor != null)
-            {
-                return specificVisitor.VisitSumExpression(this);
-            }
-
-            return base.Accept(visitor);
+            return specificVisitor != null 
+                ? specificVisitor.VisitSumExpression(this) 
+                : base.Accept(visitor);
         }
     }
 }

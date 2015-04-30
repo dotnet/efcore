@@ -13,14 +13,10 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
         }
 
-        protected override bool CanAddCommand(ModificationCommand modificationCommand)
-        {
-            return ModificationCommands.Count == 0;
-        }
+        protected override bool CanAddCommand(ModificationCommand modificationCommand) 
+            => ModificationCommands.Count == 0;
 
-        protected override bool IsCommandTextValid()
-        {
-            return true;
-        }
+        protected override bool IsCommandTextValid() 
+            => true;
     }
 }

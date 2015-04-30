@@ -74,24 +74,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual bool IsProjectStar => _projectStar;
 
-        public virtual void AddTable([NotNull] TableExpressionBase tableExpression)
-        {
-            Check.NotNull(tableExpression, nameof(tableExpression));
+        public virtual void AddTable([NotNull] TableExpressionBase tableExpression) 
+            => _tables.Add(Check.NotNull(tableExpression, nameof(tableExpression)));
 
-            _tables.Add(tableExpression);
-        }
+        public virtual void AddTables([NotNull] IEnumerable<TableExpressionBase> tableExpressions) 
+            => _tables.AddRange(Check.NotNull(tableExpressions, nameof(tableExpressions)));
 
-        public virtual void AddTables([NotNull] IEnumerable<TableExpressionBase> tableExpressions)
-        {
-            Check.NotNull(tableExpressions, nameof(tableExpressions));
-
-            _tables.AddRange(tableExpressions);
-        }
-
-        public virtual void ClearTables()
-        {
-            _tables.Clear();
-        }
+        public virtual void ClearTables() => _tables.Clear();
 
         public virtual bool HandlesQuerySource([NotNull] IQuerySource querySource)
         {
@@ -354,8 +343,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var offsetIndex = _offsets.IndexOf(readerOffset) + 1;
 
-            return offsetIndex < _offsets.Count 
-                ? types.Take(_offsets[offsetIndex] - _offsets[offsetIndex - 1]) 
+            return offsetIndex < _offsets.Count
+                ? types.Take(_offsets[offsetIndex] - _offsets[offsetIndex - 1])
                 : types;
         }
 

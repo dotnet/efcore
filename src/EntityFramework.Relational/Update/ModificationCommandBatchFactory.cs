@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
@@ -25,11 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         public virtual bool AddCommand(
             ModificationCommandBatch modificationCommandBatch,
             ModificationCommand modificationCommand)
-        {
-            Check.NotNull(modificationCommandBatch, nameof(modificationCommandBatch));
-            Check.NotNull(modificationCommand, nameof(modificationCommand));
-
-            return modificationCommandBatch.AddCommand(modificationCommand);
-        }
+            => Check.NotNull(modificationCommandBatch, nameof(modificationCommandBatch))
+                .AddCommand(Check.NotNull(modificationCommand, nameof(modificationCommand)));
     }
 }

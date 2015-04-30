@@ -24,14 +24,9 @@ namespace System
         }
 
         public static Type MakeNullable(this Type type)
-        {
-            if (type.IsNullableType())
-            {
-                return type;
-            }
-
-            return typeof(Nullable<>).MakeGenericType(type);
-        }
+            => type.IsNullableType()
+                ? type
+                : typeof(Nullable<>).MakeGenericType(type);
 
         public static bool IsInteger(this Type type)
         {

@@ -533,7 +533,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     }
 
                     _sql.Append("THEN ");
-                     VisitExpression(conditionalExpression.IfTrue);
+                    VisitExpression(conditionalExpression.IfTrue);
                     _sql.Append(" ELSE ");
                     VisitExpression(conditionalExpression.IfFalse);
                     _sql.AppendLine();
@@ -603,9 +603,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
             else
             {
-                var needParentheses = !binaryExpression.Left.IsSimpleExpression() 
-                    || !binaryExpression.Right.IsSimpleExpression()
-                    || binaryExpression.IsLogicalOperation();
+                var needParentheses = !binaryExpression.Left.IsSimpleExpression()
+                                      || !binaryExpression.Right.IsSimpleExpression()
+                                      || binaryExpression.IsLogicalOperation();
 
                 if (needParentheses)
                 {

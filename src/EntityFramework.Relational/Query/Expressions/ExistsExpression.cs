@@ -28,17 +28,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            if (specificVisitor != null)
-            {
-                return specificVisitor.VisitExistsExpression(this);
-            }
-
-            return base.Accept(visitor);
+            return specificVisitor != null 
+                ? specificVisitor.VisitExistsExpression(this) 
+                : base.Accept(visitor);
         }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
-        {
-            return this;
-        }
+        protected override Expression VisitChildren(ExpressionTreeVisitor visitor) => this;
     }
 }

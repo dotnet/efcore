@@ -26,22 +26,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            if (specificVisitor != null)
-            {
-                return specificVisitor.VisitLiteralExpression(this);
-            }
-
-            return base.Accept(visitor);
+            return specificVisitor != null 
+                ? specificVisitor.VisitLiteralExpression(this) 
+                : base.Accept(visitor);
         }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
-        {
-            return this;
-        }
+        protected override Expression VisitChildren(ExpressionTreeVisitor visitor) => this;
 
-        public override string ToString()
-        {
-            return Literal;
-        }
+        public override string ToString() => Literal;
     }
 }

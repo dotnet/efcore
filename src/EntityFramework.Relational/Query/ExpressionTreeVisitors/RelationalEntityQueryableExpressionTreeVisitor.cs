@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             QueryModelVisitor.QueryCompilationContext.ValueBufferFactoryFactory,
                             () => QueryModelVisitor.GetProjectionTypes(QuerySource),
                             0),
-                        _readerParameter,
+                        _readerParameter
                     };
 
             if (QueryModelVisitor.QuerySourceRequiresMaterialization(QuerySource))

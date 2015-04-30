@@ -16,6 +16,7 @@ namespace Microsoft.Data.Entity.Relational
     {
         public virtual void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command)
         {
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
 
             var tableName = command.TableName;
@@ -41,6 +42,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual void AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command)
         {
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
 
             var tableName = command.TableName;
@@ -67,6 +69,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual void AppendDeleteOperation(StringBuilder commandStringBuilder, ModificationCommand command)
         {
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
 
             var tableName = command.TableName;
@@ -334,10 +337,7 @@ namespace Microsoft.Data.Entity.Relational
         {
         }
 
-        public virtual string BatchCommandSeparator
-        {
-            get { return ";"; }
-        }
+        public virtual string BatchCommandSeparator => ";";
 
         public virtual string BatchSeparator => string.Empty;
 
@@ -345,43 +345,22 @@ namespace Microsoft.Data.Entity.Relational
         // to avoid duplicating the five methods below.
 
         public virtual string DelimitIdentifier(string tableName, string schemaName)
-        {
-            Check.NotEmpty(tableName, nameof(tableName));
-
-            return
-                (!string.IsNullOrEmpty(schemaName)
-                    ? DelimitIdentifier(schemaName) + "."
-                    : string.Empty)
-                + DelimitIdentifier(tableName);
-        }
+            => (!string.IsNullOrEmpty(schemaName)
+                ? DelimitIdentifier(schemaName) + "."
+                : string.Empty)
+               + DelimitIdentifier(Check.NotEmpty(tableName, nameof(tableName)));
 
         public virtual string DelimitIdentifier(string identifier)
-        {
-            Check.NotEmpty(identifier, nameof(identifier));
-
-            return "\"" + EscapeIdentifier(identifier) + "\"";
-        }
+            => "\"" + EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier))) + "\"";
 
         public virtual string EscapeIdentifier([NotNull] string identifier)
-        {
-            Check.NotEmpty(identifier, nameof(identifier));
-
-            return identifier.Replace("\"", "\"\"");
-        }
+            => Check.NotEmpty(identifier, nameof(identifier)).Replace("\"", "\"\"");
 
         public virtual string GenerateLiteral(string literal)
-        {
-            Check.NotNull(literal, nameof(literal));
-
-            return "'" + EscapeLiteral(literal) + "'";
-        }
+            => "'" + EscapeLiteral(Check.NotNull(literal, nameof(literal))) + "'";
 
         public virtual string EscapeLiteral(string literal)
-        {
-            Check.NotNull(literal, nameof(literal));
-
-            return literal.Replace("'", "''");
-        }
+            => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
 
         public virtual string GenerateLiteral(byte[] literal)
         {
@@ -406,19 +385,18 @@ namespace Microsoft.Data.Entity.Relational
         public virtual string GenerateLiteral(char literal) => "'" + literal + "'";
         public virtual string GenerateLiteral(DateTime literal) => "TIMESTAMP '" + literal.ToString(@"yyyy-MM-dd HH\:mm\:ss.fffffff") + "'";
         public virtual string GenerateLiteral(DateTimeOffset literal) => "TIMESTAMP '" + literal.ToString(@"yyyy-MM-dd HH\:mm\:ss.fffffffzzz") + "'";
-        public virtual string GenerateLiteral<T>(T? literal) where T : struct =>
-            literal.HasValue
+
+        public virtual string GenerateLiteral<T>(T? literal) where T : struct
+            => literal.HasValue
                 ? GenerateLiteral((dynamic)literal.Value)
                 : "NULL";
-        public virtual string GenerateLiteral(object literal) =>
-            literal != null
+
+        public virtual string GenerateLiteral(object literal)
+            => literal != null
                 ? string.Format(CultureInfo.InvariantCulture, "{0}", literal)
                 : "NULL";
-        public virtual string GenerateNextSequenceValueOperation(string sequenceName)
-        {
-            Check.NotNull(sequenceName, nameof(sequenceName));
 
-            return "SELECT NEXT VALUE FOR " + DelimitIdentifier(sequenceName);
-        }
+        public virtual string GenerateNextSequenceValueOperation(string sequenceName)
+            => "SELECT NEXT VALUE FOR " + DelimitIdentifier(Check.NotNull(sequenceName, nameof(sequenceName)));
     }
 }

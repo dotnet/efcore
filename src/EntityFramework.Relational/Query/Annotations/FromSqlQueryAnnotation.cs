@@ -30,10 +30,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Annotations
 
         public override string ToString()
             => "FromSql(\""
-            + Sql
-            + (Parameters.Length > 0
-                ? "\", " + Parameters.Select(p => p.ToString()).Join()
-                : "\"")
-            + ")";
+               + Sql
+               + (Parameters.Length > 0
+                   ? "\", " + Parameters.Select(p => p.ToString()).Join()
+                   : "\"")
+               + ")";
     }
 }

@@ -7,12 +7,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
 {
     public class AddColumnOperation : MigrationOperation
     {
-        public virtual string Name { get;[param: NotNull] set; }
-        public virtual string Schema { get;[param: CanBeNull] set; }
-        public virtual string Table { get;[param: NotNull] set; }
-        public virtual string Type { get;[param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string Table { get; [param: NotNull] set; }
+        public virtual string Type { get; [param: NotNull] set; }
         public virtual bool IsNullable { get; set; }
-        public virtual object DefaultValue { get;[param: CanBeNull] set; }
-        public virtual string DefaultExpression { get;[param: CanBeNull] set; }
+        public virtual object DefaultValue { get; [param: CanBeNull] set; }
+        public virtual string DefaultExpression { get; [param: CanBeNull] set; }
     }
 }

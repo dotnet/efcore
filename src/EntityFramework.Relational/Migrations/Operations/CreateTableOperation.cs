@@ -8,9 +8,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
 {
     public class CreateTableOperation : MigrationOperation
     {
-        public virtual string Name { get;[param: NotNull] set; }
-        public virtual string Schema { get;[param: CanBeNull] set; }
-        public virtual AddPrimaryKeyOperation PrimaryKey { get;[param: CanBeNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual AddPrimaryKeyOperation PrimaryKey { get; [param: CanBeNull] set; }
         public virtual List<AddColumnOperation> Columns { get; } = new List<AddColumnOperation>();
         public virtual List<AddForeignKeyOperation> ForeignKeys { get; } = new List<AddForeignKeyOperation>();
         public virtual List<AddUniqueConstraintOperation> UniqueConstraints { get; } = new List<AddUniqueConstraintOperation>();

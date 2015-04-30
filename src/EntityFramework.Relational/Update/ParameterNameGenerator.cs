@@ -7,9 +7,6 @@ namespace Microsoft.Data.Entity.Relational.Update
     {
         private int _count;
 
-        public virtual string GenerateNext()
-        {
-            return "@p" + _count++;
-        }
+        public virtual string GenerateNext() => "@p" + _count++;
     }
 }

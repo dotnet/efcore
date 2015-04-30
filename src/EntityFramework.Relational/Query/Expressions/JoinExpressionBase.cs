@@ -20,10 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _tableExpression = tableExpression;
         }
 
-        public virtual TableExpressionBase TableExpression
-        {
-            get { return _tableExpression; }
-        }
+        public virtual TableExpressionBase TableExpression => _tableExpression;
 
         public virtual Expression Predicate
         {

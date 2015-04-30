@@ -17,9 +17,9 @@ namespace Microsoft.Data.Entity.Relational
         private bool _disposed;
 
         public RelationalTransaction(
-            [NotNull] IRelationalConnection connection, 
-            [NotNull] DbTransaction dbTransaction, 
-            bool transactionOwned, 
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction dbTransaction,
+            bool transactionOwned,
             [NotNull] ILogger logger)
             : base(logger)
         {

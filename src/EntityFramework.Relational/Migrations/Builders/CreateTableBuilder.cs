@@ -15,6 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
     public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperation>
     {
         private readonly IReadOnlyDictionary<PropertyInfo, AddColumnOperation> _columnMap;
+
         public CreateTableBuilder(
             [NotNull] CreateTableOperation operation,
             [NotNull] IReadOnlyDictionary<PropertyInfo, AddColumnOperation> columnMap)
@@ -33,14 +34,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [CanBeNull] string referencedSchema = null,
             ReferentialAction onUpdate = ReferentialAction.NoAction,
             ReferentialAction onDelete = ReferentialAction.NoAction) =>
-            ForeignKey(
-                name,
-                columns,
-                referencedTable,
-                referencedSchema,
-                new[] { referencedColumn },
-                onUpdate,
-                onDelete);
+                ForeignKey(
+                    name,
+                    columns,
+                    referencedTable,
+                    referencedSchema,
+                    new[] { referencedColumn },
+                    onUpdate,
+                    onDelete);
 
         public virtual OperationBuilder<AddForeignKeyOperation> ForeignKey(
             [NotNull] string name,
@@ -56,17 +57,17 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(referencedTable, nameof(referencedTable));
 
             var operation = new AddForeignKeyOperation
-            {
-                Schema = Operation.Schema,
-                Table = Operation.Name,
-                Name = name,
-                Columns = Map(columns),
-                ReferencedSchema = referencedSchema,
-                ReferencedTable = referencedTable,
-                ReferencedColumns = referencedColumns,
-                OnUpdate = onUpdate,
-                OnDelete = onDelete
-            };
+                {
+                    Schema = Operation.Schema,
+                    Table = Operation.Name,
+                    Name = name,
+                    Columns = Map(columns),
+                    ReferencedSchema = referencedSchema,
+                    ReferencedTable = referencedTable,
+                    ReferencedColumns = referencedColumns,
+                    OnUpdate = onUpdate,
+                    OnDelete = onDelete
+                };
             Operation.ForeignKeys.Add(operation);
 
             return new OperationBuilder<AddForeignKeyOperation>(operation);
@@ -80,12 +81,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotNull(columns, nameof(columns));
 
             var operation = new AddPrimaryKeyOperation
-            {
-                Schema = Operation.Schema,
-                Table = Operation.Name,
-                Name = name,
-                Columns = Map(columns)
-            };
+                {
+                    Schema = Operation.Schema,
+                    Table = Operation.Name,
+                    Name = name,
+                    Columns = Map(columns)
+                };
             // TODO: Throw if already set?
             Operation.PrimaryKey = operation;
 
@@ -100,18 +101,18 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotNull(columns, nameof(columns));
 
             var operation = new AddUniqueConstraintOperation
-            {
-                Schema = Operation.Schema,
-                Table = Operation.Name,
-                Name = name,
-                Columns = Map(columns)
-            };
+                {
+                    Schema = Operation.Schema,
+                    Table = Operation.Name,
+                    Name = name,
+                    Columns = Map(columns)
+                };
             Operation.UniqueConstraints.Add(operation);
 
             return new OperationBuilder<AddUniqueConstraintOperation>(operation);
         }
 
-        public virtual new CreateTableBuilder<TColumns> Annotation([NotNull] string name, [NotNull] string value)
+        public new virtual CreateTableBuilder<TColumns> Annotation([NotNull] string name, [NotNull] string value)
             => (CreateTableBuilder<TColumns>)base.Annotation(name, value);
 
         private string[] Map(LambdaExpression columns) =>

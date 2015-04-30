@@ -12,28 +12,19 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public class LikeExpression : ExtensionExpression
     {
-        private readonly Expression _match;
-        private readonly Expression _pattern;
-
         public LikeExpression([NotNull] Expression match, [NotNull] Expression pattern)
             : base(typeof(bool))
         {
             Check.NotNull(match, nameof(match));
             Check.NotNull(pattern, nameof(pattern));
 
-            _match = match;
-            _pattern = pattern;
+            Match = match;
+            Pattern = pattern;
         }
 
-        public virtual Expression Match
-        {
-            get { return _match; }
-        }
+        public virtual Expression Match { get; }
 
-        public virtual Expression Pattern
-        {
-            get { return _pattern; }
-        }
+        public virtual Expression Pattern { get; }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
@@ -41,28 +32,22 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            if (specificVisitor != null)
-            {
-                return specificVisitor.VisitLikeExpression(this);
-            }
-
-            return base.Accept(visitor);
+            return specificVisitor != null 
+                ? specificVisitor.VisitLikeExpression(this) 
+                : base.Accept(visitor);
         }
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {
-            var newMatchExpression = visitor.VisitExpression(_match);
-            var newPatternExpression = visitor.VisitExpression(_pattern);
+            var newMatchExpression = visitor.VisitExpression(Match);
+            var newPatternExpression = visitor.VisitExpression(Pattern);
 
-            return newMatchExpression != _match
-                   || newPatternExpression != _pattern
+            return newMatchExpression != Match
+                   || newPatternExpression != Pattern
                 ? new LikeExpression(newMatchExpression, newPatternExpression)
                 : this;
         }
 
-        public override string ToString()
-        {
-            return _match + " LIKE " + _pattern;
-        }
+        public override string ToString() => Match + " LIKE " + Pattern;
     }
 }

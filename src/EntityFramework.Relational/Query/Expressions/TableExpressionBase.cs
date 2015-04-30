@@ -24,9 +24,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual string Alias { get; [param: NotNull] set; }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
-        {
-            return this;
-        }
+        protected override Expression VisitChildren(ExpressionTreeVisitor visitor) => this;
     }
 }

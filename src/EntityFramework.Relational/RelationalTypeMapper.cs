@@ -33,16 +33,16 @@ namespace Microsoft.Data.Entity.Relational
 
         private readonly RelationalDecimalTypeMapping _decimalMapping = new RelationalDecimalTypeMapping(18, 2);
 
-        public virtual RelationalTypeMapping GetTypeMapping(IProperty property) =>
-            GetTypeMapping(
+        public virtual RelationalTypeMapping GetTypeMapping(IProperty property)
+            => GetTypeMapping(
                 property.Relational().ColumnType,
                 property.Relational().Column,
                 property.ClrType.UnwrapNullableType(),
                 property.IsKey() || property.IsForeignKey(),
                 property.IsConcurrencyToken);
 
-        public virtual RelationalTypeMapping GetTypeMapping(ISequence sequence) =>
-            GetTypeMapping(
+        public virtual RelationalTypeMapping GetTypeMapping(ISequence sequence)
+            => GetTypeMapping(
                 /*specifiedType:*/ null,
                 sequence.Name,
                 sequence.Type,

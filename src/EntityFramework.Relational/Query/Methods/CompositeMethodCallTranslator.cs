@@ -2,16 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using Microsoft.Framework.Logging;
 using JetBrains.Annotations;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Query.Methods
 {
     public class CompositeMethodCallTranslator : IMethodCallTranslator
     {
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
-        public CompositeMethodCallTranslator([NotNull]ILogger logger)
+        public CompositeMethodCallTranslator([NotNull] ILogger logger)
         {
             _logger = logger;
         }

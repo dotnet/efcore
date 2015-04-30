@@ -12,22 +12,17 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class RelationalTypeMapping
     {
-        private readonly DbType _storeType;
-
         public RelationalTypeMapping([NotNull] string storeTypeName, DbType storeType)
         {
             Check.NotEmpty(storeTypeName, nameof(storeTypeName));
 
             StoreTypeName = storeTypeName;
-            _storeType = storeType;
+            StoreType = storeType;
         }
 
         public virtual string StoreTypeName { get; }
 
-        public virtual DbType StoreType
-        {
-            get { return _storeType; }
-        }
+        public virtual DbType StoreType { get; }
 
         public virtual DbParameter CreateParameter([NotNull] DbCommand command, [NotNull] ColumnModification columnModification, bool useOriginalValue)
         {
@@ -59,7 +54,7 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(parameter, nameof(parameter));
             Check.NotNull(columnModification, nameof(columnModification));
 
-            parameter.DbType = _storeType;
+            parameter.DbType = StoreType;
             parameter.IsNullable = columnModification.Property.IsNullable;
         }
     }

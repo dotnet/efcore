@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                             }
                         }
 
-                        return new CompositeEntityKeyFactory(k.Select(p => p.SentinelValue).ToList().ToList());
+                        return new CompositeEntityKeyFactory(k.Select(p => p.SentinelValue).ToList());
                     });
     }
 }

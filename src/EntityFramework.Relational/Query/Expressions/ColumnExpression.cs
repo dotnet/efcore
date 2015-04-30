@@ -51,16 +51,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 : base.Accept(visitor);
         }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
-        {
-            return this;
-        }
+        protected override Expression VisitChildren(ExpressionTreeVisitor visitor) => this;
 
         protected bool Equals(ColumnExpression other)
-        {
-            return _property.Equals(other._property)
-                   && _tableExpression.Equals(other._tableExpression);
-        }
+            => _property.Equals(other._property)
+               && _tableExpression.Equals(other._tableExpression);
 
         public override bool Equals([CanBeNull] object obj)
         {
@@ -87,13 +82,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             }
         }
 
-        public override string ToString()
-        {
-            // TODO: Get provider-specific name
-            // Issue #871 
-            var s = _tableExpression.Alias + "." + Name;
-
-            return s;
-        }
+        // TODO: Get provider-specific name
+        // Issue #871 
+        public override string ToString() => _tableExpression.Alias + "." + Name;
     }
 }

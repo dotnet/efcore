@@ -5,9 +5,6 @@ namespace Microsoft.Data.Entity.Relational.Update
 {
     public class ParameterNameGeneratorFactory : IParameterNameGeneratorFactory
     {
-        public virtual ParameterNameGenerator Create()
-        {
-            return new ParameterNameGenerator();
-        }
+        public virtual ParameterNameGenerator Create() => new ParameterNameGenerator();
     }
 }

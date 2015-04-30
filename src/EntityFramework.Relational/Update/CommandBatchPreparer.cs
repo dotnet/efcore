@@ -100,10 +100,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var predecessorsMap = CreateKeyValuePredecessorMap(modificationCommandGraph);
             AddForeignKeyEdges(modificationCommandGraph, predecessorsMap);
 
-            var sortedCommands = modificationCommandGraph.BatchingTopologicalSort((data) =>
-            {
-                return string.Join(", ", data.Select(d => d.Item3.First()));
-            });
+            var sortedCommands = modificationCommandGraph.BatchingTopologicalSort(data => { return string.Join(", ", data.Select(d => d.Item3.First())); });
 
             return sortedCommands;
         }
@@ -247,16 +244,10 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         private KeyValue CreatePrincipalKeyValue(IPropertyAccessor propertyAccessor, IForeignKey foreignKey, ValueType valueType)
-        {
-            var key = propertyAccessor.GetPrincipalKeyValue(foreignKey);
-            return new KeyValue(foreignKey, key, valueType);
-        }
+            => new KeyValue(foreignKey, propertyAccessor.GetPrincipalKeyValue(foreignKey), valueType);
 
         private KeyValue CreateDependentKeyValue(IPropertyAccessor propertyAccessor, IForeignKey foreignKey, ValueType valueType)
-        {
-            var key = propertyAccessor.GetDependentKeyValue(foreignKey);
-            return new KeyValue(foreignKey, key, valueType);
-        }
+            => new KeyValue(foreignKey, propertyAccessor.GetDependentKeyValue(foreignKey), valueType);
 
         private enum ValueType
         {
@@ -283,18 +274,14 @@ namespace Microsoft.Data.Entity.Relational.Update
         private class KeyValueComparer : IEqualityComparer<KeyValue>
         {
             public bool Equals(KeyValue x, KeyValue y)
-            {
-                return x.ValueType == y.ValueType
-                       && x.ForeignKey == y.ForeignKey
-                       && x.Key.Equals(y.Key);
-            }
+                => x.ValueType == y.ValueType
+                   && x.ForeignKey == y.ForeignKey
+                   && x.Key.Equals(y.Key);
 
             public int GetHashCode(KeyValue obj)
-            {
-                return (((obj.ValueType.GetHashCode() * 397)
-                         ^ obj.ForeignKey.GetHashCode()) * 397)
-                       ^ obj.Key.GetHashCode();
-            }
+                => (((obj.ValueType.GetHashCode() * 397)
+                     ^ obj.ForeignKey.GetHashCode()) * 397)
+                   ^ obj.Key.GetHashCode();
         }
     }
 }

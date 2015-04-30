@@ -9,9 +9,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
     {
         public virtual bool Cycle { get; set; }
         public virtual int? IncrementBy { get; set; }
-        public virtual long? MaxValue { get;[param: CanBeNull] set; }
-        public virtual long? MinValue { get;[param: CanBeNull] set; }
-        public virtual string Name { get;[param: NotNull] set; }
-        public virtual string Schema { get;[param: CanBeNull] set; }
+        public virtual long? MaxValue { get; [param: CanBeNull] set; }
+        public virtual long? MinValue { get; [param: CanBeNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Schema { get; [param: CanBeNull] set; }
     }
 }

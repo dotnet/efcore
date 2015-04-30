@@ -9,13 +9,13 @@ namespace Microsoft.Framework.Logging
 {
     internal static class LoggingExtensions
     {
-        public static void LogInformation(this ILogger logger, Func<string> formatter) 
+        public static void LogInformation(this ILogger logger, Func<string> formatter)
             => logger.LogInformation(0, default(object), _ => formatter());
 
-        public static void LogInformation<TState>(this ILogger logger, TState state, Func<TState, string> formatter) 
+        public static void LogInformation<TState>(this ILogger logger, TState state, Func<TState, string> formatter)
             => logger.LogInformation(0, state, formatter);
 
-        public static void LogInformation(this ILogger logger, int eventId, Func<string> formatter) 
+        public static void LogInformation(this ILogger logger, int eventId, Func<string> formatter)
             => logger.LogInformation(eventId, default(object), _ => formatter());
 
         public static void LogInformation<TState>(
@@ -45,7 +45,7 @@ namespace Microsoft.Framework.Logging
             }
         }
 
-        public static void LogVerbose<TState>(this ILogger logger, int eventId, TState state) 
+        public static void LogVerbose<TState>(this ILogger logger, int eventId, TState state)
             => logger.LogVerbose(eventId, state, s => s != null ? s.ToString() : null);
 
         public static void LogVerbose<TState>(

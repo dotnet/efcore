@@ -21,10 +21,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _operand = operand;
         }
 
-        public virtual Expression Operand
-        {
-            get { return _operand; }
-        }
+        public virtual Expression Operand => _operand;
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
@@ -32,12 +29,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            if (specificVisitor != null)
-            {
-                return specificVisitor.VisitIsNullExpression(this);
-            }
-
-            return base.Accept(visitor);
+            return specificVisitor != null 
+                ? specificVisitor.VisitIsNullExpression(this) 
+                : base.Accept(visitor);
         }
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
@@ -49,9 +43,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 : this;
         }
 
-        public override Type Type
-        {
-            get { return typeof(bool); }
-        }
+        public override Type Type => typeof(bool);
     }
 }

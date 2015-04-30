@@ -21,10 +21,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _tableExpression = tableExpression;
         }
 
-        public virtual TableExpressionBase TableExpression
-        {
-            get { return _tableExpression; }
-        }
+        public virtual TableExpressionBase TableExpression => _tableExpression;
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
@@ -32,17 +29,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            if (specificVisitor != null)
-            {
-                return specificVisitor.VisitCrossJoinExpression(this);
-            }
-
-            return base.Accept(visitor);
+            return specificVisitor != null
+                ? specificVisitor.VisitCrossJoinExpression(this)
+                : base.Accept(visitor);
         }
 
-        public override string ToString()
-        {
-            return "CROSS JOIN " + _tableExpression;
-        }
+        public override string ToString() => "CROSS JOIN " + _tableExpression;
     }
 }

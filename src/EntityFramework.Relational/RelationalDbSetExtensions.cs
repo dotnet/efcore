@@ -13,23 +13,22 @@ namespace Microsoft.Data.Entity
 {
     public static class RelationalDbSetExtensions
     {
-        public static IQueryable<TEntity> FromSql<TEntity>([NotNull]this DbSet<TEntity> dbSet, [NotNull]string sql)
+        public static IQueryable<TEntity> FromSql<TEntity>([NotNull] this DbSet<TEntity> set, [NotNull] string sql)
             where TEntity : class
-        {
-            Check.NotNull(dbSet, nameof(dbSet));
-            Check.NotEmpty(sql, nameof(sql));
+            => Check.NotNull(set, nameof(set))
+                .AnnotateQuery(
+                    new FromSqlQueryAnnotation(
+                        Check.NotEmpty(sql, nameof(sql))));
 
-            return dbSet.AnnotateQuery(new FromSqlQueryAnnotation(sql));
-        }
-
-        public static IQueryable<TEntity> FromSql<TEntity>([NotNull]this DbSet<TEntity> dbSet, [NotNull]string sql, [NotNull] params object[] parameters)
+        public static IQueryable<TEntity> FromSql<TEntity>(
+            [NotNull] this DbSet<TEntity> set,
+            [NotNull] string sql,
+            [NotNull] params object[] parameters)
             where TEntity : class
-        {
-            Check.NotNull(dbSet, nameof(dbSet));
-            Check.NotEmpty(sql, nameof(sql));
-            Check.NotNull(parameters, nameof(parameters));
-
-            return dbSet.AnnotateQuery(new FromSqlQueryAnnotation(sql, parameters));
-        }
+            => Check.NotNull(set, nameof(set))
+                .AnnotateQuery(
+                    new FromSqlQueryAnnotation(
+                        Check.NotEmpty(sql, nameof(sql)),
+                        Check.NotNull(parameters, nameof(parameters))));
     }
 }
