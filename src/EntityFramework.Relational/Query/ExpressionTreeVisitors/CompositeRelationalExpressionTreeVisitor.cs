@@ -68,16 +68,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         private class ReducingExpressionVisitor : ExpressionTreeVisitor
         {
             public override Expression VisitExpression(Expression node)
-            {
-                if (node != null
-                    && node.CanReduce)
-                {
-                    var reduced = node.Reduce();
-                    return base.VisitExpression(reduced);
-                }
-
-                return base.VisitExpression(node);
-            }
+                => node != null
+                   && node.CanReduce
+                    ? base.VisitExpression(node.Reduce())
+                    : base.VisitExpression(node);
         }
 
         private class ParameterExpressionDetectingVisitor : ExpressionTreeVisitor

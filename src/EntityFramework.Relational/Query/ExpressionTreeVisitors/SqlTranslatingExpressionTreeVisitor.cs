@@ -378,14 +378,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         }
 
         protected override TResult VisitUnhandledItem<TItem, TResult>(
-            TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
-        {
-            return default(TResult);
-        }
+            TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior) 
+            => default(TResult);
 
-        protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
-        {
-            return null; // never called
-        }
+        protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod) 
+            => null; // Never called
     }
 }

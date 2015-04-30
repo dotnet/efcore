@@ -194,9 +194,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         private void VisitJoin(
             IReadOnlyList<Expression> expressions, Action<IndentedStringBuilder> joinAction = null)
-        {
-            VisitJoin(expressions, e => VisitExpression(e), joinAction);
-        }
+            => VisitJoin(expressions, e => VisitExpression(e), joinAction);
 
         private void VisitJoin<T>(
             IReadOnlyList<T> items, Action<T> itemAction, Action<IndentedStringBuilder> joinAction = null)
@@ -835,9 +833,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         }
 
         protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
-        {
-            return new NotImplementedException(visitMethod);
-        }
+            => new NotImplementedException(visitMethod);
 
         // TODO: Share the code below (#1559)
 
@@ -845,41 +841,25 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         private const string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ss.fffzzz";
 
         protected virtual string GenerateLiteral([NotNull] object value)
-        {
-            return string.Format(CultureInfo.InvariantCulture, "{0}", value);
-        }
+            => string.Format(CultureInfo.InvariantCulture, "{0}", value);
 
         protected virtual string GenerateLiteral(bool value)
-        {
-            return value ? TrueLiteral : FalseLiteral;
-        }
+            => value ? TrueLiteral : FalseLiteral;
 
         protected virtual string GenerateLiteral([NotNull] string value)
-        {
-            Check.NotNull(value, nameof(value));
-
-            return "'" + EscapeLiteral(value) + "'";
-        }
+            => "'" + EscapeLiteral(Check.NotNull(value, nameof(value))) + "'";
 
         protected virtual string GenerateLiteral(Guid value)
-        {
-            return "'" + value + "'";
-        }
+            => "'" + value + "'";
 
         protected virtual string GenerateLiteral(DateTime value)
-        {
-            return "'" + value.ToString(DateTimeFormat, CultureInfo.InvariantCulture) + "'";
-        }
+            => "'" + value.ToString(DateTimeFormat, CultureInfo.InvariantCulture) + "'";
 
         protected virtual string GenerateLiteral(DateTimeOffset value)
-        {
-            return "'" + value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture) + "'";
-        }
+            => "'" + value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture) + "'";
 
         protected virtual string GenerateLiteral(TimeSpan value)
-        {
-            return "'" + value + "'";
-        }
+            => "'" + value + "'";
 
         protected virtual string GenerateLiteral([NotNull] byte[] value)
         {
@@ -894,18 +874,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         }
 
         protected virtual string EscapeLiteral([NotNull] string literal)
-        {
-            Check.NotNull(literal, nameof(literal));
-
-            return literal.Replace("'", "''");
-        }
+            => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
 
         protected virtual string DelimitIdentifier([NotNull] string identifier)
-        {
-            Check.NotEmpty(identifier, nameof(identifier));
-
-            return "\"" + identifier + "\"";
-        }
+            => "\"" + Check.NotEmpty(identifier, nameof(identifier)) + "\"";
 
         private class NullComparisonTransformingVisitor : ExpressionTreeVisitor
         {

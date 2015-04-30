@@ -69,20 +69,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return base.VisitBinaryExpression(currentExpression);
         }
 
-        private Expression UnwrapConvert(Expression expression, out Type conversionType)
-        {
-            conversionType = null;
-            var unary = expression as UnaryExpression;
-            if (unary != null
-                && unary.NodeType == ExpressionType.Convert)
-            {
-                conversionType = unary.Type;
-                return unary.Operand;
-            }
-
-            return expression;
-        }
-
         private Expression BuildIsNullExpression(Expression expression)
         {
             var nullableExpressionsExtractor = new IsNullExpressionBuildingVisitor();

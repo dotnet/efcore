@@ -11,6 +11,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         protected Expression BuildIsNullExpression(Expression expression)
         {
             var isNullExpressionBuilder = new IsNullExpressionBuildingVisitor();
+
             isNullExpressionBuilder.VisitExpression(expression);
 
             return isNullExpressionBuilder.ResultExpression;

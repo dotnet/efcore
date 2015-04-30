@@ -122,12 +122,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         protected override Expression VisitExtensionExpression(ExtensionExpression expression)
         {
             var notNullableExpression = expression as NotNullableExpression;
-            if (notNullableExpression != null)
-            {
-                return expression;
-            }
 
-            return base.VisitExtensionExpression(expression);
+            return notNullableExpression != null 
+                ? expression 
+                : base.VisitExtensionExpression(expression);
         }
 
         private Expression UnwrapConvertExpression(Expression expression, out Type conversionResultType)

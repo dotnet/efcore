@@ -165,6 +165,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             ref IReadOnlyList<Expression> values)
         {
             var inExpression = expression as InExpression;
+
             if (inExpression != null)
             {
                 values = inExpression.Values;
@@ -180,13 +181,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             ref IReadOnlyList<Expression> values)
         {
             var unaryExpression = expression as UnaryExpression;
-            if (unaryExpression != null
-                && unaryExpression.NodeType == ExpressionType.Not)
-            {
-                return MatchInExpression(unaryExpression.Operand, ref values);
-            }
 
-            return null;
+            return unaryExpression != null
+                   && unaryExpression.NodeType == ExpressionType.Not
+                ? MatchInExpression(unaryExpression.Operand, ref values)
+                : null;
         }
     }
 }

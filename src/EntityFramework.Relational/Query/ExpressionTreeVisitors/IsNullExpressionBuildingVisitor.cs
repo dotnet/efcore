@@ -159,9 +159,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return left ?? right;
         }
 
-        private void AddToResult(Expression expression)
-        {
-            ResultExpression = CombineExpressions(ResultExpression, expression, ExpressionType.OrElse);
-        }
+        private void AddToResult(Expression expression) 
+            => ResultExpression = CombineExpressions(ResultExpression, expression, ExpressionType.OrElse);
     }
 }

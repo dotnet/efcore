@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Query.Methods
@@ -14,11 +15,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
 
         public EqualsTranslator([NotNull] ILogger logger)
         {
+            Check.NotNull(logger, nameof(logger));
+
             _logger = logger;
         }
 
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.Method.Name == "Equals"
                 && methodCallExpression.Arguments.Count == 1)
             {

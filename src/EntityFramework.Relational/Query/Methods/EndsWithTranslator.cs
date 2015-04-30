@@ -4,6 +4,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Query.Methods
 {
@@ -17,14 +18,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
 
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            if (ReferenceEquals(methodCallExpression.Method, _methodInfo))
-            {
-                return new LikeExpression(
-                    methodCallExpression.Object,
-                    Expression.Add(new LiteralExpression("%"), methodCallExpression.Arguments[0], _concat));
-            }
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            return null;
+            return ReferenceEquals(methodCallExpression.Method, _methodInfo) 
+                ? new LikeExpression(
+                methodCallExpression.Object,
+                Expression.Add(new LiteralExpression("%"), methodCallExpression.Arguments[0], _concat)) 
+                : null;
         }
     }
 }

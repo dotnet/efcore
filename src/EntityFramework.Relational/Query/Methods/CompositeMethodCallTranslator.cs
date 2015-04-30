@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Query.Methods
@@ -13,15 +14,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
 
         public CompositeMethodCallTranslator([NotNull] ILogger logger)
         {
+            Check.NotNull(logger, nameof(logger));
+
             _logger = logger;
         }
 
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
-        {
-            return new EqualsTranslator(_logger).Translate(methodCallExpression)
-                   ?? new StartsWithTranslator().Translate(methodCallExpression)
-                   ?? new EndsWithTranslator().Translate(methodCallExpression)
-                   ?? new ContainsTranslator().Translate(methodCallExpression);
-        }
+            => new EqualsTranslator(_logger).Translate(methodCallExpression)
+               ?? new StartsWithTranslator().Translate(methodCallExpression)
+               ?? new EndsWithTranslator().Translate(methodCallExpression)
+               ?? new ContainsTranslator().Translate(methodCallExpression);
     }
 }
