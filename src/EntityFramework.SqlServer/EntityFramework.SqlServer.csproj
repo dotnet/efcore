@@ -42,13 +42,13 @@
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
+    <PackageReference Include="Microsoft.Framework.Logging.Abstractions">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.DependencyInjection.Interfaces">
+    <PackageReference Include="Microsoft.Framework.DependencyInjection.Abstractions">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
   </ItemGroup>

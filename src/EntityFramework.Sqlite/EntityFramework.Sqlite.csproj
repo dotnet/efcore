@@ -42,8 +42,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
-    <PackageReference Include="Microsoft.Framework.DependencyInjection.Interfaces" />
-    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Framework.Logging.Abstractions" />
     <PackageReference Include="Remotion.Linq">
       <TargetFramework>portable-net45+win+wpa81+wp80</TargetFramework>
     </PackageReference>

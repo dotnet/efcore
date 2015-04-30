@@ -47,16 +47,16 @@
     <PackageReference Include="System.Collections.Immutable">
       <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Caching.Interfaces">
+    <PackageReference Include="Microsoft.Framework.Caching.Abstractions">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.Caching.Memory">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
-    <PackageReference Include="Microsoft.Framework.DependencyInjection.Interfaces" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Framework.Logging" />
-    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
+    <PackageReference Include="Microsoft.Framework.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Framework.OptionsModel" />
     <PackageReference Include="Remotion.Linq">
       <TargetFramework>portable-net45+win+wpa81+wp80</TargetFramework>
