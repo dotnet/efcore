@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 
         public override string ToString()
         {
-            return (For == null ? MethodBody : For + "." + MethodBody);
+            return (For == null ? MethodBody : For + "()." + MethodBody);
         }
     }
 }

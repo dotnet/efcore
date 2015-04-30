@@ -1,4 +1,45 @@
 @inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
+@using System.Linq
+@using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
+@functions
+{
+    List<string> LayoutPropertyConfigurationLines(PropertyConfiguration pc, string propertyLambdaIdentifier, string indent)
+    {
+        var lines = new List<string>();
+        var facetCount = pc.FacetConfigurations.Values.SelectMany(list => list).Count();
+        foreach (var keyValuePair in pc.FacetConfigurations)
+        {
+            var forMethod = keyValuePair.Key;
+            var methodBodyList = keyValuePair.Value;
+            if (string.IsNullOrEmpty(forMethod))
+            {
+                foreach (var methodBody in methodBodyList)
+                {
+                    lines.Add("." + methodBody);
+                }
+            }
+            else
+            {
+                if (methodBodyList.Count() == 1)
+                {
+                    lines.Add("." + forMethod + "()." + methodBodyList.First());
+                }
+                else
+                {
+                    lines.Add("." + forMethod + "(" + propertyLambdaIdentifier + " =>");
+                    lines.Add("{");
+                    foreach (var methodBody in methodBodyList)
+                    {
+                        lines.Add(indent + propertyLambdaIdentifier + "." + methodBody + ";");
+                    }
+                    lines.Add("})");
+                }
+            }
+        }
+
+        return lines;
+    }
+}
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 
@@ -19,7 +60,6 @@ var className = Model.ClassName ?? Model.Helper.ClassName(Model.ConnectionString
 var firstEntity = true;
 }@foreach(var entityConfig in Model.Helper.EntityConfigurations)
 {
-    var firstConfig = true;
     @if(!firstEntity)
     {
 @:
@@ -27,44 +67,52 @@ var firstEntity = true;
     firstEntity = false;
 @:            modelBuilder.Entity<@entityConfig.EntityType.DisplayName()>(entity =>
 @:            {
-    @foreach(var entityFacet in @entityConfig.FacetConfigurations)
+    var firstEntityFacet = true;
+    @foreach (var entityFacet in @entityConfig.FacetConfigurations)
     {
-        @if(!firstConfig)
+        @if(!firstEntityFacet)
         {
 @:
         }
-        firstConfig = false;
+        firstEntityFacet = false;
 @:                entity.@(entityFacet.ToString());
     }                        
-    var firstFacet = true;
-    @foreach(var propertyConfig in @entityConfig.PropertyConfigurations)
+    var firstProperty = true;
+    @foreach (var propertyConfig in @entityConfig.PropertyConfigurations)
     {
-        @foreach(var keyValuePair in @propertyConfig.FacetConfigurations)
+        @if (!firstEntityFacet || !firstProperty)
         {
-            @foreach(var facetMethodBody in @keyValuePair.Value)
-            {
-                @if(!firstConfig || !firstFacet)
-                {
 @:
-                }
-                firstFacet = false;
-                @if(string.IsNullOrEmpty(keyValuePair.Key))
-                {
+        }
+        firstProperty = false;
+        var propertyConfigurationLines = LayoutPropertyConfigurationLines(propertyConfig, "property", "    ");
+        var propertyConfigurationLineCount = propertyConfigurationLines.Count;
+        if (propertyConfigurationLineCount == 1)
+        {
+            foreach (var line in propertyConfigurationLines)
+            {
+@:                entity.Property(e => e.@(propertyConfig.Property.Name))@(line);
+            }
+        }
+        else
+        {
 @:                entity.Property(e => e.@(propertyConfig.Property.Name))
-@:                    .@(facetMethodBody.ToString());
-                }
-                else
+            var lineCount = 0;
+            foreach (var line in propertyConfigurationLines)
+            {
+                var outputLine = line;
+                if (++lineCount == propertyConfigurationLineCount)
                 {
-@:                entity.Property(e => e.@(propertyConfig.Property.Name))
-@:                    .@(keyValuePair.Key).@(facetMethodBody.ToString());
+                    outputLine = line + ";";
                 }
+@:                    @(outputLine)
             }
         }
     }
     var firstNavigation = true;
     @foreach (var navigationConfig in @entityConfig.NavigationConfigurations)
     {
-        @if (!firstConfig || !firstNavigation)
+        @if (!firstEntityFacet || !firstProperty || !firstNavigation)
         {
 @:
         }
