@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(connection, nameof(connection));
 
             var rowsAffected = 0;
-            await connection.OpenAsync(cancellationToken).WithCurrentCulture();
+            await connection.OpenAsync(cancellationToken);
             RelationalTransaction startedTransaction = null;
             try
             {
@@ -93,8 +93,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         connection.Transaction,
                         _typeMapper,
                         _context,
-                        Logger, cancellationToken)
-                        .WithCurrentCulture();
+                        Logger, cancellationToken);
                 }
 
                 startedTransaction?.Commit();

@@ -72,7 +72,6 @@
     <Compile Include="ChangeTrackingTestBase.cs" />
     <Compile Include="ComplexNavigationsQueryFixtureBase.cs" />
     <Compile Include="ComplexNavigationsQueryTestBase.cs" />
-    <Compile Include="DeadlockTestBase.cs" />
     <Compile Include="DataStoreErrorLogStateTest.cs" />
     <Compile Include="BuiltInDataTypesFixtureBase.cs" />
     <Compile Include="BuiltInDataTypesTestBase.cs" />

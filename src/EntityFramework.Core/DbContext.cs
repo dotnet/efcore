@@ -397,7 +397,7 @@ namespace Microsoft.Data.Entity
 
             try
             {
-                return await stateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken).WithCurrentCulture();
+                return await stateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
             }
             catch (Exception ex)
             {

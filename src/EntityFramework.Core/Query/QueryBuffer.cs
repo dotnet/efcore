@@ -324,14 +324,12 @@ namespace Microsoft.Data.Entity.Query
                                 relatedEntitiesLoaders,
                                 ct,
                                 currentNavigationIndex + 1,
-                                queryStateManager)
-                                .WithCurrentCulture();
+                                queryStateManager);
 
                             return targetEntity;
                         })
                     .Where(e => e != null)
-                    .ToList(cancellationToken)
-                    .WithCurrentCulture());
+                    .ToList(cancellationToken));
         }
 
         private IEntityType IncludeCore(

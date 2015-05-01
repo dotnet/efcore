@@ -78,8 +78,7 @@ namespace Microsoft.Data.Entity.Relational
                             var command = CreateCommand(connection, transaction, sqlBatch.Sql);
                             Logger.LogCommand(command);
 
-                            await command.ExecuteNonQueryAsync(cancellationToken)
-                                .WithCurrentCulture();
+                            await command.ExecuteNonQueryAsync(cancellationToken);
                         }
                         return Task.FromResult<object>(null);
                     },
@@ -119,12 +118,12 @@ namespace Microsoft.Data.Entity.Relational
             {
                 Logger.OpeningConnection(connection.ConnectionString);
 
-                await connection.OpenAsync(cancellationToken).WithCurrentCulture();
+                await connection.OpenAsync(cancellationToken);
             }
 
             try
             {
-                return await action().WithCurrentCulture();
+                return await action();
             }
             finally
             {

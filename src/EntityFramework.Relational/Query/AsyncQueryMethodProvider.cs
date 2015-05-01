@@ -35,10 +35,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     var result
                         = await enumerator.Current.IsDBNullAsync(0, cancellationToken)
-                            .WithCurrentCulture()
                             ? default(TResult)
-                            : await enumerator.Current.GetFieldValueAsync<TResult>(0, cancellationToken)
-                                .WithCurrentCulture();
+                            : await enumerator.Current.GetFieldValueAsync<TResult>(0, cancellationToken);
 
                     return result;
                 }

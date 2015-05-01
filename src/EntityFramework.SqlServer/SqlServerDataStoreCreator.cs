@@ -54,12 +54,11 @@ namespace Microsoft.Data.Entity.SqlServer
             using (var masterConnection = _connection.CreateMasterConnection())
             {
                 await _statementExecutor
-                    .ExecuteNonQueryAsync(masterConnection, null, CreateCreateOperations(), cancellationToken)
-                    .WithCurrentCulture();
+                    .ExecuteNonQueryAsync(masterConnection, null, CreateCreateOperations(), cancellationToken);
                 ClearPool();
             }
 
-            await ExistsAsync(retryOnNotExists: true, cancellationToken: cancellationToken).WithCurrentCulture();
+            await ExistsAsync(retryOnNotExists: true, cancellationToken: cancellationToken);
         }
 
         public override void CreateTables(IModel model) 
@@ -74,16 +73,14 @@ namespace Microsoft.Data.Entity.SqlServer
                 _connection, 
                 _connection.DbTransaction, 
                 CreateSchemaCommands(Check.NotNull(model, nameof(model))), 
-                cancellationToken)
-            .WithCurrentCulture();
+                cancellationToken);
 
         public override bool HasTables()
             => (int)_statementExecutor.ExecuteScalar(_connection, _connection.DbTransaction, CreateHasTablesCommand()) != 0;
 
         public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
             => (int)(await _statementExecutor
-                .ExecuteScalarAsync(_connection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)
-                .WithCurrentCulture()) != 0;
+                .ExecuteScalarAsync(_connection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)) != 0;
 
         private IEnumerable<SqlBatch> CreateSchemaCommands(IModel model)
             => _sqlGenerator.Generate(_modelDiffer.GetDifferences(null, model), model);
@@ -134,7 +131,7 @@ namespace Microsoft.Data.Entity.SqlServer
             {
                 try
                 {
-                    await _connection.OpenAsync(cancellationToken).WithCurrentCulture();
+                    await _connection.OpenAsync(cancellationToken);
                     _connection.Close();
                     return true;
                 }
@@ -201,8 +198,7 @@ namespace Microsoft.Data.Entity.SqlServer
             using (var masterConnection = _connection.CreateMasterConnection())
             {
                 await _statementExecutor
-                    .ExecuteNonQueryAsync(masterConnection, null, CreateDropCommands(), cancellationToken)
-                    .WithCurrentCulture();
+                    .ExecuteNonQueryAsync(masterConnection, null, CreateDropCommands(), cancellationToken);
             }
         }
 

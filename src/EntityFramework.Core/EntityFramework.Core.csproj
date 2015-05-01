@@ -200,7 +200,6 @@
     <Compile Include="Query\SharedQueryExtensions.cs" />
     <Compile Include="DbSet`.cs" />
     <Compile Include="EntityState.cs" />
-    <Compile Include="Extensions\EntityFrameworkTaskExtensions.cs" />
     <Compile Include="Internal\InternalDbSet.cs" />
     <Compile Include="Metadata\Builders\BasicModelBuilder.cs" />
     <Compile Include="Metadata\KeyExtensions.cs" />

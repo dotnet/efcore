@@ -73,8 +73,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     {
                         _relatedValuesEnumerable._iterator._hasRemainingRows
                             = await _relatedValuesEnumerable._iterator._relatedValuesEnumerator
-                                .MoveNext(cancellationToken)
-                                .WithCurrentCulture();
+                                .MoveNext(cancellationToken);
 
                         _relatedValuesEnumerable._iterator._moveNextPending = false;
                     }

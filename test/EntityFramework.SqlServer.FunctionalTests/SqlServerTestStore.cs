@@ -313,7 +313,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
-                await master.OpenAsync().WithCurrentCulture();
+                await master.OpenAsync();
 
                 using (var command = master.CreateCommand())
                 {
@@ -327,7 +327,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                                               DROP DATABASE [{0}];
                                           END", name);
 
-                    await command.ExecuteNonQueryAsync().WithCurrentCulture();
+                    await command.ExecuteNonQueryAsync();
 
                     var userFolder = Environment.GetEnvironmentVariable("USERPROFILE");
                     try

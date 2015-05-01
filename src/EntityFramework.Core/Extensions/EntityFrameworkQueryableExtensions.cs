@@ -2358,7 +2358,7 @@ namespace Microsoft.Data.Entity
 
             using (var enumerator = asyncEnumerable.GetEnumerator())
             {
-                while (await enumerator.MoveNext().WithCurrentCulture())
+                while (await enumerator.MoveNext())
                 {
                 }
             }

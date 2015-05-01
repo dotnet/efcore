@@ -61,8 +61,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 var hasNext
                     = await (_reader == null
                         ? InitializeAndReadAsync(cancellationToken)
-                        : _reader.ReadAsync(cancellationToken))
-                        .WithCurrentCulture();
+                        : _reader.ReadAsync(cancellationToken));
 
                 Current = !hasNext ? default(T) : _enumerable._shaper(_reader);
 
@@ -72,8 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             private async Task<bool> InitializeAndReadAsync(CancellationToken cancellationToken)
             {
                 await _enumerable._relationalQueryContext.Connection
-                    .OpenAsync(cancellationToken)
-                    .WithCurrentCulture();
+                    .OpenAsync(cancellationToken);
 
                 using (var command
                     = _enumerable._commandBuilder
@@ -83,12 +81,12 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     _enumerable._logger.LogCommand(command);
 
-                    _reader = await command.ExecuteReaderAsync(cancellationToken).WithCurrentCulture();
+                    _reader = await command.ExecuteReaderAsync(cancellationToken);
                 }
 
                 _enumerable._relationalQueryContext.RegisterDataReader(_reader);
 
-                return await _reader.ReadAsync(cancellationToken).WithCurrentCulture();
+                return await _reader.ReadAsync(cancellationToken);
             }
 
             public T Current { get; private set; }

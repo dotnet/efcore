@@ -44,12 +44,12 @@ namespace System.Linq
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
-                    if (!await _enumerator.MoveNext(cancellationToken).WithCurrentCulture())
+                    if (!await _enumerator.MoveNext(cancellationToken))
                     {
                         return false;
                     }
 
-                    Current = await _selector(_enumerator.Current, cancellationToken).WithCurrentCulture();
+                    Current = await _selector(_enumerator.Current, cancellationToken);
 
                     return true;
                 }

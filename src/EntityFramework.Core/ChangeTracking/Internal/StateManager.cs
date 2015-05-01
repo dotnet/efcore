@@ -307,9 +307,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             try
             {
-                var result
-                    = await SaveChangesAsync(entriesToSave, cancellationToken)
-                        .WithCurrentCulture();
+                var result = await SaveChangesAsync(entriesToSave, cancellationToken);
 
                 if (acceptAllChangesOnSuccess)
                 {
@@ -334,7 +332,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         protected virtual async Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
             CancellationToken cancellationToken = default(CancellationToken))
-            => await _dataStore.SaveChangesAsync(entriesToSave, cancellationToken).WithCurrentCulture();
+            => await _dataStore.SaveChangesAsync(entriesToSave, cancellationToken);
 
         public virtual void AcceptAllChanges()
         {

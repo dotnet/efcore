@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Query
                             _inner = _exceptionInterceptor._innerFactory().GetEnumerator();
                         }
 
-                        return await _inner.MoveNext(cancellationToken).WithCurrentCulture();
+                        return await _inner.MoveNext(cancellationToken);
                     }
                     catch (Exception e)
                     {

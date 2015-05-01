@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Relational
                 throw new InvalidOperationException(Strings.TransactionAlreadyStarted);
             }
 
-            await OpenAsync(cancellationToken).WithCurrentCulture();
+            await OpenAsync(cancellationToken);
 
             return BeginTransactionWithNoPreconditions(isolationLevel);
         }
@@ -180,7 +180,7 @@ namespace Microsoft.Data.Entity.Relational
 #endif
             if (_openedCount == 0)
             {
-                await _connection.Value.OpenAsync(cancellationToken).WithCurrentCulture();
+                await _connection.Value.OpenAsync(cancellationToken);
             }
             _openedCount++;
         }

@@ -61,7 +61,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DeadlockInMemoryTest.cs" />
     <Compile Include="EntityTypeTest.cs" />
     <Compile Include="AsNoTrackingInMemoryTest.cs" />
     <Compile Include="ChangeTrackingInMemoryTest.cs" />

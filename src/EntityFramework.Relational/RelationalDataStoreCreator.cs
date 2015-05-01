@@ -77,9 +77,9 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(model, nameof(model));
 
-            if (await ExistsAsync(cancellationToken).WithCurrentCulture())
+            if (await ExistsAsync(cancellationToken))
             {
-                await DeleteAsync(cancellationToken).WithCurrentCulture();
+                await DeleteAsync(cancellationToken);
 
                 return true;
             }
@@ -110,17 +110,17 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(model, nameof(model));
 
-            if (!await ExistsAsync(cancellationToken).WithCurrentCulture())
+            if (!await ExistsAsync(cancellationToken))
             {
-                await CreateAsync(cancellationToken).WithCurrentCulture();
-                await CreateTablesAsync(model, cancellationToken).WithCurrentCulture();
+                await CreateAsync(cancellationToken);
+                await CreateTablesAsync(model, cancellationToken);
 
                 return true;
             }
 
-            if (!await HasTablesAsync(cancellationToken).WithCurrentCulture())
+            if (!await HasTablesAsync(cancellationToken))
             {
-                await CreateTablesAsync(model, cancellationToken).WithCurrentCulture();
+                await CreateTablesAsync(model, cancellationToken);
 
                 return true;
             }
