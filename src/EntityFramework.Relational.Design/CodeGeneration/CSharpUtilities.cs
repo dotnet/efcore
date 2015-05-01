@@ -94,6 +94,11 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             "while",
         };
 
+        private static readonly Regex _invalidCharsRegex
+            = new Regex(@"[^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Nl}\p{Mn}\p{Mc}\p{Cf}\p{Pc}\p{Lm}]",
+                default(RegexOptions),
+                TimeSpan.FromMilliseconds(1000.0));
+
         private static readonly CSharpUtilities _instance = new CSharpUtilities();
 
         public static CSharpUtilities Instance
@@ -115,7 +120,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
         {
             Check.NotNull(str, nameof(str));
 
-            return str.Replace("\"", "\\\"");
+            return str.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\t", "\\t");
         }
 
         public virtual string EscapeVerbatimString([NotNull] string str)
@@ -223,17 +228,17 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             Check.NotEmpty(identifier, nameof(identifier));
             Check.NotNull(uniquifier, nameof(uniquifier));
 
-            var invalidCharsRegex
-                = new Regex(@"[^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Nl}\p{Mn}\p{Mc}\p{Cf}\p{Pc}\p{Lm}]");
-
-            var proposedIdentifier = invalidCharsRegex.Replace(identifier, "_");
+            var proposedIdentifier =
+                (identifier.Length > 1 && identifier[0] == '@')
+                ? "@" + _invalidCharsRegex.Replace(identifier.Substring(1), "_")
+                : _invalidCharsRegex.Replace(identifier, "_");
             if (string.IsNullOrEmpty(proposedIdentifier))
             {
                 proposedIdentifier = "_";
             }
 
             var firstChar = proposedIdentifier[0];
-            if ((!char.IsLetter(firstChar) && firstChar != '_'))
+            if (!char.IsLetter(firstChar) && firstChar != '_' && firstChar != '@')
             {
                 proposedIdentifier = "_" + proposedIdentifier;
             }

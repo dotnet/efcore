@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         }
 
         /// <summary>
-        /// For foreign key ConstraintId {constraintId}, could not find ToColumn with ColumnId {toColumnId}.
+        /// For foreign key ConstraintId {constraintId}. Could not find ToColumn with ColumnId {toColumnId}.
         /// </summary>
         public static string CannotFindToColumnForConstraintId([CanBeNull] object constraintId, [CanBeNull] object toColumnId)
         {
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         }
 
         /// <summary>
-        /// For columnId: {columnId}. The SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow ValueGenerationStrategy Identity. Generating a matching Property but ignoring the Identity setting.
+        /// For columnId {columnId}. The SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow ValueGenerationStrategy Identity. Generating a matching Property but ignoring the Identity setting.
         /// </summary>
         public static string DataTypeDoesNotAllowIdentityStrategy([CanBeNull] object columnId, [CanBeNull] object sqlServerDataType)
         {

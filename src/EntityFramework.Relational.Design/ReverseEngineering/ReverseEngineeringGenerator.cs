@@ -3,10 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -31,6 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             _serviceProvider = serviceProvider;
             Logger = serviceProvider.GetRequiredService<ILogger>();
+            FileService = serviceProvider.GetRequiredService<IFileService>();
             CSharpCodeGeneratorHelper = serviceProvider.GetRequiredService<CSharpCodeGeneratorHelper>();
             ModelUtilities = serviceProvider.GetRequiredService<ModelUtilities>();
         }
@@ -42,6 +41,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public virtual ModelUtilities ModelUtilities { get; [param: NotNull] set; }
 
         public virtual ILogger Logger { get; }
+
+        public virtual IFileService FileService { get; }
 
         public virtual async Task<List<string>> GenerateAsync(
             [NotNull] ReverseEngineeringConfiguration configuration,
@@ -83,8 +84,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             // output DbContext .cs file
             var dbContextFileName = dbContextClassName + FileExtension;
-            OutputFile(configuration.OutputPath, dbContextFileName, templateResult.GeneratedText);
-            resultingFiles.Add(Path.Combine(configuration.OutputPath, dbContextFileName));
+            var dbContextFileFullPath = FileService.OutputFile(
+                configuration.OutputPath, dbContextFileName, templateResult.GeneratedText);
+            resultingFiles.Add(dbContextFileFullPath);
 
             var entityTypeTemplate = provider.EntityTypeTemplate;
             foreach (var entityType in metadataModel.EntityTypes)
@@ -109,8 +111,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.DisplayName() + FileExtension;
-                OutputFile(configuration.OutputPath, entityTypeFileName, templateResult.GeneratedText);
-                resultingFiles.Add(Path.Combine(configuration.OutputPath, entityTypeFileName));
+                var entityTypeFileFullPath = FileService.OutputFile(
+                    configuration.OutputPath, entityTypeFileName, templateResult.GeneratedText);
+                resultingFiles.Add(entityTypeFileFullPath);
             }
 
             return resultingFiles;
@@ -162,7 +165,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));
             Check.NotNull(metadataModel, nameof(metadataModel));
 
-            if (!Directory.Exists(outputDirectoryName))
+            if (!FileService.DirectoryExists(outputDirectoryName))
             {
                 return;
             }
@@ -177,14 +180,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var readOnlyFiles = new List<string>();
             foreach (var fileName in filesToTest)
             {
-                var fullFileName = Path.Combine(outputDirectoryName, fileName);
-                if (File.Exists(fullFileName))
+                if (FileService.IsFileReadOnly(outputDirectoryName, fileName))
                 {
-                    var attributes = File.GetAttributes(fullFileName);
-                    if (attributes.HasFlag(FileAttributes.ReadOnly))
-                    {
-                        readOnlyFiles.Add(fileName);
-                    }
+                    readOnlyFiles.Add(fileName);
                 }
             }
 
@@ -194,13 +192,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     Strings.ReadOnlyFiles(
                         outputDirectoryName, string.Join(", ", readOnlyFiles)));
             }
-        }
-
-        private void OutputFile(string outputDirectoryName, string outputFileName, string contents)
-        {
-            Directory.CreateDirectory(outputDirectoryName);
-            var fullFileName = Path.Combine(outputDirectoryName, outputFileName);
-            File.WriteAllText(fullFileName, contents);
         }
 
         private static void CheckConfiguration(ReverseEngineeringConfiguration configuration)
