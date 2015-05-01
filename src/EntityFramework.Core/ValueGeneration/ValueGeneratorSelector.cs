@@ -29,8 +29,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
         {
             Check.NotNull(property, nameof(property));
 
-            var propertyType = property.ClrType;
-
+            var propertyType = property.ClrType.UnwrapNullableType();
             if (propertyType == typeof(Guid))
             {
                 return _guidFactory.Create(property);

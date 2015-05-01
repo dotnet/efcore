@@ -39,6 +39,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             Assert.IsType<TemporaryIntegerValueGenerator<sbyte>>(selector.Select(entityType.GetProperty("NullableSByte")));
             Assert.IsType<TemporaryStringValueGenerator>(selector.Select(entityType.GetProperty("String")));
             Assert.IsType<GuidValueGenerator>(selector.Select(entityType.GetProperty("Guid")));
+            Assert.IsType<GuidValueGenerator>(selector.Select(entityType.GetProperty("NullableGuid")));
             Assert.IsType<TemporaryBinaryValueGenerator>(selector.Select(entityType.GetProperty("Binary")));
         }
 
@@ -89,6 +90,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             public sbyte? NullableSByte { get; set; }
             public string String { get; set; }
             public Guid Guid { get; set; }
+            public Guid? NullableGuid { get; set; }
             public byte[] Binary { get; set; }
             public float Float { get; set; }
         }
