@@ -100,7 +100,9 @@
     <Compile Include="ReverseEngineering\DbContextGeneratorModel.cs" />
     <Compile Include="ReverseEngineering\EntityTypeCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\EntityTypeGeneratorModel.cs" />
+    <Compile Include="ReverseEngineering\FileSystemFileService.cs" />
     <Compile Include="ReverseEngineering\IDatabaseMetadataModelProvider.cs" />
+    <Compile Include="ReverseEngineering\IFileService.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />
     <Compile Include="Templating\Compilation\CompiledAssemblyResult.cs" />

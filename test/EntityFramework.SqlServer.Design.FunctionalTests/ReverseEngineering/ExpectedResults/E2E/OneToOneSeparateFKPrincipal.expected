@@ -1,0 +1,16 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public class OneToOneSeparateFKPrincipal
+    {
+        public int OneToOneSeparateFKPrincipalID1 { get; set; }
+        public int OneToOneSeparateFKPrincipalID2 { get; set; }
+        public string SomeOneToOneSeparateFKPrincipalColumn { get; set; }
+
+        public virtual OneToOneSeparateFKDependent OneToOneSeparateFKDependent { get; set; }
+    }
+}
