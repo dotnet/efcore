@@ -1,0 +1,16 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public class OneToOnePrincipal
+    {
+        public int OneToOnePrincipalID1 { get; set; }
+        public int OneToOnePrincipalID2 { get; set; }
+        public string SomeOneToOnePrincipalColumn { get; set; }
+
+        public virtual OneToOneDependent OneToOneDependent { get; set; }
+    }
+}

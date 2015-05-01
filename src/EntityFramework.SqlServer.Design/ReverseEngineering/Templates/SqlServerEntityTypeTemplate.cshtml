@@ -1,7 +1,7 @@
 @inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
 @using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 @{
-string errorMessageAnnotation = Model.Helper.ErrorMessageAnnotation;
+    string errorMessageAnnotation = Model.Helper.ErrorMessageAnnotation;
 }@if(errorMessageAnnotation != null) {
 @:// @errorMessageAnnotation
 }
@@ -10,7 +10,7 @@ else {
 @:using System.Collections.Generic;
 @:using Microsoft.Data.Entity;
 @:using Microsoft.Data.Entity.Metadata;
-
+@:
 @:namespace @Model.Namespace
 @:{
 @:    public class @Model.EntityType.Name
@@ -29,14 +29,19 @@ else {
     {
 @:        public @Model.Generator.CSharpCodeGeneratorHelper.GetTypeName(@property.ClrType) @property.Name { get; set; }
     }
-@:
-    @foreach(var navProp in Model.Helper.NavigationProperties)
+    @if (Model.Helper.NavigationProperties.Count > 0)
     {
-        @if(navProp.ErrorAnnotation != null) {
+@:
+        @foreach (var navProp in Model.Helper.NavigationProperties)
+        {
+            @if (navProp.ErrorAnnotation != null)
+            {
 @:        // @navProp.ErrorAnnotation
-        }
-        else {
+            }
+            else
+            {
 @:        public virtual @navProp.Type @navProp.Name { get; set; }
+            }
         }
     }
 @:    }

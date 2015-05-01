@@ -34,6 +34,7 @@ namespace Microsoft.Data.Entity.Commands
             loggerFactory.AddProvider(loggerProvider);
             _logger = new LazyRef<ILogger>(() => loggerFactory.CreateLogger<DatabaseTool>());
             _serviceProvider.AddService(typeof(ILogger), _logger.Value);
+            _serviceProvider.AddService(typeof(IFileService), new FileSystemFileService());
             _serviceProvider.AddService(typeof(CSharpCodeGeneratorHelper), new CSharpCodeGeneratorHelper());
             _serviceProvider.AddService(typeof(ModelUtilities), new ModelUtilities());
             var metadataReferencesProvider = new MetadataReferencesProvider(_serviceProvider);
