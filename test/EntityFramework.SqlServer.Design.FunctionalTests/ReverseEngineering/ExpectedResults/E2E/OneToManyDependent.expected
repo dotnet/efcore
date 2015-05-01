@@ -1,0 +1,18 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public class OneToManyDependent
+    {
+        public int OneToManyDependentID1 { get; set; }
+        public int OneToManyDependentID2 { get; set; }
+        public int? OneToManyDependentFK1 { get; set; }
+        public int? OneToManyDependentFK2 { get; set; }
+        public string SomeDependentEndColumn { get; set; }
+
+        public virtual OneToManyPrincipal OneToManyDependentFK { get; set; }
+    }
+}

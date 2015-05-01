@@ -25,14 +25,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels
         {
             return SqlServerTestStore.GetOrCreateSharedAsync(
                 DatabaseName,
-                () => SqlServerTestStore.CreateDatabaseIfNotExistsAsync(DatabaseName, scriptPath: @"..\..\Northwind.sql")); // relative from bin/<config>
+                () => SqlServerTestStore.CreateDatabaseAsync(DatabaseName, scriptPath: @"..\..\Northwind.sql")); // relative from bin/<config>
         }
 
         public static SqlServerTestStore GetSharedStore()
         {
             return SqlServerTestStore.GetOrCreateShared(
                 DatabaseName,
-                () => SqlServerTestStore.CreateDatabaseIfNotExists(DatabaseName, scriptPath: @"..\..\Northwind.sql")); // relative from bin/<config>
+                () => SqlServerTestStore.CreateDatabase(DatabaseName, scriptPath: @"..\..\Northwind.sql")); // relative from bin/<config>
         }
     }
 }

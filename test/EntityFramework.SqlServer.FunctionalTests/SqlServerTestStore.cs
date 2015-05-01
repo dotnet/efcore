@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return this;
         }
 
-        public static async Task CreateDatabaseIfNotExistsAsync(string name, string scriptPath = null)
+        public static async Task CreateDatabaseAsync(string name, string scriptPath = null, bool recreateIfAlreadyExists = false)
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
@@ -97,7 +97,23 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     var exists = (int)await command.ExecuteScalarAsync() > 0;
 
-                    if (!exists)
+                    if (exists && recreateIfAlreadyExists)
+                    {
+                        // if scriptPath is non-null assume that the script will handle dropping DB
+                        if (scriptPath == null)
+                        {
+                            command.CommandText = $@"DROP DATABASE [{name}]";
+
+                            await command.ExecuteNonQueryAsync();
+
+                            using (var newConnection = new SqlConnection(CreateConnectionString(name)))
+                            {
+                                await WaitForExistsAsync(newConnection);
+                            }
+                        }
+                    }
+
+                    if (!exists || recreateIfAlreadyExists)
                     {
                         if (scriptPath == null)
                         {
@@ -141,7 +157,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        public static void CreateDatabaseIfNotExists(string name, string scriptPath = null)
+        public static void CreateDatabase(string name, string scriptPath = null, bool recreateIfAlreadyExists = false)
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
@@ -154,7 +170,23 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     var exists = (int)command.ExecuteScalar() > 0;
 
-                    if (!exists)
+                    if (exists && recreateIfAlreadyExists)
+                    {
+                        // if scriptPath is non-null assume that the script will handle dropping DB
+                        if (scriptPath == null)
+                        {
+                            command.CommandText = $@"DROP DATABASE [{name}]";
+
+                            command.ExecuteNonQuery();
+
+                            using (var newConnection = new SqlConnection(CreateConnectionString(name)))
+                            {
+                                WaitForExists(newConnection);
+                            }
+                        }
+                    }
+
+                    if (!exists || recreateIfAlreadyExists)
                     {
                         if (scriptPath == null)
                         {
@@ -178,7 +210,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                                 if (appBase != null)
                                 {
-                                    scriptPath = Path.Combine(appBase, Path.GetFileName(scriptPath));
+                                    while (scriptPath.StartsWith(@"..\"))
+                                    {
+                                        scriptPath = scriptPath.Substring(3);
+                                    }
+                                    scriptPath = Path.Combine(appBase, scriptPath);
                                 }
                             }
 
