@@ -9,7 +9,7 @@
         },
         "dnx451": {
             "dependencies": {
-                "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*",
+                "Microsoft.Framework.Runtime.Abstractions": "1.0.0-*",
                 "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-*"
             },
             "frameworkAssemblies": {
@@ -22,7 +22,7 @@
                 "System.Data.Common": "4.0.0-*",
                 "System.IO.FileSystem": "4.0.0-*",
                 "System.Runtime.InteropServices": "4.0.20-*",
-                "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*",
+                "Microsoft.Framework.Runtime.Abstractions": "1.0.0-*",
                 "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-*"
             }
         },
