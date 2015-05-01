@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class TemporaryIntegerValueGenerator<TValue> : ValueGenerator<TValue>
+    public class TemporaryNumberValueGenerator<TValue> : ValueGenerator<TValue>
     {
         private long _current;
 

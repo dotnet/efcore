@@ -51,14 +51,15 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IInMemoryValueGeneratorSelector>();
 
             Assert.Equal(
-                CoreStrings.NoValueGenerator("Float", "AnEntity", typeof(float).Name),
-                Assert.Throws<NotSupportedException>(() => selector.Select(entityType.GetProperty("Float"))).Message);
+                CoreStrings.NoValueGenerator("Random", "AnEntity", typeof(Random).Name),
+                Assert.Throws<NotSupportedException>(() => selector.Select(entityType.GetProperty("Random"))).Message);
         }
 
         private static Model BuildModel(bool generateValues = true)
         {
             var model = InMemoryTestHelpers.Instance.BuildModelFor<AnEntity>();
             var entityType = model.GetEntityType(typeof(AnEntity));
+            entityType.AddProperty("Random", typeof(Random));
 
             foreach (var property in entityType.Properties)
             {
@@ -90,6 +91,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             public Guid Guid { get; set; }
             public byte[] Binary { get; set; }
             public float Float { get; set; }
+            public Random Random { get; set; }
         }
     }
 }

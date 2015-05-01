@@ -1445,7 +1445,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         public class TestInMemoryValueGeneratorSelector : InMemoryValueGeneratorSelector
         {
-            private readonly TemporaryIntegerValueGeneratorFactory _inMemoryFactory = new TemporaryIntegerValueGeneratorFactory();
+            private readonly TemporaryNumberValueGeneratorFactory _inMemoryFactory = new TemporaryNumberValueGeneratorFactory();
 
             public TestInMemoryValueGeneratorSelector(IInMemoryValueGeneratorCache cache)
                 : base(cache)

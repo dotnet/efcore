@@ -14,14 +14,20 @@ namespace Microsoft.Data.Entity.ValueGeneration
         private readonly ValueGeneratorFactory<GuidValueGenerator> _guidFactory
             = new ValueGeneratorFactory<GuidValueGenerator>();
 
-        private readonly TemporaryIntegerValueGeneratorFactory _integerFactory
-            = new TemporaryIntegerValueGeneratorFactory();
+        private readonly TemporaryNumberValueGeneratorFactory _numberFactory
+            = new TemporaryNumberValueGeneratorFactory();
 
         private readonly ValueGeneratorFactory<TemporaryStringValueGenerator> _stringFactory
             = new ValueGeneratorFactory<TemporaryStringValueGenerator>();
 
         private readonly ValueGeneratorFactory<TemporaryBinaryValueGenerator> _binaryFactory
             = new ValueGeneratorFactory<TemporaryBinaryValueGenerator>();
+
+        private readonly ValueGeneratorFactory<TemporaryDateTimeValueGenerator> _dateTimeFactory
+            = new ValueGeneratorFactory<TemporaryDateTimeValueGenerator>();
+
+        private readonly ValueGeneratorFactory<TemporaryDateTimeOffsetValueGenerator> _dateTimeOffsetFactory
+            = new ValueGeneratorFactory<TemporaryDateTimeOffsetValueGenerator>();
 
         public abstract ValueGenerator Select(IProperty property);
 
@@ -30,14 +36,18 @@ namespace Microsoft.Data.Entity.ValueGeneration
             Check.NotNull(property, nameof(property));
 
             var propertyType = property.ClrType.UnwrapNullableType();
+
             if (propertyType == typeof(Guid))
             {
                 return _guidFactory.Create(property);
             }
 
-            if (propertyType.UnwrapNullableType().IsInteger())
+            if (propertyType.IsInteger()
+                || propertyType == typeof(decimal)
+                || propertyType == typeof(float)
+                || propertyType == typeof(double))
             {
-                return _integerFactory.Create(property);
+                return _numberFactory.Create(property);
             }
 
             if (propertyType == typeof(string))
@@ -48,6 +58,16 @@ namespace Microsoft.Data.Entity.ValueGeneration
             if (propertyType == typeof(byte[]))
             {
                 return _binaryFactory.Create(property);
+            }
+
+            if (propertyType == typeof(DateTime))
+            {
+                return _dateTimeFactory.Create(property);
+            }
+
+            if (propertyType == typeof(DateTimeOffset))
+            {
+                return _dateTimeOffsetFactory.Create(property);
             }
 
             throw new NotSupportedException(

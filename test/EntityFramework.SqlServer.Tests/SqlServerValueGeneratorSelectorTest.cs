@@ -22,26 +22,26 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorSelector>();
 
-            Assert.IsType<TemporaryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("Id")));
-            Assert.IsType<TemporaryIntegerValueGenerator<long>>(selector.Select(entityType.GetProperty("Long")));
-            Assert.IsType<TemporaryIntegerValueGenerator<short>>(selector.Select(entityType.GetProperty("Short")));
-            Assert.IsType<TemporaryIntegerValueGenerator<byte>>(selector.Select(entityType.GetProperty("Byte")));
-            Assert.IsType<TemporaryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("NullableInt")));
-            Assert.IsType<TemporaryIntegerValueGenerator<long>>(selector.Select(entityType.GetProperty("NullableLong")));
-            Assert.IsType<TemporaryIntegerValueGenerator<short>>(selector.Select(entityType.GetProperty("NullableShort")));
-            Assert.IsType<TemporaryIntegerValueGenerator<byte>>(selector.Select(entityType.GetProperty("NullableByte")));
-            Assert.IsType<TemporaryIntegerValueGenerator<uint>>(selector.Select(entityType.GetProperty("UInt")));
-            Assert.IsType<TemporaryIntegerValueGenerator<ulong>>(selector.Select(entityType.GetProperty("ULong")));
-            Assert.IsType<TemporaryIntegerValueGenerator<ushort>>(selector.Select(entityType.GetProperty("UShort")));
-            Assert.IsType<TemporaryIntegerValueGenerator<sbyte>>(selector.Select(entityType.GetProperty("SByte")));
-            Assert.IsType<TemporaryIntegerValueGenerator<uint>>(selector.Select(entityType.GetProperty("NullableUInt")));
-            Assert.IsType<TemporaryIntegerValueGenerator<ulong>>(selector.Select(entityType.GetProperty("NullableULong")));
-            Assert.IsType<TemporaryIntegerValueGenerator<ushort>>(selector.Select(entityType.GetProperty("NullableUShort")));
-            Assert.IsType<TemporaryIntegerValueGenerator<sbyte>>(selector.Select(entityType.GetProperty("NullableSByte")));
+            Assert.IsType<TemporaryNumberValueGenerator<int>>(selector.Select(entityType.GetProperty("Id")));
+            Assert.IsType<TemporaryNumberValueGenerator<long>>(selector.Select(entityType.GetProperty("Long")));
+            Assert.IsType<TemporaryNumberValueGenerator<short>>(selector.Select(entityType.GetProperty("Short")));
+            Assert.IsType<TemporaryNumberValueGenerator<byte>>(selector.Select(entityType.GetProperty("Byte")));
+            Assert.IsType<TemporaryNumberValueGenerator<int>>(selector.Select(entityType.GetProperty("NullableInt")));
+            Assert.IsType<TemporaryNumberValueGenerator<long>>(selector.Select(entityType.GetProperty("NullableLong")));
+            Assert.IsType<TemporaryNumberValueGenerator<short>>(selector.Select(entityType.GetProperty("NullableShort")));
+            Assert.IsType<TemporaryNumberValueGenerator<byte>>(selector.Select(entityType.GetProperty("NullableByte")));
+            Assert.IsType<TemporaryNumberValueGenerator<uint>>(selector.Select(entityType.GetProperty("UInt")));
+            Assert.IsType<TemporaryNumberValueGenerator<ulong>>(selector.Select(entityType.GetProperty("ULong")));
+            Assert.IsType<TemporaryNumberValueGenerator<ushort>>(selector.Select(entityType.GetProperty("UShort")));
+            Assert.IsType<TemporaryNumberValueGenerator<sbyte>>(selector.Select(entityType.GetProperty("SByte")));
+            Assert.IsType<TemporaryNumberValueGenerator<uint>>(selector.Select(entityType.GetProperty("NullableUInt")));
+            Assert.IsType<TemporaryNumberValueGenerator<ulong>>(selector.Select(entityType.GetProperty("NullableULong")));
+            Assert.IsType<TemporaryNumberValueGenerator<ushort>>(selector.Select(entityType.GetProperty("NullableUShort")));
+            Assert.IsType<TemporaryNumberValueGenerator<sbyte>>(selector.Select(entityType.GetProperty("NullableSByte")));
             Assert.IsType<TemporaryStringValueGenerator>(selector.Select(entityType.GetProperty("String")));
             Assert.IsType<SequentialGuidValueGenerator>(selector.Select(entityType.GetProperty("Guid")));
             Assert.IsType<TemporaryBinaryValueGenerator>(selector.Select(entityType.GetProperty("Binary")));
-            Assert.IsType<TemporaryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("AlwaysIdentity")));
+            Assert.IsType<TemporaryNumberValueGenerator<int>>(selector.Select(entityType.GetProperty("AlwaysIdentity")));
             Assert.IsType<SqlServerSequenceValueGenerator<int>>(selector.Select(entityType.GetProperty("AlwaysSequence")));
         }
 
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.IsType<TemporaryStringValueGenerator>(selector.Select(entityType.GetProperty("String")));
             Assert.IsType<SequentialGuidValueGenerator>(selector.Select(entityType.GetProperty("Guid")));
             Assert.IsType<TemporaryBinaryValueGenerator>(selector.Select(entityType.GetProperty("Binary")));
-            Assert.IsType<TemporaryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("AlwaysIdentity")));
+            Assert.IsType<TemporaryNumberValueGenerator<int>>(selector.Select(entityType.GetProperty("AlwaysIdentity")));
             Assert.IsType<SqlServerSequenceValueGenerator<int>>(selector.Select(entityType.GetProperty("AlwaysSequence")));
         }
 
@@ -86,8 +86,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorSelector>();
 
             Assert.Equal(
-                CoreStrings.NoValueGenerator("Float", "AnEntity", typeof(float).Name),
-                Assert.Throws<NotSupportedException>(() => selector.Select(entityType.GetProperty("Float"))).Message);
+                CoreStrings.NoValueGenerator("Random", "AnEntity", typeof(Random).Name),
+                Assert.Throws<NotSupportedException>(() => selector.Select(entityType.GetProperty("Random"))).Message);
         }
 
         [Fact]
@@ -113,13 +113,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorSelector>();
 
-            Assert.IsType<TemporaryIntegerValueGenerator<int>>(selector.Select(property));
+            Assert.IsType<TemporaryNumberValueGenerator<int>>(selector.Select(property));
         }
 
         private static Model BuildModel(bool generateValues = true)
         {
             var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
             var entityType = model.GetEntityType(typeof(AnEntity));
+            entityType.AddProperty("Random", typeof(Random));
 
             foreach (var property in entityType.Properties)
             {
@@ -157,6 +158,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             public float Float { get; set; }
             public int AlwaysIdentity { get; set; }
             public int AlwaysSequence { get; set; }
+            public Random Random { get; set; }
         }
     }
 }

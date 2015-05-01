@@ -167,11 +167,13 @@
     <Compile Include="Utilities\TypeNameHelperTest.cs" />
     <Compile Include="ValueGeneration\GuidValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\SequentialGuidValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryDateTimeOffsetValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryDateTimeValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorCacheTest.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorFactoryTest.cs" />
     <Compile Include="ValueGeneration\TemporaryBinaryValueGeneratorTest.cs" />
-    <Compile Include="ValueGeneration\TemporaryIntegerValueGeneratorFactoryTest.cs" />
-    <Compile Include="ValueGeneration\TemporaryIntegerValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryNumberValueGeneratorFactoryTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryNumberValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\TemporaryStringValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorSelectorTest.cs" />
     <None Include="packages.config" />

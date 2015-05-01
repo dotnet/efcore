@@ -14,42 +14,44 @@ namespace Microsoft.Data.Entity.InMemory
         {
             Check.NotNull(property, nameof(property));
 
-            if (property.ClrType.UnwrapNullableType() == typeof(long))
+            var type = property.ClrType.UnwrapNullableType();
+
+            if (type == typeof(long))
             {
                 return new InMemoryIntegerValueGenerator<long>();
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(int))
+            if (type == typeof(int))
             {
                 return new InMemoryIntegerValueGenerator<int>();
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(short))
+            if (type == typeof(short))
             {
                 return new InMemoryIntegerValueGenerator<short>();
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(byte))
+            if (type == typeof(byte))
             {
                 return new InMemoryIntegerValueGenerator<byte>();
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(ulong))
+            if (type == typeof(ulong))
             {
                 return new InMemoryIntegerValueGenerator<ulong>();
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(uint))
+            if (type == typeof(uint))
             {
                 return new InMemoryIntegerValueGenerator<uint>();
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(ushort))
+            if (type == typeof(ushort))
             {
                 return new InMemoryIntegerValueGenerator<ushort>();
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(sbyte))
+            if (type == typeof(sbyte))
             {
                 return new InMemoryIntegerValueGenerator<sbyte>();
             }

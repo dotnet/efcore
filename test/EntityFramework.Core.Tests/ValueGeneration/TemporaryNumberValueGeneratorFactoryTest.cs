@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ValueGeneration
 {
-    public class TemporaryIntegerValueGeneratorFactoryTest
+    public class TemporaryNumberValueGeneratorFactoryTest
     {
         private static readonly Model _model = TestHelpers.Instance.BuildModelFor<AnEntity>();
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
 
         private static object CreateAndUseFactory(IProperty property)
         {
-            return new TemporaryIntegerValueGeneratorFactory().Create(property).Next();
+            return new TemporaryNumberValueGeneratorFactory().Create(property).Next();
         }
 
         [Fact]
@@ -47,8 +47,8 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("BadCheese");
 
             Assert.Equal(
-                Strings.InvalidValueGeneratorFactoryProperty(nameof(TemporaryIntegerValueGeneratorFactory), "BadCheese", "AnEntity"),
-                Assert.Throws<ArgumentException>(() => new TemporaryIntegerValueGeneratorFactory().Create(property)).Message);
+                Strings.InvalidValueGeneratorFactoryProperty(nameof(TemporaryNumberValueGeneratorFactory), "BadCheese", "AnEntity"),
+                Assert.Throws<ArgumentException>(() => new TemporaryNumberValueGeneratorFactory().Create(property)).Message);
         }
 
         private class AnEntity
