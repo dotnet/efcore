@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var selectExpression = new SelectExpression();
             var tableName = QueryModelVisitor.QueryCompilationContext.GetTableName(entityType);
 
-            var alias = _querySource.ItemName.StartsWith("<generated>_")
+            var alias = _querySource.HasGeneratedItemName()
                 ? tableName[0].ToString().ToLower()
                 : _querySource.ItemName;
 

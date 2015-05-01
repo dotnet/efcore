@@ -69,6 +69,7 @@
     <Compile Include="MappingQueryTestBase.cs" />
     <Compile Include="MappingQueryFixtureBase.cs" />
     <Compile Include="NullSemanticsQueryRelationalFixture.cs" />
+    <Compile Include="NullSemanticsQueryTestBase.cs" />
     <Compile Include="PropertyEntryTestBase.cs" />
     <Compile Include="ComplexNavigationsQueryRelationalFixture.cs" />
     <Compile Include="F1RelationalFixture.cs" />

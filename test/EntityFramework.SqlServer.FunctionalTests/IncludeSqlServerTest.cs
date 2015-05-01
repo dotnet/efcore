@@ -9,6 +9,26 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class IncludeSqlServerTest : IncludeTestBase<NorthwindQuerySqlServerFixture>
     {
+        public override void Include_list()
+        {
+            base.Include_list();
+
+            Assert.Equal(
+                @"SELECT [c].[ProductID], [c].[Discontinued], [c].[ProductName], [c].[UnitsInStock]
+FROM [Products] AS [c]
+ORDER BY [c].[ProductID]
+
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Order Details] AS [o]
+INNER JOIN (
+    SELECT DISTINCT [c].[ProductID]
+    FROM [Products] AS [c]
+) AS [c] ON [o].[ProductID] = [c].[ProductID]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+ORDER BY [c].[ProductID]",
+                Sql);
+        }
+
         public override void Include_collection()
         {
             base.Include_collection();

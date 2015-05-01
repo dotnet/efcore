@@ -211,6 +211,22 @@ FROM Customers").Where(c => c.City == "London"),
             }
         }
 
+        [Fact]
+        public virtual void From_sql_composed_with_nullable_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.FromSql("SELECT * FROM Customers").Where(c => c.ContactName == c.CompanyName),
+                cs => cs.Where(c => c.ContactName == c.CompanyName));
+        }
+
+        [Fact]
+        public virtual void From_sql_composed_with_relational_null_comparison()
+        {
+            AssertQuery<Customer>(
+                cs => cs.UseRelationalNullSemantics().FromSql("SELECT * FROM Customers").Where(c => c.ContactName == c.CompanyName),
+                cs => cs.Where(c => c.ContactName == c.CompanyName));
+        }
+
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();

@@ -36,6 +36,16 @@ namespace Microsoft.Data.Entity.Internal
                         ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<IEntityQueryProvider>()));
         }
 
+
+        public InternalDbSet([NotNull] IQueryable<TEntity> source, [NotNull] DbSet<TEntity> dbSet)
+        {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(dbSet, nameof(dbSet));
+
+            _context = ((InternalDbSet<TEntity>)dbSet)._context;
+            _entityQueryable = new LazyRef<EntityQueryable<TEntity>>(() => (EntityQueryable<TEntity>)source);
+        }
+
         public override EntityEntry<TEntity> Add(TEntity entity)
         {
             Check.NotNull(entity, nameof(entity));

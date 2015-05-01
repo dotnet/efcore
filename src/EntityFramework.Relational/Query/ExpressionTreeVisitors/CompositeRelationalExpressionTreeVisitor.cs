@@ -4,11 +4,19 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Remotion.Linq.Parsing;
+using Microsoft.Data.Entity.Relational.Query.Expressions;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
     public class CompositePredicateExpressionTreeVisitor : ExpressionTreeVisitor
     {
+        private bool _useRelationalNullSemantics;
+
+        public CompositePredicateExpressionTreeVisitor(bool useRelationalNullSemantics)
+        {
+            _useRelationalNullSemantics = useRelationalNullSemantics;
+        }
+
         public override Expression VisitExpression(
             [NotNull] Expression expression)
         {
@@ -38,7 +46,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var parameterDectector = new ParameterExpressionDetectingVisitor();
             parameterDectector.VisitExpression(currentExpression);
 
-            if (!parameterDectector.ContainsParameters)
+            if (!parameterDectector.ContainsParameters && !_useRelationalNullSemantics)
             {
                 var optimizedNullExpansionVisitor = new NullSemanticsOptimizedExpandingVisitor();
                 var nullSemanticsExpandedOptimized = optimizedNullExpansionVisitor.VisitExpression(currentExpression);
@@ -53,16 +61,18 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
             }
 
+            if (_useRelationalNullSemantics)
+            {
+                currentExpression = new NotNullableExpression(currentExpression);
+            }
+
             var negationOptimized3 =
                 new PredicateNegationExpressionOptimizer()
                     .VisitExpression(currentExpression);
 
             currentExpression = negationOptimized3;
 
-            var reducedExpression = new ReducingExpressionVisitor()
-                .VisitExpression(currentExpression);
-
-            return reducedExpression;
+            return currentExpression;
         }
 
         private class ReducingExpressionVisitor : ExpressionTreeVisitor

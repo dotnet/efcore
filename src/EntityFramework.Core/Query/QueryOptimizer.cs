@@ -76,7 +76,15 @@ namespace Microsoft.Data.Entity.Query
             {
                 var innerMainFromClause = subQueryExpression.QueryModel.MainFromClause;
 
+                var isGeneratedNameOuter = fromClause.HasGeneratedItemName();
+                var outerItemName = fromClause.ItemName;
                 CopyFromClauseData(innerMainFromClause, fromClause);
+
+                if (innerMainFromClause.HasGeneratedItemName()
+                    && !isGeneratedNameOuter)
+                {
+                    fromClause.ItemName = outerItemName;
+                }
 
                 var innerSelectorMapping = new QuerySourceMapping();
 

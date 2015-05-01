@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Remotion.Linq.Parsing;
+using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
@@ -15,6 +17,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             isNullExpressionBuilder.VisitExpression(expression);
 
             return isNullExpressionBuilder.ResultExpression;
+        }
+
+        protected override Expression VisitExtensionExpression(ExtensionExpression expression)
+        {
+            return expression is NotNullableExpression 
+                ? expression
+                : base.VisitExtensionExpression(expression);
         }
     }
 }

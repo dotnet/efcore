@@ -150,6 +150,7 @@
     <Compile Include="UntypedValueBufferFactory.cs" />
     <Compile Include="UntypedValueBufferFactoryFactory.cs" />
     <Compile Include="Query\Annotations\FromSqlQueryAnnotation.cs" />
+    <Compile Include="Query\Annotations\UseRelationalNullSemanticsQueryAnnotation.cs" />
     <Compile Include="Query\AsyncQueryingEnumerable.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\CommandBuilder.cs" />

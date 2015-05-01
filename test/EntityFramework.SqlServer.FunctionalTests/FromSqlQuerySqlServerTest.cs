@@ -212,6 +212,32 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
+        public override void From_sql_composed_with_nullable_predicate()
+        {
+            base.From_sql_composed_with_nullable_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM Customers
+) AS [c]
+WHERE ([c].[ContactName] = [c].[CompanyName] OR ([c].[ContactName] IS NULL AND [c].[CompanyName] IS NULL))",
+                Sql);
+        }
+
+        public override void From_sql_composed_with_relational_null_comparison()
+        {
+            base.From_sql_composed_with_relational_null_comparison();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM Customers
+) AS [c]
+WHERE [c].[ContactName] = [c].[CompanyName]",
+                Sql);
+        }
+
         public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture)
             : base(fixture)
         {

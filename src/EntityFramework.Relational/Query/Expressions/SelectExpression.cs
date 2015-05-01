@@ -278,6 +278,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public virtual int AddAliasToProjection([CanBeNull] string alias, [NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
+
             var projectionIndex = -1;
             var columnExpression = expression as ColumnExpression;
 

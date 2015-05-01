@@ -947,6 +947,76 @@ WHERE ([e].[NullableStringA] LIKE ('%' + [e].[NullableStringB] + '%') AND [e].[B
                 Sql);
         }
 
+        public override void Where_equal_using_relational_null_semantics()
+        {
+            base.Where_equal_using_relational_null_semantics();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableBoolA] = [e].[NullableBoolB]",
+                Sql);
+        }
+
+        public override void Where_equal_using_relational_null_semantics_with_parameter()
+        {
+            base.Where_equal_using_relational_null_semantics_with_parameter();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableBoolA] IS NULL",
+                Sql);
+        }
+
+        public override void Where_equal_using_relational_null_semantics_complex_with_parameter()
+        {
+            base.Where_equal_using_relational_null_semantics_complex_with_parameter();
+
+            Assert.Equal(
+                @"__prm_0: False
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE ([e].[NullableBoolA] = [e].[NullableBoolB] OR @__prm_0 = 1)",
+                Sql);
+        }
+
+        public override void Where_not_equal_using_relational_null_semantics()
+        {
+            base.Where_not_equal_using_relational_null_semantics();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]",
+                Sql);
+        }
+
+        public override void Where_not_equal_using_relational_null_semantics_with_parameter()
+        {
+            base.Where_not_equal_using_relational_null_semantics_with_parameter();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableBoolA] IS NOT NULL",
+                Sql);
+        }
+
+        public override void Where_not_equal_using_relational_null_semantics_complex_with_parameter()
+        {
+            base.Where_not_equal_using_relational_null_semantics_complex_with_parameter();
+
+            Assert.Equal(
+                @"__prm_0: False
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE ([e].[NullableBoolA] <> [e].[NullableBoolB] OR @__prm_0 = 1)",
+                Sql);
+        }
+
         private static string Sql
         {
             get { return TestSqlLoggerFactory.Sql; }

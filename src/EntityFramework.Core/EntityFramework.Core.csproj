@@ -197,6 +197,7 @@
     <Compile Include="Query\ExpressionTreeVisitors\ExpressionTreeVisitorBase.cs" />
     <Compile Include="Query\IEntityQueryProvider.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />
+    <Compile Include="Query\SharedQueryExtensions.cs" />
     <Compile Include="DbSet`.cs" />
     <Compile Include="EntityState.cs" />
     <Compile Include="Extensions\EntityFrameworkTaskExtensions.cs" />
