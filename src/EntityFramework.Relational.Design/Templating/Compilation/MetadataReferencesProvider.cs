@@ -43,6 +43,8 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
 
         private void InitializeReferences()
         {
+            _isInitialized = true;
+
 #if DNXCORE50 || NETCORE50
             AddReferenceFromName("System.Collections");
             AddReferenceFromName("System.Dynamic.Runtime");
@@ -61,7 +63,6 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
                 Assembly.Load(new AssemblyName("Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"))));
 #endif
             AddReferenceFromName("EntityFramework.Relational.Design");
-            _isInitialized = true;
         }
 
         public virtual void AddReferenceFromName([NotNull]string name)

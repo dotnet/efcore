@@ -1,0 +1,21 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public class OneToManyPrincipal
+    {
+        public OneToManyPrincipal()
+        {
+            OneToManyDependent = new HashSet<OneToManyDependent>();
+        }
+
+        public int OneToManyPrincipalID1 { get; set; }
+        public int OneToManyPrincipalID2 { get; set; }
+        public string Other { get; set; }
+
+        public virtual ICollection<OneToManyDependent> OneToManyDependent { get; set; }
+    }
+}
