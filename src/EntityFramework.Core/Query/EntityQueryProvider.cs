@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -15,6 +16,10 @@ namespace Microsoft.Data.Entity.Query
 {
     public class EntityQueryProvider : IEntityQueryProvider
     {
+        private static readonly MethodInfo _genericCreateQueryMethod
+            = typeof(EntityQueryProvider).GetRuntimeMethods()
+                .Single(m => m.Name == "CreateQuery" && m.IsGenericMethod);
+
         private readonly DbContext _context;
         private readonly IDataStore _dataStore;
         private readonly ICompiledQueryCache _compiledQueryCache;
@@ -48,7 +53,11 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(expression, nameof(expression));
 
-            return CreateQuery<object>(expression);
+            var sequenceType = expression.Type.GetSequenceType();
+
+            return (IQueryable)_genericCreateQueryMethod
+                .MakeGenericMethod(sequenceType)
+                .Invoke(this, new object[] { expression });
         }
 
         public virtual TResult Execute<TResult>([NotNull] Expression expression)
@@ -60,6 +69,13 @@ namespace Microsoft.Data.Entity.Query
             queryContext.ContextType = _context.GetType();
 
             return _compiledQueryCache.Execute<TResult>(expression, _dataStore, queryContext);
+        }
+
+        public virtual object Execute([NotNull] Expression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            return Execute<object>(expression);
         }
 
         public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
@@ -84,11 +100,6 @@ namespace Microsoft.Data.Entity.Query
 
             return _compiledQueryCache
                 .ExecuteAsync<TResult>(expression, _dataStore, queryContext, cancellationToken);
-        }
-
-        public virtual object Execute([NotNull] Expression expression)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -11,15 +11,5 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             : base(fixture)
         {
         }
-
-        public override void Where_simple_shadow_projection()
-        {
-            base.Where_simple_shadow_projection();
-        }
-
-        public override void Where_simple_shadow_subquery()
-        {
-            base.Where_simple_shadow_subquery();
-        }
     }
 }

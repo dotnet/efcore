@@ -46,7 +46,6 @@ namespace Microsoft.Data.Entity.Relational
                 Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)),
                 Check.NotNull(loggerFactory, nameof(loggerFactory)))
         {
-            ValueBufferFactoryFactory = valueBufferFactoryFactory;
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(batchPreparer, nameof(batchPreparer));
             Check.NotNull(batchExecutor, nameof(batchExecutor));
@@ -58,6 +57,8 @@ namespace Microsoft.Data.Entity.Relational
             _batchExecutor = batchExecutor;
             _connection = connection;
             _options = options;
+
+            ValueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
         public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }

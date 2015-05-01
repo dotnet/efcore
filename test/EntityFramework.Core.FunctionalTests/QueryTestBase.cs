@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Tests;
@@ -3262,6 +3263,31 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .ToList();
 
                 Assert.Equal(91, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_cast_CreateQuery_result_to_IQueryable_T_bug_1730()
+        {
+            using (var context = CreateContext())
+            {
+                IQueryable<Product> products = context.Products;
+
+                products = (IQueryable<Product>)products.Provider.CreateQuery(products.Expression);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_execute_non_generic()
+        {
+            using (var context = CreateContext())
+            {
+                IQueryable<Product> products = context.Products;
+
+                Assert.NotNull(products.Provider.Execute(
+                    Expression.Call(
+                        new LinqOperatorProvider().First.MakeGenericMethod(typeof(Product)),
+                        products.Expression)));
             }
         }
 
