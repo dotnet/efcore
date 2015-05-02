@@ -180,7 +180,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
 
             builder
                 .Append("CREATE SCHEMA ")
-                .Append(_sql.DelimitIdentifier(operation.Name));
+                .Append(_sql.DelimitIdentifier(operation.Name))
+                .AppendLine()
+                .Append(_sql.BatchSeparator);
         }
 
         public virtual void Generate(
