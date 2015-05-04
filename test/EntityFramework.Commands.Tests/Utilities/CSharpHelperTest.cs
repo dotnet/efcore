@@ -141,5 +141,28 @@ namespace Microsoft.Data.Entity.Commands.Utilities
                 () => new CSharpHelper().UnknownLiteral(new object()));
             Assert.Equal(Strings.UnknownLiteral(typeof(object)), ex.Message);
         }
+
+        [Fact]
+        public void Reference_works_when_nested()
+        {
+            Assert.Equal(
+                "CSharpHelperTest.Nested",
+                new CSharpHelper().Reference(typeof(Nested)));
+        }
+
+        [Fact]
+        public void Reference_works_when_nested_more()
+        {
+            Assert.Equal(
+                "CSharpHelperTest.Nested.DoubleNested",
+                new CSharpHelper().Reference(typeof(Nested.DoubleNested)));
+        }
+
+        private class Nested
+        {
+            public class DoubleNested
+            {
+            }
+        }
     }
 }

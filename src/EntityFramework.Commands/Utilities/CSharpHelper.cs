@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             }
             if (type.IsNested)
             {
-                return type.Name.Replace('+', '.');
+                return Reference(type.DeclaringType) + "." + type.Name;
             }
 
             string builtInType;
