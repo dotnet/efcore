@@ -24,15 +24,19 @@ namespace Microsoft.Data.Entity.Commands
         private readonly ILibraryManager _libraryManager;
         private readonly MigrationTool _migrationTool;
         private readonly DatabaseTool _databaseTool;
+        private readonly IRuntimeEnvironment _runtimeEnv;
         private CommandLineApplication _app;
 
         public Program([NotNull] IServiceProvider serviceProvider,
-            [NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager)
+            [NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager,
+            [NotNull] IRuntimeEnvironment runtimeEnv)
         {
             Check.NotNull(serviceProvider, nameof(serviceProvider));
             Check.NotNull(appEnv, nameof(appEnv));
             Check.NotNull(libraryManager, nameof(libraryManager));
+            Check.NotNull(runtimeEnv, nameof(runtimeEnv));
 
+            _runtimeEnv = runtimeEnv;
             _projectDir = appEnv.ApplicationBasePath;
             _rootNamespace = appEnv.ApplicationName;
 
@@ -312,8 +316,9 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual int ShowHelp([CanBeNull] string command)
         {
+            bool useConsoleColors = _runtimeEnv.OperatingSystem == "Windows";
             // TODO: Enable multiple parameters in escape sequences
-            AnsiConsole.Output.WriteLine(
+            AnsiConsole.GetOutput(useConsoleColors).WriteLine(
                 "\x1b[1m\x1b[37m" + Environment.NewLine +
                 "                     _/\\__" + Environment.NewLine +
                 "               ---==/    \\\\" + Environment.NewLine +
