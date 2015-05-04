@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Relational.Migrations.Operations;
 
 namespace Microsoft.Data.Entity.Sqlite.Migrations
 {
-    public class SqliteHistoryRepository : ISqliteHistoryRepository
+    public class SqliteHistoryRepository : IHistoryRepository
     {
         public virtual string BeginIfExists(string migrationId)
         {

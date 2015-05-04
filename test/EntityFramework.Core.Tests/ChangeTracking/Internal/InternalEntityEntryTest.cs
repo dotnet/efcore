@@ -1295,7 +1295,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
 
             var customServices = new ServiceCollection()
-                .AddSingleton<IInMemoryValueGeneratorSelector, TestInMemoryValueGeneratorSelector>();
+                .AddScoped<IValueGeneratorSelector, TestInMemoryValueGeneratorSelector>();
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(customServices, model),
@@ -1382,7 +1382,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SecondDependent));
 
             var customServices = new ServiceCollection()
-                .AddSingleton<IInMemoryValueGeneratorSelector, TestInMemoryValueGeneratorSelector>();
+                .AddScoped<IValueGeneratorSelector, TestInMemoryValueGeneratorSelector>();
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(customServices, model),
@@ -1447,7 +1447,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             private readonly TemporaryNumberValueGeneratorFactory _inMemoryFactory = new TemporaryNumberValueGeneratorFactory();
 
-            public TestInMemoryValueGeneratorSelector(IInMemoryValueGeneratorCache cache)
+            public TestInMemoryValueGeneratorSelector(IValueGeneratorCache cache)
                 : base(cache)
             {
             }

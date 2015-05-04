@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
@@ -19,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var database = new SqlServerDatabase(
                 TestHelpers.Instance.CreateContext(),
-                Mock.Of<ISqlServerDataStoreCreator>(),
+                Mock.Of<IRelationalDataStoreCreator>(),
                 Mock.Of<ISqlServerConnection>(),
                 Mock.Of<IMigrator>(),
                 new LoggerFactory());

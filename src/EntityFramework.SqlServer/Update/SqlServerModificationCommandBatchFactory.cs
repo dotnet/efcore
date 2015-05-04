@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Update
 {
-    public class SqlServerModificationCommandBatchFactory : ModificationCommandBatchFactory, ISqlServerModificationCommandBatchFactory
+    public class SqlServerModificationCommandBatchFactory : ModificationCommandBatchFactory
     {
         public SqlServerModificationCommandBatchFactory(
             [NotNull] ISqlServerSqlGenerator sqlGenerator)

@@ -10,9 +10,8 @@ using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerValueGeneratorSelector : ValueGeneratorSelector, ISqlServerValueGeneratorSelector
+    public class SqlServerValueGeneratorSelector : ValueGeneratorSelector
     {
-        private readonly ISqlServerValueGeneratorCache _cache;
         private readonly ISqlServerSequenceValueGeneratorFactory _sequenceFactory;
 
         private readonly ValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory
@@ -24,15 +23,16 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] ISqlServerValueGeneratorCache cache,
             [NotNull] ISqlServerSequenceValueGeneratorFactory sequenceFactory,
             [NotNull] ISqlServerConnection connection)
+            : base(cache)
         {
-            Check.NotNull(cache, nameof(cache));
             Check.NotNull(sequenceFactory, nameof(sequenceFactory));
             Check.NotNull(connection, nameof(connection));
 
-            _cache = cache;
             _sequenceFactory = sequenceFactory;
             _connection = connection;
         }
+
+        public virtual new ISqlServerValueGeneratorCache Cache => (ISqlServerValueGeneratorCache)base.Cache;
 
         public override ValueGenerator Select(IProperty property)
         {
@@ -42,8 +42,8 @@ namespace Microsoft.Data.Entity.SqlServer
 
             return property.ClrType.IsInteger()
                    && strategy == SqlServerValueGenerationStrategy.Sequence
-                ? _sequenceFactory.Create(property, _cache.GetOrAddSequenceState(property), _connection)
-                : _cache.GetOrAdd(property, Create);
+                ? _sequenceFactory.Create(property, Cache.GetOrAddSequenceState(property), _connection)
+                : Cache.GetOrAdd(property, Create);
         }
 
         public override ValueGenerator Create(IProperty property)

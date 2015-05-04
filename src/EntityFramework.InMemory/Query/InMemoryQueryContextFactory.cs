@@ -10,7 +10,7 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.InMemory.Query
 {
-    public class InMemoryQueryContextFactory : QueryContextFactory, IInMemoryQueryContextFactory
+    public class InMemoryQueryContextFactory : QueryContextFactory
     {
         private readonly IInMemoryDataStore _dataStore;
 

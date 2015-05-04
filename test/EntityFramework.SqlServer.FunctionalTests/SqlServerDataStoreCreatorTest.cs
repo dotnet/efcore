@@ -382,9 +382,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .Service;
         }
 
-        private static ISqlServerDataStoreCreator GetDataStoreCreator(SqlServerTestStore testStore)
+        private static IRelationalDataStoreCreator GetDataStoreCreator(SqlServerTestStore testStore)
         {
-            return CreateContextServices(testStore).GetRequiredService<ISqlServerDataStoreCreator>();
+            return CreateContextServices(testStore).GetRequiredService<IRelationalDataStoreCreator>();
         }
 
         private class BloggingContext : DbContext

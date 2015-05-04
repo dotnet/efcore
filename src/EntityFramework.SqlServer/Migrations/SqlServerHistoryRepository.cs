@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations.History;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
@@ -13,18 +14,18 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.SqlServer.Migrations
 {
     // TODO: Log
-    public class SqlServerHistoryRepository : ISqlServerHistoryRepository
+    public class SqlServerHistoryRepository : IHistoryRepository
     {
         public const string MigrationHistoryTableName = "__MigrationHistory";
 
         private readonly ISqlServerConnection _connection;
-        private readonly ISqlServerDataStoreCreator _creator;
+        private readonly IRelationalDataStoreCreator _creator;
         private readonly Type _contextType;
         private readonly ISqlServerSqlGenerator _sql;
 
         public SqlServerHistoryRepository(
             [NotNull] ISqlServerConnection connection,
-            [NotNull] ISqlServerDataStoreCreator creator,
+            [NotNull] IRelationalDataStoreCreator creator,
             [NotNull] DbContext context,
             [NotNull] ISqlServerSqlGenerator sqlGenerator)
         {

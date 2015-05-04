@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerModelSource : ModelSource, ISqlServerModelSource
+    public class SqlServerModelSource : ModelSource
     {
         public SqlServerModelSource([NotNull] IDbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
             : base(setFinder, modelValidator)

@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             var model = CreateModel();
             var property1 = GetProperty1(model);
             var property2 = GetProperty2(model);
-            var cache = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IInMemoryValueGeneratorCache>();
+            var cache = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorCache>();
 
             var generator1 = cache.GetOrAdd(property1, p => new GuidValueGenerator());
             Assert.NotNull(generator1);

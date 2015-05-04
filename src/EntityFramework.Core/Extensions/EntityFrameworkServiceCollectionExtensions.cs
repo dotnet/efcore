@@ -7,10 +7,12 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.Caching.Memory;
 using Microsoft.Framework.Logging;
 
@@ -83,6 +85,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<IEntityEntryMetadataServices, EntityEntryMetadataServices>()
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .AddSingleton<ModelBuilderFactory>()
                 .AddScoped<IKeyPropagator, KeyPropagator>()
                 .AddScoped<INavigationFixer, NavigationFixer>()
                 .AddScoped<IStateManager, StateManager>()
@@ -96,6 +99,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<IEntityEntryGraphIterator, EntityEntryGraphIterator>()
                 .AddScoped<IDbContextServices, DbContextServices>()
                 .AddScoped<IDataStoreSelector, DataStoreSelector>()
+                .AddScoped<ValueGeneratorSelector>()
                 .AddScoped(p => GetContextServices(p).Model)
                 .AddScoped(p => GetContextServices(p).Context)
                 .AddScoped(p => GetContextServices(p).ContextOptions)
@@ -106,6 +110,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped(p => GetStoreServices(p).ValueGeneratorSelector)
                 .AddScoped(p => GetStoreServices(p).Creator)
                 .AddScoped(p => GetStoreServices(p).ModelBuilderFactory)
+                .AddScoped(p => GetStoreServices(p).ValueGeneratorCache)
+                .AddScoped(p => GetStoreServices(p).ModelSource)
                 .AddTransient<IMemoryCache, MemoryCache>()
                 .AddOptions());
 

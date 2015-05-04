@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Returns_appropriate_name()
         {
-            Assert.Equal(typeof(SqlServerDataStore).Name, new SqlServerDataStoreSource().Name);
+            Assert.Equal("SQL Server Data Store", new SqlServerDataStoreSource().Name);
         }
 
         [Fact]

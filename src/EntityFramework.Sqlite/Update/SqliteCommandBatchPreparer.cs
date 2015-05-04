@@ -4,29 +4,30 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.Sqlite.Query;
 
 namespace Microsoft.Data.Entity.Sqlite.Update
 {
-    public class SqliteCommandBatchPreparer : CommandBatchPreparer, ISqliteCommandBatchPreparer
+    public class SqliteCommandBatchPreparer : CommandBatchPreparer
     {
         public SqliteCommandBatchPreparer(
-            [NotNull] ISqliteModificationCommandBatchFactory modificationCommandBatchFactory,
+            [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
-            [NotNull] ISqliteValueBufferFactoryFactory valueBufferFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
-                  modificationCommandBatchFactory,
-                  parameterNameGeneratorFactory,
-                  modificationCommandComparer,
-                  valueBufferFactoryFactory)
+                modificationCommandBatchFactory,
+                parameterNameGeneratorFactory,
+                modificationCommandComparer,
+                valueBufferFactoryFactory)
         {
         }
 
         public override IRelationalEntityTypeExtensions GetEntityTypeExtensions(IEntityType entityType) =>
             entityType.Relational();
+
         public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property) => property.Relational();
     }
 }

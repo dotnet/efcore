@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public abstract class ValueGeneratorSelector : IValueGeneratorSelector
+    public class ValueGeneratorSelector : IValueGeneratorSelector
     {
         private readonly ValueGeneratorFactory<GuidValueGenerator> _guidFactory
             = new ValueGeneratorFactory<GuidValueGenerator>();
@@ -29,7 +29,21 @@ namespace Microsoft.Data.Entity.ValueGeneration
         private readonly ValueGeneratorFactory<TemporaryDateTimeOffsetValueGenerator> _dateTimeOffsetFactory
             = new ValueGeneratorFactory<TemporaryDateTimeOffsetValueGenerator>();
 
-        public abstract ValueGenerator Select(IProperty property);
+        public virtual IValueGeneratorCache Cache { get; }
+
+        public ValueGeneratorSelector([NotNull] IValueGeneratorCache cache)
+        {
+            Check.NotNull(cache, nameof(cache));
+
+            Cache = cache;
+        }
+
+        public virtual ValueGenerator Select(IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return Cache.GetOrAdd(property, Create);
+        }
 
         public virtual ValueGenerator Create([NotNull] IProperty property)
         {

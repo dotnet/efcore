@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerTypeMapper : RelationalTypeMapper, ISqlServerTypeMapper
+    public class SqlServerTypeMapper : RelationalTypeMapper
     {
         // This dictionary is for invariant mappings from a sealed CLR type to a single
         // store type. If the CLR type is unsealed or if the mapping varies based on how the

@@ -3,13 +3,14 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
 
 namespace Microsoft.Data.Entity.Sqlite.Update
 {
-    public class SqliteModificationCommandBatchFactory : ModificationCommandBatchFactory, ISqliteModificationCommandBatchFactory
+    public class SqliteModificationCommandBatchFactory : ModificationCommandBatchFactory
     {
-        public SqliteModificationCommandBatchFactory([NotNull] ISqliteSqlGenerator sqlGenerator)
+        public SqliteModificationCommandBatchFactory([NotNull] ISqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
         }

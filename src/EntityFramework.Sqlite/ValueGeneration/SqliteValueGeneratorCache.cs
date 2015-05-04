@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.Sqlite.ValueGeneration
 {
-    public class SqliteValueGeneratorCache : ValueGeneratorCache, ISqliteValueGeneratorCache
+    public class SqliteValueGeneratorCache : ValueGeneratorCache
     {
     }
 }

@@ -374,7 +374,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entity = entity ?? new Banana { Name = "Stand", Fk = 88 };
 
             var customServices = new ServiceCollection()
-                .AddSingleton<IInMemoryValueGeneratorSelector, TestInMemoryValueGeneratorSelector>();
+                .AddScoped<IValueGeneratorSelector, TestInMemoryValueGeneratorSelector>();
 
             var entry = TestHelpers.Instance.CreateContextServices(customServices, _model)
                 .GetRequiredService<IStateManager>()
@@ -469,7 +469,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             private readonly TemporaryNumberValueGeneratorFactory _inMemoryFactory = new TemporaryNumberValueGeneratorFactory();
 
-            public TestInMemoryValueGeneratorSelector(IInMemoryValueGeneratorCache cache)
+            public TestInMemoryValueGeneratorSelector(IValueGeneratorCache cache)
                 : base(cache)
             {
             }

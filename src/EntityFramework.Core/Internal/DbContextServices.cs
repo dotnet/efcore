@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -66,7 +67,17 @@ namespace Microsoft.Data.Entity.Internal
 
         public virtual IDbContextOptions ContextOptions => _contextOptions;
 
-        public virtual IDataStoreServices DataStoreServices => _dataStoreServices.Value;
+        public virtual IDataStoreServices DataStoreServices
+        {
+            get
+            {
+                Debug.Assert(
+                    _dataStoreServices != null,
+                    "DbContextServices not initialized. This may mean a service is registered as Singleton when it needs to be Scoped because it depends on other Scoped services.");
+
+                return _dataStoreServices.Value;
+            }
+        }
 
         public virtual IServiceProvider ServiceProvider => _provider;
 

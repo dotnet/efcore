@@ -10,7 +10,7 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SqliteDataStoreConnection : RelationalConnection, ISqliteConnection
+    public class SqliteDataStoreConnection : RelationalConnection
     {
         public SqliteDataStoreConnection([NotNull] IDbContextOptions options, [NotNull] ILoggerFactory loggerFactory)
             : base(options, loggerFactory)

@@ -5,10 +5,12 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SqliteDataStoreSource : DataStoreSource<SqliteDataStore, ISqliteDataStoreServices, SqliteOptionsExtension>
+    public class SqliteDataStoreSource : DataStoreSource<SqliteDataStoreServices, SqliteOptionsExtension>
     {
         public override void AutoConfigure(DbContextOptionsBuilder optionsBuilder)
         {
         }
+
+        public override string Name => "SQLite Data Store";
     }
 }

@@ -14,7 +14,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerMigrationSqlGenerator : MigrationSqlGenerator, ISqlServerMigrationSqlGenerator
+    public class SqlServerMigrationSqlGenerator : MigrationSqlGenerator
     {
         private readonly ISqlServerSqlGenerator _sql;
 

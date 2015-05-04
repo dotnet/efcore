@@ -62,22 +62,13 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>LoggingExtensions.cs</Link>
     </Compile>
-    <Compile Include="IInMemoryConnection.cs" />
     <Compile Include="IInMemoryDatabase.cs" />
-    <Compile Include="IInMemoryDatabaseFactory.cs" />
     <Compile Include="IInMemoryDataStore.cs" />
-    <Compile Include="IInMemoryDataStoreCreator.cs" />
-    <Compile Include="IInMemoryDataStoreServices.cs" />
-    <Compile Include="IInMemoryModelBuilderFactory.cs" />
-    <Compile Include="IInMemoryModelSource.cs" />
-    <Compile Include="IInMemoryValueGeneratorCache.cs" />
-    <Compile Include="IInMemoryValueGeneratorSelector.cs" />
     <Compile Include="InMemoryDatabaseExtensions.cs" />
     <Compile Include="InMemoryDatabaseFacade.cs" />
     <Compile Include="InMemoryDatabaseFactory.cs" />
     <Compile Include="InMemoryDataStoreServices.cs" />
     <Compile Include="InMemoryIntegerValueGeneratorFactory.cs" />
-    <Compile Include="InMemoryModelBuilderFactory.cs" />
     <Compile Include="InMemoryModelSource.cs" />
     <Compile Include="InMemoryOptionsExtension.cs" />
     <Compile Include="InMemoryConnection.cs" />
@@ -86,7 +77,6 @@
     <Compile Include="InMemoryDataStoreCreator.cs" />
     <Compile Include="InMemoryDataStoreSource.cs" />
     <Compile Include="Metadata\EntityTypeNameEqualityComparer.cs" />
-    <Compile Include="Query\IInMemoryQueryContextFactory.cs" />
     <Compile Include="Query\InMemoryQueryCompilationContext.cs" />
     <Compile Include="Query\InMemoryQueryContext.cs" />
     <Compile Include="Extensions\InMemoryDbContextOptionsExtensions.cs" />

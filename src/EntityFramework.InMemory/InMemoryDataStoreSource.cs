@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryDataStoreSource : DataStoreSource<InMemoryDataStore, IInMemoryDataStoreServices, InMemoryOptionsExtension>
+    public class InMemoryDataStoreSource : DataStoreSource<InMemoryDataStoreServices, InMemoryOptionsExtension>
     {
         public override void AutoConfigure(DbContextOptionsBuilder optionsBuilder)
         {
@@ -14,5 +14,7 @@ namespace Microsoft.Data.Entity.InMemory
 
             optionsBuilder.UseInMemoryStore();
         }
+
+        public override string Name => "In-Memory Data Store";
     }
 }

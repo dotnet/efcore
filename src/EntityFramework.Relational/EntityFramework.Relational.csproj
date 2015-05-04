@@ -147,6 +147,8 @@
     <Compile Include="Migrations\Sql\IMigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Sql\MigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Infrastructure\ModelDiffer.cs" />
+    <Compile Include="RelationalDatabaseFactory.cs" />
+    <Compile Include="RelationalDataStoreServices.cs" />
     <Compile Include="UntypedValueBufferFactory.cs" />
     <Compile Include="UntypedValueBufferFactoryFactory.cs" />
     <Compile Include="Query\Annotations\FromSqlQueryAnnotation.cs" />
@@ -218,7 +220,6 @@
     <Compile Include="RelationalDatabase.cs" />
     <Compile Include="RelationalDatabaseExtensions.cs" />
     <Compile Include="RelationalDataStoreCreator.cs" />
-    <Compile Include="RelationalDataStoreServiceFactories.cs" />
     <Compile Include="IRelationalDataStoreServices.cs" />
     <Compile Include="RelationalDbContextOptions.cs" />
     <Compile Include="RelationalDbSetExtensions.cs" />

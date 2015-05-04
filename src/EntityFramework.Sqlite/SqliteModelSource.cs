@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SqliteModelSource : ModelSource, ISqliteModelSource
+    public class SqliteModelSource : ModelSource
     {
         public SqliteModelSource([NotNull] IDbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
             : base(setFinder, modelValidator)

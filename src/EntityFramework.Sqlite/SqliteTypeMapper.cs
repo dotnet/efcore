@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SqliteTypeMapper : RelationalTypeMapper, ISqliteTypeMapper
+    public class SqliteTypeMapper : RelationalTypeMapper
     {
         private static readonly RelationalTypeMapping _integer = new RelationalTypeMapping("INTEGER", DbType.Int64);
         private static readonly RelationalTypeMapping _real = new RelationalTypeMapping("REAL", DbType.Double);

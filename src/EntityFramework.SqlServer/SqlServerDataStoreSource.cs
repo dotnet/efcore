@@ -5,10 +5,12 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerDataStoreSource : DataStoreSource<SqlServerDataStore, ISqlServerDataStoreServices, SqlServerOptionsExtension>
+    public class SqlServerDataStoreSource : DataStoreSource<SqlServerDataStoreServices, SqlServerOptionsExtension>
     {
         public override void AutoConfigure(DbContextOptionsBuilder optionsBuilder)
         {
         }
+
+        public override string Name => "SQL Server Data Store";
     }
 }

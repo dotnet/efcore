@@ -3,20 +3,21 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryDatabaseFactory : IInMemoryDatabaseFactory
+    public class InMemoryDatabaseFactory : IDatabaseFactory
     {
         private readonly DbContext _context;
-        private readonly IInMemoryDataStoreCreator _dataStoreCreator;
+        private readonly IDataStoreCreator _dataStoreCreator;
         private readonly ILoggerFactory _loggerFactory;
 
         public InMemoryDatabaseFactory(
             [NotNull] DbContext context,
-            [NotNull] IInMemoryDataStoreCreator dataStoreCreator,
+            [NotNull] IDataStoreCreator dataStoreCreator,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(context, nameof(context));

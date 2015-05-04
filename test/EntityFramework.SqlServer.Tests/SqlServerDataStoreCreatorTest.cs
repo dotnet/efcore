@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             connection.ErrorNumber = errorNumber;
             connection.FailAfter = 5;
 
-            var creator = contextServices.GetRequiredService<ISqlServerDataStoreCreator>();
+            var creator = contextServices.GetRequiredService<IRelationalDataStoreCreator>();
 
             if (async)
             {
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             connection.ErrorNumber = 233;
             connection.FailAfter = 100;
 
-            var creator = contextServices.GetRequiredService<ISqlServerDataStoreCreator>();
+            var creator = contextServices.GetRequiredService<IRelationalDataStoreCreator>();
 
             if (async)
             {

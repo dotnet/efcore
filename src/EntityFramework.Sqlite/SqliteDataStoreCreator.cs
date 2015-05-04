@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Sqlite.Migrations;
+using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.Utilities;
 
 #if NET45 || DNXCORE50
@@ -18,19 +18,19 @@ using System.Reflection;
 
 namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SqliteDataStoreCreator : RelationalDataStoreCreator, ISqliteDataStoreCreator
+    public class SqliteDataStoreCreator : RelationalDataStoreCreator
     {
         private const int SQLITE_CANTOPEN = 14;
 
-        private readonly ISqliteConnection _connection;
+        private readonly IRelationalConnection _connection;
         private readonly IModelDiffer _modelDiffer;
-        private readonly ISqliteMigrationSqlGenerator _migrationSqlGenerator;
+        private readonly IMigrationSqlGenerator _migrationSqlGenerator;
         private readonly ISqlStatementExecutor _executor;
 
         public SqliteDataStoreCreator(
-            [NotNull] ISqliteConnection connection,
+            [NotNull] IRelationalConnection connection,
             [NotNull] IModelDiffer modelDiffer,
-            [NotNull] ISqliteMigrationSqlGenerator migrationSqlGenerator,
+            [NotNull] IMigrationSqlGenerator migrationSqlGenerator,
             [NotNull] ISqlStatementExecutor sqlStatementExecutor)
         {
             Check.NotNull(connection, nameof(connection));

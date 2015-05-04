@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerModelBuilderFactory : ModelBuilderFactory, ISqlServerModelBuilderFactory
+    public class SqlServerModelBuilderFactory : ModelBuilderFactory
     {
         protected override ConventionSet CreateConventionSet()
         {

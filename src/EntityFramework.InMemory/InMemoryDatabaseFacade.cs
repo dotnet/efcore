@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.InMemory
@@ -11,7 +12,7 @@ namespace Microsoft.Data.Entity.InMemory
     {
         public InMemoryDatabaseFacade(
             [NotNull] DbContext context,
-            [NotNull] IInMemoryDataStoreCreator dataStoreCreator,
+            [NotNull] IDataStoreCreator dataStoreCreator,
             [NotNull] ILoggerFactory loggerFactory)
             : base(context, dataStoreCreator, loggerFactory)
         {

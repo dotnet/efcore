@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public override IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory) 
             => _testModelSource.GetModel(context, modelBuilderFactory);
 
-        public static Func<IServiceProvider, ISqlServerModelSource> GetFactory(Action<ModelBuilder> onModelCreating) 
+        public static Func<IServiceProvider, SqlServerModelSource> GetFactory(Action<ModelBuilder> onModelCreating) 
             => p => new TestSqlServerModelSource(onModelCreating, p.GetRequiredService<IDbSetFinder>(), p.GetRequiredService<IModelValidator>());
     }
 }

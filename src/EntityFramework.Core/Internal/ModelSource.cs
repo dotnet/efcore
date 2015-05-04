@@ -10,13 +10,13 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Internal
 {
-    public class ModelSource : IModelSource
+    public abstract class ModelSource : IModelSource
     {
         private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
         protected IDbSetFinder SetFinder { get; }
         protected IModelValidator Validator { get; }
 
-        public ModelSource([NotNull] IDbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
+        protected ModelSource([NotNull] IDbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
         {
             SetFinder = setFinder;
             Validator = modelValidator;

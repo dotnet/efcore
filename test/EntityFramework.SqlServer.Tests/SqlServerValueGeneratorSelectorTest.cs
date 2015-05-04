@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorSelector>();
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             Assert.IsType<TemporaryNumberValueGenerator<int>>(selector.Select(entityType.GetProperty("Id")));
             Assert.IsType<TemporaryNumberValueGenerator<long>>(selector.Select(entityType.GetProperty("Long")));
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorSelector>();
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             Assert.IsType<SqlServerSequenceValueGenerator<int>>(selector.Select(entityType.GetProperty("Id")));
             Assert.IsType<SqlServerSequenceValueGenerator<long>>(selector.Select(entityType.GetProperty("Long")));
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorSelector>();
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             Assert.Equal(
                 CoreStrings.NoValueGenerator("Random", "AnEntity", typeof(Random).Name),
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorSelector>();
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             Assert.IsType<SqlServerSequenceValueGenerator<int>>(selector.Select(entityType.GetProperty("Id")));
         }
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var property = entityType.GetProperty("Id");
             property.StoreGeneratedPattern = StoreGeneratedPattern.None;
 
-            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorSelector>();
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             Assert.IsType<TemporaryNumberValueGenerator<int>>(selector.Select(property));
         }

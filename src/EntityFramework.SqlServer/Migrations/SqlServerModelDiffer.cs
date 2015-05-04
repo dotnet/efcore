@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
@@ -13,9 +14,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Migrations
 {
-    public class SqlServerModelDiffer : ModelDiffer, ISqlServerModelDiffer
+    public class SqlServerModelDiffer : ModelDiffer
     {
-        public SqlServerModelDiffer([NotNull] ISqlServerTypeMapper typeMapper)
+        public SqlServerModelDiffer([NotNull] IRelationalTypeMapper typeMapper)
             : base(typeMapper)
         {
         }

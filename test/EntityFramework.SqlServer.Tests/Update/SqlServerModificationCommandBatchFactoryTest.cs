@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var batch = factory.Create(optionsBuilder.Options);
 
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new SqlServerValueBufferFactoryFactory())));
-            Assert.False(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new SqlServerValueBufferFactoryFactory())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
+            Assert.False(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
         }
 
         [Fact]
@@ -37,8 +37,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var batch = factory.Create(optionsBuilder.Options);
 
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new SqlServerValueBufferFactoryFactory())));
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new SqlServerValueBufferFactoryFactory())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
         }
 
         [Fact]
@@ -51,8 +51,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var batch = factory.Create(optionsBuilder.Options);
 
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new SqlServerValueBufferFactoryFactory())));
-            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new SqlServerValueBufferFactoryFactory())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
         }
 
         private class TestRelationalOptionsExtension : RelationalOptionsExtension

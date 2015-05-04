@@ -11,12 +11,12 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Sqlite.Migrations
 {
-    public class SqliteMigrationSqlGenerator : MigrationSqlGenerator, ISqliteMigrationSqlGenerator
+    public class SqliteMigrationSqlGenerator : MigrationSqlGenerator
     {
-        private readonly ISqliteSqlGenerator _sql;
+        private readonly ISqlGenerator _sql;
 
         public SqliteMigrationSqlGenerator(
-            [NotNull] ISqliteSqlGenerator sqlGenerator)
+            [NotNull] ISqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
             _sql = sqlGenerator;

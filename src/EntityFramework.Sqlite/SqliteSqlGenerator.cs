@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SqliteSqlGenerator : SqlGenerator, ISqliteSqlGenerator
+    public class SqliteSqlGenerator : SqlGenerator
     {
         protected override void AppendIdentityWhereCondition(StringBuilder builder, ColumnModification columnModification)
         {

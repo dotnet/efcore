@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
@@ -23,7 +24,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         public override IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory) 
             => _testModelSource.GetModel(context, modelBuilderFactory);
 
-        public static Func<IServiceProvider, IInMemoryModelSource> GetFactory(Action<ModelBuilder> onModelCreating) 
+        public static Func<IServiceProvider, InMemoryModelSource> GetFactory(Action<ModelBuilder> onModelCreating) 
             => p => new TestInMemoryModelSource(onModelCreating, p.GetRequiredService<IDbSetFinder>(), p.GetRequiredService<IModelValidator>());
     }
 }

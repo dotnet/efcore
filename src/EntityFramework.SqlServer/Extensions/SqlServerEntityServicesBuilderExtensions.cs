@@ -6,7 +6,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Migrations;
-using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -24,27 +23,22 @@ namespace Microsoft.Framework.DependencyInjection
             ((IAccessor<IServiceCollection>)builder.AddRelational()).Service
                 .AddSingleton<IDataStoreSource, SqlServerDataStoreSource>()
                 .TryAdd(new ServiceCollection()
-                    .AddSingleton<ISqlServerModelBuilderFactory, SqlServerModelBuilderFactory>()
+                    .AddSingleton<SqlServerModelBuilderFactory>()
                     .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                     .AddSingleton<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
                     .AddSingleton<ISqlServerSqlGenerator, SqlServerSqlGenerator>()
-                    .AddSingleton<ISqlStatementExecutor, SqlStatementExecutor>()
-                    .AddSingleton<ISqlServerTypeMapper, SqlServerTypeMapper>()
-                    .AddSingleton<ISqlServerModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
-                    .AddSingleton<ISqlServerCommandBatchPreparer, SqlServerCommandBatchPreparer>()
-                    .AddSingleton<ISqlServerModelSource, SqlServerModelSource>()
-                    .AddSingleton<ISqlServerValueBufferFactoryFactory, SqlServerValueBufferFactoryFactory>()
-                    .AddScoped<ISqlServerQueryContextFactory, SqlServerQueryContextFactory>()
-                    .AddScoped<ISqlServerValueGeneratorSelector, SqlServerValueGeneratorSelector>()
-                    .AddScoped<ISqlServerBatchExecutor, SqlServerBatchExecutor>()
-                    .AddScoped<ISqlServerDataStoreServices, SqlServerDataStoreServices>()
-                    .AddScoped<ISqlServerDataStore, SqlServerDataStore>()
+                    .AddSingleton<SqlServerTypeMapper>()
+                    .AddSingleton<SqlServerModificationCommandBatchFactory>()
+                    .AddSingleton<SqlServerModelSource>()
+                    .AddScoped<SqlServerCommandBatchPreparer>()
+                    .AddScoped<SqlServerValueGeneratorSelector>()
+                    .AddScoped<SqlServerDataStoreServices>()
+                    .AddScoped<SqlServerDataStore>()
                     .AddScoped<ISqlServerConnection, SqlServerConnection>()
-                    .AddScoped<ISqlServerModelDiffer, SqlServerModelDiffer>()
-                    .AddScoped<ISqlServerDatabaseFactory, SqlServerDatabaseFactory>()
-                    .AddScoped<ISqlServerMigrationSqlGenerator, SqlServerMigrationSqlGenerator>()
-                    .AddScoped<ISqlServerDataStoreCreator, SqlServerDataStoreCreator>()
-                    .AddScoped<ISqlServerHistoryRepository, SqlServerHistoryRepository>());
+                    .AddScoped<SqlServerModelDiffer>()
+                    .AddScoped<SqlServerMigrationSqlGenerator>()
+                    .AddScoped<SqlServerDataStoreCreator>()
+                    .AddScoped<SqlServerHistoryRepository>());
 
             return builder;
         }

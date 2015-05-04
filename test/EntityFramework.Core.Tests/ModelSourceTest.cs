@@ -64,6 +64,15 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         private IModelSource CreateDefaultModelSource(IDbSetFinder setFinder) 
-            => new ModelSource(setFinder, Mock.Of<IModelValidator>());
+            => new ConcreteModelSource(setFinder, Mock.Of<IModelValidator>());
+
+        private class ConcreteModelSource : ModelSource
+        {
+            public ConcreteModelSource(IDbSetFinder setFinder, IModelValidator modelValidator)
+                : base(setFinder, modelValidator)
+            {
+            }
+        }
+
     }
 }

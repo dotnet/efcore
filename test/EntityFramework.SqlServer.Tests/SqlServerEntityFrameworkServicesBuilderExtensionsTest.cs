@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer.Migrations;
-using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
@@ -30,28 +29,25 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifySingleton<IComparer<ModificationCommand>>();
 
             // SQL Server dingletones
-            VerifySingleton<ISqlServerModelBuilderFactory>();
+            VerifySingleton<SqlServerModelBuilderFactory>();
             VerifySingleton<ISqlServerValueGeneratorCache>();
             VerifySingleton<ISqlServerSequenceValueGeneratorFactory>();
             VerifySingleton<ISqlServerSqlGenerator>();
             VerifySingleton<ISqlStatementExecutor>();
-            VerifySingleton<ISqlServerTypeMapper>();
-            VerifySingleton<ISqlServerModificationCommandBatchFactory>();
-            VerifySingleton<ISqlServerCommandBatchPreparer>();
-            VerifySingleton<ISqlServerModelSource>();
+            VerifySingleton<SqlServerTypeMapper>();
+            VerifySingleton<SqlServerModificationCommandBatchFactory>();
+            VerifySingleton<SqlServerModelSource>();
 
             // SQL Server scoped
-            VerifyScoped<ISqlServerQueryContextFactory>();
-            VerifyScoped<ISqlServerValueGeneratorSelector>();
-            VerifyScoped<ISqlServerBatchExecutor>();
-            VerifyScoped<ISqlServerDataStoreServices>();
-            VerifyScoped<ISqlServerDataStore>();
+            VerifyScoped<SqlServerCommandBatchPreparer>();
+            VerifyScoped<SqlServerValueGeneratorSelector>();
+            VerifyScoped<SqlServerDataStoreServices>();
+            VerifyScoped<SqlServerDataStore>();
             VerifyScoped<ISqlServerConnection>();
-            VerifyScoped<ISqlServerModelDiffer>();
-            VerifyScoped<ISqlServerDatabaseFactory>();
-            VerifyScoped<ISqlServerMigrationSqlGenerator>();
-            VerifyScoped<ISqlServerDataStoreCreator>();
-            VerifyScoped<ISqlServerHistoryRepository>();
+            VerifyScoped<SqlServerModelDiffer>();
+            VerifyScoped<SqlServerMigrationSqlGenerator>();
+            VerifyScoped<SqlServerDataStoreCreator>();
+            VerifyScoped<SqlServerHistoryRepository>();
 
             VerifyCommonDataStoreServices();
 

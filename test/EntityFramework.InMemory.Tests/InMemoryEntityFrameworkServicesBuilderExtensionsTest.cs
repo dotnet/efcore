@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.InMemory.Query;
+using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -17,19 +18,19 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             base.Services_wire_up_correctly();
 
             // In memory dingletones
-            VerifySingleton<IInMemoryModelBuilderFactory>();
-            VerifySingleton<IInMemoryValueGeneratorCache>();
+            VerifySingleton<ModelBuilderFactory>();
+            VerifySingleton<InMemoryValueGeneratorCache>();
             VerifySingleton<IInMemoryDatabase>();
-            VerifySingleton<IInMemoryModelSource>();
+            VerifySingleton<InMemoryModelSource>();
 
             // In memory scoped
-            VerifyScoped<IInMemoryQueryContextFactory>();
-            VerifyScoped<IInMemoryValueGeneratorSelector>();
-            VerifyScoped<IInMemoryDataStoreServices>();
-            VerifyScoped<IInMemoryDatabaseFactory>();
+            VerifyScoped<InMemoryValueGeneratorSelector>();
+            VerifyScoped<InMemoryQueryContextFactory>();
+            VerifyScoped<InMemoryDataStoreServices>();
+            VerifyScoped<InMemoryDatabaseFactory>();
             VerifyScoped<IInMemoryDataStore>();
-            VerifyScoped<IInMemoryConnection>();
-            VerifyScoped<IInMemoryDataStoreCreator>();
+            VerifyScoped<InMemoryConnection>();
+            VerifyScoped<InMemoryDataStoreCreator>();
 
             VerifyCommonDataStoreServices();
         }

@@ -8,23 +8,25 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerDataStoreCreator : RelationalDataStoreCreator, ISqlServerDataStoreCreator
+    public class SqlServerDataStoreCreator : RelationalDataStoreCreator
     {
         private readonly ISqlServerConnection _connection;
-        private readonly ISqlServerModelDiffer _modelDiffer;
-        private readonly ISqlServerMigrationSqlGenerator _sqlGenerator;
+        private readonly IModelDiffer _modelDiffer;
+        private readonly IMigrationSqlGenerator _sqlGenerator;
         private readonly ISqlStatementExecutor _statementExecutor;
 
         public SqlServerDataStoreCreator(
             [NotNull] ISqlServerConnection connection,
-            [NotNull] ISqlServerModelDiffer modelDiffer,
-            [NotNull] ISqlServerMigrationSqlGenerator sqlGenerator,
+            [NotNull] IModelDiffer modelDiffer,
+            [NotNull] IMigrationSqlGenerator sqlGenerator,
             [NotNull] ISqlStatementExecutor statementExecutor)
         {
             Check.NotNull(connection, nameof(connection));

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer.Query;
@@ -11,13 +12,13 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Update
 {
-    public class SqlServerCommandBatchPreparer : CommandBatchPreparer, ISqlServerCommandBatchPreparer
+    public class SqlServerCommandBatchPreparer : CommandBatchPreparer
     {
         public SqlServerCommandBatchPreparer(
-            [NotNull] ISqlServerModificationCommandBatchFactory modificationCommandBatchFactory,
+            [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
-            [NotNull] ISqlServerValueBufferFactoryFactory valueBufferFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
                 modificationCommandBatchFactory,
                 parameterNameGeneratorFactory,

@@ -7,6 +7,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        protected override Assembly TargetAssembly => typeof(SqlServerDataStore).Assembly;
+        protected override Assembly TargetAssembly => typeof(SqlServerConnection).Assembly;
     }
 }

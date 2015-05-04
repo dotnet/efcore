@@ -1,9 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Xunit;
 
@@ -16,8 +15,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         {
             var batch = new SqlServerModificationCommandBatch(new SqlServerSqlGenerator(), 1);
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new SqlServerValueBufferFactoryFactory())));
-            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new SqlServerValueBufferFactoryFactory())));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
+            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
         }
     }
 }

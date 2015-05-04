@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations.History;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Moq;
@@ -101,7 +102,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         {
             return new SqlServerHistoryRepository(
                 Mock.Of<ISqlServerConnection>(),
-                Mock.Of<ISqlServerDataStoreCreator>(),
+                Mock.Of<IRelationalDataStoreCreator>(),
                 new Context(),
                 new SqlServerSqlGenerator());
         }

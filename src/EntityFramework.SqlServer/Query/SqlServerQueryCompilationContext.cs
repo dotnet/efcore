@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Methods;
@@ -27,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator methodCallTranslator,
-            [NotNull] ISqlServerValueBufferFactoryFactory valueBufferFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(logger, nameof(logger)),

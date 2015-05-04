@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<ISqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ChipsContext(serviceProvider, "KettleChips"))
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<ISqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<ISqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ChipsContext(serviceProvider, "KettleChips"))
@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<ISqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<ISqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ChipsContext(serviceProvider, "KettleChips"))
@@ -229,7 +229,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<ISqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
@@ -255,7 +255,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<ISqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
@@ -283,7 +283,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddSqlServer()
                 .ServiceCollection()
                 .AddInstance<ILoggerFactory>(loggerFactory)
-                .AddSingleton<ISqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))

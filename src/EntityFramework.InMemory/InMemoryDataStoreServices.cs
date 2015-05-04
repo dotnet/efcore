@@ -5,40 +5,27 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory.Query;
-using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryDataStoreServices : IInMemoryDataStoreServices
+    public class InMemoryDataStoreServices : DataStoreServices
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public InMemoryDataStoreServices([NotNull] IServiceProvider serviceProvider)
+        public InMemoryDataStoreServices([NotNull] IServiceProvider services)
+            : base(services)
         {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
-
-            _serviceProvider = serviceProvider;
         }
 
-        public virtual IDataStore Store => _serviceProvider.GetRequiredService<IInMemoryDataStore>();
-
-        public virtual IQueryContextFactory QueryContextFactory => _serviceProvider.GetRequiredService<IInMemoryQueryContextFactory>();
-
-        public virtual IDataStoreCreator Creator => _serviceProvider.GetRequiredService<IInMemoryDataStoreCreator>();
-
-        public virtual IDataStoreConnection Connection => _serviceProvider.GetRequiredService<IInMemoryConnection>();
-
-        public virtual IValueGeneratorSelector ValueGeneratorSelector => _serviceProvider.GetRequiredService<IInMemoryValueGeneratorSelector>();
-
-        public virtual IDatabaseFactory DatabaseFactory => _serviceProvider.GetRequiredService<IInMemoryDatabaseFactory>();
-
-        public virtual IModelBuilderFactory ModelBuilderFactory => _serviceProvider.GetRequiredService<IInMemoryModelBuilderFactory>();
-
-        public virtual IModelSource ModelSource => _serviceProvider.GetRequiredService<IInMemoryModelSource>();
+        public override IDataStore Store => Services.GetRequiredService<IInMemoryDataStore>();
+        public override IQueryContextFactory QueryContextFactory => Services.GetRequiredService<InMemoryQueryContextFactory>();
+        public override IDataStoreCreator Creator => Services.GetRequiredService<InMemoryDataStoreCreator>();
+        public override IDataStoreConnection Connection => Services.GetRequiredService<InMemoryConnection>();
+        public override IValueGeneratorSelector ValueGeneratorSelector => Services.GetRequiredService<InMemoryValueGeneratorSelector>();
+        public override IDatabaseFactory DatabaseFactory => Services.GetRequiredService<InMemoryDatabaseFactory>();
+        public override IModelSource ModelSource => Services.GetRequiredService<InMemoryModelSource>();
+        public override IValueGeneratorCache ValueGeneratorCache => Services.GetRequiredService<InMemoryValueGeneratorCache>();
     }
 }

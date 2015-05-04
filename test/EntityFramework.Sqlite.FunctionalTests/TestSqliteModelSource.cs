@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             _testModelSource = new TestModelSource(onModelCreating, setFinder);
         }
 
-        public static Func<IServiceProvider, ISqliteModelSource> GetFactory(Action<ModelBuilder> onModelCreating) =>
+        public static Func<IServiceProvider, SqliteModelSource> GetFactory(Action<ModelBuilder> onModelCreating) =>
             p => new TestSqliteModelSource(
                 onModelCreating,
                 p.GetRequiredService<IDbSetFinder>(),

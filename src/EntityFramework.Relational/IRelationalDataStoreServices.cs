@@ -4,6 +4,7 @@
 using Microsoft.Data.Entity.Relational.Migrations.History;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
+using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Relational
@@ -14,6 +15,12 @@ namespace Microsoft.Data.Entity.Relational
         IHistoryRepository HistoryRepository { get; }
         IMigrationSqlGenerator MigrationSqlGenerator { get; }
         IRelationalConnection RelationalConnection { get; }
+        IRelationalTypeMapper TypeMapper { get; }
         ISqlGenerator SqlGenerator { get; }
+        IModificationCommandBatchFactory ModificationCommandBatchFactory { get; }
+        ICommandBatchPreparer CommandBatchPreparer { get; }
+        IBatchExecutor BatchExecutor { get; }
+        IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
+        IRelationalDataStoreCreator RelationalDataStoreCreator { get; }
     }
 }

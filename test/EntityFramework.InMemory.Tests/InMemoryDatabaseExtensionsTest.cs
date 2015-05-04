@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var database = new InMemoryDatabaseFacade(
                 TestHelpers.Instance.CreateContext(),
-                Mock.Of<IInMemoryDataStoreCreator>(),
+                Mock.Of<IDataStoreCreator>(),
                 new LoggerFactory());
 
             Assert.Same(database, database.AsInMemory());

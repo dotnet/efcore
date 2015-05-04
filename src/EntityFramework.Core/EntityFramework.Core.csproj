@@ -251,6 +251,7 @@
     <Compile Include="Query\ResultOperators\ThenIncludeExpressionNode.cs" />
     <Compile Include="Storage\DataStoreErrorLogState.cs" />
     <Compile Include="Storage\DataStoreException.cs" />
+    <Compile Include="Storage\DataStoreServices.cs" />
     <Compile Include="Storage\IDataStore.cs" />
     <Compile Include="Storage\IDataStoreConnection.cs" />
     <Compile Include="Storage\IDataStoreSelector.cs" />
@@ -334,7 +335,7 @@
     <Compile Include="Storage\DataStore.cs" />
     <Compile Include="Storage\IDataStoreCreator.cs" />
     <Compile Include="Storage\DataStoreSelector.cs" />
-    <Compile Include="Storage\DataStoreServices.cs" />
+    <Compile Include="Storage\IDataStoreServices.cs" />
     <Compile Include="Storage\IDataStoreSource.cs" />
     <Compile Include="Storage\DataStoreSource`.cs" />
     <Compile Include="Storage\DataStoreTransaction.cs" />

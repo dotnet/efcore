@@ -10,25 +10,26 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Methods;
+using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Sqlite.Query;
 using Microsoft.Data.Entity.Sqlite.Update;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SqliteDataStore : RelationalDataStore, ISqliteDataStore
+    public class SqliteDataStore : RelationalDataStore
     {
         public SqliteDataStore(
             [NotNull] IModel model,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
-            [NotNull] ISqliteConnection connection,
-            [NotNull] ISqliteCommandBatchPreparer batchPreparer,
-            [NotNull] ISqliteBatchExecutor batchExecutor,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] ICommandBatchPreparer batchPreparer,
+            [NotNull] IBatchExecutor batchExecutor,
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] ISqliteValueBufferFactoryFactory valueBufferFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
                   model,
                   entityKeyFactorySource,
@@ -58,6 +59,6 @@ namespace Microsoft.Data.Entity.Sqlite
                 EntityKeyFactorySource,
                 queryMethodProvider,
                 methodCallTranslator,
-                (ISqliteValueBufferFactoryFactory)ValueBufferFactoryFactory);
+                ValueBufferFactoryFactory);
     }
 }

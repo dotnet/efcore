@@ -10,14 +10,14 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Methods;
+using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer.Query;
-using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerDataStore : RelationalDataStore, ISqlServerDataStore
+    public class SqlServerDataStore : RelationalDataStore
     {
         public SqlServerDataStore(
             [NotNull] IModel model,
@@ -25,11 +25,11 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] ISqlServerConnection connection,
-            [NotNull] ISqlServerCommandBatchPreparer batchPreparer,
-            [NotNull] ISqlServerBatchExecutor batchExecutor,
+            [NotNull] ICommandBatchPreparer batchPreparer,
+            [NotNull] IBatchExecutor batchExecutor,
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] ISqlServerValueBufferFactoryFactory valueBufferFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 ClrPropertyGetterSource,
                 enumerableMethodProvider,
                 methodCallTranslator,
-                (ISqlServerValueBufferFactoryFactory)ValueBufferFactoryFactory);
+                ValueBufferFactoryFactory);
         }
     }
 }

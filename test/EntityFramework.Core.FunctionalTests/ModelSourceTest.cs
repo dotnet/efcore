@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .AddInMemoryStore()
                 .AddDbContext<JustSomeContext>()
                 .ServiceCollection()
-                .AddSingleton<IInMemoryModelSource, MyModelSource>()
+                .AddSingleton<InMemoryModelSource, MyModelSource>()
                 .BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<JustSomeContext>())

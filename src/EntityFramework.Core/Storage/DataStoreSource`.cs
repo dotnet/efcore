@@ -9,8 +9,7 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public abstract class DataStoreSource<TDataStore, TStoreServices, TOptionsExtension> : IDataStoreSource
-        where TDataStore : IDataStore
+    public abstract class DataStoreSource<TStoreServices, TOptionsExtension> : IDataStoreSource
         where TStoreServices : class, IDataStoreServices
         where TOptionsExtension : class, IDbContextOptionsExtension
     {
@@ -28,7 +27,7 @@ namespace Microsoft.Data.Entity.Storage
             return options.Extensions.OfType<TOptionsExtension>().Any();
         }
 
-        public virtual string Name => typeof(TDataStore).Name;
+        public abstract string Name { get; }
 
         public abstract void AutoConfigure(DbContextOptionsBuilder optionsBuilder);
     }

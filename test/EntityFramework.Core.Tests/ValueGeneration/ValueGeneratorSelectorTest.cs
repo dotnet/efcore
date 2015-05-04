@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ConcreteValueGeneratorSelector>(), model);
-            var selector = contextServices.GetRequiredService<ConcreteValueGeneratorSelector>();
+            var contextServices = TestHelpers.Instance.CreateContextServices(model);
+            var selector = contextServices.GetRequiredService<ValueGeneratorSelector>();
 
             Assert.IsType<TemporaryNumberValueGenerator<int>>(selector.Select(entityType.GetProperty("Id")));
             Assert.IsType<TemporaryNumberValueGenerator<long>>(selector.Select(entityType.GetProperty("Long")));
@@ -70,11 +70,9 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddSingleton<ConcreteValueGeneratorSelector>(), 
-                model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(model);
 
-            var selector = contextServices.GetRequiredService<ConcreteValueGeneratorSelector>();
+            var selector = contextServices.GetRequiredService<ValueGeneratorSelector>();
 
             Assert.Equal(
                 Strings.NoValueGenerator("Random", "AnEntity", typeof(Random).Name),
@@ -128,14 +126,6 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             public DateTimeOffset DateTimeOffset { get; set; }
             public DateTimeOffset? NullableDateTimeOffset { get; set; }
             public Random Random { get; set; }
-        }
-
-        private class ConcreteValueGeneratorSelector : ValueGeneratorSelector
-        {
-            public override ValueGenerator Select(IProperty property)
-            {
-                return Create(property);
-            }
         }
     }
 }

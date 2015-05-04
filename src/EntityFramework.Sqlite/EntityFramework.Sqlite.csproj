@@ -71,43 +71,18 @@
     </Compile>
     <Compile Include="Extensions\SqliteDbContextOptionsBuilderExtensions.cs" />
     <Compile Include="Extensions\SqliteEntityFrameworkServicesBuilderExtensions.cs" />
-    <Compile Include="ISqliteConnection.cs" />
-    <Compile Include="ISqliteDatabaseFactory.cs" />
-    <Compile Include="ISqliteDataStore.cs" />
-    <Compile Include="ISqliteDataStoreCreator.cs" />
-    <Compile Include="ISqliteDataStoreServices.cs" />
-    <Compile Include="ISqliteTypeMapper.cs" />
-    <Compile Include="Metadata\SqliteModelBuilderFactory.cs" />
-    <Compile Include="Migrations\ISqliteHistoryRepository.cs" />
-    <Compile Include="Migrations\ISqliteMigrationSqlGenerator.cs" />
-    <Compile Include="Metadata\ISqliteModelBuilderFactory.cs" />
-    <Compile Include="Migrations\ISqliteModelDiffer.cs" />
-    <Compile Include="ISqliteModelSource.cs" />
-    <Compile Include="Query\ISqliteQueryContextFactory.cs" />
-    <Compile Include="ISqliteSqlGenerator.cs" />
     <Compile Include="Migrations\SqliteHistoryRepository.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGenerator.cs" />
-    <Compile Include="Migrations\SqliteModelDiffer.cs" />
-    <Compile Include="Query\ISqliteValueBufferFactoryFactory.cs" />
     <Compile Include="Query\SqliteQueryCompilationContext.cs" />
-    <Compile Include="Query\SqliteQueryContextFactory.cs" />
     <Compile Include="Query\SqliteQueryGenerator.cs" />
-    <Compile Include="Query\SqliteValueBufferFactoryFactory.cs" />
-    <Compile Include="SqliteDatabaseFactory.cs" />
     <Compile Include="SqliteDataStoreConnection.cs" />
     <Compile Include="SqliteDataStoreCreator.cs" />
     <Compile Include="SqliteModelSource.cs" />
     <Compile Include="SqliteSqlGenerator.cs" />
     <Compile Include="SqliteTypeMapper.cs" />
-    <Compile Include="Update\ISqliteBatchExecutor.cs" />
-    <Compile Include="Update\ISqliteCommandBatchPreparer.cs" />
-    <Compile Include="Update\ISqliteModificationCommandBatchFactory.cs" />
-    <Compile Include="Update\SqliteBatchExecutor.cs" />
     <Compile Include="Update\SqliteModificationCommandBatch.cs" />
     <Compile Include="Update\SqliteCommandBatchPreparer.cs" />
     <Compile Include="Update\SqliteModificationCommandBatchFactory.cs" />
-    <Compile Include="ValueGeneration\ISqliteValueGeneratorCache.cs" />
-    <Compile Include="ValueGeneration\ISqliteValueGeneratorSelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs">
@@ -118,7 +93,6 @@
     <Compile Include="SqliteDataStoreSource.cs" />
     <Compile Include="SqliteOptionsExtension.cs" />
     <Compile Include="ValueGeneration\SqliteValueGeneratorCache.cs" />
-    <Compile Include="ValueGeneration\SqliteValueGeneratorSelector.cs" />
     <Content Include="..\..\tools\Resources.tt">
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>

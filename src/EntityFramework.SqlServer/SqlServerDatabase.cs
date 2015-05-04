@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         public SqlServerDatabase(
             [NotNull] DbContext context,
-            [NotNull] ISqlServerDataStoreCreator dataStoreCreator,
+            [NotNull] IRelationalDataStoreCreator dataStoreCreator,
             [NotNull] ISqlServerConnection connection,
             [NotNull] IMigrator migrator,
             [NotNull] ILoggerFactory loggerFactory)

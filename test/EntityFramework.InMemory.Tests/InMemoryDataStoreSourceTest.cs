@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Returns_appropriate_name()
         {
-            Assert.Equal(typeof(InMemoryDataStore).Name, new InMemoryDataStoreSource().Name);
+            Assert.Equal("In-Memory Data Store", new InMemoryDataStoreSource().Name);
         }
 
         [Fact]

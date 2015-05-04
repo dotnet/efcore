@@ -3,25 +3,24 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.Sqlite
+namespace Microsoft.Data.Entity.Relational
 {
-    public class SqliteDatabaseFactory : ISqliteDatabaseFactory
+    public class RelationalDatabaseFactory : IDatabaseFactory
     {
         private readonly DbContext _context;
-        private readonly ISqliteDataStoreCreator _dataStoreCreator;
-        private readonly ISqliteConnection _connection;
+        private readonly IRelationalDataStoreCreator _dataStoreCreator;
+        private readonly IRelationalConnection _connection;
         private readonly IMigrator _migrator;
         private readonly ILoggerFactory _loggerFactory;
 
-        public SqliteDatabaseFactory(
+        public RelationalDatabaseFactory(
             [NotNull] DbContext context,
-            [NotNull] ISqliteDataStoreCreator dataStoreCreator,
-            [NotNull] ISqliteConnection connection,
+            [NotNull] IRelationalDataStoreCreator dataStoreCreator,
+            [NotNull] IRelationalConnection connection,
             [NotNull] IMigrator migrator,
             [NotNull] ILoggerFactory loggerFactory)
         {
