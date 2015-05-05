@@ -390,13 +390,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return projectionIndex;
         }
 
-        public virtual void SetProjectionCaseExpression([NotNull] CaseExpression caseExpression)
+        public virtual void SetProjectionConditionalExpression([NotNull] ConditionalExpression conditionalExpression)
         {
-            Check.NotNull(caseExpression, nameof(caseExpression));
+            Check.NotNull(conditionalExpression, nameof(conditionalExpression));
 
             ClearProjection();
 
-            _projectionExpression = caseExpression;
+            _projectionExpression = conditionalExpression;
         }
 
         public virtual void SetProjectionExpression([NotNull] Expression expression)

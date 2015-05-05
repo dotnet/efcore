@@ -510,67 +510,52 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
         }
 
-        public virtual Expression VisitCaseExpression(CaseExpression caseExpression)
+        protected override Expression VisitConditionalExpression([NotNull] ConditionalExpression expression)
         {
-            Check.NotNull(caseExpression, nameof(caseExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            var nodeType = caseExpression.When.NodeType;
-
-            if (nodeType == ExpressionType.Conditional)
+            _sql.AppendLine("CASE");
+            using (_sql.Indent())
             {
-                var conditionalExpression = (ConditionalExpression)caseExpression.When;
-
-                _sql.AppendLine("CASE");
-                using (_sql.Indent())
-                {
-                    _sql.AppendLine("WHEN");
-
-                    using (_sql.Indent())
-                    {
-                        _sql.Append("(");
-                        VisitExpression(conditionalExpression.Test);
-                        _sql.AppendLine(")");
-                    }
-
-                    _sql.Append("THEN ");
-                    VisitExpression(conditionalExpression.IfTrue);
-                    _sql.Append(" ELSE ");
-                    VisitExpression(conditionalExpression.IfFalse);
-                    _sql.AppendLine();
-                }
-
-                _sql.Append("END");
-            }
-            else
-            {
-                _sql.AppendLine("CASE");
+                _sql.AppendLine("WHEN");
 
                 using (_sql.Indent())
                 {
-                    _sql.AppendLine("WHEN");
-                    using (_sql.Indent())
-                    {
-                        _sql.Append("(");
-                        VisitExpression(caseExpression.When);
-                        if (caseExpression.When.IsSimpleExpression())
-                        {
-                            _sql.Append(" = ");
-                            _sql.Append(TrueLiteral);
-                        }
-
-                        _sql.AppendLine(")");
-                    }
-
-                    _sql.Append("THEN ");
-                    _sql.Append(TypedTrueLiteral);
-                    _sql.Append(" ELSE ");
-                    _sql.AppendLine(TypedFalseLiteral);
+                    _sql.Append("(");
+                    VisitExpression(expression.Test);
+                    _sql.AppendLine(")");
                 }
 
-                _sql.Append("END");
+                _sql.Append("THEN ");
+
+                var constantIfTrue = expression.IfTrue as ConstantExpression;
+                if (constantIfTrue != null && constantIfTrue.Type == typeof(bool))
+                {
+                    _sql.Append((bool)constantIfTrue.Value ? TypedTrueLiteral : TypedFalseLiteral);
+                }
+                else
+                {
+                    VisitExpression(expression.IfTrue);
+                }
+
+                _sql.Append(" ELSE ");
+
+                var constantIfFalse = expression.IfFalse as ConstantExpression;
+                if (constantIfFalse != null && constantIfFalse.Type == typeof(bool))
+                {
+                    _sql.Append((bool)constantIfFalse.Value ? TypedTrueLiteral : TypedFalseLiteral);
+                }
+                else
+                {
+                    VisitExpression(expression.IfFalse);
+                }
+
+                _sql.AppendLine();
             }
 
-            return caseExpression;
+            _sql.Append("END");
+
+            return expression;
         }
 
         public virtual Expression VisitExistsExpression(ExistsExpression existsExpression)

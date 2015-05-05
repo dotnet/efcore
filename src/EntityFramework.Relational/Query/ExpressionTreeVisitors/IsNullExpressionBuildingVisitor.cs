@@ -91,17 +91,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 return expression;
             }
 
-            var caseExpression = expression as CaseExpression;
-            if (caseExpression != null)
-            {
-                if (caseExpression.When is ConditionalExpression)
-                {
-                    VisitExpression(caseExpression.When);
-                }
-
-                return expression;
-            }
-
             return expression;
         }
 
@@ -124,17 +113,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             // so we just wrap the whole expression into IsNullExpression instead.
             //
             // small optimization: expression can only be nullable if either (or both) of the possible results (ifTrue, ifFalse) can be nullable
-            if (ifTrue != null
-                || ifFalse != null)
+            if (ifTrue != null || ifFalse != null)
             {
-                AddToResult(
-                    new IsNullExpression(
-                        new CaseExpression(
-                            expression,
-                            expression.Type
-                            )
-                        )
-                    );
+                AddToResult(new IsNullExpression(expression));
             }
 
             return expression;

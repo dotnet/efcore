@@ -27,8 +27,21 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 if (!simpleLeft
                     || !simpleRight)
                 {
-                    var leftOperand = simpleLeft ? left : new CaseExpression(left, typeof(bool));
-                    var rightOperand = simpleRight ? right : new CaseExpression(right, typeof(bool));
+                    var leftOperand = simpleLeft 
+                        ? left 
+                        : Expression.Condition(
+                            left, 
+                            Expression.Constant(true),
+                            Expression.Constant(false),
+                            typeof(bool));
+
+                    var rightOperand = simpleRight 
+                        ? right 
+                        : Expression.Condition(
+                            right,
+                            Expression.Constant(true),
+                            Expression.Constant(false),
+                            typeof(bool));
 
                     return expression.NodeType == ExpressionType.Equal
                         ? Expression.Equal(leftOperand, rightOperand)
@@ -41,6 +54,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             {
                 return expression;
             }
+
             return Expression.MakeBinary(expression.NodeType, left, right);
         }
     }

@@ -137,10 +137,13 @@ namespace Microsoft.Data.Entity.Relational.Query
                 innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
                 innerSelectExpression.Predicate = Expression.Not(predicate);
 
-                SetProjectionCaseExpression(
+                SetProjectionConditionalExpression(
                     handlerContext,
-                    new CaseExpression(
+
+                    Expression.Condition(
                         Expression.Not(new ExistsExpression(innerSelectExpression)),
+                        Expression.Constant(true),
+                        Expression.Constant(false),
                         typeof(bool)));
 
                 return TransformClientExpression<bool>(handlerContext);
@@ -156,10 +159,12 @@ namespace Microsoft.Data.Entity.Relational.Query
             innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
             innerSelectExpression.Predicate = handlerContext.SelectExpression.Predicate;
 
-            SetProjectionCaseExpression(
+            SetProjectionConditionalExpression(
                 handlerContext,
-                new CaseExpression(
+                Expression.Condition(
                     new ExistsExpression(innerSelectExpression),
+                    Expression.Constant(true),
+                    Expression.Constant(false),
                     typeof(bool)));
 
             return TransformClientExpression<bool>(handlerContext);
@@ -369,9 +374,9 @@ namespace Microsoft.Data.Entity.Relational.Query
             return handlerContext.EvalOnServer;
         }
 
-        private static void SetProjectionCaseExpression(HandlerContext handlerContext, CaseExpression caseExpression)
+        private static void SetProjectionConditionalExpression(HandlerContext handlerContext, ConditionalExpression conditionalExpression)
         {
-            handlerContext.SelectExpression.SetProjectionCaseExpression(caseExpression);
+            handlerContext.SelectExpression.SetProjectionConditionalExpression(conditionalExpression);
             handlerContext.SelectExpression.ClearTables();
             handlerContext.SelectExpression.ClearOrderBy();
             handlerContext.SelectExpression.Predicate = null;
