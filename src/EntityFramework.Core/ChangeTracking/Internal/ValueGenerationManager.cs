@@ -36,7 +36,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     }
                     else
                     {
-                        var valueGenerator = _valueGeneratorSelector.Select(property);
+                        var valueGenerator = _valueGeneratorSelector.Select(property, entry.EntityType);
+
                         Debug.Assert(valueGenerator != null);
 
                         var generatedValue = valueGenerator.Next();
@@ -46,9 +47,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual bool MayGetTemporaryValue(IProperty property)
+        public virtual bool MayGetTemporaryValue(IProperty property, IEntityType entityType)
             => property.IsValueGeneratedOnAdd
-               && _valueGeneratorSelector.Select(property).GeneratesTemporaryValues;
+               && _valueGeneratorSelector.Select(property, entityType).GeneratesTemporaryValues;
 
         private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object generatedValue, bool isTemporary)
         {

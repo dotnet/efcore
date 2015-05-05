@@ -562,7 +562,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var productEntry4 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = Guid.NewGuid(), DependentId = 78 }));
             var productEntry5 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = Guid.NewGuid(), DependentId = null }));
 
-            var fk = model.GetEntityType(typeof(Product)).ForeignKeys.Single();
+            var fk = model.GetEntityType(typeof(Product)).GetForeignKeys().Single();
 
             Assert.Equal(
                 new[] { productEntry1, productEntry2 },

@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Relational.ValueGeneration;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
@@ -37,6 +38,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddScoped<BatchExecutor>()
                 .AddScoped<ModelDiffer>()
                 .AddScoped<RelationalDatabaseFactory>()
+                .AddScoped<RelationalValueGeneratorSelector>()
                 .AddScoped(p => GetStoreServices(p).ModelDiffer)
                 .AddScoped(p => GetStoreServices(p).HistoryRepository)
                 .AddScoped(p => GetStoreServices(p).MigrationSqlGenerator)

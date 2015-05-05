@@ -1534,7 +1534,7 @@ namespace Microsoft.Data.Entity.Tests
                 .Returns(3);
 
             var valueGenMock = new Mock<IValueGeneratorSelector>();
-            valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>())).Returns(Mock.Of<ValueGenerator>());
+            valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>(), It.IsAny<IEntityType>())).Returns(Mock.Of<ValueGenerator>());
 
             var servicesMock = new Mock<IDataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);
@@ -1580,7 +1580,7 @@ namespace Microsoft.Data.Entity.Tests
                 .Returns(Task.FromResult(3));
 
             var valueGenMock = new Mock<IValueGeneratorSelector>();
-            valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>())).Returns(Mock.Of<ValueGenerator>());
+            valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>(), It.IsAny<IEntityType>())).Returns(Mock.Of<ValueGenerator>());
 
             var servicesMock = new Mock<IDataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);

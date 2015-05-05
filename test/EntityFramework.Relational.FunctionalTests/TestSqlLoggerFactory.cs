@@ -8,7 +8,6 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 #if !DNXCORE50
 using System.Runtime.Remoting.Messaging;
-
 #endif
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
@@ -58,31 +57,30 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
         public static CancellationToken CancelQuery()
         {
-            var cancellationTokenSource = new CancellationTokenSource();
-            Logger.CancellationTokenSource = cancellationTokenSource;
-            return cancellationTokenSource.Token;
+            Logger._cancellationTokenSource = new CancellationTokenSource();
+
+            return Logger._cancellationTokenSource.Token;
         }
 
-        public static string Log
+        public static void Reset()
         {
-            get { return Logger.Logs; }
+#if DNXCORE50
+            _logger.Value = null;
+#else
+            CallContext.LogicalSetData(ContextName, null);
+#endif
         }
 
-        public static string Sql
-        {
-            get { return Logger.Sql; }
-        }
-
-        public static List<string> SqlStatements
-        {
-            get { return Logger.SqlStatements; }
-        }
+        public static string Log => Logger._log.ToString();
+        public static string Sql => string.Join("\r\n\r\n", Logger._sqlStatements);
+        public static List<string> SqlStatements => Logger._sqlStatements;
 
         private class SqlLogger : ILogger
         {
-            private readonly IndentedStringBuilder _log = new IndentedStringBuilder();
+            public readonly IndentedStringBuilder _log = new IndentedStringBuilder();
+            public readonly List<string> _sqlStatements = new List<string>();
 
-            private CancellationTokenSource _cancellationTokenSource;
+            public CancellationTokenSource _cancellationTokenSource;
 
             public void Log(
                 LogLevel logLevel,
@@ -91,7 +89,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 Exception exception,
                 Func<object, Exception, string> formatter)
             {
-                var format = formatter(state, exception);
+                var format = formatter(state, exception)?.Trim();
 
                 if (eventId == RelationalLoggingEventIds.Sql)
                 {
@@ -101,7 +99,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                         _cancellationTokenSource = null;
                     }
 
-                    SqlStatements.Add(format);
+                    _sqlStatements.Add(format);
                 }
                 else
                 {
@@ -112,28 +110,6 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             public bool IsEnabled(LogLevel logLevel)
             {
                 return true;
-            }
-
-            public IDisposable BeginScope(object state)
-            {
-                throw new NotImplementedException();
-            }
-
-            public CancellationTokenSource CancellationTokenSource
-            {
-                set { _cancellationTokenSource = value; }
-            }
-
-            public List<string> SqlStatements { get; } = new List<string>();
-
-            public string Sql
-            {
-                get { return string.Join("\r\n\r\n", SqlStatements); }
-            }
-
-            public string Logs
-            {
-                get { return string.Join("\r\n", _log); }
             }
 
             public IDisposable BeginScopeImpl(object state)

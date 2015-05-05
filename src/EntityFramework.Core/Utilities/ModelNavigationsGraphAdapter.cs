@@ -22,11 +22,11 @@ namespace Microsoft.Data.Entity.Utilities
         public override IEnumerable<EntityType> Vertices => _model.EntityTypes;
 
         public override IEnumerable<EntityType> GetOutgoingNeighbours(EntityType from)
-            => @from.ForeignKeys.Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.PrincipalEntityType)
+            => @from.GetForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.PrincipalEntityType)
                 .Union(_model.GetReferencingForeignKeys(@from).Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.EntityType));
 
         public override IEnumerable<EntityType> GetIncomingNeighbours(EntityType to)
-            => to.ForeignKeys.Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.PrincipalEntityType)
+            => to.GetForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.PrincipalEntityType)
                 .Union(_model.GetReferencingForeignKeys(to).Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.EntityType));
     }
 }

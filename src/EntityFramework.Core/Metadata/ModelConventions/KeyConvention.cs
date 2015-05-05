@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             Check.NotNull(properties, nameof(properties));
 
             foreach (var property in properties.Where(
-                property => !entityTypeBuilder.Metadata.ForeignKeys.SelectMany(fk => fk.Properties).Contains(property)))
+                property => !entityTypeBuilder.Metadata.GetForeignKeys().SelectMany(fk => fk.Properties).Contains(property)))
             {
                 entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
                     ?.GenerateValueOnAdd(true, ConfigurationSource.Convention);

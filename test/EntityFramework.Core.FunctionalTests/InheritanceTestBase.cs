@@ -149,6 +149,54 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual void Can_insert_update_delete()
+        {
+            using (var context = CreateContext())
+            {
+                var kiwi = new Kiwi
+                {
+                    Species = "Apteryx owenii",
+                    Name = "Little spotted kiwi",
+                    IsFlightless = true,
+                    FoundOn = Island.North
+                };
+
+                var nz = context.Set<Country>().Single(c => c.Id == 1);
+
+                nz.Animals.Add(kiwi);
+
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
+
+                kiwi.EagleId = "Aquila chrysaetos canadensis";
+                
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
+
+                Assert.Equal("Aquila chrysaetos canadensis", kiwi.EagleId);
+
+                context.Set<Bird>().Remove(kiwi);
+
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var count = context.Set<Kiwi>().Count(k => k.Species.EndsWith("owenii"));
+
+                Assert.Equal(0, count);
+            }
+        }
+
         protected AnimalContext CreateContext()
         {
             return Fixture.CreateContext();

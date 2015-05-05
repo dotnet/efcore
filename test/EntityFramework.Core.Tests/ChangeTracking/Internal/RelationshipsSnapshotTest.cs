@@ -337,7 +337,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         private ForeignKey ForeignKey
         {
-            get { return _model.GetEntityType(typeof(Banana)).ForeignKeys.Single(); }
+            get { return _model.GetEntityType(typeof(Banana)).GetForeignKeys().Single(); }
         }
 
         protected class Banana : INotifyPropertyChanged, INotifyPropertyChanging

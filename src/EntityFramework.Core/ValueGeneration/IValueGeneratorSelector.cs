@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.ValueGeneration
 {
     public interface IValueGeneratorSelector
     {
-        ValueGenerator Select([NotNull] IProperty property);
+        ValueGenerator Select([NotNull] IProperty property, [NotNull] IEntityType entityType);
     }
 }

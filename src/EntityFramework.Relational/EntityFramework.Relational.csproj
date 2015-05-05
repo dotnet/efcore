@@ -272,6 +272,8 @@
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\ExpressionExtensions.cs" />
     <Compile Include="Utilities\MethodInfoExtensions.cs" />
+    <Compile Include="ValueGeneration\DiscriminatorValueGenerator.cs" />
+    <Compile Include="ValueGeneration\RelationalValueGeneratorSelector.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Relational.Strings.resources</LogicalName>
       <SubType>Designer</SubType>

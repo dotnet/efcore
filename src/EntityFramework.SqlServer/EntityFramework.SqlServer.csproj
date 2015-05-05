@@ -61,9 +61,7 @@
     </Compile>
     <Compile Include="Extensions\SqlServerDbContextOptions.cs" />
     <Compile Include="ISqlServerConnection.cs" />
-    <Compile Include="ISqlServerSequenceValueGeneratorFactory.cs" />
     <Compile Include="ISqlServerSqlGenerator.cs" />
-    <Compile Include="ISqlServerValueGeneratorCache.cs" />
     <Compile Include="Metadata\ISqlServerEntityTypeExtensions.cs" />
     <Compile Include="Metadata\ISqlServerForeignKeyExtensions.cs" />
     <Compile Include="Metadata\ISqlServerIndexExtensions.cs" />
@@ -104,7 +102,6 @@
     <Compile Include="SqlServerModelBuilderFactory.cs" />
     <Compile Include="Migrations\SqlServerModelDiffer.cs" />
     <Compile Include="SqlServerModelSource.cs" />
-    <Compile Include="SqlServerSequenceValueGeneratorState.cs" />
     <Compile Include="SqlServerDataStoreServices.cs" />
     <Compile Include="Update\SqlServerCommandBatchPreparer.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchFactory.cs" />
@@ -114,8 +111,6 @@
     <Compile Include="SqlServerDataStoreCreator.cs" />
     <Compile Include="SqlServerDataStoreSource.cs" />
     <Compile Include="Migrations\SqlServerMigrationSqlGenerator.cs" />
-    <Compile Include="SqlServerSequenceValueGenerator.cs" />
-    <Compile Include="SqlServerSequenceValueGeneratorFactory.cs" />
     <Compile Include="SqlServerSqlGenerator.cs" />
     <Compile Include="SqlServerTypeMapper.cs" />
     <Compile Include="Extensions\SqlServerDbContextOptionsExtensions.cs" />
@@ -125,8 +120,6 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="SqlServerValueGeneratorCache.cs" />
-    <Compile Include="SqlServerValueGeneratorSelector.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatch.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
@@ -135,6 +128,13 @@
     </Compile>
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
+    <Compile Include="ValueGeneration\ISqlServerSequenceValueGeneratorFactory.cs" />
+    <Compile Include="ValueGeneration\ISqlServerValueGeneratorCache.cs" />
+    <Compile Include="ValueGeneration\SqlServerSequenceValueGenerator.cs" />
+    <Compile Include="ValueGeneration\SqlServerSequenceValueGeneratorFactory.cs" />
+    <Compile Include="ValueGeneration\SqlServerSequenceValueGeneratorState.cs" />
+    <Compile Include="ValueGeneration\SqlServerValueGeneratorCache.cs" />
+    <Compile Include="ValueGeneration\SqlServerValueGeneratorSelector.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.SqlServer.Strings.resources</LogicalName>
       <SubType>Designer</SubType>

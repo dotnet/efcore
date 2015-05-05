@@ -648,7 +648,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = model.GetEntityType(typeof(Order));
 
-            Assert.Equal(1, entityType.ForeignKeys.Count());
+            Assert.Equal(1, entityType.GetForeignKeys().Count());
         }
 
         [Fact]
@@ -669,7 +669,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = model.GetEntityType(typeof(Order));
 
-            Assert.Equal(1, entityType.ForeignKeys.Count());
+            Assert.Equal(1, entityType.GetForeignKeys().Count());
         }
 
         [Fact]
@@ -690,7 +690,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = model.GetEntityType(typeof(Order));
 
-            Assert.Equal(1, entityType.ForeignKeys.Count());
+            Assert.Equal(1, entityType.GetForeignKeys().Count());
         }
 
         [Fact]
@@ -713,7 +713,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = model.GetEntityType(typeof(Order));
 
-            Assert.Equal(1, entityType.ForeignKeys.Count());
+            Assert.Equal(1, entityType.GetForeignKeys().Count());
         }
 
         [Fact]

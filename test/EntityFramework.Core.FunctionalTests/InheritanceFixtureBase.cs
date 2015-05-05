@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             var kiwi = new Kiwi
                 {
-                    Species = "Apteryx owenii",
+                    Species = "Apteryx haastii",
                     Name = "Great spotted kiwi",
                     IsFlightless = true,
                     FoundOn = Island.South

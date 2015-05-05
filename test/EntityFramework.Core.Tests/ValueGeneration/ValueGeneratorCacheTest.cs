@@ -16,17 +16,18 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
         public void Uses_single_generator_per_property()
         {
             var model = CreateModel();
-            var property1 = GetProperty1(model);
-            var property2 = GetProperty2(model);
+            var entityType = model.GetEntityType("Led");
+            var property1 = entityType.GetProperty("Zeppelin");
+            var property2 = entityType.GetProperty("Stairway");
             var cache = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorCache>();
 
-            var generator1 = cache.GetOrAdd(property1, p => new GuidValueGenerator());
+            var generator1 = cache.GetOrAdd(property1, entityType, (p, et) => new GuidValueGenerator());
             Assert.NotNull(generator1);
-            Assert.Same(generator1, cache.GetOrAdd(property1, p => new GuidValueGenerator()));
+            Assert.Same(generator1, cache.GetOrAdd(property1, entityType, (p, et) => new GuidValueGenerator()));
 
-            var generator2 = cache.GetOrAdd(property2, p => new GuidValueGenerator());
+            var generator2 = cache.GetOrAdd(property2, entityType, (p, et) => new GuidValueGenerator());
             Assert.NotNull(generator2);
-            Assert.Same(generator2, cache.GetOrAdd(property2, p => new GuidValueGenerator()));
+            Assert.Same(generator2, cache.GetOrAdd(property2, entityType, (p, et) => new GuidValueGenerator()));
             Assert.NotSame(generator1, generator2);
         }
 

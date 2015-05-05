@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.SqlServer.ValueGeneration;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.DependencyInjection;
@@ -17,17 +18,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Uses_single_generator_per_property()
         {
             var model = CreateModel();
+            var entityType = model.GetEntityType(typeof(Led));
             var property1 = GetProperty1(model);
             var property2 = GetProperty2(model);
             var cache = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorCache>();
 
-            var generator1 = cache.GetOrAdd(property1, p => new TemporaryNumberValueGenerator<int>());
+            var generator1 = cache.GetOrAdd(property1, entityType, (p, et) => new TemporaryNumberValueGenerator<int>());
             Assert.NotNull(generator1);
-            Assert.Same(generator1, cache.GetOrAdd(property1, p => new TemporaryNumberValueGenerator<int>()));
+            Assert.Same(generator1, cache.GetOrAdd(property1, entityType, (p, et) => new TemporaryNumberValueGenerator<int>()));
 
-            var generator2 = cache.GetOrAdd(property2, p => new TemporaryNumberValueGenerator<int>());
+            var generator2 = cache.GetOrAdd(property2, entityType, (p, et) => new TemporaryNumberValueGenerator<int>());
             Assert.NotNull(generator2);
-            Assert.Same(generator2, cache.GetOrAdd(property2, p => new TemporaryNumberValueGenerator<int>()));
+            Assert.Same(generator2, cache.GetOrAdd(property2, entityType, (p, et) => new TemporaryNumberValueGenerator<int>()));
             Assert.NotSame(generator1, generator2);
         }
 

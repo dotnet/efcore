@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.Properties);
-            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
             Assert.Equal(entityBuilder.Metadata.ClrType, entityBuilder.Metadata.Model.EntityTypes.Single().ClrType);
         }
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.Properties);
-            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
             Assert.Equal(entityBuilder.Metadata.ClrType, entityBuilder.Metadata.Model.EntityTypes.Single().ClrType);
         }
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
             var entityType = entityBuilder.Metadata;
-            var fk = entityType.ForeignKeys.Single();
+            var fk = entityType.GetForeignKeys().Single();
             Assert.Null(fk.IsRequired);
             Assert.False(((IForeignKey)fk).IsUnique);
 
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
-            var newFk = (IForeignKey)entityType.ForeignKeys.Single();
+            var newFk = (IForeignKey)entityType.GetForeignKeys().Single();
             Assert.True(newFk.IsRequired);
             Assert.True(newFk.IsUnique);
         }
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
-            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
             Assert.Empty(entityBuilder.Metadata.Properties);
         }
@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
-            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
             // TODO: remove discovered entity types if no relationship discovered
             Assert.Equal(2, entityBuilder.Metadata.Model.EntityTypes.Count);
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
             
-            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
             // TODO: remove discovered entity types if no relationship discovered
             Assert.Equal(2, entityBuilder.Metadata.Model.EntityTypes.Count);
@@ -178,7 +178,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
             
-            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
             // TODO: remove discovered entity types if no relationship discovered
             Assert.Equal(2, entityBuilder.Metadata.Model.EntityTypes.Count);
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
-            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
             Assert.Empty(entityBuilder.Metadata.Properties);
         }

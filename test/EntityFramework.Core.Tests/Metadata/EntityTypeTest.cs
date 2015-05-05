@@ -357,14 +357,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(key1, entityType.GetPrimaryKey());
 
             Assert.Same(key1, entityType.FindPrimaryKey());
-            Assert.Same(key1, entityType.Keys.Single());
+            Assert.Same(key1, entityType.GetKeys().Single());
 
             var key2 = entityType.SetPrimaryKey(idProperty);
 
             Assert.NotNull(key2);
             Assert.Same(key2, entityType.GetPrimaryKey());
             Assert.Same(key2, entityType.FindPrimaryKey());
-            Assert.Equal(2, entityType.Keys.Count);
+            Assert.Equal(2, entityType.GetKeys().Count());
 
             Assert.Same(key1, entityType.GetKey(key1.Properties));
             Assert.Same(key2, entityType.GetKey(key2.Properties));
@@ -372,12 +372,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Null(entityType.SetPrimaryKey((Property)null));
 
             Assert.Null(entityType.FindPrimaryKey());
-            Assert.Equal(2, entityType.Keys.Count);
+            Assert.Equal(2, entityType.GetKeys().Count());
 
             Assert.Null(entityType.SetPrimaryKey(new Property[0]));
 
             Assert.Null(entityType.FindPrimaryKey());
-            Assert.Equal(2, entityType.Keys.Count);
+            Assert.Equal(2, entityType.GetKeys().Count());
 
             Assert.Equal(
                 Strings.EntityRequiresKey(typeof(Customer).FullName),
@@ -410,7 +410,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(key1, entityType.GetPrimaryKey());
 
             Assert.Same(key1, entityType.FindPrimaryKey());
-            Assert.Same(key1, entityType.Keys.Single());
+            Assert.Same(key1, entityType.GetKeys().Single());
 
             var key2 = entityType.GetOrSetPrimaryKey(idProperty);
 
@@ -419,19 +419,19 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(key2, entityType.GetOrSetPrimaryKey(idProperty));
             Assert.Same(key2, entityType.GetPrimaryKey());
             Assert.Same(key2, entityType.FindPrimaryKey());
-            Assert.Equal(2, entityType.Keys.Count);
+            Assert.Equal(2, entityType.GetKeys().Count());
             Assert.Same(key1, entityType.GetKey(key1.Properties));
             Assert.Same(key2, entityType.GetKey(key2.Properties));
 
             Assert.Null(entityType.GetOrSetPrimaryKey((Property)null));
 
             Assert.Null(entityType.FindPrimaryKey());
-            Assert.Equal(2, entityType.Keys.Count);
+            Assert.Equal(2, entityType.GetKeys().Count());
 
             Assert.Null(entityType.GetOrSetPrimaryKey(new Property[0]));
 
             Assert.Null(entityType.FindPrimaryKey());
-            Assert.Equal(2, entityType.Keys.Count);
+            Assert.Equal(2, entityType.GetKeys().Count());
             Assert.Equal(
                 Strings.EntityRequiresKey(typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => entityType.GetPrimaryKey()).Message);
@@ -450,7 +450,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             entityType.SetPrimaryKey((Property)null);
 
-            Assert.Equal(1, entityType.Keys.Count);
+            Assert.Equal(1, entityType.GetKeys().Count());
             Assert.Same(customerPk, entityType.FindKey(idProperty));
             Assert.Null(entityType.FindPrimaryKey());
             Assert.Same(customerPk, fk.PrincipalKey);
@@ -469,7 +469,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             entityType.SetPrimaryKey(entityType.GetOrAddProperty(Customer.NameProperty));
 
-            Assert.Equal(2, entityType.Keys.Count);
+            Assert.Equal(2, entityType.GetKeys().Count());
             Assert.Same(customerPk, entityType.FindKey(idProperty));
             Assert.NotSame(customerPk, entityType.GetPrimaryKey());
             Assert.Same(customerPk, fk.PrincipalKey);
@@ -486,15 +486,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.NotNull(key1);
             Assert.Same(key1, entityType.GetOrAddKey(new[] { idProperty, nameProperty }));
-            Assert.Same(key1, entityType.Keys.Single());
+            Assert.Same(key1, entityType.GetKeys().Single());
 
             var key2 = entityType.GetOrAddKey(idProperty);
 
             Assert.NotNull(key2);
             Assert.Same(key2, entityType.GetKey(idProperty));
-            Assert.Equal(2, entityType.Keys.Count());
-            Assert.Contains(key1, entityType.Keys);
-            Assert.Contains(key2, entityType.Keys);
+            Assert.Equal(2, entityType.GetKeys().Count());
+            Assert.Contains(key1, entityType.GetKeys());
+            Assert.Contains(key2, entityType.GetKeys());
         }
 
         [Fact]
@@ -550,7 +550,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var key1 = entityType.GetOrSetPrimaryKey(new[] { idProperty, nameProperty });
             var key2 = entityType.GetOrAddKey(idProperty);
 
-            Assert.Equal(new[] { key2, key1 }, entityType.Keys.ToArray());
+            Assert.Equal(new[] { key2, key1 }, entityType.GetKeys().ToArray());
 
             Assert.Same(key1, entityType.RemoveKey(key1));
             Assert.Null(entityType.RemoveKey(key1));
@@ -559,11 +559,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 Strings.KeyNotFound("{'" + idProperty.Name + "', '" + nameProperty.Name + "'}", typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => entityType.GetKey(new[] { idProperty, nameProperty })).Message);
 
-            Assert.Equal(new[] { key2 }, entityType.Keys.ToArray());
+            Assert.Equal(new[] { key2 }, entityType.GetKeys().ToArray());
 
             Assert.Same(key2, entityType.RemoveKey(new Key(new[] { idProperty })));
 
-            Assert.Empty(entityType.Keys);
+            Assert.Empty(entityType.GetKeys());
         }
 
         [Fact]
@@ -596,7 +596,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var k3 = customerType.GetOrAddKey(new[] { idProperty, nameProperty });
             var k1 = customerType.GetOrAddKey(idProperty);
 
-            Assert.True(new[] { k1, k2, k3, k4 }.SequenceEqual(customerType.Keys));
+            Assert.True(new[] { k1, k2, k3, k4 }.SequenceEqual(customerType.GetKeys()));
         }
 
         [Fact]
@@ -673,13 +673,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(fk1, orderType.GetForeignKey(customerFk1));
             Assert.Same(fk1, orderType.FindForeignKey(customerFk1));
             Assert.Same(fk1, orderType.GetOrAddForeignKey(customerFk1, new Key(new[] { idProperty })));
-            Assert.Same(fk1, orderType.ForeignKeys.Single());
+            Assert.Same(fk1, orderType.GetForeignKeys().Single());
 
             var fk2 = orderType.AddForeignKey(customerFk2, customerKey);
             Assert.Same(fk2, orderType.GetForeignKey(customerFk2));
             Assert.Same(fk2, orderType.FindForeignKey(customerFk2));
             Assert.Same(fk2, orderType.GetOrAddForeignKey(customerFk2, new Key(new[] { idProperty })));
-            Assert.Equal(new[] { fk1, fk2 }, orderType.ForeignKeys.ToArray());
+            Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
         }
 
         [Fact]
@@ -725,9 +725,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.NotEqual(fk1, fk2);
             Assert.Same(fk2, orderType.GetForeignKey(customerFk2));
             Assert.Same(fk2, orderType.FindForeignKey(customerFk2));
-            Assert.Equal(new[] { fk1, fk2 }, orderType.ForeignKeys.ToArray());
+            Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
             Assert.Same(fk2, orderType.GetOrAddForeignKey(customerFk2, customerKey));
-            Assert.Equal(new[] { fk1, fk2 }, orderType.ForeignKeys.ToArray());
+            Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
         }
 
         [Fact]
@@ -962,7 +962,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk1 = orderType.AddForeignKey(customerFk1, customerKey);
             var fk2 = orderType.AddForeignKey(customerFk2, customerKey);
 
-            Assert.Equal(new[] { fk1, fk2 }, orderType.ForeignKeys.ToArray());
+            Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
 
             Assert.Same(fk1, orderType.RemoveForeignKey(fk1));
             Assert.Null(orderType.RemoveForeignKey(fk1));
@@ -970,11 +970,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 Strings.ForeignKeyNotFound("{'" + Order.CustomerIdProperty.Name + "'}", typeof(Order).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => orderType.GetForeignKey(customerFk1)).Message);
-            Assert.Equal(new[] { fk2 }, orderType.ForeignKeys.ToArray());
+            Assert.Equal(new[] { fk2 }, orderType.GetForeignKeys().ToArray());
 
             Assert.Same(fk2, orderType.RemoveForeignKey(new ForeignKey(new[] { customerFk2 }, customerKey)));
 
-            Assert.Empty(orderType.ForeignKeys);
+            Assert.Empty(orderType.GetForeignKeys());
         }
 
         [Fact]
@@ -1023,7 +1023,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk3 = orderType.AddForeignKey(new[] { customerFk3A, customerFk3B }, otherCustomerKey);
             var fk1 = orderType.AddForeignKey(customerFk1, customerKey);
 
-            Assert.True(new[] { fk1, fk2, fk3, fk4 }.SequenceEqual(orderType.ForeignKeys));
+            Assert.True(new[] { fk1, fk2, fk3, fk4 }.SequenceEqual(orderType.GetForeignKeys()));
         }
 
         [Fact]

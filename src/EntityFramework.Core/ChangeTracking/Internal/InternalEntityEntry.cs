@@ -412,14 +412,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private IReadOnlyList<IProperty> MayGetStoreValue()
         {
-            var properties = EntityType.GetProperties().Where(MayGetStoreValue).ToList();
+            var properties = EntityType.GetProperties().Where(p => MayGetStoreValue(p, EntityType)).ToList();
 
             foreach (var foreignKey in EntityType.GetForeignKeys())
             {
                 foreach (var property in foreignKey.Properties)
                 {
                     if (!properties.Contains(property)
-                        && MayGetStoreValue(property.GetGenerationProperty()))
+                        && MayGetStoreValue(property.GetGenerationProperty(), EntityType))
                     {
                         properties.Add(property);
                     }
@@ -428,10 +428,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return properties;
         }
 
-        private bool MayGetStoreValue([CanBeNull] IProperty property)
+        private bool MayGetStoreValue([CanBeNull] IProperty property, IEntityType entityType)
             => property != null
                && (property.StoreGeneratedPattern != StoreGeneratedPattern.None
-                   || StateManager.ValueGeneration.MayGetTemporaryValue(property));
+                   || StateManager.ValueGeneration.MayGetTemporaryValue(property, entityType));
 
         public virtual void AutoRollbackSidecars()
         {

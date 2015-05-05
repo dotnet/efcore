@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             optionsBuilder.UseSqlServer(testStore.Connection);
             _options = optionsBuilder.Options;
 
-            // TODO: Do this via migrations & update pipeline
+            // TODO: Do this via migrations
 
             testStore.ExecuteNonQuery(@"
                 CREATE TABLE Country (
@@ -49,15 +49,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     EagleId nvarchar(100) FOREIGN KEY REFERENCES Animal (Species),
                     [Group] int,
                     FoundOn tinyint,
-                    Discriminator nvarchar(255)
-                );
-                
-                INSERT Country VALUES (1, 'New Zealand');
-                INSERT Country VALUES (2, 'USA');
+                    Discriminator nvarchar(255) NOT NULL
+                );");
 
-                INSERT Animal VALUES ('Aquila chrysaetos canadensis', 'American golden eagle', 2, 0, NULL, 1, NULL, 'Eagle');
-                INSERT Animal VALUES ('Apteryx owenii', 'Great spotted kiwi', 1, 1, 'Aquila chrysaetos canadensis', NULL, 1, 'Kiwi');
-            ");
+            using (var context = CreateContext())
+            {
+                SeedData(context);
+            }
         }
 
         public override AnimalContext CreateContext()
@@ -75,6 +73,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var discriminatorProperty
                 = animal.AddProperty("Discriminator", typeof(string), shadowProperty: true);
+
+            discriminatorProperty.IsNullable = false;
+            //discriminatorProperty.IsReadOnlyBeforeSave = true; // #2132
+            discriminatorProperty.IsReadOnlyAfterSave = true;
+            discriminatorProperty.GenerateValueOnAdd = true;
 
             animal.Relational().DiscriminatorProperty = discriminatorProperty;
         }

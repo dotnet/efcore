@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
 
-namespace Microsoft.Data.Entity.SqlServer
+namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
 {
     public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGeneratorFactory
     {

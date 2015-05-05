@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private void ReplaceConventionShadowKeys(Key newKey)
         {
-            foreach (var key in Metadata.Keys.ToList())
+            foreach (var key in Metadata.GetKeys().ToList())
             {
                 if (key != newKey
                     && _keyBuilders.GetConfigurationSource(key) == ConfigurationSource.Convention
@@ -390,12 +390,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             var detachedRelationships = new List<RelationshipSnapshot>();
-            foreach (var foreignKey in Metadata.ForeignKeys.Where(i => i.Properties.Contains(property)).ToList())
+            foreach (var foreignKey in Metadata.GetForeignKeys().Where(i => i.Properties.Contains(property)).ToList())
             {
                 detachedRelationships.Add(DetachRelationship(foreignKey, configurationSource));
             }
 
-            foreach (var key in Metadata.Keys.Where(i => i.Properties.Contains(property)).ToList())
+            foreach (var key in Metadata.GetKeys().Where(i => i.Properties.Contains(property)).ToList())
             {
                 foreach (var foreignKey in ModelBuilder.Metadata.GetReferencingForeignKeys(key))
                 {
@@ -566,12 +566,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return;
             }
 
-            if (Metadata.ForeignKeys.Any(i => i.Properties.Contains(property)))
+            if (Metadata.GetForeignKeys().Any(i => i.Properties.Contains(property)))
             {
                 return;
             }
 
-            if (Metadata.Keys.Any(i => i.Properties.Contains(property)))
+            if (Metadata.GetKeys().Any(i => i.Properties.Contains(property)))
             {
                 return;
             }

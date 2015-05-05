@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ValueGeneration;
 
-namespace Microsoft.Data.Entity.SqlServer
+namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
 {
     public interface ISqlServerValueGeneratorCache : IValueGeneratorCache
     {

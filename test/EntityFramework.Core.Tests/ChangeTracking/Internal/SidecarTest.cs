@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public virtual void Can_create_foreign_key_value_based_on_dependent_values()
         {
             var entityType = _model.GetEntityType(typeof(Banana).FullName);
-            var foreignKey = entityType.ForeignKeys.Single();
+            var foreignKey = entityType.GetForeignKeys().Single();
 
             var entry = CreateInternalEntry();
             var sidecar = CreateSidecar(entry);
@@ -312,7 +312,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public virtual void Can_create_foreign_key_value_based_on_principal_end_values()
         {
             var entityType = _model.GetEntityType(typeof(Banana).FullName);
-            var foreignKey = entityType.ForeignKeys.Single();
+            var foreignKey = entityType.GetForeignKeys().Single();
 
             var entry = CreateInternalEntry();
             var sidecar = CreateSidecar(entry);
@@ -339,7 +339,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public virtual void Can_create_composite_foreign_key_value_based_on_dependent_values()
         {
             var entityType = _model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
-            var foreignKey = entityType.ForeignKeys.Single();
+            var foreignKey = entityType.GetForeignKeys().Single();
 
             var entry = TestHelpers.Instance.CreateInternalEntry<SomeMoreDependentEntity>(_model);
             var sidecar = CreateSidecar(entry);
@@ -355,7 +355,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public virtual void Can_create_composite_foreign_key_value_based_on_principal_end_values()
         {
             var dependentType = _model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
-            var foreignKey = dependentType.ForeignKeys.Single();
+            var foreignKey = dependentType.GetForeignKeys().Single();
 
             var entry = TestHelpers.Instance.CreateInternalEntry<SomeDependentEntity>(_model);
             var sidecar = CreateSidecar(entry);
@@ -474,11 +474,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             {
             }
 
-            public override ValueGenerator Create(IProperty property)
+            public override ValueGenerator Create(IProperty property, IEntityType entityType)
             {
                 return property.ClrType == typeof(int)
                     ? _inMemoryFactory.Create(property)
-                    : base.Create(property);
+                    : base.Create(property, entityType);
             }
         }
     }

@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (generationProperty != null)
             {
-                return _valueGeneratorSelector.Select(generationProperty);
+                return _valueGeneratorSelector.Select(generationProperty, generationProperty.EntityType);
             }
 
             return null;

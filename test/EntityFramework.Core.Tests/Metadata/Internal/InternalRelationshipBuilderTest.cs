@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -47,7 +48,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
                 relationshipBuilder.PrincipalKey(typeof(Order), new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name }, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.PrincipalKey(typeof(Order), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention));
 
-            Assert.Equal(1, customerEntityBuilder.Metadata.ForeignKeys.Count);
+            Assert.Equal(1, customerEntityBuilder.Metadata.GetForeignKeys().Count());
         }
 
         [Fact]

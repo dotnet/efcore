@@ -100,7 +100,8 @@ namespace Microsoft.Data.Entity.Relational.Update
             var predecessorsMap = CreateKeyValuePredecessorMap(modificationCommandGraph);
             AddForeignKeyEdges(modificationCommandGraph, predecessorsMap);
 
-            var sortedCommands = modificationCommandGraph.BatchingTopologicalSort(data => { return string.Join(", ", data.Select(d => d.Item3.First())); });
+            var sortedCommands 
+                = modificationCommandGraph.BatchingTopologicalSort(data => { return string.Join(", ", data.Select(d => d.Item3.First())); });
 
             return sortedCommands;
         }

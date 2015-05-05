@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
             Assert.Equal(typeof(Order), modelBuilder.Metadata.EntityTypes.Single().ClrType);
-            Assert.Empty(orderEntityTypeBuilder.Metadata.ForeignKeys);
+            Assert.Empty(orderEntityTypeBuilder.Metadata.GetForeignKeys());
         }
 
         [Fact]
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             Assert.Equal(2, modelBuilder.Metadata.EntityTypes.Count);
-            Assert.Equal(1, orderEntityTypeBuilder.Metadata.ForeignKeys.Count);
+            Assert.Equal(1, orderEntityTypeBuilder.Metadata.GetForeignKeys().Count());
         }
 
         [Fact]
@@ -211,7 +211,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.ClrType));
-            Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.ForeignKeys.Single().PrincipalEntityType.ClrType);
+            Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
 
         [Fact]
@@ -232,7 +232,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.ClrType));
-            Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.ForeignKeys.Single().PrincipalEntityType.ClrType);
+            Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
 
         protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)

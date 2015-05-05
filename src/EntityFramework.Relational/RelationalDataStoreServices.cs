@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Relational.ValueGeneration;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.DependencyInjection;
@@ -27,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational
         public override IDatabaseFactory DatabaseFactory => Services.GetRequiredService<RelationalDatabaseFactory>();
         public override IModelBuilderFactory ModelBuilderFactory => Services.GetRequiredService<ModelBuilderFactory>();
         public override IQueryContextFactory QueryContextFactory => Services.GetRequiredService<RelationalQueryContextFactory>();
-        public override IValueGeneratorSelector ValueGeneratorSelector => Services.GetRequiredService<ValueGeneratorSelector>();
+        public override IValueGeneratorSelector ValueGeneratorSelector => Services.GetRequiredService<RelationalValueGeneratorSelector>();
 
         public virtual IRelationalTypeMapper TypeMapper => Services.GetRequiredService<RelationalTypeMapper>();
         public virtual IModelDiffer ModelDiffer => Services.GetRequiredService<ModelDiffer>();

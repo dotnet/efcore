@@ -473,7 +473,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalRelationshipBuilder Attach(ConfigurationSource configurationSource)
         {
-            if (Metadata.EntityType.ForeignKeys.Contains(Metadata))
+            if (Metadata.EntityType.GetForeignKeys().Contains(Metadata))
             {
                 return ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
                     .Relationship(Metadata, existingForeignKey: true, configurationSource: configurationSource);

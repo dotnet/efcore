@@ -38,16 +38,18 @@ namespace Microsoft.Data.Entity.ValueGeneration
             Cache = cache;
         }
 
-        public virtual ValueGenerator Select(IProperty property)
+        public virtual ValueGenerator Select(IProperty property, IEntityType entityType)
         {
             Check.NotNull(property, nameof(property));
+            Check.NotNull(entityType, nameof(entityType));
 
-            return Cache.GetOrAdd(property, Create);
+            return Cache.GetOrAdd(property, entityType, Create);
         }
 
-        public virtual ValueGenerator Create([NotNull] IProperty property)
+        public virtual ValueGenerator Create([NotNull] IProperty property, [NotNull] IEntityType entityType)
         {
             Check.NotNull(property, nameof(property));
+            Check.NotNull(entityType, nameof(entityType));
 
             var propertyType = property.ClrType.UnwrapNullableType();
 

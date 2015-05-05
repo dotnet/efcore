@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             Property.EnsureCompatible(principalProperties, dependentProperties);
 
-            if (principalEntityType?.Keys.Contains(principalKey) == false)
+            if (principalEntityType?.GetKeys().Contains(principalKey) == false)
             {
                 throw new ArgumentException(
                     Strings.ForeignKeyReferencedEntityKeyMismatch(

@@ -9,6 +9,9 @@ namespace Microsoft.Data.Entity.ValueGeneration
 {
     public interface IValueGeneratorCache
     {
-        ValueGenerator GetOrAdd([NotNull] IProperty property, [NotNull] Func<IProperty, ValueGenerator> factory);
+        ValueGenerator GetOrAdd(
+            [NotNull] IProperty property,
+            [NotNull] IEntityType entityType,
+            [NotNull] Func<IProperty, IEntityType, ValueGenerator> factory);
     }
 }

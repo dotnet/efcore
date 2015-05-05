@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
 
-namespace Microsoft.Data.Entity.SqlServer
+namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
 {
     public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValueGeneratorCache
     {

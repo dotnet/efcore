@@ -18,13 +18,14 @@ namespace Microsoft.Data.Entity.InMemory
         {
         }
 
-        public override ValueGenerator Create(IProperty property)
+        public override ValueGenerator Create(IProperty property, IEntityType entityType)
         {
             Check.NotNull(property, nameof(property));
+            Check.NotNull(entityType, nameof(entityType));
 
             return property.ClrType.IsInteger()
                 ? _inMemoryFactory.Create(property)
-                : base.Create(property);
+                : base.Create(property, entityType);
         }
     }
 }

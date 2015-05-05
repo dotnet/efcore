@@ -21,25 +21,25 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
-            Assert.IsType<InMemoryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("Id")));
-            Assert.IsType<InMemoryIntegerValueGenerator<long>>(selector.Select(entityType.GetProperty("Long")));
-            Assert.IsType<InMemoryIntegerValueGenerator<short>>(selector.Select(entityType.GetProperty("Short")));
-            Assert.IsType<InMemoryIntegerValueGenerator<byte>>(selector.Select(entityType.GetProperty("Byte")));
-            Assert.IsType<InMemoryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("NullableInt")));
-            Assert.IsType<InMemoryIntegerValueGenerator<long>>(selector.Select(entityType.GetProperty("NullableLong")));
-            Assert.IsType<InMemoryIntegerValueGenerator<short>>(selector.Select(entityType.GetProperty("NullableShort")));
-            Assert.IsType<InMemoryIntegerValueGenerator<byte>>(selector.Select(entityType.GetProperty("NullableByte")));
-            Assert.IsType<InMemoryIntegerValueGenerator<uint>>(selector.Select(entityType.GetProperty("UInt")));
-            Assert.IsType<InMemoryIntegerValueGenerator<ulong>>(selector.Select(entityType.GetProperty("ULong")));
-            Assert.IsType<InMemoryIntegerValueGenerator<ushort>>(selector.Select(entityType.GetProperty("UShort")));
-            Assert.IsType<InMemoryIntegerValueGenerator<sbyte>>(selector.Select(entityType.GetProperty("SByte")));
-            Assert.IsType<InMemoryIntegerValueGenerator<uint>>(selector.Select(entityType.GetProperty("NullableUInt")));
-            Assert.IsType<InMemoryIntegerValueGenerator<ulong>>(selector.Select(entityType.GetProperty("NullableULong")));
-            Assert.IsType<InMemoryIntegerValueGenerator<ushort>>(selector.Select(entityType.GetProperty("NullableUShort")));
-            Assert.IsType<InMemoryIntegerValueGenerator<sbyte>>(selector.Select(entityType.GetProperty("NullableSByte")));
-            Assert.IsType<TemporaryStringValueGenerator>(selector.Select(entityType.GetProperty("String")));
-            Assert.IsType<GuidValueGenerator>(selector.Select(entityType.GetProperty("Guid")));
-            Assert.IsType<TemporaryBinaryValueGenerator>(selector.Select(entityType.GetProperty("Binary")));
+            Assert.IsType<InMemoryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("Id"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<long>>(selector.Select(entityType.GetProperty("Long"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<short>>(selector.Select(entityType.GetProperty("Short"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<byte>>(selector.Select(entityType.GetProperty("Byte"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("NullableInt"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<long>>(selector.Select(entityType.GetProperty("NullableLong"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<short>>(selector.Select(entityType.GetProperty("NullableShort"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<byte>>(selector.Select(entityType.GetProperty("NullableByte"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<uint>>(selector.Select(entityType.GetProperty("UInt"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<ulong>>(selector.Select(entityType.GetProperty("ULong"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<ushort>>(selector.Select(entityType.GetProperty("UShort"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<sbyte>>(selector.Select(entityType.GetProperty("SByte"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<uint>>(selector.Select(entityType.GetProperty("NullableUInt"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<ulong>>(selector.Select(entityType.GetProperty("NullableULong"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<ushort>>(selector.Select(entityType.GetProperty("NullableUShort"), entityType));
+            Assert.IsType<InMemoryIntegerValueGenerator<sbyte>>(selector.Select(entityType.GetProperty("NullableSByte"), entityType));
+            Assert.IsType<TemporaryStringValueGenerator>(selector.Select(entityType.GetProperty("String"), entityType));
+            Assert.IsType<GuidValueGenerator>(selector.Select(entityType.GetProperty("Guid"), entityType));
+            Assert.IsType<TemporaryBinaryValueGenerator>(selector.Select(entityType.GetProperty("Binary"), entityType));
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             Assert.Equal(
                 CoreStrings.NoValueGenerator("Random", "AnEntity", typeof(Random).Name),
-                Assert.Throws<NotSupportedException>(() => selector.Select(entityType.GetProperty("Random"))).Message);
+                Assert.Throws<NotSupportedException>(() => selector.Select(entityType.GetProperty("Random"), entityType)).Message);
         }
 
         private static Model BuildModel(bool generateValues = true)

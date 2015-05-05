@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
-            return EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.PrincipalEntityType == entityType).ToList();
+            return EntityTypes.SelectMany(et => et.GetForeignKeys()).Where(fk => fk.PrincipalEntityType == entityType).ToList();
         }
 
         public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IKey key)
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
-            return EntityTypes.SelectMany(e => e.ForeignKeys).Where(fk => fk.PrincipalKey == key).ToList();
+            return EntityTypes.SelectMany(e => e.GetForeignKeys()).Where(fk => fk.PrincipalKey == key).ToList();
         }
 
         public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IProperty property)
@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.Metadata
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
             return EntityTypes
-                .SelectMany(e => e.ForeignKeys
+                .SelectMany(e => e.GetForeignKeys()
                     .Where(f => f.PrincipalKey.Properties.Contains(property)))
                 .ToList();
         }

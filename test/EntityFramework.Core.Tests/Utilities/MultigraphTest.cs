@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
 
                 foreach (var entityType in entityTypes)
                 {
-                    foreach (var foreignKey in entityType.ForeignKeys)
+                    foreach (var foreignKey in entityType.GetForeignKeys())
                     {
                         AddEdge(foreignKey.PrincipalEntityType, foreignKey.EntityType, foreignKey);
                     }

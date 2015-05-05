@@ -33,6 +33,18 @@ ORDER BY [a].[Species]",
                 Sql);
         }
 
+        public override void Can_use_of_type_bird_first()
+        {
+            base.Can_use_of_type_bird_first();
+
+            Assert.Equal(
+                @"SELECT TOP(1) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+FROM [Animal] AS [a]
+WHERE [a].[Discriminator] IN ('Kiwi', 'Eagle')
+ORDER BY [a].[Species]",
+                Sql);
+        }
+
         public override void Can_use_of_type_kiwi()
         {
             base.Can_use_of_type_kiwi();
@@ -133,9 +145,61 @@ ORDER BY [c].[Name], [c].[Id]",
                 Sql);
         }
 
+        public override void Can_insert_update_delete()
+        {
+            base.Can_insert_update_delete();
+
+            Assert.Equal(
+                @"SELECT TOP(2) [c].[Id], [c].[Name]
+FROM [Country] AS [c]
+WHERE [c].[Id] = 1
+
+@p0: Apteryx owenii
+@p1: 1
+@p2: Kiwi
+@p3: Little spotted kiwi
+@p4: 
+@p5: True
+@p6: North
+
+SET NOCOUNT OFF;
+INSERT INTO [Animal] ([Species], [CountryId], [Discriminator], [Name], [EagleId], [IsFlightless], [FoundOn])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+SELECT @@ROWCOUNT;
+
+SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]
+FROM [Animal] AS [k]
+WHERE ([k].[Discriminator] = 'Kiwi' AND [k].[Species] LIKE '%' + 'owenii')
+
+@p0: Apteryx owenii
+@p1: Aquila chrysaetos canadensis
+
+SET NOCOUNT OFF;
+UPDATE [Animal] SET [EagleId] = @p1
+WHERE [Species] = @p0;
+SELECT @@ROWCOUNT;
+
+SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]
+FROM [Animal] AS [k]
+WHERE ([k].[Discriminator] = 'Kiwi' AND [k].[Species] LIKE '%' + 'owenii')
+
+@p0: Apteryx owenii
+
+SET NOCOUNT OFF;
+DELETE FROM [Animal]
+WHERE [Species] = @p0;
+SELECT @@ROWCOUNT;
+
+SELECT COUNT(*)
+FROM [Animal] AS [k]
+WHERE ([k].[Discriminator] = 'Kiwi' AND [k].[Species] LIKE '%' + 'owenii')",
+                Sql);
+        }
+
         public InheritanceSqlServerTest(InheritanceSqlServerFixture fixture)
             : base(fixture)
         {
+            TestSqlLoggerFactory.Reset();
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

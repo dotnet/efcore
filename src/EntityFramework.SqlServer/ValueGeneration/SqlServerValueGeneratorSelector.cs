@@ -4,13 +4,14 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.ValueGeneration;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
 
-namespace Microsoft.Data.Entity.SqlServer
+namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
 {
-    public class SqlServerValueGeneratorSelector : ValueGeneratorSelector
+    public class SqlServerValueGeneratorSelector : RelationalValueGeneratorSelector
     {
         private readonly ISqlServerSequenceValueGeneratorFactory _sequenceFactory;
 
@@ -34,25 +35,27 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public virtual new ISqlServerValueGeneratorCache Cache => (ISqlServerValueGeneratorCache)base.Cache;
 
-        public override ValueGenerator Select(IProperty property)
+        public override ValueGenerator Select(IProperty property, IEntityType entityType)
         {
             Check.NotNull(property, nameof(property));
+            Check.NotNull(entityType, nameof(entityType));
 
             var strategy = property.SqlServer().ValueGenerationStrategy;
 
             return property.ClrType.IsInteger()
                    && strategy == SqlServerValueGenerationStrategy.Sequence
                 ? _sequenceFactory.Create(property, Cache.GetOrAddSequenceState(property), _connection)
-                : Cache.GetOrAdd(property, Create);
+                : Cache.GetOrAdd(property, entityType, Create);
         }
 
-        public override ValueGenerator Create(IProperty property)
+        public override ValueGenerator Create(IProperty property, IEntityType entityType)
         {
             Check.NotNull(property, nameof(property));
+            Check.NotNull(entityType, nameof(entityType));
 
             return property.ClrType == typeof(Guid)
                 ? _sequentialGuidFactory.Create(property)
-                : base.Create(property);
+                : base.Create(property, entityType);
         }
     }
 }
