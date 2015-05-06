@@ -61,7 +61,7 @@ namespace EntityFramework.Microbenchmarks.Core
                     foreach (var i in new[] { 0.95, 0.99, 0.999 })
                     {
                         var percentile = (i * 100).ToString(CultureInfo.InvariantCulture);
-                        var resultName = string.Format("{0} - {1}th percentile", runResult.TestName, percentile);
+                        var resultName = $"{runResult.TestName} - {percentile}th percentile";
                         var resultPercentile =
                             GetPercentile(runResult, i, c => c.ElapsedMillis, true);
 
@@ -109,16 +109,13 @@ namespace EntityFramework.Microbenchmarks.Core
             //validate
             if (run == null)
             {
-                throw new ArgumentNullException(string.Format("Verify that test {0} has a run action.", testName));
+                throw new ArgumentNullException($"Verify that test {testName} has a run action.");
             }
 
             //setup
             try
             {
-                if (setup != null)
-                {
-                    setup();
-                }
+                setup?.Invoke();
             }
             catch (Exception e)
             {
@@ -189,7 +186,7 @@ namespace EntityFramework.Microbenchmarks.Core
             var metrics = new List<PerformanceMetric>();
             if (runResult.Successful)
             {
-                var metric = string.Format("{0} {1}", "total", TestConfig.Instance.RuntimeFlavor);
+                var metric = $"{"total"} {TestConfig.Instance.RuntimeFlavor}";
                 metrics.Add(
                     new PerformanceMetric
                         {
@@ -210,7 +207,7 @@ namespace EntityFramework.Microbenchmarks.Core
                         resultMemoryPercentile = GetPercentile(runResult, i,
                             c => c.WorkingSet, true);
 
-                        metric = string.Format("{0}th percentile {1}", percentile, TestConfig.Instance.RuntimeFlavor);
+                        metric = $"{percentile}th percentile {TestConfig.Instance.RuntimeFlavor}";
 
                         metrics.Add(
                             new PerformanceMetric
@@ -234,7 +231,7 @@ namespace EntityFramework.Microbenchmarks.Core
             }
 
             var jsonData = JsonConvert.SerializeObject(performanceCaseResult, Formatting.Indented);
-            var jsonFilename = string.Format("result_{0}_{1}.json", scenario, TestConfig.Instance.RuntimeFlavor);
+            var jsonFilename = $"result_{scenario}_{TestConfig.Instance.RuntimeFlavor}.json";
             File.WriteAllText(Path.Combine(resultDirectory, jsonFilename), jsonData);
 
             var csvFilename = string.Format(Path.Combine(resultDirectory, "results.csv"));
@@ -245,14 +242,7 @@ namespace EntityFramework.Microbenchmarks.Core
 
             foreach (var item in performanceCaseResult.Metrics)
             {
-                File.AppendAllText(csvFilename, String.Format(
-                    "\r\n{0},{1},{2},{3},{4},{5}",
-                    performanceCaseResult.StartTime,
-                    performanceCaseResult.EndTime,
-                    item.Scenario,
-                    item.Metric,
-                    item.Unit,
-                    item.Value));
+                File.AppendAllText(csvFilename, $"\r\n{performanceCaseResult.StartTime},{performanceCaseResult.EndTime},{item.Scenario},{item.Metric},{item.Unit},{item.Value}");
             }
         }
     }

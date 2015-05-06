@@ -240,10 +240,7 @@ namespace Microsoft.Data.Entity.Query
                         }
 
                         parameterName
-                            = string.Format("{0}{1}_{2}",
-                                CompiledQueryParameterPrefix,
-                                parameterName,
-                                _queryContext.ParameterValues.Count);
+                            = $"{CompiledQueryParameterPrefix}{parameterName}_{_queryContext.ParameterValues.Count}";
 
                         _queryContext.ParameterValues.Add(parameterName, parameterValue);
 

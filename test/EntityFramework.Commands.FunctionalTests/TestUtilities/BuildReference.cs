@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
             if (copyLocal)
             {
                 throw new InvalidOperationException(
-                    string.Format("In-memory assembly '{0}' cannot be copied locally.", name));
+                    $"In-memory assembly '{name}' cannot be copied locally.");
             }
 
             return new BuildReference(ResolveReference(name));
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                 .MetadataReference;
 #else
             throw new InvalidOperationException(
-                string.Format("In-memory assembly '{0}' cannot be referenced.", name));
+                $"In-memory assembly '{name}' cannot be referenced.");
 #endif
         }
     }

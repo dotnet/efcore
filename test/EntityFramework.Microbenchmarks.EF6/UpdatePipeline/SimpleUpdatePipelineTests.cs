@@ -12,7 +12,8 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
 {
     public class SimpleUpdatePipelineTests
     {
-        private static readonly string _connectionString = String.Format(@"Server={0};Database=Perf_UpdatePipeline_Simple_EF6;Integrated Security=True;MultipleActiveResultSets=true;", TestConfig.Instance.DataSource);
+        private static readonly string _connectionString 
+            = $@"Server={TestConfig.Instance.DataSource};Database=Perf_UpdatePipeline_Simple_EF6;Integrated Security=True;MultipleActiveResultSets=true;";
 
         [Fact]
         public void Insert()

@@ -171,19 +171,19 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.Contains("INSERT", TestSqlLoggerFactory.SqlStatements[4]);
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
-                        string.Format(@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {0} AND Name = 'Blog is Updated'", updatedId),
+                        $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {updatedId} AND Name = 'Blog is Updated'",
                         CancellationToken.None);
 
                     Assert.Equal(1, rows);
 
                     rows = await testDatabase.ExecuteScalarAsync<int>(
-                        string.Format(@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {0}", deletedId),
+                        $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {deletedId}",
                         CancellationToken.None);
 
                     Assert.Equal(0, rows);
 
                     rows = await testDatabase.ExecuteScalarAsync<int>(
-                        string.Format(@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {0} AND Name = 'Blog to Insert'", addedId),
+                        $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {addedId} AND Name = 'Blog to Insert'",
                         CancellationToken.None);
 
                     Assert.Equal(1, rows);

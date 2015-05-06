@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                 && !resultHandler.HasResult)
             {
                 throw new InvalidOperationException(
-                    string.Format("A value was not returned for operation '{0}'.", operation));
+                    $"A value was not returned for operation '{operation}'.");
             }
 
             return resultHandler.Result;

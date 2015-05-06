@@ -11,7 +11,9 @@ namespace EntityFramework.Microbenchmarks.Query
 {
     public class FuncletizationTests
     {
-        private static readonly string _connectionString = String.Format(@"Server={0};Database=Perf_Query_Funcletization;Integrated Security=True;MultipleActiveResultSets=true;", TestConfig.Instance.DataSource);
+        private static readonly string _connectionString 
+            = $@"Server={TestConfig.Instance.DataSource};Database=Perf_Query_Funcletization;Integrated Security=True;MultipleActiveResultSets=true;";
+
         private static readonly int _funcletizationIterationCount = 100;
 
         [Fact]

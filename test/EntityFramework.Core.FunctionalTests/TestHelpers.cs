@@ -208,10 +208,7 @@ namespace Microsoft.Data.Entity.Tests
                     {
                         Assert.True(
                             actual.Contains(expectedItem),
-                            string.Format(
-                                "\r\nExpected item: [{0}] not found in results: [{1}]...",
-                                expectedItem,
-                                string.Join(", ", actual.Take(10))));
+                            $"\r\nExpected item: [{expectedItem}] not found in results: [{string.Join(", ", actual.Take(10))}]...");
                     }
                 }
             }

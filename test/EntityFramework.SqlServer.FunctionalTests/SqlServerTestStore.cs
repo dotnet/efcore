@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     command.CommandTimeout = CommandTimeout;
                     command.CommandText
-                        = string.Format(@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{0}'", name);
+                        = $@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{name}'";
 
                     var exists = (int)await command.ExecuteScalarAsync() > 0;
 
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     {
                         if (scriptPath == null)
                         {
-                            command.CommandText = string.Format(@"CREATE DATABASE [{0}]", name);
+                            command.CommandText = $@"CREATE DATABASE [{name}]";
 
                             await command.ExecuteNonQueryAsync();
 
@@ -150,8 +150,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (var command = master.CreateCommand())
                 {
                     command.CommandTimeout = CommandTimeout;
-                    command.CommandText
-                        = string.Format(@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{0}'", name);
+                    command.CommandText = $@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{name}'";
 
                     var exists = (int)command.ExecuteScalar() > 0;
 
@@ -159,7 +158,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     {
                         if (scriptPath == null)
                         {
-                            command.CommandText = string.Format(@"CREATE DATABASE [{0}]", name);
+                            command.CommandText = $@"CREATE DATABASE [{name}]";
 
                             command.ExecuteNonQuery();
 
@@ -268,7 +267,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     await master.OpenAsync();
                     using (var command = master.CreateCommand())
                     {
-                        command.CommandText = string.Format("{0}CREATE DATABASE [{1}]", Environment.NewLine, _name);
+                        command.CommandText = $"{Environment.NewLine}CREATE DATABASE [{_name}]";
 
                         await command.ExecuteNonQueryAsync();
 
@@ -295,7 +294,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     master.Open();
                     using (var command = master.CreateCommand())
                     {
-                        command.CommandText = string.Format("{0}CREATE DATABASE [{1}]", Environment.NewLine, _name);
+                        command.CommandText = $"{Environment.NewLine}CREATE DATABASE [{_name}]";
 
                         command.ExecuteNonQuery();
 
