@@ -25,15 +25,15 @@ namespace Microsoft.Data.Entity.Relational
         {
         }
 
-        public override IDatabaseFactory DatabaseFactory => Services.GetRequiredService<RelationalDatabaseFactory>();
-        public override IModelBuilderFactory ModelBuilderFactory => Services.GetRequiredService<ModelBuilderFactory>();
-        public override IQueryContextFactory QueryContextFactory => Services.GetRequiredService<RelationalQueryContextFactory>();
-        public override IValueGeneratorSelector ValueGeneratorSelector => Services.GetRequiredService<RelationalValueGeneratorSelector>();
+        public override IDatabaseFactory DatabaseFactory => GetService<RelationalDatabaseFactory>();
+        public override IModelBuilderFactory ModelBuilderFactory => GetService<ModelBuilderFactory>();
+        public override IQueryContextFactory QueryContextFactory => GetService<RelationalQueryContextFactory>();
+        public override IValueGeneratorSelector ValueGeneratorSelector => GetService<RelationalValueGeneratorSelector>();
 
-        public virtual IRelationalTypeMapper TypeMapper => Services.GetRequiredService<RelationalTypeMapper>();
-        public virtual IModelDiffer ModelDiffer => Services.GetRequiredService<ModelDiffer>();
-        public virtual IBatchExecutor BatchExecutor => Services.GetRequiredService<BatchExecutor>();
-        public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory => Services.GetRequiredService<TypedValueBufferFactoryFactory>();
+        public virtual IRelationalTypeMapper TypeMapper => GetService<RelationalTypeMapper>();
+        public virtual IModelDiffer ModelDiffer => GetService<ModelDiffer>();
+        public virtual IBatchExecutor BatchExecutor => GetService<BatchExecutor>();
+        public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory => GetService<TypedValueBufferFactoryFactory>();
 
         public abstract IHistoryRepository HistoryRepository { get; }
         public abstract IMigrationSqlGenerator MigrationSqlGenerator { get; }

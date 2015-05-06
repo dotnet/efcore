@@ -19,13 +19,13 @@ namespace Microsoft.Data.Entity.InMemory
         {
         }
 
-        public override IDataStore Store => Services.GetRequiredService<IInMemoryDataStore>();
-        public override IQueryContextFactory QueryContextFactory => Services.GetRequiredService<InMemoryQueryContextFactory>();
-        public override IDataStoreCreator Creator => Services.GetRequiredService<InMemoryDataStoreCreator>();
-        public override IDataStoreConnection Connection => Services.GetRequiredService<InMemoryConnection>();
-        public override IValueGeneratorSelector ValueGeneratorSelector => Services.GetRequiredService<InMemoryValueGeneratorSelector>();
-        public override IDatabaseFactory DatabaseFactory => Services.GetRequiredService<InMemoryDatabaseFactory>();
-        public override IModelSource ModelSource => Services.GetRequiredService<InMemoryModelSource>();
-        public override IValueGeneratorCache ValueGeneratorCache => Services.GetRequiredService<InMemoryValueGeneratorCache>();
+        public override IDataStore Store => GetService<IInMemoryDataStore>();
+        public override IQueryContextFactory QueryContextFactory => GetService<InMemoryQueryContextFactory>();
+        public override IDataStoreCreator Creator => GetService<InMemoryDataStoreCreator>();
+        public override IDataStoreConnection Connection => GetService<InMemoryConnection>();
+        public override IValueGeneratorSelector ValueGeneratorSelector => GetService<InMemoryValueGeneratorSelector>();
+        public override IDatabaseFactory DatabaseFactory => GetService<InMemoryDatabaseFactory>();
+        public override IModelSource ModelSource => GetService<InMemoryModelSource>();
+        public override IValueGeneratorCache ValueGeneratorCache => GetService<InMemoryValueGeneratorCache>();
     }
 }

@@ -26,22 +26,22 @@ namespace Microsoft.Data.Entity.SqlServer
         {
         }
 
-        public override IDataStore Store => Services.GetRequiredService<SqlServerDataStore>();
-        public override IDataStoreCreator Creator => Services.GetRequiredService<SqlServerDataStoreCreator>();
-        public override IDataStoreConnection Connection => Services.GetRequiredService<ISqlServerConnection>();
-        public override IRelationalConnection RelationalConnection => Services.GetRequiredService<ISqlServerConnection>();
-        public override IValueGeneratorSelector ValueGeneratorSelector => Services.GetRequiredService<SqlServerValueGeneratorSelector>();
-        public override IRelationalDataStoreCreator RelationalDataStoreCreator => Services.GetRequiredService<SqlServerDataStoreCreator>();
-        public override IModelBuilderFactory ModelBuilderFactory => Services.GetRequiredService<SqlServerModelBuilderFactory>();
-        public override IModelDiffer ModelDiffer => Services.GetRequiredService<SqlServerModelDiffer>();
-        public override IHistoryRepository HistoryRepository => Services.GetRequiredService<SqlServerHistoryRepository>();
-        public override IMigrationSqlGenerator MigrationSqlGenerator => Services.GetRequiredService<SqlServerMigrationSqlGenerator>();
-        public override IModelSource ModelSource => Services.GetRequiredService<SqlServerModelSource>();
-        public override ISqlGenerator SqlGenerator => Services.GetRequiredService<ISqlServerSqlGenerator>();
-        public override IValueGeneratorCache ValueGeneratorCache => Services.GetRequiredService<ISqlServerValueGeneratorCache>();
-        public override IRelationalTypeMapper TypeMapper => Services.GetRequiredService<SqlServerTypeMapper>();
-        public override IModificationCommandBatchFactory ModificationCommandBatchFactory => Services.GetRequiredService<SqlServerModificationCommandBatchFactory>();
-        public override ICommandBatchPreparer CommandBatchPreparer => Services.GetRequiredService<SqlServerCommandBatchPreparer>();
-        public override IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory => Services.GetRequiredService<UntypedValueBufferFactoryFactory>();
+        public override IDataStore Store => GetService<SqlServerDataStore>();
+        public override IDataStoreCreator Creator => GetService<SqlServerDataStoreCreator>();
+        public override IDataStoreConnection Connection => GetService<ISqlServerConnection>();
+        public override IRelationalConnection RelationalConnection => GetService<ISqlServerConnection>();
+        public override IValueGeneratorSelector ValueGeneratorSelector => GetService<SqlServerValueGeneratorSelector>();
+        public override IRelationalDataStoreCreator RelationalDataStoreCreator => GetService<SqlServerDataStoreCreator>();
+        public override IModelBuilderFactory ModelBuilderFactory => GetService<SqlServerModelBuilderFactory>();
+        public override IModelDiffer ModelDiffer => GetService<SqlServerModelDiffer>();
+        public override IHistoryRepository HistoryRepository => GetService<SqlServerHistoryRepository>();
+        public override IMigrationSqlGenerator MigrationSqlGenerator => GetService<SqlServerMigrationSqlGenerator>();
+        public override IModelSource ModelSource => GetService<SqlServerModelSource>();
+        public override ISqlGenerator SqlGenerator => GetService<ISqlServerSqlGenerator>();
+        public override IValueGeneratorCache ValueGeneratorCache => GetService<ISqlServerValueGeneratorCache>();
+        public override IRelationalTypeMapper TypeMapper => GetService<SqlServerTypeMapper>();
+        public override IModificationCommandBatchFactory ModificationCommandBatchFactory => GetService<SqlServerModificationCommandBatchFactory>();
+        public override ICommandBatchPreparer CommandBatchPreparer => GetService<SqlServerCommandBatchPreparer>();
+        public override IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory => GetService<UntypedValueBufferFactoryFactory>();
     }
 }

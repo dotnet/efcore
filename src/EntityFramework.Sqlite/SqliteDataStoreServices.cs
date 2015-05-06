@@ -24,18 +24,18 @@ namespace Microsoft.Data.Entity.Sqlite
         {
         }
 
-        public override IDataStoreConnection Connection => Services.GetRequiredService<SqliteDataStoreConnection>();
-        public override IDataStoreCreator Creator => Services.GetRequiredService<SqliteDataStoreCreator>();
-        public override IHistoryRepository HistoryRepository => Services.GetRequiredService<SqliteHistoryRepository>();
-        public override IMigrationSqlGenerator MigrationSqlGenerator => Services.GetRequiredService<SqliteMigrationSqlGenerator>();
-        public override IModelSource ModelSource => Services.GetRequiredService<SqliteModelSource>();
-        public override IRelationalConnection RelationalConnection => Services.GetRequiredService<SqliteDataStoreConnection>();
-        public override ISqlGenerator SqlGenerator => Services.GetRequiredService<SqliteSqlGenerator>();
-        public override IDataStore Store => Services.GetRequiredService<SqliteDataStore>();
-        public override IValueGeneratorCache ValueGeneratorCache => Services.GetRequiredService<SqliteValueGeneratorCache>();
-        public override IRelationalTypeMapper TypeMapper => Services.GetRequiredService<SqliteTypeMapper>();
-        public override IModificationCommandBatchFactory ModificationCommandBatchFactory => Services.GetRequiredService<SqliteModificationCommandBatchFactory>();
-        public override ICommandBatchPreparer CommandBatchPreparer => Services.GetRequiredService<SqliteCommandBatchPreparer>();
-        public override IRelationalDataStoreCreator RelationalDataStoreCreator => Services.GetRequiredService<SqliteDataStoreCreator>();
+        public override IDataStoreConnection Connection => GetService<SqliteDataStoreConnection>();
+        public override IDataStoreCreator Creator => GetService<SqliteDataStoreCreator>();
+        public override IHistoryRepository HistoryRepository => GetService<SqliteHistoryRepository>();
+        public override IMigrationSqlGenerator MigrationSqlGenerator => GetService<SqliteMigrationSqlGenerator>();
+        public override IModelSource ModelSource => GetService<SqliteModelSource>();
+        public override IRelationalConnection RelationalConnection => GetService<SqliteDataStoreConnection>();
+        public override ISqlGenerator SqlGenerator => GetService<SqliteSqlGenerator>();
+        public override IDataStore Store => GetService<SqliteDataStore>();
+        public override IValueGeneratorCache ValueGeneratorCache => GetService<SqliteValueGeneratorCache>();
+        public override IRelationalTypeMapper TypeMapper => GetService<SqliteTypeMapper>();
+        public override IModificationCommandBatchFactory ModificationCommandBatchFactory => GetService<SqliteModificationCommandBatchFactory>();
+        public override ICommandBatchPreparer CommandBatchPreparer => GetService<SqliteCommandBatchPreparer>();
+        public override IRelationalDataStoreCreator RelationalDataStoreCreator => GetService<SqliteDataStoreCreator>();
     }
 }

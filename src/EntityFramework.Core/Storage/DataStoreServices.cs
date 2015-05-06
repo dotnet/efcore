@@ -23,8 +23,10 @@ namespace Microsoft.Data.Entity.Storage
 
         protected virtual IServiceProvider Services { get; }
 
-        public virtual IModelBuilderFactory ModelBuilderFactory => Services.GetRequiredService<ModelBuilderFactory>();
-        public virtual IValueGeneratorSelector ValueGeneratorSelector => Services.GetRequiredService<ValueGeneratorSelector>();
+        protected virtual TService GetService<TService>() => Services.GetRequiredService<TService>();
+
+        public virtual IModelBuilderFactory ModelBuilderFactory => GetService<ModelBuilderFactory>();
+        public virtual IValueGeneratorSelector ValueGeneratorSelector => GetService<ValueGeneratorSelector>();
 
         public abstract IDatabaseFactory DatabaseFactory { get; }
         public abstract IDataStore Store { get; }
