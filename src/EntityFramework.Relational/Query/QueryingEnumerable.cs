@@ -25,9 +25,9 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] ILogger logger)
         {
             Check.NotNull(relationalQueryContext, nameof(relationalQueryContext));
-            Check.NotNull(relationalQueryContext, nameof(relationalQueryContext));
-            Check.NotNull(relationalQueryContext, nameof(relationalQueryContext));
-            Check.NotNull(relationalQueryContext, nameof(relationalQueryContext));
+            Check.NotNull(commandBuilder, nameof(commandBuilder));
+            Check.NotNull(shaper, nameof(shaper));
+            Check.NotNull(logger, nameof(logger));
 
             _relationalQueryContext = relationalQueryContext;
             _commandBuilder = commandBuilder;
