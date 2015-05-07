@@ -97,6 +97,8 @@ namespace Microsoft.Data.Entity.Commands
 
                 migrator.ApplyMigrations(migrationName);
             }
+
+            _logger.Value.LogInformation(Strings.Done);
         }
 
         public virtual MigrationFiles RemoveMigration(
@@ -113,7 +115,11 @@ namespace Microsoft.Data.Entity.Commands
                 var services = new DesignTimeServices(((IAccessor<IServiceProvider>)context).Service);
                 var scaffolder = CreateScaffolder(services);
 
-                return scaffolder.RemoveMigration(projectDir, rootNamespace);
+                var files = scaffolder.RemoveMigration(projectDir, rootNamespace);
+
+                _logger.Value.LogInformation(Strings.Done);
+
+                return files;
             }
         }
 

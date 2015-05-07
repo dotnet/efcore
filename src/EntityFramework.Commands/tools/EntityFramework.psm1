@@ -14,6 +14,19 @@ Register-TabExpansion Use-DbContext @{
     Project = { GetProjects }
 }
 
+<#
+.SYNOPSIS
+	Sets the default DbContext to use.
+
+.DESCRIPTION
+	Sets the default DbContext to use.
+
+.PARAMETER Context
+	Specifies the default DbContext to use.
+
+.PARAMETER Project
+	Specifies the project to use. If ommitted, the default project is used.
+#>
 function Use-DbContext {
     [CmdletBinding()]
     param ([Parameter(Mandatory = $true)] [string] $Context, [string] $Project)
@@ -35,6 +48,25 @@ Register-TabExpansion Add-Migration @{
     StartupProject = { GetProjects }
 }
 
+<#
+.SYNOPSIS
+	Adds a new migration.
+
+.DESCRIPTION
+	Adds a new migration.
+
+.PARAMETER Name
+	Specifies the name of the migration.
+
+.PARAMETER Context
+	Specifies the default DbContext to use. If ommitted, the default DbContext is used.
+
+.PARAMETER Project
+	Specifies the project to use. If ommitted, the default project is used.
+
+.PARAMETER $StartupProject
+	Specifies the start-up project to use. If ommitted, the solution's start-up project is used.
+#>
 function Add-Migration {
     [CmdletBinding()]
     param ([Parameter(Mandatory = $true)] [string] $Name, [string] $Context, [string] $Project, [string] $StartupProject)
@@ -52,6 +84,8 @@ function Add-Migration {
     $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
     $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
     ShowConsole
+
+	Write-Host 'To undo this action, use Remove-Migration.'
 }
 
 #
@@ -66,6 +100,25 @@ Register-TabExpansion Apply-Migration @{
 }
 
 # TODO: WhatIf (See #1775)
+<#
+.SYNOPSIS
+	Applies migrations to the database.
+
+.DESCRIPTION
+	Applies migrations to the database.
+
+.PARAMETER Migration
+	Specifies the migration to apply. If '0', all migrations will be unapplied.
+
+.PARAMETER Context
+	Specifies the default DbContext to use. If ommitted, the default DbContext is used.
+
+.PARAMETER Project
+	Specifies the project to use. If ommitted, the default project is used.
+
+.PARAMETER $StartupProject
+	Specifies the start-up project to use. If ommitted, the solution's start-up project is used.
+#>
 function Apply-Migration {
     [CmdletBinding()]
     param ([string] $Migration, [string] $Context, [string] $Project, [string] $StartupProject)
@@ -119,6 +172,31 @@ Register-TabExpansion Script-Migration @{
     StartupProject = { GetProjects }
 }
 
+<#
+.SYNOPSIS
+	Generates a SQL script from migrations.
+
+.DESCRIPTION
+	Generates a SQL script from migrations.
+
+.PARAMETER From
+	Specifies the starting migration.
+
+.PARAMETER To
+	Specifies the ending migration.
+
+.PARAMETER Idempotent
+	Generates an idempotent script.
+
+.PARAMETER Context
+	Specifies the default DbContext to use. If ommitted, the default DbContext is used.
+
+.PARAMETER Project
+	Specifies the project to use. If ommitted, the default project is used.
+
+.PARAMETER $StartupProject
+	Specifies the start-up project to use. If ommitted, the solution's start-up project is used.
+#>
 function Script-Migration {
     [CmdletBinding()]
     param ([string] $From, [string] $To, [switch] $Idempotent, [string] $Context, [string] $Project, [string] $StartupProject)
@@ -166,6 +244,22 @@ Register-TabExpansion Remove-Migration @{
     StartupProject = { GetProjects }
 }
 
+<#
+.SYNOPSIS
+	Removes the last migration.
+
+.DESCRIPTION
+	Removes the last migration.
+
+.PARAMETER Context
+	Specifies the default DbContext to use. If ommitted, the default DbContext is used.
+
+.PARAMETER Project
+	Specifies the project to use. If ommitted, the default project is used.
+
+.PARAMETER $StartupProject
+	Specifies the start-up project to use. If ommitted, the solution's start-up project is used.
+#>
 function Remove-Migration {
     [CmdletBinding()]
     param ([string] $Context, [string] $Project, [string] $StartupProject)
@@ -191,6 +285,22 @@ Register-TabExpansion Reverse-Engineer @{
     StartupProject = { GetProjects }
 }
 
+<#
+.SYNOPSIS
+	Reverse engineers code from a database.
+
+.DESCRIPTION
+	Reverse engineers code from a database.
+
+.PARAMETER ConnectionString
+	Specifies the connection string of the database.
+
+.PARAMETER Project
+	Specifies the project to use. If ommitted, the default project is used.
+
+.PARAMETER $StartupProject
+	Specifies the start-up project to use. If ommitted, the solution's start-up project is used.
+#>
 function Reverse-Engineer {
     [CmdletBinding()]
     param ([string] $ConnectionString, [string] $Project, [string] $StartupProject)

@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Migrations
 {
@@ -31,6 +32,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         private readonly IModel _model;
         private readonly IMigrationIdGenerator _idGenerator;
         private readonly ISqlGenerator _sqlGenerator;
+        private readonly LazyRef<ILogger> _logger;
 
         public Migrator(
             [NotNull] IMigrationAssembly migrationAssembly,
@@ -42,7 +44,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             [NotNull] IModelDiffer modelDiffer,
             [NotNull] IModel model,
             [NotNull] IMigrationIdGenerator idGenerator,
-            [NotNull] ISqlGenerator sqlGenerator)
+            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(migrationAssembly, nameof(migrationAssembly));
             Check.NotNull(historyRepository, nameof(historyRepository));
@@ -54,6 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             Check.NotNull(model, nameof(model));
             Check.NotNull(idGenerator, nameof(idGenerator));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
 
             _migrationAssembly = migrationAssembly;
             _historyRepository = historyRepository;
@@ -65,6 +69,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             _model = model;
             _idGenerator = idGenerator;
             _sqlGenerator = sqlGenerator;
+            _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<Migrator>);
         }
 
         protected virtual string ProductVersion =>
@@ -86,6 +91,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations
 
         public virtual void ApplyMigrations(string targetMigration = null)
         {
+            var connection = _connection.DbConnection;
+            _logger.Value.LogVerbose(Strings.UsingConnection(connection.Database, connection.DataSource));
+
             var migrations = _migrationAssembly.Migrations;
             var appliedMigrationEntries = _historyRepository.GetAppliedMigrations();
 
@@ -145,11 +153,15 @@ namespace Microsoft.Data.Entity.Relational.Migrations
                     checkFirst = false;
                 }
 
+                _logger.Value.LogInformation(Strings.ApplyingMigration(migration.Id));
+
                 Execute(batches, first);
             }
 
             foreach (var migration in migrationsToRevert)
             {
+                _logger.Value.LogInformation(Strings.RevertingMigration(migration.Id));
+
                 Execute(RevertMigration(migration));
             }
         }
@@ -202,6 +214,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations
                         checkFirst = false;
                     }
 
+                    _logger.Value.LogVerbose(Strings.GeneratingUp(migration.Id));
+
                     foreach (var batch in ApplyMigration(migration))
                     {
                         if (idempotent)
@@ -236,6 +250,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations
                     .OrderByDescending(m => m.Id);
                 foreach (var migration in migrationsToRevert)
                 {
+                    _logger.Value.LogVerbose(Strings.GeneratingDown(migration.Id));
+
                     foreach (var batch in RevertMigration(migration))
                     {
                         if (idempotent)

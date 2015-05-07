@@ -7,5 +7,6 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
 {
     public abstract class MigrationOperation : Annotatable
     {
+        public virtual bool IsDestructiveChange { get; set; }
     }
 }

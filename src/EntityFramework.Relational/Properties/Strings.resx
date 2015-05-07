@@ -240,4 +240,19 @@
   <data name="StoredProcedureIncludeNotSupported" xml:space="preserve">
     <value>The Include operation is not supported when calling a stored procedure.</value>
   </data>
+  <data name="GeneratingDown" xml:space="preserve">
+    <value>Generating down script for migration '{migration}'.</value>
+  </data>
+  <data name="GeneratingUp" xml:space="preserve">
+    <value>Generating up script for migration '{migration}'.</value>
+  </data>
+  <data name="ApplyingMigration" xml:space="preserve">
+    <value>Applying migration '{migration}'.</value>
+  </data>
+  <data name="RevertingMigration" xml:space="preserve">
+    <value>Unapplying migration '{migration}'.</value>
+  </data>
+  <data name="UsingConnection" xml:space="preserve">
+    <value>Using database '{database}' on server '{dataSource}'.</value>
+  </data>
 </root>

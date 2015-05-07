@@ -17,6 +17,9 @@ namespace Microsoft.Data.Entity.Commands.Utilities
     {
         private static readonly string[] _includedNames = new[]
         {
+#if DNX451 || DNXCORE50
+            typeof(Program).FullName,
+#endif
             typeof(MigrationTool).FullName,
             typeof(Migrator).FullName,
             typeof(MigrationScaffolder).FullName,

@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             }
 
             var lastMigration = _migrationAssembly.Migrations.LastOrDefault();
-            var migrationNamespace = lastMigration?.GetType().Namespace ?? rootNamespace + ".Migrations";
+            var migrationNamespace = GetNamespace(lastMigration?.GetType(), rootNamespace + ".Migrations");
             var modelSnapshot = _migrationAssembly.ModelSnapshot;
             var lastModel = modelSnapshot?.Model;
             var upOperations = _modelDiffer.GetDifferences(lastModel, _model);
@@ -82,8 +82,24 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 ? _modelDiffer.GetDifferences(_model, lastModel)
                 : new List<MigrationOperation>();
             var migrationId = _idGenerator.CreateId(migrationName);
-            var modelSnapshotNamespace = modelSnapshot?.GetType().Namespace ?? migrationNamespace;
-            var modelSnapshotName = modelSnapshot?.GetType().Name ?? _contextType.Name + "ModelSnapshot";
+            var modelSnapshotNamespace = GetNamespace(modelSnapshot?.GetType(), migrationNamespace);
+
+            var modelSnapshotName = _contextType.Name + "ModelSnapshot";
+            if (modelSnapshot != null)
+            {
+                var lastModelSnapshotName = modelSnapshot.GetType().Name;
+                if (lastModelSnapshotName != modelSnapshotName)
+                {
+                    _logger.Value.LogVerbose(Strings.ReusingSnapshotName(lastModelSnapshotName));
+
+                    modelSnapshotName = lastModelSnapshotName;
+                }
+            }
+
+            if (upOperations.Any(o => o.IsDestructiveChange))
+            {
+                _logger.Value.LogWarning(Strings.DestructiveOperation);
+            }
 
             var migrationCode = _migrationCodeGenerator.Generate(
                 migrationNamespace,
@@ -241,18 +257,37 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
             // TODO: Test version control. If broken, determine paths in Scaffold and write files in the commands
+            _logger.Value.LogVerbose(Strings.WritingMigration(migrationFile));
             Directory.CreateDirectory(migrationDirectory);
             File.WriteAllText(migrationFile, migration.MigrationCode);
             File.WriteAllText(migrationMetadataFile, migration.MigrationMetadataCode);
+
+            _logger.Value.LogVerbose(Strings.WritingSnapshot(modelSnapshotFile));
             Directory.CreateDirectory(modelSnapshotDirectory);
             File.WriteAllText(modelSnapshotFile, migration.ModelSnapshotCode);
 
             return new MigrationFiles
+            {
+                MigrationFile = migrationFile,
+                MigrationMetadataFile = migrationMetadataFile,
+                ModelSnapshotFile = modelSnapshotFile
+            };
+        }
+
+        protected virtual string GetNamespace(Type siblingType, string defaultNamespace)
+        {
+            if (siblingType != null)
+            {
+                var lastNamespace = siblingType.Namespace;
+                if (lastNamespace != defaultNamespace)
                 {
-                    MigrationFile = migrationFile,
-                    MigrationMetadataFile = migrationMetadataFile,
-                    ModelSnapshotFile = modelSnapshotFile
-                };
+                    _logger.Value.LogVerbose(Strings.ReusingNamespace(siblingType.Name));
+
+                    return lastNamespace;
+                }
+            }
+
+            return defaultNamespace;
         }
 
         protected virtual string GetDirectory(
@@ -263,16 +298,24 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotEmpty(projectDir, nameof(projectDir));
             Check.NotEmpty(subnamespace, nameof(subnamespace));
 
+            var defaultDirectory = Path.Combine(projectDir, Path.Combine(subnamespace.Split('.')));
+
             if (siblingFileName != null)
             {
                 var siblingPath = TryGetProjectFile(projectDir, siblingFileName);
                 if (siblingPath != null)
                 {
-                    return Path.GetDirectoryName(siblingPath);
+                    var lastDirectory = Path.GetDirectoryName(siblingPath);
+                    if (!defaultDirectory.Equals(lastDirectory, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _logger.Value.LogVerbose(Strings.ReusingDirectory(siblingFileName));
+
+                        return lastDirectory;
+                    }
                 }
             }
 
-            return Path.Combine(projectDir, Path.Combine(subnamespace.Split('.')));
+            return defaultDirectory;
         }
 
         protected virtual string TryGetProjectFile([NotNull] string projectDir, [NotNull] string fileName) =>

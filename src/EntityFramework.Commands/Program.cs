@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Common.CommandLine;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Commands
 {
@@ -26,6 +27,7 @@ namespace Microsoft.Data.Entity.Commands
         private readonly DatabaseTool _databaseTool;
         private readonly IRuntimeEnvironment _runtimeEnv;
         private CommandLineApplication _app;
+        private readonly ILogger _logger;
 
         public Program([NotNull] IServiceProvider serviceProvider,
             [NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager,
@@ -46,6 +48,7 @@ namespace Microsoft.Data.Entity.Commands
             _migrationTool = new MigrationTool(loggerProvider, assembly);
             _databaseTool = new DatabaseTool(serviceProvider, loggerProvider);
             _libraryManager = libraryManager;
+            _logger = loggerProvider.CreateLogger(typeof(Program).FullName);
         }
 
         public virtual int Main([NotNull] string[] args)
@@ -74,7 +77,13 @@ namespace Microsoft.Data.Entity.Commands
                             list.OnExecute(() => ListContexts());
                         },
                         addHelpCommand: false);
-                    context.OnExecute(() => ShowHelp(context.Name));
+                    context.OnExecute(
+                        () =>
+                        {
+                            _app.ShowHelp(context.Name);
+
+                            return 0;
+                        });
                 },
                 addHelpCommand: false);
             _app.Command(
@@ -98,7 +107,20 @@ namespace Microsoft.Data.Entity.Commands
                                 "The name of the project to use as the startup project",
                                 CommandOptionType.SingleValue);
                             add.HelpOption("-h|--help");
-                            add.OnExecute(() => AddMigration(name.Value, context.Value(), startupProject.Value()));
+                            add.OnExecute(
+                                () =>
+                                {
+                                    if (name.Value == null)
+                                    {
+                                        _logger.LogError("Missing required argument '{0}'.", name.Name);
+
+                                        migration.ShowHelp(add.Name);
+
+                                        return 1;
+                                    }
+
+                                    return AddMigration(name.Value, context.Value(), startupProject.Value());
+                                });
                         },
                         addHelpCommand: false);
                     migration.Command(
@@ -106,7 +128,9 @@ namespace Microsoft.Data.Entity.Commands
                         apply =>
                         {
                             apply.Description = "Apply migrations to the database";
-                            var migrationName = apply.Argument("[migration]", "The migration to apply");
+                            var migrationName = apply.Argument(
+                                "[migration]",
+                                "The migration to apply. Use '0' to unapply all migrations");
                             var context = apply.Option(
                                 "-c|--context <context>",
                                 "The context class to use",
@@ -172,7 +196,13 @@ namespace Microsoft.Data.Entity.Commands
                             remove.OnExecute(() => RemoveMigration(context.Value()));
                         },
                         addHelpCommand: false);
-                    migration.OnExecute(() => ShowHelp(migration.Name));
+                    migration.OnExecute(
+                        () =>
+                        {
+                            _app.ShowHelp(migration.Name);
+
+                            return 0;
+                        });
                 },
                 addHelpCommand: false);
             _app.Command(
@@ -194,10 +224,21 @@ namespace Microsoft.Data.Entity.Commands
                 {
                     help.Description = "Show help information";
                     var command = help.Argument("[command]", "Command that help information explains");
-                    help.OnExecute(() => ShowHelp(command.Value));
+                    help.OnExecute(
+                        () =>
+                        {
+                            if (command.Value != null)
+                            {
+                                _app.ShowHelp(command.Value);
+
+                                return 0;
+                            }
+
+                            return ShowHelp();
+                        });
                 },
                 addHelpCommand: false);
-            _app.OnExecute(() => ShowHelp(command: null));
+            _app.OnExecute(() => ShowHelp());
 
             return _app.Execute(args);
         }
@@ -209,13 +250,13 @@ namespace Microsoft.Data.Entity.Commands
             foreach (var context in contexts)
             {
                 // TODO: Show simple names
-                Console.WriteLine(context.FullName);
+                _logger.LogInformation(context.FullName);
                 any = true;
             }
 
             if (!any)
             {
-                Console.WriteLine("No DbContext was found.");
+                _logger.LogInformation("No DbContext was found.");
             }
 
             return 0;
@@ -223,18 +264,13 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual int AddMigration([CanBeNull] string name, [CanBeNull] string context, [CanBeNull] string startupProject)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                _app.Commands.Single(c => c.Name == "migration").ShowHelp("add");
-
-                return 1;
-            }
-
-            return ExecuteInDirectory(
+            return Execute(
                 startupProject,
                 () =>
                 {
                     _migrationTool.AddMigration(name, context, _rootNamespace, _projectDir);
+
+                    _logger.LogInformation("Done. To undo this action, use 'ef migration remove'.");
 
                     return 0;
                 });
@@ -242,7 +278,7 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual int ApplyMigration([CanBeNull] string migration, [CanBeNull] string context, [CanBeNull] string startupProject)
         {
-            return ExecuteInDirectory(
+            return Execute(
                 startupProject,
                 () =>
                 {
@@ -259,13 +295,13 @@ namespace Microsoft.Data.Entity.Commands
             foreach (var migration in migrations)
             {
                 // TODO: Show simple names
-                Console.WriteLine(migration.Id);
+                _logger.LogInformation(migration.Id);
                 any = true;
             }
 
             if (!any)
             {
-                Console.WriteLine("No migrations were found.");
+                _logger.LogInformation("No migrations were found.");
             }
 
             return 0;
@@ -279,7 +315,7 @@ namespace Microsoft.Data.Entity.Commands
             [CanBeNull] string context,
             [CanBeNull] string startupProject)
         {
-            return ExecuteInDirectory(
+            return Execute(
                 startupProject,
                 () =>
                 {
@@ -287,11 +323,14 @@ namespace Microsoft.Data.Entity.Commands
 
                     if (string.IsNullOrEmpty(output))
                     {
-                        Console.WriteLine(sql);
+                        _logger.LogInformation(sql);
                     }
                     else
                     {
+                        _logger.LogVerbose("Writing SQL script to '{0}'.", output);
                         File.WriteAllText(output, sql);
+
+                        _logger.LogInformation("Done.");
                     }
 
                     return 0;
@@ -311,12 +350,14 @@ namespace Microsoft.Data.Entity.Commands
                 DatabaseTool._defaultReverseEngineeringProviderAssembly,
                 connectionString, _rootNamespace, _projectDir);
 
+            _logger.LogInformation("Done.");
+
             return 0;
         }
 
-        public virtual int ShowHelp([CanBeNull] string command)
+        public virtual int ShowHelp()
         {
-            bool useConsoleColors = _runtimeEnv.OperatingSystem == "Windows";
+            var useConsoleColors = _runtimeEnv.OperatingSystem == "Windows";
             // TODO: Enable multiple parameters in escape sequences
             AnsiConsole.GetOutput(useConsoleColors).WriteLine(
                 "\x1b[1m\x1b[37m" + Environment.NewLine +
@@ -327,24 +368,19 @@ namespace Microsoft.Data.Entity.Commands
                 "        \x1b[22m\x1b[35m| _| | _| \x1b[1m\x1b[37m  \\_/ |  //|\\\\" + Environment.NewLine +
                 "        \x1b[22m\x1b[35m|___||_|  \x1b[1m\x1b[37m     /   \\\\\\/\\\\" + Environment.NewLine +
                 "\x1b[22m\x1b[39m");
-            _app.ShowHelp(command);
+            _app.ShowHelp();
 
             return 0;
         }
 
-        private int ExecuteInDirectory(string startupProject, Func<int> invoke)
+        private int Execute(string startupProject, Func<int> invoke)
         {
             var returnDirectory = Directory.GetCurrentDirectory();
             try
             {
-                var startupProjectDir = GetProjectPath(startupProject);
-                if (startupProjectDir != null)
-                {
-                    Console.WriteLine("Executing in startup Directory: {0}", startupProjectDir);
-                    Directory.SetCurrentDirectory(startupProjectDir);
-                }
+                UseStartupProject(startupProject);
 
-                return invoke.Invoke();
+                return invoke();
             }
             finally
             {
@@ -352,22 +388,26 @@ namespace Microsoft.Data.Entity.Commands
             }
         }
 
-        private string GetProjectPath(string projectName)
+        private void UseStartupProject(string startupProject)
         {
-            if (projectName == null)
+            if (startupProject == null)
             {
-                return null;
+                return;
             }
 
-            string projectDir = null;
-            var library = _libraryManager.GetLibraryInformation(projectName);
-            var libraryPath = library.Path;
-            if (library.Type == "Project")
+            var library = _libraryManager.GetLibraryInformation(startupProject);
+            if (library == null || library.Type != "Project")
             {
-                projectDir = Path.GetDirectoryName(libraryPath);
+                _logger.LogVerbose("Unable to resolve start-up project '{0}'.", startupProject);
+
+                return;
             }
 
-            return projectDir;
+            _logger.LogVerbose("Using start-up project '{0}'.", library.Name);
+
+            var startupProjectDir = Path.GetDirectoryName(library.Path);
+            _logger.LogVerbose("Using current directory '{0}'.", startupProjectDir);
+            Directory.SetCurrentDirectory(startupProjectDir);
         }
     }
 }

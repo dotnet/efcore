@@ -54,6 +54,10 @@ var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configur
                     @"lib\portable-net45+win\_._");
                 CreatePartFromFile(
                     package,
+                    @"src\EntityFramework.Commands\tools\about_EntityFramework.help.txt",
+                    @"tools\about_EntityFramework.help.txt");
+                CreatePartFromFile(
+                    package,
                     @"src\EntityFramework.Commands\tools\EntityFramework.psd1",
                     @"tools\EntityFramework.psd1");
                 CreatePartFromFile(
@@ -72,6 +76,10 @@ var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configur
                     package,
                     @"src\EntityFramework.Commands\tools\init.ps1",
                     @"tools\init.ps1");
+                CreatePartFromFile(
+                    package,
+                    @"src\EntityFramework.Commands\tools\install.ps1",
+                    @"tools\install.ps1");
             }
         }
         

@@ -174,4 +174,25 @@
   <data name="CannotFindAssembly" xml:space="preserve">
     <value>Unable to find asssembly with name {assemblyName}.</value>
   </data>
+  <data name="DestructiveOperation" xml:space="preserve">
+    <value>An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.</value>
+  </data>
+  <data name="ReusingDirectory" xml:space="preserve">
+    <value>Reusing directory of file '{file}'.</value>
+  </data>
+  <data name="WritingMigration" xml:space="preserve">
+    <value>Writing migration to '{file}'.</value>
+  </data>
+  <data name="WritingSnapshot" xml:space="preserve">
+    <value>Writing model snapshot to '{file}'.</value>
+  </data>
+  <data name="Done" xml:space="preserve">
+    <value>Done.</value>
+  </data>
+  <data name="ReusingNamespace" xml:space="preserve">
+    <value>Reusing namespace of type '{type}'.</value>
+  </data>
+  <data name="ReusingSnapshotName" xml:space="preserve">
+    <value>Reusing model snapshot name '{name}'.</value>
+  </data>
 </root>

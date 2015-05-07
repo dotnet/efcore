@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Relational
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
-    using JetBrains.Annotations;
+	using JetBrains.Annotations;
 
     public static class Strings
     {
@@ -269,14 +269,6 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The Include operation is not supported when calling a stored procedure.
-        /// </summary>
-        public static string StoredProcedureIncludeNotSupported
-        {
-            get { return GetString("StoredProcedureIncludeNotSupported"); }
-        }
-
-        /// <summary>
         /// The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.
         /// </summary>
         public static string UnknownOperation([CanBeNull] object sqlGeneratorType, [CanBeNull] object operationType)
@@ -338,6 +330,54 @@ namespace Microsoft.Data.Entity.Relational
         public static string PossibleUnintendedUseOfEquals([CanBeNull] object left, [CanBeNull] object right)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("PossibleUnintendedUseOfEquals", "left", "right"), left, right);
+        }
+
+        /// <summary>
+        /// The Include operation is not supported when calling a stored procedure.
+        /// </summary>
+        public static string StoredProcedureIncludeNotSupported
+        {
+            get { return GetString("StoredProcedureIncludeNotSupported"); }
+        }
+
+        /// <summary>
+        /// Generating down script for migration '{migration}'.
+        /// </summary>
+        public static string GeneratingDown([CanBeNull] object migration)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("GeneratingDown", "migration"), migration);
+        }
+
+        /// <summary>
+        /// Generating up script for migration '{migration}'.
+        /// </summary>
+        public static string GeneratingUp([CanBeNull] object migration)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("GeneratingUp", "migration"), migration);
+        }
+
+        /// <summary>
+        /// Applying migration '{migration}'.
+        /// </summary>
+        public static string ApplyingMigration([CanBeNull] object migration)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ApplyingMigration", "migration"), migration);
+        }
+
+        /// <summary>
+        /// Unapplying migration '{migration}'.
+        /// </summary>
+        public static string RevertingMigration([CanBeNull] object migration)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RevertingMigration", "migration"), migration);
+        }
+
+        /// <summary>
+        /// Using database '{database}' on server '{dataSource}'.
+        /// </summary>
+        public static string UsingConnection([CanBeNull] object database, [CanBeNull] object dataSource)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UsingConnection", "database", "dataSource"), database, dataSource);
         }
 
         private static string GetString(string name, params string[] formatterNames)

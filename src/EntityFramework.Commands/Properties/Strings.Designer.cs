@@ -164,6 +164,62 @@ namespace Microsoft.Data.Entity.Commands
             return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindAssembly", "assemblyName"), assemblyName);
         }
 
+        /// <summary>
+        /// An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.
+        /// </summary>
+        public static string DestructiveOperation
+        {
+            get { return GetString("DestructiveOperation"); }
+        }
+
+        /// <summary>
+        /// Reusing directory of file '{file}'.
+        /// </summary>
+        public static string ReusingDirectory([CanBeNull] object file)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReusingDirectory", "file"), file);
+        }
+
+        /// <summary>
+        /// Writing migration to '{file}'.
+        /// </summary>
+        public static string WritingMigration([CanBeNull] object file)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("WritingMigration", "file"), file);
+        }
+
+        /// <summary>
+        /// Writing model snapshot to '{file}'.
+        /// </summary>
+        public static string WritingSnapshot([CanBeNull] object file)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("WritingSnapshot", "file"), file);
+        }
+
+        /// <summary>
+        /// Done.
+        /// </summary>
+        public static string Done
+        {
+            get { return GetString("Done"); }
+        }
+
+        /// <summary>
+        /// Reusing namespace of type '{type}'.
+        /// </summary>
+        public static string ReusingNamespace([CanBeNull] object type)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReusingNamespace", "type"), type);
+        }
+
+        /// <summary>
+        /// Reusing model snapshot name '{name}'.
+        /// </summary>
+        public static string ReusingSnapshotName([CanBeNull] object name)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReusingSnapshotName", "name"), name);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
