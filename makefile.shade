@@ -46,6 +46,14 @@ var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configur
             {
                 CreatePartFromFile(
                     package,
+                    @"src\EntityFramework.Commands\build\portable-net45+win\EntityFramework.Commands.targets",
+                    @"build\portable-net45+win\EntityFramework.Commands.targets");
+                CreatePartFromFile(
+                    package,
+                    @"src\EntityFramework.Commands\lib\portable-net45+win\_._",
+                    @"lib\portable-net45+win\_._");
+                CreatePartFromFile(
+                    package,
                     @"src\EntityFramework.Commands\tools\EntityFramework.psd1",
                     @"tools\EntityFramework.psd1");
                 CreatePartFromFile(
@@ -64,6 +72,23 @@ var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configur
                     package,
                     @"src\EntityFramework.Commands\tools\init.ps1",
                     @"tools\init.ps1");
+            }
+        }
+        
+        packagePaths = Files.Include("artifacts/build/**/EntityFramework.Relational.Design.*.nupkg")
+            .Exclude("**/*.symbols.nupkg");
+        foreach (var packagePath in packagePaths)
+        {
+            using (var package = Package.Open(packagePath, FileMode.Open, FileAccess.ReadWrite))
+            {
+                CreatePartFromFile(
+                    package,
+                    @"src\EntityFramework.Relational.Design\build\portable-net45+win\EntityFramework.Relational.Design.targets",
+                    @"build\portable-net45+win\EntityFramework.Relational.Design.targets");
+                CreatePartFromFile(
+                    package,
+                    @"src\EntityFramework.Relational.Design\lib\portable-net45+win\_._",
+                    @"lib\portable-net45+win\_._");
             }
         }
     }

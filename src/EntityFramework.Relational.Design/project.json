@@ -35,6 +35,11 @@
       "dependencies": {
         "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*"
       }
+    },
+    ".NETPortable,Version=v4.5,Profile=Profile7": {
+      "bin": {
+        "assembly": "lib\\portable-net45+win\\_._"
+      }
     }
   }
 }
