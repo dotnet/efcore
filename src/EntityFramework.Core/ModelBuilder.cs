@@ -110,6 +110,13 @@ namespace Microsoft.Data.Entity
             return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit));
         }
 
+        public virtual EntityTypeBuilder Entity([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit));
+        }
+
         /// <summary>
         ///     <para>
         ///         Performs configuration of a given entity type in the model. If the entity type is not already part
@@ -157,6 +164,16 @@ namespace Microsoft.Data.Entity
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(Entity(type));
+
+            return this;
+        }
+
+        public virtual ModelBuilder Entity([NotNull] string name, [NotNull] Action<EntityTypeBuilder> buildAction)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            buildAction(Entity(name));
 
             return this;
         }

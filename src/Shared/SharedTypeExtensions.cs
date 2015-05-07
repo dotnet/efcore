@@ -76,6 +76,11 @@ namespace System
                || type.IsNonIntegerPrimitive();
 
         public static Type UnwrapEnumType(this Type type)
-            => type.GetTypeInfo().IsEnum ? Enum.GetUnderlyingType(type) : type;
+        {
+            var isNullable = type.IsNullableType();
+            type = isNullable ? type.UnwrapNullableType() : type;
+            var underlyingEnumType = type.GetTypeInfo().IsEnum ? Enum.GetUnderlyingType(type) : type;
+            return isNullable ? MakeNullable(underlyingEnumType) : underlyingEnumType;
+        }
     }
 }

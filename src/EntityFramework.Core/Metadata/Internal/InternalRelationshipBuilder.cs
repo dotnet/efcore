@@ -262,6 +262,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             => ForeignInvertIfNeeded(ResolveType(specifiedDependentType), configurationSource)
                 .ForeignKey(propertyNames, configurationSource);
 
+
+        public virtual InternalRelationshipBuilder ForeignKey(
+            [NotNull] string specifiedDependentTypeName,
+            [CanBeNull] IReadOnlyList<string> propertyNames,
+            ConfigurationSource configurationSource)
+            => ForeignInvertIfNeeded(ResolveType(specifiedDependentTypeName), configurationSource)
+                .ForeignKey(propertyNames, configurationSource);
+
+
         private InternalRelationshipBuilder ForeignInvertIfNeeded(EntityType entityType, ConfigurationSource configurationSource)
         {
             _principalEndConfigurationSource = configurationSource.Max(_principalEndConfigurationSource);
@@ -353,6 +362,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource)
             => ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalType), configurationSource)
                 .PrincipalKey(propertyNames, configurationSource);
+
+        public virtual InternalRelationshipBuilder PrincipalKey(
+            [NotNull] string specifiedPrincipalTypeName,
+            [CanBeNull] IReadOnlyList<string> propertyNames,
+            ConfigurationSource configurationSource)
+            => ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalTypeName), configurationSource)
+                .PrincipalKey(propertyNames, configurationSource);
+
 
         private InternalRelationshipBuilder ReferenceInvertIfNeeded(EntityType entityType, ConfigurationSource configurationSource)
         {

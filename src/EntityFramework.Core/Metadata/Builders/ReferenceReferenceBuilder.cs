@@ -109,6 +109,16 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return new ReferenceReferenceBuilder(Builder.ForeignKey(dependentEntityType, foreignKeyPropertyNames, ConfigurationSource.Explicit));
         }
 
+        public virtual ReferenceReferenceBuilder ForeignKey(
+            [NotNull] string dependentEntityTypeName,
+            [NotNull] params string[] foreignKeyPropertyNames)
+        {
+            Check.NotEmpty(dependentEntityTypeName, nameof(dependentEntityTypeName));
+            Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
+
+            return new ReferenceReferenceBuilder(Builder.ForeignKey(dependentEntityTypeName, foreignKeyPropertyNames, ConfigurationSource.Explicit));
+        }
+
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
         ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
@@ -129,6 +139,16 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotNull(keyPropertyNames, nameof(keyPropertyNames));
 
             return new ReferenceReferenceBuilder(Builder.PrincipalKey(principalEntityType, keyPropertyNames, ConfigurationSource.Explicit));
+        }
+
+        public virtual ReferenceReferenceBuilder PrincipalKey(
+                    [NotNull] string principalEntityTypeName,
+                    [NotNull] params string[] keyPropertyNames)
+        {
+            Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
+            Check.NotNull(keyPropertyNames, nameof(keyPropertyNames));
+
+            return new ReferenceReferenceBuilder(Builder.PrincipalKey(principalEntityTypeName, keyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>

@@ -191,6 +191,20 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 ReferenceBuilder(relatedEntityType, navigationName));
         }
 
+        public virtual ReferenceNavigationBuilder Reference(
+            [NotNull] string relatedTypeName,
+            [CanBeNull] string navigationName = null)
+        {
+            Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
+
+            var relatedEntityType = Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
+
+            return new ReferenceNavigationBuilder(
+                relatedEntityType,
+                navigationName,
+                ReferenceBuilder(relatedEntityType, navigationName));
+        }
+
         /// <summary>
         ///     <para>
         ///         Configures a relationship where this entity type has a collection that contains

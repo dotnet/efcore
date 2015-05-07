@@ -95,6 +95,7 @@
       <Link>Handlers.cs</Link>
     </Compile>
     <Compile Include="ExecutorTest.cs" />
+    <Compile Include="Migrations\ModelSnapshotTest.cs" />
     <Compile Include="Migrations\OperationCompilationTest.cs" />
     <Compile Include="TestUtilities\BuildReference.cs" />
     <Compile Include="TestUtilities\BuildFileResult.cs" />
