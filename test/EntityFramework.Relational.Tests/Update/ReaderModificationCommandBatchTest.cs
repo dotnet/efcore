@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var transactionMock = new Mock<RelationalTransaction>(
                 Mock.Of<IRelationalConnection>(), Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
 
-            await batch.ExecuteAsync(transactionMock.Object, new RelationalTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(transactionMock.Object, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
             mockReader.Verify(r => r.ReadAsync(It.IsAny<CancellationToken>()), Times.Once);
             mockReader.Verify(r => r.GetInt32(0), Times.Once);
@@ -210,7 +210,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var transactionMock = new Mock<RelationalTransaction>(
                 Mock.Of<IRelationalConnection>(), Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
 
-            await batch.ExecuteAsync(transactionMock.Object, new RelationalTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(transactionMock.Object, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
             Assert.Equal(42, entry[entry.EntityType.GetProperty("Id")]);
             Assert.Equal("Test", entry[entry.EntityType.GetProperty("Name")]);
@@ -232,7 +232,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var transactionMock = new Mock<RelationalTransaction>(
                 Mock.Of<IRelationalConnection>(), Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
 
-            await batch.ExecuteAsync(transactionMock.Object, new RelationalTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(transactionMock.Object, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
             Assert.Equal(42, entry[entry.EntityType.GetProperty("Id")]);
             Assert.Equal("FortyTwo", entry[entry.EntityType.GetProperty("Name")]);
@@ -253,7 +253,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var transactionMock = new Mock<RelationalTransaction>(
                 Mock.Of<IRelationalConnection>(), Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
 
-            await batch.ExecuteAsync(transactionMock.Object, new RelationalTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(transactionMock.Object, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
             Assert.Equal(1, entry[entry.EntityType.GetProperty("Id")]);
             Assert.Equal("FortyTwo", entry[entry.EntityType.GetProperty("Name")]);
@@ -279,7 +279,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var transactionMock = new Mock<RelationalTransaction>(
                 Mock.Of<IRelationalConnection>(), Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
 
-            await batch.ExecuteAsync(transactionMock.Object, new RelationalTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(transactionMock.Object, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
             Assert.Equal(42, entry[entry.EntityType.GetProperty("Id")]);
         }
@@ -302,7 +302,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
                     async () => await batch.ExecuteAsync(
                         transactionMock.Object,
-                        new RelationalTypeMapper(),
+                        new ConcreteTypeMapper(),
                         new Mock<DbContext>().Object,
                         new Mock<ILogger>().Object))).Message);
         }
@@ -326,7 +326,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
                     async () => await batch.ExecuteAsync(
                         transactionMock.Object,
-                        new RelationalTypeMapper(),
+                        new ConcreteTypeMapper(),
                         new Mock<DbContext>().Object,
                         new Mock<ILogger>().Object))).Message);
         }
@@ -378,7 +378,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var transaction = CreateMockDbTransaction();
 
-            var command = batch.CreateStoreCommandBase("foo", transaction, new RelationalTypeMapper(), null);
+            var command = batch.CreateStoreCommandBase("foo", transaction, new ConcreteTypeMapper(), null);
 
             Assert.Equal(CommandType.Text, command.CommandType);
             Assert.Equal("foo", command.CommandText);
@@ -402,7 +402,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                     property.Relational(),
                     new ParameterNameGenerator(),
                     false, true, false, false),
-                new RelationalTypeMapper());
+                new ConcreteTypeMapper());
 
             Assert.Equal(1, dbCommandMock.Object.Parameters.Count);
         }
@@ -423,7 +423,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                     property.Relational(),
                     new ParameterNameGenerator(),
                     false, false, false, true),
-                new RelationalTypeMapper());
+                new ConcreteTypeMapper());
 
             Assert.Equal(1, dbCommandMock.Object.Parameters.Count);
         }
@@ -444,7 +444,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                     property.Relational(),
                     new ParameterNameGenerator(),
                     false, true, false, true),
-                new RelationalTypeMapper());
+                new ConcreteTypeMapper());
 
             Assert.Equal(2, dbCommandMock.Object.Parameters.Count);
         }
@@ -465,7 +465,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                     property.Relational(),
                     new ParameterNameGenerator(),
                     true, false, false, false),
-                new RelationalTypeMapper());
+                new ConcreteTypeMapper());
 
             Assert.Equal(0, dbCommandMock.Object.Parameters.Count);
         }
@@ -701,6 +701,18 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             {
                 base.PopulateParameters(command, columnModification, typeMapper);
             }
+        }
+
+        private class ConcreteTypeMapper : RelationalTypeMapper
+        {
+            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
+                = new Dictionary<Type, RelationalTypeMapping>
+                    {
+                        { typeof(int), new RelationalTypeMapping("int", DbType.String) }
+                    };
+
+            protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
+                = new Dictionary<string, RelationalTypeMapping>();
         }
     }
 }

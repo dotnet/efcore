@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
+using System.Collections.Generic;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -11,22 +13,40 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<BuiltInNonNullableDataTypes>();
+            modelBuilder.Entity<BuiltInDataTypes>();
             modelBuilder.Entity<BuiltInNullableDataTypes>();
+            modelBuilder.Entity<BinaryKeyDataType>();
+            modelBuilder.Entity<BinaryForeignKeyDataType>();
+            modelBuilder.Entity<StringKeyDataType>();
+            modelBuilder.Entity<StringForeignKeyDataType>();
+
+            MakeRequired<BuiltInDataTypes>(modelBuilder);
+
+            modelBuilder.Entity<MaxLengthDataTypes>(b =>
+                {
+                    b.Property(e => e.ByteArray5).MaxLength(5);
+                    b.Property(e => e.String3).MaxLength(3);
+                });
         }
 
-        public virtual void Cleanup(DbContext context)
+        protected static void MakeRequired<TEntity>(ModelBuilder modelBuilder) where TEntity : class
         {
-            context.Set<BuiltInNonNullableDataTypes>().RemoveRange(context.Set<BuiltInNonNullableDataTypes>());
-            context.Set<BuiltInNullableDataTypes>().RemoveRange(context.Set<BuiltInNullableDataTypes>());
+            var entityType = modelBuilder.Entity<TEntity>().Metadata;
 
-            context.SaveChanges();
+            foreach (var propertyInfo in entityType.ClrType.GetTypeInfo().DeclaredProperties)
+            {
+                entityType.GetOrAddProperty(propertyInfo).IsNullable = false;
+            }
         }
 
         public abstract void Dispose();
+
+        public abstract bool SupportsBinaryKeys { get; }
+
+        public abstract bool SupportsMaxLength { get; }
     }
 
-    public class BuiltInNonNullableDataTypes
+    public class BuiltInDataTypes
     {
         public int Id { get; set; }
         public int PartitionId { get; set; }
@@ -37,6 +57,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public decimal TestDecimal { get; set; }
         public DateTime TestDateTime { get; set; }
         public DateTimeOffset TestDateTimeOffset { get; set; }
+        public TimeSpan TestTimeSpan { get; set; }
         public float TestSingle { get; set; }
         public bool TestBoolean { get; set; }
         public byte TestByte { get; set; }
@@ -45,6 +66,67 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public ulong TestUnsignedInt64 { get; set; }
         public char TestCharacter { get; set; }
         public sbyte TestSignedByte { get; set; }
+        public Enum64 Enum64 { get; set; }
+        public Enum32 Enum32 { get; set; }
+        public Enum16 Enum16 { get; set; }
+        public Enum8 Enum8 { get; set; }
+    }
+
+    public enum Enum64 : long
+    {
+        SomeValue = 1
+    }
+
+    public enum Enum32
+    {
+        SomeValue = 1
+    }
+
+    public enum Enum16 : short
+    {
+        SomeValue = 1
+    }
+
+    public enum Enum8 : byte
+    {
+        SomeValue = 1
+    }
+
+    public class MaxLengthDataTypes
+    {
+        public int Id { get; set; }
+        public string String3 { get; set; }
+        public byte[] ByteArray5 { get; set; }
+    }
+
+    public class BinaryKeyDataType
+    {
+        public byte[] Id { get; set; }
+
+        public ICollection<BinaryForeignKeyDataType> Dependents { get; set; }
+    }
+
+    public class BinaryForeignKeyDataType
+    {
+        public int Id { get; set; }
+        public byte[] BinaryKeyDataTypeId { get; set; }
+
+        public BinaryKeyDataType Principal { get; set; }
+    }
+
+    public class StringKeyDataType
+    {
+        public string Id { get; set; }
+
+        public ICollection<StringForeignKeyDataType> Dependents { get; set; }
+    }
+
+    public class StringForeignKeyDataType
+    {
+        public int Id { get; set; }
+        public string StringKeyDataTypeId { get; set; }
+
+        public StringKeyDataType Principal { get; set; }
     }
 
     public class BuiltInNullableDataTypes
@@ -52,6 +134,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public int Id { get; set; }
         public int PartitionId { get; set; }
         public string TestString { get; set; }
+        public byte[] TestByteArray { get; set; }
         public short? TestNullableInt16 { get; set; }
         public int? TestNullableInt32 { get; set; }
         public long? TestNullableInt64 { get; set; }
@@ -59,6 +142,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public decimal? TestNullableDecimal { get; set; }
         public DateTime? TestNullableDateTime { get; set; }
         public DateTimeOffset? TestNullableDateTimeOffset { get; set; }
+        public TimeSpan? TestNullableTimeSpan { get; set; }
         public float? TestNullableSingle { get; set; }
         public bool? TestNullableBoolean { get; set; }
         public byte? TestNullableByte { get; set; }
@@ -67,5 +151,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public ulong? TestNullableUnsignedInt64 { get; set; }
         public char? TestNullableCharacter { get; set; }
         public sbyte? TestNullableSignedByte { get; set; }
+        public Enum64? Enum64 { get; set; }
+        public Enum32? Enum32 { get; set; }
+        public Enum16? Enum16 { get; set; }
+        public Enum8? Enum8 { get; set; }
     }
 }

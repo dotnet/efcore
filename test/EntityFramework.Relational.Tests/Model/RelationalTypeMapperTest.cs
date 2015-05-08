@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
+using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests.Model
@@ -10,139 +12,164 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
     public class RelationalTypeMapperTest
     {
         [Fact]
-        public void Does_simple_ANSI_mappings_to_DDL_types()
+        public void Does_simple_mapping_from_CLR_type()
         {
-            Assert.Equal("integer", GetTypeMapping(typeof(int)).StoreTypeName);
-            Assert.Equal("timestamp", GetTypeMapping(typeof(DateTime)).StoreTypeName);
-            Assert.Equal("boolean", GetTypeMapping(typeof(bool)).StoreTypeName);
-            Assert.Equal("double precision", GetTypeMapping(typeof(double)).StoreTypeName);
-            Assert.Equal("smallint", GetTypeMapping(typeof(short)).StoreTypeName);
-            Assert.Equal("bigint", GetTypeMapping(typeof(long)).StoreTypeName);
-            Assert.Equal("real", GetTypeMapping(typeof(float)).StoreTypeName);
-            Assert.Equal("timestamp with time zone", GetTypeMapping(typeof(DateTimeOffset)).StoreTypeName);
+            Assert.Equal("default_int_mapping", GetTypeMapping(typeof(int)).DefaultTypeName);
         }
 
         [Fact]
-        public void Does_simple_ANSI_mappings_from_nullable_CLR_types_to_DDL_types()
+        public void Does_simple_mapping_from_nullable_CLR_type()
         {
-            Assert.Equal("integer", GetTypeMapping(typeof(int?)).StoreTypeName);
-            Assert.Equal("timestamp", GetTypeMapping(typeof(DateTime?)).StoreTypeName);
-            Assert.Equal("boolean", GetTypeMapping(typeof(bool?)).StoreTypeName);
-            Assert.Equal("double precision", GetTypeMapping(typeof(double?)).StoreTypeName);
-            Assert.Equal("smallint", GetTypeMapping(typeof(short?)).StoreTypeName);
-            Assert.Equal("bigint", GetTypeMapping(typeof(long?)).StoreTypeName);
-            Assert.Equal("real", GetTypeMapping(typeof(float?)).StoreTypeName);
-            Assert.Equal("timestamp with time zone", GetTypeMapping(typeof(DateTimeOffset?)).StoreTypeName);
+            Assert.Equal("default_int_mapping", GetTypeMapping(typeof(int?)).DefaultTypeName);
         }
 
         [Fact]
-        public void Does_simple_ANSI_mappings_for_enums_to_DDL_types()
+        public void Does_type_mapping_from_string_with_no_MaxLength()
         {
-            Assert.Equal("integer", GetTypeMapping(typeof(IntEnum)).StoreTypeName);
-            Assert.Equal("smallint", GetTypeMapping(typeof(ShortEnum)).StoreTypeName);
-            Assert.Equal("bigint", GetTypeMapping(typeof(LongEnum)).StoreTypeName);
-            Assert.Equal("integer", GetTypeMapping(typeof(IntEnum?)).StoreTypeName);
-            Assert.Equal("smallint", GetTypeMapping(typeof(ShortEnum?)).StoreTypeName);
-            Assert.Equal("bigint", GetTypeMapping(typeof(LongEnum?)).StoreTypeName);
+            var mapping = GetTypeMapping(typeof(string));
+
+            Assert.Equal("just_string(max)", mapping.DefaultTypeName);
         }
 
         [Fact]
-        public void Does_simple_ANSI_mappings_to_DbTypes()
+        public void Does_type_mapping_from_string_with_MaxLength()
         {
-            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int)).StoreType);
-            Assert.Equal(DbType.DateTime, GetTypeMapping(typeof(DateTime)).StoreType);
-            Assert.Equal(DbType.Boolean, GetTypeMapping(typeof(bool)).StoreType);
-            Assert.Equal(DbType.Double, GetTypeMapping(typeof(double)).StoreType);
-            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short)).StoreType);
-            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long)).StoreType);
-            Assert.Equal(DbType.Single, GetTypeMapping(typeof(float)).StoreType);
-            Assert.Equal(DbType.DateTimeOffset, GetTypeMapping(typeof(DateTimeOffset)).StoreType);
+            var mapping = GetTypeMapping(typeof(string), 666);
+
+            Assert.Equal("just_string(666)", mapping.DefaultTypeName);
+            Assert.Equal(666, ((RelationalSizedTypeMapping)mapping).Size);
         }
 
         [Fact]
-        public void Does_simple_ANSI_mappings_from_nullable_CLR_types_to_DbTypes()
+        public void Does_type_mapping_from_btye_array_with_no_MaxLength()
         {
-            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int?)).StoreType);
-            Assert.Equal(DbType.DateTime, GetTypeMapping(typeof(DateTime?)).StoreType);
-            Assert.Equal(DbType.Boolean, GetTypeMapping(typeof(bool?)).StoreType);
-            Assert.Equal(DbType.Double, GetTypeMapping(typeof(double?)).StoreType);
-            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short?)).StoreType);
-            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long?)).StoreType);
-            Assert.Equal(DbType.Single, GetTypeMapping(typeof(float?)).StoreType);
-            Assert.Equal(DbType.DateTimeOffset, GetTypeMapping(typeof(DateTimeOffset?)).StoreType);
+            var mapping = GetTypeMapping(typeof(byte[]));
+
+            Assert.Equal("just_binary(max)", mapping.DefaultTypeName);
         }
 
         [Fact]
-        public void Does_simple_ANSI_mappings_from_enums_to_DbTypes()
+        public void Does_type_mapping_from_btye_array_with_MaxLength()
         {
-            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(IntEnum)).StoreType);
-            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(ShortEnum)).StoreType);
-            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(LongEnum)).StoreType);
-            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(IntEnum?)).StoreType);
-            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(ShortEnum?)).StoreType);
-            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(LongEnum?)).StoreType);
+            var mapping = GetTypeMapping(typeof(byte[]), 777);
+
+            Assert.Equal("just_binary(777)", mapping.DefaultTypeName);
+            Assert.Equal(777, ((RelationalSizedTypeMapping)mapping).Size);
+        }
+
+        private static RelationalTypeMapping GetTypeMapping(Type propertyType, int? maxLength = null)
+        {
+            var property = CreateEntityType().AddProperty("MyProp", propertyType, shadowProperty: true);
+
+            if (maxLength.HasValue)
+            {
+                property.SetMaxLength(maxLength);
+            }
+
+            return new ConcreteTypeMapper().MapPropertyType(property);
         }
 
         [Fact]
-        public void Does_decimal_mapping()
+        public void Does_simple_mapping_from_name()
         {
-            var typeMapping = (RelationalDecimalTypeMapping)GetTypeMapping(typeof(decimal));
-
-            Assert.Equal(DbType.Decimal, typeMapping.StoreType);
-            Assert.Equal(18, typeMapping.Precision);
-            Assert.Equal(2, typeMapping.Scale);
-            Assert.Equal("decimal(18, 2)", typeMapping.StoreTypeName);
+            Assert.Equal("default_int_mapping", GetNamedMapping(typeof(int), "int").DefaultTypeName);
         }
 
         [Fact]
-        public void Does_decimal_mapping_for_nullable_types()
+        public void Does_default_mapping_for_unrecognized_store_type()
         {
-            var typeMapping = (RelationalDecimalTypeMapping)GetTypeMapping(typeof(decimal?));
-
-            Assert.Equal(DbType.Decimal, typeMapping.StoreType);
-            Assert.Equal(18, typeMapping.Precision);
-            Assert.Equal(2, typeMapping.Scale);
-            Assert.Equal("decimal(18, 2)", typeMapping.StoreTypeName);
+            Assert.Equal("default_int_mapping", GetNamedMapping(typeof(int), "int").DefaultTypeName);
         }
 
         [Fact]
-        public void Does_ANSI_string_mapping()
+        public void Does_type_mapping_from_named_string_with_no_MaxLength()
         {
-            var typeMapping = (RelationalSizedTypeMapping)new ConcreteTypeMapper()
-                .GetTypeMapping(null, "MyColumn", typeof(string), isKey: false, isConcurrencyToken: false);
+            var mapping = GetNamedMapping(typeof(string), "some_string(max)");
 
-            Assert.Equal(DbType.AnsiString, typeMapping.StoreType);
-            Assert.Equal(4000, typeMapping.Size);
-            Assert.Equal("varchar(4000)", typeMapping.StoreTypeName);
+            Assert.Equal("just_string(max)", mapping.DefaultTypeName);
         }
 
         [Fact]
-        public void Throws_for_type_that_has_no_default_mapping()
+        public void Does_type_mapping_from_named_string_with_MaxLength()
         {
-            Assert.Equal(
-                Strings.UnsupportedType("MyColumn", "Byte[]"),
-                Assert.Throws<NotSupportedException>(() => GetTypeMapping(typeof(byte[]))).Message);
+            var mapping = GetNamedMapping(typeof(string), "some_string(666)");
+
+            Assert.Equal("some_string(666)", mapping.DefaultTypeName);
+            Assert.Equal(666, ((RelationalSizedTypeMapping)mapping).Size);
         }
 
-        private static RelationalTypeMapping GetTypeMapping(Type propertyType)
+        [Fact]
+        public void Does_type_mapping_from_named_binary_with_no_MaxLength()
         {
-            return new ConcreteTypeMapper().GetTypeMapping(null, "MyColumn", propertyType, isKey: false, isConcurrencyToken: false);
+            var mapping = GetNamedMapping(typeof(byte[]), "some_binary(max)");
+
+            Assert.Equal("just_binary(max)", mapping.DefaultTypeName);
         }
+
+        [Fact]
+        public void Does_type_mapping_from_named_binary_with_MaxLength()
+        {
+            var mapping = GetNamedMapping(typeof(byte[]), "some_binary(777)");
+
+            Assert.Equal("some_binary(777)", mapping.DefaultTypeName);
+            Assert.Equal(777, ((RelationalSizedTypeMapping)mapping).Size);
+        }
+
+        private static RelationalTypeMapping GetNamedMapping(Type propertyType, string typeName)
+        {
+            var property = CreateEntityType().AddProperty("MyProp", propertyType, shadowProperty: true);
+            property.Relational().ColumnType = typeName;
+
+            return new ConcreteTypeMapper().MapPropertyType(property);
+        }
+
+        private static EntityType CreateEntityType() => new Entity.Metadata.Model().AddEntityType("MyType");
 
         private class ConcreteTypeMapper : RelationalTypeMapper
         {
-        }
+            private static readonly RelationalTypeMapping _string = new RelationalTypeMapping("just_string(max)");
+            private static readonly RelationalTypeMapping _stringKey = new RelationalSizedTypeMapping("just_string(450)", 450);
+            private static readonly RelationalTypeMapping _binary = new RelationalTypeMapping("just_binary(max)", DbType.Binary);
+            private static readonly RelationalTypeMapping _binaryKey = new RelationalSizedTypeMapping("just_binary(900)", DbType.Binary, 900);
+            private static readonly RelationalTypeMapping _rowversion = new RelationalSizedTypeMapping("rowversion", DbType.Binary, 8);
+            private static readonly RelationalTypeMapping _defaultIntMapping = new RelationalTypeMapping("default_int_mapping");
+            private static readonly RelationalTypeMapping _someIntMapping = new RelationalTypeMapping("some_int_mapping");
 
-        private enum LongEnum : long
-        {
-        }
+            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
+                = new Dictionary<Type, RelationalTypeMapping>
+                    {
+                        { typeof(int), _defaultIntMapping }
+                    };
 
-        private enum IntEnum
-        {
-        }
+            protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
+                = new Dictionary<string, RelationalTypeMapping>
+                    {
+                        { "some_int_mapping", _someIntMapping },
+                        { "some_string(max)", _string },
+                        { "some_binary(max)", _binary }
+                    };
 
-        private enum ShortEnum : short
-        {
+            protected override RelationalTypeMapping TryMapFromName(
+                string typeName,
+                string typeNamePrefix,
+                int? firstQualifier,
+                int? secondQualifier)
+            {
+                return TryMapSized(typeName, typeNamePrefix, new[] { "just_string", "some_string" }, firstQualifier)
+                       ?? TryMapSized(typeName, typeNamePrefix, new[] { "just_binary", "some_binary" }, firstQualifier, DbType.Binary)
+                       ?? base.TryMapFromName(typeName, typeNamePrefix, firstQualifier, secondQualifier);
+            }
+
+            protected override RelationalTypeMapping MapCustom(IProperty property)
+            {
+                var clrType = property.ClrType.UnwrapEnumType();
+
+                return clrType == typeof(string)
+                    ? MapString(property, "just_string", _string, _stringKey)
+                    : clrType == typeof(byte[])
+                        ? MapByteArray(property, "just_binary", _binary, _binaryKey, _rowversion)
+                        : base.MapCustom(property);
+            }
         }
     }
 }

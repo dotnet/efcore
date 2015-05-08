@@ -2,101 +2,205 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class RelationalTypeMapper : IRelationalTypeMapper
+    public abstract class RelationalTypeMapper : IRelationalTypeMapper
     {
-        // This table is for invariant mappings from a sealed CLR type to a single
-        // store type. If the CLR type is unsealed or if the mapping varies based on how the
-        // type is used (e.g. in keys), then add custom mapping below.
-        private readonly Tuple<Type, RelationalTypeMapping>[] _simpleMappings =
-            {
-                Tuple.Create(typeof(int), new RelationalTypeMapping("integer", DbType.Int32)),
-                Tuple.Create(typeof(DateTime), new RelationalTypeMapping("timestamp", DbType.DateTime)),
-                Tuple.Create(typeof(bool), new RelationalTypeMapping("boolean", DbType.Boolean)),
-                Tuple.Create(typeof(double), new RelationalTypeMapping("double precision", DbType.Double)),
-                Tuple.Create(typeof(long), new RelationalTypeMapping("bigint", DbType.Int64)),
-                Tuple.Create(typeof(DateTimeOffset), new RelationalTypeMapping("timestamp with time zone", DbType.DateTimeOffset)),
-                Tuple.Create(typeof(short), new RelationalTypeMapping("smallint", DbType.Int16)),
-                Tuple.Create(typeof(float), new RelationalTypeMapping("real", DbType.Single))
-            };
+        private readonly ThreadSafeDictionaryCache<string, RelationalTypeMapping> _nameMappings
+            = new ThreadSafeDictionaryCache<string, RelationalTypeMapping>();
 
-        private readonly RelationalSizedTypeMapping _stringMapping
-            = new RelationalSizedTypeMapping("varchar(4000)", DbType.AnsiString, 4000);
+        protected abstract IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
 
-        private readonly RelationalDecimalTypeMapping _decimalMapping = new RelationalDecimalTypeMapping(18, 2);
+        protected abstract IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
 
-        public virtual RelationalTypeMapping GetTypeMapping(IProperty property)
-            => GetTypeMapping(
-                property.Relational().ColumnType,
-                property.Relational().Column,
-                property.ClrType.UnwrapNullableType(),
-                property.IsKey() || property.IsForeignKey(),
-                property.IsConcurrencyToken);
-
-        public virtual RelationalTypeMapping GetTypeMapping(ISequence sequence)
-            => GetTypeMapping(
-                /*specifiedType:*/ null,
-                sequence.Name,
-                sequence.Type,
-                isKey: false,
-                isConcurrencyToken: false);
-
-        // TODO: It would be nice to just pass IProperty into this method, but Migrations uses its own
-        // store model for which there is no easy way to get an IProperty.
-        // Issue #769
-        public virtual RelationalTypeMapping GetTypeMapping(
-            string specifiedType,
-            string storageName,
-            Type propertyType,
-            bool isKey,
-            bool isConcurrencyToken)
+        public virtual RelationalTypeMapping MapPropertyType(IProperty property)
         {
-            Check.NotNull(storageName, nameof(storageName));
-            Check.NotNull(propertyType, nameof(propertyType));
+            Check.NotNull(property, nameof(property));
 
-            // TODO: if specifiedType is non-null then parse it to create a type mapping
-            // TODO: Consider allowing Code First to specify an actual type mapping instead of just the string
-            // Issue #587
-            // type since that would remove the need to parse the string.
+            RelationalTypeMapping mapping = null;
 
-            propertyType = propertyType.UnwrapNullableType();
-
-            var mapping = _simpleMappings.FirstOrDefault(m => m.Item1 == propertyType);
-            if (mapping != null)
+            var typeName = property.Relational().ColumnType;
+            if (typeName != null)
             {
-                return mapping.Item2;
+                mapping = GetOrAddNameMapping(typeName.ToLowerInvariant());
             }
 
-            if (propertyType.GetTypeInfo().IsEnum)
+            return mapping
+                   ?? (SimpleMappings.TryGetValue(property.ClrType.UnwrapEnumType().UnwrapNullableType(), out mapping)
+                       ? mapping
+                       : MapCustom(property));
+        }
+
+        public virtual RelationalTypeMapping MapSequenceType(ISequence sequence)
+        {
+            Check.NotNull(sequence, nameof(sequence));
+
+            RelationalTypeMapping mapping;
+            if (SimpleMappings.TryGetValue(sequence.Type.UnwrapEnumType(), out mapping))
             {
-                return GetTypeMapping(specifiedType, storageName, Enum.GetUnderlyingType(propertyType), isKey, isConcurrencyToken);
+                return mapping;
             }
 
-            if (propertyType == typeof(decimal))
+            throw new NotSupportedException(Strings.UnsupportedType(sequence.Type.Name));
+        }
+
+        protected virtual RelationalTypeMapping TryMapFromName(
+            [NotNull] string typeName,
+            [NotNull] string typeNamePrefix,
+            int? firstQualifier,
+            int? secondQualifier)
+        {
+            Check.NotEmpty(typeName, nameof(typeName));
+            Check.NotEmpty(typeNamePrefix, nameof(typeNamePrefix));
+
+            // TODO: Log warning for unrecognized/supported store type.
+
+            return null;
+        }
+
+        protected virtual RelationalTypeMapping MapCustom([NotNull] IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            throw new NotSupportedException(Strings.UnsupportedType(property.ClrType.Name));
+        }
+
+        protected virtual RelationalTypeMapping MapString(
+            [NotNull] IProperty property,
+            [NotNull] string sizedTypeName,
+            [NotNull] RelationalTypeMapping defaultMapping,
+            [CanBeNull] RelationalTypeMapping keyMapping = null)
+        {
+            Check.NotNull(property, nameof(property));
+            Check.NotEmpty(sizedTypeName, nameof(sizedTypeName));
+            Check.NotNull(defaultMapping, nameof(defaultMapping));
+
+            var maxLength = property.GetMaxLength();
+
+            return maxLength.HasValue
+                ? GetOrAddNameMapping(sizedTypeName + "(" + maxLength + ")")
+                : (keyMapping != null
+                   && (property.IsKey() || property.IsForeignKey())
+                    ? keyMapping
+                    : defaultMapping);
+        }
+
+        protected virtual RelationalTypeMapping MapByteArray(
+            [NotNull] IProperty property,
+            [NotNull] string sizedTypeName,
+            [NotNull] RelationalTypeMapping defaultMapping,
+            [CanBeNull] RelationalTypeMapping keyMapping = null,
+            [CanBeNull] RelationalTypeMapping rowVersionMapping = null)
+        {
+            Check.NotNull(property, nameof(property));
+            Check.NotEmpty(sizedTypeName, nameof(sizedTypeName));
+            Check.NotNull(defaultMapping, nameof(defaultMapping));
+
+            if (property.IsConcurrencyToken
+                && rowVersionMapping != null)
             {
-                // TODO: If scale/precision have been configured for the property, then create parameter appropriately
-                // Issue #587
-                return _decimalMapping;
+                return rowVersionMapping;
             }
 
-            if (propertyType == typeof(string))
+            var maxLength = property.GetMaxLength();
+
+            return maxLength.HasValue
+                ? GetOrAddNameMapping(sizedTypeName + "(" + maxLength + ")")
+                : (keyMapping != null
+                   && (property.IsKey() || property.IsForeignKey())
+                    ? keyMapping
+                    : defaultMapping);
+        }
+
+        protected virtual RelationalTypeMapping TryMapSized(
+            [NotNull] string typeName,
+            [NotNull] string typeNamePrefix,
+            [NotNull] IReadOnlyList<string> toMatch,
+            int? firstQualifier,
+            DbType? storeType = null)
+        {
+            Check.NotEmpty(typeNamePrefix, nameof(typeNamePrefix));
+            Check.NotNull(toMatch, nameof(toMatch));
+
+            return firstQualifier != null
+                   && toMatch.Contains(typeNamePrefix)
+                ? new RelationalSizedTypeMapping(typeName, storeType, (int)firstQualifier)
+                : null;
+        }
+
+        protected virtual RelationalTypeMapping TryMapScaled(
+            [NotNull] string typeName,
+            [NotNull] string typeNamePrefix,
+            [NotNull] IReadOnlyList<string> toMatch,
+            int? firstQualifier,
+            int? secondQualifier,
+            DbType? storeType = null)
+        {
+            Check.NotEmpty(typeNamePrefix, nameof(typeNamePrefix));
+            Check.NotNull(toMatch, nameof(toMatch));
+
+            return firstQualifier != null
+                   && toMatch.Contains(typeNamePrefix)
+                ? (secondQualifier == null
+                    ? new RelationalScaledTypeMapping(typeName, storeType, (byte)firstQualifier)
+                    : new RelationalScaledTypeMapping(typeName, storeType, (byte)firstQualifier, (byte)secondQualifier))
+                : null;
+        }
+
+        private RelationalTypeMapping GetOrAddNameMapping(string typeName)
+        {
+            RelationalTypeMapping mapping;
+            return SimpleNameMappings.TryGetValue(typeName, out mapping)
+                ? mapping
+                : _nameMappings.GetOrAdd(typeName, MapFromName);
+        }
+
+        private RelationalTypeMapping MapFromName(string typeName)
+        {
+            var pos1 = typeName.IndexOf("(", StringComparison.Ordinal) + 1;
+            var pos2 = typeName.IndexOf(",", StringComparison.Ordinal);
+            var pos3 = typeName.IndexOf(")", StringComparison.Ordinal);
+
+            if (pos1 > 0
+                && pos3 > pos1)
             {
-                // TODO: Honor length if configured; fallthrough if unbounded
-                return _stringMapping;
+                int? firstQualifier;
+                int? secondQualifier = null;
+
+                if (pos2 > 0)
+                {
+                    firstQualifier = TryParse(typeName, pos1, pos2);
+                    secondQualifier = TryParse(typeName, pos2 + 1, pos3);
+                }
+                else
+                {
+                    firstQualifier = TryParse(typeName, pos1, pos3);
+                }
+
+                return TryMapFromName(
+                    typeName,
+                    typeName.Substring(0, pos1 - 1).Trim(),
+                    firstQualifier,
+                    secondQualifier);
             }
 
-            // TODO: Consider TimeSpan mapping
-            // Issue #770
+            return TryMapFromName(typeName, typeName, null, null);
+        }
 
-            throw new NotSupportedException(Strings.UnsupportedType(storageName, propertyType.Name));
+        private static int? TryParse(string stringValue, int start, int end)
+        {
+            int intValue;
+            return int.TryParse(stringValue.Substring(start, end - start), out intValue)
+                ? (int?)intValue
+                : null;
         }
     }
 }

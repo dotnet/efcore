@@ -340,7 +340,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public int CountLinesContaining(string source, string searchTerm)
         {
-            string[] text = source.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            var text = source.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             var matchQuery = from word in text
                 where word.Contains(searchTerm)

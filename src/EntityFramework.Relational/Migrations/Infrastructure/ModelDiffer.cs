@@ -341,8 +341,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 };
             }
 
-            var sourceColumnType = TypeMapper.GetTypeMapping(source).StoreTypeName;
-            var targetColumnType = TypeMapper.GetTypeMapping(target).StoreTypeName;
+            var sourceColumnType = sourceExtensions.ColumnType
+                ?? TypeMapper.MapPropertyType(source).DefaultTypeName;
+
+            var targetColumnType = targetExtensions.ColumnType
+                ?? TypeMapper.MapPropertyType(target).DefaultTypeName;
 
             var isNullableChanged = source.IsNullable != target.IsNullable;
             var columnTypeChanged = sourceColumnType != targetColumnType;
@@ -407,7 +410,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 Schema = targetEntityTypeExtensions.Schema,
                 Table = targetEntityTypeExtensions.Table,
                 Name = targetExtensions.Column,
-                Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
+                Type = targetExtensions.ColumnType ?? TypeMapper.MapPropertyType(target).DefaultTypeName,
                 IsNullable = target.IsNullable,
                 DefaultValue = targetExtensions.DefaultValue,
                 DefaultExpression = targetExtensions.DefaultExpression
@@ -754,7 +757,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             {
                 Schema = target.Schema,
                 Name = target.Name,
-                Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
+                Type = TypeMapper.MapSequenceType(target).DefaultTypeName,
                 StartWith = target.StartValue,
                 IncrementBy = target.IncrementBy,
                 MinValue = target.MinValue,
