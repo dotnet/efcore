@@ -39,5 +39,21 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             modelMock.Verify(m => m.GetReferencingForeignKeys(entityType), Times.Once());
         }
+
+        [Fact]
+        public void Can_get_proper_table_name_for_generic_entityType()
+        {
+            var entityType = new EntityType(typeof(A<int>), new Model());
+
+            Assert.Equal(
+                "A<int>",
+                ((IEntityType)entityType).DisplayName());
+
+        }
+
+        public class A<T>
+        {
+
+        }
     }
 }

@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (entityType.ClrType != null)
             {
-                return entityType.ClrType.Name;
+                return TypeNameHelper.GetTypeDisplayName(entityType.ClrType, false);
             }
 
             var lastDot = entityType.Name.LastIndexOfAny(new[] { '.', '+' });

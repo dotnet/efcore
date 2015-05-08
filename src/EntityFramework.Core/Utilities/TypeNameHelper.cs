@@ -30,23 +30,23 @@ namespace Microsoft.Data.Entity.Utilities
             { typeof(ushort), "ushort" }
             };
 
-        public static string GetTypeDisplayName([NotNull] Type type, bool fullname = true)
+        public static string GetTypeDisplayName([NotNull] Type type, bool fullName = true)
         {
             var sb = new StringBuilder();
-            ProcessTypeName(type, sb, fullname);
+            ProcessTypeName(type, sb, fullName);
             return sb.ToString();
         }
 
-        private static void AppendGenericArguments(Type[] args, int startIndex, int nArgsToAppend, StringBuilder sb, bool fullName)
+        private static void AppendGenericArguments(Type[] args, int startIndex, int numberOfArgsToAppend, StringBuilder sb, bool fullName)
         {
-            var nArgs = args.Length;
-            if (nArgs >= startIndex + nArgsToAppend)
+            var totalArgs = args.Length;
+            if (totalArgs >= startIndex + numberOfArgsToAppend)
             {
                 sb.Append("<");
-                for (int i = startIndex; i < startIndex + nArgsToAppend; i++)
+                for (int i = startIndex; i < startIndex + numberOfArgsToAppend; i++)
                 {
                     ProcessTypeName(args[i], sb, fullName);
-                    if (i + 1 < startIndex + nArgsToAppend)
+                    if (i + 1 < startIndex + numberOfArgsToAppend)
                     {
                         sb.Append(", ");
                     }
@@ -79,45 +79,45 @@ namespace Microsoft.Data.Entity.Utilities
             var parts = genericFullName.Split('+');
             var genericArguments = t.GetTypeInfo().GenericTypeArguments;
             var index = 0;
-            var nParts = parts.Length;
-            if (nParts == 1)
+            var totalParts = parts.Length;
+            if (totalParts == 1)
             {
                 var part = parts[0];
                 var num = part.IndexOf('`');
                 if (num == -1) return;
 
                 var name = part.Substring(0, num);
-                var nGenericTypeArgs = int.Parse(part.Substring(num + 1));
+                var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1));
                 sb.Append(fullName ? name : genericSimpleName.Substring(0, genericSimpleName.IndexOf('`')));
-                AppendGenericArguments(genericArguments, index, nGenericTypeArgs, sb, fullName);
+                AppendGenericArguments(genericArguments, index, numberOfGenericTypeArgs, sb, fullName);
                 return;
             }
-            for (var i = 0; i < nParts; i++)
+            for (var i = 0; i < totalParts; i++)
             {
                 var part = parts[i];
                 var num = part.IndexOf('`');
                 if (num != -1)
                 {
                     var name = part.Substring(0, num);
-                    var nGenericTypeArgs = int.Parse(part.Substring(num + 1));
-                    if (fullName || i == nParts - 1)
+                    var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1));
+                    if (fullName || i == totalParts - 1)
                     {
                         sb.Append(name);
-                        AppendGenericArguments(genericArguments, index, nGenericTypeArgs, sb, fullName);
+                        AppendGenericArguments(genericArguments, index, numberOfGenericTypeArgs, sb, fullName);
                     }
-                    if (fullName && i != nParts - 1)
+                    if (fullName && i != totalParts - 1)
                     {
                         sb.Append("+");
                     }
-                    index += nGenericTypeArgs;
+                    index += numberOfGenericTypeArgs;
                 }
                 else
                 {
-                    if (fullName || i == nParts - 1)
+                    if (fullName || i == totalParts - 1)
                     {
                         sb.Append(part);
                     }
-                    if (fullName && i != nParts - 1)
+                    if (fullName && i != totalParts - 1)
                     {
                         sb.Append("+");
                     }
