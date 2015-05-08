@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
         private long _current;
 
         public override DateTimeOffset Next()
-            => new DateTimeOffset(new DateTime(Interlocked.Increment(ref _current)));
+            => new DateTimeOffset(Interlocked.Increment(ref _current), TimeSpan.Zero);
 
         public override bool GeneratesTemporaryValues => true;
     }
