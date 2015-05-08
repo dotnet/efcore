@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -186,8 +186,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
         private static IModel CreateModel()
         {
-            var model = new Model();
-            var modelBuilder = new BasicModelBuilder(model);
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             modelBuilder.Entity<Customer>(b =>
                 {
@@ -195,7 +194,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                     b.Property(c => c.Name);
                 });
 
-            return model;
+            return modelBuilder.Model;
         }
 
         private class Customer

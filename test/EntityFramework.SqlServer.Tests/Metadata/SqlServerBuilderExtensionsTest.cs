@@ -1617,11 +1617,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             return SqlServerTestHelpers.Instance.CreateConventionBuilder();
         }
 
-        protected virtual BasicModelBuilder CreateNonConventionModelBuilder()
-        {
-            return new BasicModelBuilder();
-        }
-
         private class Customer
         {
             public int Id { get; set; }

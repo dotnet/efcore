@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
 {
-    // TODO: Replace usage of BasicModelBuilder with direct calls to core metadata (See #1484)
     public class CSharpModelGenerator
     {
         private readonly CSharpHelper _code;

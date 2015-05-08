@@ -4,7 +4,6 @@
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
@@ -44,7 +43,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             _testDatabase.Dispose();
         }
 
-        protected override void OnModelCreating(BasicModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MappingQueryTestBase.MappedCustomer>(e =>
                 {

@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Metadata.Tests
@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_get_and_set_column_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_get_and_set_table_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_get_and_set_schema_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_get_and_set_column_type()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_get_and_set_column_default_expression()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_get_and_set_column_default_value()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_get_and_set_column_key_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var key = modelBuilder
                 .Entity<Customer>()
@@ -185,7 +185,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_get_and_set_column_foreign_key_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             modelBuilder
                 .Entity<Customer>()
@@ -193,7 +193,9 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             var foreignKey = modelBuilder
                 .Entity<Order>()
-                .ForeignKey<Customer>(e => e.CustomerId)
+                .Reference<Customer>()
+                .InverseReference()
+                .ForeignKey<Order>(e => e.CustomerId)
                 .Metadata;
 
             Assert.Null(foreignKey.Relational().Name);
@@ -213,7 +215,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_get_and_set_index_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var index = modelBuilder
                 .Entity<Customer>()
@@ -237,8 +239,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_get_and_set_sequence()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
             var extensions = model.Relational();
 
             Assert.Null(extensions.TryGetSequence("Foo"));
@@ -273,8 +275,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_get_and_set_sequence_with_schema_name()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
             var extensions = model.Relational();
 
             Assert.Null(extensions.TryGetSequence("Foo", "Smoo"));
@@ -309,8 +311,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_add_and_replace_sequence()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
             var extensions = model.Relational();
 
             extensions.AddOrReplaceSequence(new Sequence("Foo"));
@@ -344,8 +346,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_add_and_replace_sequence_with_schema_name()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
             var extensions = model.Relational();
 
             extensions.AddOrReplaceSequence(new Sequence("Foo", "Smoo"));
@@ -379,8 +381,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         [Fact]
         public void Can_get_multiple_sequences()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
             var extensions = model.Relational();
 
             extensions.AddOrReplaceSequence(new Sequence("Fibonacci"));

@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Xunit;
@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_table_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_schema_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_type()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_default_expression()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -207,7 +207,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_default_value()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -244,7 +244,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_key_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var key = modelBuilder
                 .Entity<Customer>()
@@ -281,7 +281,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_column_foreign_key_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             modelBuilder
                 .Entity<Customer>()
@@ -289,7 +289,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             var foreignKey = modelBuilder
                 .Entity<Order>()
-                .ForeignKey<Customer>(e => e.CustomerId)
+                .Reference<Customer>()
+                .InverseReference()
+                .ForeignKey<Order>(e => e.CustomerId)
                 .Metadata;
 
             Assert.Null(foreignKey.Relational().Name);
@@ -322,7 +324,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_index_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var index = modelBuilder
                 .Entity<Customer>()
@@ -359,7 +361,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_index_clustering()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var index = modelBuilder
                 .Entity<Customer>()
@@ -383,7 +385,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_key_clustering()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var key = modelBuilder
                 .Entity<Customer>()
@@ -407,8 +409,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_sequence()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
 
             Assert.Null(model.Relational().TryGetSequence("Foo"));
             Assert.Null(((IModel)model).Relational().TryGetSequence("Foo"));
@@ -448,8 +450,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_sequence_with_schema_name()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
 
             Assert.Null(model.Relational().TryGetSequence("Foo", "Smoo"));
             Assert.Null(((IModel)model).Relational().TryGetSequence("Foo", "Smoo"));
@@ -489,8 +491,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_add_and_replace_sequence()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
 
             model.SqlServer().AddOrReplaceSequence(new Sequence("Foo"));
 
@@ -527,8 +529,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_add_and_replace_sequence_with_schema_name()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
 
             model.SqlServer().AddOrReplaceSequence(new Sequence("Foo", "Smoo"));
 
@@ -565,8 +567,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_multiple_sequences()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
 
             model.Relational().AddOrReplaceSequence(new Sequence("Fibonacci"));
             model.SqlServer().AddOrReplaceSequence(new Sequence("Golomb"));
@@ -581,8 +583,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_multiple_sequences_when_overridden()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
 
             model.Relational().AddOrReplaceSequence(new Sequence("Fibonacci", startValue: 1));
             model.SqlServer().AddOrReplaceSequence(new Sequence("Fibonacci", startValue: 3));
@@ -601,8 +603,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_value_generation_on_model()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
 
             Assert.Null(model.SqlServer().ValueGenerationStrategy);
             Assert.Null(((IModel)model).SqlServer().ValueGenerationStrategy);
@@ -621,8 +623,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_default_sequence_name_on_model()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
 
             Assert.Null(model.SqlServer().DefaultSequenceName);
             Assert.Null(((IModel)model).SqlServer().DefaultSequenceName);
@@ -641,8 +643,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_default_sequence_schema_on_model()
         {
-            var modelBuilder = new BasicModelBuilder();
-            var model = modelBuilder.Metadata;
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
 
             Assert.Null(model.SqlServer().DefaultSequenceSchema);
             Assert.Null(((IModel)model).SqlServer().DefaultSequenceSchema);
@@ -661,7 +663,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_value_generation_on_property()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -689,7 +691,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_value_generation_on_nullable_property()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -717,7 +719,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Throws_setting_sequence_generation_for_invalid_type()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -733,7 +735,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Throws_setting_identity_generation_for_invalid_type()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -749,7 +751,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Throws_setting_identity_generation_for_byte_property()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -765,7 +767,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Throws_setting_identity_generation_for_nullable_byte_property()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -781,7 +783,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_sequence_name_on_property()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -805,7 +807,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_get_and_set_sequence_schema_on_property()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -829,7 +831,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_returns_null_if_property_is_not_configured_for_sequence_value_generation()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -861,7 +863,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_returns_sequence_property_is_marked_for_sequence_generation()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -879,7 +881,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_returns_sequence_property_is_marked_for_default_generation_and_model_is_marked_for_sequence_generation()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -898,7 +900,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_returns_sequence_property_is_marked_for_sequence_generation_and_model_has_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -916,7 +918,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_returns_sequence_property_is_marked_for_default_generation_and_model_is_marked_for_sequence_generation_and_model_has_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -935,7 +937,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_with_schema_returns_sequence_property_is_marked_for_sequence_generation()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -956,7 +958,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_with_schema_returns_sequence_model_is_marked_for_sequence_generation()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -978,7 +980,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_with_schema_returns_sequence_property_is_marked_for_sequence_generation_and_model_has_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -999,7 +1001,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void TryGetSequence_with_schema_returns_sequence_model_is_marked_for_sequence_generation_and_model_has_name()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             var property = modelBuilder
                 .Entity<Customer>()

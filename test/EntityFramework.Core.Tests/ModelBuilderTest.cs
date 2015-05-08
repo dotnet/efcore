@@ -6027,7 +6027,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
 
-            Assert.Same(model, new BasicModelBuilder(modelBuilder.Model).Model);
+            Assert.Same(model, new ModelBuilder(new ConventionSet(), modelBuilder.Model).Model);
         }
 
         private class Whoopper

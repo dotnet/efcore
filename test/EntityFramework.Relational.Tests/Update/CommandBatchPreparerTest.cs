@@ -6,9 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Framework.DependencyInjection;
@@ -280,8 +279,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private static IModel CreateSimpleFKModel()
         {
-            var model = new Entity.Metadata.Model();
-            var modelBuilder = new BasicModelBuilder(model);
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             modelBuilder.Entity<FakeEntity>(b =>
                 {
@@ -292,16 +290,17 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             modelBuilder.Entity<RelatedFakeEntity>(b =>
                 {
                     b.Key(c => c.Id);
-                    b.ForeignKey<FakeEntity>(c => c.Id);
+                    b.Reference<FakeEntity>()
+                        .InverseReference()
+                        .ForeignKey<RelatedFakeEntity>(c => c.Id);
                 });
 
-            return model;
+            return modelBuilder.Model;
         }
 
         private static IModel CreateCyclicFKModel()
         {
-            var model = new Entity.Metadata.Model();
-            var modelBuilder = new BasicModelBuilder(model);
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             modelBuilder.Entity<FakeEntity>(b =>
                 {
@@ -312,14 +311,18 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             modelBuilder.Entity<RelatedFakeEntity>(b =>
                 {
                     b.Key(c => c.Id);
-                    b.ForeignKey<FakeEntity>(c => c.RelatedId);
+                    b.Reference<FakeEntity>()
+                        .InverseReference()
+                        .ForeignKey<RelatedFakeEntity>(c => c.RelatedId);
                 });
 
             modelBuilder
                 .Entity<FakeEntity>()
-                .ForeignKey<RelatedFakeEntity>(c => c.RelatedId);
+                .Reference<RelatedFakeEntity>()
+                .InverseReference()
+                .ForeignKey<FakeEntity>(c => c.RelatedId);
 
-            return model;
+            return modelBuilder.Model;
         }
 
         private class FakeEntity

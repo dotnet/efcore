@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
@@ -10,8 +10,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
     {
         protected Model CreateModel()
         {
-            var model = new Model();
-            var modelBuilder = new BasicModelBuilder(model);
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             modelBuilder.Entity<MappingQueryTestBase.MappedCustomer>(e =>
                 {
@@ -39,10 +38,10 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
             OnModelCreating(modelBuilder);
 
-            return model;
+            return modelBuilder.Model;
         }
 
-        protected virtual void OnModelCreating(BasicModelBuilder modelBuilder)
+        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
         }
     }

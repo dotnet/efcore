@@ -2,10 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -160,8 +159,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
         private static IModel CreateModel()
         {
-            var model = new Model();
-            var modelBuilder = new BasicModelBuilder(model);
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
             modelBuilder.Entity<Test>(b =>
                 {
@@ -169,7 +167,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                     b.Property(c => c.Name);
                 });
 
-            return model;
+            return modelBuilder.Model;
         }
 
         private class Test

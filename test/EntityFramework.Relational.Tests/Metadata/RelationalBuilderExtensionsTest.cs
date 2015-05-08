@@ -903,11 +903,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             return RelationalTestHelpers.Instance.CreateConventionBuilder();
         }
 
-        protected virtual BasicModelBuilder CreateNonConventionModelBuilder()
-        {
-            return new BasicModelBuilder();
-        }
-
         private static void ValidateSchemaNamedSpecificSequence(Sequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
