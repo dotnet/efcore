@@ -2,12 +2,27 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Globalization;
+using System.Threading;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Commands.Utilities
 {
-    public class CSharpHelperTest
+    public class CSharpHelperTest : IDisposable
     {
+        private readonly CultureInfo _backupCultureInfo;
+
+        public CSharpHelperTest()
+        {
+            _backupCultureInfo = Thread.CurrentThread.CurrentCulture;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+        }
+
+        void IDisposable.Dispose()
+        {
+            Thread.CurrentThread.CurrentCulture = _backupCultureInfo;
+        }
+
         [Theory]
         [InlineData(
             "single-line string with \"",
