@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             }
 
             var columnExpression = expression as ColumnExpression
-                                   ?? expression.GetColumnExpression();
+                                   ?? expression.TryGetColumnExpression();
 
             if (columnExpression != null
                 && columnExpression.Property.IsNullable)

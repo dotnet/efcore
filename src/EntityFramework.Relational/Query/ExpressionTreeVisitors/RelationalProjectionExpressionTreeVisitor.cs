@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     if (!(expression is NewExpression))
                     {
-                        var columnExpression = sqlExpression.GetColumnExpression();
+                        var columnExpression = sqlExpression.TryGetColumnExpression();
 
                         if (columnExpression != null)
                         {

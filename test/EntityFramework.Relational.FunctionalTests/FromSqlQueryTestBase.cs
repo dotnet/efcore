@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
@@ -22,6 +23,50 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
                 Assert.Equal(91, actual.Length);
                 Assert.Equal(91, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_simple_columns_out_of_order()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql("SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM Customers")
+                    .ToArray();
+
+                Assert.Equal(91, actual.Length);
+                Assert.Equal(91, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_simple_columns_out_of_order_and_extra_columns()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql("SELECT [Region], [PostalCode], [PostalCode] AS Foo, [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM Customers")
+                    .ToArray();
+
+                Assert.Equal(91, actual.Length);
+                Assert.Equal(91, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_simple_columns_out_of_order_and_not_enough_columns_throws()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    Strings.FromSqlMissingColumn("Region"),
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Customer>()
+                                .FromSql("SELECT [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM Customers")
+                                .ToArray()
+                        ).Message);
             }
         }
 
@@ -53,7 +98,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             }
         }
 
-        //[Fact]
+        [Fact]
         public virtual void From_sql_queryable_multiple_line_query()
         {
             using (var context = CreateContext())
@@ -85,7 +130,7 @@ FROM Customers")
             }
         }
 
-        //[Fact]
+        [Fact]
         public virtual void From_sql_queryable_with_columns_reordered()
         {
             using (var context = CreateContext())
@@ -127,7 +172,7 @@ WHERE
             }
         }
 
-        //[Fact]
+        [Fact]
         public virtual void From_sql_queryable_with_parameters()
         {
             var city = "London";
@@ -164,7 +209,7 @@ WHERE
             }
         }
 
-        //[Fact]
+        [Fact]
         public virtual void From_sql_queryable_simple_cache_key_includes_query_string()
         {
             using (var context = CreateContext())
@@ -185,7 +230,7 @@ WHERE
             }
         }
 
-        //[Fact]
+        [Fact]
         public virtual void From_sql_queryable_with_parameters_cache_key_includes_parameters()
         {
             var city = "London";
@@ -222,6 +267,22 @@ WHERE
             {
                 var actual = context.Set<Customer>()
                     .FromSql("SELECT * FROM Customers")
+                    .AsNoTracking()
+                    .ToArray();
+
+                Assert.Equal(91, actual.Length);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_simple_projection_not_composed()
+        {
+            using(var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql("SELECT * FROM Customers")
+                    .Select(c => new { c.CustomerID, c.City })
                     .AsNoTracking()
                     .ToArray();
 

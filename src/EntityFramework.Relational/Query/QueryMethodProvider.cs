@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -26,32 +24,20 @@ namespace Microsoft.Data.Entity.Relational.Query
                 .GetDeclaredMethod(nameof(GetResult));
 
         [UsedImplicitly]
-        private static TResult GetResult<TResult>(IEnumerable<DbDataReader> dataReaders)
+        private static TResult GetResult<TResult>(IEnumerable<ValueBuffer> valueBuffers)
         {
-            using (var enumerator = dataReaders.GetEnumerator())
+            using (var enumerator = valueBuffers.GetEnumerator())
             {
                 if (enumerator.MoveNext())
                 {
-                    Debug.Assert(typeof(TResult) == typeof(int)
-                                 || typeof(TResult) == typeof(bool)
-                                 || typeof(TResult) == typeof(long));
-
-                    return enumerator.Current.IsDBNull(0)
+                    return enumerator.Current[0] == null
                         ? default(TResult)
-                        : ReadValue<TResult>(enumerator.Current);
+                        : (TResult)enumerator.Current[0];
                 }
             }
 
             return default(TResult);
         }
-
-        // TODO: Replace with GetFieldValue<> when supported on Mono
-        private static TResult ReadValue<TResult>(DbDataReader reader)
-            => (TResult)(typeof(TResult) == typeof(int)
-                ? reader.GetInt32(0)
-                : typeof(TResult) == typeof(bool)
-                    ? (object)reader.GetBoolean(0)
-                    : reader.GetInt64(0));
 
         public virtual MethodInfo QueryMethod => _queryMethodInfo;
 
@@ -61,13 +47,16 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         [UsedImplicitly]
         private static IEnumerable<T> _Query<T>(
-            QueryContext queryContext, CommandBuilder commandBuilder, Func<DbDataReader, T> shaper)
+            QueryContext queryContext,
+            CommandBuilder commandBuilder,
+            Func<ValueBuffer, T> shaper)
         {
-            return new QueryingEnumerable<T>(
-                ((RelationalQueryContext)queryContext),
-                commandBuilder,
-                shaper,
-                queryContext.Logger);
+            return
+                new QueryingEnumerable(
+                    ((RelationalQueryContext)queryContext),
+                    commandBuilder,
+                    queryContext.Logger)
+                    .Select(shaper);
         }
 
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;
@@ -132,39 +121,38 @@ namespace Microsoft.Data.Entity.Relational.Query
         [UsedImplicitly]
         private static IIncludeRelatedValuesStrategy _CreateReferenceIncludeStrategy(
             RelationalQueryContext relationalQueryContext,
-            IRelationalValueBufferFactory valueBufferFactory,
-            int readerIndex,
+            int valueBufferOffset,
+            int queryIndex,
             Func<ValueBuffer, object> materializer)
         {
             return new ReferenceIncludeRelatedValuesStrategy(
-                relationalQueryContext, valueBufferFactory, readerIndex, materializer);
+                relationalQueryContext, valueBufferOffset, queryIndex, materializer);
         }
 
         private class ReferenceIncludeRelatedValuesStrategy : IIncludeRelatedValuesStrategy
         {
             private readonly RelationalQueryContext _queryContext;
-            private readonly IRelationalValueBufferFactory _valueBufferFactory;
-            private readonly int _readerIndex;
+            private readonly int _valueBufferOffset;
+            private readonly int _queryIndex;
             private readonly Func<ValueBuffer, object> _materializer;
 
             public ReferenceIncludeRelatedValuesStrategy(
                 RelationalQueryContext queryContext,
-                IRelationalValueBufferFactory valueBufferFactory,
-                int readerIndex,
+                int valueBufferOffset,
+                int queryIndex,
                 Func<ValueBuffer, object> materializer)
             {
                 _queryContext = queryContext;
-                _valueBufferFactory = valueBufferFactory;
-                _readerIndex = readerIndex;
+                _valueBufferOffset = valueBufferOffset;
+                _queryIndex = queryIndex;
                 _materializer = materializer;
             }
 
             public IEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<ValueBuffer, EntityKey> keyFactory)
             {
-                yield return
-                    new EntityLoadInfo(
-                        _valueBufferFactory.CreateValueBuffer(_queryContext.GetDataReader(_readerIndex)),
-                        _materializer);
+                var valueBuffer = _queryContext.GetValueBuffer(_queryIndex).UpdateOffset(_valueBufferOffset);
+
+                yield return new EntityLoadInfo(valueBuffer, _materializer);
             }
 
             public void Dispose()

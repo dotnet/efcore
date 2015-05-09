@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -12,9 +12,9 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalQueryContext : QueryContext
     {
-        private readonly List<DbDataReader> _activeDataReaders = new List<DbDataReader>();
+        private readonly List<IValueBufferCursor> _activeQueries = new List<IValueBufferCursor>();
 
-        private int _activeReaderOffset;
+        private int _activeQueryOffset;
 
         public RelationalQueryContext(
             [NotNull] ILogger logger,
@@ -31,25 +31,26 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public virtual IRelationalConnection Connection { get; }
 
-        public virtual void RegisterDataReader([NotNull] DbDataReader dataReader)
+        public virtual void RegisterActiveQuery([NotNull] IValueBufferCursor valueBufferCursor)
         {
-            Check.NotNull(dataReader, nameof(dataReader));
+            Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
 
-            _activeDataReaders.Add(dataReader);
+            _activeQueries.Add(valueBufferCursor);
         }
 
-        public virtual DbDataReader GetDataReader(int readerIndex) => _activeDataReaders[_activeReaderOffset + readerIndex];
+        public virtual ValueBuffer GetValueBuffer(int queryIndex)
+            => _activeQueries[_activeQueryOffset + queryIndex].Current;
 
-        public virtual void BeginIncludeScope() => _activeReaderOffset = _activeDataReaders.Count;
+        public virtual void BeginIncludeScope() => _activeQueryOffset = _activeQueries.Count;
 
         public virtual void EndIncludeScope()
         {
-            for (var i = _activeDataReaders.Count - 1; i > _activeReaderOffset; i--)
+            for (var i = _activeQueries.Count - 1; i > _activeQueryOffset; i--)
             {
-                _activeDataReaders.RemoveAt(i);
+                _activeQueries.RemoveAt(i);
             }
 
-            _activeReaderOffset = 0;
+            _activeQueryOffset = 0;
         }
     }
 }

@@ -149,6 +149,15 @@ SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
                 Sql);
         }
 
+        public override void From_sql_queryable_simple_projection_not_composed()
+        {
+            base.From_sql_queryable_simple_projection_not_composed();
+
+            Assert.Equal(
+                @"SELECT * FROM Customers",
+                Sql);
+        }
+
         public override void From_sql_queryable_simple_include()
         {
             base.From_sql_queryable_simple_include();

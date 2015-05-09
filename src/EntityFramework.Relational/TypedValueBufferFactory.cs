@@ -12,22 +12,20 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class TypedValueBufferFactory : IRelationalValueBufferFactory
     {
-        private readonly Func<DbDataReader, int, object[]> _valueFactory;
-        private readonly int _offset;
+        private readonly Func<DbDataReader, object[]> _valueFactory;
 
-        public TypedValueBufferFactory([NotNull] Func<DbDataReader, int, object[]> valueFactory, int offset)
+        public TypedValueBufferFactory([NotNull] Func<DbDataReader, object[]> valueFactory)
         {
             Check.NotNull(valueFactory, nameof(valueFactory));
 
             _valueFactory = valueFactory;
-            _offset = offset;
         }
 
         public virtual ValueBuffer CreateValueBuffer(DbDataReader dataReader)
         {
             Debug.Assert(dataReader != null); // hot path
 
-            var values = _valueFactory(dataReader, _offset);
+            var values = _valueFactory(dataReader);
 
             return values.Length == 0
                 ? ValueBuffer.Empty

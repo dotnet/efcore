@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -109,7 +108,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             targetTableAlias,
                             querySource);
 
-                    var readerOffset = selectExpression.Projection.Count;
+                    var valueBufferOffset = selectExpression.Projection.Count;
 
                     canProduceInnerJoin
                         = canProduceInnerJoin
@@ -135,7 +134,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                             new ColumnExpression(
                                                 _queryCompilationContext.GetColumnName(p),
                                                 p,
-                                                joinedTableExpression))) - readerOffset,
+                                                joinedTableExpression))) - valueBufferOffset,
                                 querySource: null);
 
                     joinExpression.Predicate
@@ -150,8 +149,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     targetTableExpression = joinedTableExpression;
 
-                    selectExpression.RegisterReaderOffset(readerOffset);
-
                     yield return
                         Expression.Lambda(
                             Expression.Call(
@@ -160,10 +157,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 Expression.Convert(
                                     EntityQueryModelVisitor.QueryContextParameter,
                                     typeof(RelationalQueryContext)),
-                                Expression.Constant(
-                                    _queryCompilationContext.ValueBufferFactoryFactory.CreateValueBufferFactory(
-                                        selectExpression.GetProjectionTypes(readerOffset),
-                                        readerOffset)),
+                                Expression.Constant(valueBufferOffset),
                                 Expression.Constant(readerIndex),
                                 materializer));
                 }
@@ -208,7 +202,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     var innerJoinSelectExpression
                         = selectExpression.Clone(
                             selectExpression.OrderBy.Select(o => o.Expression).Last(o => o.IsAliasWithColumnExpression())
-                                .GetColumnExpression().TableAlias);
+                                .TryGetColumnExpression().TableAlias);
 
                     innerJoinSelectExpression.IsDistinct = true;
                     innerJoinSelectExpression.ClearProjection();
@@ -236,7 +230,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             targetTableExpression,
                             innerJoinExpression);
 
-                    var readerParameter = Expression.Parameter(typeof(DbDataReader), "dataReader");
+                    var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
                     selectExpression = targetSelectExpression;
                     readerIndex++;
@@ -252,24 +246,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                     EntityQueryModelVisitor.QueryContextParameter,
                                     Expression.Constant(
                                         new CommandBuilder(
-                                            _queryCompilationContext.CreateSqlQueryGenerator(targetSelectExpression))),
-                                    Expression.Lambda(
-                                        Expression.Call(
-                                            Expression.Constant(
-                                                _queryCompilationContext.ValueBufferFactoryFactory.CreateValueBufferFactory(
-                                                    selectExpression.GetProjectionTypes(0),
-                                                    0)),
-                                            _createValueBufferMethod,
-                                            readerParameter),
-                                        readerParameter)),
+                                            _queryCompilationContext.CreateSqlQueryGenerator(targetSelectExpression),
+                                            _queryCompilationContext.ValueBufferFactoryFactory)),
+                                    Expression.Lambda(valueBufferParameter, valueBufferParameter)),
                                 materializer));
                 }
             }
         }
-
-        private static readonly MethodInfo _createValueBufferMethod
-            = typeof(IRelationalValueBufferFactory).GetTypeInfo()
-                .GetDeclaredMethod(nameof(IRelationalValueBufferFactory.CreateValueBuffer));
 
         private Expression BuildJoinEqualityExpression(
             INavigation navigation,
@@ -341,10 +324,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var matchingColumnExpression
                 = projections
                     .OfType<AliasExpression>()
-                    .Last(p => p.ColumnExpression()?.Property == property);
+                    .Last(p => p.TryGetColumnExpression()?.Property == property);
 
             return new ColumnExpression(
-                matchingColumnExpression.Alias ?? matchingColumnExpression.ColumnExpression().Name,
+                matchingColumnExpression.Alias ?? matchingColumnExpression.TryGetColumnExpression().Name,
                 property,
                 tableExpression);
         }

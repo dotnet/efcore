@@ -6,36 +6,33 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
-    public class QueryingEnumerable<T> : IEnumerable<T>
+    public class QueryingEnumerable : IEnumerable<ValueBuffer>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly CommandBuilder _commandBuilder;
-        private readonly Func<DbDataReader, T> _shaper;
         private readonly ILogger _logger;
 
         public QueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
             [NotNull] CommandBuilder commandBuilder,
-            [NotNull] Func<DbDataReader, T> shaper,
             [NotNull] ILogger logger)
         {
             Check.NotNull(relationalQueryContext, nameof(relationalQueryContext));
             Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotNull(shaper, nameof(shaper));
             Check.NotNull(logger, nameof(logger));
 
             _relationalQueryContext = relationalQueryContext;
             _commandBuilder = commandBuilder;
-            _shaper = shaper;
             _logger = logger;
         }
 
-        public virtual IEnumerator<T> GetEnumerator()
+        public virtual IEnumerator<ValueBuffer> GetEnumerator()
         {
             return new Enumerator(this);
         }
@@ -45,46 +42,53 @@ namespace Microsoft.Data.Entity.Relational.Query
             return GetEnumerator();
         }
 
-        private sealed class Enumerator : IEnumerator<T>
+        private sealed class Enumerator : IEnumerator<ValueBuffer>, IValueBufferCursor
         {
-            private readonly QueryingEnumerable<T> _enumerable;
+            private readonly QueryingEnumerable _queryingEnumerable;
 
-            private DbDataReader _reader;
+            private DbDataReader _dataReader;
+
             private bool _disposed;
 
-            public Enumerator(QueryingEnumerable<T> enumerable)
+            public Enumerator(QueryingEnumerable queryingEnumerable)
             {
-                _enumerable = enumerable;
+                _queryingEnumerable = queryingEnumerable;
             }
 
             public bool MoveNext()
             {
-                if (_reader == null)
+                if (_dataReader == null)
                 {
-                    _enumerable._relationalQueryContext.Connection.Open();
+                    _queryingEnumerable._relationalQueryContext.Connection.Open();
 
                     using (var command
-                        = _enumerable._commandBuilder
+                        = _queryingEnumerable._commandBuilder
                             .Build(
-                                _enumerable._relationalQueryContext.Connection,
-                                _enumerable._relationalQueryContext.ParameterValues))
+                                _queryingEnumerable._relationalQueryContext.Connection,
+                                _queryingEnumerable._relationalQueryContext.ParameterValues))
                     {
-                        _enumerable._logger.LogCommand(command);
+                        _queryingEnumerable._logger.LogCommand(command);
 
-                        _reader = command.ExecuteReader();
+                        _dataReader = command.ExecuteReader();
+
+                        _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dataReader);
                     }
 
-                    _enumerable._relationalQueryContext.RegisterDataReader(_reader);
+                    _queryingEnumerable._relationalQueryContext.RegisterActiveQuery(this);
                 }
 
-                var hasNext = _reader.Read();
+                var hasNext = _dataReader.Read();
 
-                Current = hasNext ? _enumerable._shaper(_reader) : default(T);
+                Current
+                    = hasNext
+                        ? _queryingEnumerable._commandBuilder.ValueBufferFactory
+                            .CreateValueBuffer(_dataReader)
+                        : default(ValueBuffer);
 
                 return hasNext;
             }
 
-            public T Current { get; private set; }
+            public ValueBuffer Current { get; private set; }
 
             object IEnumerator.Current => Current;
 
@@ -92,10 +96,10 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 if (!_disposed)
                 {
-                    if (_reader != null)
+                    if (_dataReader != null)
                     {
-                        _reader.Dispose();
-                        _enumerable._relationalQueryContext.Connection?.Close();
+                        _dataReader.Dispose();
+                        _queryingEnumerable._relationalQueryContext.Connection?.Close();
                     }
 
                     _disposed = true;

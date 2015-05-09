@@ -3,14 +3,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
     public class UntypedValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
     {
-        public virtual IRelationalValueBufferFactory CreateValueBufferFactory(IEnumerable<Type> valueTypes, int offset)
-            => new UntypedValueBufferFactory(offset, Check.NotNull(valueTypes, nameof(valueTypes)).Count());
+        public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
+            IReadOnlyCollection<Type> _, IReadOnlyList<int> indexMap)
+            => indexMap == null
+                ? (IRelationalValueBufferFactory)new UntypedValueBufferFactory()
+                : new RemappingUntypedValueBufferFactory(indexMap);
     }
 }

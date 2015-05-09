@@ -7,6 +7,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -45,7 +46,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                  || ReferenceEquals(methodCallExpression.Method, RelationalQueryModelVisitor.CreateValueBufferMethodInfo))
                 && ((ConstantExpression)methodCallExpression.Arguments[0]).Value == _outerQuerySource)
             {
-                return methodCallExpression.Arguments[4];
+                return methodCallExpression.Arguments[3]; // valueBuffer
             }
 
             if (newArguments != methodCallExpression.Arguments)
@@ -55,7 +56,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 {
                     return Expression.Call(
                         _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod
-                            .MakeGenericMethod(typeof(DbDataReader)),
+                            .MakeGenericMethod(typeof(ValueBuffer)),
                         newArguments);
                 }
 
@@ -73,7 +74,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 {
                     return Expression.Call(
                         _relationalQueryCompilationContext.LinqOperatorProvider.SelectMany
-                            .MakeGenericMethod(typeof(QuerySourceScope), typeof(DbDataReader)),
+                            .MakeGenericMethod(typeof(QuerySourceScope), typeof(ValueBuffer)),
                         newArguments);
                 }
 

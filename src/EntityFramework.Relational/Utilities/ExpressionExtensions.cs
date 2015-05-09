@@ -19,21 +19,22 @@ namespace System.Linq.Expressions
                    || expression.NodeType == ExpressionType.OrElse;
         }
 
-        public static ColumnExpression GetColumnExpression([NotNull] this Expression expression) 
-            => (expression as AliasExpression)?.ColumnExpression();
+        public static ColumnExpression TryGetColumnExpression([NotNull] this Expression expression) 
+            => (expression as AliasExpression)?.TryGetColumnExpression();
 
         public static bool IsAliasWithColumnExpression([NotNull] this Expression expression) 
             => (expression as AliasExpression)?.Expression is ColumnExpression;
 
-        public static bool HasColumnExpression([NotNull] this AliasExpression aliasExpression) 
+        public static bool HasColumnExpression([CanBeNull] this AliasExpression aliasExpression) 
             => aliasExpression?.Expression is ColumnExpression;
 
-        public static ColumnExpression ColumnExpression([NotNull] this AliasExpression aliasExpression) 
+        public static ColumnExpression TryGetColumnExpression([NotNull] this AliasExpression aliasExpression) 
             => aliasExpression.Expression as ColumnExpression;
 
         public static bool IsSimpleExpression([NotNull] this Expression expression)
         {
             var unaryExpression = expression as UnaryExpression;
+
             if (unaryExpression != null
                 && unaryExpression.NodeType == ExpressionType.Convert)
             {

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
@@ -11,14 +12,23 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class CommandBuilder
     {
+        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly ISqlQueryGenerator _sqlGenerator;
 
-        public CommandBuilder([NotNull] ISqlQueryGenerator sqlGenerator)
+        private IRelationalValueBufferFactory _valueBufferFactory;
+
+        public CommandBuilder(
+            [NotNull] ISqlQueryGenerator sqlGenerator,
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
         {
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
             _sqlGenerator = sqlGenerator;
+            _valueBufferFactoryFactory = valueBufferFactoryFactory;
         }
+
+        public virtual IRelationalValueBufferFactory ValueBufferFactory => _valueBufferFactory;
 
         public virtual DbCommand Build(
             [NotNull] IRelationalConnection connection,
@@ -55,6 +65,16 @@ namespace Microsoft.Data.Entity.Relational.Query
             }
 
             return command;
+        }
+
+        public virtual void NotifyReaderCreated([NotNull] DbDataReader dataReader)
+        {
+            Check.NotNull(dataReader, nameof(dataReader));
+
+            LazyInitializer
+                .EnsureInitialized(
+                    ref _valueBufferFactory,
+                    () => _sqlGenerator.CreateValueBufferFactory(_valueBufferFactoryFactory, dataReader));
         }
     }
 }

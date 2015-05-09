@@ -255,4 +255,7 @@
   <data name="UsingConnection" xml:space="preserve">
     <value>Using database '{database}' on server '{dataSource}'.</value>
   </data>
+  <data name="FromSqlMissingColumn" xml:space="preserve">
+    <value>The required column '{column}' was not present in the results of a 'FromSql' operation.</value>
+  </data>
 </root>

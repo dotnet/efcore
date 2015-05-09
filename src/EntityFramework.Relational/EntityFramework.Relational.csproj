@@ -149,8 +149,10 @@
     <Compile Include="Migrations\Sql\IMigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Sql\MigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Infrastructure\ModelDiffer.cs" />
+    <Compile Include="Query\IValueBufferCursor.cs" />
     <Compile Include="RelationalDatabaseFactory.cs" />
     <Compile Include="RelationalDataStoreServices.cs" />
+    <Compile Include="RemappingUntypedValueBufferFactory.cs" />
     <Compile Include="UntypedValueBufferFactory.cs" />
     <Compile Include="UntypedValueBufferFactoryFactory.cs" />
     <Compile Include="Query\Annotations\FromSqlQueryAnnotation.cs" />
@@ -160,7 +162,6 @@
     <Compile Include="Query\CommandBuilder.cs" />
     <Compile Include="Query\CommandParameter.cs" />
     <Compile Include="Query\Expressions\NotNullableExpression.cs" />
-    <Compile Include="Query\Expressions\ValueBufferFactoryExpression.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\CompositeRelationalExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EqualityPredicateExpandingVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EqualityPredicateInExpressionOptimizer.cs" />

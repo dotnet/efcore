@@ -184,8 +184,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     && constantExpression.Value == null)
                 {
                     var columnExpression
-                        = left.GetColumnExpression()
-                          ?? right.GetColumnExpression();
+                        = left.TryGetColumnExpression()
+                          ?? right.TryGetColumnExpression();
 
                     if (columnExpression != null)
                     {

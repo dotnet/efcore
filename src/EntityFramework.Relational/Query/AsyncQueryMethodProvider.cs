@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -27,18 +26,15 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         [UsedImplicitly]
         private static async Task<TResult> GetResult<TResult>(
-            IAsyncEnumerable<DbDataReader> dataReaders, CancellationToken cancellationToken)
+            IAsyncEnumerable<ValueBuffer> valueBuffers, CancellationToken cancellationToken)
         {
-            using (var enumerator = dataReaders.GetEnumerator())
+            using (var enumerator = valueBuffers.GetEnumerator())
             {
                 if (await enumerator.MoveNext(cancellationToken))
                 {
-                    var result
-                        = await enumerator.Current.IsDBNullAsync(0, cancellationToken)
-                            ? default(TResult)
-                            : await enumerator.Current.GetFieldValueAsync<TResult>(0, cancellationToken);
-
-                    return result;
+                    return enumerator.Current[0] == null
+                        ? default(TResult)
+                        : (TResult)enumerator.Current[0];
                 }
             }
 
@@ -53,13 +49,16 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _Query<T>(
-            QueryContext queryContext, CommandBuilder commandBuilder, Func<DbDataReader, T> shaper)
+            QueryContext queryContext,
+            CommandBuilder commandBuilder,
+            Func<ValueBuffer, T> shaper)
         {
-            return new AsyncQueryingEnumerable<T>(
-                ((RelationalQueryContext)queryContext),
-                commandBuilder,
-                shaper,
-                queryContext.Logger);
+            return
+                new AsyncQueryingEnumerable(
+                    ((RelationalQueryContext)queryContext),
+                    commandBuilder,
+                    queryContext.Logger)
+                    .Select(shaper);
         }
 
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;
@@ -126,39 +125,39 @@ namespace Microsoft.Data.Entity.Relational.Query
         [UsedImplicitly]
         private static IAsyncIncludeRelatedValuesStrategy _CreateReferenceIncludeStrategy(
             RelationalQueryContext relationalQueryContext,
-            IRelationalValueBufferFactory valueBufferFactory,
-            int readerIndex,
+            int valueBufferOffset,
+            int queryIndex,
             Func<ValueBuffer, object> materializer)
         {
             return new ReferenceIncludeRelatedValuesStrategy(
-                relationalQueryContext, valueBufferFactory, readerIndex, materializer);
+                relationalQueryContext, valueBufferOffset, queryIndex, materializer);
         }
 
         private class ReferenceIncludeRelatedValuesStrategy : IAsyncIncludeRelatedValuesStrategy
         {
             private readonly RelationalQueryContext _queryContext;
-            private readonly IRelationalValueBufferFactory _valueBufferFactory;
-            private readonly int _readerIndex;
+            private readonly int _valueBufferOffset;
+            private readonly int _queryIndex;
             private readonly Func<ValueBuffer, object> _materializer;
 
             public ReferenceIncludeRelatedValuesStrategy(
                 RelationalQueryContext queryContext,
-                IRelationalValueBufferFactory valueBufferFactory,
-                int readerIndex,
+                int valueBufferOffset,
+                int queryIndex,
                 Func<ValueBuffer, object> materializer)
             {
                 _queryContext = queryContext;
-                _valueBufferFactory = valueBufferFactory;
-                _readerIndex = readerIndex;
+                _valueBufferOffset = valueBufferOffset;
+                _queryIndex = queryIndex;
                 _materializer = materializer;
             }
 
             public IAsyncEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<ValueBuffer, EntityKey> keyFactory)
             {
+                var valueBuffer = _queryContext.GetValueBuffer(_queryIndex).UpdateOffset(_valueBufferOffset);
+
                 return new AsyncEnumerableAdapter<EntityLoadInfo>(
-                    new EntityLoadInfo(
-                        _valueBufferFactory.CreateValueBuffer(_queryContext.GetDataReader(_readerIndex)),
-                        _materializer));
+                    new EntityLoadInfo(valueBuffer, _materializer));
             }
 
             private class AsyncEnumerableAdapter<T> : IAsyncEnumerable<T>

@@ -341,6 +341,14 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
+        /// The required column '{column}' was not present in the results of a 'FromSql' operation.
+        /// </summary>
+        public static string FromSqlMissingColumn([CanBeNull] object column)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FromSqlMissingColumn", "column"), column);
+        }
+
+        /// <summary>
         /// Generating down script for migration '{migration}'.
         /// </summary>
         public static string GeneratingDown([CanBeNull] object migration)

@@ -73,11 +73,6 @@ namespace Microsoft.Data.Entity.Relational.Query
                 : _queriesBySource.Values.SingleOrDefault(se => se.HandlesQuerySource(querySource)));
         }
 
-        public virtual IEnumerable<Type> GetProjectionTypes([NotNull] IQuerySource querySource)
-            => (TryGetQuery(Check.NotNull(querySource, nameof(querySource)))
-                ?? _queriesBySource.First().Value)
-                .GetProjectionTypes(0);
-
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -458,12 +453,12 @@ namespace Microsoft.Data.Entity.Relational.Query
             IQuerySource querySource,
             QueryContext queryContext,
             QuerySourceScope parentQuerySourceScope,
-            IRelationalValueBufferFactory valueBufferFactory,
-            DbDataReader dataReader)
+            ValueBuffer valueBuffer,
+            int valueBufferOffset)
         {
             return new QuerySourceScope<ValueBuffer>(
-                querySource,
-                valueBufferFactory.CreateValueBuffer(dataReader),
+                querySource, 
+                valueBuffer.UpdateOffset(valueBufferOffset), 
                 parentQuerySourceScope);
         }
 
@@ -476,8 +471,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             IQuerySource querySource,
             QueryContext queryContext,
             QuerySourceScope parentQuerySourceScope,
-            IRelationalValueBufferFactory valueBufferFactory,
-            DbDataReader dataReader,
+            ValueBuffer valueBuffer,
+            int valueBufferOffset,
             IEntityType entityType,
             bool queryStateManager,
             EntityKeyFactory entityKeyFactory,
@@ -485,7 +480,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             Func<ValueBuffer, object> materializer)
             where TEntity : class
         {
-            var valueBuffer = valueBufferFactory.CreateValueBuffer(dataReader);
+            valueBuffer = valueBuffer.UpdateOffset(valueBufferOffset);
 
             var entityKey
                 = entityKeyFactory.Create(entityType, keyProperties, valueBuffer);

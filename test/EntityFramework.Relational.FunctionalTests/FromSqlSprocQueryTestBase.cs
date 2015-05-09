@@ -33,6 +33,22 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         [Fact]
+        public virtual void From_sql_queryable_stored_procedure_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context
+                    .Set<MostExpensiveProduct>()
+                    .FromSql(TenMostExpensiveProductsSproc)
+                    .Select(mep => mep.TenMostExpensiveProducts)
+                    .ToArray();
+
+                Assert.Equal(10, actual.Length);
+                Assert.True(actual.Any(r => r == "Côte de Blaye"));
+            }
+        }
+
+        [Fact]
         public virtual void From_sql_queryable_stored_procedure_with_parameter()
         {
             using (var context = CreateContext())

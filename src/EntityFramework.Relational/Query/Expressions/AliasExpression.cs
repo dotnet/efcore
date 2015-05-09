@@ -52,6 +52,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         }
 
         public override string ToString() 
-            => this.ColumnExpression()?.ToString() ?? Expression.NodeType + " " + Alias;
+            => this.TryGetColumnExpression()?.ToString() ?? Expression.NodeType + " " + Alias;
     }
 }

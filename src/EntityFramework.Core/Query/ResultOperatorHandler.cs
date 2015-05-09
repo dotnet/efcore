@@ -289,6 +289,7 @@ namespace Microsoft.Data.Entity.Query
                                     _cancellationTokenProperty)
                             }));
             }
+
             return Expression.Call(methodInfo, arguments);
         }
     }

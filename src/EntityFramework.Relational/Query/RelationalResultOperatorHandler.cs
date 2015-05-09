@@ -300,7 +300,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 var discriminatorColumn
                     = handlerContext.SelectExpression.Projection
                         .OfType<AliasExpression>()
-                        .Single(c => c.ColumnExpression()?.Property == discriminatorProperty);
+                        .Single(c => c.TryGetColumnExpression()?.Property == discriminatorProperty);
 
                 var discriminatorPredicate
                     = concreteEntityTypes

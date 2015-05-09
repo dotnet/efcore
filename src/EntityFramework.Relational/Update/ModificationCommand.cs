@@ -145,7 +145,9 @@ namespace Microsoft.Data.Entity.Relational.Update
                 .CreateValueBufferFactory(
                     ColumnModifications
                         .Where(c => c.IsRead)
-                        .Select(c => c.Property.ClrType), 0);
+                        .Select(c => c.Property.ClrType)
+                        .ToArray(),
+                    indexMap: null);
 
         public virtual void PropagateResults(ValueBuffer valueBuffer)
         {

@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -45,7 +46,16 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return _sql.ToString();
         }
 
-        public virtual IReadOnlyList<CommandParameter> Parameters => _commandParameters;
+        public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
+            IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, DbDataReader _)
+        {
+            Check.NotNull(relationalValueBufferFactoryFactory, nameof(relationalValueBufferFactoryFactory));
+
+            return relationalValueBufferFactoryFactory
+                .CreateValueBufferFactory(_selectExpression.GetProjectionTypes().ToArray(), indexMap: null);
+        }
+
+    public virtual IReadOnlyList<CommandParameter> Parameters => _commandParameters;
 
         protected virtual IndentedStringBuilder Sql => _sql;
 
@@ -886,8 +896,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                         && parameterValue == null)
                     {
                         var columnExpression
-                            = expression.Left.GetColumnExpression()
-                              ?? expression.Right.GetColumnExpression();
+                            = expression.Left.TryGetColumnExpression()
+                              ?? expression.Right.TryGetColumnExpression();
 
                         if (columnExpression != null)
                         {

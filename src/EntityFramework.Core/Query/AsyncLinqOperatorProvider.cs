@@ -291,7 +291,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _ToSequence<T>(T element)
-            => AsyncEnumerable.Return(element);
+            => new AsyncEnumerableAdapter<T>(new[] { element });
 
         public virtual MethodInfo ToSequence => _toSequence;
 

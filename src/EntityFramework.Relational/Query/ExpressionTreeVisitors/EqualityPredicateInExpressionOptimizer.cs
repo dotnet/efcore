@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             if (leftAliasExpression.HasColumnExpression()
                 && rightAliasExpression.HasColumnExpression()
-                && leftAliasExpression.ColumnExpression().Equals(rightAliasExpression.ColumnExpression()))
+                && leftAliasExpression.TryGetColumnExpression().Equals(rightAliasExpression.TryGetColumnExpression()))
             {
                 var inArguments = new List<Expression>();
                 if (leftNonColumnExpression != null)

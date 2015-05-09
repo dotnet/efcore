@@ -10,29 +10,22 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class UntypedValueBufferFactory : IRelationalValueBufferFactory
     {
-        private readonly int _offset;
-        private readonly int _bufferSize;
-
-        public UntypedValueBufferFactory(int offset, int count)
-        {
-            _offset = offset;
-            _bufferSize = offset + count;
-        }
-
         public virtual ValueBuffer CreateValueBuffer(DbDataReader dataReader)
         {
             Debug.Assert(dataReader != null); // hot path
 
-            if (_bufferSize == 0)
+            var fieldCount = dataReader.FieldCount;
+
+            if (fieldCount == 0)
             {
                 return ValueBuffer.Empty;
             }
 
-            var values = new object[_bufferSize];
+            var values = new object[fieldCount];
 
             dataReader.GetValues(values);
 
-            for (var i = _offset; i < _bufferSize; i++)
+            for (var i = 0; i < fieldCount; i++)
             {
                 if (ReferenceEquals(values[i], DBNull.Value))
                 {
@@ -40,7 +33,7 @@ namespace Microsoft.Data.Entity.Relational
                 }
             }
 
-            return new ValueBuffer(values, _offset);
+            return new ValueBuffer(values);
         }
     }
 }

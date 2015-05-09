@@ -17,6 +17,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Sql);
         }
 
+        public override void From_sql_queryable_stored_procedure_projection()
+        {
+            base.From_sql_queryable_stored_procedure_projection();
+
+            Assert.Equal(
+                @"[dbo].[Ten Most Expensive Products]",
+                Sql);
+        }
+
         public override void From_sql_queryable_stored_procedure_with_parameter()
         {
             base.From_sql_queryable_stored_procedure_with_parameter();
@@ -27,7 +36,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 [dbo].[CustOrderHist] @CustomerID = @p0",
                 Sql);
         }
-
 
         public override void From_sql_queryable_stored_procedure_composed()
         {

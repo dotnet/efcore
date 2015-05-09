@@ -54,6 +54,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Expression valueBufferExpression,
             int[] indexMap = null)
         {
+            // ReSharper disable once SuspiciousTypeConversion.Global
             var materializer = entityType as IEntityMaterializer;
 
             if (materializer != null)

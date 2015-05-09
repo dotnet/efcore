@@ -89,12 +89,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     if (newArguments.Count == RelationalQueryModelVisitor.CreateEntityMethodInfo.GetParameters().Length)
                     {
-                        var oldValueBufferFactory = (ValueBufferFactoryExpression)newArguments[3];
+                        var oldBufferOffset = (int)((ConstantExpression)newArguments[4]).Value;
 
-                        newArguments[3] = new ValueBufferFactoryExpression(
-                            _relationalQueryCompilationContext.ValueBufferFactoryFactory,
-                            () => oldValueBufferFactory.TypesFactory().Skip(oldValueBufferFactory.Offset),
-                            _readerOffset + oldValueBufferFactory.Offset);
+                        newArguments[4] = Expression.Constant(oldBufferOffset + _readerOffset);
                     }
 
                     newExpression
