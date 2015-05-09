@@ -30,7 +30,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         private int? _subqueryDepth;
 
-        private Expression _projectionExpression;
         private bool _isDistinct;
 
         private readonly IList<int> _offsets = new List<int> { 0 };
@@ -223,8 +222,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual IReadOnlyList<Expression> Projection => _projection;
 
-        public virtual Expression ProjectionExpression => _projectionExpression;
-
         public virtual int AddToProjection(
             [NotNull] string column,
             [NotNull] IProperty property,
@@ -279,10 +276,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         {
             Check.NotNull(expression, nameof(expression));
 
-            var projectionIndex = -1;
             var columnExpression = expression as ColumnExpression;
 
-            projectionIndex
+            var projectionIndex
                 = _projection
                     .FindIndex(e =>
                         {
@@ -290,7 +286,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                             var ce = e.GetColumnExpression();
 
                             return (ce != null && ce.Property == columnExpression?.Property
-                                    && ce.TableAlias == columnExpression.TableAlias)
+                                    && ce.TableAlias == columnExpression?.TableAlias)
                                    || ae?.Expression == expression;
                         });
 
@@ -364,7 +360,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                             var ce = e.GetColumnExpression();
 
                             return ce?.Property == columnExpression.Property
-                                   && ce.TableAlias == columnExpression.TableAlias;
+                                   && ce?.TableAlias == columnExpression.TableAlias;
                         });
 
             if (projectionIndex == -1)
@@ -395,8 +391,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotNull(conditionalExpression, nameof(conditionalExpression));
 
             ClearProjection();
-
-            _projectionExpression = conditionalExpression;
+            AddToProjection(conditionalExpression);
         }
 
         public virtual void SetProjectionExpression([NotNull] Expression expression)
@@ -407,8 +402,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             PushDownIfDistinct();
 
             ClearProjection();
-
-            _projectionExpression = expression;
+            AddToProjection(expression);
         }
 
         public virtual void ClearProjection()

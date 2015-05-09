@@ -82,10 +82,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             {
                 VisitJoin(selectExpression.Projection);
             }
-            else if (selectExpression.ProjectionExpression != null)
-            {
-                VisitExpression(selectExpression.ProjectionExpression);
-            }
             else if (selectExpression.IsProjectStar)
             {
                 _sql.Append(DelimitIdentifier(selectExpression.Tables.Single().Alias))
