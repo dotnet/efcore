@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -177,17 +178,29 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             "new byte[] { " + string.Join(", ", values) + " }";
 
         public virtual string Literal(char value) => "\'" + (value == '\'' ? "\\'" : value.ToString()) + "\'";
-        public virtual string Literal(DateTime value) => "DateTime.Parse(\"" + value + "\")";
-        public virtual string Literal(DateTimeOffset value) => "DateTimeOffset.Parse(\"" + value + "\")";
-        public virtual string Literal(decimal value) => value + "m";
-        public virtual string Literal(double value) => value.ToString();
-        public virtual string Literal(float value) => value + "f";
+
+        public virtual string Literal(DateTime value) =>
+            String.Format(
+                "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})",
+                value.Year, value.Month, value.Day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Kind);
+
+        public virtual string Literal(DateTimeOffset value) =>
+            "new DateTimeOffset(" + Literal(value.DateTime) + ", " + Literal(value.Offset) + ")";
+
+        public virtual string Literal(decimal value) => value.ToString(CultureInfo.InvariantCulture) + "m";
+        public virtual string Literal(double value) => value.ToString("R", CultureInfo.InvariantCulture);
+        public virtual string Literal(float value) => value.ToString(CultureInfo.InvariantCulture) + "f";
         public virtual string Literal(Guid value) => "new Guid(\"" + value + "\")";
         public virtual string Literal(int value) => value.ToString();
         public virtual string Literal(long value) => value + "L";
         public virtual string Literal(sbyte value) => "(sbyte)" + value;
         public virtual string Literal(short value) => "(short)" + value;
-        public virtual string Literal(TimeSpan value) => "TimeSpan.Parse(\"" + value + "\")";
+
+        public virtual string Literal(TimeSpan value) =>
+            String.Format(
+                "new TimeSpan({0}, {1}, {2}, {3}, {4})",
+                value.Days, value.Hours, value.Minutes, value.Seconds, value.Milliseconds);
+
         public virtual string Literal(uint value) => value + "u";
         public virtual string Literal(ulong value) => value + "ul";
         public virtual string Literal(ushort value) => "(ushort)" + value;
