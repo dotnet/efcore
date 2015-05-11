@@ -2,12 +2,28 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Globalization;
+using System.Threading;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Commands.Utilities
 {
-    public class CSharpHelperTest
+    public class CSharpHelperTest : IDisposable
     {
+        private readonly CultureInfo _backupCultureInfo;
+
+        public CSharpHelperTest()
+        {
+            _backupCultureInfo = Thread.CurrentThread.CurrentCulture;
+            // Ensure that there is a culture used which differs from the intended formatting and also from typical CI machines.
+            // This way, formatting dependent on the local system's settings will be caught by the tests.
+            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("de-DE");
+        }
+
+        void IDisposable.Dispose()
+        {
+            Thread.CurrentThread.CurrentCulture = _backupCultureInfo;
+        }
         [Theory]
         [InlineData(
             "single-line string with \"",
@@ -31,14 +47,29 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             4.2,
             "4.2")]
         [InlineData(
+             -1.7976931348623157E+308, // Double MinValue
+            "-1.7976931348623157E+308")]
+        [InlineData(
+             1.7976931348623157E+308, // Double MaxValue
+            "1.7976931348623157E+308")]
+        [InlineData(
             4.2f,
             "4.2f")]
+        [InlineData(
+             -3.402823E+38f, // Single MinValue
+            "-3.402823E+38f")]
+        [InlineData(
+             3.402823E+38f, // Single MaxValue
+            "3.402823E+38f")]
         [InlineData(
             42,
             "42")]
         [InlineData(
             42L,
             "42L")]
+        [InlineData(
+             9000000000000000000L, // Ensure not printed as exponent
+            "9000000000000000000L")]
         [InlineData(
             (sbyte)42,
             "(sbyte)42")]
@@ -51,6 +82,9 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         [InlineData(
             42ul,
             "42ul")]
+        [InlineData(
+             18000000000000000000ul, // Ensure not printed as exponent
+            "18000000000000000000ul")]
         [InlineData(
             (ushort)42,
             "(ushort)42")]
@@ -87,20 +121,32 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         [Fact]
         public void Literal_works_when_DateTime() =>
             Literal_works(
-                new DateTime(2015, 3, 12),
-                "DateTime.Parse(\"3/12/2015 12:00:00 AM\")");
+                new DateTime(2015, 3, 15, 20, 45, 17, 300, DateTimeKind.Local),
+                "new DateTime(2015, 3, 15, 20, 45, 17, 300, DateTimeKind.Local)");
 
         [Fact]
         public void Literal_works_when_DateTimeOffset() =>
             Literal_works(
-                new DateTimeOffset(new DateTime(2015, 3, 12), new TimeSpan(-7, 0, 0)),
-                "DateTimeOffset.Parse(\"3/12/2015 12:00:00 AM -07:00\")");
+                new DateTimeOffset(new DateTime(2015, 3, 15, 19, 43, 47, 500), new TimeSpan(-7, 0, 0)),
+                "new DateTimeOffset(new DateTime(2015, 3, 15, 19, 43, 47, 500, DateTimeKind.Unspecified), new TimeSpan(0, -7, 0, 0, 0))");
 
         [Fact]
         public void Literal_works_when_decimal() =>
             Literal_works(
                 4.2m,
                 "4.2m");
+
+        [Fact]
+        public void Literal_works_when_decimal_max_value() =>
+            Literal_works(
+                 79228162514264337593543950335m, // Decimal MaxValue
+                "79228162514264337593543950335m");
+
+        [Fact]
+        public void Literal_works_when_decimal_min_value() =>
+            Literal_works(
+                 -79228162514264337593543950335m, // Decimal MinValue
+                "-79228162514264337593543950335m");
 
         [Fact]
         public void Literal_works_when_Guid() =>
@@ -111,8 +157,8 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         [Fact]
         public void Literal_works_when_TimeSpan() =>
             Literal_works(
-                new TimeSpan(2, 8, 31),
-                "TimeSpan.Parse(\"02:08:31\")");
+                new TimeSpan(17, 21, 42, 37, 250),
+                "new TimeSpan(17, 21, 42, 37, 250)");
 
         [Fact]
         public void Literal_works_when_NullableInt() =>
