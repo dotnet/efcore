@@ -46,10 +46,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     {
                         builder.Annotation("AnnotationName", "AnnotationValue");
                     },
-                @"var builder = new ModelBuilder(new ConventionSet())
+                @"builder
     .Annotation(""AnnotationName"", ""AnnotationValue"");
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -67,8 +65,7 @@ return builder.Model;
                         builder.Entity<EntityWithOneProperty>();
                         builder.Entity<EntityWithTwoProperties>();
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
@@ -91,8 +88,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         
         b.Key(""Id"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -116,8 +111,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithOneProperty>().Annotation("AnnotationName", "AnnotationValue");
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
@@ -129,8 +123,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         
         b.Annotation(""AnnotationName"", ""AnnotationValue"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -147,8 +139,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithTwoProperties>();
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
@@ -161,8 +152,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         
         b.Key(""Id"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -183,8 +172,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithTwoProperties>().Key(t => new { t.Id, t.AlternateId });
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
@@ -197,8 +185,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         
         b.Key(""Id"", ""AlternateId"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -219,8 +205,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithTwoProperties>().Index(t => t.AlternateId);
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
@@ -235,8 +220,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         
         b.Index(""AlternateId"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -251,10 +234,9 @@ return builder.Model;
             Test(
                 builder =>
                 {
-                    builder.Entity<EntityWithTwoProperties>().Index(t => new {t.Id, t.AlternateId});
+                    builder.Entity<EntityWithTwoProperties>().Index(t => new { t.Id, t.AlternateId });
                 },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
@@ -269,8 +251,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         
         b.Index(""Id"", ""AlternateId"");
     });
-
-return builder.Model;
 ",
                 o =>
                 {
@@ -290,8 +270,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithTwoProperties>().Reference<EntityWithOneProperty>().InverseReference().ForeignKey<EntityWithTwoProperties>(e => e.AlternateId);
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
@@ -321,8 +300,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .InverseReference()
             .ForeignKey(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -341,8 +318,7 @@ return builder.Model;
                             .ForeignKey<EntityWithOneProperty>(e => e.Id).
                             PrincipalKey<EntityWithTwoProperties>(e => e.AlternateId);
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
@@ -372,8 +348,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .ForeignKey(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Id"")
             .PrincipalKey(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -394,8 +368,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithOneProperty>().Property<int>("Id").Annotation("AnnotationName", "AnnotationValue");
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
@@ -406,8 +379,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         
         b.Key(""Id"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -425,8 +396,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithStringProperty>().Property<string>("Name").Required();
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
@@ -440,8 +410,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         
         b.Key(""Id"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -457,8 +425,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").StoreGeneratedPattern(StoreGeneratedPattern.Identity);
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
@@ -472,8 +439,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         
         b.Key(""Id"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -489,8 +454,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithStringProperty>().Property<string>("Name").MaxLength(100);
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
@@ -504,8 +468,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         
         b.Key(""Id"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -521,8 +483,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").GenerateValueOnAdd();
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
@@ -536,8 +497,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         
         b.Key(""Id"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -553,8 +512,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").ConcurrencyToken();
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
@@ -568,8 +526,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         
         b.Key(""Id"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -589,8 +545,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithTwoProperties>().Index(t => t.AlternateId).Annotation("AnnotationName", "AnnotationValue");
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
@@ -606,8 +561,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Index(""AlternateId"")
             .Annotation(""AnnotationName"", ""AnnotationValue"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -623,8 +576,7 @@ return builder.Model;
                     {
                         builder.Entity<EntityWithTwoProperties>().Index(t => t.AlternateId).Unique();
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
@@ -640,8 +592,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Index(""AlternateId"")
             .Unique();
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -665,8 +615,7 @@ return builder.Model;
                             .ForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
                             .Annotation("AnnotationName", "AnnotationValue");
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
@@ -697,8 +646,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .ForeignKey(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
             .Annotation(""AnnotationName"", ""AnnotationValue"");
     });
-
-return builder.Model;
 ",
                 o =>
                     {
@@ -718,8 +665,7 @@ return builder.Model;
                         .ForeignKey<EntityWithStringProperty>(e => e.Name)
                         .Required();
                 },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringKey"", b =>
     {
         b.Property<string>(""Id"")
@@ -749,8 +695,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .InverseReference()
             .ForeignKey(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", ""Name"");
     });
-
-return builder.Model;
 ",
                 o =>
                 {
@@ -769,8 +713,7 @@ return builder.Model;
                             .InverseCollection()
                             .ForeignKey(e => e.Name);
                     },
-                @"var builder = new ModelBuilder(new ConventionSet());
-
+                @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringKey"", b =>
     {
         b.Property<string>(""Id"")
@@ -799,8 +742,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .InverseCollection()
             .ForeignKey(""Name"");
     });
-
-return builder.Model;
 ",
                 o =>
                 {
@@ -834,7 +775,7 @@ return builder.Model;
                     BuildReference.ByName("EntityFramework.Core"),
                     BuildReference.ByName("EntityFramework.Relational"),
                 },
-                Source = @"
+                Sources = { @"
                     using System;
                     using Microsoft.Data.Entity;
                     using Microsoft.Data.Entity.Metadata;
@@ -848,11 +789,14 @@ return builder.Model;
                         {
                             get
                             {
+                                var builder = new ModelBuilder(new ConventionSet());
                                 " + code + @"
+
+                                return builder.Model;
                             }
                         }
                    }
-                "
+                " }
             };
 
             var assembly = build.BuildInMemory();

@@ -17,7 +17,6 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Migrations
 {
-    // TODO: Log
     public class Migrator : IMigrator
     {
         private const string InitialDatabase = "0";
@@ -33,6 +32,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         private readonly IMigrationIdGenerator _idGenerator;
         private readonly ISqlGenerator _sqlGenerator;
         private readonly LazyRef<ILogger> _logger;
+        private readonly IMigrationModelFactory _modelFactory;
 
         public Migrator(
             [NotNull] IMigrationAssembly migrationAssembly,
@@ -45,7 +45,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             [NotNull] IModel model,
             [NotNull] IMigrationIdGenerator idGenerator,
             [NotNull] ISqlGenerator sqlGenerator,
-            [NotNull] ILoggerFactory loggerFactory)
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IMigrationModelFactory modelFactory)
         {
             Check.NotNull(migrationAssembly, nameof(migrationAssembly));
             Check.NotNull(historyRepository, nameof(historyRepository));
@@ -58,6 +59,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             Check.NotNull(idGenerator, nameof(idGenerator));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(modelFactory, nameof(modelFactory));
 
             _migrationAssembly = migrationAssembly;
             _historyRepository = historyRepository;
@@ -70,6 +72,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             _idGenerator = idGenerator;
             _sqlGenerator = sqlGenerator;
             _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<Migrator>);
+            _modelFactory = modelFactory;
         }
 
         protected virtual string ProductVersion =>
@@ -86,8 +89,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
                 .ToList();
         }
 
-        public virtual bool HasPendingModelChanges() =>
-            _modelDiffer.HasDifferences(_migrationAssembly.ModelSnapshot?.Model, _model);
+        public virtual bool HasPendingModelChanges() => _modelDiffer.HasDifferences(_migrationAssembly.ModelSnapshot, _model);
 
         public virtual void ApplyMigrations(string targetMigration = null)
         {
@@ -291,7 +293,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             var operations = migrationBuilder.Operations.ToList();
             operations.Add(_historyRepository.GetInsertOperation(new HistoryRow(migration.Id, ProductVersion)));
 
-            return _migrationSqlGenerator.Generate(operations, migration.Target);
+            var targetModel = _modelFactory.CreateModel(migration.BuildTargetModel);
+
+            return _migrationSqlGenerator.Generate(operations, targetModel);
         }
 
         protected virtual IReadOnlyList<SqlBatch> RevertMigration([NotNull] Migration migration)

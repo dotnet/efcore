@@ -26,6 +26,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         private readonly MigrationCodeGenerator _migrationCodeGenerator;
         private readonly IHistoryRepository _historyRepository;
         private readonly LazyRef<ILogger> _logger;
+        private readonly IMigrationModelFactory _modelFactory;
 
         public MigrationScaffolder(
             [NotNull] DbContext context,
@@ -35,7 +36,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             [NotNull] IMigrationIdGenerator idGenerator,
             [NotNull] MigrationCodeGenerator migrationCodeGenerator,
             [NotNull] IHistoryRepository historyRepository,
-            [NotNull] ILoggerFactory loggerFactory)
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IMigrationModelFactory modelFactory)
         {
             Check.NotNull(context, nameof(context));
             Check.NotNull(model, nameof(model));
@@ -45,6 +47,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(migrationCodeGenerator, nameof(migrationCodeGenerator));
             Check.NotNull(historyRepository, nameof(historyRepository));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(modelFactory, nameof(modelFactory));
 
             _contextType = context.GetType();
             _model = model;
@@ -54,6 +57,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             _migrationCodeGenerator = migrationCodeGenerator;
             _historyRepository = historyRepository;
             _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<MigrationScaffolder>);
+            _modelFactory = modelFactory;
         }
 
         protected virtual string ProductVersion =>
@@ -76,10 +80,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             var lastMigration = _migrationAssembly.Migrations.LastOrDefault();
             var migrationNamespace = GetNamespace(lastMigration?.GetType(), rootNamespace + ".Migrations");
             var modelSnapshot = _migrationAssembly.ModelSnapshot;
-            var lastModel = modelSnapshot?.Model;
-            var upOperations = _modelDiffer.GetDifferences(lastModel, _model);
+            var upOperations = _modelDiffer.GetDifferences(modelSnapshot, _model);
             var downOperations = upOperations.Any()
-                ? _modelDiffer.GetDifferences(_model, lastModel)
+                ? _modelDiffer.GetDifferences(_model, modelSnapshot)
                 : new List<MigrationOperation>();
             var migrationId = _idGenerator.CreateId(migrationName);
             var modelSnapshotNamespace = GetNamespace(modelSnapshot?.GetType(), migrationNamespace);
@@ -159,9 +162,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             if (migrations.Count != 0)
             {
                 var migration = migrations.Last();
-                model = migration.Target;
+                model = _modelFactory.CreateModel(migration.BuildTargetModel);
 
-                if (!_modelDiffer.HasDifferences(model, modelSnapshot.Model))
+                if (!_modelDiffer.HasDifferences(model, modelSnapshot))
                 {
                     if (_historyRepository.GetAppliedMigrations().Any(
                         e => e.MigrationId.Equals(migration.Id, StringComparison.OrdinalIgnoreCase)))
@@ -195,7 +198,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         _logger.Value.LogVerbose(Strings.NoMigrationMetadataFile(migrationMetadataFileName));
                     }
 
-                    model = migrations.Count > 1 ? migrations[migrations.Count - 2].Target : null;
+                    model = migrations.Count > 1
+                        ? _modelFactory.CreateModel(migrations[migrations.Count - 2].BuildTargetModel)
+                        : null;
                 }
                 else
                 {

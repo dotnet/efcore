@@ -1601,7 +1601,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     BuildReference.ByName("EntityFramework.Relational"),
                     BuildReference.ByName("EntityFramework.Relational.Design")
                 },
-                Source = @"
+                Sources = { @"
                     using System.Collections.Generic;
                     using Microsoft.Data.Entity.Relational.Migrations.Builders;
                     using Microsoft.Data.Entity.Relational.Migrations.Operations;
@@ -1613,7 +1613,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                             " + code + @"
                         }
                     }
-                "
+                " }
             };
 
             var assembly = build.BuildInMemory();

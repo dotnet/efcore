@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Commands
                                     BuildReference.ByName("Microsoft.Framework.OptionsModel", copyLocal: true),
                                     BuildReference.ByName("Remotion.Linq", copyLocal: true)
                                 },
-                        Source = @"
+                        Sources = { @"
                             using System;
                             using Microsoft.Data.Entity;
                             using Microsoft.Data.Entity.Metadata;
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Commands
                                         }
                                     }
                                 }
-                            }"
+                            }" }
                     };
                     var build = source.Build();
                     Executor = new ExecutorWrapper(TargetDir, build.TargetName + ".dll", TargetDir, "SimpleProject");
@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByName("Microsoft.Framework.OptionsModel", copyLocal: true),
                                 BuildReference.ByName("Remotion.Linq", copyLocal: true)
                             },
-                    Source = @"
+                    Sources = { @"
                         using System;
                         using Microsoft.Data.Entity;
                         using Microsoft.Data.Entity.Metadata;
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.Commands
                                     }
                                 }
                             }
-                        }"
+                        }" }
                 };
                 var build = source.Build();
                 using (var executor = new ExecutorWrapper(targetDir, build.TargetName + ".dll", targetDir, "MyProject"))
@@ -250,7 +250,7 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Commands", copyLocal: true)
                             },
-                    Source = @"
+                    Sources = { @"
                         using Microsoft.Data.Entity;
 
                         namespace MyProject
@@ -262,7 +262,7 @@ namespace Microsoft.Data.Entity.Commands
                             public class Context2 : DbContext
                             {
                             }
-                        }"
+                        }" }
                 };
                 var contextsBuild = contextsSource.Build();
                 var migrationsSource = new BuildSource
@@ -281,7 +281,7 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByName("Microsoft.Framework.Logging.Abstractions", copyLocal: true),
                                 BuildReference.ByPath(contextsBuild.TargetPath)
                             },
-                    Source = @"
+                    Sources = { @"
                         using System;
                         using Microsoft.Data.Entity;
                         using Microsoft.Data.Entity.Metadata;
@@ -331,7 +331,7 @@ namespace Microsoft.Data.Entity.Commands
                                     }
                                 }
                             }
-                        }"
+                        }" }
                 };
                 var migrationsBuild = migrationsSource.Build();
                 using (var executor = new ExecutorWrapper(targetDir, migrationsBuild.TargetName + ".dll", targetDir, "MyProject"))

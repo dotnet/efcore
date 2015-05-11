@@ -105,7 +105,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .AppendLine("using System;")
                 .AppendLine("using Microsoft.Data.Entity;")
                 .AppendLine("using Microsoft.Data.Entity.Metadata;")
-                .AppendLine("using Microsoft.Data.Entity.Metadata.ModelConventions;")
                 .AppendLine("using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;")
                 .Append("using ").Append(contextType.Namespace).AppendLine(";")
                 .AppendLine()
@@ -138,19 +137,12 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     builder
                         .AppendLine("}")
                         .AppendLine()
-                        .AppendLine("public override IModel Target")
+                        .AppendLine("public override void BuildTargetModel(ModelBuilder builder)")
                         .AppendLine("{");
                     using (builder.Indent())
                     {
-                        builder
-                            .AppendLine("get")
-                            .AppendLine("{");
-                        using (builder.Indent())
-                        {
-                            // TODO: Optimize. This is repeated below
-                            _modelGenerator.Generate(targetModel, builder);
-                        }
-                        builder.AppendLine("}");
+                        // TODO: Optimize. This is repeated below
+                        _modelGenerator.Generate(targetModel, builder);
                     }
                     builder.AppendLine("}");
                 }
@@ -177,7 +169,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .AppendLine("using System;")
                 .AppendLine("using Microsoft.Data.Entity;")
                 .AppendLine("using Microsoft.Data.Entity.Metadata;")
-                .AppendLine("using Microsoft.Data.Entity.Metadata.ModelConventions;")
                 .AppendLine("using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;")
                 .Append("using ").Append(contextType.Namespace).AppendLine(";")
                 .AppendLine()
@@ -192,18 +183,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 using (builder.Indent())
                 {
                     builder
-                        .AppendLine("public override IModel Model")
+                        .AppendLine("public override void BuildModel(ModelBuilder builder)")
                         .AppendLine("{");
                     using (builder.Indent())
                     {
-                        builder
-                            .AppendLine("get")
-                            .AppendLine("{");
-                        using (builder.Indent())
-                        {
-                            _modelGenerator.Generate(model, builder);
-                        }
-                        builder.AppendLine("}");
+                        _modelGenerator.Generate(model, builder);
                     }
                     builder.AppendLine("}");
                 }

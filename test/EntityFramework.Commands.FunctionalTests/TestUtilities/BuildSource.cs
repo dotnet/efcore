@@ -13,13 +13,15 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 {
     public class BuildSource
     {
-        public ICollection<BuildReference> References { get; } = new List<BuildReference>
+        public ICollection<BuildReference> References
+        { get; }
+        = new List<BuildReference>
             {
                 BuildReference.ByName("mscorlib")
             };
 
-        public string Source { get; set; }
         public string TargetDir { get; set; }
+        public ICollection<string> Sources { get; } = new List<string>();
 
         public BuildFileResult Build()
         {
@@ -38,7 +40,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 
             var compilation = CSharpCompilation.Create(
                 projectName,
-                new[] { SyntaxFactory.ParseSyntaxTree(Source) },
+                Sources.Select(s => SyntaxFactory.ParseSyntaxTree(s)),
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
@@ -74,7 +76,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 
             var compilation = CSharpCompilation.Create(
                 projectName,
-                new[] { SyntaxFactory.ParseSyntaxTree(Source) },
+                Sources.Select(s => SyntaxFactory.ParseSyntaxTree(s)),
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 

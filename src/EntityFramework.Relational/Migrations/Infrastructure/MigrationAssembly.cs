@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
@@ -14,12 +15,16 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
     public class MigrationAssembly : IMigrationAssembly
     {
         private readonly LazyRef<IReadOnlyList<Migration>> _migrations;
-        private readonly LazyRef<ModelSnapshot> _modelSnapshot;
+        private readonly LazyRef<IModel> _modelSnapshot;
 
-        public MigrationAssembly([NotNull] DbContext context, [NotNull] IDbContextOptions options)
+        public MigrationAssembly(
+            [NotNull] DbContext context,
+            [NotNull] IDbContextOptions options,
+            [NotNull] IMigrationModelFactory modelFactory)
         {
             Check.NotNull(context, nameof(context));
             Check.NotNull(options, nameof(options));
+            Check.NotNull(modelFactory, nameof(modelFactory));
 
             var contextType = context.GetType();
 
@@ -34,17 +39,26 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     .Select(t => (Migration)Activator.CreateInstance(t.AsType()))
                     .OrderBy(m => m.Id)
                     .ToList());
-            _modelSnapshot = new LazyRef<ModelSnapshot>(
-                () => (
-                    from t in GetTypes(assembly)
-                    where t.IsSubclassOf(typeof(ModelSnapshot))
-                          && TryGetContextType(t) == contextType
-                    select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
-                    .FirstOrDefault());
+            _modelSnapshot = new LazyRef<IModel>(
+                () =>
+                {
+                    var modelSnapshot = (
+                            from t in GetTypes(assembly)
+                            where t.IsSubclassOf(typeof(ModelSnapshot))
+                                && TryGetContextType(t) == contextType
+                            select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
+                        .FirstOrDefault();
+                    if (modelSnapshot == null)
+                    {
+                        return null;
+                    }
+
+                    return modelFactory.CreateModel(modelSnapshot.BuildModel);
+                });
         }
 
         public virtual IReadOnlyList<Migration> Migrations => _migrations.Value;
-        public virtual ModelSnapshot ModelSnapshot => _modelSnapshot.Value;
+        public virtual IModel ModelSnapshot => _modelSnapshot.Value;
 
         public static IEnumerable<TypeInfo> GetMigrationTypes([NotNull] Assembly assembly) =>
             GetTypes(assembly).Where(ti => ti.IsSubclassOf(typeof(Migration)));

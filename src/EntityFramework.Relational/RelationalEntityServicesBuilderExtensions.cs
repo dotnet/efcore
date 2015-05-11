@@ -32,6 +32,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<ISqlStatementExecutor, SqlStatementExecutor>()
                 .AddSingleton<UntypedValueBufferFactoryFactory>()
                 .AddSingleton<TypedValueBufferFactoryFactory>()
+                .AddSingleton<IMigrationModelFactory, MigrationModelFactory>()
                 .AddScoped<IMigrator, Migrator>()
                 .AddScoped<IMigrationAssembly, MigrationAssembly>()
                 .AddScoped<RelationalQueryContextFactory>()

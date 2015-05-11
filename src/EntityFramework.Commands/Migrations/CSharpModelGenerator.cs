@@ -28,20 +28,20 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(model, nameof(model));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            stringBuilder.Append("var builder = new ModelBuilder(new ConventionSet())");
-
-            using (stringBuilder.Indent())
+            var annotations = model.Annotations.ToArray();
+            if (annotations.Length != 0)
             {
-                GenerateAnnotations(model.Annotations.ToArray(), stringBuilder);
+                stringBuilder.Append("builder");
+
+                using (stringBuilder.Indent())
+                {
+                    GenerateAnnotations(annotations, stringBuilder);
+                }
+
+                stringBuilder.AppendLine(";");
             }
 
-            stringBuilder.AppendLine(";");
-
             GenerateEntityTypes(model.EntityTypes, stringBuilder);
-
-            stringBuilder
-                .AppendLine()
-                .AppendLine("return builder.Model;");
         }
 
         [Flags]

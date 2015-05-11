@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations.Builders;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
@@ -82,9 +81,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 get { return "EF7"; }
             }
 
-            public override IModel Target
+            public override void BuildTargetModel(ModelBuilder modelBuilder)
             {
-                get { return new Model(); }
             }
         }
     }
