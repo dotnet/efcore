@@ -20,11 +20,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Default_nullability_of_property_is_based_on_nullability_of_CLR_type()
+        public void Default_nullability_of_property_is_based_on_nullability_of_CLR_type_and_property_being_part_of_primary_key()
         {
-            var stringProperty = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
-            var nullableIntProperty = new Property("Name", typeof(int?), new Model().AddEntityType(typeof(object)));
-            var intProperty = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var stringProperty = new Property("stringName", typeof(string), entityType);
+            var nullableIntProperty = new Property("nullableIntName", typeof(int?), entityType);
+            var intProperty = new Property("intName", typeof(int), entityType);
 
             Assert.Null(stringProperty.IsNullable);
             Assert.True(((IProperty)stringProperty).IsNullable);
@@ -32,6 +33,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.True(((IProperty)nullableIntProperty).IsNullable);
             Assert.Null(intProperty.IsNullable);
             Assert.False(((IProperty)intProperty).IsNullable);
+
+            entityType.SetPrimaryKey(stringProperty);
+
+            Assert.Null(stringProperty.IsNullable);
+            Assert.False(((IProperty)stringProperty).IsNullable);
         }
 
         [Fact]
@@ -56,6 +62,20 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Property_nullability_is_changed_if_property_made_part_of_primary_key()
+        {
+            var stringProperty = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+
+            stringProperty.IsNullable = true;
+            Assert.True(stringProperty.IsNullable.Value);
+
+            stringProperty.EntityType.SetPrimaryKey(stringProperty);
+
+            Assert.Null(stringProperty.IsNullable);
+            Assert.False(((IProperty)stringProperty).IsNullable);
+        }
+
+        [Fact]
         public void Properties_with_non_nullable_types_cannot_be_made_nullable()
         {
             var intProperty = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object)));
@@ -63,6 +83,17 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 Strings.CannotBeNullable("Name", "object", "Int32"),
                 Assert.Throws<InvalidOperationException>(() => intProperty.IsNullable = true).Message);
+        }
+
+        [Fact]
+        public void Properties_which_are_part_of_primary_key_cannot_be_made_nullable()
+        {
+            var stringProperty = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+            stringProperty.EntityType.SetPrimaryKey(stringProperty);
+
+            Assert.Equal(
+                Strings.CannotBeNullablePK("Name", "object"),
+                Assert.Throws<InvalidOperationException>(() => stringProperty.IsNullable = true).Message);
         }
 
         [Fact]
@@ -142,7 +173,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_can_be_marked_as_read_only_before_save()
         {
-            var property 
+            var property
                 = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)))
                 {
                     IsReadOnlyBeforeSave = true

@@ -860,7 +860,7 @@ FROM [Customers] AS [c]",
             Assert.Equal(
     @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] <> 'AROUT' OR [c].[CustomerID] IS NULL)",
+WHERE [c].[CustomerID] <> 'AROUT'",
     Sql);
         }
 
@@ -891,7 +891,7 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] <> 'ALFKI' OR [c].[CustomerID] IS NULL)",
+WHERE [c].[CustomerID] <> 'ALFKI'",
                 Sql);
         }
 

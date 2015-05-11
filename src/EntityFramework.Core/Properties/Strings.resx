@@ -382,7 +382,7 @@
     <value>Tracking query sources: [{querySources}]</value>
   </data>
   <data name="CannotBeNullable" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types can be marked as nullable/optional.</value>
+    <value>The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
   </data>
   <data name="RecursiveOnModelCreating" xml:space="preserve">
     <value>An attempt was made to use the model while it was being created. A DbContext instance cannot be used inside OnModelCreating in any way that makes use of the model that is being created.</value>
@@ -494,5 +494,8 @@
   </data>
   <data name="InvalidEntityKeyOnQuery" xml:space="preserve">
     <value>The instance of entity type '{entityType}' cannot be loaded because it has an invalid (e.g. null or CLR default) primary key.</value>
+  </data>
+  <data name="CannotBeNullablePK" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the property is a part of the primary key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
   </data>
 </root>

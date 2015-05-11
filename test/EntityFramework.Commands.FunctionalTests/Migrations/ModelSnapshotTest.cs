@@ -189,7 +189,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
     {
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
-            .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
             .Annotation(""OriginalValueIndex"", 0);
         
         b.Property<int>(""AlternateId"")

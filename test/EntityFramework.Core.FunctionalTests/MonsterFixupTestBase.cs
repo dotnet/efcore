@@ -1685,22 +1685,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider, string databaseName = SnapshotDatabaseName)
         {
             return new SnapshotMonsterContext(serviceProvider, CreateOptions(databaseName),
-                OnModelCreating<SnapshotMonsterContext.ProductPhoto, SnapshotMonsterContext.ProductReview>);
+                OnModelCreating<SnapshotMonsterContext.Message, SnapshotMonsterContext.ProductPhoto, SnapshotMonsterContext.ProductReview>);
         }
 
         private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider, string databaseName = FullNotifyDatabaseName)
         {
             return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName),
-                OnModelCreating<ChangedChangingMonsterContext.ProductPhoto, ChangedChangingMonsterContext.ProductReview>);
+                OnModelCreating<ChangedChangingMonsterContext.Message, ChangedChangingMonsterContext.ProductPhoto, ChangedChangingMonsterContext.ProductReview>);
         }
 
         private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider, string databaseName = ChangedOnlyDatabaseName)
         {
             return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName),
-                OnModelCreating<ChangedOnlyMonsterContext.ProductPhoto, ChangedOnlyMonsterContext.ProductReview>);
+                OnModelCreating<ChangedOnlyMonsterContext.Message, ChangedOnlyMonsterContext.ProductPhoto, ChangedOnlyMonsterContext.ProductReview>);
         }
 
-        public virtual void OnModelCreating<TProductPhoto, TProductReview>(ModelBuilder builder)
+        public virtual void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
+            where TMessage : class
             where TProductPhoto : class
             where TProductReview : class
         {

@@ -65,6 +65,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (newPrimaryKey != null)
             {
                 Metadata.SetPrimaryKey(properties);
+                ModelBuilder.ConventionDispatcher.OnKeyAdded(Key(properties, ConfigurationSource.Convention));
             }
 
             var keyBuilder = _keyBuilders.GetOrAdd(

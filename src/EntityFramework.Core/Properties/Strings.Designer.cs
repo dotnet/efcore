@@ -717,7 +717,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types can be marked as nullable/optional.
+        /// The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
         /// </summary>
         public static string CannotBeNullable([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object propertyType)
         {
@@ -1018,6 +1018,14 @@ namespace Microsoft.Data.Entity.Internal
         public static string InvalidEntityKeyOnQuery([CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEntityKeyOnQuery", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the property is a part of the primary key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
+        /// </summary>
+        public static string CannotBeNullablePK([CanBeNull] object property, [CanBeNull] object entity)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotBeNullablePK", "property", "entity"), property, entity);
         }
 
         private static string GetString(string name, params string[] formatterNames)

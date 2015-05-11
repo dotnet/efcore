@@ -25,6 +25,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             public int SampleEntityId { get; set; }
         }
 
+        #region GenerateValueOnAdd
+
         [Fact]
         public void GenerateValueOnAdd_flag_is_set_for_key_properties()
         {
@@ -207,6 +209,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.True(keyProperties[0].GenerateValueOnAdd);
         }
 
+        #endregion
+
+        #region Identity
+
         [Fact]
         public void Identity_is_set_for_primary_key()
         {
@@ -264,6 +270,26 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var property = keyBuilder.Metadata.Properties.First();
 
             Assert.Null(property.StoreGeneratedPattern);
+        }
+
+        [Fact]
+        public void Identity_is_recomputed_when_primary_key_is_changed()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+
+            var idProperty = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention).Metadata;
+            var numberProperty = entityBuilder.Property(typeof(int), "Number", ConfigurationSource.Convention).Metadata;
+
+            Assert.Equal(StoreGeneratedPattern.Identity, idProperty.StoreGeneratedPattern);
+            Assert.Null(numberProperty.StoreGeneratedPattern);
+
+            var keyBuilder = entityBuilder.PrimaryKey(new List<string> { "Number" }, ConfigurationSource.Convention);
+
+            Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
+
+            Assert.Null(idProperty.StoreGeneratedPattern);
+            Assert.Equal(StoreGeneratedPattern.Identity, numberProperty.StoreGeneratedPattern);
         }
 
         [Fact]
@@ -348,6 +374,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
 
         }
+
+        #endregion
 
         private static InternalModelBuilder CreateInternalModelBuilder()
         {

@@ -240,6 +240,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 foreach (var property in key.Properties)
                 {
+                    property.IsNullable = null;
                     _properties.Add(property.Name, property);
                 }
             }

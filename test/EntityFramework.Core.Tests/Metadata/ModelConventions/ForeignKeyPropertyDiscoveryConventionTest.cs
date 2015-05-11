@@ -523,34 +523,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         }
 
         [Fact]
-        public void Does_not_match_nullable_composite_dependent_PK_for_optional_unique_FK()
-        {
-            DependentTypeWithCompositeKey.Metadata.GetPrimaryKey().Properties[1].IsNullable = true;
-
-            var relationshipBuilder = DependentTypeWithCompositeKey.Relationship(
-                PrincipalTypeWithCompositeKey,
-                DependentTypeWithCompositeKey,
-                "NavProp",
-                "InverseReferenceNav",
-                null,
-                PrincipalTypeWithCompositeKey.Metadata.GetPrimaryKey().Properties,
-                ConfigurationSource.Convention,
-                isUnique: true,
-                isRequired: false);
-
-            Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
-
-            var fk = (IForeignKey)relationshipBuilder.Metadata;
-            Assert.Same(fk, DependentTypeWithCompositeKey.Metadata.GetForeignKeys().Single());
-            Assert.Equal("NavProp" + CompositePrimaryKey[0].Name, fk.Properties[0].Name);
-            Assert.Equal("NavProp" + CompositePrimaryKey[1].Name, fk.Properties[1].Name);
-            Assert.Same(CompositePrimaryKey[0], fk.PrincipalKey.Properties[0]);
-            Assert.Same(CompositePrimaryKey[1], fk.PrincipalKey.Properties[1]);
-            Assert.True(fk.IsUnique);
-            Assert.False(fk.IsRequired);
-        }
-
-        [Fact]
         public void Does_not_match_composite_dependent_PK_for_unique_FK_if_count_mismatched()
         {
             var fkProperty1 = DependentTypeWithCompositeKey.Metadata.GetPrimaryKey().Properties[0];

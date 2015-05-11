@@ -42,17 +42,23 @@ namespace Microsoft.Data.Entity.Metadata
             set
             {
                 if (value.HasValue
-                    && value.Value
-                    && !ClrType.IsNullableType())
+                    && value.Value)
                 {
-                    throw new InvalidOperationException(Strings.CannotBeNullable(Name, EntityType.DisplayName(), ClrType.Name));
+                    if (!ClrType.IsNullableType())
+                    {
+                        throw new InvalidOperationException(Strings.CannotBeNullable(Name, EntityType.DisplayName(), ClrType.Name));
+                    }
+                    if (EntityType.FindPrimaryKey()?.Properties.Contains(this) == true)
+                    {
+                        throw new InvalidOperationException(Strings.CannotBeNullablePK(Name, EntityType.DisplayName()));
+                    }
                 }
 
                 SetFlag(value, PropertyFlags.IsNullable);
             }
         }
 
-        protected virtual bool DefaultIsNullable => ClrType.IsNullableType();
+        protected virtual bool DefaultIsNullable => (EntityType.FindPrimaryKey()?.Properties.Contains(this)) != true && ClrType.IsNullableType();
 
         public virtual StoreGeneratedPattern? StoreGeneratedPattern
         {
@@ -216,10 +222,10 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        private static bool ArePropertyCountsEqual(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties) 
+        private static bool ArePropertyCountsEqual(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties)
             => principalProperties.Count == dependentProperties.Count;
 
-        private static bool ArePropertyTypesCompatible(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties) 
+        private static bool ArePropertyTypesCompatible(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties)
             => principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
 
         bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;
