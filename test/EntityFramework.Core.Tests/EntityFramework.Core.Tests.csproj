@@ -107,7 +107,6 @@
     <Compile Include="Infrastructure\LoggingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\NonThrowingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\ThrowingModelValidatorTest.cs" />
-    <Compile Include="Metadata\BasicModelBuilderTest.cs" />
     <Compile Include="Metadata\CollectionTyoeFactoryTest.cs" />
     <Compile Include="Metadata\EntityTypeExtensionsTest.cs" />
     <Compile Include="Metadata\IndexTest.cs" />
