@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         .Append(".GenerateValueOnAdd()");
                 }
 
-                if (property.IsNullable != (property.ClrType.IsNullableType() && !property.IsPrimaryKey()))
+                if (property.IsNullable != property.ClrType.IsNullableType())
                 {
                     stringBuilder
                         .AppendLine()
