@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity
         ///     the model that were added by convention.
         /// </summary>
         /// <typeparam name="TEntity"> The  entity type to be removed from the model. </typeparam>
-        public virtual void Ignore<TEntity>() where TEntity : class
+        public virtual ModelBuilder Ignore<TEntity>() where TEntity : class
             => Ignore(typeof(TEntity));
 
         /// <summary>
@@ -191,11 +191,13 @@ namespace Microsoft.Data.Entity
         ///     the model that were added by convention.
         /// </summary>
         /// <param name="type"> The entity type to be removed from the model. </param>
-        public virtual void Ignore([NotNull] Type type)
+        public virtual ModelBuilder Ignore([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
 
             Builder.Ignore(type, ConfigurationSource.Explicit);
+
+            return this;
         }
 
         private InternalModelBuilder Builder => ((IAccessor<InternalModelBuilder>)this).Service;

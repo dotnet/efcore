@@ -99,12 +99,14 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     A lambda expression representing the property to be ignored
         ///     (<c>t => t.Property1</c>).
         /// </param>
-        public virtual void Ignore([NotNull] Expression<Func<TEntity, object>> propertyExpression)
+        public virtual EntityTypeBuilder<TEntity> Ignore([NotNull] Expression<Func<TEntity, object>> propertyExpression)
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
             var propertyName = propertyExpression.GetPropertyAccess().Name;
             Builder.Ignore(propertyName, ConfigurationSource.Explicit);
+
+            return this;
         }
 
         /// <summary>

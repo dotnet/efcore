@@ -137,11 +137,13 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     from the entity type that were added by convention.
         /// </summary>
         /// <param name="propertyName"> The name of then property to be removed from the entity type. </param>
-        public virtual void Ignore([NotNull] string propertyName)
+        public virtual EntityTypeBuilder Ignore([NotNull] string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
             Builder.Ignore(propertyName, ConfigurationSource.Explicit);
+
+            return this;
         }
 
         /// <summary>
