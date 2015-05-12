@@ -1,4 +1,3 @@
 {
-    /* Required so that when EF6 loads EntityFramework.SqlServer the runtime doesn't try and load the EF7 project */
     "projects": [  ]
 }
