@@ -1,9 +1,9 @@
 {
     "dependencies": {
-        "EntityFramework.Commands": "7.0.0-*",
-        "EntityFramework.SqlServer": "7.0.0-*",
-        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "EntityFramework.Commands": "7.0.0-beta4",
+        "EntityFramework.SqlServer": "7.0.0-beta4",
+        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-beta4",
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta4"
     },
     "compile": "..\\..\\src\\EntityFramework.Commands\\tools\\Handlers.cs",
     "commands": {

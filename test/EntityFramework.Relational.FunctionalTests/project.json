@@ -2,13 +2,13 @@
     "dependencies": {
         "EntityFramework.Core.Tests": "1.0.0",
         "EntityFramework.Core.FunctionalTests": "1.0.0",
-        "EntityFramework.Relational": "7.0.0-*"
+        "EntityFramework.Relational": "7.0.0-beta4"
     },
     "frameworks": {
         "dnx451": { },
         "dnxcore50": {
             "dependencies": {
-                "System.Threading": "4.0.10-beta-*"
+                "System.Threading": "4.0.10-beta-22816"
             }
         }
     }

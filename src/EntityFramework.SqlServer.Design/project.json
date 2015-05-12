@@ -1,12 +1,12 @@
 {
-    "version": "7.0.0-*",
+    "version": "7.0.0-beta4",
     "description":  "Design-time Entity Framework Functionality for Microsoft SQL Server data store.",
     "compilationOptions": {
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework.Relational.Design": "7.0.0-*",
-        "EntityFramework.SqlServer": "7.0.0-*"
+        "EntityFramework.Relational.Design": "7.0.0-beta4",
+        "EntityFramework.SqlServer": "7.0.0-beta4"
     },
     "compile": "..\\Shared\\*.cs",
     "frameworks": {
@@ -14,8 +14,8 @@
         "dnx451": { },
         "dnxcore50": {
             "dependencies": {
-                "System.Data.SqlClient": "4.0.0-beta-*",
-                "System.Runtime.Extensions": "4.0.10-beta-*"
+                "System.Data.SqlClient": "4.0.0-beta-22816",
+                "System.Runtime.Extensions": "4.0.10-beta-22816"
             }
         }
     }

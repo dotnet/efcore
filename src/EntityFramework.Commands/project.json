@@ -1,15 +1,15 @@
 {
-    "version": "7.0.0-*",
+    "version": "7.0.0-beta4",
     "description": "Command line utilities for Entity Framework.",
     "compilationOptions": {
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework.Relational": "7.0.0-*",
-        "EntityFramework.Relational.Design": "7.0.0-*",
-        "EntityFramework.SqlServer.Design": "7.0.0-*",
+        "EntityFramework.Relational": "7.0.0-beta4",
+        "EntityFramework.Relational.Design": "7.0.0-beta4",
+        "EntityFramework.SqlServer.Design": "7.0.0-beta4",
         "Microsoft.CodeAnalysis.CSharp": "1.0.0-rc2-*",
-        "Microsoft.Framework.DependencyInjection": "1.0.0-*"
+        "Microsoft.Framework.DependencyInjection": "1.0.0-beta4"
     },
     "compile": "..\\Shared\\*.cs",
     "exclude": "tools\\Handlers.cs",
@@ -17,16 +17,16 @@
         "net451": { },
         "dnx451": {
             "dependencies": {
-                "Microsoft.AspNet.Hosting": "1.0.0-*",
-                "Microsoft.AspNet.Hosting.Interfaces": "1.0.0-*",
-                "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
+                "Microsoft.AspNet.Hosting": "1.0.0-beta4",
+                "Microsoft.AspNet.Hosting.Interfaces": "1.0.0-beta4",
+                "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-beta4", "type": "build" }
             }
         },
         "dnxcore50": {
             "dependencies": {
-                "Microsoft.AspNet.Hosting": "1.0.0-*",
-                "Microsoft.AspNet.Hosting.Interfaces": "1.0.0-*",
-                "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
+                "Microsoft.AspNet.Hosting": "1.0.0-beta4",
+                "Microsoft.AspNet.Hosting.Interfaces": "1.0.0-beta4",
+                "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-beta4", "type": "build" }
             }
         }
     },
