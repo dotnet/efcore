@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
@@ -43,6 +44,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             private readonly AsyncQueryingEnumerable _queryingEnumerable;
 
             private DbDataReader _dataReader;
+            private Queue<ValueBuffer> _buffer;
 
             private bool _disposed;
 
@@ -57,39 +59,77 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (_dataReader == null)
+                if (_buffer == null)
                 {
-                    await _queryingEnumerable._relationalQueryContext.Connection
-                        .OpenAsync(cancellationToken);
-
-                    using (var command
-                        = _queryingEnumerable._commandBuilder
-                            .Build(
-                                _queryingEnumerable._relationalQueryContext.Connection,
-                                _queryingEnumerable._relationalQueryContext.ParameterValues))
+                    if (_dataReader == null)
                     {
-                        _queryingEnumerable._logger.LogCommand(command);
+                        await _queryingEnumerable._relationalQueryContext.Connection
+                            .OpenAsync(cancellationToken);
 
-                        _dataReader = await command.ExecuteReaderAsync(cancellationToken);
+                        using (var command
+                            = _queryingEnumerable._commandBuilder
+                                .Build(
+                                    _queryingEnumerable._relationalQueryContext.Connection,
+                                    _queryingEnumerable._relationalQueryContext.ParameterValues))
+                        {
+                            _queryingEnumerable._logger.LogCommand(command);
 
-                        _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dataReader);
+                            await _queryingEnumerable._relationalQueryContext
+                                .RegisterValueBufferCursorAsync(this, cancellationToken);
+
+                            _dataReader = await command.ExecuteReaderAsync(cancellationToken);
+
+                            _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dataReader);
+                        }
                     }
 
-                    _queryingEnumerable._relationalQueryContext.RegisterActiveQuery(this);
+                    var hasNext = await _dataReader.ReadAsync(cancellationToken);
+
+                    Current
+                        = hasNext
+                            ? _queryingEnumerable._commandBuilder.ValueBufferFactory
+                                .CreateValueBuffer(_dataReader)
+                            : default(ValueBuffer);
+
+                    return hasNext;
                 }
 
-                var hasNext = await _dataReader.ReadAsync(cancellationToken);
+                if (_buffer.Count > 0)
+                {
+                    Current = _buffer.Dequeue();
 
-                Current
-                    = hasNext
-                        ? _queryingEnumerable._commandBuilder.ValueBufferFactory
-                            .CreateValueBuffer(_dataReader)
-                        : default(ValueBuffer);
+                    return true;
+                }
 
-                return hasNext;
+                return false;
             }
 
             public ValueBuffer Current { get; private set; }
+
+            public async Task BufferAllAsync(CancellationToken cancellationToken)
+            {
+                if (_buffer == null)
+                {
+                    _buffer = new Queue<ValueBuffer>();
+
+                    using (_dataReader)
+                    {
+                        while (await _dataReader.ReadAsync(cancellationToken))
+                        {
+                            _buffer.Enqueue(
+                                _queryingEnumerable._commandBuilder.ValueBufferFactory
+                                    .CreateValueBuffer(_dataReader));
+                        }
+                    }
+
+                    _dataReader = null;
+                }
+            }
+
+            public void BufferAll()
+            {
+                throw new NotImplementedException();
+            }
 
             private readonly object _gate = new object();
 
@@ -101,11 +141,9 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     if (!_disposed)
                     {
-                        if (_dataReader != null)
-                        {
-                            _dataReader.Dispose();
-                            _queryingEnumerable._relationalQueryContext.Connection?.Close();
-                        }
+                        _dataReader?.Dispose();
+                        _queryingEnumerable._relationalQueryContext.DeregisterValueBufferCursor(this);
+                        _queryingEnumerable._relationalQueryContext.Connection?.Close();
 
                         _disposed = true;
                     }

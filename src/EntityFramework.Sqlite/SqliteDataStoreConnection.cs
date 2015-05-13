@@ -18,5 +18,7 @@ namespace Microsoft.Data.Entity.Sqlite
         }
 
         protected override DbConnection CreateDbConnection() => new SqliteConnection(ConnectionString);
+
+        public override bool IsMultipleActiveResultSetsEnabled => true;
     }
 }

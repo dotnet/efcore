@@ -2,6 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
@@ -14,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Query
     {
         private readonly List<IValueBufferCursor> _activeQueries = new List<IValueBufferCursor>();
 
-        private int _activeQueryOffset;
+        private int _activeIncludeQueryOffset;
 
         public RelationalQueryContext(
             [NotNull] ILogger logger,
@@ -31,26 +34,53 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public virtual IRelationalConnection Connection { get; }
 
-        public virtual void RegisterActiveQuery([NotNull] IValueBufferCursor valueBufferCursor)
+        public virtual void RegisterValueBufferCursor([NotNull] IValueBufferCursor valueBufferCursor)
         {
             Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
+
+            if (!Connection.IsMultipleActiveResultSetsEnabled
+                && _activeQueries.Count > 0)
+            {
+                _activeQueries.Last().BufferAll();
+            }
 
             _activeQueries.Add(valueBufferCursor);
         }
 
-        public virtual ValueBuffer GetValueBuffer(int queryIndex)
-            => _activeQueries[_activeQueryOffset + queryIndex].Current;
+        public virtual async Task RegisterValueBufferCursorAsync(
+            [NotNull] IValueBufferCursor valueBufferCursor, CancellationToken cancellationToken)
+        {
+            Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
 
-        public virtual void BeginIncludeScope() => _activeQueryOffset = _activeQueries.Count;
+            if (!Connection.IsMultipleActiveResultSetsEnabled
+                && _activeQueries.Count > 0)
+            {
+                await _activeQueries.Last().BufferAllAsync(cancellationToken);
+            }
+
+            _activeQueries.Add(valueBufferCursor);
+        }
+
+        public virtual void DeregisterValueBufferCursor([NotNull] IValueBufferCursor valueBufferCursor)
+        {
+            Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
+
+            _activeQueries.Remove(valueBufferCursor);
+        }
+
+        public virtual ValueBuffer GetIncludeValueBuffer(int queryIndex)
+            => _activeQueries[_activeIncludeQueryOffset + queryIndex].Current;
+
+        public virtual void BeginIncludeScope() => _activeIncludeQueryOffset = _activeQueries.Count;
 
         public virtual void EndIncludeScope()
         {
-            for (var i = _activeQueries.Count - 1; i > _activeQueryOffset; i--)
+            for (var i = _activeQueries.Count - 1; i > _activeIncludeQueryOffset; i--)
             {
                 _activeQueries.RemoveAt(i);
             }
 
-            _activeQueryOffset = 0;
+            _activeIncludeQueryOffset = 0;
         }
     }
 }

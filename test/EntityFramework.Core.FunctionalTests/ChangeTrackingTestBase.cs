@@ -40,8 +40,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var customerPostalCodes = context.Customers.Select(c => c.PostalCode);
-                var customerRegion = context.Customers.Select(c => c.Region);
+                var customerPostalCodes = context.Customers.Select(c => c.PostalCode).ToList();
+                var customerRegion = context.Customers.Select(c => c.Region).ToList();
 
                 foreach (var customer in context.Customers)
                 {

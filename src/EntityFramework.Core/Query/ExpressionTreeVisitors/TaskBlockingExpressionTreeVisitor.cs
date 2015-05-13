@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
     public class TaskBlockingExpressionTreeVisitor : ExpressionTreeVisitorBase
     {
-        public override Expression VisitExpression([CanBeNull] Expression expression)
+        public override Expression VisitExpression(Expression expression)
         {
             if (expression != null)
             {

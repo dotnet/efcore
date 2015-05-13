@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Relational
             return Transaction;
         }
 
-        public virtual RelationalTransaction UseTransaction([CanBeNull] DbTransaction transaction)
+        public virtual RelationalTransaction UseTransaction(DbTransaction transaction)
         {
             if (transaction == null)
             {
@@ -182,6 +182,7 @@ namespace Microsoft.Data.Entity.Relational
             {
                 await _connection.Value.OpenAsync(cancellationToken);
             }
+
             _openedCount++;
         }
 
@@ -201,11 +202,14 @@ namespace Microsoft.Data.Entity.Relational
             // TODO: Consider how to handle open/closing to make sure that a connection that is passed in
             // as open is never erroneously closed without placing undue burdon on users of the connection.
 
-            if (--_openedCount == 0)
+            if (_openedCount > 0
+                && --_openedCount == 0)
             {
                 _connection.Value.Close();
             }
         }
+
+        public virtual bool IsMultipleActiveResultSetsEnabled => false;
 
         public virtual void Dispose()
         {

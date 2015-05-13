@@ -329,20 +329,26 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     await command.ExecuteNonQueryAsync();
 
                     var userFolder = Environment.GetEnvironmentVariable("USERPROFILE");
-                    try
-                    {
-                        File.Delete(Path.Combine(userFolder, name + ".mdf"));
-                    }
-                    catch (Exception)
-                    {
-                    }
 
-                    try
+                    if (userFolder != null)
                     {
-                        File.Delete(Path.Combine(userFolder, name + "_log.ldf"));
-                    }
-                    catch (Exception)
-                    {
+                        try
+                        {
+                            File.Delete(Path.Combine(userFolder, name + ".mdf"));
+                        }
+                            // ReSharper disable once EmptyGeneralCatchClause
+                        catch (Exception)
+                        {
+                        }
+
+                        try
+                        {
+                            File.Delete(Path.Combine(userFolder, name + "_log.ldf"));
+                        }
+                            // ReSharper disable once EmptyGeneralCatchClause
+                        catch (Exception)
+                        {
+                        }
                     }
                 }
             }
@@ -369,34 +375,34 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     command.ExecuteNonQuery();
 
                     var userFolder = Environment.GetEnvironmentVariable("USERPROFILE");
-                    try
-                    {
-                        File.Delete(Path.Combine(userFolder, name + ".mdf"));
-                    }
-                    catch (Exception)
-                    {
-                    }
 
-                    try
+                    if (userFolder != null)
                     {
-                        File.Delete(Path.Combine(userFolder, name + "_log.ldf"));
-                    }
-                    catch (Exception)
-                    {
+                        try
+                        {
+                            File.Delete(Path.Combine(userFolder, name + ".mdf"));
+                        }
+                            // ReSharper disable once EmptyGeneralCatchClause
+                        catch
+                        {
+                        }
+
+                        try
+                        {
+                            File.Delete(Path.Combine(userFolder, name + "_log.ldf"));
+                        }
+                            // ReSharper disable once EmptyGeneralCatchClause
+                        catch
+                        {
+                        }
                     }
                 }
             }
         }
 
-        public override DbConnection Connection
-        {
-            get { return _connection; }
-        }
+        public override DbConnection Connection => _connection;
 
-        public override DbTransaction Transaction
-        {
-            get { return _transaction; }
-        }
+        public override DbTransaction Transaction => _transaction;
 
         public async Task<T> ExecuteScalarAsync<T>(string sql, CancellationToken cancellationToken, params object[] parameters)
         {
@@ -462,10 +468,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public override void Dispose()
         {
-            if (_transaction != null)
-            {
-                _transaction.Dispose();
-            }
+            _transaction?.Dispose();
 
             _connection.Dispose();
 
@@ -480,10 +483,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return new SqlConnectionStringBuilder
                 {
                     DataSource = @"(localdb)\MSSQLLocalDB",
-                    // TODO: Currently nested queries are run while processing the results of outer queries
-                    // This either requires MARS or creation of a new connection for each query. Currently using
-                    // MARS since cloning connections is known to be problematic.
-                    MultipleActiveResultSets = true,
+                    MultipleActiveResultSets = new Random().Next(0, 2) == 1,
+                    //MultipleActiveResultSets = false,
                     InitialCatalog = name,
                     IntegratedSecurity = true,
                     ConnectTimeout = 30

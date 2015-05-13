@@ -5,6 +5,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -47,6 +49,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             private readonly QueryingEnumerable _queryingEnumerable;
 
             private DbDataReader _dataReader;
+            private Queue<ValueBuffer> _buffer;
 
             private bool _disposed;
 
@@ -57,38 +60,75 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             public bool MoveNext()
             {
-                if (_dataReader == null)
+                if (_buffer == null)
                 {
-                    _queryingEnumerable._relationalQueryContext.Connection.Open();
-
-                    using (var command
-                        = _queryingEnumerable._commandBuilder
-                            .Build(
-                                _queryingEnumerable._relationalQueryContext.Connection,
-                                _queryingEnumerable._relationalQueryContext.ParameterValues))
+                    if (_dataReader == null)
                     {
-                        _queryingEnumerable._logger.LogCommand(command);
+                        _queryingEnumerable._relationalQueryContext.Connection.Open();
 
-                        _dataReader = command.ExecuteReader();
+                        using (var command
+                            = _queryingEnumerable._commandBuilder
+                                .Build(
+                                    _queryingEnumerable._relationalQueryContext.Connection,
+                                    _queryingEnumerable._relationalQueryContext.ParameterValues))
+                        {
+                            _queryingEnumerable._logger.LogCommand(command);
 
-                        _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dataReader);
+                            _queryingEnumerable._relationalQueryContext.RegisterValueBufferCursor(this);
+
+                            _dataReader = command.ExecuteReader();
+
+                            _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dataReader);
+                        }
                     }
 
-                    _queryingEnumerable._relationalQueryContext.RegisterActiveQuery(this);
+                    var hasNext = _dataReader.Read();
+
+                    Current
+                        = hasNext
+                            ? _queryingEnumerable._commandBuilder.ValueBufferFactory
+                                .CreateValueBuffer(_dataReader)
+                            : default(ValueBuffer);
+
+                    return hasNext;
                 }
 
-                var hasNext = _dataReader.Read();
+                if (_buffer.Count > 0)
+                {
+                    Current = _buffer.Dequeue();
 
-                Current
-                    = hasNext
-                        ? _queryingEnumerable._commandBuilder.ValueBufferFactory
-                            .CreateValueBuffer(_dataReader)
-                        : default(ValueBuffer);
+                    return true;
+                }
 
-                return hasNext;
+                return false;
             }
 
             public ValueBuffer Current { get; private set; }
+
+            public void BufferAll()
+            {
+                if (_buffer == null)
+                {
+                    _buffer = new Queue<ValueBuffer>();
+
+                    using (_dataReader)
+                    {
+                        while (_dataReader.Read())
+                        {
+                            _buffer.Enqueue(
+                                _queryingEnumerable._commandBuilder.ValueBufferFactory
+                                    .CreateValueBuffer(_dataReader));
+                        }
+                    }
+
+                    _dataReader = null;
+                }
+            }
+
+            public Task BufferAllAsync(CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
 
             object IEnumerator.Current => Current;
 
@@ -96,11 +136,9 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 if (!_disposed)
                 {
-                    if (_dataReader != null)
-                    {
-                        _dataReader.Dispose();
-                        _queryingEnumerable._relationalQueryContext.Connection?.Close();
-                    }
+                    _dataReader?.Dispose();
+                    _queryingEnumerable._relationalQueryContext.DeregisterValueBufferCursor(this);
+                    _queryingEnumerable._relationalQueryContext.Connection?.Close();
 
                     _disposed = true;
                 }

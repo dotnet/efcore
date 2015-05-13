@@ -860,7 +860,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        //[Fact] #2199
         public virtual async Task Include_collection_then_include_collection_then_include_reference()
         {
             using (var context = CreateContext())

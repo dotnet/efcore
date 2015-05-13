@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             public IAsyncEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<ValueBuffer, EntityKey> keyFactory)
             {
-                var valueBuffer = _queryContext.GetValueBuffer(_queryIndex).UpdateOffset(_valueBufferOffset);
+                var valueBuffer = _queryContext.GetIncludeValueBuffer(_queryIndex).UpdateOffset(_valueBufferOffset);
 
                 return new AsyncEnumerableAdapter<EntityLoadInfo>(
                     new EntityLoadInfo(valueBuffer, _materializer));

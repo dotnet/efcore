@@ -38,5 +38,7 @@ namespace Microsoft.Data.Entity.Relational
         Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         void Close();
+
+        bool IsMultipleActiveResultSetsEnabled { get; }
     }
 }
