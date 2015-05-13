@@ -418,6 +418,38 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         }
 
         [Fact]
+        public void Property_isNullable_is_stored_in_snapshot_for_primary_key_property_of_nullable_type()
+        {
+            Test(
+                builder =>
+                    {
+                        builder.Entity<EntityWithStringProperty>().Key("Name");
+                    },
+                @"var builder = new ModelBuilder(new ConventionSet());
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+    {
+        b.Property<string>(""Name"")
+            .GenerateValueOnAdd()
+            .Required()
+            .Annotation(""OriginalValueIndex"", 0);
+        
+        b.Property<int>(""Id"")
+            .GenerateValueOnAdd()
+            .Annotation(""OriginalValueIndex"", 1);
+        
+        b.Key(""Name"");
+    });
+
+return builder.Model;
+",
+                o =>
+                {
+                    Assert.Equal(false, o.EntityTypes[0].GetProperty("Name").IsNullable);
+                });
+        }
+
+        [Fact]
         public void Property_storeGeneratedPattern_is_stored_in_snapshot()
         {
             Test(
@@ -670,6 +702,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
     {
         b.Property<string>(""Id"")
             .GenerateValueOnAdd()
+            .Required()
             .Annotation(""OriginalValueIndex"", 0);
         
         b.Key(""Id"");
@@ -718,6 +751,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
     {
         b.Property<string>(""Id"")
             .GenerateValueOnAdd()
+            .Required()
             .Annotation(""OriginalValueIndex"", 0);
         
         b.Key(""Id"");
