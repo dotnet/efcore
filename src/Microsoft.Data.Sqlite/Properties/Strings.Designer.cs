@@ -155,6 +155,22 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
+        /// Must add value for the following parameters: {parameters}
+        /// </summary>
+        internal static string MissingParameters
+        {
+            get { return GetString("MissingParameters"); }
+        }
+
+        /// <summary>
+        /// Must add value for the following parameters: {parameters}
+        /// </summary>
+        internal static string FormatMissingParameters(object parameters)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingParameters", "parameters"), parameters);
+        }
+
+        /// <summary>
         /// No data exists for the row/column.
         /// </summary>
         internal static string NoData

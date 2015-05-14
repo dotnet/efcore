@@ -114,12 +114,17 @@ namespace Microsoft.Data.Sqlite
         protected override void SetParameter(int index, DbParameter value) => this[index] = (SqliteParameter)value;
         protected override void SetParameter(string parameterName, DbParameter value) => SetParameter(IndexOfChecked(parameterName), value);
 
-        internal void Bind(Sqlite3StmtHandle stmt)
+        internal int Bind(Sqlite3StmtHandle stmt)
         {
+            var bound = 0;
             foreach (var parameter in _parameters)
             {
-                parameter.Bind(stmt);
+                if (parameter.Bind(stmt))
+                {
+                    bound++;
+                }
             }
+            return bound;
         }
 
         private int IndexOfChecked(string parameterName)

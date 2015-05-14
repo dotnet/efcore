@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Interop;
@@ -127,10 +128,28 @@ namespace Microsoft.Data.Sqlite
 
                     break;
                 }
+                var boundParams = 0;
 
                 if (_parameters.IsValueCreated)
                 {
-                    _parameters.Value.Bind(stmt);
+                    boundParams = _parameters.Value.Bind(stmt);
+                }
+
+                var expected = NativeMethods.sqlite3_bind_parameter_count(stmt);
+                if (expected != boundParams)
+                {
+                    var unboundParams = new List<string>();
+                    for (var i = 1; i <= expected; i++)
+                    {
+                        var name = NativeMethods.sqlite3_bind_parameter_name(stmt, i);
+
+                        if (_parameters.IsValueCreated || !_parameters.Value.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
+                        {
+                            unboundParams.Add(name);
+                        }
+                    }
+                    throw new InvalidOperationException(Strings.FormatMissingParameters(string.Join(", ", unboundParams)));
+
                 }
 
                 rc = NativeMethods.sqlite3_step(stmt);
