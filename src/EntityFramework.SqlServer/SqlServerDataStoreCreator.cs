@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.SqlServer
             => _sqlGenerator.Generate(_modelDiffer.GetDifferences(null, model), model);
 
         private string CreateHasTablesCommand()
-            => "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES) SELECT 1 ELSE SELECT 0";
+            => "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE') SELECT 1 ELSE SELECT 0";
 
         private IEnumerable<SqlBatch> CreateCreateOperations()
             => _sqlGenerator.Generate(new[] { new CreateDatabaseOperation { Name = _connection.DbConnection.Database } });

@@ -249,7 +249,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         await testDatabase.Connection.OpenAsync();
                     }
 
-                    var tables = await testDatabase.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES");
+                    var tables = await testDatabase.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
                     Assert.Equal(1, tables.Count());
                     Assert.Equal("Blog", tables.Single());
 
@@ -329,7 +329,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     await testDatabase.Connection.OpenAsync();
                 }
 
-                Assert.Equal(0, (await testDatabase.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES")).Count());
+                Assert.Equal(0, (await testDatabase.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")).Count());
 
                 Assert.True(await testDatabase.ExecuteScalarAsync<bool>(
                     string.Concat(
