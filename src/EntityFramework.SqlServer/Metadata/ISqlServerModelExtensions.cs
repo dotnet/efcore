@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.Relational.Metadata;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public interface ISqlServerModelExtensions : IRelationalModelExtensions
+    public interface ISqlServerModelExtensions : ISharedRelationalModelExtensions
     {
         SqlServerValueGenerationStrategy? ValueGenerationStrategy { get; }
         string DefaultSequenceName { get; }

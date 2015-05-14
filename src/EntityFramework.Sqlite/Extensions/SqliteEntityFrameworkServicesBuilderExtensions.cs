@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Sqlite;
+using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Sqlite.Migrations;
 using Microsoft.Data.Entity.Sqlite.Update;
 using Microsoft.Data.Entity.Sqlite.ValueGeneration;
@@ -24,9 +25,9 @@ namespace Microsoft.Framework.DependencyInjection
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqliteValueGeneratorCache>()
                     .AddSingleton<SqliteSqlGenerator>()
+                    .AddSingleton<SqliteMetadataExtensionsAccessor>()
                     .AddScoped<SqliteTypeMapper>()
                     .AddScoped<SqliteModificationCommandBatchFactory>()
-                    .AddScoped<SqliteCommandBatchPreparer>()
                     .AddSingleton<SqliteModelSource>()
                     .AddScoped<SqliteDataStoreServices>()
                     .AddScoped<SqliteDataStore>()

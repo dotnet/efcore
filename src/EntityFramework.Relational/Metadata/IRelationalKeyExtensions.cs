@@ -3,8 +3,7 @@
 
 namespace Microsoft.Data.Entity.Relational.Metadata
 {
-    public interface IRelationalKeyExtensions
+    public interface IRelationalKeyExtensions : ISharedRelationalKeyExtensions
     {
-        string Name { get; }
     }
 }

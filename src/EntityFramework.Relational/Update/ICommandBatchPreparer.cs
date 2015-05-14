@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Metadata;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
@@ -14,9 +12,5 @@ namespace Microsoft.Data.Entity.Relational.Update
     {
         IEnumerable<ModificationCommandBatch> BatchCommands(
             [NotNull] IReadOnlyList<InternalEntityEntry> entries, [NotNull] IDbContextOptions options);
-
-        IRelationalPropertyExtensions GetPropertyExtensions([NotNull] IProperty property);
-
-        IRelationalEntityTypeExtensions GetEntityTypeExtensions([NotNull] IEntityType entityType);
     }
 }

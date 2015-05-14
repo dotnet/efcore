@@ -53,19 +53,6 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             }
         }
 
-        public new virtual object DefaultValue
-        {
-            get { return base.DefaultValue; }
-            [param: CanBeNull]
-            set
-            {
-                var typedAnnotation = new TypedAnnotation(value);
-
-                ((Property)Property)[SqlServerDefaultValueTypeAnnotation] = typedAnnotation.TypeString;
-                ((Property)Property)[SqlServerDefaultValueAnnotation] = typedAnnotation.ValueString;
-            }
-        }
-
         [CanBeNull]
         public new virtual string ComputedExpression
         {

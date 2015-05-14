@@ -12,28 +12,32 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
-    public abstract class CommandBatchPreparer : ICommandBatchPreparer
+    public class CommandBatchPreparer : ICommandBatchPreparer
     {
         private readonly IModificationCommandBatchFactory _modificationCommandBatchFactory;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly IComparer<ModificationCommand> _modificationCommandComparer;
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
+        private readonly IRelationalMetadataExtensionsAccessor _metadataExtensions;
 
-        protected CommandBatchPreparer(
+        public CommandBatchPreparer(
             [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] IRelationalMetadataExtensionsAccessor metadataExtensions)
         {
             Check.NotNull(modificationCommandBatchFactory, nameof(modificationCommandBatchFactory));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
             Check.NotNull(modificationCommandComparer, nameof(modificationCommandComparer));
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
+            Check.NotNull(metadataExtensions, nameof(metadataExtensions));
 
             _modificationCommandBatchFactory = modificationCommandBatchFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
             _modificationCommandComparer = modificationCommandComparer;
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
+            _metadataExtensions = metadataExtensions;
         }
 
         public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<InternalEntityEntry> entries, IDbContextOptions options)
@@ -48,13 +52,13 @@ namespace Microsoft.Data.Entity.Relational.Update
             {
                 independentCommandSet.Sort(_modificationCommandComparer);
 
-                var batch = _modificationCommandBatchFactory.Create(options);
+                var batch = _modificationCommandBatchFactory.Create(options, _metadataExtensions);
                 foreach (var modificationCommand in independentCommandSet)
                 {
                     if (!_modificationCommandBatchFactory.AddCommand(batch, modificationCommand))
                     {
                         yield return batch;
-                        batch = _modificationCommandBatchFactory.Create(options);
+                        batch = _modificationCommandBatchFactory.Create(options, _metadataExtensions);
                         _modificationCommandBatchFactory.AddCommand(batch, modificationCommand);
                     }
                 }
@@ -69,17 +73,13 @@ namespace Microsoft.Data.Entity.Relational.Update
             // TODO: Handle multiple state entries that update the same row
             return entries.Select(
                 e => new ModificationCommand(
-                    GetEntityTypeExtensions(e.EntityType).Table,
-                    GetEntityTypeExtensions(e.EntityType).Schema,
+                    _metadataExtensions.For(e.EntityType).Table,
+                    _metadataExtensions.For(e.EntityType).Schema,
                     parameterNameGenerator,
-                    GetPropertyExtensions,
+                    _metadataExtensions.For,
                     _valueBufferFactoryFactory)
                     .AddEntry(e));
         }
-
-        public abstract IRelationalPropertyExtensions GetPropertyExtensions(IProperty property);
-
-        public abstract IRelationalEntityTypeExtensions GetEntityTypeExtensions(IEntityType entityType);
 
         // To avoid violating store constraints the modification commands must be sorted
         // according to these rules:
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var predecessorsMap = CreateKeyValuePredecessorMap(modificationCommandGraph);
             AddForeignKeyEdges(modificationCommandGraph, predecessorsMap);
 
-            var sortedCommands 
+            var sortedCommands
                 = modificationCommandGraph.BatchingTopologicalSort(data => { return string.Join(", ", data.Select(d => d.Item3.First())); });
 
             return sortedCommands;

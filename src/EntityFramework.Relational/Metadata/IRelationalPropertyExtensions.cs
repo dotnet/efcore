@@ -3,11 +3,8 @@
 
 namespace Microsoft.Data.Entity.Relational.Metadata
 {
-    public interface IRelationalPropertyExtensions
+    public interface IRelationalPropertyExtensions : ISharedRelationalPropertyExtensions
     {
-        string Column { get; }
-        string ColumnType { get; }
-        string DefaultExpression { get; }
         object DefaultValue { get; }
     }
 }

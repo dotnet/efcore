@@ -4,22 +4,25 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public class ReadOnlySqlServerKeyExtensions : ReadOnlyRelationalKeyExtensions, ISqlServerKeyExtensions
+    public class ReadOnlySqlServerKeyExtensions : ISqlServerKeyExtensions
     {
         protected const string SqlServerNameAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.Name;
         protected const string SqlServerClusteredAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered;
 
         public ReadOnlySqlServerKeyExtensions([NotNull] IKey key)
-            : base(key)
         {
+            Check.NotNull(key, nameof(key));
+
+            Key = key;
         }
 
-        public override string Name
+        public virtual string Name
             => Key[SqlServerNameAnnotation] as string
-               ?? base.Name;
+               ?? Key.Relational().Name;
 
         public virtual bool? IsClustered
         {
@@ -31,5 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 return value == null ? null : (bool?)bool.Parse(value);
             }
         }
+
+        protected virtual IKey Key { get; }
     }
 }

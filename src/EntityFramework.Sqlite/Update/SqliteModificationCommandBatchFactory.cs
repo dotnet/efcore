@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 
 namespace Microsoft.Data.Entity.Sqlite.Update
@@ -15,7 +16,9 @@ namespace Microsoft.Data.Entity.Sqlite.Update
         {
         }
 
-        public override ModificationCommandBatch Create(IDbContextOptions options) =>
-            new SqliteModificationCommandBatch(SqlGenerator);
+        public override ModificationCommandBatch Create(
+            IDbContextOptions options,
+            IRelationalMetadataExtensionsAccessor metadataExtensions)
+            => new SingularModificationCommandBatch(SqlGenerator, metadataExtensions);
     }
 }

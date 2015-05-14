@@ -20,9 +20,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 Mock.Of<ISqlGenerator>());
 
             var options = new Mock<IDbContextOptions>().Object;
+            var metadataExtensions = Mock.Of<IRelationalMetadataExtensionsAccessor>();
 
-            var firstBatch = factory.Create(options);
-            var secondBatch = factory.Create(options);
+            var firstBatch = factory.Create(options, metadataExtensions);
+            var secondBatch = factory.Create(options, metadataExtensions);
 
             Assert.NotNull(firstBatch);
             Assert.NotNull(secondBatch);
@@ -48,31 +49,28 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             modificationCommandBatchMock.Verify(mcb => mcb.AddCommand(mockModificationCommand));
         }
 
-        private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
+        private class TestMetadataExtensionsAccessor : IRelationalMetadataExtensionsAccessor
         {
-            public TestModificationCommandBatchFactory(
-                ISqlGenerator sqlGenerator)
-                : base(sqlGenerator)
-            {
-            }
-
-            public override ModificationCommandBatch Create(IDbContextOptions options)
-            {
-                return new TestModificationCommandBatch(SqlGenerator);
-            }
+            public ISharedRelationalEntityTypeExtensions For(IEntityType entityType) => entityType.Relational();
+            public ISharedRelationalForeignKeyExtensions For(IForeignKey foreignKey) => foreignKey.Relational();
+            public ISharedRelationalIndexExtensions For(IIndex index) => index.Relational();
+            public ISharedRelationalKeyExtensions For(IKey key) => key.Relational();
+            public ISharedRelationalPropertyExtensions For(IProperty property) => property.Relational();
+            public ISharedRelationalModelExtensions For(IModel model) => model.Relational();
         }
 
-        private class TestModificationCommandBatch : SingularModificationCommandBatch
+        private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
         {
-            public TestModificationCommandBatch(
-                ISqlGenerator sqlGenerator)
+            public TestModificationCommandBatchFactory(ISqlGenerator sqlGenerator)
                 : base(sqlGenerator)
             {
             }
 
-            public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)
+            public override ModificationCommandBatch Create(
+                IDbContextOptions options,
+                IRelationalMetadataExtensionsAccessor metadataExtensions)
             {
-                return property.Relational();
+                return new SingularModificationCommandBatch(SqlGenerator, metadataExtensions);
             }
         }
     }

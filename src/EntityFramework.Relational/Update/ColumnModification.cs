@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         public ColumnModification(
             [NotNull] InternalEntityEntry entry,
             [NotNull] IProperty property,
-            [NotNull] IRelationalPropertyExtensions propertyExtensions,
+            [NotNull] ISharedRelationalPropertyExtensions propertyExtensions,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
             bool isRead,
             bool isWrite,

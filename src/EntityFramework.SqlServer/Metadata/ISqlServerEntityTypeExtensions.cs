@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.Relational.Metadata;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public interface ISqlServerEntityTypeExtensions : IRelationalEntityTypeExtensions
+    public interface ISqlServerEntityTypeExtensions : ISharedRelationalEntityTypeExtensions
     {
     }
 }

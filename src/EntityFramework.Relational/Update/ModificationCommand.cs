@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 {
     public class ModificationCommand
     {
-        private readonly Func<IProperty, IRelationalPropertyExtensions> _getPropertyExtensions;
+        private readonly Func<IProperty, ISharedRelationalPropertyExtensions> _getPropertyExtensions;
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly List<InternalEntityEntry> _entries = new List<InternalEntityEntry>();
 
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             [NotNull] string tableName,
             [CanBeNull] string schemaName,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
-            [NotNull] Func<IProperty, IRelationalPropertyExtensions> getPropertyExtensions,
+            [NotNull] Func<IProperty, ISharedRelationalPropertyExtensions> getPropertyExtensions,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
         {
             Check.NotEmpty(tableName, nameof(tableName));

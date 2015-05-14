@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public class ReadOnlySqlServerModelExtensions : ReadOnlyRelationalModelExtensions, ISqlServerModelExtensions
+    public class ReadOnlySqlServerModelExtensions : ISqlServerModelExtensions
     {
         protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration;
         protected const string SqlServerSequenceAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.Sequence;
@@ -19,8 +19,10 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         protected const string SqlServerDefaultSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.DefaultSequenceSchema;
 
         public ReadOnlySqlServerModelExtensions([NotNull] IModel model)
-            : base(model)
         {
+            Check.NotNull(model, nameof(model));
+
+            Model = model;
         }
 
         public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
@@ -39,7 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public virtual string DefaultSequenceName => Model[SqlServerDefaultSequenceNameAnnotation] as string;
         public virtual string DefaultSequenceSchema => Model[SqlServerDefaultSequenceSchemaAnnotation] as string;
 
-        public override IReadOnlyList<Sequence> Sequences
+        public virtual IReadOnlyList<Sequence> Sequences
         {
             get
             {
@@ -49,20 +51,37 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                     select Sequence.Deserialize((string)a.Value))
                     .ToList();
 
-                return base.Sequences
+                return Model.Relational().Sequences
                     .Where(rs => !sqlServerSequences.Any(ss => ss.Name == rs.Name && ss.Schema == rs.Schema))
                     .Concat(sqlServerSequences)
                     .ToList();
             }
         }
 
-        public override Sequence TryGetSequence(string name, string schema = null)
+        public virtual Sequence TryGetSequence(string name, string schema = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
             return FindSequence(SqlServerSequenceAnnotation + schema + "." + name)
-                   ?? base.TryGetSequence(name, schema);
+                   ?? Model.Relational().TryGetSequence(name, schema);
         }
+
+        protected virtual Sequence FindSequence([NotNull] string annotationName)
+        {
+            Check.NotEmpty(annotationName, nameof(annotationName));
+
+            var value = Model[annotationName];
+            if (value == null)
+            {
+                return null;
+            }
+
+            var sequence = Sequence.Deserialize((string)value);
+            sequence.Model = Model;
+            return sequence;
+        }
+
+        protected virtual IModel Model { get; }
     }
 }

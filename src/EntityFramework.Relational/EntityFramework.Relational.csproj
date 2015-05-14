@@ -71,6 +71,13 @@
     <Compile Include="IRelationalTypeMapper.cs" />
     <Compile Include="IRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="ISqlGenerator.cs" />
+    <Compile Include="Metadata\IRelationalMetadataExtensionsAccessor.cs" />
+    <Compile Include="Metadata\ISharedRelationalEntityTypeExtensions.cs" />
+    <Compile Include="Metadata\ISharedRelationalForeignKeyExtensions.cs" />
+    <Compile Include="Metadata\ISharedRelationalIndexExtensions.cs" />
+    <Compile Include="Metadata\ISharedRelationalKeyExtensions.cs" />
+    <Compile Include="Metadata\ISharedRelationalModelExtensions.cs" />
+    <Compile Include="Metadata\ISharedRelationalPropertyExtensions.cs" />
     <Compile Include="Metadata\RelationalCollectionReferenceBuilderExtensions.cs" />
     <Compile Include="Metadata\RelationalReferenceReferenceBuilderExtensions.cs" />
     <Compile Include="Migrations\Builders\ColumnsBuilder.cs" />
