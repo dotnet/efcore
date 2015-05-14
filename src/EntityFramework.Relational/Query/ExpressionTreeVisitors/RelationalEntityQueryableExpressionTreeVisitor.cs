@@ -83,22 +83,22 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             var tableAlias
                 = _querySource.HasGeneratedItemName()
-                ? tableName[0].ToString().ToLower()
-                : _querySource.ItemName;
+                    ? tableName[0].ToString().ToLower()
+                    : _querySource.ItemName;
 
             var fromSqlAnnotation
                 = relationalQueryCompilationContext.QueryAnnotations
-                .OfType<FromSqlQueryAnnotation>()
-                .SingleOrDefault(a => a.QuerySource == _querySource);
+                    .OfType<FromSqlQueryAnnotation>()
+                    .SingleOrDefault(a => a.QuerySource == _querySource);
 
             selectExpression.AddTable(
                 fromSqlAnnotation != null
                     ? (TableExpressionBase)
                         new RawSqlDerivedTableExpression(
-                        fromSqlAnnotation.Sql,
-                        fromSqlAnnotation.Parameters,
+                            fromSqlAnnotation.Sql,
+                            fromSqlAnnotation.Parameters,
                             tableAlias,
-                        _querySource)
+                            _querySource)
                     : new TableExpression(
                         tableName,
                         relationalQueryCompilationContext.GetSchema(entityType),
@@ -144,7 +144,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         Expression.Constant(0)
                     };
 
-            if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource) || QueryModelVisitor.RequiresClientEval)
+            if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource)
+                || QueryModelVisitor.RequiresClientEval)
             {
                 var materializer
                     = new MaterializerFactory(
@@ -182,10 +183,18 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         });
             }
 
-            var sqlQueryGenerator
-                = composable
-                    ? relationalQueryCompilationContext.CreateSqlQueryGenerator(selectExpression)
-                    : new RawSqlQueryGenerator(selectExpression, fromSqlAnnotation.Sql, fromSqlAnnotation.Parameters);
+            Func<ISqlQueryGenerator> sqlQueryGeneratorFactory;
+
+            if (composable)
+            {
+                sqlQueryGeneratorFactory = () =>
+                    relationalQueryCompilationContext.CreateSqlQueryGenerator(selectExpression);
+            }
+            else
+            {
+                sqlQueryGeneratorFactory = () =>
+                    new RawSqlQueryGenerator(selectExpression, fromSqlAnnotation.Sql, fromSqlAnnotation.Parameters);
+            }
 
             return Expression.Call(
                 relationalQueryCompilationContext.QueryMethodProvider.QueryMethod
@@ -193,7 +202,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 EntityQueryModelVisitor.QueryContextParameter,
                 Expression.Constant(
                     new CommandBuilder(
-                        sqlQueryGenerator,
+                        sqlQueryGeneratorFactory,
                         relationalQueryCompilationContext.ValueBufferFactoryFactory)),
                 Expression.Lambda(
                     Expression.Call(queryMethodInfo, queryMethodArguments),

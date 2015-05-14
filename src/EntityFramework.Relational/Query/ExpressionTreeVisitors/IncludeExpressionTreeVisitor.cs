@@ -246,7 +246,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                     EntityQueryModelVisitor.QueryContextParameter,
                                     Expression.Constant(
                                         new CommandBuilder(
-                                            _queryCompilationContext.CreateSqlQueryGenerator(targetSelectExpression),
+                                            () => _queryCompilationContext.CreateSqlQueryGenerator(targetSelectExpression),
                                             _queryCompilationContext.ValueBufferFactoryFactory)),
                                     Expression.Lambda(valueBufferParameter, valueBufferParameter)),
                                 materializer));

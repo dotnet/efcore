@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
@@ -13,18 +14,18 @@ namespace Microsoft.Data.Entity.Relational.Query
     public class CommandBuilder
     {
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
-        private readonly ISqlQueryGenerator _sqlGenerator;
+        private readonly Func<ISqlQueryGenerator> _sqlGeneratorFactory;
 
         private IRelationalValueBufferFactory _valueBufferFactory;
 
         public CommandBuilder(
-            [NotNull] ISqlQueryGenerator sqlGenerator,
+            [NotNull] Func<ISqlQueryGenerator> sqlGeneratorFactory,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
         {
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(sqlGeneratorFactory, nameof(sqlGeneratorFactory));
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
-            _sqlGenerator = sqlGenerator;
+            _sqlGeneratorFactory = sqlGeneratorFactory;
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
@@ -50,9 +51,11 @@ namespace Microsoft.Data.Entity.Relational.Query
                 command.CommandTimeout = (int)connection.CommandTimeout;
             }
 
-            command.CommandText = _sqlGenerator.GenerateSql(parameterValues);
+            var sqlQueryGenerator = _sqlGeneratorFactory();
 
-            foreach (var commandParameter in _sqlGenerator.Parameters)
+            command.CommandText = sqlQueryGenerator.GenerateSql(parameterValues);
+
+            foreach (var commandParameter in sqlQueryGenerator.Parameters)
             {
                 var parameter = command.CreateParameter();
 
@@ -74,7 +77,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             LazyInitializer
                 .EnsureInitialized(
                     ref _valueBufferFactory,
-                    () => _sqlGenerator.CreateValueBufferFactory(_valueBufferFactoryFactory, dataReader));
+                    () => _sqlGeneratorFactory()
+                        .CreateValueBufferFactory(_valueBufferFactoryFactory, dataReader));
         }
     }
 }
