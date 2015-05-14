@@ -128,6 +128,7 @@ namespace Microsoft.Data.Sqlite
 
                     break;
                 }
+
                 var boundParams = 0;
 
                 if (_parameters.IsValueCreated)
@@ -135,21 +136,21 @@ namespace Microsoft.Data.Sqlite
                     boundParams = _parameters.Value.Bind(stmt);
                 }
 
-                var expected = NativeMethods.sqlite3_bind_parameter_count(stmt);
-                if (expected != boundParams)
+                var expectedParams = NativeMethods.sqlite3_bind_parameter_count(stmt);
+                if (expectedParams != boundParams)
                 {
                     var unboundParams = new List<string>();
-                    for (var i = 1; i <= expected; i++)
+                    for (var i = 1; i <= expectedParams; i++)
                     {
                         var name = NativeMethods.sqlite3_bind_parameter_name(stmt, i);
 
-                        if (_parameters.IsValueCreated || !_parameters.Value.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
+                        if (_parameters.IsValueCreated ||
+                            !_parameters.Value.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
                         {
                             unboundParams.Add(name);
                         }
                     }
                     throw new InvalidOperationException(Strings.FormatMissingParameters(string.Join(", ", unboundParams)));
-
                 }
 
                 rc = NativeMethods.sqlite3_step(stmt);

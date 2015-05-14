@@ -155,7 +155,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Must add value for the following parameters: {parameters}
+        /// Must add values for the following parameters: {parameters}
         /// </summary>
         internal static string MissingParameters
         {
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Must add value for the following parameters: {parameters}
+        /// Must add values for the following parameters: {parameters}
         /// </summary>
         internal static string FormatMissingParameters(object parameters)
         {
