@@ -33,7 +33,8 @@
     },
     "dnxcore50": {
       "dependencies": {
-        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*"
+        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
+        "System.IO.FileSystem.Primitives": "4.0.0-beta-*"
       }
     },
     ".NETPortable,Version=v4.5,Profile=Profile7": {
