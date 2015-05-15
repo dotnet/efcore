@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             _querySourceRequiresTracking = querySourceRequiresTracking;
         }
 
-        protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression expression)
+        protected override Expression VisitMethodCall([NotNull] MethodCallExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             {
                 _foundCreateEntityForQuerySource = false;
 
-                var newExpression = base.VisitMethodCallExpression(expression);
+                var newExpression = base.VisitMethodCall(expression);
 
                 if (_foundCreateEntityForQuerySource)
                 {
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 return newExpression;
             }
 
-            return base.VisitMethodCallExpression(expression);
+            return base.VisitMethodCall(expression);
         }
 
         private IEnumerable<Expression> CreateIncludeRelatedValuesStrategyFactories(

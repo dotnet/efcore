@@ -4,26 +4,25 @@
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Remotion.Linq.Parsing;
-using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
-    public abstract class NullSemanticsExpressionVisitorBase : ExpressionTreeVisitor
+    public abstract class NullSemanticsExpressionVisitorBase : RelinqExpressionVisitor
     {
         protected Expression BuildIsNullExpression(Expression expression)
         {
             var isNullExpressionBuilder = new IsNullExpressionBuildingVisitor();
 
-            isNullExpressionBuilder.VisitExpression(expression);
+            isNullExpressionBuilder.Visit(expression);
 
             return isNullExpressionBuilder.ResultExpression;
         }
 
-        protected override Expression VisitExtensionExpression(ExtensionExpression expression)
+        protected override Expression VisitExtension(Expression expression)
         {
             return expression is NotNullableExpression 
                 ? expression
-                : base.VisitExtensionExpression(expression);
+                : base.VisitExtension(expression);
         }
     }
 }

@@ -7,12 +7,12 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
-    public abstract class ExpressionTreeVisitorBase : ExpressionTreeVisitor
+    public abstract class ExpressionTreeVisitorBase : RelinqExpressionVisitor
     {
-        public override Expression VisitExpression([CanBeNull] Expression expression)
+        public override Expression Visit([CanBeNull] Expression expression)
             => expression == null
                || expression.NodeType == ExpressionType.Block
                 ? expression
-                : base.VisitExpression(expression);
+                : base.Visit(expression);
     }
 }

@@ -27,12 +27,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             _originQuerySourceReferenceExpression = null;
             _reachable = false;
 
-            VisitExpression(expression);
+            Visit(expression);
 
             return _reachable ? _originQuerySourceReferenceExpression : null;
         }
 
-        protected override Expression VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
+        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
         {
             if (!_reachable)
             {
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
                     if (fromClauseBase != null)
                     {
-                        VisitExpression(fromClauseBase.FromExpression);
+                        Visit(fromClauseBase.FromExpression);
                     }
                 }
 
@@ -64,27 +64,27 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             return expression;
         }
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            VisitExpression(expression.QueryModel.SelectClause.Selector);
+            Visit(expression.QueryModel.SelectClause.Selector);
 
             return expression;
         }
 
         // Prune these nodes...
 
-        protected override Expression VisitMemberExpression(MemberExpression expression) => expression;
+        protected override Expression VisitMember(MemberExpression expression) => expression;
 
-        protected override Expression VisitMethodCallExpression(MethodCallExpression expression) => expression;
+        protected override Expression VisitMethodCall(MethodCallExpression expression) => expression;
 
-        protected override Expression VisitConditionalExpression(ConditionalExpression expression) => expression;
+        protected override Expression VisitConditional(ConditionalExpression expression) => expression;
 
-        protected override Expression VisitBinaryExpression(BinaryExpression expression) => expression;
+        protected override Expression VisitBinary(BinaryExpression expression) => expression;
 
-        protected override Expression VisitTypeBinaryExpression(TypeBinaryExpression expression) => expression;
+        protected override Expression VisitTypeBinary(TypeBinaryExpression expression) => expression;
 
-        protected override Expression VisitLambdaExpression(LambdaExpression expression) => expression;
+        protected override Expression VisitLambda<T>(Expression<T> expression) => expression;
 
-        protected override Expression VisitInvocationExpression(InvocationExpression expression) => expression;
+        protected override Expression VisitInvocation(InvocationExpression expression) => expression;
     }
 }

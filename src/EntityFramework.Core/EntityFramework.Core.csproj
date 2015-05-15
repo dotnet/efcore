@@ -203,6 +203,7 @@
     <Compile Include="Query\ExpressionTreeVisitors\ParameterExtractingExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\QueryAnnotatingExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ReducingExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ExtensionExpression.cs" />    
     <Compile Include="Query\IEntityQueryProvider.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />
     <Compile Include="Query\QueryableHelpers.cs" />

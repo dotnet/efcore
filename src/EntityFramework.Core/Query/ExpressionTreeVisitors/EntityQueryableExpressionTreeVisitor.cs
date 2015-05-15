@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
         {
         }
 
-        protected override Expression VisitConstantExpression(ConstantExpression constantExpression)
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             return constantExpression.Type.GetTypeInfo().IsGenericType
                    && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>)

@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
-using Remotion.Linq.Parsing.ExpressionTreeVisitors.TreeEvaluation;
+using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
@@ -18,11 +18,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             [NotNull] QueryContext queryContext)
         {
 
-            var functionEvaluationDisabledExpression = new FunctionEvaluationDisablingVisitor().VisitExpression(expressionTree);
-            var partialEvaluationInfo = EvaluatableTreeFindingExpressionTreeVisitor.Analyze(functionEvaluationDisabledExpression);
+            var functionEvaluationDisabledExpression = new FunctionEvaluationDisablingVisitor().Visit(expressionTree);
+            var partialEvaluationInfo = EvaluatableTreeFindingExpressionVisitor.Analyze(functionEvaluationDisabledExpression);
             var visitor = new ParameterExtractingExpressionTreeVisitor(partialEvaluationInfo, queryContext);
 
-            return visitor.VisitExpression(functionEvaluationDisabledExpression);
+            return visitor.Visit(functionEvaluationDisabledExpression);
         }
 
         private readonly PartialEvaluationInfo _partialEvaluationInfo;
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             _queryContext = queryContext;
         }
 
-        protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.IsGenericMethod)
             {
@@ -48,10 +48,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 }
             }
 
-            return base.VisitMethodCallExpression(methodCallExpression);
+            return base.VisitMethodCall(methodCallExpression);
         }
 
-        public override Expression VisitExpression(Expression expression)
+        public override Expression Visit(Expression expression)
         {
             if (expression == null)
             {
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             if (expression.NodeType == ExpressionType.Lambda
                 || !_partialEvaluationInfo.IsEvaluatableExpression(expression))
             {
-                return base.VisitExpression(expression);
+                return base.Visit(expression);
             }
 
             var e = expression;

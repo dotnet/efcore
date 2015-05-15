@@ -3,16 +3,15 @@
 
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
-using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
-    public class IsNullExpressionBuildingVisitor : ExpressionTreeVisitor
+    public class IsNullExpressionBuildingVisitor : RelinqExpressionVisitor
     {
         public virtual Expression ResultExpression { get; private set; }
 
-        protected override Expression VisitConstantExpression(ConstantExpression expression)
+        protected override Expression VisitConstant(ConstantExpression expression)
         {
             if (expression.Value == null)
             {
@@ -22,18 +21,18 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return expression;
         }
 
-        protected override Expression VisitBinaryExpression(BinaryExpression expression)
+        protected override Expression VisitBinary(BinaryExpression expression)
         {
             // a ?? b == null <-> a == null && b == null
             if (expression.NodeType == ExpressionType.Coalesce)
             {
                 var current = ResultExpression;
                 ResultExpression = null;
-                VisitExpression(expression.Left);
+                Visit(expression.Left);
                 var left = ResultExpression;
 
                 ResultExpression = null;
-                VisitExpression(expression.Right);
+                Visit(expression.Right);
                 var right = ResultExpression;
 
                 var coalesce = CombineExpressions(left, right, ExpressionType.AndAlso);
@@ -54,12 +53,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return expression;
         }
 
-        protected override Expression VisitExtensionExpression(ExtensionExpression expression)
+        protected override Expression VisitExtension(Expression expression)
         {
             var aliasExpression = expression as AliasExpression;
             if (aliasExpression != null)
             {
-                return VisitExpression(aliasExpression.Expression);
+                return Visit(aliasExpression.Expression);
             }
 
             var notNullableExpression = expression as NotNullableExpression;
@@ -94,16 +93,16 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return expression;
         }
 
-        protected override Expression VisitConditionalExpression(ConditionalExpression expression)
+        protected override Expression VisitConditional(ConditionalExpression expression)
         {
             var current = ResultExpression;
 
             ResultExpression = null;
-            VisitExpression(expression.IfTrue);
+            Visit(expression.IfTrue);
             var ifTrue = ResultExpression;
 
             ResultExpression = null;
-            VisitExpression(expression.IfTrue);
+            Visit(expression.IfTrue);
             var ifFalse = ResultExpression;
 
             ResultExpression = current;

@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
-using Remotion.Linq.Clauses.ExpressionTreeVisitors;
+using Remotion.Linq.Clauses.ExpressionVisitors;
 
 namespace Microsoft.Data.Entity.Query.Annotations
 {
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Query.Annotations
 
         public override string ToString()
             => "Include("
-               + FormattingExpressionTreeVisitor.Format(NavigationPropertyPath)
+               + NavigationPropertyPath
                + (_chainedNavigationProperties.Count > 0
                    ? _chainedNavigationProperties.Select(p => p.Name).Join(".")
                    : string.Empty)

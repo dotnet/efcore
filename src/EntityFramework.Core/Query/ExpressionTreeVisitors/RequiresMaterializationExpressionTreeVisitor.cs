@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             get { return new HashSet<IQuerySource>(_querySources.Where(kv => kv.Value > 0).Select(kv => kv.Key)); }
         }
 
-        protected override Expression VisitQuerySourceReferenceExpression(
+        protected override Expression VisitQuerySourceReference(
             QuerySourceReferenceExpression querySourceReferenceExpression)
         {
             if (!_querySources.ContainsKey(querySourceReferenceExpression.ReferencedQuerySource))
@@ -42,12 +42,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 _querySources[querySourceReferenceExpression.ReferencedQuerySource]++;
             }
 
-            return base.VisitQuerySourceReferenceExpression(querySourceReferenceExpression);
+            return base.VisitQuerySourceReference(querySourceReferenceExpression);
         }
 
-        protected override Expression VisitMemberExpression(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            var newExpression = base.VisitMemberExpression(memberExpression);
+            var newExpression = base.VisitMember(memberExpression);
 
             if (memberExpression.Expression != null)
             {
@@ -66,9 +66,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             return newExpression;
         }
 
-        protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            var newExpression = base.VisitMethodCallExpression(methodCallExpression);
+            var newExpression = base.VisitMethodCall(methodCallExpression);
 
             _queryModelVisitor
                 .BindMethodCallExpression(

@@ -4,8 +4,6 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
@@ -24,6 +22,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual string Alias { get; [param: NotNull] set; }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
     }
 }

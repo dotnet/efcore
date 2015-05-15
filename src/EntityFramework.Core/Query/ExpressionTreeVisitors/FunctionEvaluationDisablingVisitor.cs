@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 typeof(DateTime).GetTypeInfo().GetDeclaredProperty("Now").GetMethod,
         };
 
-        protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
+        protected override Expression VisitMethodCall(MethodCallExpression expression)
         {
             if (expression.Method.IsGenericMethod)
             {
@@ -29,17 +29,17 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 if (ReferenceEquals(genericMethodDefinition, QueryExtensions.PropertyMethodInfo)
                     || ReferenceEquals(genericMethodDefinition, DbContextSetMethodInfo))
                 {
-                    return base.VisitMethodCallExpression(expression);
+                    return base.VisitMethodCall(expression);
                 }
             }
 
             if (IsQueryable(expression.Object) || IsQueryable(expression.Arguments.FirstOrDefault()))
             {
-                return base.VisitMethodCallExpression(expression);
+                return base.VisitMethodCall(expression);
             }
 
-            var newObject = VisitExpression(expression.Object);
-            var newArguments = VisitAndConvert(expression.Arguments, "VisitMethodCallExpression");
+            var newObject = Visit(expression.Object);
+            var newArguments = VisitAndConvert(expression.Arguments, "VisitMethodCall");
 
             var newMethodCall = newObject != expression.Object || newArguments != expression.Arguments
                 ? Expression.Call(newObject, expression.Method, newArguments)
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 : typeof(IQueryable).GetTypeInfo().IsAssignableFrom(expression.Type.GetTypeInfo());
         }
 
-        protected override Expression VisitMemberExpression(MemberExpression expression)
+        protected override Expression VisitMember(MemberExpression expression)
         {
             var propertyInfo = expression.Member as PropertyInfo;
 
@@ -66,10 +66,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 : expression;
         }
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             var clonedModel = expression.QueryModel.Clone();
-            clonedModel.TransformExpressions(VisitExpression);
+            clonedModel.TransformExpressions(Visit);
 
             return new SubQueryExpression(clonedModel);
         }

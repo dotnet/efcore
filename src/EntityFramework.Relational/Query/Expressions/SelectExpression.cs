@@ -10,7 +10,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
@@ -587,7 +586,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _tables.Remove(tableExpression);
         }
 
-        public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
+        protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
 
@@ -598,7 +597,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 : base.Accept(visitor);
         }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             return this;
         }

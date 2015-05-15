@@ -5,8 +5,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
@@ -33,9 +31,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override string ToString() => _predicate.ToString();
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var newPredicate = visitor.VisitExpression(_predicate);
+            var newPredicate = visitor.Visit(_predicate);
 
             return _predicate != newPredicate
                 ? new DiscriminatorPredicateExpression(newPredicate, QuerySource)

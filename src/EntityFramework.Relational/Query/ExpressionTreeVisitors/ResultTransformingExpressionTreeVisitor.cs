@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Data.Common;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -29,18 +28,18 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             _relationalQueryCompilationContext = relationalQueryCompilationContext;
         }
 
-        protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall([NotNull] MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            var newObject = VisitExpression(methodCallExpression.Object);
+            var newObject = Visit(methodCallExpression.Object);
 
             if (newObject != methodCallExpression.Object)
             {
                 return newObject;
             }
 
-            var newArguments = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCallExpression");
+            var newArguments = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCall");
 
             if ((methodCallExpression.Method.MethodIsClosedFormOf(RelationalQueryModelVisitor.CreateEntityMethodInfo)
                  || ReferenceEquals(methodCallExpression.Method, RelationalQueryModelVisitor.CreateValueBufferMethodInfo))
@@ -84,11 +83,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return methodCallExpression;
         }
 
-        protected override Expression VisitLambdaExpression([NotNull] LambdaExpression lambdaExpression)
+        protected override Expression VisitLambda<T>([NotNull] Expression<T> lambdaExpression)
         {
             Check.NotNull(lambdaExpression, nameof(lambdaExpression));
 
-            var newBodyExpression = VisitExpression(lambdaExpression.Body);
+            var newBodyExpression = Visit(lambdaExpression.Body);
 
             return newBodyExpression != lambdaExpression.Body
                 ? Expression.Lambda(newBodyExpression, lambdaExpression.Parameters)

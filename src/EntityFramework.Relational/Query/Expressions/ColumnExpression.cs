@@ -6,8 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
-using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
@@ -40,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual string Name { get; }
 
-        public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
+        protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
 
@@ -51,7 +49,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 : base.Accept(visitor);
         }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         protected bool Equals(ColumnExpression other)
             => _property.Equals(other._property)

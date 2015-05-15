@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
-using Remotion.Linq.Clauses.ExpressionTreeVisitors;
 
 namespace Microsoft.Data.Entity.Query.Annotations
 {
@@ -40,6 +39,6 @@ namespace Microsoft.Data.Entity.Query.Annotations
         private static string FormatArgument(object argument)
             => (argument?.GetType().IsArray ?? false)
                 ? $"[{((IEnumerable)argument).Cast<object>().Select(FormatArgument).Join()}]"
-                : FormattingExpressionTreeVisitor.Format(Expression.Constant(argument));
+                : Expression.Constant(argument).ToString();
     }
 }

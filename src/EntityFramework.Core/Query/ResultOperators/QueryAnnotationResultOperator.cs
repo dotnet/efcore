@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.ExpressionTreeVisitors;
+using Remotion.Linq.Clauses.ExpressionVisitors;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Clauses.StreamedData;
 
@@ -28,9 +28,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         public virtual QueryAnnotationBase Annotation { get; }
 
         public override string ToString()
-            => "AnnotateQuery("
-               + FormattingExpressionTreeVisitor.Format(_annotationExpression)
-               + ")";
+            => "AnnotateQuery(" + _annotationExpression + ")";
 
         public override ResultOperatorBase Clone([NotNull] CloneContext cloneContext)
         {

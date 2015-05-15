@@ -8,18 +8,18 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
-    public class ReducingExpressionVisitor : ExpressionTreeVisitor
+    public class ReducingExpressionVisitor : ExpressionTreeVisitorBase
     {
-        public override Expression VisitExpression([NotNull] Expression node)
+        public override Expression Visit([NotNull] Expression node)
             => node != null
                && node.CanReduce
-                ? VisitExpression(node.Reduce())
-                : base.VisitExpression(node);
+                ? Visit(node.Reduce())
+                : base.Visit(node);
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             var clonedModel = expression.QueryModel.Clone();
-            clonedModel.TransformExpressions(VisitExpression);
+            clonedModel.TransformExpressions(Visit);
 
             return new SubQueryExpression(clonedModel);
         }

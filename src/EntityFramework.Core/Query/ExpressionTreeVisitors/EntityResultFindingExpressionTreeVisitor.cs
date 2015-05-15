@@ -39,12 +39,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
             _entityTrackingInfos = new List<EntityTrackingInfo>();
 
-            VisitExpression(expression);
+            Visit(expression);
 
             return _entityTrackingInfos;
         }
 
-        protected override Expression VisitQuerySourceReferenceExpression(
+        protected override Expression VisitQuerySourceReference(
             QuerySourceReferenceExpression querySourceReferenceExpression)
         {
             if (!_untrackedQuerySources.Contains(querySourceReferenceExpression.ReferencedQuerySource))
@@ -68,42 +68,42 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         // Prune these nodes...
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             return expression;
         }
 
-        protected override Expression VisitMemberExpression(MemberExpression expression)
+        protected override Expression VisitMember(MemberExpression expression)
         {
             return expression;
         }
 
-        protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
+        protected override Expression VisitMethodCall(MethodCallExpression expression)
         {
             return expression;
         }
 
-        protected override Expression VisitConditionalExpression(ConditionalExpression expression)
+        protected override Expression VisitConditional(ConditionalExpression expression)
         {
             return expression;
         }
 
-        protected override Expression VisitBinaryExpression(BinaryExpression expression)
+        protected override Expression VisitBinary(BinaryExpression expression)
         {
             return expression;
         }
 
-        protected override Expression VisitTypeBinaryExpression(TypeBinaryExpression expression)
+        protected override Expression VisitTypeBinary(TypeBinaryExpression expression)
         {
             return expression;
         }
 
-        protected override Expression VisitLambdaExpression(LambdaExpression expression)
+        protected override Expression VisitLambda<T>(Expression<T> expression)
         {
             return expression;
         }
 
-        protected override Expression VisitInvocationExpression(InvocationExpression expression)
+        protected override Expression VisitInvocation(InvocationExpression expression)
         {
             return expression;
         }

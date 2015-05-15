@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
         {
         }
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
+        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
         {
             var queryModelVisitor = CreateQueryModelVisitor();
 

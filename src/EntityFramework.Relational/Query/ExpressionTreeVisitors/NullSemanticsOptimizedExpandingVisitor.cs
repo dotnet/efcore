@@ -14,10 +14,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             OptimizedExpansionPossible = true;
         }
 
-        protected override Expression VisitBinaryExpression(BinaryExpression expression)
+        protected override Expression VisitBinary(BinaryExpression expression)
         {
-            var left = VisitExpression(expression.Left);
-            var right = VisitExpression(expression.Right);
+            var left = Visit(expression.Left);
+            var right = Visit(expression.Right);
 
             if (!OptimizedExpansionPossible)
             {
@@ -60,9 +60,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return Expression.MakeBinary(expression.NodeType, left, right);
         }
 
-        protected override Expression VisitUnaryExpression(UnaryExpression expression)
+        protected override Expression VisitUnary(UnaryExpression expression)
         {
-            var operand = VisitExpression(expression.Operand);
+            var operand = Visit(expression.Operand);
             if (!OptimizedExpansionPossible)
             {
                 return expression;

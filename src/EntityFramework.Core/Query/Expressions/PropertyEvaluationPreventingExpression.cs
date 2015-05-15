@@ -3,8 +3,6 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.Expressions
 {
@@ -28,9 +26,9 @@ namespace Microsoft.Data.Entity.Query.Expressions
             return MemberExpression;
         }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var newExpression = visitor.VisitExpression(MemberExpression.Expression);
+            var newExpression = visitor.Visit(MemberExpression.Expression);
 
             if (newExpression != MemberExpression.Expression)
             {
