@@ -2,13 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
-using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -45,12 +43,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             _operatorToFlatten = operatorToFlatten;
         }
 
-        protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall([NotNull] MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
             var newExpression
-                = (MethodCallExpression)base.VisitMethodCallExpression(methodCallExpression);
+                = (MethodCallExpression)base.VisitMethodCall(methodCallExpression);
 
             if (_outerShaperExpression != null)
             {

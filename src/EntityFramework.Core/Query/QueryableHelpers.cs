@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
-using Remotion.Linq.Parsing.ExpressionTreeVisitors;
+using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] Expression<Func<IQueryable<T>, TR>> expression)
             => Check.NotNull(source, nameof(source))
                 .Provider.CreateQuery<T>(
-                    ReplacingExpressionTreeVisitor.Replace(
+                    ReplacingExpressionVisitor.Replace(
                         Check.NotNull(expression,nameof(expression)).Parameters[0],
                         source.Expression,
                         expression.Body));

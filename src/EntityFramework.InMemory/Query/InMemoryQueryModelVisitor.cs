@@ -14,7 +14,6 @@ using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.InMemory.Query
 {
@@ -25,7 +24,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
         {
         }
 
-        protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
+        protected override ExpressionVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
             return new InMemoryEntityQueryableExpressionTreeVisitor(this, querySource);
         }

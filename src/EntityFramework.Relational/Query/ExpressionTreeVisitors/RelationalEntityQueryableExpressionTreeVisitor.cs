@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         private new RelationalQueryModelVisitor QueryModelVisitor => (RelationalQueryModelVisitor)base.QueryModelVisitor;
 
-        protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
+        protected override Expression VisitMember([NotNull] MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
 
@@ -50,10 +50,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             property,
                             querySource));
 
-            return base.VisitMemberExpression(memberExpression);
+            return base.VisitMember(memberExpression);
         }
 
-        protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall([NotNull] MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             property,
                             querySource));
 
-            return base.VisitMethodCallExpression(methodCallExpression);
+            return base.VisitMethodCall(methodCallExpression);
         }
 
         protected override Expression VisitEntityQueryable(Type elementType)

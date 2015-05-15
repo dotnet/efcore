@@ -9,7 +9,7 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
-    public class PredicateNegationExpressionOptimizer : ExpressionTreeVisitor
+    public class PredicateNegationExpressionOptimizer : RelinqExpressionVisitor
     {
         private static readonly Dictionary<ExpressionType, ExpressionType> _nodeTypeMapping
             = new Dictionary<ExpressionType, ExpressionType>
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual }
                 };
 
-        protected override Expression VisitBinaryExpression(
+        protected override Expression VisitBinary(
             [NotNull] BinaryExpression expression)
         {
             var currentExpression = expression;
@@ -66,18 +66,18 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
             }
 
-            return base.VisitBinaryExpression(currentExpression);
+            return base.VisitBinary(currentExpression);
         }
 
         private Expression BuildIsNullExpression(Expression expression)
         {
             var nullableExpressionsExtractor = new IsNullExpressionBuildingVisitor();
-            nullableExpressionsExtractor.VisitExpression(expression);
+            nullableExpressionsExtractor.Visit(expression);
 
             return nullableExpressionsExtractor.ResultExpression;
         }
 
-        protected override Expression VisitUnaryExpression(
+        protected override Expression VisitUnary(
             [NotNull] UnaryExpression expression)
         {
             if (expression.NodeType == ExpressionType.Not)
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     && innerUnary.NodeType == ExpressionType.Not)
                 {
                     // !(!(a)) => a
-                    return VisitExpression(innerUnary.Operand);
+                    return Visit(innerUnary.Operand);
                 }
 
                 var innerBinary = expression.Operand as BinaryExpression;
@@ -101,14 +101,14 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         // !(a == b) -> a != b
                         // !(a != b) -> a == b
                         return innerBinary.NodeType == ExpressionType.Equal
-                            ? VisitExpression(Expression.NotEqual(innerBinary.Left, innerBinary.Right))
-                            : VisitExpression(Expression.Equal(innerBinary.Left, innerBinary.Right));
+                            ? Visit(Expression.NotEqual(innerBinary.Left, innerBinary.Right))
+                            : Visit(Expression.Equal(innerBinary.Left, innerBinary.Right));
                     }
 
                     if (innerBinary.NodeType == ExpressionType.AndAlso)
                     {
                         // !(a && b) -> !a || !b
-                        return VisitExpression(
+                        return Visit(
                             Expression.MakeBinary(
                                 ExpressionType.OrElse,
                                 Expression.Not(innerBinary.Left),
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     if (innerBinary.NodeType == ExpressionType.OrElse)
                     {
                         // !(a || b) -> !a && !b
-                        return VisitExpression(
+                        return Visit(
                             Expression.MakeBinary(
                                 ExpressionType.AndAlso,
                                 Expression.Not(innerBinary.Left),
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     if (_nodeTypeMapping.ContainsKey(innerBinary.NodeType))
                     {
                         // e.g. !(a > b) -> a <= b
-                        return VisitExpression(
+                        return Visit(
                             Expression.MakeBinary(
                                 _nodeTypeMapping[innerBinary.NodeType],
                                 innerBinary.Left,
@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
             }
 
-            return base.VisitUnaryExpression(expression);
+            return base.VisitUnary(expression);
         }
     }
 }

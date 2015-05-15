@@ -13,7 +13,7 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
-    public class SqlTranslatingExpressionTreeVisitor : ThrowingExpressionTreeVisitor
+    public class SqlTranslatingExpressionTreeVisitor : ThrowingExpressionVisitor
     {
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
         private readonly Expression _topLevelPredicate;
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         public virtual Expression ClientEvalPredicate { get; private set; }
 
-        protected override Expression VisitBinaryExpression([NotNull] BinaryExpression binaryExpression)
+        protected override Expression VisitBinary([NotNull] BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
@@ -38,8 +38,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             {
                 case ExpressionType.Coalesce:
                 {
-                    var left = VisitExpression(binaryExpression.Left);
-                    var right = VisitExpression(binaryExpression.Right);
+                    var left = Visit(binaryExpression.Left);
+                    var right = Visit(binaryExpression.Right);
 
                     return new AliasExpression(binaryExpression.Update(left, binaryExpression.Conversion, right));
                 }
@@ -63,8 +63,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                 case ExpressionType.AndAlso:
                 {
-                    var left = VisitExpression(binaryExpression.Left);
-                    var right = VisitExpression(binaryExpression.Right);
+                    var left = Visit(binaryExpression.Left);
+                    var right = Visit(binaryExpression.Right);
 
                     if (binaryExpression == _topLevelPredicate)
                     {
@@ -100,8 +100,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 case ExpressionType.Multiply:
                 case ExpressionType.Divide:
                 {
-                    var leftExpression = VisitExpression(binaryExpression.Left);
-                    var rightExpression = VisitExpression(binaryExpression.Right);
+                    var leftExpression = Visit(binaryExpression.Left);
+                    var rightExpression = Visit(binaryExpression.Right);
 
                     return leftExpression != null
                            && rightExpression != null
@@ -113,11 +113,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return null;
         }
 
-        protected override Expression VisitConditionalExpression(ConditionalExpression expression)
+        protected override Expression VisitConditional(ConditionalExpression expression)
         {
-            var test = VisitExpression(expression.Test);
-            var ifTrue = VisitExpression(expression.IfTrue);
-            var ifFalse = VisitExpression(expression.IfFalse);
+            var test = Visit(expression.Test);
+            var ifTrue = Visit(expression.IfTrue);
+            var ifFalse = Visit(expression.IfFalse);
 
             if (test != null && ifTrue != null && ifFalse != null)
             {
@@ -157,8 +157,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         private Expression ProcessComparisonExpression(BinaryExpression binaryExpression)
         {
-            var leftExpression = VisitExpression(binaryExpression.Left);
-            var rightExpression = VisitExpression(binaryExpression.Right);
+            var leftExpression = Visit(binaryExpression.Left);
+            var rightExpression = Visit(binaryExpression.Right);
 
             if (leftExpression == null
                 || rightExpression == null)
@@ -202,17 +202,17 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return null;
         }
 
-        protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall([NotNull] MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            var operand = VisitExpression(methodCallExpression.Object);
+            var operand = Visit(methodCallExpression.Object);
 
             if (operand != null || methodCallExpression.Object == null)
             {
                 var arguments
                     = methodCallExpression.Arguments
-                        .Select(VisitExpression)
+                        .Select(Visit)
                         .Where(e => e != null)
                         .ToArray();
 
@@ -243,11 +243,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                     selectExpression.FindTableForQuerySource(querySource))));
         }
 
-        protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
+        protected override Expression VisitMember([NotNull] MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
 
-            var newExpression = VisitExpression(memberExpression.Expression);
+            var newExpression = Visit(memberExpression.Expression);
             if (newExpression != null || memberExpression.Expression == null)
             {
                 var newMemberExpression = newExpression != memberExpression.Expression
@@ -272,19 +272,19 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 selectExpression.FindTableForQuerySource(querySource))));
         }
 
-        protected override Expression VisitUnaryExpression([NotNull] UnaryExpression expression)
+        protected override Expression VisitUnary([NotNull] UnaryExpression expression)
         {
             switch (expression.NodeType)
             {
                 case ExpressionType.Not:
                 {
-                    var operand = VisitExpression(expression.Operand);
+                    var operand = Visit(expression.Operand);
 
                     return Expression.Not(operand);
                 }
                 case ExpressionType.Convert:
                 {
-                    var operand = VisitExpression(expression.Operand);
+                    var operand = Visit(expression.Operand);
 
                     if (operand != null)
                     {
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return null;
         }
 
-        protected override Expression VisitNewExpression([NotNull] NewExpression newExpression)
+        protected override Expression VisitNew([NotNull] NewExpression newExpression)
         {
             Check.NotNull(newExpression, nameof(newExpression));
 
@@ -307,7 +307,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             {
                 var memberBindings
                     = newExpression.Arguments
-                        .Select(VisitExpression)
+                        .Select(Visit)
                         .Where(e => e != null)
                         .ToArray();
 
@@ -320,7 +320,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return null;
         }
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -335,7 +335,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     if (parameter != null
                         && memberItem != null)
                     {
-                        var aliasExpression = (AliasExpression)VisitMemberExpression(memberItem);
+                        var aliasExpression = (AliasExpression)VisitMember(memberItem);
 
                         return new InExpression(aliasExpression, new[] { parameter });
                     }
@@ -367,7 +367,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 typeof(ushort)
             };
 
-        protected override Expression VisitConstantExpression([NotNull] ConstantExpression constantExpression)
+        protected override Expression VisitConstant([NotNull] ConstantExpression constantExpression)
         {
             Check.NotNull(constantExpression, nameof(constantExpression));
 
@@ -383,7 +383,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 : null;
         }
 
-        protected override Expression VisitParameterExpression([NotNull] ParameterExpression parameterExpression)
+        protected override Expression VisitParameter([NotNull] ParameterExpression parameterExpression)
         {
             Check.NotNull(parameterExpression, nameof(parameterExpression));
 

@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
     public class TaskBlockingExpressionTreeVisitor : ExpressionTreeVisitorBase
     {
-        public override Expression VisitExpression(Expression expression)
+        public override Expression Visit(Expression expression)
         {
             if (expression != null)
             {
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 }
             }
 
-            return base.VisitExpression(expression);
+            return base.Visit(expression);
         }
 
         private static readonly MethodInfo _resultMethodInfo

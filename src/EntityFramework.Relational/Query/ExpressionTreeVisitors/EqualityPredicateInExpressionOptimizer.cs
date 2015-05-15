@@ -11,9 +11,9 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
-    public class EqualityPredicateInExpressionOptimizer : ExpressionTreeVisitor
+    public class EqualityPredicateInExpressionOptimizer : RelinqExpressionVisitor
     {
-        protected override Expression VisitBinaryExpression(
+        protected override Expression VisitBinary(
             [NotNull] BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
             }
 
-            return base.VisitBinaryExpression(binaryExpression);
+            return base.VisitBinary(binaryExpression);
         }
 
         private Expression TryOptimize(
@@ -61,8 +61,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             ExpressionType equalityType,
             Func<AliasExpression, List<Expression>, Expression> inExpressionFactory)
         {
-            var leftExpression = VisitExpression(binaryExpression.Left);
-            var rightExpression = VisitExpression(binaryExpression.Right);
+            var leftExpression = Visit(binaryExpression.Left);
+            var rightExpression = Visit(binaryExpression.Right);
 
             Expression leftNonColumnExpression, rightNonColumnExpression;
             IReadOnlyList<Expression> leftInValues = null;

@@ -18,7 +18,6 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
@@ -72,14 +71,14 @@ namespace Microsoft.Data.Entity.Relational.Query
                 : _queriesBySource.Values.SingleOrDefault(se => se.HandlesQuerySource(querySource)));
         }
 
-        protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
+        protected override ExpressionVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
 
             return new RelationalEntityQueryableExpressionTreeVisitor(this, querySource);
         }
 
-        protected override ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor(IQuerySource querySource)
+        protected override ExpressionVisitor CreateProjectionExpressionTreeVisitor(IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
 
@@ -98,7 +97,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             foreach (var selectExpression in _queriesBySource.Values.Where(se => se.Predicate != null))
             {
                 selectExpression.Predicate
-                    = compositePredicateVisitor.VisitExpression(selectExpression.Predicate);
+                    = compositePredicateVisitor.Visit(selectExpression.Predicate);
             }
         }
 
@@ -120,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     navigationPath,
                     QueryCompilationContext,
                     querySourceRequiresTracking)
-                    .VisitExpression(Expression);
+                    .Visit(Expression);
         }
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
@@ -156,7 +155,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                                 QueryCompilationContext,
                                 readerOffset,
                                 LinqOperatorProvider.SelectMany)
-                                .VisitExpression(Expression);
+                                .Visit(Expression);
                     }
                 }
             }
@@ -190,7 +189,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                     var predicate
                         = filteringExpressionTreeVisitor
-                            .VisitExpression(
+                            .Visit(
                                 Expression.Equal(
                                     joinClause.OuterKeySelector,
                                     joinClause.InnerKeySelector));
@@ -218,7 +217,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                                 QueryCompilationContext,
                                 previousSelectProjectionCount,
                                 LinqOperatorProvider.Join)
-                                .VisitExpression(Expression);
+                                .Visit(Expression);
                     }
                     else
                     {
@@ -236,7 +235,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             if (!requiresClientFilter)
             {
                 var translatingVisitor = new SqlTranslatingExpressionTreeVisitor(this, whereClause.Predicate);
-                var sqlPredicateExpression = translatingVisitor.VisitExpression(whereClause.Predicate);
+                var sqlPredicateExpression = translatingVisitor.Visit(whereClause.Predicate);
 
                 if (sqlPredicateExpression != null)
                 {
@@ -281,7 +280,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     var sqlOrderingExpression
                         = sqlTranslatingExpressionTreeVisitor
-                            .VisitExpression(ordering.Expression);
+                            .Visit(ordering.Expression);
 
                     if (sqlOrderingExpression == null)
                     {

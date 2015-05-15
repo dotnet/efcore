@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Relational.Query.Expressions;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
-    public class CompositePredicateExpressionTreeVisitor : ExpressionTreeVisitor
+    public class CompositePredicateExpressionTreeVisitor : RelinqExpressionVisitor
     {
         private bool _useRelationalNullSemantics;
 
@@ -17,39 +17,39 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             _useRelationalNullSemantics = useRelationalNullSemantics;
         }
 
-        public override Expression VisitExpression(
+        public override Expression Visit(
             [NotNull] Expression expression)
         {
             var currentExpression = expression;
             var inExpressionOptimized =
-                new EqualityPredicateInExpressionOptimizer().VisitExpression(currentExpression);
+                new EqualityPredicateInExpressionOptimizer().Visit(currentExpression);
 
             currentExpression = inExpressionOptimized;
 
             var negationOptimized1 =
                 new PredicateNegationExpressionOptimizer()
-                    .VisitExpression(currentExpression);
+                    .Visit(currentExpression);
 
             currentExpression = negationOptimized1;
 
             var equalityExpanded =
-                new EqualityPredicateExpandingVisitor().VisitExpression(currentExpression);
+                new EqualityPredicateExpandingVisitor().Visit(currentExpression);
 
             currentExpression = equalityExpanded;
 
             var negationOptimized2 =
                 new PredicateNegationExpressionOptimizer()
-                    .VisitExpression(currentExpression);
+                    .Visit(currentExpression);
 
             currentExpression = negationOptimized2;
 
             var parameterDectector = new ParameterExpressionDetectingVisitor();
-            parameterDectector.VisitExpression(currentExpression);
+            parameterDectector.Visit(currentExpression);
 
             if (!parameterDectector.ContainsParameters && !_useRelationalNullSemantics)
             {
                 var optimizedNullExpansionVisitor = new NullSemanticsOptimizedExpandingVisitor();
-                var nullSemanticsExpandedOptimized = optimizedNullExpansionVisitor.VisitExpression(currentExpression);
+                var nullSemanticsExpandedOptimized = optimizedNullExpansionVisitor.Visit(currentExpression);
                 if (optimizedNullExpansionVisitor.OptimizedExpansionPossible)
                 {
                     currentExpression = nullSemanticsExpandedOptimized;
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 else
                 {
                     currentExpression = new NullSemanticsExpandingVisitor()
-                        .VisitExpression(currentExpression);
+                        .Visit(currentExpression);
                 }
             }
 
@@ -68,22 +68,22 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             var negationOptimized3 =
                 new PredicateNegationExpressionOptimizer()
-                    .VisitExpression(currentExpression);
+                    .Visit(currentExpression);
 
             currentExpression = negationOptimized3;
 
             return currentExpression;
         }
 
-        private class ParameterExpressionDetectingVisitor : ExpressionTreeVisitor
+        private class ParameterExpressionDetectingVisitor : RelinqExpressionVisitor
         {
             public bool ContainsParameters { get; set; }
 
-            protected override Expression VisitParameterExpression(ParameterExpression expression)
+            protected override Expression VisitParameter(ParameterExpression expression)
             {
                 ContainsParameters = true;
 
-                return base.VisitParameterExpression(expression);
+                return base.VisitParameter(expression);
             }
         }
     }

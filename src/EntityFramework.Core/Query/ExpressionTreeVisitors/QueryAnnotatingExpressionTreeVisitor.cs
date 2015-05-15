@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
     public class QueryAnnotatingExpressionTreeVisitor : ExpressionTreeVisitorBase
     {
-        protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.GetCustomAttribute<QueryAnnotationMethodAttribute>() != null)
             {
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                                     .Select(a => ExpressionEvaluationHelpers.Evaluate(a, out argumentName))
                                     .ToArray())));
             }
-            return base.VisitMethodCallExpression(methodCallExpression);
+            return base.VisitMethodCall(methodCallExpression);
         }
     }
 }

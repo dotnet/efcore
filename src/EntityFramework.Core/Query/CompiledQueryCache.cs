@@ -19,7 +19,7 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing;
-using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
+using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 using Remotion.Linq.Parsing.Structure;
 using Remotion.Linq.Parsing.Structure.ExpressionTreeProcessors;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.Query
             Func<Expression, IDataStore, CompiledQuery> compiler)
         {
             query = new QueryAnnotatingExpressionTreeVisitor()
-                .VisitExpression(query);
+                .Visit(query);
 
             var parameterizedQuery
                 = ParameterExtractingExpressionTreeVisitor
@@ -198,33 +198,33 @@ namespace Microsoft.Data.Entity.Query
         {
             public Expression Process(Expression expressionTree)
             {
-                return new FunctionEvaluationEnablingVisitor().VisitExpression(expressionTree);
+                return new FunctionEvaluationEnablingVisitor().Visit(expressionTree);
             }
         }
 
         private class FunctionEvaluationEnablingVisitor : ExpressionTreeVisitorBase
         {
-            protected override Expression VisitExtensionExpression(ExtensionExpression expression)
+            protected override Expression VisitExtension(Expression expression)
             {
                 var methodCallWrapper = expression as MethodCallEvaluationPreventingExpression;
                 if (methodCallWrapper != null)
                 {
-                    return VisitExpression(methodCallWrapper.MethodCall);
+                    return Visit(methodCallWrapper.MethodCall);
                 }
 
                 var propertyWrapper = expression as PropertyEvaluationPreventingExpression;
                 if (propertyWrapper != null)
                 {
-                    return VisitExpression(propertyWrapper.MemberExpression);
+                    return Visit(propertyWrapper.MemberExpression);
                 }
 
-                return base.VisitExtensionExpression(expression);
+                return base.VisitExtension(expression);
             }
 
-            protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+            protected override Expression VisitSubQuery(SubQueryExpression expression)
             {
                 var clonedModel = expression.QueryModel.Clone();
-                clonedModel.TransformExpressions(VisitExpression);
+                clonedModel.TransformExpressions(Visit);
 
                 return new SubQueryExpression(clonedModel);
             }
@@ -232,16 +232,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static CompoundNodeTypeProvider CreateNodeTypeProvider()
         {
-            var searchedTypes
-                = typeof(MethodInfoBasedNodeTypeRegistry)
-                    .GetTypeInfo()
-                    .Assembly
-                    .DefinedTypes
-                    .Select(ti => ti.AsType())
-                    .ToList();
-
-            var methodInfoBasedNodeTypeRegistry
-                = MethodInfoBasedNodeTypeRegistry.CreateFromTypes(searchedTypes);
+            var methodInfoBasedNodeTypeRegistry = MethodInfoBasedNodeTypeRegistry.CreateFromRemotionLinqAssembly();
 
             methodInfoBasedNodeTypeRegistry
                 .Register(QueryAnnotationExpressionNode.SupportedMethods, typeof(QueryAnnotationExpressionNode));
@@ -256,7 +247,7 @@ namespace Microsoft.Data.Entity.Query
                 = new INodeTypeProvider[]
                     {
                         methodInfoBasedNodeTypeRegistry,
-                        MethodNameBasedNodeTypeRegistry.CreateFromTypes(searchedTypes)
+                        MethodNameBasedNodeTypeRegistry.CreateFromRemotionLinqAssembly()
                     };
 
             return new CompoundNodeTypeProvider(innerProviders);

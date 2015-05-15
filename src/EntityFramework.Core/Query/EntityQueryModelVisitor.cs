@@ -17,10 +17,9 @@ using Microsoft.Framework.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Clauses.ExpressionTreeVisitors;
+using Remotion.Linq.Clauses.ExpressionVisitors;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Clauses.StreamedData;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -68,12 +67,12 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual StreamedSequenceInfo StreamedSequenceInfo => _streamedSequenceInfo;
 
-        protected abstract ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor([NotNull] IQuerySource querySource);
+        protected abstract ExpressionVisitor CreateQueryingExpressionTreeVisitor([NotNull] IQuerySource querySource);
 
-        protected virtual ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor([NotNull] IQuerySource querySource)
+        protected virtual ExpressionVisitor CreateProjectionExpressionTreeVisitor([NotNull] IQuerySource querySource)
             => new ProjectionExpressionTreeVisitor(this);
 
-        protected virtual ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor([NotNull] Ordering ordering)
+        protected virtual ExpressionVisitor CreateOrderingExpressionTreeVisitor([NotNull] Ordering ordering)
             => new DefaultQueryExpressionTreeVisitor(this);
 
         public virtual Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
@@ -236,7 +235,7 @@ namespace Microsoft.Data.Entity.Query
                 if (resultQuerySourceReferenceExpression != null)
                 {
                     var accessorLambda
-                        = AccessorFindingExpressionTreeVisitor
+                        = AccessorFindingExpressionVisitor
                             .FindAccessorLambda(
                                 resultQuerySourceReferenceExpression,
                                 queryModel.SelectClause.Selector,
@@ -382,7 +381,7 @@ namespace Microsoft.Data.Entity.Query
                 (from entityTrackingInfo in entityTrackingInfos
                     select
                         (Func<TResult, object>)
-                            AccessorFindingExpressionTreeVisitor
+                            AccessorFindingExpressionVisitor
                                 .FindAccessorLambda(
                                     entityTrackingInfo.QuerySourceReferenceExpression,
                                     selector,
@@ -435,7 +434,7 @@ namespace Microsoft.Data.Entity.Query
             var requiresEntityMaterializationExpressionTreeVisitor
                 = new RequiresMaterializationExpressionTreeVisitor(this);
 
-            queryModel.TransformExpressions(requiresEntityMaterializationExpressionTreeVisitor.VisitExpression);
+            queryModel.TransformExpressions(requiresEntityMaterializationExpressionTreeVisitor.Visit);
 
             _querySourcesRequiringMaterialization
                 = requiresEntityMaterializationExpressionTreeVisitor.QuerySourcesRequiringMaterialization;
@@ -451,7 +450,7 @@ namespace Microsoft.Data.Entity.Query
             {
                 _expression
                     = new TaskBlockingExpressionTreeVisitor()
-                        .VisitExpression(_expression);
+                        .Visit(_expression);
             }
         }
 
@@ -748,7 +747,7 @@ namespace Microsoft.Data.Entity.Query
 
             var expression
                 = CreateOrderingExpressionTreeVisitor(ordering)
-                    .VisitExpression(ordering.Expression);
+                    .Visit(ordering.Expression);
 
             if (expression != null)
             {
@@ -780,7 +779,7 @@ namespace Microsoft.Data.Entity.Query
             var selector
                 = ReplaceClauseReferences(
                     CreateProjectionExpressionTreeVisitor(queryModel.MainFromClause)
-                        .VisitExpression(selectClause.Selector),
+                        .Visit(selectClause.Selector),
                     inProjection: true);
 
             _expression
@@ -859,12 +858,12 @@ namespace Microsoft.Data.Entity.Query
                 .AdjustSequenceType(
                     ReplaceClauseReferences(
                         CreateQueryingExpressionTreeVisitor(querySource)
-                            .VisitExpression(expression)));
+                            .Visit(expression)));
         }
 
         private Expression ReplaceClauseReferences(Expression expression, bool inProjection = false)
             => new MemberAccessBindingExpressionTreeVisitor(_queryCompilationContext.QuerySourceMapping, this, inProjection)
-                .VisitExpression(expression);
+                .Visit(expression);
 
         public virtual Expression BindMethodCallToValueBuffer(
             [NotNull] MethodCallExpression methodCallExpression,

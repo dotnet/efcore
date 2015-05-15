@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Parsing;
 
@@ -127,7 +126,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 = new SqlTranslatingExpressionTreeVisitor(handlerContext.QueryModelVisitor);
 
             var predicate
-                = filteringVisitor.VisitExpression(
+                = filteringVisitor.Visit(
                     ((AllResultOperator)handlerContext.ResultOperator).Predicate);
 
             if (predicate != null)
@@ -314,7 +313,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     = new DiscriminatorReplacingExpressionTreeVisitor(
                         discriminatorPredicate,
                         handlerContext.QueryModel.MainFromClause)
-                        .VisitExpression(handlerContext.SelectExpression.Predicate);
+                        .Visit(handlerContext.SelectExpression.Predicate);
             }
 
             return Expression.Call(
@@ -323,7 +322,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 handlerContext.QueryModelVisitor.Expression);
         }
 
-        private class DiscriminatorReplacingExpressionTreeVisitor : ExpressionTreeVisitor
+        private class DiscriminatorReplacingExpressionTreeVisitor : RelinqExpressionVisitor
         {
             private readonly Expression _discriminatorPredicate;
             private readonly IQuerySource _querySource;
@@ -335,7 +334,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 _querySource = querySource;
             }
 
-            protected override Expression VisitExtensionExpression(ExtensionExpression expression)
+            protected override Expression VisitExtension(Expression expression)
             {
                 var discriminatorExpression = expression as DiscriminatorPredicateExpression;
 
@@ -399,7 +398,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     querySource,
                     handlerContext.QueryModelVisitor.QueryCompilationContext);
 
-            return visitor.VisitExpression(handlerContext.QueryModelVisitor.Expression);
+            return visitor.Visit(handlerContext.QueryModelVisitor.Expression);
         }
     }
 }

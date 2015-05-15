@@ -4,8 +4,6 @@
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.Utilities;
 using JetBrains.Annotations;
-using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.Expressions
 {
@@ -31,9 +29,9 @@ namespace Microsoft.Data.Entity.Query.Expressions
             return MethodCall;
         }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var newObject = visitor.VisitExpression(MethodCall.Object);
+            var newObject = visitor.Visit(MethodCall.Object);
             var newArguments = visitor.VisitAndConvert(MethodCall.Arguments, "VisitChildren");
 
             if (newObject != MethodCall.Object

@@ -8,13 +8,13 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
-    public class EqualityPredicateExpandingVisitor : ExpressionTreeVisitor
+    public class EqualityPredicateExpandingVisitor : RelinqExpressionVisitor
     {
-        protected override Expression VisitBinaryExpression(
+        protected override Expression VisitBinary(
             [NotNull] BinaryExpression expression)
         {
-            var left = VisitExpression(expression.Left);
-            var right = VisitExpression(expression.Right);
+            var left = Visit(expression.Left);
+            var right = Visit(expression.Right);
 
             if ((expression.NodeType == ExpressionType.Equal
                  || expression.NodeType == ExpressionType.NotEqual)

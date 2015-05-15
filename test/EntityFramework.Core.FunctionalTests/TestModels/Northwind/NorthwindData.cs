@@ -6,14 +6,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 {
@@ -120,13 +118,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 
             private Expression RewriteShadowPropertyAccess(Expression expression)
             {
-                return new ShadowStateAccessRewriter().VisitExpression(expression);
+                return new ShadowStateAccessRewriter().Visit(expression);
             }
         }
 
         private class ShadowStateAccessRewriter : ExpressionTreeVisitorBase
         {
-            protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
                 if (methodCallExpression.Method.IsGenericMethod)
                 {
@@ -141,7 +139,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
                     }
                 }
 
-                return base.VisitMethodCallExpression(methodCallExpression);
+                return base.VisitMethodCall(methodCallExpression);
             }
         }
 

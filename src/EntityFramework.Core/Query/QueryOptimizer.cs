@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Clauses.ExpressionTreeVisitors;
+using Remotion.Linq.Clauses.ExpressionVisitors;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Transformations;
 
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Query
                 innerSelectorMapping.AddMapping(fromClause, subQueryExpression.QueryModel.SelectClause.Selector);
 
                 queryModel.TransformExpressions(
-                    ex => ReferenceReplacingExpressionTreeVisitor
+                    ex => ReferenceReplacingExpressionVisitor
                         .ReplaceClauseReferences(ex, innerSelectorMapping, false));
 
                 InsertBodyClauses(subQueryExpression.QueryModel.BodyClauses, queryModel, destinationIndex);
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Query
                     .AddMapping(innerMainFromClause, new QuerySourceReferenceExpression(fromClause));
 
                 queryModel.TransformExpressions(ex =>
-                    ReferenceReplacingExpressionTreeVisitor.ReplaceClauseReferences(ex, innerBodyClauseMapping, false));
+                    ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(ex, innerBodyClauseMapping, false));
 
                 foreach (var queryAnnotation
                     in _queryAnnotations

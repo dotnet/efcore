@@ -11,11 +11,11 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Clauses.ExpressionTreeVisitors;
+using Remotion.Linq.Clauses.ExpressionVisitors;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
-    public class MemberAccessBindingExpressionTreeVisitor : ReferenceReplacingExpressionTreeVisitor
+    public class MemberAccessBindingExpressionTreeVisitor : ReferenceReplacingExpressionVisitor
     {
         private readonly EntityQueryModelVisitor _queryModelVisitor;
         private readonly bool _inProjection;
@@ -34,12 +34,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             _inProjection = inProjection;
         }
 
-        protected override Expression VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
+        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
         {
             var newExpression
                 = QuerySourceMapping.ContainsMapping(expression.ReferencedQuerySource)
                     ? QuerySourceMapping.GetExpression(expression.ReferencedQuerySource)
-                    : base.VisitQuerySourceReferenceExpression(expression);
+                    : base.VisitQuerySourceReference(expression);
 
             if (_inProjection
                 && newExpression.Type.IsConstructedGenericType)
@@ -67,9 +67,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             return newExpression;
         }
 
-        protected override Expression VisitMemberExpression(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            var newExpression = VisitExpression(memberExpression.Expression);
+            var newExpression = Visit(memberExpression.Expression);
 
             if (newExpression != memberExpression.Expression)
             {
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             return memberExpression;
         }
 
-        protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             MethodCallExpression newExpression = null;
 
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                     QueryExtensions.PropertyMethodInfo))
             {
                 var newArguments
-                    = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCallExpression");
+                    = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCall");
 
                 if (newArguments[0].Type == typeof(ValueBuffer))
                 {
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             if (newExpression == null)
             {
                 newExpression 
-                    = (MethodCallExpression)base.VisitMethodCallExpression(methodCallExpression);
+                    = (MethodCallExpression)base.VisitMethodCall(methodCallExpression);
             }
 
             if (newExpression != methodCallExpression

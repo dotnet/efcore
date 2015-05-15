@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         public virtual bool RequiresClientEval => _requiresClientEval;
 
-        protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.IsGenericMethod)
             {
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 if (ReferenceEquals(methodInfo, QueryExtensions.PropertyMethodInfo)
                     || ReferenceEquals(methodInfo, QueryExtensions.ValueBufferPropertyMethodInfo))
                 {
-                    var newArg0 = VisitExpression(methodCallExpression.Arguments[0]);
+                    var newArg0 = Visit(methodCallExpression.Arguments[0]);
 
                     if (newArg0 != methodCallExpression.Arguments[0])
                     {
@@ -60,16 +60,16 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
             }
 
-            return base.VisitMethodCallExpression(methodCallExpression);
+            return base.VisitMethodCall(methodCallExpression);
         }
 
-        public override Expression VisitExpression(Expression expression)
+        public override Expression Visit(Expression expression)
         {
             if (expression != null
                 && !(expression is QuerySourceReferenceExpression))
             {
                 var sqlExpression
-                    = _sqlTranslatingExpressionTreeVisitor.VisitExpression(expression);
+                    = _sqlTranslatingExpressionTreeVisitor.Visit(expression);
 
                 if (sqlExpression == null)
                 {
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
             }
 
-            return base.VisitExpression(expression);
+            return base.Visit(expression);
         }
     }
 }

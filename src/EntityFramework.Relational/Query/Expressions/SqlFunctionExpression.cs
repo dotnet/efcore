@@ -8,8 +8,6 @@ using System.Linq.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
 using JetBrains.Annotations;
-using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 using System.Collections.ObjectModel;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
@@ -31,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual IReadOnlyCollection<Expression> Arguments => _arguments;
 
-        public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
+        protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
 
@@ -42,7 +40,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 : base.Accept(visitor);
         }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var arguments = visitor.VisitAndConvert(new ReadOnlyCollection<Expression>(_arguments), "VisitChildren");
 

@@ -19,7 +19,7 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Sql
 {
-    public class DefaultQuerySqlGenerator : ThrowingExpressionTreeVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
+    public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
     {
         private readonly SelectExpression _selectExpression;
 
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             _commandParameters = new List<CommandParameter>();
             _parameterValues = parameterValues;
 
-            _selectExpression.Accept(this);
+            Visit (_selectExpression);
 
             return _sql.ToString();
         }
@@ -125,13 +125,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 else
                 {
                     var predicate = new NullComparisonTransformingVisitor(_parameterValues)
-                        .VisitExpression(selectExpression.Predicate);
+                        .Visit(selectExpression.Predicate);
 
                     // we have to optimize out comparisons to null-valued parameters before we can expand null semantics 
                     if (_parameterValues.Count > 0)
                     {
                         var optimizedNullExpansionVisitor = new NullSemanticsOptimizedExpandingVisitor();
-                        var nullSemanticsExpandedOptimized = optimizedNullExpansionVisitor.VisitExpression(predicate);
+                        var nullSemanticsExpandedOptimized = optimizedNullExpansionVisitor.Visit(predicate);
                         if (optimizedNullExpansionVisitor.OptimizedExpansionPossible)
                         {
                             predicate = nullSemanticsExpandedOptimized;
@@ -139,13 +139,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                         else
                         {
                             predicate = new NullSemanticsExpandingVisitor()
-                                .VisitExpression(predicate);
+                                .Visit(predicate);
                         }
                     }
 
-                    predicate = new ReducingExpressionVisitor().VisitExpression(predicate);
+                    predicate = new ReducingExpressionVisitor().Visit(predicate);
 
-                    VisitExpression(predicate);
+                    Visit(predicate);
 
                     if (selectExpression.Predicate is ParameterExpression
                         || selectExpression.Predicate.IsAliasWithColumnExpression())
@@ -172,12 +172,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                             }
                             else
                             {
-                                VisitExpression(aliasExpression.Expression);
+                                Visit(aliasExpression.Expression);
                             }
                         }
                         else
                         {
-                            VisitExpression(t.Expression);
+                            Visit(t.Expression);
                         }
 
                         if (t.OrderingDirection == OrderingDirection.Desc)
@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         private void VisitJoin(
             IReadOnlyList<Expression> expressions, Action<IndentedStringBuilder> joinAction = null)
-            => VisitJoin(expressions, e => VisitExpression(e), joinAction);
+            => VisitJoin(expressions, e => Visit(e), joinAction);
 
         private void VisitJoin<T>(
             IReadOnlyList<T> items, Action<T> itemAction, Action<IndentedStringBuilder> joinAction = null)
@@ -274,7 +274,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append("CROSS JOIN ");
 
-            VisitExpression(crossJoinExpression.TableExpression);
+            Visit(crossJoinExpression.TableExpression);
 
             return crossJoinExpression;
         }
@@ -294,7 +294,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append("SUM(");
 
-            VisitExpression(sumExpression.Expression);
+            Visit(sumExpression.Expression);
 
             _sql.Append(")");
 
@@ -307,7 +307,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append("MIN(");
 
-            VisitExpression(minExpression.Expression);
+            Visit(minExpression.Expression);
 
             _sql.Append(")");
 
@@ -320,7 +320,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append("MAX(");
 
-            VisitExpression(maxExpression.Expression);
+            Visit(maxExpression.Expression);
 
             _sql.Append(")");
 
@@ -338,12 +338,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     new InExpression(inExpression.Operand, inValuesNotNull),
                     new IsNullExpression(inExpression.Operand));
 
-                return VisitExpression(nullSemanticsInExpression);
+                return Visit(nullSemanticsInExpression);
             }
 
             if (inValuesNotNull.Count > 0)
             {
-                VisitExpression(inExpression.Operand);
+                Visit(inExpression.Operand);
 
                 _sql.Append(" IN (");
 
@@ -370,12 +370,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     Expression.Not(new InExpression(inExpression.Operand, inValuesNotNull)),
                     Expression.Not(new IsNullExpression(inExpression.Operand)));
 
-                return VisitExpression(nullSemanticsNotInExpression);
+                return Visit(nullSemanticsNotInExpression);
             }
 
             if (inValues.Count > 0)
             {
-                VisitExpression(inExpression.Operand);
+                Visit(inExpression.Operand);
 
                 _sql.Append(" NOT IN (");
 
@@ -456,11 +456,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append("INNER JOIN ");
 
-            VisitExpression(innerJoinExpression.TableExpression);
+            Visit(innerJoinExpression.TableExpression);
 
             _sql.Append(" ON ");
 
-            VisitExpression(innerJoinExpression.Predicate);
+            Visit(innerJoinExpression.Predicate);
 
             return innerJoinExpression;
         }
@@ -471,11 +471,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _sql.Append("LEFT JOIN ");
 
-            VisitExpression(leftOuterJoinExpression.TableExpression);
+            Visit(leftOuterJoinExpression.TableExpression);
 
             _sql.Append(" ON ");
 
-            VisitExpression(leftOuterJoinExpression.Predicate);
+            Visit(leftOuterJoinExpression.Predicate);
 
             return leftOuterJoinExpression;
         }
@@ -513,7 +513,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
         }
 
-        protected override Expression VisitConditionalExpression([NotNull] ConditionalExpression expression)
+        protected override Expression VisitConditional([NotNull] ConditionalExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -525,7 +525,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 using (_sql.Indent())
                 {
                     _sql.Append("(");
-                    VisitExpression(expression.Test);
+                    Visit(expression.Test);
                     _sql.AppendLine(")");
                 }
 
@@ -538,7 +538,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 }
                 else
                 {
-                    VisitExpression(expression.IfTrue);
+                    Visit(expression.IfTrue);
                 }
 
                 _sql.Append(" ELSE ");
@@ -550,7 +550,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 }
                 else
                 {
-                    VisitExpression(expression.IfFalse);
+                    Visit(expression.IfFalse);
                 }
 
                 _sql.AppendLine();
@@ -569,7 +569,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             using (_sql.Indent())
             {
-                VisitExpression(existsExpression.Expression);
+                Visit(existsExpression.Expression);
             }
 
             _sql.AppendLine(")");
@@ -577,16 +577,16 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return existsExpression;
         }
 
-        protected override Expression VisitBinaryExpression([NotNull] BinaryExpression binaryExpression)
+        protected override Expression VisitBinary([NotNull] BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
             if (binaryExpression.NodeType == ExpressionType.Coalesce)
             {
                 _sql.Append("COALESCE(");
-                VisitExpression(binaryExpression.Left);
+                Visit(binaryExpression.Left);
                 _sql.Append(", ");
-                VisitExpression(binaryExpression.Right);
+                Visit(binaryExpression.Right);
                 _sql.Append(")");
             }
             else
@@ -600,7 +600,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     _sql.Append("(");
                 }
 
-                VisitExpression(binaryExpression.Left);
+                Visit(binaryExpression.Left);
 
                 if (binaryExpression.IsLogicalOperation()
                     && binaryExpression.Left.IsSimpleExpression())
@@ -658,7 +658,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
                 _sql.Append(op);
 
-                VisitExpression(binaryExpression.Right);
+                Visit(binaryExpression.Right);
 
                 if (binaryExpression.IsLogicalOperation()
                     && binaryExpression.Right.IsSimpleExpression())
@@ -692,7 +692,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             Check.NotNull(aliasExpression, nameof(aliasExpression));
             if (!aliasExpression.Projected)
             {
-                VisitExpression(aliasExpression.Expression);
+                Visit(aliasExpression.Expression);
                 if (aliasExpression.Alias != null)
                 {
                     _sql.Append(" AS ");
@@ -710,7 +710,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(isNullExpression, nameof(isNullExpression));
 
-            VisitExpression(isNullExpression.Operand);
+            Visit(isNullExpression.Operand);
 
             _sql.Append(" IS NULL");
 
@@ -721,7 +721,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(isNotNullExpression, nameof(isNotNullExpression));
 
-            VisitExpression(isNotNullExpression.Operand);
+            Visit(isNotNullExpression.Operand);
 
             _sql.Append(" IS NOT NULL");
 
@@ -732,11 +732,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(likeExpression, nameof(likeExpression));
 
-            VisitExpression(likeExpression.Match);
+            Visit(likeExpression.Match);
 
             _sql.Append(" LIKE ");
 
-            VisitExpression(likeExpression.Pattern);
+            Visit(likeExpression.Pattern);
 
             return likeExpression;
         }
@@ -762,7 +762,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return sqlFunctionExpression;
         }
 
-        protected override Expression VisitUnaryExpression(UnaryExpression unaryExpression)
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             Check.NotNull(unaryExpression, nameof(unaryExpression));
 
@@ -788,12 +788,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 if (!isColumnOrParameterOperand)
                 {
                     _sql.Append("NOT (");
-                    VisitExpression(unaryExpression.Operand);
+                    Visit(unaryExpression.Operand);
                     _sql.Append(")");
                 }
                 else
                 {
-                    VisitExpression(unaryExpression.Operand);
+                    Visit(unaryExpression.Operand);
                     _sql.Append(" = ");
                     _sql.Append(FalseLiteral);
                 }
@@ -803,15 +803,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             if (unaryExpression.NodeType == ExpressionType.Convert)
             {
-                VisitExpression(unaryExpression.Operand);
+                Visit(unaryExpression.Operand);
 
                 return unaryExpression;
             }
 
-            return base.VisitUnaryExpression(unaryExpression);
+            return base.VisitUnary(unaryExpression);
         }
 
-        protected override Expression VisitConstantExpression(ConstantExpression constantExpression)
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             Check.NotNull(constantExpression, nameof(constantExpression));
 
@@ -822,7 +822,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return constantExpression;
         }
 
-        protected override Expression VisitParameterExpression(ParameterExpression parameterExpression)
+        protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
             var parameterName = ParameterPrefix + parameterExpression.Name;
             _sql.Append(parameterName);
@@ -904,7 +904,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         protected virtual string DelimitIdentifier([NotNull] string identifier)
             => "\"" + Check.NotEmpty(identifier, nameof(identifier)) + "\"";
 
-        private class NullComparisonTransformingVisitor : ExpressionTreeVisitor
+        private class NullComparisonTransformingVisitor : RelinqExpressionVisitor
         {
             private readonly IDictionary<string, object> _parameterValues;
 
@@ -913,7 +913,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 _parameterValues = parameterValues;
             }
 
-            protected override Expression VisitBinaryExpression(BinaryExpression expression)
+            protected override Expression VisitBinary(BinaryExpression expression)
             {
                 if (expression.NodeType == ExpressionType.Equal
                     || expression.NodeType == ExpressionType.NotEqual)
@@ -941,7 +941,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                     }
                 }
 
-                return base.VisitBinaryExpression(expression);
+                return base.VisitBinary(expression);
             }
         }
     }

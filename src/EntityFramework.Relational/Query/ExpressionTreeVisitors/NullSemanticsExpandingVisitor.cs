@@ -4,16 +4,15 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
-using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
     public class NullSemanticsExpandingVisitor : NullSemanticsExpressionVisitorBase
     {
-        protected override Expression VisitBinaryExpression(BinaryExpression expression)
+        protected override Expression VisitBinary(BinaryExpression expression)
         {
-            var left = VisitExpression(expression.Left);
-            var right = VisitExpression(expression.Right);
+            var left = Visit(expression.Left);
+            var right = Visit(expression.Right);
             if (expression.NodeType == ExpressionType.Equal
                 || expression.NodeType == ExpressionType.NotEqual)
             {
@@ -119,13 +118,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return Expression.MakeBinary(expression.NodeType, left, right);
         }
 
-        protected override Expression VisitExtensionExpression(ExtensionExpression expression)
+        protected override Expression VisitExtension(Expression expression)
         {
             var notNullableExpression = expression as NotNullableExpression;
 
             return notNullableExpression != null 
                 ? expression 
-                : base.VisitExtensionExpression(expression);
+                : base.VisitExtension(expression);
         }
 
         private Expression UnwrapConvertExpression(Expression expression, out Type conversionResultType)

@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         public virtual EntityQueryModelVisitor QueryModelVisitor => _entityQueryModelVisitor;
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
+        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
         {
             Check.NotNull(subQueryExpression, nameof(subQueryExpression));
 
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             => QueryModelVisitor.QueryCompilationContext
                 .CreateQueryModelVisitor(_entityQueryModelVisitor);
 
-        protected override Expression VisitParameterExpression(ParameterExpression parameterExpression)
+        protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
             if (parameterExpression.Name != null
                 && parameterExpression.Name
