@@ -1,23 +1,29 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.Utilities;
 using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Query.Expressions
 {
-    public class MethodCallEvaluationPreventingExpression : ExtensionExpression
+    public class MethodCallEvaluationPreventingExpression : Expression
     {
+        private readonly MethodCallExpression _methodCall;
+
         public MethodCallEvaluationPreventingExpression([NotNull] MethodCallExpression argument)
-            : base(argument.Type)
         {
             Check.NotNull(argument, nameof(argument));
 
-            MethodCall = argument;
+            _methodCall = argument;
         }
 
-        public virtual MethodCallExpression MethodCall { get; private set; }
+        public virtual MethodCallExpression MethodCall => _methodCall;
+
+        public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public override Type Type => _methodCall.Type;
 
         public override bool CanReduce
         {

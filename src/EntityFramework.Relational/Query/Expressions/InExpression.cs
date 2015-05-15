@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -9,12 +10,11 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class InExpression : ExtensionExpression
+    public class InExpression : Expression
     {
         public InExpression(
             [NotNull] AliasExpression operand,
             [NotNull] IReadOnlyList<Expression> values)
-            : base(typeof(bool))
         {
             Check.NotNull(operand, nameof(operand));
             Check.NotNull(values, nameof(values));
@@ -25,6 +25,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual AliasExpression Operand { get; }
         public virtual IReadOnlyList<Expression> Values { get; }
+
+        public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public override Type Type => typeof(bool);
 
         protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {

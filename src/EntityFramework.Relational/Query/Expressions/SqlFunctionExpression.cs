@@ -12,22 +12,28 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class SqlFunctionExpression : ExtensionExpression
+    public class SqlFunctionExpression : Expression
     {
         private readonly List<Expression> _arguments;
+        private readonly Type _returnType;
+
         public SqlFunctionExpression(
             [NotNull] string functionName,
             [NotNull] IEnumerable<Expression> arguments,
             [NotNull] Type returnType)
-            : base(returnType)
         {
             FunctionName = functionName;
             _arguments = arguments.ToList();
+            _returnType = returnType;
         }
 
         public virtual string FunctionName { get; [param: NotNull] set; }
 
         public virtual IReadOnlyCollection<Expression> Arguments => _arguments;
+
+        public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public override Type Type => _returnType;
 
         protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {

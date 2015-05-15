@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -9,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class ColumnExpression : ExtensionExpression
+    public class ColumnExpression : Expression
     {
         private readonly IProperty _property;
         private readonly TableExpressionBase _tableExpression;
@@ -18,7 +19,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             [NotNull] string name,
             [NotNull] IProperty property,
             [NotNull] TableExpressionBase tableExpression)
-            : base(Check.NotNull(property, nameof(property)).ClrType)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(tableExpression, nameof(tableExpression));
@@ -37,6 +37,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 #pragma warning restore 108
 
         public virtual string Name { get; }
+
+        public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public override Type Type => _property.ClrType;
 
         protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {

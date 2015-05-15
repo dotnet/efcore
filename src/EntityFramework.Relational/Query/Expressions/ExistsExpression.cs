@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
@@ -8,10 +9,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class ExistsExpression : ExtensionExpression
+    public class ExistsExpression : Expression
     {
         public ExistsExpression([NotNull] Expression expression)
-            : base(typeof(bool))
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -19,6 +19,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         }
 
         public virtual Expression Expression { get; }
+
+        public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public override Type Type => typeof(bool);
 
         protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {
