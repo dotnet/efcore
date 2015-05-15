@@ -217,12 +217,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     await testStore.Connection.OpenAsync();
                 }
 
-                var tables = await testStore.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES");
+                var tables = await testStore.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
                 Assert.Equal(1, tables.Count());
                 Assert.Equal("Blog", tables.Single());
 
                 var columns = (await testStore.QueryAsync<string>(
-                    "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS ORDER BY TABLE_NAME, COLUMN_NAME")).ToArray();
+                    "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_NAME = 'Blog' ORDER BY TABLE_NAME, COLUMN_NAME")).ToArray();
                 Assert.Equal(19, columns.Length);
 
                 Assert.Equal(
