@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
@@ -8,18 +9,16 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class AliasExpression : ExtensionExpression
+    public class AliasExpression : Expression
     {
         private readonly Expression _expression;
 
         public AliasExpression([NotNull] Expression expression)
-            : base(Check.NotNull(expression, nameof(expression)).Type)
         {
             _expression = expression;
         }
 
         public AliasExpression([CanBeNull] string alias, [NotNull] Expression expression)
-            : base(Check.NotNull(expression, nameof(expression)).Type)
         {
             Alias = alias;
             _expression = expression;
@@ -30,6 +29,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public virtual Expression Expression => _expression;
 
         public virtual bool Projected { get; set; } = false;
+
+        public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public override Type Type => _expression.Type;
 
         protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {

@@ -4,21 +4,23 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class NotNullableExpression : ExtensionExpression
+    public class NotNullableExpression : Expression
     {
         private readonly Expression _operand;
 
         public NotNullableExpression([NotNull] Expression operand)
-            : base(Check.NotNull(operand, nameof(operand)).Type)
         {
             _operand = operand;
         }
 
         public virtual Expression Operand => _operand;
+
+        public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public override Type Type => typeof(bool);
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
@@ -32,7 +34,5 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public override bool CanReduce => true;
 
         public override Expression Reduce() => _operand;
-
-        public override Type Type => typeof(bool);
     }
 }

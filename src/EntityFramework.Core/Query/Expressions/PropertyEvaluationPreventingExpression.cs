@@ -1,20 +1,26 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Query.Expressions
 {
-    public class PropertyEvaluationPreventingExpression : ExtensionExpression
+    public class PropertyEvaluationPreventingExpression : Expression
     {
+        private readonly MemberExpression _memberExpression;
+
         public PropertyEvaluationPreventingExpression([NotNull] MemberExpression argument)
-            : base(argument.Type)
         {
-            MemberExpression = argument;
+            _memberExpression = argument;
         }
 
-        public virtual MemberExpression MemberExpression { get; private set; }
+        public virtual MemberExpression MemberExpression => _memberExpression;
+
+        public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public override Type Type => _memberExpression.Type;
 
         public override bool CanReduce
         {

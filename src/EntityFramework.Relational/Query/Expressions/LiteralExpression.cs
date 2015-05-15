@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
@@ -8,10 +9,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class LiteralExpression : ExtensionExpression
+    public class LiteralExpression : Expression
     {
         public LiteralExpression([NotNull] string literal)
-            : base(Check.NotEmpty(literal, nameof(literal)).GetType())
         {
             Literal = literal;
         }
@@ -28,6 +28,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 ? specificVisitor.VisitLiteralExpression(this) 
                 : base.Accept(visitor);
         }
+
+        public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public override Type Type => typeof(string);
 
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 

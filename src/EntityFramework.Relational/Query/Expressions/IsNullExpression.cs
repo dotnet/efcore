@@ -9,17 +9,20 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class IsNullExpression : ExtensionExpression
+    public class IsNullExpression : Expression
     {
         private readonly Expression _operand;
 
         public IsNullExpression([NotNull] Expression operand)
-            : base(Check.NotNull(operand, nameof(operand)).Type)
         {
             _operand = operand;
         }
 
         public virtual Expression Operand => _operand;
+
+        public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public override Type Type => typeof (bool);
 
         protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {
@@ -40,7 +43,5 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 ? new IsNullExpression(newExpression)
                 : this;
         }
-
-        public override Type Type => typeof(bool);
     }
 }
