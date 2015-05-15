@@ -4,6 +4,7 @@
         "EntityFramework.Relational": "7.0.0-*"
     },
     "frameworks": {
+        "net45": { },
         "dnx451": { },
         "dnxcore50": {
             "dependencies": {
