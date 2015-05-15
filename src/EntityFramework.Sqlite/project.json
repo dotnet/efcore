@@ -10,7 +10,7 @@
   },
   "compile": "..\\Shared\\*.cs",
   "frameworks": {
-    "net451": { },
+    "net45": { },
     "dnxcore50": { },
     ".NETPortable,Version=v4.5,Profile=Profile7": { }
   }
