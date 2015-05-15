@@ -7,7 +7,7 @@
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "dnx451": {
+    "dnx46": {
       "frameworkAssemblies": {
         "WindowsBase": "4.0.0.0"
       }

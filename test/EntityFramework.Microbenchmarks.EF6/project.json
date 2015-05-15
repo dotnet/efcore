@@ -10,7 +10,7 @@
         "test": "xunit.runner.aspnet"
     },
     "frameworks": {
-        "dnx451": {
+        "dnx46": {
             "frameworkAssemblies": {
                 "System.ComponentModel.DataAnnotations": ""
             }
