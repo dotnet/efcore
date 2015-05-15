@@ -46,11 +46,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             for (var index = 0; index < _inputParameters.Length; index++)
             {
-                var parameterName = "p" + index;
+                var parameterName = ParameterPrefix + "p" + index;
 
                 _commandParameters.Add(new CommandParameter(parameterName, _inputParameters[index]));
 
-                substitutions[index] = ParameterPrefix + parameterName;
+                substitutions[index] = parameterName;
             }
 
             return string.Format(_sql, substitutions);

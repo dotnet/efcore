@@ -399,8 +399,8 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 var query = ctx.Customers.Where(c => c.FirstName == firstName && c.LastName == details.LastName).ToList();
 
                 var expectedSql =
-@"__firstName_0: Foo
-__8__locals1_details_LastName_1: Bar
+@"@__firstName_0: Foo
+@__8__locals1_details_LastName_1: Bar
 
 SELECT [c].[FirstName], [c].[LastName]
 FROM [Customer] AS [c]

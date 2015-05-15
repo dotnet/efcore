@@ -89,8 +89,8 @@ WHERE
             base.From_sql_queryable_with_parameters();
 
             Assert.Equal(
-                @"p0: London
-p1: Sales Representative
+                @"@p0: London
+@p1: Sales Representative
 
 SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
                 Sql);
@@ -101,8 +101,8 @@ SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
             base.From_sql_queryable_with_parameters_and_closure();
 
             Assert.Equal(
-                @"p0: London
-__contactTitle_0: Sales Representative
+                @"@p0: London
+@__contactTitle_0: Sales Representative
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
@@ -128,13 +128,13 @@ SELECT * FROM Customers WHERE Customers.City = 'Seattle'",
             base.From_sql_queryable_with_parameters_cache_key_includes_parameters();
 
             Assert.Equal(
-                @"p0: London
-p1: Sales Representative
+                @"@p0: London
+@p1: Sales Representative
 
 SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1
 
-p0: Madrid
-p1: Accounting Manager
+@p0: Madrid
+@p1: Accounting Manager
 
 SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
                 Sql);

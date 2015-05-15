@@ -47,13 +47,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         = context.Customers.Where(c => c.City == city).ToList();
                 }
                 Assert.Contains(Internal.Strings.DebugLogWarning(nameof(LogLevel.Debug), nameof(ILoggerFactory) + "." + nameof(ILoggerFactory.MinimumLevel), nameof(LogLevel) + "." + nameof(LogLevel.Verbose)), TestSqlLoggerFactory.Log);
-                Assert.Equal(@"__city_0: Seattle
+                Assert.Equal(@"@__city_0: Seattle
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_0
 
-__city_0: Redmond
+@__city_0: Redmond
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
