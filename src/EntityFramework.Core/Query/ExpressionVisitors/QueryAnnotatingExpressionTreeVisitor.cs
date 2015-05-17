@@ -7,7 +7,7 @@ using System.Reflection;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query.Annotations;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class QueryAnnotatingExpressionTreeVisitor : ExpressionTreeVisitorBase
     {

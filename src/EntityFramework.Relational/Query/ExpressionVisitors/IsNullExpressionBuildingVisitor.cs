@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
     public class IsNullExpressionBuildingVisitor : RelinqExpressionVisitor
     {

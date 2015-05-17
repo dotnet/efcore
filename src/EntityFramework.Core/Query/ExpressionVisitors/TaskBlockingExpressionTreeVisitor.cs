@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class TaskBlockingExpressionTreeVisitor : ExpressionTreeVisitorBase
     {
