@@ -12,12 +12,12 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
-    public class ResultTransformingExpressionTreeVisitor<TResult> : ExpressionTreeVisitorBase
+    public class ResultTransformingExpressionVisitor<TResult> : ExpressionVisitorBase
     {
         private readonly IQuerySource _outerQuerySource;
         private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
 
-        public ResultTransformingExpressionTreeVisitor(
+        public ResultTransformingExpressionVisitor(
             [NotNull] IQuerySource outerQuerySource,
             [NotNull] RelationalQueryCompilationContext relationalQueryCompilationContext)
         {

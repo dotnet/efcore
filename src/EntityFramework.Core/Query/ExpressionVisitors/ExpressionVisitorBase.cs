@@ -7,7 +7,7 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public abstract class ExpressionTreeVisitorBase : RelinqExpressionVisitor
+    public abstract class ExpressionVisitorBase : RelinqExpressionVisitor
     {
         public override Expression Visit([CanBeNull] Expression expression)
             => expression == null

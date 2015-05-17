@@ -24,9 +24,9 @@ namespace Microsoft.Data.Entity.InMemory.Query
         {
         }
 
-        protected override ExpressionVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
+        protected override ExpressionVisitor CreateQueryingExpressionVisitor(IQuerySource querySource)
         {
-            return new InMemoryEntityQueryableExpressionTreeVisitor(this, querySource);
+            return new InMemoryEntityQueryableExpressionVisitor(this, querySource);
         }
 
         protected override void IncludeNavigations(
@@ -173,11 +173,11 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .SelectMany(t => t.Select(vs => new ValueBuffer(vs)));
         }
 
-        private class InMemoryEntityQueryableExpressionTreeVisitor : EntityQueryableExpressionTreeVisitor
+        private class InMemoryEntityQueryableExpressionVisitor : EntityQueryableExpressionVisitor
         {
             private readonly IQuerySource _querySource;
 
-            public InMemoryEntityQueryableExpressionTreeVisitor(
+            public InMemoryEntityQueryableExpressionVisitor(
                 EntityQueryModelVisitor entityQueryModelVisitor, IQuerySource querySource)
                 : base(entityQueryModelVisitor)
             {

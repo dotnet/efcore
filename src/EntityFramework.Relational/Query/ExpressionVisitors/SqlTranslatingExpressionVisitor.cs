@@ -13,12 +13,12 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
-    public class SqlTranslatingExpressionTreeVisitor : ThrowingExpressionVisitor
+    public class SqlTranslatingExpressionVisitor : ThrowingExpressionVisitor
     {
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
         private readonly Expression _topLevelPredicate;
 
-        public SqlTranslatingExpressionTreeVisitor(
+        public SqlTranslatingExpressionVisitor(
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [CanBeNull] Expression topLevelPredicate = null)
         {

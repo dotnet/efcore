@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
             }
         }
 
-        private class ShadowStateAccessRewriter : ExpressionTreeVisitorBase
+        private class ShadowStateAccessRewriter : ExpressionVisitorBase
         {
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {

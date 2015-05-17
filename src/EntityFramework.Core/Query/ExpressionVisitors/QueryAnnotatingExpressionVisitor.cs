@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Query.Annotations;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class QueryAnnotatingExpressionTreeVisitor : ExpressionTreeVisitorBase
+    public class QueryAnnotatingExpressionVisitor : ExpressionVisitorBase
     {
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {

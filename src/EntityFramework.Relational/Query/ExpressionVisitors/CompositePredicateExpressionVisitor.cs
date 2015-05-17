@@ -8,11 +8,11 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
-    public class CompositePredicateExpressionTreeVisitor : RelinqExpressionVisitor
+    public class CompositePredicateExpressionVisitor : RelinqExpressionVisitor
     {
         private bool _useRelationalNullSemantics;
 
-        public CompositePredicateExpressionTreeVisitor(bool useRelationalNullSemantics)
+        public CompositePredicateExpressionVisitor(bool useRelationalNullSemantics)
         {
             _useRelationalNullSemantics = useRelationalNullSemantics;
         }

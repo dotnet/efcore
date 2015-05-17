@@ -9,11 +9,11 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class DefaultQueryExpressionTreeVisitor : ExpressionTreeVisitorBase
+    public class DefaultQueryExpressionVisitor : ExpressionVisitorBase
     {
         private readonly EntityQueryModelVisitor _entityQueryModelVisitor;
 
-        public DefaultQueryExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
+        public DefaultQueryExpressionVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
         {
             Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor));
 
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         }
 
         private static readonly MethodInfo _getParameterValueMethodInfo
-            = typeof(DefaultQueryExpressionTreeVisitor)
+            = typeof(DefaultQueryExpressionVisitor)
                 .GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue));
 
         [UsedImplicitly]

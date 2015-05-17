@@ -10,7 +10,7 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class FunctionEvaluationDisablingVisitor : ExpressionTreeVisitorBase
+    public class FunctionEvaluationDisablingVisitor : ExpressionVisitorBase
     {
         public static readonly MethodInfo DbContextSetMethodInfo
             = typeof(DbContext).GetTypeInfo().GetDeclaredMethod("Set");

@@ -11,12 +11,12 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class RequiresMaterializationExpressionTreeVisitor : ExpressionTreeVisitorBase
+    public class RequiresMaterializationExpressionVisitor : ExpressionVisitorBase
     {
         private readonly EntityQueryModelVisitor _queryModelVisitor;
         private readonly Dictionary<IQuerySource, int> _querySources = new Dictionary<IQuerySource, int>();
 
-        public RequiresMaterializationExpressionTreeVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
+        public RequiresMaterializationExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
         {
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 

@@ -17,14 +17,14 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
-    public class RelationalEntityQueryableExpressionTreeVisitor : EntityQueryableExpressionTreeVisitor
+    public class RelationalEntityQueryableExpressionVisitor : EntityQueryableExpressionVisitor
     {
         private static readonly ParameterExpression _valueBufferParameter
             = Expression.Parameter(typeof(ValueBuffer));
 
         private readonly IQuerySource _querySource;
 
-        public RelationalEntityQueryableExpressionTreeVisitor(
+        public RelationalEntityQueryableExpressionVisitor(
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [NotNull] IQuerySource querySource)
             : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))

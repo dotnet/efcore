@@ -17,7 +17,7 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
-    public class IncludeExpressionTreeVisitor : ExpressionTreeVisitorBase
+    public class IncludeExpressionVisitor : ExpressionVisitorBase
     {
         private readonly IQuerySource _querySource;
         private readonly IReadOnlyList<INavigation> _navigationPath;
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 
         private bool _foundCreateEntityForQuerySource;
 
-        public IncludeExpressionTreeVisitor(
+        public IncludeExpressionVisitor(
             [NotNull] IQuerySource querySource,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
