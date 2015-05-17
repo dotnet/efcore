@@ -13,7 +13,7 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
     public class MaterializerFactory
     {

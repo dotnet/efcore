@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class EntityResultFindingExpressionTreeVisitor : ExpressionTreeVisitorBase
     {

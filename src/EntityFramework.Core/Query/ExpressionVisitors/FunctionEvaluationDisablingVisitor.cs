@@ -8,7 +8,7 @@ using System.Reflection;
 using Microsoft.Data.Entity.Query.Expressions;
 using Remotion.Linq.Clauses.Expressions;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class FunctionEvaluationDisablingVisitor : ExpressionTreeVisitorBase
     {

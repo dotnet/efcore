@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public abstract class ExpressionTreeVisitorBase : RelinqExpressionVisitor
     {

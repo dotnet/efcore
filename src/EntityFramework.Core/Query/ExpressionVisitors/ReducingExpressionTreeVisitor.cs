@@ -4,9 +4,8 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class ReducingExpressionVisitor : ExpressionTreeVisitorBase
     {

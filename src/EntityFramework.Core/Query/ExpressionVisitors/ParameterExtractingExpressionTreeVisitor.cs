@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class ParameterExtractingExpressionTreeVisitor : ExpressionTreeVisitorBase
     {

@@ -12,7 +12,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class ExpressionStringBuilder : ExpressionVisitor
     {

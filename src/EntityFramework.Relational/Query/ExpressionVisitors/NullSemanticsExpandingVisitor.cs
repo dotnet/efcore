@@ -5,7 +5,7 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 
-namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
     public class NullSemanticsExpandingVisitor : NullSemanticsExpressionVisitorBase
     {

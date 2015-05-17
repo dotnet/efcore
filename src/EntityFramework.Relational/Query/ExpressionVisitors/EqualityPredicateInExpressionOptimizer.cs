@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
     public class EqualityPredicateInExpressionOptimizer : RelinqExpressionVisitor
     {

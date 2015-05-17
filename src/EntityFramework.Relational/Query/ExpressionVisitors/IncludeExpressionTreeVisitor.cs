@@ -9,13 +9,13 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
+using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
     public class IncludeExpressionTreeVisitor : ExpressionTreeVisitorBase
     {

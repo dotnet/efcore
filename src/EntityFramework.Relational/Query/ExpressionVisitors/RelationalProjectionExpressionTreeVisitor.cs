@@ -5,13 +5,13 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
+using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
-namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
+namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
     public class RelationalProjectionExpressionTreeVisitor : ProjectionExpressionTreeVisitor
     {

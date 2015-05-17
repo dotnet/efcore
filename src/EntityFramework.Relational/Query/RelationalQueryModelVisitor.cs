@@ -13,7 +13,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
-using Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors;
+using Microsoft.Data.Entity.Relational.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
