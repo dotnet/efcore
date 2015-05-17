@@ -38,6 +38,22 @@ namespace Microsoft.Data.Entity.Query
             public Delegate Executor;
         }
 
+        private class ReadonlyNodeTypeProvider : INodeTypeProvider
+        {
+            private readonly INodeTypeProvider _nodeTypeProvider;
+
+            public ReadonlyNodeTypeProvider(INodeTypeProvider nodeTypeProvider)
+            {
+                _nodeTypeProvider = nodeTypeProvider;
+            }
+
+            public bool IsRegistered(MethodInfo method) => _nodeTypeProvider.IsRegistered(method);
+
+            public Type GetNodeType(MethodInfo method) => _nodeTypeProvider.GetNodeType(method);
+        }
+
+        private static readonly Lazy<ReadonlyNodeTypeProvider> _cachedNodeTypeProvider = new Lazy<ReadonlyNodeTypeProvider>(CreateNodeTypeProvider);
+
         private readonly IMemoryCache _memoryCache;
 
         public CompiledQueryCache([NotNull] IMemoryCache memoryCache)
@@ -185,7 +201,7 @@ namespace Microsoft.Data.Entity.Query
         private static QueryParser CreateQueryParser()
             => new QueryParser(
                 new ExpressionTreeParser(
-                    CreateNodeTypeProvider(),
+                    _cachedNodeTypeProvider.Value,
                     new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
                         {
                             new PartialEvaluatingExpressionTreeProcessor(),
@@ -229,7 +245,7 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        private static CompoundNodeTypeProvider CreateNodeTypeProvider()
+        private static ReadonlyNodeTypeProvider CreateNodeTypeProvider()
         {
             var methodInfoBasedNodeTypeRegistry = MethodInfoBasedNodeTypeRegistry.CreateFromRemotionLinqAssembly();
 
@@ -249,7 +265,7 @@ namespace Microsoft.Data.Entity.Query
                         MethodNameBasedNodeTypeRegistry.CreateFromRemotionLinqAssembly()
                     };
 
-            return new CompoundNodeTypeProvider(innerProviders);
+            return new ReadonlyNodeTypeProvider(new CompoundNodeTypeProvider(innerProviders));
         }
     }
 }
