@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                ? specificVisitor.VisitRawSqlDerivedTableExpression(this)
+                ? specificVisitor.VisitRawSqlDerivedTable(this)
                 : base.Accept(visitor);
         }
 
