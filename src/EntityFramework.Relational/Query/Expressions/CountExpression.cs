@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null 
-                ? specificVisitor.VisitCountExpression(this) 
+                ? specificVisitor.VisitCount(this) 
                 : base.Accept(visitor);
         }
 

@@ -593,7 +593,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                ? specificVisitor.VisitSelectExpression(this)
+                ? specificVisitor.VisitSelect(this)
                 : base.Accept(visitor);
         }
 

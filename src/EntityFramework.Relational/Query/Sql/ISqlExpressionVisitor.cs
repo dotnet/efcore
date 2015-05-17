@@ -9,23 +9,23 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 {
     public interface ISqlExpressionVisitor
     {
-        Expression VisitColumnExpression([NotNull] ColumnExpression columnExpression);
-        Expression VisitAliasExpression([NotNull] AliasExpression aliasExpression);
-        Expression VisitIsNullExpression([NotNull] IsNullExpression isNullExpression);
-        Expression VisitLikeExpression([NotNull] LikeExpression likeExpression);
-        Expression VisitLiteralExpression([NotNull] LiteralExpression literalExpression);
-        Expression VisitSelectExpression([NotNull] SelectExpression selectExpression);
-        Expression VisitTableExpression([NotNull] TableExpression tableExpression);
-        Expression VisitRawSqlDerivedTableExpression([NotNull] RawSqlDerivedTableExpression rawSqlDerivedTableExpression);
-        Expression VisitCrossJoinExpression([NotNull] CrossJoinExpression crossJoinExpression);
-        Expression VisitInnerJoinExpression([NotNull] InnerJoinExpression innerJoinExpression);
-        Expression VisitOuterJoinExpression([NotNull] LeftOuterJoinExpression leftOuterJoinExpression);
-        Expression VisitExistsExpression([NotNull] ExistsExpression existsExpression);
-        Expression VisitCountExpression([NotNull] CountExpression countExpression);
-        Expression VisitSumExpression([NotNull] SumExpression sumExpression);
-        Expression VisitMinExpression([NotNull] MinExpression minExpression);
-        Expression VisitMaxExpression([NotNull] MaxExpression maxExpression);
-        Expression VisitInExpression([NotNull] InExpression inExpression);
-        Expression VisitSqlFunctionExpression([NotNull] SqlFunctionExpression sqlFunctionExpression);
+        Expression VisitColumn([NotNull] ColumnExpression columnExpression);
+        Expression VisitAlias([NotNull] AliasExpression aliasExpression);
+        Expression VisitIsNull([NotNull] IsNullExpression isNullExpression);
+        Expression VisitLike([NotNull] LikeExpression likeExpression);
+        Expression VisitLiteral([NotNull] LiteralExpression literalExpression);
+        Expression VisitSelect([NotNull] SelectExpression selectExpression);
+        Expression VisitTable([NotNull] TableExpression tableExpression);
+        Expression VisitRawSqlDerivedTable([NotNull] RawSqlDerivedTableExpression rawSqlDerivedTableExpression);
+        Expression VisitCrossJoin([NotNull] CrossJoinExpression crossJoinExpression);
+        Expression VisitInnerJoin([NotNull] InnerJoinExpression innerJoinExpression);
+        Expression VisitOuterJoin([NotNull] LeftOuterJoinExpression leftOuterJoinExpression);
+        Expression VisitExists([NotNull] ExistsExpression existsExpression);
+        Expression VisitCount([NotNull] CountExpression countExpression);
+        Expression VisitSum([NotNull] SumExpression sumExpression);
+        Expression VisitMin([NotNull] MinExpression minExpression);
+        Expression VisitMax([NotNull] MaxExpression maxExpression);
+        Expression VisitIn([NotNull] InExpression inExpression);
+        Expression VisitSqlFunction([NotNull] SqlFunctionExpression sqlFunctionExpression);
     }
 }

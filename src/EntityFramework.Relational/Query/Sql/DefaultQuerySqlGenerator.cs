@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         protected virtual string TypedTrueLiteral => "CAST(1 AS BIT)";
         protected virtual string TypedFalseLiteral => "CAST(0 AS BIT)";
 
-        public virtual Expression VisitSelectExpression(SelectExpression selectExpression)
+        public virtual Expression VisitSelect(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
         }
 
-        public virtual Expression VisitRawSqlDerivedTableExpression(RawSqlDerivedTableExpression rawSqlDerivedTableExpression)
+        public virtual Expression VisitRawSqlDerivedTable(RawSqlDerivedTableExpression rawSqlDerivedTableExpression)
         {
             Check.NotNull(rawSqlDerivedTableExpression, nameof(rawSqlDerivedTableExpression));
 
@@ -251,7 +251,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return rawSqlDerivedTableExpression;
         }
 
-        public virtual Expression VisitTableExpression(TableExpression tableExpression)
+        public virtual Expression VisitTable(TableExpression tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
@@ -268,7 +268,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return tableExpression;
         }
 
-        public virtual Expression VisitCrossJoinExpression(CrossJoinExpression crossJoinExpression)
+        public virtual Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression)
         {
             Check.NotNull(crossJoinExpression, nameof(crossJoinExpression));
 
@@ -279,7 +279,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return crossJoinExpression;
         }
 
-        public virtual Expression VisitCountExpression(CountExpression countExpression)
+        public virtual Expression VisitCount(CountExpression countExpression)
         {
             Check.NotNull(countExpression, nameof(countExpression));
 
@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return countExpression;
         }
 
-        public virtual Expression VisitSumExpression(SumExpression sumExpression)
+        public virtual Expression VisitSum(SumExpression sumExpression)
         {
             Check.NotNull(sumExpression, nameof(sumExpression));
 
@@ -301,7 +301,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return sumExpression;
         }
 
-        public virtual Expression VisitMinExpression(MinExpression minExpression)
+        public virtual Expression VisitMin(MinExpression minExpression)
         {
             Check.NotNull(minExpression, nameof(minExpression));
 
@@ -314,7 +314,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return minExpression;
         }
 
-        public virtual Expression VisitMaxExpression(MaxExpression maxExpression)
+        public virtual Expression VisitMax(MaxExpression maxExpression)
         {
             Check.NotNull(maxExpression, nameof(maxExpression));
 
@@ -327,7 +327,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return maxExpression;
         }
 
-        public virtual Expression VisitInExpression(InExpression inExpression)
+        public virtual Expression VisitIn(InExpression inExpression)
         {
             var inValues = ProcessInExpressionValues(inExpression.Values);
             var inValuesNotNull = ExtractNonNullExpressionValues(inValues);
@@ -359,7 +359,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return inExpression;
         }
 
-        protected virtual Expression VisitNotInExpression(InExpression inExpression)
+        protected virtual Expression VisitNotIn(InExpression inExpression)
         {
             var inValues = ProcessInExpressionValues(inExpression.Values);
             var inValuesNotNull = ExtractNonNullExpressionValues(inValues);
@@ -450,7 +450,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return inValuesNotNull;
         }
 
-        public virtual Expression VisitInnerJoinExpression(InnerJoinExpression innerJoinExpression)
+        public virtual Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression)
         {
             Check.NotNull(innerJoinExpression, nameof(innerJoinExpression));
 
@@ -465,7 +465,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return innerJoinExpression;
         }
 
-        public virtual Expression VisitOuterJoinExpression(LeftOuterJoinExpression leftOuterJoinExpression)
+        public virtual Expression VisitOuterJoin(LeftOuterJoinExpression leftOuterJoinExpression)
         {
             Check.NotNull(leftOuterJoinExpression, nameof(leftOuterJoinExpression));
 
@@ -561,7 +561,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return expression;
         }
 
-        public virtual Expression VisitExistsExpression(ExistsExpression existsExpression)
+        public virtual Expression VisitExists(ExistsExpression existsExpression)
         {
             Check.NotNull(existsExpression, nameof(existsExpression));
 
@@ -676,7 +676,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return binaryExpression;
         }
 
-        public virtual Expression VisitColumnExpression(ColumnExpression columnExpression)
+        public virtual Expression VisitColumn(ColumnExpression columnExpression)
         {
             Check.NotNull(columnExpression, nameof(columnExpression));
 
@@ -687,7 +687,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return columnExpression;
         }
 
-        public virtual Expression VisitAliasExpression(AliasExpression aliasExpression)
+        public virtual Expression VisitAlias(AliasExpression aliasExpression)
         {
             Check.NotNull(aliasExpression, nameof(aliasExpression));
             if (!aliasExpression.Projected)
@@ -706,7 +706,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return aliasExpression;
         }
 
-        public virtual Expression VisitIsNullExpression(IsNullExpression isNullExpression)
+        public virtual Expression VisitIsNull(IsNullExpression isNullExpression)
         {
             Check.NotNull(isNullExpression, nameof(isNullExpression));
 
@@ -717,7 +717,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return isNullExpression;
         }
 
-        public virtual Expression VisitIsNotNullExpression([NotNull] IsNullExpression isNotNullExpression)
+        public virtual Expression VisitIsNotNull([NotNull] IsNullExpression isNotNullExpression)
         {
             Check.NotNull(isNotNullExpression, nameof(isNotNullExpression));
 
@@ -728,7 +728,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return isNotNullExpression;
         }
 
-        public virtual Expression VisitLikeExpression(LikeExpression likeExpression)
+        public virtual Expression VisitLike(LikeExpression likeExpression)
         {
             Check.NotNull(likeExpression, nameof(likeExpression));
 
@@ -741,7 +741,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return likeExpression;
         }
 
-        public virtual Expression VisitLiteralExpression(LiteralExpression literalExpression)
+        public virtual Expression VisitLiteral(LiteralExpression literalExpression)
         {
             Check.NotNull(literalExpression, nameof(literalExpression));
 
@@ -750,7 +750,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return literalExpression;
         }
 
-        public virtual Expression VisitSqlFunctionExpression(SqlFunctionExpression sqlFunctionExpression)
+        public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
             _sql.Append(sqlFunctionExpression.FunctionName);
             _sql.Append("(");
@@ -771,13 +771,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 var inExpression = unaryExpression.Operand as InExpression;
                 if (inExpression != null)
                 {
-                    return VisitNotInExpression(inExpression);
+                    return VisitNotIn(inExpression);
                 }
 
                 var isNullExpression = unaryExpression.Operand as IsNullExpression;
                 if (isNullExpression != null)
                 {
-                    return VisitIsNotNullExpression(isNullExpression);
+                    return VisitIsNotNull(isNullExpression);
                 }
 
                 var isColumnOrParameterOperand =

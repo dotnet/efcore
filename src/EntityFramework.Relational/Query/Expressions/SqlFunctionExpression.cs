@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                ? specificVisitor.VisitSqlFunctionExpression(this)
+                ? specificVisitor.VisitSqlFunction(this)
                 : base.Accept(visitor);
         }
 

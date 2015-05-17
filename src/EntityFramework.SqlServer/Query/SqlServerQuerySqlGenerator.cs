@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query
         protected override string DelimitIdentifier(string identifier)
             => "[" + identifier.Replace("]", "]]") + "]";
 
-        public override Expression VisitCountExpression(CountExpression countExpression)
+        public override Expression VisitCount(CountExpression countExpression)
         {
             Check.NotNull(countExpression, nameof(countExpression));
 
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query
                 return countExpression;
             }
 
-            return base.VisitCountExpression(countExpression);
+            return base.VisitCount(countExpression);
         }
 
         protected override void GenerateLimitOffset(SelectExpression selectExpression)

@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                ? specificVisitor.VisitCrossJoinExpression(this)
+                ? specificVisitor.VisitCrossJoin(this)
                 : base.Accept(visitor);
         }
 

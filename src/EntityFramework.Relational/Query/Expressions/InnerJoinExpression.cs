@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                ? specificVisitor.VisitInnerJoinExpression(this)
+                ? specificVisitor.VisitInnerJoin(this)
                 : base.Accept(visitor);
         }
 
