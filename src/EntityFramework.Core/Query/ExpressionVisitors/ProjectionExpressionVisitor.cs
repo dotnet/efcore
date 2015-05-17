@@ -11,9 +11,9 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class ProjectionExpressionTreeVisitor : DefaultQueryExpressionTreeVisitor
+    public class ProjectionExpressionVisitor : DefaultQueryExpressionVisitor
     {
-        public ProjectionExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
+        public ProjectionExpressionVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
             : base(Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)))
         {
         }

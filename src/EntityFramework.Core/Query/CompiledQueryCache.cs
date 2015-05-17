@@ -139,11 +139,11 @@ namespace Microsoft.Data.Entity.Query
             bool isAsync,
             Func<Expression, IDataStore, CompiledQuery> compiler)
         {
-            query = new QueryAnnotatingExpressionTreeVisitor()
+            query = new QueryAnnotatingExpressionVisitor()
                 .Visit(query);
 
             var parameterizedQuery
-                = ParameterExtractingExpressionTreeVisitor
+                = ParameterExtractingExpressionVisitor
                     .ExtractParameters(query, queryContext);
 
             var cacheKey
@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        private class FunctionEvaluationEnablingVisitor : ExpressionTreeVisitorBase
+        private class FunctionEvaluationEnablingVisitor : ExpressionVisitorBase
         {
             protected override Expression VisitExtension(Expression expression)
             {

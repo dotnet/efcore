@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         private bool _requiresClientFilter;
         private bool _requiresClientResultOperator;
 
-        private RelationalProjectionExpressionTreeVisitor _projectionTreeVisitor;
+        private RelationalProjectionExpressionVisitor _projectionVisitor;
 
         public RelationalQueryModelVisitor(
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public virtual bool RequiresClientEval { get; set; }
         public virtual bool RequiresClientFilter => _requiresClientFilter || RequiresClientEval;
-        public virtual bool RequiresClientProjection => _projectionTreeVisitor.RequiresClientEval || RequiresClientEval;
+        public virtual bool RequiresClientProjection => _projectionVisitor.RequiresClientEval || RequiresClientEval;
         public virtual bool RequiresClientResultOperator
         {
             get { return _requiresClientResultOperator || RequiresClientEval; }
@@ -71,25 +71,25 @@ namespace Microsoft.Data.Entity.Relational.Query
                 : _queriesBySource.Values.SingleOrDefault(se => se.HandlesQuerySource(querySource)));
         }
 
-        protected override ExpressionVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
+        protected override ExpressionVisitor CreateQueryingExpressionVisitor(IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            return new RelationalEntityQueryableExpressionTreeVisitor(this, querySource);
+            return new RelationalEntityQueryableExpressionVisitor(this, querySource);
         }
 
-        protected override ExpressionVisitor CreateProjectionExpressionTreeVisitor(IQuerySource querySource)
+        protected override ExpressionVisitor CreateProjectionExpressionVisitor(IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            return _projectionTreeVisitor
-                = new RelationalProjectionExpressionTreeVisitor(this, querySource);
+            return _projectionVisitor
+                = new RelationalProjectionExpressionVisitor(this, querySource);
         }
 
         public override void VisitQueryModel(QueryModel queryModel)
         {
             base.VisitQueryModel(queryModel);
-            var compositePredicateVisitor = new CompositePredicateExpressionTreeVisitor(
+            var compositePredicateVisitor = new CompositePredicateExpressionVisitor(
                 QueryCompilationContext
                     .GetCustomQueryAnnotations(RelationalQueryableExtensions.UseRelationalNullSemanticsMethodInfo)
                     .Any());
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             Check.NotNull(navigationPath, nameof(navigationPath));
 
             Expression
-                = new IncludeExpressionTreeVisitor(
+                = new IncludeExpressionVisitor(
                     querySource,
                     navigationPath,
                     QueryCompilationContext,
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         _queriesBySource.Remove(fromClause);
 
                         Expression
-                            = new QueryFlatteningExpressionTreeVisitor(
+                            = new QueryFlatteningExpressionVisitor(
                                 previousQuerySource,
                                 fromClause,
                                 QueryCompilationContext,
@@ -184,11 +184,11 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 if (selectExpression != null)
                 {
-                    var filteringExpressionTreeVisitor
-                        = new SqlTranslatingExpressionTreeVisitor(this);
+                    var filteringExpressionVisitor
+                        = new SqlTranslatingExpressionVisitor(this);
 
                     var predicate
-                        = filteringExpressionTreeVisitor
+                        = filteringExpressionVisitor
                             .Visit(
                                 Expression.Equal(
                                     joinClause.OuterKeySelector,
@@ -211,7 +211,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         innerJoinExpression.Predicate = predicate;
 
                         Expression
-                            = new QueryFlatteningExpressionTreeVisitor(
+                            = new QueryFlatteningExpressionVisitor(
                                 previousQuerySource,
                                 joinClause,
                                 QueryCompilationContext,
@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             if (!requiresClientFilter)
             {
-                var translatingVisitor = new SqlTranslatingExpressionTreeVisitor(this, whereClause.Predicate);
+                var translatingVisitor = new SqlTranslatingExpressionVisitor(this, whereClause.Predicate);
                 var sqlPredicateExpression = translatingVisitor.Visit(whereClause.Predicate);
 
                 if (sqlPredicateExpression != null)
@@ -271,15 +271,15 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             if (!requiresClientOrderBy)
             {
-                var sqlTranslatingExpressionTreeVisitor
-                    = new SqlTranslatingExpressionTreeVisitor(this);
+                var sqlTranslatingExpressionVisitor
+                    = new SqlTranslatingExpressionVisitor(this);
 
                 var orderings = new List<Ordering>();
 
                 foreach (var ordering in orderByClause.Orderings)
                 {
                     var sqlOrderingExpression
-                        = sqlTranslatingExpressionTreeVisitor
+                        = sqlTranslatingExpressionVisitor
                             .Visit(ordering.Expression);
 
                     if (sqlOrderingExpression == null)

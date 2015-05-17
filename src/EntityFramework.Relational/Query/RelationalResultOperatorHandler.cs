@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         private static Expression HandleAll(HandlerContext handlerContext)
         {
             var filteringVisitor
-                = new SqlTranslatingExpressionTreeVisitor(handlerContext.QueryModelVisitor);
+                = new SqlTranslatingExpressionVisitor(handlerContext.QueryModelVisitor);
 
             var predicate
                 = filteringVisitor.Visit(
@@ -310,7 +310,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         .Aggregate((current, next) => Expression.OrElse(next, current));
 
                 handlerContext.SelectExpression.Predicate
-                    = new DiscriminatorReplacingExpressionTreeVisitor(
+                    = new DiscriminatorReplacingExpressionVisitor(
                         discriminatorPredicate,
                         handlerContext.QueryModel.MainFromClause)
                         .Visit(handlerContext.SelectExpression.Predicate);
@@ -322,12 +322,12 @@ namespace Microsoft.Data.Entity.Relational.Query
                 handlerContext.QueryModelVisitor.Expression);
         }
 
-        private class DiscriminatorReplacingExpressionTreeVisitor : RelinqExpressionVisitor
+        private class DiscriminatorReplacingExpressionVisitor : RelinqExpressionVisitor
         {
             private readonly Expression _discriminatorPredicate;
             private readonly IQuerySource _querySource;
 
-            public DiscriminatorReplacingExpressionTreeVisitor(
+            public DiscriminatorReplacingExpressionVisitor(
                 Expression discriminatorPredicate, IQuerySource querySource)
             {
                 _discriminatorPredicate = discriminatorPredicate;
@@ -394,7 +394,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                   ?? handlerContext.QueryModel.MainFromClause;
 
             var visitor
-                = new ResultTransformingExpressionTreeVisitor<TResult>(
+                = new ResultTransformingExpressionVisitor<TResult>(
                     querySource,
                     handlerContext.QueryModelVisitor.QueryCompilationContext);
 

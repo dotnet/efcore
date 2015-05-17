@@ -12,7 +12,7 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
-    public class QueryFlatteningExpressionTreeVisitor : ExpressionTreeVisitorBase
+    public class QueryFlatteningExpressionVisitor : ExpressionVisitorBase
     {
         private readonly IQuerySource _outerQuerySource;
         private readonly IQuerySource _innerQuerySource;
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
         private Expression _outerShaperExpression;
         private Expression _outerCommandBuilder;
 
-        public QueryFlatteningExpressionTreeVisitor(
+        public QueryFlatteningExpressionVisitor(
             [NotNull] IQuerySource outerQuerySource,
             [NotNull] IQuerySource innerQuerySource,
             [NotNull] RelationalQueryCompilationContext relationalQueryCompilationContext,

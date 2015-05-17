@@ -7,7 +7,7 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class ReducingExpressionVisitor : ExpressionTreeVisitorBase
+    public class ReducingExpressionVisitor : ExpressionVisitorBase
     {
         public override Expression Visit([NotNull] Expression node)
             => node != null

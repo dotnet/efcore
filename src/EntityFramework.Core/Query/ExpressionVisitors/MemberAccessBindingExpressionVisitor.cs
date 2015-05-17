@@ -15,12 +15,12 @@ using Remotion.Linq.Clauses.ExpressionVisitors;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class MemberAccessBindingExpressionTreeVisitor : ReferenceReplacingExpressionVisitor
+    public class MemberAccessBindingExpressionVisitor : ReferenceReplacingExpressionVisitor
     {
         private readonly EntityQueryModelVisitor _queryModelVisitor;
         private readonly bool _inProjection;
 
-        public MemberAccessBindingExpressionTreeVisitor(
+        public MemberAccessBindingExpressionVisitor(
             [NotNull] QuerySourceMapping querySourceMapping,
             [NotNull] EntityQueryModelVisitor queryModelVisitor,
             bool inProjection)
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         }
 
         private static readonly MethodInfo _getValueMethodInfo
-            = typeof(MemberAccessBindingExpressionTreeVisitor)
+            = typeof(MemberAccessBindingExpressionVisitor)
                 .GetTypeInfo().GetDeclaredMethod(nameof(GetValue));
 
         [UsedImplicitly]

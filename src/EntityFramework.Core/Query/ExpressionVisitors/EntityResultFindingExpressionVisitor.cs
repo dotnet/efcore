@@ -12,14 +12,14 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class EntityResultFindingExpressionTreeVisitor : ExpressionTreeVisitorBase
+    public class EntityResultFindingExpressionVisitor : ExpressionVisitorBase
     {
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly ISet<IQuerySource> _untrackedQuerySources;
 
         private List<EntityTrackingInfo> _entityTrackingInfos;
 
-        public EntityResultFindingExpressionTreeVisitor(
+        public EntityResultFindingExpressionVisitor(
             [NotNull] QueryCompilationContext queryCompilationContext)
         {
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));

@@ -10,9 +10,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public abstract class EntityQueryableExpressionTreeVisitor : DefaultQueryExpressionTreeVisitor
+    public abstract class EntityQueryableExpressionVisitor : DefaultQueryExpressionVisitor
     {
-        protected EntityQueryableExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
+        protected EntityQueryableExpressionVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
             : base(Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)))
         {
         }

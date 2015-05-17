@@ -13,23 +13,23 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
-    public class RelationalProjectionExpressionTreeVisitor : ProjectionExpressionTreeVisitor
+    public class RelationalProjectionExpressionVisitor : ProjectionExpressionVisitor
     {
         private readonly IQuerySource _querySource;
 
-        private readonly SqlTranslatingExpressionTreeVisitor _sqlTranslatingExpressionTreeVisitor;
+        private readonly SqlTranslatingExpressionVisitor _sqlTranslatingExpressionVisitor;
 
         private bool _requiresClientEval;
 
-        public RelationalProjectionExpressionTreeVisitor(
+        public RelationalProjectionExpressionVisitor(
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [NotNull] IQuerySource querySource)
             : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
             _querySource = querySource;
 
-            _sqlTranslatingExpressionTreeVisitor
-                = new SqlTranslatingExpressionTreeVisitor(queryModelVisitor);
+            _sqlTranslatingExpressionVisitor
+                = new SqlTranslatingExpressionVisitor(queryModelVisitor);
         }
 
         private new RelationalQueryModelVisitor QueryModelVisitor
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                 && !(expression is QuerySourceReferenceExpression))
             {
                 var sqlExpression
-                    = _sqlTranslatingExpressionTreeVisitor.Visit(expression);
+                    = _sqlTranslatingExpressionVisitor.Visit(expression);
 
                 if (sqlExpression == null)
                 {

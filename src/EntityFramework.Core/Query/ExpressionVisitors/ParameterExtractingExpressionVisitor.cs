@@ -11,7 +11,7 @@ using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class ParameterExtractingExpressionTreeVisitor : ExpressionTreeVisitorBase
+    public class ParameterExtractingExpressionVisitor : ExpressionVisitorBase
     {
         public static Expression ExtractParameters(
             [NotNull] Expression expressionTree,
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var functionEvaluationDisabledExpression = new FunctionEvaluationDisablingVisitor().Visit(expressionTree);
             var partialEvaluationInfo = EvaluatableTreeFindingExpressionVisitor.Analyze(functionEvaluationDisabledExpression);
-            var visitor = new ParameterExtractingExpressionTreeVisitor(partialEvaluationInfo, queryContext);
+            var visitor = new ParameterExtractingExpressionVisitor(partialEvaluationInfo, queryContext);
 
             return visitor.Visit(functionEvaluationDisabledExpression);
         }
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private readonly PartialEvaluationInfo _partialEvaluationInfo;
         private readonly QueryContext _queryContext;
 
-        private ParameterExtractingExpressionTreeVisitor(
+        private ParameterExtractingExpressionVisitor(
             PartialEvaluationInfo partialEvaluationInfo, QueryContext queryContext)
         {
             _partialEvaluationInfo = partialEvaluationInfo;

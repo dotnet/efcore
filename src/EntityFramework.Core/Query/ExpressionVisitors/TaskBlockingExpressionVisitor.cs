@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class TaskBlockingExpressionTreeVisitor : ExpressionTreeVisitorBase
+    public class TaskBlockingExpressionVisitor : ExpressionVisitorBase
     {
         public override Expression Visit(Expression expression)
         {
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         }
 
         private static readonly MethodInfo _resultMethodInfo
-            = typeof(TaskBlockingExpressionTreeVisitor).GetTypeInfo()
+            = typeof(TaskBlockingExpressionVisitor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(_Result));
 
         [UsedImplicitly]
