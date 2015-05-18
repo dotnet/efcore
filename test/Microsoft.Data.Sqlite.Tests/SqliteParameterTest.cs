@@ -100,7 +100,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Bind_requres_set_name()
+        public void Bind_requires_set_name()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
@@ -116,7 +116,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Bind_requres_set_value()
+        public void Bind_requires_set_value()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {

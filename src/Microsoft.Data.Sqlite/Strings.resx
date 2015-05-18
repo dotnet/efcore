@@ -144,6 +144,9 @@
   <data name="KeywordNotSupported" xml:space="preserve">
     <value>Keyword not supported: '{keyword}'.</value>
   </data>
+  <data name="MissingParameters" xml:space="preserve">
+    <value>Must add values for the following parameters: {parameters}</value>
+  </data>
   <data name="NoData" xml:space="preserve">
     <value>No data exists for the row/column.</value>
   </data>

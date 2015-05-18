@@ -255,7 +255,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void ExecuteReader_can_be_called_when_parameter_unset()
+        public void ExecuteReader_throws_when_parameter_unset()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
@@ -263,7 +263,8 @@ namespace Microsoft.Data.Sqlite
                 command.CommandText = "SELECT @Parameter;";
                 connection.Open();
 
-                Assert.Equal(DBNull.Value, command.ExecuteScalar());
+                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+                Assert.Equal(Strings.FormatMissingParameters("@Parameter"), ex.Message);
             }
         }
 

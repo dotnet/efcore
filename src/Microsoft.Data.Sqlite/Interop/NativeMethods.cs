@@ -71,6 +71,9 @@ namespace Microsoft.Data.Sqlite.Interop
         public static extern int sqlite3_bind_null(Sqlite3StmtHandle pStmt, int i);
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int sqlite3_bind_parameter_count(Sqlite3StmtHandle stmt);
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
         private static extern int sqlite3_bind_parameter_index(Sqlite3StmtHandle pStmt, IntPtr zName);
 
         public static int sqlite3_bind_parameter_index(Sqlite3StmtHandle pStmt, string zName)
@@ -214,5 +217,11 @@ namespace Microsoft.Data.Sqlite.Interop
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
         public static extern int sqlite3_stmt_readonly(Sqlite3StmtHandle pStmt);
+
+        [DllImport("sqlite3", EntryPoint = "sqlite3_bind_parameter_name", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr sqlite3_bind_parameter_name_raw(Sqlite3StmtHandle stmt, int i);
+
+        public static string sqlite3_bind_parameter_name(Sqlite3StmtHandle stmt, int i)
+            => MarshalEx.PtrToStringUTF8(sqlite3_bind_parameter_name_raw(stmt, i));
     }
 }

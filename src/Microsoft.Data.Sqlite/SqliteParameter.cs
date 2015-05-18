@@ -114,7 +114,7 @@ namespace Microsoft.Data.Sqlite
             SqliteType = SqliteType.Text;
         }
 
-        internal void Bind(Sqlite3StmtHandle stmt)
+        internal bool Bind(Sqlite3StmtHandle stmt)
         {
             if (_parameterName.Length == 0)
             {
@@ -124,7 +124,7 @@ namespace Microsoft.Data.Sqlite
             var index = NativeMethods.sqlite3_bind_parameter_index(stmt, _parameterName);
             if (index == 0)
             {
-                return;
+                return false;
             }
 
             if (_value == null)
@@ -243,6 +243,8 @@ namespace Microsoft.Data.Sqlite
             }
 
             _bindAction(stmt, index);
+
+            return true;
         }
 
         private static void BindBlob(Sqlite3StmtHandle stmt, int index, byte[] value) =>
