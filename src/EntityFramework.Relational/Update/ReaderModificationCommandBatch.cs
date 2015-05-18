@@ -24,13 +24,18 @@ namespace Microsoft.Data.Entity.Relational.Update
     {
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
         private readonly List<bool> _resultSetEnd = new List<bool>();
+        private readonly IRelationalMetadataExtensionProvider _metadataExtensionProvider;
         protected StringBuilder CachedCommandText { get; set; }
         protected int LastCachedCommandIndex;
 
         protected ReaderModificationCommandBatch(
-            [NotNull] ISqlGenerator sqlGenerator)
+            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] IRelationalMetadataExtensionProvider metadataExtensionProvider)
             : base(sqlGenerator)
         {
+            Check.NotNull(metadataExtensionProvider, nameof(metadataExtensionProvider));
+
+            _metadataExtensionProvider = metadataExtensionProvider;
         }
 
         public override IReadOnlyList<ModificationCommand> ModificationCommands => _modificationCommands;
@@ -401,8 +406,6 @@ namespace Microsoft.Data.Entity.Relational.Update
             return entries;
         }
 
-        public abstract IRelationalPropertyExtensions GetPropertyExtensions([NotNull] IProperty property);
-
         protected virtual void PopulateParameters(DbCommand command, ColumnModification columnModification, IRelationalTypeMapper typeMapper)
         {
             if (columnModification.ParameterName != null
@@ -417,7 +420,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 // TODO: It would be nice to just pass IProperty to the type mapper, but Migrations uses its own
                 // store model for which there is no easy way to get an IProperty.
                 // Issue #769
-                var extensions = GetPropertyExtensions(property);
+                var extensions = _metadataExtensionProvider.Extensions(property);
                 var typeMapping = typeMapper
                     .GetTypeMapping(extensions.ColumnType, extensions.Column, property.ClrType, isKey, property.IsConcurrencyToken);
 

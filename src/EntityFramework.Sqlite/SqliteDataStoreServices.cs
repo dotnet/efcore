@@ -5,15 +5,16 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations.History;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Sqlite.Migrations;
 using Microsoft.Data.Entity.Sqlite.Update;
 using Microsoft.Data.Entity.Sqlite.ValueGeneration;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
-using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Sqlite
 {
@@ -35,7 +36,7 @@ namespace Microsoft.Data.Entity.Sqlite
         public override IValueGeneratorCache ValueGeneratorCache => GetService<SqliteValueGeneratorCache>();
         public override IRelationalTypeMapper TypeMapper => GetService<SqliteTypeMapper>();
         public override IModificationCommandBatchFactory ModificationCommandBatchFactory => GetService<SqliteModificationCommandBatchFactory>();
-        public override ICommandBatchPreparer CommandBatchPreparer => GetService<SqliteCommandBatchPreparer>();
         public override IRelationalDataStoreCreator RelationalDataStoreCreator => GetService<SqliteDataStoreCreator>();
+        public override IRelationalMetadataExtensionProvider MetadataExtensionProvider => GetService<SqliteMetadataExtensionProvider>();
     }
 }

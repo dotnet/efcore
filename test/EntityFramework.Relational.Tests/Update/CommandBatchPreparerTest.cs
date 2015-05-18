@@ -227,11 +227,15 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var commandBatchesEnumerator = commandBatches.GetEnumerator();
             commandBatchesEnumerator.MoveNext();
 
-            modificationCommandBatchFactoryMock.Verify(mcb => mcb.Create(options), Times.Once);
+            modificationCommandBatchFactoryMock.Verify(
+                mcb => mcb.Create(options, It.IsAny<IRelationalMetadataExtensionProvider>()),
+                Times.Once);
 
             commandBatchesEnumerator.MoveNext();
 
-            modificationCommandBatchFactoryMock.Verify(mcb => mcb.Create(options), Times.Exactly(2));
+            modificationCommandBatchFactoryMock.Verify(
+                mcb => mcb.Create(options, It.IsAny<IRelationalMetadataExtensionProvider>()),
+                Times.Exactly(2));
         }
 
         [Fact]
@@ -274,7 +278,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             return new TestCommandBatchPreparer(modificationCommandBatchFactory,
                 new ParameterNameGeneratorFactory(),
                 new ModificationCommandComparer(),
-                Mock.Of<IRelationalValueBufferFactoryFactory>());
+                Mock.Of<IRelationalValueBufferFactoryFactory>(),
+                new TestMetadataExtensionProvider());
         }
 
         private static IModel CreateSimpleFKModel()
@@ -344,24 +349,26 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 IModificationCommandBatchFactory modificationCommandBatchFactory,
                 IParameterNameGeneratorFactory parameterNameGeneratorFactory,
                 IComparer<ModificationCommand> modificationCommandComparer,
-                IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+                IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+                IRelationalMetadataExtensionProvider metadataExtensionProvider)
                 : base(
-                      modificationCommandBatchFactory, 
-                      parameterNameGeneratorFactory, 
-                      modificationCommandComparer, 
-                      valueBufferFactoryFactory)
+                      modificationCommandBatchFactory,
+                      parameterNameGeneratorFactory,
+                      modificationCommandComparer,
+                      valueBufferFactoryFactory,
+                      metadataExtensionProvider)
             {
             }
+        }
 
-            public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)
-            {
-                return property.Relational();
-            }
-
-            public override IRelationalEntityTypeExtensions GetEntityTypeExtensions(IEntityType entityType)
-            {
-                return entityType.Relational();
-            }
+        private class TestMetadataExtensionProvider : IRelationalMetadataExtensionProvider
+        {
+            public IRelationalEntityTypeExtensions Extensions(IEntityType entityType) => entityType.Relational();
+            public IRelationalForeignKeyExtensions Extensions(IForeignKey foreignKey) => foreignKey.Relational();
+            public IRelationalIndexExtensions Extensions(IIndex index) => index.Relational();
+            public IRelationalKeyExtensions Extensions(IKey key) => key.Relational();
+            public IRelationalModelExtensions Extensions(IModel model) => model.Relational();
+            public IRelationalPropertyExtensions Extensions(IProperty property) => property.Relational();
         }
 
         private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
@@ -372,23 +379,11 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             {
             }
 
-            public override ModificationCommandBatch Create(IDbContextOptions options)
+            public override ModificationCommandBatch Create(
+                IDbContextOptions options,
+                IRelationalMetadataExtensionProvider metadataExtensionProvider)
             {
-                return new TestModificationCommandBatch(SqlGenerator);
-            }
-        }
-
-        private class TestModificationCommandBatch : SingularModificationCommandBatch
-        {
-            public TestModificationCommandBatch(
-                ISqlGenerator sqlGenerator)
-                : base(sqlGenerator)
-            {
-            }
-
-            public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)
-            {
-                return property.Relational();
+                return new SingularModificationCommandBatch(SqlGenerator, metadataExtensionProvider);
             }
         }
     }

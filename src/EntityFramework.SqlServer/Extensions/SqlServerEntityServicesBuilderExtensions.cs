@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.ValueGeneration;
@@ -31,7 +32,7 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddSingleton<SqlServerTypeMapper>()
                     .AddSingleton<SqlServerModificationCommandBatchFactory>()
                     .AddSingleton<SqlServerModelSource>()
-                    .AddScoped<SqlServerCommandBatchPreparer>()
+                    .AddSingleton<SqlServerMetadataExtensionProvider>()
                     .AddScoped<SqlServerValueGeneratorSelector>()
                     .AddScoped<SqlServerDataStoreServices>()
                     .AddScoped<SqlServerDataStore>()
