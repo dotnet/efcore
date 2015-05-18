@@ -9,19 +9,19 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
     public abstract class F1RelationalFixture<TTestStore> : F1FixtureBase<TTestStore>
         where TTestStore : TestStore
     {
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder model)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(model);
 
-            modelBuilder.Entity<Chassis>().Table("Chassis");
-            modelBuilder.Entity<Team>().Table("Teams");
-            modelBuilder.Entity<Driver>().Table("Drivers");
-            modelBuilder.Entity<Engine>().Table("Engines");
-            modelBuilder.Entity<EngineSupplier>().Table("EngineSuppliers");
-            modelBuilder.Entity<Gearbox>().Table("Gearboxes");
-            modelBuilder.Entity<Sponsor>().Table("Sponsors");
-            modelBuilder.Entity<TestDriver>().Table("TestDrivers");
-            modelBuilder.Entity<TitleSponsor>().Table("TitleSponsors");
+            model.Entity<Chassis>().Table("Chassis");
+            model.Entity<Team>().Table("Teams");
+            model.Entity<Driver>().Table("Drivers");
+            model.Entity<Engine>().Table("Engines");
+            model.Entity<EngineSupplier>().Table("EngineSuppliers");
+            model.Entity<Gearbox>().Table("Gearboxes");
+            model.Entity<Sponsor>().Table("Sponsors");
+            model.Entity<TestDriver>().Table("TestDrivers");
+            model.Entity<TitleSponsor>().Table("TitleSponsors");
         }
     }
 }

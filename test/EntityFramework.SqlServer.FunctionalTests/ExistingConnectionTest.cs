@@ -99,14 +99,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Customer> Customers { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(_connection);
+                options.UseSqlServer(_connection);
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Customer>(b =>
+                model.Entity<Customer>(b =>
                     {
                         b.Key(c => c.CustomerID);
                         b.ForSqlServer().Table("Customers");

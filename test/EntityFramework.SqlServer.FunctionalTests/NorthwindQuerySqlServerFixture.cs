@@ -47,11 +47,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return context;
         }
 
-        public override void OnModelCreating(ModelBuilder modelBuilder)
+        public override void OnModelCreating(ModelBuilder model)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(model);
 
-            modelBuilder.ForSqlServer().UseIdentity();
+            model.ForSqlServer().UseIdentity();
         }
 
         public void Dispose()

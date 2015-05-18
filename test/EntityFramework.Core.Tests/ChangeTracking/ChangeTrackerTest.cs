@@ -1038,24 +1038,24 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
             }
 
-            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            protected internal override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder
+                model
                     .Entity<Category>().Collection(e => e.Products).InverseReference(e => e.Category);
 
-                modelBuilder
+                model
                     .Entity<ProductDetailsTag>().Reference(e => e.TagDetails).InverseReference(e => e.Tag)
                     .ForeignKey<ProductDetailsTagDetails>(e => e.Id);
 
-                modelBuilder
+                model
                     .Entity<ProductDetails>().Reference(e => e.Tag).InverseReference(e => e.Details)
                     .ForeignKey<ProductDetailsTag>(e => e.Id);
 
-                modelBuilder
+                model
                     .Entity<Product>().Reference(e => e.Details).InverseReference(e => e.Product)
                     .ForeignKey<ProductDetails>(e => e.Id);
 
-                modelBuilder.Entity<OrderDetails>(b =>
+                model.Entity<OrderDetails>(b =>
                     {
                         b.Key(e => new { e.OrderId, e.ProductId });
                         b.Reference(e => e.Order).InverseCollection(e => e.OrderDetails).ForeignKey(e => e.OrderId);

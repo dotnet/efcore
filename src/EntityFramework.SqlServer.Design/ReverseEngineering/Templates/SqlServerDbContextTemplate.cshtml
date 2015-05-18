@@ -54,7 +54,7 @@ var className = Model.ClassName ?? Model.Helper.ClassName(Model.ConnectionString
             options.UseSqlServer(@Model.Helper.VerbatimStringLiteral(@Model.ConnectionString));
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder model)
         {
 @{
 var firstEntity = true;
@@ -65,7 +65,7 @@ var firstEntity = true;
 @:
     }
     firstEntity = false;
-@:            modelBuilder.Entity<@entityConfig.EntityType.DisplayName()>(entity =>
+@:            model.Entity<@entityConfig.EntityType.DisplayName()>(entity =>
 @:            {
     var firstEntityFacet = true;
     @foreach (var entityFacet in @entityConfig.FacetConfigurations)

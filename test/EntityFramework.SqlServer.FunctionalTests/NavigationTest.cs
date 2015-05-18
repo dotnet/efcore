@@ -86,14 +86,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public DbSet<Person> People { get; set; }
         public Func<ModelBuilder, int> ConfigAction { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder model)
         {
-            ConfigAction.Invoke(modelBuilder);
+            ConfigAction.Invoke(model);
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=StateManagerBug;Trusted_Connection=True;MultipleActiveResultSets=true");
+            options.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=StateManagerBug;Trusted_Connection=True;MultipleActiveResultSets=true");
         }
     }
 }

@@ -39,11 +39,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return context;
         }
 
-        public override void OnModelCreating(ModelBuilder modelBuilder)
+        public override void OnModelCreating(ModelBuilder model)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(model);
 
-            modelBuilder.Entity<BuiltInNonNullableDataTypes>(b =>
+            model.Entity<BuiltInNonNullableDataTypes>(b =>
                 {
                     b.Ignore(dt => dt.TestUnsignedInt16);
                     b.Ignore(dt => dt.TestUnsignedInt32);
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     b.Ignore(dt => dt.TestSignedByte);
                 });
 
-            modelBuilder.Entity<BuiltInNullableDataTypes>(b =>
+            model.Entity<BuiltInNullableDataTypes>(b =>
                 {
                     b.Ignore(dt => dt.TestNullableUnsignedInt16);
                     b.Ignore(dt => dt.TestNullableUnsignedInt32);

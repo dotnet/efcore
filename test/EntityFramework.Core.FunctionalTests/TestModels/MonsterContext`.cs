@@ -208,31 +208,31 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             get { return Set<TLicense>(); }
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder model)
         {
             // TODO: Complex types
-            modelBuilder.Ignore<AuditInfo>();
-            modelBuilder.Ignore<ConcurrencyInfo>();
-            modelBuilder.Ignore<ContactDetails>();
-            modelBuilder.Ignore<Dimensions>();
+            model.Ignore<AuditInfo>();
+            model.Ignore<ConcurrencyInfo>();
+            model.Ignore<ContactDetails>();
+            model.Ignore<Dimensions>();
 
-            modelBuilder.Entity<TBarcodeDetail>().Key(e => e.Code);
+            model.Entity<TBarcodeDetail>().Key(e => e.Code);
 
-            modelBuilder.Entity<TSuspiciousActivity>();
-            modelBuilder.Entity<TLastLogin>().Key(e => e.Username);
-            modelBuilder.Entity<TMessage>().Key(e => new { e.MessageId, e.FromUsername });
+            model.Entity<TSuspiciousActivity>();
+            model.Entity<TLastLogin>().Key(e => e.Username);
+            model.Entity<TMessage>().Key(e => new { e.MessageId, e.FromUsername });
 
-            modelBuilder.Entity<TOrderNote>().Key(e => e.NoteId);
+            model.Entity<TOrderNote>().Key(e => e.NoteId);
 
-            modelBuilder.Entity<TProductDetail>().Key(e => e.ProductId);
+            model.Entity<TProductDetail>().Key(e => e.ProductId);
 
-            modelBuilder.Entity<TProductWebFeature>().Key(e => e.FeatureId);
+            model.Entity<TProductWebFeature>().Key(e => e.FeatureId);
 
-            modelBuilder.Entity<TSupplierLogo>().Key(e => e.SupplierId);
+            model.Entity<TSupplierLogo>().Key(e => e.SupplierId);
 
-            modelBuilder.Entity<TLicense>().Key(e => e.Name);
+            model.Entity<TLicense>().Key(e => e.Name);
 
-            modelBuilder.Entity<TAnOrder>(b =>
+            model.Entity<TAnOrder>(b =>
                 {
                     b.Collection(e => (IEnumerable<TOrderLine>)e.OrderLines).InverseReference(e => (TAnOrder)e.Order)
                         .ForeignKey(e => e.OrderId);
@@ -241,7 +241,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         .PrincipalKey(e => e.AlternateId);
                 });
 
-            modelBuilder.Entity<TOrderQualityCheck>(b =>
+            model.Entity<TOrderQualityCheck>(b =>
                 {
                     b.Key(e => e.OrderId);
 
@@ -250,7 +250,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         .PrincipalKey<TAnOrder>(e => e.AlternateId);
                 });
 
-            modelBuilder.Entity<TProduct>(b =>
+            model.Entity<TProduct>(b =>
                 {
                     b.Collection(e => (IEnumerable<TProductReview>)e.Reviews).InverseReference(e => (TProduct)e.Product);
                     b.Collection(e => (IEnumerable<TBarcode>)e.Barcodes).InverseReference(e => (TProduct)e.Product);
@@ -259,16 +259,16 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         .ForeignKey<TProductDetail>(e => e.ProductId);
                 });
 
-            modelBuilder.Entity<TOrderLine>(b =>
+            model.Entity<TOrderLine>(b =>
                 {
                     b.Key(e => new { e.OrderId, e.ProductId });
 
                     b.Reference(e => (TProduct)e.Product).InverseCollection().ForeignKey(e => e.ProductId);
                 });
 
-            modelBuilder.Entity<TSupplier>().Reference(e => (TSupplierLogo)e.Logo).InverseReference().ForeignKey<TSupplierLogo>(e => e.SupplierId);
+            model.Entity<TSupplier>().Reference(e => (TSupplierLogo)e.Logo).InverseReference().ForeignKey<TSupplierLogo>(e => e.SupplierId);
 
-            modelBuilder.Entity<TCustomer>(b =>
+            model.Entity<TCustomer>(b =>
                 {
                     b.Collection(e => (IEnumerable<TAnOrder>)e.Orders).InverseReference(e => (TCustomer)e.Customer);
                     b.Collection(e => (IEnumerable<TLogin>)e.Logins).InverseReference(e => (TCustomer)e.Customer);
@@ -278,7 +278,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         .ForeignKey<TCustomer>(e => e.HusbandId);
                 });
 
-            modelBuilder.Entity<TComplaint>(b =>
+            model.Entity<TComplaint>(b =>
                 {
                     b.Reference(e => (TCustomer)e.Customer)
                         .InverseCollection()
@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         .PrincipalKey<TComplaint>(e => e.AlternateId);
                 });
 
-            modelBuilder.Entity<TProductPhoto>(b =>
+            model.Entity<TProductPhoto>(b =>
                 {
                     b.Key(e => new { e.PhotoId, e.ProductId });
 
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         .PrincipalKey(e => new { e.PhotoId, e.ProductId });
                 });
 
-            modelBuilder.Entity<TProductReview>(b =>
+            model.Entity<TProductReview>(b =>
                 {
                     b.Key(e => new { e.ReviewId, e.ProductId });
 
@@ -305,7 +305,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         .ForeignKey(e => new { e.ReviewId, e.ProductId });
                 });
 
-            modelBuilder.Entity<TLogin>(b =>
+            model.Entity<TLogin>(b =>
                 {
                     var key = b.Key(e => e.Username);
 
@@ -326,7 +326,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         .ForeignKey<TLastLogin>(e => e.Username);
                 });
 
-            modelBuilder.Entity<TPasswordReset>(b =>
+            model.Entity<TPasswordReset>(b =>
                 {
                     b.Key(e => new { e.ResetNo, e.Username });
 
@@ -335,10 +335,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         .PrincipalKey(e => e.AlternateUsername);
                 });
 
-            modelBuilder.Entity<TPageView>().Reference(e => (TLogin)e.Login).InverseCollection()
+            model.Entity<TPageView>().Reference(e => (TLogin)e.Login).InverseCollection()
                 .ForeignKey(e => e.Username);
 
-            modelBuilder.Entity<TBarcode>(b =>
+            model.Entity<TBarcode>(b =>
                 {
                     b.Key(e => e.Code);
 
@@ -349,22 +349,22 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         .ForeignKey<TBarcodeDetail>(e => e.Code);
                 });
 
-            modelBuilder.Entity<TIncorrectScan>().Reference(e => (TBarcode)e.ActualBarcode).InverseCollection()
+            model.Entity<TIncorrectScan>().Reference(e => (TBarcode)e.ActualBarcode).InverseCollection()
                 .ForeignKey(e => e.ActualCode);
 
-            modelBuilder.Entity<TSupplierInfo>().Reference(e => (TSupplier)e.Supplier).InverseCollection();
+            model.Entity<TSupplierInfo>().Reference(e => (TSupplier)e.Supplier).InverseCollection();
 
-            modelBuilder.Entity<TComputer>().Reference(e => (TComputerDetail)e.ComputerDetail).InverseReference(e => (TComputer)e.Computer)
+            model.Entity<TComputer>().Reference(e => (TComputerDetail)e.ComputerDetail).InverseReference(e => (TComputer)e.Computer)
                 .ForeignKey<TComputerDetail>(e => e.ComputerDetailId);
 
-            modelBuilder.Entity<TDriver>(b =>
+            model.Entity<TDriver>(b =>
                 {
                     b.Key(e => e.Name);
                     b.Reference(e => (TLicense)e.License).InverseReference(e => (TDriver)e.Driver)
                         .PrincipalKey<TDriver>(e => e.Name);
                 });
 
-            modelBuilder.Entity<TSmartCard>(b =>
+            model.Entity<TSmartCard>(b =>
                 {
                     b.Key(e => e.Username);
 
@@ -375,7 +375,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         .ForeignKey<TLastLogin>(e => e.SmartcardUsername);
                 });
 
-            modelBuilder.Entity<TRsaToken>(b =>
+            model.Entity<TRsaToken>(b =>
                 {
                     b.Key(e => e.Serial);
                     b.Reference(e => (TLogin)e.Login).InverseReference()
@@ -392,7 +392,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             if (_onModelCreating != null)
             {
-                _onModelCreating(modelBuilder);
+                _onModelCreating(model);
             }
         }
 

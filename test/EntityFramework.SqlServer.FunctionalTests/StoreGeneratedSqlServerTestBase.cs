@@ -57,11 +57,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 return context;
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                base.OnModelCreating(modelBuilder);
+                base.OnModelCreating(model);
 
-                modelBuilder.Entity<Gumball>(b =>
+                model.Entity<Gumball>(b =>
                     {
                         b.Property(e => e.Id)
                             .ForSqlServer()

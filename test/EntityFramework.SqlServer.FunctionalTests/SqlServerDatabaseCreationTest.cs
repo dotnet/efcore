@@ -306,14 +306,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 _testStore = testStore;
             }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
+                options.UseSqlServer(_testStore.Connection.ConnectionString);
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Blog>(b =>
+                model.Entity<Blog>(b =>
                     {
                         b.Key(e => new { e.Key1, e.Key2 });
                         b.Property(e => e.AndRow).ConcurrencyToken();

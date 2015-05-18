@@ -13,21 +13,21 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
         public abstract NullSemanticsContext CreateContext(TTestStore testStore);
 
-        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+        protected virtual void OnModelCreating(ModelBuilder model)
         {
-            modelBuilder.Entity<NullSemanticsEntity1>().Key(e => e.Id);
-            modelBuilder.Entity<NullSemanticsEntity1>().Property(e => e.Id).GenerateValueOnAdd(false);
+            model.Entity<NullSemanticsEntity1>().Key(e => e.Id);
+            model.Entity<NullSemanticsEntity1>().Property(e => e.Id).GenerateValueOnAdd(false);
 
-            modelBuilder.Entity<NullSemanticsEntity1>().Property(e => e.StringA).Required(true);
-            modelBuilder.Entity<NullSemanticsEntity1>().Property(e => e.StringB).Required(true);
-            modelBuilder.Entity<NullSemanticsEntity1>().Property(e => e.StringC).Required(true);
+            model.Entity<NullSemanticsEntity1>().Property(e => e.StringA).Required(true);
+            model.Entity<NullSemanticsEntity1>().Property(e => e.StringB).Required(true);
+            model.Entity<NullSemanticsEntity1>().Property(e => e.StringC).Required(true);
 
-            modelBuilder.Entity<NullSemanticsEntity2>().Key(e => e.Id);
-            modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.Id).GenerateValueOnAdd(false);
+            model.Entity<NullSemanticsEntity2>().Key(e => e.Id);
+            model.Entity<NullSemanticsEntity2>().Property(e => e.Id).GenerateValueOnAdd(false);
 
-            modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.StringA).Required(true);
-            modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.StringB).Required(true);
-            modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.StringC).Required(true);
+            model.Entity<NullSemanticsEntity2>().Property(e => e.StringA).Required(true);
+            model.Entity<NullSemanticsEntity2>().Property(e => e.StringB).Required(true);
+            model.Entity<NullSemanticsEntity2>().Property(e => e.StringC).Required(true);
         }
     }
 }

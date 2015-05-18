@@ -8,12 +8,12 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
     public abstract class NorthwindSprocQueryRelationalFixture : NorthwindQueryFixtureBase
     {
-        public override void OnModelCreating(ModelBuilder modelBuilder)
+        public override void OnModelCreating(ModelBuilder model)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(model);
 
-            modelBuilder.Entity<CustomerOrderHistory>().Key(coh => coh.ProductName);
-            modelBuilder.Entity<MostExpensiveProduct>().Key(mep => mep.TenMostExpensiveProducts);
+            model.Entity<CustomerOrderHistory>().Key(coh => coh.ProductName);
+            model.Entity<MostExpensiveProduct>().Key(mep => mep.TenMostExpensiveProducts);
         }
     }
 }

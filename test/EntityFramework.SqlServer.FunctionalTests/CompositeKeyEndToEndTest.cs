@@ -194,22 +194,22 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public DbSet<Unicorn> Unicorns { get; set; }
             public DbSet<EarthPony> EarthPonies { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Pegasus>().Key(e => new { e.Id1, e.Id2 });
+                model.Entity<Pegasus>().Key(e => new { e.Id1, e.Id2 });
 
-                modelBuilder.Entity<Unicorn>(b =>
+                model.Entity<Unicorn>(b =>
                     {
                         b.Key(e => new { e.Id1, e.Id2, e.Id3 });
                         b.Property(e => e.Id1).ForSqlServer().UseIdentity();
                     });
 
-                modelBuilder.Entity<EarthPony>(b =>
+                model.Entity<EarthPony>(b =>
                 {
                     b.Key(e => new { e.Id1, e.Id2});
                     b.Property(e => e.Id1).ForSqlServer().UseIdentity();

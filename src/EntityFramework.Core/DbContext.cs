@@ -253,11 +253,11 @@ namespace Microsoft.Data.Entity
         ///     affecting other context instances that are constructed with the same <see cref="DbContextOptions" />
         ///     instance.
         /// </remarks>
-        /// <param name="optionsBuilder">
+        /// <param name="options">
         ///     A builder used to create or modify options for this context. Data stores (and other extensions)
         ///     typically define extension methods on this object that allow you to configure the context.
         /// </param>
-        protected internal virtual void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected internal virtual void OnConfiguring(DbContextOptionsBuilder options)
         {
         }
 
@@ -266,12 +266,12 @@ namespace Microsoft.Data.Entity
         ///     exposed in <see cref="DbSet{TEntity}" /> properties on your derived context. The resulting model may be cached
         ///     and re-used for subsequent instances of your derived context.
         /// </summary>
-        /// <param name="modelBuilder">
+        /// <param name="model">
         ///     The builder being used to construct the model for this context. Data stores (and other extensions) typically
         ///     define extension methods on this object that allow you to configure aspects of the model that are specific
         ///     to a given data store.
         /// </param>
-        protected internal virtual void OnModelCreating(ModelBuilder modelBuilder)
+        protected internal virtual void OnModelCreating(ModelBuilder model)
         {
         }
 

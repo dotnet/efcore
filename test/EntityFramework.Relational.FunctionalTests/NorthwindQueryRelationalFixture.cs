@@ -8,16 +8,16 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
     public abstract class NorthwindQueryRelationalFixture : NorthwindQueryFixtureBase
     {
-        public override void OnModelCreating(ModelBuilder modelBuilder)
+        public override void OnModelCreating(ModelBuilder model)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(model);
 
-            modelBuilder.Entity<Customer>().Table("Customers");
-            modelBuilder.Entity<Employee>().Table("Employees");
-            modelBuilder.Entity<Product>().Table("Products");
-            modelBuilder.Entity<Product>().Ignore(p => p.SupplierID);
-            modelBuilder.Entity<Order>().Table("Orders");
-            modelBuilder.Entity<OrderDetail>().Table("Order Details");
+            model.Entity<Customer>().Table("Customers");
+            model.Entity<Employee>().Table("Employees");
+            model.Entity<Product>().Table("Products");
+            model.Entity<Product>().Ignore(p => p.SupplierID);
+            model.Entity<Order>().Table("Orders");
+            model.Entity<OrderDetail>().Table("Order Details");
         }
     }
 }

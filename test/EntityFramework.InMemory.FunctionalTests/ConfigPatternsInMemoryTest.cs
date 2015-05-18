@@ -39,9 +39,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseInMemoryStore();
+                options.UseInMemoryStore();
             }
         }
 
@@ -117,9 +117,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseInMemoryStore();
+                options.UseInMemoryStore();
             }
         }
 
@@ -248,9 +248,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseInMemoryStore();
+                options.UseInMemoryStore();
             }
         }
 

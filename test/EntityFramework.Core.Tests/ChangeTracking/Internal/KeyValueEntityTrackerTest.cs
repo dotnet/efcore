@@ -130,12 +130,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             {
             }
 
-            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            protected internal override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Stoat>();
-                modelBuilder.Entity<StoatInACoat>();
+                model.Entity<Stoat>();
+                model.Entity<StoatInACoat>();
 
-                modelBuilder.Entity<CompositeStoat>().Key(e => new { e.Id1, e.Id2 });
+                model.Entity<CompositeStoat>().Key(e => new { e.Id1, e.Id2 });
             }
         }
     }

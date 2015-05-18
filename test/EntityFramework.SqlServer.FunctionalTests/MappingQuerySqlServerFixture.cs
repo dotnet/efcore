@@ -43,9 +43,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             _testDatabase.Dispose();
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder model)
         {
-            modelBuilder.Entity<MappingQueryTestBase.MappedCustomer>(e =>
+            model.Entity<MappingQueryTestBase.MappedCustomer>(e =>
                 {
                     e.Property(c => c.CompanyName2).Metadata.SqlServer().Column = "CompanyName";
                     e.Metadata.SqlServer().Table = "Customers";

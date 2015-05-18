@@ -63,13 +63,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return new AnimalContext(_serviceProvider, _options);
         }
 
-        public override void OnModelCreating(ModelBuilder modelBuilder)
+        public override void OnModelCreating(ModelBuilder model)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(model);
 
             // TODO: Code First this
 
-            var animal = modelBuilder.Entity<Animal>().Metadata;
+            var animal = model.Entity<Animal>().Metadata;
 
             var discriminatorProperty
                 = animal.AddProperty("Discriminator", typeof(string), shadowProperty: true);

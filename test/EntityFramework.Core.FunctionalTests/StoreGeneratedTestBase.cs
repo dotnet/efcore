@@ -426,9 +426,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             public abstract DbContext CreateContext(TTestStore testStore);
 
-            protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+            protected virtual void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Gumball>(b =>
+                model.Entity<Gumball>(b =>
                     {
                         var property = b.Property(e => e.Id)
                             .StoreGeneratedPattern(StoreGeneratedPattern.Identity)

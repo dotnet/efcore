@@ -145,9 +145,9 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             public DbSet<Fraggle> Fraggles { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseInMemoryStore();
+                options.UseInMemoryStore();
             }
         }
 

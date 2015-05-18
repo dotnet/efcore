@@ -13,11 +13,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public abstract F1Context CreateContext(TTestStore testStore);
 
-        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+        protected virtual void OnModelCreating(ModelBuilder model)
         {
             // TODO: Uncomment when complex types are supported
             //builder.ComplexType<Location>();
-            modelBuilder.Entity<Chassis>(b =>
+            model.Entity<Chassis>(b =>
                 {
                     b.Key(c => c.TeamId);
                     b.Property(e => e.Version)
@@ -25,14 +25,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .ConcurrencyToken();
                 });
 
-            modelBuilder.Entity<Driver>(b =>
+            model.Entity<Driver>(b =>
                 {
                     b.Property(e => e.Version)
                         .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
                         .ConcurrencyToken();
                 });
 
-            modelBuilder.Entity<Engine>(b =>
+            model.Entity<Engine>(b =>
                 {
                     b.Property(e => e.EngineSupplierId).ConcurrencyToken();
                     b.Property(e => e.Name).ConcurrencyToken();
@@ -40,11 +40,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             // TODO: Complex type
             // .Property(c => c.StorageLocation);
-            modelBuilder.Ignore<Location>();
+            model.Ignore<Location>();
 
-            modelBuilder.Entity<EngineSupplier>();
+            model.Entity<EngineSupplier>();
 
-            modelBuilder.Entity<Gearbox>();
+            model.Entity<Gearbox>();
 
             // TODO: Complex type
             //builder
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             //            ps.Property<double>("Longitude", concurrencyToken: true);
             //        });
 
-            modelBuilder.Entity<Sponsor>(b =>
+            model.Entity<Sponsor>(b =>
                 {
                     b.Property(e => e.Version)
                         .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
@@ -72,9 +72,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             //            ps.Property(s => s.Days);
             //            ps.Property(s => s.Space);
             //        });
-            modelBuilder.Ignore<SponsorDetails>();
+            model.Ignore<SponsorDetails>();
 
-            modelBuilder.Entity<Team>(b =>
+            model.Entity<Team>(b =>
                 {
                     b.Property(t => t.Version)
                         .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
@@ -84,9 +84,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     b.Reference(e => e.Chassis).InverseReference(e => e.Team).ForeignKey<Chassis>(e => e.TeamId);
                 });
 
-            modelBuilder.Entity<TestDriver>();
+            model.Entity<TestDriver>();
 
-            modelBuilder.Entity<TitleSponsor>();
+            model.Entity<TitleSponsor>();
             // TODO: Complex type
             // .Property(t => t.Details);
 

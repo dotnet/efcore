@@ -379,9 +379,9 @@ namespace Microsoft.Data.Entity.Tests
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
 
-            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected internal override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseInMemoryStore(persist: false);
+                options.UseInMemoryStore(persist: false);
             }
         }
     }
