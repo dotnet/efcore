@@ -5,10 +5,8 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Relational.Metadata
 {
-    public interface IRelationalEntityTypeExtensions
+    public interface IRelationalEntityTypeExtensions : ISharedRelationalEntityTypeExtensions
     {
-        string Table { get; }
-        string Schema { get; }
         IProperty DiscriminatorProperty { get; }
         string DiscriminatorValue { get; } // TODO: should be object
     }

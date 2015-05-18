@@ -5,10 +5,11 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public class ReadOnlySqlServerPropertyExtensions : ReadOnlyRelationalPropertyExtensions, ISqlServerPropertyExtensions
+    public class ReadOnlySqlServerPropertyExtensions : ISqlServerPropertyExtensions
     {
         protected const string SqlServerNameAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName;
         protected const string SqlServerColumnTypeAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType;
@@ -21,27 +22,23 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         protected const string SqlServerDefaultValueTypeAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultValueType;
 
         public ReadOnlySqlServerPropertyExtensions([NotNull] IProperty property)
-            : base(property)
         {
+            Check.NotNull(property, nameof(property));
+
+            Property = property;
         }
 
-        public override string Column
+        public virtual string Column
             => Property[SqlServerNameAnnotation] as string
-               ?? base.Column;
+               ?? Property.Relational().Column;
 
-        public override string ColumnType
+        public virtual string ColumnType
             => Property[SqlServerColumnTypeAnnotation] as string
-               ?? base.ColumnType;
+               ?? Property.Relational().ColumnType;
 
-        public override string DefaultExpression
+        public virtual string DefaultExpression
             => Property[SqlServerDefaultExpressionAnnotation] as string
-               ?? base.DefaultExpression;
-
-        public override object DefaultValue
-            => new TypedAnnotation(
-                Property[SqlServerDefaultValueTypeAnnotation] as string,
-                Property[SqlServerDefaultValueAnnotation] as string).Value
-               ?? base.DefaultValue;
+               ?? Property.Relational().DefaultExpression;
 
         public virtual string ComputedExpression
             => Property[SqlServerComputedExpressionAnnotation] as string;
@@ -58,8 +55,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                     : (SqlServerValueGenerationStrategy?)Enum.Parse(typeof(SqlServerValueGenerationStrategy), value);
 
                 return (strategy == null
-                        && Property.StoreGeneratedPattern == StoreGeneratedPattern.Identity)
-                       || strategy == SqlServerValueGenerationStrategy.Default
+                            && Property.StoreGeneratedPattern == StoreGeneratedPattern.Identity)
+                        || strategy == SqlServerValueGenerationStrategy.Default
                     ? Property.EntityType.Model.SqlServer().ValueGenerationStrategy
                     : strategy;
             }
@@ -87,5 +84,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             return modelExtensions.TryGetSequence(sequenceName, sequenceSchema)
                    ?? new Sequence(Sequence.DefaultName);
         }
+
+        protected virtual IProperty Property { get; }
     }
 }

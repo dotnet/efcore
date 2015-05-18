@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Update
@@ -19,7 +20,9 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         protected ISqlGenerator SqlGenerator { get; }
 
-        public abstract ModificationCommandBatch Create(IDbContextOptions options);
+        public abstract ModificationCommandBatch Create(
+            IDbContextOptions options,
+            IRelationalMetadataExtensionsAccessor metadataExtensions);
 
         public virtual bool AddCommand(
             ModificationCommandBatch modificationCommandBatch,

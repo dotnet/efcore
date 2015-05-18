@@ -2,21 +2,23 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational.Metadata;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
-    public abstract class SingularModificationCommandBatch : ReaderModificationCommandBatch
+    public class SingularModificationCommandBatch : ReaderModificationCommandBatch
     {
-        protected SingularModificationCommandBatch(
-            [NotNull] ISqlGenerator sqlGenerator)
-            : base(sqlGenerator)
+        public SingularModificationCommandBatch(
+            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] IRelationalMetadataExtensionsAccessor metadataExtensions)
+            : base(sqlGenerator, metadataExtensions)
         {
         }
 
-        protected override bool CanAddCommand(ModificationCommand modificationCommand) 
+        protected override bool CanAddCommand(ModificationCommand modificationCommand)
             => ModificationCommands.Count == 0;
 
-        protected override bool IsCommandTextValid() 
+        protected override bool IsCommandTextValid()
             => true;
     }
 }

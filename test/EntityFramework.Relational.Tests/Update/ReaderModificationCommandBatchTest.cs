@@ -9,8 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
@@ -620,7 +618,17 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
-            return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null :  "Test" });
+            return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null : "Test" });
+        }
+
+        private class MetadataExtensionsAccessorFake : IRelationalMetadataExtensionsAccessor
+        {
+            public ISharedRelationalEntityTypeExtensions For(IEntityType entityType) => entityType.Relational();
+            public ISharedRelationalForeignKeyExtensions For(IForeignKey foreignKey) => foreignKey.Relational();
+            public ISharedRelationalIndexExtensions For(IIndex index) => index.Relational();
+            public ISharedRelationalKeyExtensions For(IKey key) => key.Relational();
+            public ISharedRelationalPropertyExtensions For(IProperty property) => property.Relational();
+            public ISharedRelationalModelExtensions For(IModel model) => model.Relational();
         }
 
         private class ModificationCommandBatchFake : ReaderModificationCommandBatch
@@ -628,14 +636,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             private readonly DbDataReader _reader;
 
             public ModificationCommandBatchFake(ISqlGenerator sqlGenerator = null)
-                : base(sqlGenerator ?? new FakeSqlGenerator())
+                : base(sqlGenerator ?? new FakeSqlGenerator(), new MetadataExtensionsAccessorFake())
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;
             }
 
             public ModificationCommandBatchFake(DbDataReader reader, ISqlGenerator sqlGenerator = null)
-                : base(sqlGenerator ?? new FakeSqlGenerator())
+                : base(sqlGenerator ?? new FakeSqlGenerator(), new MetadataExtensionsAccessorFake())
             {
                 _reader = reader;
                 ShouldAddCommand = true;
@@ -692,11 +700,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             public void PopulateParametersBase(DbCommand command, ColumnModification columnModification, IRelationalTypeMapper typeMapper)
             {
                 base.PopulateParameters(command, columnModification, typeMapper);
-            }
-
-            public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)
-            {
-                return property.Relational();
             }
         }
     }

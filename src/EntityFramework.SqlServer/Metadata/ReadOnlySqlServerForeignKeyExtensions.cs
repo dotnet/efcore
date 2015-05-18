@@ -4,20 +4,25 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public class ReadOnlySqlServerForeignKeyExtensions : ReadOnlyRelationalForeignKeyExtensions, ISqlServerForeignKeyExtensions
+    public class ReadOnlySqlServerForeignKeyExtensions : ISqlServerForeignKeyExtensions
     {
         protected const string SqlServerNameAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.Name;
 
         public ReadOnlySqlServerForeignKeyExtensions([NotNull] IForeignKey foreignKey)
-            : base(foreignKey)
         {
+            Check.NotNull(foreignKey, nameof(foreignKey));
+
+            ForeignKey = foreignKey;
         }
 
-        public override string Name
+        public virtual string Name
             => ForeignKey[SqlServerNameAnnotation] as string
-               ?? base.Name;
+               ?? ForeignKey.Relational().Name;
+
+        protected virtual IForeignKey ForeignKey { get; }
     }
 }

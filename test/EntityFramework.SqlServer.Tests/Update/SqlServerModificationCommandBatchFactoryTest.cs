@@ -5,7 +5,7 @@ using System;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.SqlServer.Query;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Xunit;
 
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie").MaxBatchSize(1);
 
-            var batch = factory.Create(optionsBuilder.Options);
+            var batch = factory.Create(optionsBuilder.Options, new SqlServerMetadataExtensionsAccessor());
 
             Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
             Assert.False(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie");
 
-            var batch = factory.Create(optionsBuilder.Options);
+            var batch = factory.Create(optionsBuilder.Options, new SqlServerMetadataExtensionsAccessor());
 
             Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
             Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie");
 
-            var batch = factory.Create(optionsBuilder.Options);
+            var batch = factory.Create(optionsBuilder.Options, new SqlServerMetadataExtensionsAccessor());
 
             Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
             Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));

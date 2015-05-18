@@ -3,12 +3,15 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Relational.Metadata;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
     public interface IModificationCommandBatchFactory
     {
-        ModificationCommandBatch Create([NotNull] IDbContextOptions options);
+        ModificationCommandBatch Create(
+            [NotNull] IDbContextOptions options,
+            [NotNull] IRelationalMetadataExtensionsAccessor metadataExtensions);
 
         bool AddCommand(
             [NotNull] ModificationCommandBatch modificationCommandBatch,

@@ -40,6 +40,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddScoped<ModelDiffer>()
                 .AddScoped<RelationalDatabaseFactory>()
                 .AddScoped<RelationalValueGeneratorSelector>()
+                .AddScoped<CommandBatchPreparer>()
                 .AddScoped(p => GetStoreServices(p).ModelDiffer)
                 .AddScoped(p => GetStoreServices(p).HistoryRepository)
                 .AddScoped(p => GetStoreServices(p).MigrationSqlGenerator)
@@ -50,7 +51,8 @@ namespace Microsoft.Data.Entity.Relational
                 .AddScoped(p => GetStoreServices(p).BatchExecutor)
                 .AddScoped(p => GetStoreServices(p).ValueBufferFactoryFactory)
                 .AddScoped(p => GetStoreServices(p).RelationalDataStoreCreator)
-                .AddScoped(p => GetStoreServices(p).SqlGenerator));
+                .AddScoped(p => GetStoreServices(p).SqlGenerator)
+                .AddScoped(p => GetStoreServices(p).RelationalMetadataExtensionsAccessor));
 
             return builder;
         }

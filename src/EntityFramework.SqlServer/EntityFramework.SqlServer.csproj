@@ -84,6 +84,7 @@
     <Compile Include="Metadata\SqlServerIndexExtensions.cs" />
     <Compile Include="Metadata\SqlServerKeyBuilder.cs" />
     <Compile Include="Metadata\SqlServerKeyExtensions.cs" />
+    <Compile Include="Metadata\SqlServerMetadataExtensionsAccessor.cs" />
     <Compile Include="Metadata\SqlServerModelBuilder.cs" />
     <Compile Include="Metadata\SqlServerModelExtensions.cs" />
     <Compile Include="Metadata\SqlServerPropertyExtensions.cs" />
@@ -103,7 +104,6 @@
     <Compile Include="Migrations\SqlServerModelDiffer.cs" />
     <Compile Include="SqlServerModelSource.cs" />
     <Compile Include="SqlServerDataStoreServices.cs" />
-    <Compile Include="Update\SqlServerCommandBatchPreparer.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchFactory.cs" />
     <Compile Include="SqlServerOptionsExtension.cs" />
     <Compile Include="SqlServerConnection.cs" />

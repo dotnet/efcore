@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.Relational.Metadata;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public interface ISqlServerIndexExtensions : IRelationalIndexExtensions
+    public interface ISqlServerIndexExtensions : ISharedRelationalIndexExtensions
     {
         bool? IsClustered { get; }
     }

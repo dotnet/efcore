@@ -6,10 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.Utilities;
 using RelationalStrings = Microsoft.Data.Entity.Relational.Strings;
 
 namespace Microsoft.Data.Entity.SqlServer.Update
@@ -27,8 +25,9 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
         public SqlServerModificationCommandBatch(
             [NotNull] ISqlServerSqlGenerator sqlGenerator,
+            [NotNull] IRelationalMetadataExtensionsAccessor metadataExtensions,
             [CanBeNull] int? maxBatchSize)
-            : base(sqlGenerator)
+            : base(sqlGenerator, metadataExtensions)
         {
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)
@@ -154,8 +153,5 @@ namespace Microsoft.Data.Entity.SqlServer.Update
                    secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
                && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
                    secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
-
-        public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)
-            => Check.NotNull(property, nameof(property)).SqlServer();
     }
 }

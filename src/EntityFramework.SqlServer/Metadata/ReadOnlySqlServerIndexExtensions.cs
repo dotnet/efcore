@@ -4,22 +4,25 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public class ReadOnlySqlServerIndexExtensions : ReadOnlyRelationalIndexExtensions, ISqlServerIndexExtensions
+    public class ReadOnlySqlServerIndexExtensions : ISqlServerIndexExtensions
     {
         protected const string SqlServerNameAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.Name;
         protected const string SqlServerClusteredAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered;
 
         public ReadOnlySqlServerIndexExtensions([NotNull] IIndex index)
-            : base(index)
         {
+            Check.NotNull(index, nameof(index));
+
+            Index = index;
         }
 
-        public override string Name
+        public virtual string Name
             => Index[SqlServerNameAnnotation] as string
-               ?? base.Name;
+               ?? Index.Relational().Name;
 
         public virtual bool? IsClustered
         {
@@ -30,5 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 return value == null ? null : (bool?)bool.Parse(value);
             }
         }
+
+        protected virtual IIndex Index { get; }
     }
 }

@@ -9,11 +9,11 @@ using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -336,8 +336,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public TestSqlServerModificationCommandBatch(
                 ISqlServerSqlGenerator sqlGenerator,
+                IRelationalMetadataExtensionsAccessor metadataExtensions,
                 int? maxBatchSize)
-                : base(sqlGenerator, maxBatchSize)
+                : base(sqlGenerator, metadataExtensions, maxBatchSize)
             {
             }
         }
@@ -350,13 +351,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
             }
 
-            public override ModificationCommandBatch Create(IDbContextOptions options)
+            public override ModificationCommandBatch Create(
+                IDbContextOptions options,
+                IRelationalMetadataExtensionsAccessor metadataExtensions)
             {
                 var optionsExtension = options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
 
                 var maxBatchSize = optionsExtension?.MaxBatchSize;
 
-                return new TestSqlServerModificationCommandBatch((ISqlServerSqlGenerator)SqlGenerator, maxBatchSize);
+                return new TestSqlServerModificationCommandBatch(
+                    (ISqlServerSqlGenerator)SqlGenerator, 
+                    metadataExtensions,
+                    maxBatchSize);
             }
         }
 

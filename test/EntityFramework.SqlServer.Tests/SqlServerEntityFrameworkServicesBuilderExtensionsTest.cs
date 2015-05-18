@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Relational.Migrations.History;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.ValueGeneration;
@@ -38,9 +39,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifySingleton<SqlServerTypeMapper>();
             VerifySingleton<SqlServerModificationCommandBatchFactory>();
             VerifySingleton<SqlServerModelSource>();
+            VerifySingleton<SqlServerMetadataExtensionsAccessor>();
 
             // SQL Server scoped
-            VerifyScoped<SqlServerCommandBatchPreparer>();
             VerifyScoped<SqlServerValueGeneratorSelector>();
             VerifyScoped<SqlServerDataStoreServices>();
             VerifyScoped<SqlServerDataStore>();
