@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             base.Where_simple_closure();
 
             Assert.Equal(
-                @"__city_0: London
+                @"@__city_0: London
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -34,7 +34,7 @@ WHERE [c].[City] = @__city_0",
             base.Where_simple_closure_constant();
 
             Assert.Equal(
-                @"__predicate_0: True
+                @"@__predicate_0: True
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -51,13 +51,13 @@ WHERE @__predicate_0 = 1",
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] IS NULL
 
-__reportsTo_0: 5
+@__reportsTo_0: 5
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = @__reportsTo_0
 
-__reportsTo_0: 2
+@__reportsTo_0: 2
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -70,13 +70,13 @@ WHERE [e].[ReportsTo] = @__reportsTo_0",
             base.Where_simple_closure_via_query_cache_nullable_type();
 
             Assert.Equal(
-                @"__reportsTo_0: 2
+                @"@__reportsTo_0: 2
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = @__reportsTo_0
 
-__reportsTo_0: 5
+@__reportsTo_0: 5
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -93,13 +93,13 @@ WHERE [e].[ReportsTo] IS NULL",
             base.Where_new_instance_field_access_closure_via_query_cache();
 
             Assert.Equal(
-                @"__p_InstanceFieldValue_0: London
+                @"@__p_InstanceFieldValue_0: London
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__p_InstanceFieldValue_0
 
-__p_InstanceFieldValue_0: Seattle
+@__p_InstanceFieldValue_0: Seattle
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -112,13 +112,13 @@ WHERE [c].[City] = @__p_InstanceFieldValue_0",
             base.Where_nested_property_access_closure_via_query_cache();
 
             Assert.Equal(
-                @"__city_Nested_InstancePropertyValue_0: London
+                @"@__city_Nested_InstancePropertyValue_0: London
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0
 
-__city_Nested_InstancePropertyValue_0: Seattle
+@__city_Nested_InstancePropertyValue_0: Seattle
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -131,13 +131,13 @@ WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0",
             base.Where_nested_field_access_closure_via_query_cache();
 
             Assert.Equal(
-                @"__city_Nested_InstanceFieldValue_0: London
+                @"@__city_Nested_InstanceFieldValue_0: London
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_Nested_InstanceFieldValue_0
 
-__city_Nested_InstanceFieldValue_0: Seattle
+@__city_Nested_InstanceFieldValue_0: Seattle
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -150,13 +150,13 @@ WHERE [c].[City] = @__city_Nested_InstanceFieldValue_0",
             base.Where_static_property_access_closure_via_query_cache();
 
             Assert.Equal(
-                @"__StaticPropertyValue_0: London
+                @"@__StaticPropertyValue_0: London
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__StaticPropertyValue_0
 
-__StaticPropertyValue_0: Seattle
+@__StaticPropertyValue_0: Seattle
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -169,13 +169,13 @@ WHERE [c].[City] = @__StaticPropertyValue_0",
             base.Where_property_access_closure_via_query_cache();
 
             Assert.Equal(
-                @"__city_InstancePropertyValue_0: London
+                @"@__city_InstancePropertyValue_0: London
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_InstancePropertyValue_0
 
-__city_InstancePropertyValue_0: Seattle
+@__city_InstancePropertyValue_0: Seattle
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -188,13 +188,13 @@ WHERE [c].[City] = @__city_InstancePropertyValue_0",
             base.Where_static_field_access_closure_via_query_cache();
 
             Assert.Equal(
-                @"__StaticFieldValue_0: London
+                @"@__StaticFieldValue_0: London
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__StaticFieldValue_0
 
-__StaticFieldValue_0: Seattle
+@__StaticFieldValue_0: Seattle
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -207,13 +207,13 @@ WHERE [c].[City] = @__StaticFieldValue_0",
             base.Where_field_access_closure_via_query_cache();
 
             Assert.Equal(
-                @"__city_InstanceFieldValue_0: London
+                @"@__city_InstanceFieldValue_0: London
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_InstanceFieldValue_0
 
-__city_InstanceFieldValue_0: Seattle
+@__city_InstanceFieldValue_0: Seattle
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -226,13 +226,13 @@ WHERE [c].[City] = @__city_InstanceFieldValue_0",
             base.Where_method_call_closure_via_query_cache();
 
             Assert.Equal(
-                @"__GetCity_0: London
+                @"@__GetCity_0: London
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__GetCity_0
 
-__GetCity_0: Seattle
+@__GetCity_0: Seattle
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -245,13 +245,13 @@ WHERE [c].[City] = @__GetCity_0",
             base.Where_method_call_nullable_type_reverse_closure_via_query_cache();
 
             Assert.Equal(
-                @"__city_NullableInt_0: 1
+                @"@__city_NullableInt_0: 1
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] > @__city_NullableInt_0
 
-__city_NullableInt_0: 5
+@__city_NullableInt_0: 5
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -264,13 +264,13 @@ WHERE [e].[EmployeeID] > @__city_NullableInt_0",
             base.Where_method_call_nullable_type_closure_via_query_cache();
 
             Assert.Equal(
-                @"__city_Int_0: 2
+                @"@__city_Int_0: 2
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = @__city_Int_0
 
-__city_Int_0: 5
+@__city_Int_0: 5
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -283,13 +283,13 @@ WHERE [e].[ReportsTo] = @__city_Int_0",
             base.Where_simple_closure_via_query_cache();
 
             Assert.Equal(
-                @"__city_0: London
+                @"@__city_0: London
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_0
 
-__city_0: Seattle
+@__city_0: Seattle
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -408,7 +408,7 @@ FROM [Orders] AS [o]",
             base.OrderBy_Count_with_predicate_client_eval_mixed();
 
             Assert.Equal(
-                @"__ClientEvalPredicateStateless_0: True
+                @"@__ClientEvalPredicateStateless_0: True
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
@@ -421,7 +421,7 @@ WHERE @__ClientEvalPredicateStateless_0 = 1",
             base.OrderBy_Where_Count_with_predicate_client_eval();
 
             Assert.Equal(
-                @"__ClientEvalPredicateStateless_1: True
+                @"@__ClientEvalPredicateStateless_1: True
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -781,7 +781,7 @@ FROM [Customers] AS [c]",
             base.Select_local();
 
             Assert.Equal(
-                 @"__x_0: 10
+                 @"@__x_0: 10
 
 SELECT @__x_0
 FROM [Customers] AS [c]",
@@ -1028,7 +1028,7 @@ WHERE 1 = 0",
             base.Where_equals_using_int_overload_on_mismatched_types();
 
             Assert.Equal(
-                @"__p_0: 1
+                @"@__p_0: 1
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -1041,13 +1041,13 @@ WHERE [e].[EmployeeID] = @__p_0",
             base.Where_equals_on_mismatched_types_int_nullable_int();
 
             Assert.Equal(
-                @"__intPrm_0: 2
+                @"@__intPrm_0: 2
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] = @__intPrm_0
 
-__intPrm_0: 2
+@__intPrm_0: 2
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -1102,13 +1102,13 @@ WHERE 1 = 0",
             base.Where_equals_on_matched_nullable_int_types();
 
             Assert.Equal(
-                @"__nullableIntPrm_0: 2
+                @"@__nullableIntPrm_0: 2
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE @__nullableIntPrm_0 = [e].[ReportsTo]
 
-__nullableIntPrm_0: 2
+@__nullableIntPrm_0: 2
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -1267,8 +1267,8 @@ WHERE [c].[City] IN ('London', 'Berlin', 'Seattle', 'Lisboa')",
             base.Where_select_many_or_with_parameter();
 
             Assert.StartsWith(
-                @"__london_0: London
-__lisboa_1: Lisboa
+                @"@__london_0: London
+@__lisboa_1: Lisboa
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
@@ -1959,7 +1959,7 @@ END)",
             base.Where_bool_parameter_compared_to_binary_expression();
 
             Assert.Equal(
-                @"__prm_0: True
+                @"@__prm_0: True
 
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
@@ -1976,7 +1976,7 @@ END <> @__prm_0)",
             base.Where_bool_member_and_parameter_compared_to_binary_expression_nested();
 
             Assert.Equal(
-                @"__prm_0: True
+                @"@__prm_0: True
 
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
@@ -2179,7 +2179,7 @@ WHERE [c].[ContactName] LIKE [c].[ContactName] + '%'",
             base.String_StartsWith_MethodCall();
 
             Assert.Equal(
-                @"__LocalMethod1_0: M
+                @"@__LocalMethod1_0: M
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -2225,7 +2225,7 @@ WHERE [c].[ContactName] LIKE '%' + [c].[ContactName]",
             base.String_EndsWith_MethodCall();
 
             Assert.Equal(
-                @"__LocalMethod2_0: m
+                @"@__LocalMethod2_0: m
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -2277,7 +2277,7 @@ WHERE [c].[ContactName] LIKE ('%' + [c].[ContactName] + '%')",
                 entryCount: 34);
 
             Assert.Equal(
-                @"__LocalMethod1_0: M
+                @"@__LocalMethod1_0: M
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -2372,7 +2372,7 @@ INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]",
             base.Where_chain();
 
             Assert.Equal(
-                @"__p_0: 1/1/1998 12:00:00 AM
+                @"@__p_0: 1/1/1998 12:00:00 AM
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]

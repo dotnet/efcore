@@ -232,11 +232,11 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
                 for (var index = 0; index < rawSqlDerivedTableExpression.Parameters.Count(); index++)
                 {
-                    var parameterName = "p" + index;
+                    var parameterName = ParameterPrefix + "p" + index;
 
                     _commandParameters.Add(new CommandParameter(parameterName, rawSqlDerivedTableExpression.Parameters[index]));
 
-                    substitutions[index] = ParameterPrefix + parameterName;
+                    substitutions[index] = parameterName;
                 }
 
                 _sql.AppendLines(string.Format(
@@ -815,11 +815,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected override Expression VisitParameterExpression(ParameterExpression parameterExpression)
         {
-            _sql.Append(ParameterPrefix + parameterExpression.Name);
+            var parameterName = ParameterPrefix + parameterExpression.Name;
+            _sql.Append(parameterName);
 
-            if (_commandParameters.All(commandParameter => commandParameter.Name != parameterExpression.Name))
+            if (_commandParameters.All(commandParameter => commandParameter.Name != parameterName))
             {
-                _commandParameters.Add(new CommandParameter(parameterExpression.Name, _parameterValues[parameterExpression.Name]));
+                _commandParameters.Add(new CommandParameter(parameterName, _parameterValues[parameterExpression.Name]));
             }
 
             return parameterExpression;
