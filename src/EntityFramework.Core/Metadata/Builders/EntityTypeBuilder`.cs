@@ -156,6 +156,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder<TEntity, TRelatedEntity> Reference<TRelatedEntity>(
             [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> reference = null)
+            where TRelatedEntity : class
         {
             var relatedEntityType = Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
             var navigationName = reference?.GetPropertyAccess().Name;
@@ -188,6 +189,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> Collection<TRelatedEntity>(
             [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null)
+            where TRelatedEntity : class
         {
             var relatedEntityType = Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
             var navigationName = collection?.GetPropertyAccess().Name;

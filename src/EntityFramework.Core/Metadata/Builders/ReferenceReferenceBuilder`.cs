@@ -22,6 +22,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///     </para>
     /// </summary>
     public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceReferenceBuilder
+        where TEntity : class
+        where TRelatedEntity : class
     {
         /// <summary>
         ///     <para>

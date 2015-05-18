@@ -8,12 +8,11 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
 {
     public class SqliteMetadataExtensionProvider : IRelationalMetadataExtensionProvider
     {
-        // TODO: Update with #875
-        public virtual IRelationalEntityTypeExtensions Extensions(IEntityType entityType) => entityType.Relational();
-        public virtual IRelationalForeignKeyExtensions Extensions(IForeignKey foreignKey) => foreignKey.Relational();
-        public virtual IRelationalIndexExtensions Extensions(IIndex index) => index.Relational();
-        public virtual IRelationalKeyExtensions Extensions(IKey key) => key.Relational();
-        public virtual IRelationalModelExtensions Extensions(IModel model) => model.Relational();
-        public virtual IRelationalPropertyExtensions Extensions(IProperty property) => property.Relational();
+        public virtual IRelationalEntityTypeExtensions Extensions(IEntityType entityType) => entityType.Sqlite();
+        public virtual IRelationalForeignKeyExtensions Extensions(IForeignKey foreignKey) => foreignKey.Sqlite();
+        public virtual IRelationalIndexExtensions Extensions(IIndex index) => index.Sqlite();
+        public virtual IRelationalKeyExtensions Extensions(IKey key) => key.Sqlite();
+        public virtual IRelationalModelExtensions Extensions(IModel model) => model.Sqlite();
+        public virtual IRelationalPropertyExtensions Extensions(IProperty property) => property.Sqlite();
     }
 }
