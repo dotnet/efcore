@@ -12,10 +12,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public abstract DbContext CreateContext(TTestStore testStore);
 
-        public virtual void OnModelCreating(ModelBuilder modelBuilder)
+        public virtual void OnModelCreating(ModelBuilder model)
         {
-            modelBuilder.Entity<BuiltInNonNullableDataTypes>();
-            modelBuilder.Entity<BuiltInNullableDataTypes>();
+            model.Entity<BuiltInNonNullableDataTypes>();
+            model.Entity<BuiltInNullableDataTypes>();
         }
 
         public virtual void Cleanup(DbContext context)

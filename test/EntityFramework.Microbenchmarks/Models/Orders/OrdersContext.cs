@@ -22,9 +22,9 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
         public DbSet<OrderLine> OrderLines { get; set; }
         public DbSet<Product> Products { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            var sqlBuilder = optionsBuilder.UseSqlServer(_connectionString);
+            var sqlBuilder = options.UseSqlServer(_connectionString);
 
             if (_disableBatching)
             {
@@ -32,15 +32,15 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
             }
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder model)
         {
-            modelBuilder.Entity<Customer>().Collection(c => c.Orders).InverseReference(o => o.Customer)
+            model.Entity<Customer>().Collection(c => c.Orders).InverseReference(o => o.Customer)
                 .ForeignKey(o => o.CustomerId);
 
-            modelBuilder.Entity<Order>().Collection(o => o.OrderLines).InverseReference(ol => ol.Order)
+            model.Entity<Order>().Collection(o => o.OrderLines).InverseReference(ol => ol.Order)
                 .ForeignKey(ol => ol.OrderId);
 
-            modelBuilder.Entity<Product>().Collection(p => p.OrderLines).InverseReference(ol => ol.Product)
+            model.Entity<Product>().Collection(p => p.OrderLines).InverseReference(ol => ol.Product)
                 .ForeignKey(ol => ol.ProductId);
         }
     }

@@ -14,11 +14,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             public override int IntSentinel => -1;
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                base.OnModelCreating(modelBuilder);
+                base.OnModelCreating(model);
 
-                SetSentinelValues(modelBuilder);
+                SetSentinelValues(model);
             }
         }
     }

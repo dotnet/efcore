@@ -57,10 +57,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     Database.AsRelational().Connection.CommandTimeout = commandTimeout;
                 }
 
-                protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                protected internal override void OnConfiguring(DbContextOptionsBuilder options)
                 {
                     var connectionMock = new Mock<DbConnection>();
-                    optionsBuilder.UseSqlServer(connectionMock.Object);
+                    options.UseSqlServer(connectionMock.Object);
                 }
             }
         }

@@ -62,14 +62,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<KettleChips> Chips { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<KettleChips>()
+                model.Entity<KettleChips>()
                     .Property(e => e.BestBuyDate)
                     .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
                     .DefaultValue(new DateTime(2035, 9, 25));

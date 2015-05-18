@@ -1892,14 +1892,14 @@ namespace Microsoft.Data.Entity.Tests
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
 
-            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected internal override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseInMemoryStore(persist: false);
+                options.UseInMemoryStore(persist: false);
             }
 
-            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            protected internal override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder
+                model
                     .Entity<Category>().Collection(e => e.Products).InverseReference(e => e.Category);
             }
         }
@@ -1965,8 +1965,8 @@ namespace Microsoft.Data.Entity.Tests
             services
                 .AddSingleton<FakeService>()
                 .AddEntityFramework()
-                .AddDbContext<ContextWithDefaults>(optionsBuilder
-                    => ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(contextOptionsExtension));
+                .AddDbContext<ContextWithDefaults>(options
+                    => ((IOptionsBuilderExtender)options).AddOrUpdateExtension(contextOptionsExtension));
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -1990,8 +1990,8 @@ namespace Microsoft.Data.Entity.Tests
             services
                 .AddSingleton<FakeService>()
                 .AddEntityFramework()
-                .AddDbContext<ContextWithServiceProvider>(optionsBuilder
-                    => ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(contextOptionsExtension));
+                .AddDbContext<ContextWithServiceProvider>(options
+                    => ((IOptionsBuilderExtender)options).AddOrUpdateExtension(contextOptionsExtension));
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -2015,8 +2015,8 @@ namespace Microsoft.Data.Entity.Tests
             services
                 .AddSingleton<FakeService>()
                 .AddEntityFramework()
-                .AddDbContext<ContextWithOptions>(optionsBuilder
-                    => ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(contextOptionsExtension));
+                .AddDbContext<ContextWithOptions>(options
+                    => ((IOptionsBuilderExtender)options).AddOrUpdateExtension(contextOptionsExtension));
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -2094,7 +2094,7 @@ namespace Microsoft.Data.Entity.Tests
 
             public DbSet<Product> Products { get; set; }
 
-            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            protected internal override void OnModelCreating(ModelBuilder model)
             {
                 var _ = Model;
             }
@@ -2127,7 +2127,7 @@ namespace Microsoft.Data.Entity.Tests
 
             public DbSet<Product> Products { get; set; }
 
-            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            protected internal override void OnModelCreating(ModelBuilder model)
             {
                 Products.ToList();
             }
@@ -2160,11 +2160,11 @@ namespace Microsoft.Data.Entity.Tests
 
             public DbSet<Product> Products { get; set; }
 
-            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected internal override void OnConfiguring(DbContextOptionsBuilder options)
             {
                 Products.ToList();
 
-                base.OnConfiguring(optionsBuilder);
+                base.OnConfiguring(options);
             }
         }
 
@@ -2240,9 +2240,9 @@ namespace Microsoft.Data.Entity.Tests
 
             public DbSet<Product> Products { get; set; }
 
-            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected internal override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseInMemoryStore(persist: true);
+                options.UseInMemoryStore(persist: true);
             }
         }
 

@@ -123,11 +123,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 return context;
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                base.OnModelCreating(modelBuilder);
+                base.OnModelCreating(model);
 
-                modelBuilder.Entity<Gumball>(b =>
+                model.Entity<Gumball>(b =>
                     {
                         // In-memory store does not support store generation of keys
                         b.Property(e => e.Id).Metadata.IsReadOnlyBeforeSave = false;

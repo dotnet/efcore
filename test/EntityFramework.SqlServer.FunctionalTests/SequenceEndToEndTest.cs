@@ -234,14 +234,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Pegasus> Pegasuses { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Pegasus>(b =>
+                model.Entity<Pegasus>(b =>
                     {
                         b.Key(e => e.Identifier);
                         b.Property(e => e.Identifier).ForSqlServer().UseSequence();
@@ -345,14 +345,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Unicon> Unicons { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Unicon>(b =>
+                model.Entity<Unicon>(b =>
                     {
                         b.Key(e => e.Identifier);
                         if (_useSequence)

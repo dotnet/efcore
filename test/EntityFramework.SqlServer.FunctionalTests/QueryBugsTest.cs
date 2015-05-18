@@ -96,9 +96,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Product> Products { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"));
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"));
             }
         }
 
@@ -222,14 +222,14 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName] AND [o
             public DbSet<Customer> Customers { get; set; }
             public DbSet<Order> Orders { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"));
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"));
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Customer>(m =>
+                model.Entity<Customer>(m =>
                     {
                         m.Key(c => new { c.FirstName, c.LastName });
                         m.Collection(c => c.Orders).InverseReference(o => o.Customer);
@@ -360,14 +360,14 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             public DbSet<Details> Details { get; set; }
             public DbSet<Dragon> Dragons { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro963"));
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro963"));
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Targaryen>(m =>
+                model.Entity<Targaryen>(m =>
                     {
                         m.Key(t => t.Id);
                         m.Collection(t => t.Dragons).InverseReference(d => d.Mother).ForeignKey(d => d.MotherId);

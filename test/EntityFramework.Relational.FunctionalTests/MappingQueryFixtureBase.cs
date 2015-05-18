@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             return modelBuilder.Model;
         }
 
-        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+        protected virtual void OnModelCreating(ModelBuilder model)
         {
         }
     }

@@ -174,9 +174,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 public string Name { get; set; }
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Blog>().Key(b => b.Url);
+                model.Entity<Blog>().Key(b => b.Url);
             }
         }
 

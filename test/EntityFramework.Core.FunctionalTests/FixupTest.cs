@@ -243,22 +243,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private class FixupContext : DbContext
         {
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Product>(b =>
+                model.Entity<Product>(b =>
                     {
                         b.Collection(e => e.SpecialOffers).InverseReference(e => e.Product);
                     });
 
-                modelBuilder.Entity<Category>(b =>
+                model.Entity<Category>(b =>
                     {
                         b.Collection(e => e.Products).InverseReference(e => e.Category);
                     });
             }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseInMemoryStore(persist: false);
+                options.UseInMemoryStore(persist: false);
             }
         }
 

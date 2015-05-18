@@ -7,11 +7,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class NorthwindQueryFixtureBase
     {
-        public virtual void OnModelCreating(ModelBuilder modelBuilder)
+        public virtual void OnModelCreating(ModelBuilder model)
         {
-            modelBuilder.Entity<Customer>();
+            model.Entity<Customer>();
 
-            modelBuilder.Entity<Employee>(e =>
+            model.Entity<Employee>(e =>
                 {
                     e.Ignore(em => em.Address);
                     e.Ignore(em => em.BirthDate);
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Ignore(em => em.TitleOfCourtesy);
                 });
 
-            modelBuilder.Entity<Product>(e =>
+            model.Entity<Product>(e =>
                 {
                     e.Ignore(p => p.CategoryID);
                     e.Ignore(p => p.QuantityPerUnit);
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Ignore(p => p.UnitsOnOrder);
                 });
 
-            modelBuilder.Entity<Order>(e =>
+            model.Entity<Order>(e =>
                 {
                     e.Ignore(o => o.Freight);
                     e.Ignore(o => o.RequiredDate);
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Ignore(o => o.ShippedDate);
                 });
 
-            modelBuilder.Entity<OrderDetail>(e => { e.Key(od => new { od.OrderID, od.ProductID }); });
+            model.Entity<OrderDetail>(e => { e.Key(od => new { od.OrderID, od.ProductID }); });
         }
 
         public abstract NorthwindContext CreateContext();

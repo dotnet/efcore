@@ -5,15 +5,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class OneToOneQueryFixtureBase
     {
-        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+        protected virtual void OnModelCreating(ModelBuilder model)
         {
-            modelBuilder
+            model
                 .Entity<Address>(e => e.Reference(a => a.Resident).InverseReference(p => p.Address)
                     .PrincipalKey<Person>(person => person.Id));
 
-            modelBuilder.Entity<Address2>().Property<int>("PersonId");
+            model.Entity<Address2>().Property<int>("PersonId");
 
-            modelBuilder
+            model
                 .Entity<Person2>(
                     e => e.Reference(p => p.Address).InverseReference(a => a.Resident)
                         .ForeignKey(typeof(Address2), "PersonId"));

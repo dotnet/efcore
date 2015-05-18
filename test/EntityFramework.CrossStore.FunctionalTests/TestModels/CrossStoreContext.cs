@@ -17,11 +17,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
         public virtual DbSet<SimpleEntity> SimpleEntities { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder model)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(model);
 
-            modelBuilder
+            model
                 .Entity<SimpleEntity>(eb =>
                     {
                         eb.Property(typeof(string), SimpleEntity.ShadowPartitionIdName);

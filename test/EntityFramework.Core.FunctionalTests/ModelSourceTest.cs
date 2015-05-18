@@ -62,9 +62,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             public DbSet<Peak> Peaks { get; set; }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Base>().Annotation("AllYourBaseAreBelongTo", "Us!");
+                model.Entity<Base>().Annotation("AllYourBaseAreBelongTo", "Us!");
             }
         }
 

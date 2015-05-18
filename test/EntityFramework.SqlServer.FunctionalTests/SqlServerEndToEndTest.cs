@@ -329,19 +329,19 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public DbSet<Jack> Jacks { get; set; }
             public DbSet<Black> Blacks { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(Connection);
+                options.UseSqlServer(Connection);
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder
+                model
                     .Entity<Jack>()
                     .Table("Jack", "Apple")
                     .Key(e => e.MyKey);
 
-                modelBuilder
+                model
                     .Entity<Black>()
                     .ForSqlServer(b => b.Table("Black", "Apple"))
                     .Key(e => e.MyKey);
@@ -514,14 +514,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Customer> Customers { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                options.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Customer>(b =>
+                model.Entity<Customer>(b =>
                     {
                         b.Key(c => c.CustomerID);
                         b.ForSqlServer().Table("Customers");
@@ -572,9 +572,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<TBlog>().Table("Blog", "dbo");
+                model.Entity<TBlog>().Table("Blog", "dbo");
             }
 
             public DbSet<TBlog> Blogs { get; set; }

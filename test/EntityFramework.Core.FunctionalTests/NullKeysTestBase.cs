@@ -181,23 +181,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             public abstract DbContext CreateContext();
 
-            public virtual void OnModelCreating(ModelBuilder modelBuilder)
+            public virtual void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<WithStringKey>()
+                model.Entity<WithStringKey>()
                     .Collection(e => e.Dependents).InverseReference(e => e.Principal)
                     .ForeignKey(e => e.Fk);
 
-                modelBuilder.Entity<WithStringFk>()
+                model.Entity<WithStringFk>()
                     .Reference<WithStringFk>()
                     .InverseReference(e => e.Self)
                     .ForeignKey<WithStringFk>(e => e.SelfFk);
 
-                modelBuilder.Entity<WithIntKey>()
+                model.Entity<WithIntKey>()
                     .Collection(e => e.Dependents)
                     .InverseReference(e => e.Principal)
                     .ForeignKey(e => e.Fk);
 
-                modelBuilder.Entity<WithNullableIntKey>()
+                model.Entity<WithNullableIntKey>()
                     .Collection(e => e.Dependents)
                     .InverseReference(e => e.Principal)
                     .ForeignKey(e => e.Fk);

@@ -16,14 +16,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public override int IntSentinel => -1;
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                base.OnModelCreating(modelBuilder);
+                base.OnModelCreating(model);
 
-                modelBuilder.Sequence("StartAtZeroSequence").Start(0);
-                modelBuilder.ForSqlServer().UseSequence("StartAtZeroSequence");
+                model.Sequence("StartAtZeroSequence").Start(0);
+                model.ForSqlServer().UseSequence("StartAtZeroSequence");
 
-                SetSentinelValues(modelBuilder);
+                SetSentinelValues(model);
             }
         }
     }

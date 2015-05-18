@@ -69,19 +69,19 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Entity> Entities { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<Entity>()
+                model.Entity<Entity>()
                     .Property(e => e.P4)
                     .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
                     .ForSqlServer().ComputedExpression("P1 + P2");
 
-                modelBuilder.Entity<Entity>()
+                model.Entity<Entity>()
                     .Property(e => e.P5)
                     .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
                     .ForSqlServer().ComputedExpression("P1 + P3");
@@ -126,14 +126,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<EnumItem> EnumItems { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
             {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder model)
             {
-                modelBuilder.Entity<EnumItem>()
+                model.Entity<EnumItem>()
                     .Property(entity => entity.CalculatedFlagEnum)
                     .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
                     .ForSqlServer().ComputedExpression("FlagEnum | OptionalFlagEnum");
