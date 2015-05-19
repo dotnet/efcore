@@ -70,7 +70,7 @@
   <ItemGroup>
     <Compile Include="AsyncFromSqlQuerySqlServerTest.cs" />
     <Compile Include="AsyncFromSqlSprocQuerySqlServerTest.cs" />
-    <Compile Include="CommandConfigurationTests.cs" />
+    <Compile Include="CommandConfigurationTest.cs" />
     <Compile Include="ComputedColumnTest.cs" />
     <Compile Include="FromSqlSprocQuerySqlServerTest.cs" />
     <Compile Include="NorthwindSprocQuerySqlServerFixture.cs" />

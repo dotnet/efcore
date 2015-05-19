@@ -21,18 +21,51 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class CommandConfigurationTests : IDisposable
+    public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.CommandConfigurationTestFixture>
     {
-        private readonly IServiceProvider _serviceProvider = new ServiceCollection()
-            .AddEntityFramework()
-            .AddSqlServer()
-            .ServiceCollection()
-            .BuildServiceProvider();
+        private const string DatabaseName = "NotKettleChips";
+
+        private readonly CommandConfigurationTestFixture _fixture;
+
+        public CommandConfigurationTest(CommandConfigurationTestFixture fixture)
+        {
+            _fixture = fixture;
+            _fixture.CreateDatabase();
+        }
+
+        public class CommandConfigurationTestFixture : IDisposable
+        {
+            public IServiceProvider ServiceProvider { get; } = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .ServiceCollection()
+                .BuildServiceProvider();
+
+            public virtual void CreateDatabase()
+            {
+                SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
+                    {
+                        using (var context = new ChipsContext(ServiceProvider))
+                        {
+                            context.Database.EnsureDeleted();
+                            context.Database.EnsureCreated();
+                        }
+                    });
+            }
+
+            public void Dispose()
+            {
+                using (var context = new ChipsContext(ServiceProvider))
+                {
+                    context.Database.EnsureDeleted();
+                }
+            }
+        }
 
         [Fact]
         public void Constructed_select_query_uses_default_when_commandTimeout_not_configured_and_can_be_changed()
         {
-            using (var context = new ChipsContext(_serviceProvider, "KettleChips"))
+            using (var context = new ChipsContext(_fixture.ServiceProvider))
             {
                 var commandBuilder = setupCommandBuilder();
 
@@ -51,7 +84,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public void Constructed_select_query_honors_configured_commandTimeout_configured_in_context()
         {
-            using (var context = new ConfiguredChipsContext(_serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(_fixture.ServiceProvider))
             {
                 var commandBuilder = setupCommandBuilder();
 
@@ -65,7 +98,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public void Constructed_select_query_honors_latest_configured_commandTimeout_configured_in_context()
         {
-            using (var context = new ConfiguredChipsContext(_serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(_fixture.ServiceProvider))
             {
                 var commandBuilder = setupCommandBuilder();
 
@@ -86,7 +119,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public void Constructed_select_query_CommandBuilder_throws_when_negative_CommandTimeout_is_used()
         {
-            using (var context = new ConfiguredChipsContext(_serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(_fixture.ServiceProvider))
             {
                 Assert.Throws<ArgumentException>(() => context.Database.AsRelational().Connection.CommandTimeout = -5);
             }
@@ -95,7 +128,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public void Constructed_select_query_CommandBuilder_uses_default_when_null()
         {
-            using (var context = new ConfiguredChipsContext(_serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(_fixture.ServiceProvider))
             {
                 var commandBuilder = setupCommandBuilder();
 
@@ -124,13 +157,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
-            using (var context = new ChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ChipsContext(serviceProvider))
             {
                 context.Database.EnsureCreated();
 
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 context.SaveChanges();
-                Assert.Null(globalCommandTimeout);
+                Assert.Null(GlobalCommandTimeout);
             }
         }
 
@@ -144,13 +177,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
-            using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(serviceProvider))
             {
                 context.Database.EnsureCreated();
 
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 context.SaveChanges();
-                Assert.Equal(77, globalCommandTimeout);
+                Assert.Equal(77, GlobalCommandTimeout);
             }
         }
 
@@ -164,14 +197,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
-            using (var context = new ChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ChipsContext(serviceProvider))
             {
                 context.Database.EnsureCreated();
 
                 context.Database.AsRelational().Connection.CommandTimeout = 88;
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 context.SaveChanges();
-                Assert.Equal(88, globalCommandTimeout);
+                Assert.Equal(88, GlobalCommandTimeout);
             }
         }
 
@@ -185,14 +218,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
-            using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(serviceProvider))
             {
                 context.Database.EnsureCreated();
 
                 context.Database.AsRelational().Connection.CommandTimeout = 88;
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 context.SaveChanges();
-                Assert.Equal(88, globalCommandTimeout);
+                Assert.Equal(88, GlobalCommandTimeout);
             }
         }
 
@@ -206,19 +239,19 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
-            using (var context = new ChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ChipsContext(serviceProvider))
             {
                 context.Database.EnsureCreated();
 
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
-                Assert.Null(globalCommandTimeout);
+                Assert.Null(GlobalCommandTimeout);
 
                 context.Database.AsRelational().Connection.CommandTimeout = 88;
 
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
-                Assert.Equal(88, globalCommandTimeout);
+                Assert.Equal(88, GlobalCommandTimeout);
             }
         }
 
@@ -232,19 +265,19 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
-            using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(serviceProvider))
             {
                 context.Database.EnsureCreated();
 
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
-                Assert.Equal(77, globalCommandTimeout);
+                Assert.Equal(77, GlobalCommandTimeout);
 
                 context.Database.AsRelational().Connection.CommandTimeout = 88;
 
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
-                Assert.Equal(88, globalCommandTimeout);
+                Assert.Equal(88, GlobalCommandTimeout);
             }
         }
 
@@ -258,7 +291,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
-            using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(serviceProvider))
             {
                 context.Database.EnsureCreated();
 
@@ -266,7 +299,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
-                Assert.Equal(88, globalCommandTimeout);
+                Assert.Equal(88, GlobalCommandTimeout);
             }
         }
 
@@ -286,11 +319,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
-            using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(serviceProvider))
             {
                 context.Database.EnsureCreated();
 
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos " + i });
                 }
@@ -310,27 +343,19 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             string[] text = source.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             var matchQuery = from word in text
-                             where word.Contains(searchTerm)
-                             select word;
+                where word.Contains(searchTerm)
+                select word;
 
             return matchQuery.Count();
         }
 
-        public void Dispose()
-        {
-            using (var context = new ChipsContext(_serviceProvider, "KettleChips"))
-            {
-                context.Database.EnsureDeleted();
-            }
-        }
-
-        public static int? globalCommandTimeout;
+        public static int? GlobalCommandTimeout;
 
         public class TestSqlServerModificationCommandBatch : SqlServerModificationCommandBatch
         {
             protected override DbCommand CreateStoreCommand(string commandText, DbTransaction transaction, IRelationalTypeMapper typeMapper, int? commandTimeout)
             {
-                globalCommandTimeout = commandTimeout;
+                GlobalCommandTimeout = commandTimeout;
                 return base.CreateStoreCommand(commandText, transaction, typeMapper, commandTimeout);
             }
 
@@ -368,19 +393,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class ChipsContext : DbContext
         {
-            private readonly string _databaseName;
-
-            public ChipsContext(IServiceProvider serviceProvider, string databaseName)
+            public ChipsContext(IServiceProvider serviceProvider)
                 : base(serviceProvider)
             {
-                _databaseName = databaseName;
             }
 
             public DbSet<KettleChips> Chips { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName));
             }
         }
 
@@ -393,22 +415,19 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class ConfiguredChipsContext : ChipsContext
         {
-            public ConfiguredChipsContext(IServiceProvider serviceProvider, string databaseName)
-                : base(serviceProvider, databaseName)
+            public ConfiguredChipsContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
             {
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseSqlServer("Database=Crunchie").CommandTimeout(77);
+                optionsBuilder.UseSqlServer("Database=" + DatabaseName).CommandTimeout(77);
 
                 base.OnConfiguring(optionsBuilder);
             }
         }
 
-        private static string Sql
-        {
-            get { return TestSqlLoggerFactory.Sql; }
-        }
+        private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }
