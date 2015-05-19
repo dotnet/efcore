@@ -1,24 +1,25 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
+using Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemantics;
+using Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemanticsModel;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
-    public class F1SqliteFixture : F1RelationalFixture<SqliteTestStore>
+    public class NullSemanticsQuerySqliteFixture : NullSemanticsQueryRelationalFixture<SqliteTestStore>
     {
-        public static readonly string DatabaseName = "OptimisticConcurrencyTest";
+        public static readonly string DatabaseName = "NullSemanticsQueryTest";
 
         private readonly IServiceProvider _serviceProvider;
 
         private readonly string _connectionString = SqliteTestStore.CreateConnectionString(DatabaseName);
 
-        public F1SqliteFixture()
+        public NullSemanticsQuerySqliteFixture()
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
@@ -36,13 +37,13 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                     var optionsBuilder = new DbContextOptionsBuilder();
                     optionsBuilder.UseSqlite(_connectionString);
 
-                    using (var context = new F1Context(_serviceProvider, optionsBuilder.Options))
+                    using (var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
-                        context.Database.EnsureDeleted();
+
                         if (context.Database.EnsureCreated())
                         {
-                            ConcurrencyModelInitializer.Seed(context);
+                            NullSemanticsModelInitializer.Seed(context);
                         }
 
                         TestSqlLoggerFactory.SqlStatements.Clear();
@@ -50,12 +51,12 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 });
         }
 
-        public override F1Context CreateContext(SqliteTestStore testStore)
+        public override NullSemanticsContext CreateContext(SqliteTestStore testStore)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlite(testStore.Connection);
 
-            var context = new F1Context(_serviceProvider, optionsBuilder.Options);
+            var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options);
             context.Database.AsRelational().Connection.UseTransaction(testStore.Transaction);
             return context;
         }

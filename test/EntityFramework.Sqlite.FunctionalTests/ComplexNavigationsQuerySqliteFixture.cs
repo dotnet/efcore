@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsModel;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsModel;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -33,20 +33,20 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             SqliteTestStore.GetOrCreateShared(
                 DatabaseName,
                 () =>
-                {
-                    var optionsBuilder = new DbContextOptionsBuilder();
-                    optionsBuilder.UseSqlite(_connectionString);
-
-                    using (var context = new ComplexNavigationsContext(_serviceProvider, optionsBuilder.Options))
                     {
-                        if (context.Database.EnsureCreated())
-                        {
-                            ComplexNavigationsModelInitializer.Seed(context);
-                        }
+                        var optionsBuilder = new DbContextOptionsBuilder();
+                        optionsBuilder.UseSqlite(_connectionString);
 
-                        TestSqlLoggerFactory.SqlStatements.Clear();
-                    }
-                });
+                        using (var context = new ComplexNavigationsContext(_serviceProvider, optionsBuilder.Options))
+                        {
+                            if (context.Database.EnsureCreated())
+                            {
+                                ComplexNavigationsModelInitializer.Seed(context);
+                            }
+
+                            TestSqlLoggerFactory.SqlStatements.Clear();
+                        }
+                    });
 
         public override ComplexNavigationsContext CreateContext(SqliteTestStore testStore)
         {

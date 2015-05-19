@@ -72,17 +72,33 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsNoTrackingSqliteTest.cs" />
+    <Compile Include="AsyncFromSqlQuerySqliteTest.cs" />
+    <Compile Include="AsyncQuerySqliteTest.cs" />
+    <Compile Include="BuiltInDataTypesSqliteFixture.cs" />
+    <Compile Include="BuiltInDataTypesSqliteTest.cs" />
     <Compile Include="ChangeTrackingSqliteTest.cs" />
     <Compile Include="ComplexNavigationsQuerySqliteFixture.cs" />
     <Compile Include="ComplexNavigationsQuerySqliteTest.cs" />
     <Compile Include="F1SqliteFixture.cs" />
+    <Compile Include="FromSqlQuerySqliteTest.cs" />
+    <Compile Include="GearsOfWarQuerySqliteFixture.cs" />
+    <Compile Include="GearsOfWarQuerySqliteTest.cs" />
     <Compile Include="IncludeAsyncSqliteTest.cs" />
     <Compile Include="IncludeSqliteTest.cs" />
+    <Compile Include="InheritanceSqliteFixture.cs" />
+    <Compile Include="InheritanceSqliteTest.cs" />
+    <Compile Include="MappingQuerySqliteFixture.cs" />
+    <Compile Include="MappingQuerySqliteTest.cs" />
     <Compile Include="NorthwindQuerySqliteFixture.cs" />
     <Compile Include="NullKeysSqliteTest.cs" />
+    <Compile Include="NullSemanticsQuerySqliteFixture.cs" />
+    <Compile Include="NullSemanticsQuerySqliteTest.cs" />
     <Compile Include="OneToOneQuerySqliteFixture.cs" />
+    <Compile Include="OptimisticConcurrencySqliteTest.cs" />
     <Compile Include="PropertyEntrySqliteTest.cs" />
+    <Compile Include="QuerySqliteTest.cs" />
     <Compile Include="SqliteTestStore.cs" />
+    <Compile Include="StoreGeneratedSqliteTest.cs" />
     <Compile Include="TestModels\SqliteNorthwindContext.cs" />
     <Compile Include="TestSqliteModelSource.cs" />
     <None Include="northwind.db">

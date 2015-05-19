@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Sqlite.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
-using Microsoft.Data.Entity.FunctionalTests;
 
 namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
@@ -38,7 +38,12 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 .MinimumLevel = LogLevel.Debug;
         }
 
-        public override NorthwindContext CreateContext() => new SqliteNorthwindContext(_serviceProvider, _options);
+        public override NorthwindContext CreateContext()
+        {
+            var context = new SqliteNorthwindContext(_serviceProvider, _options);
+            context.ChangeTracker.AutoDetectChangesEnabled = false;
+            return context;
+        }
 
         public void Dispose() => _testStore.Dispose();
     }

@@ -1,35 +1,35 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
-using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
+using Microsoft.Data.Entity.Sqlite.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
-    public class MappingQuerySqlServerFixture : MappingQueryFixtureBase
+    public class MappingQuerySqliteFixture : MappingQueryFixtureBase
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
-        private readonly SqlServerTestStore _testDatabase;
+        private readonly SqliteTestStore _testDatabase;
 
-        public MappingQuerySqlServerFixture()
+        public MappingQuerySqliteFixture()
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddSqlServer()
+                .AddSqlite()
                 .ServiceCollection()
                 .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
-            _testDatabase = SqlServerNorthwindContext.GetSharedStore();
+            _testDatabase = SqliteNorthwindContext.GetSharedStore();
 
             var optionsBuilder = new DbContextOptionsBuilder().UseModel(CreateModel());
-            optionsBuilder.UseSqlServer(_testDatabase.Connection.ConnectionString);
+            optionsBuilder.UseSqlite(_testDatabase.Connection.ConnectionString);
             _options = optionsBuilder.Options;
         }
 
@@ -43,15 +43,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             _testDatabase.Dispose();
         }
 
-        protected override string DatabaseSchema { get; } = "dbo";
+        protected override string DatabaseSchema { get; } = null;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MappingQueryTestBase.MappedCustomer>(e =>
                 {
-                    e.Property(c => c.CompanyName2).Metadata.SqlServer().Column = "CompanyName";
-                    e.Metadata.SqlServer().Table = "Customers";
-                    e.Metadata.SqlServer().Schema = "dbo";
+                    // TODO: Use .Sqlite() when available
+                    e.Property(c => c.CompanyName2).Metadata.Relational().Column = "CompanyName";
+                    e.Metadata.Relational().Table = "Customers";
                 });
         }
     }

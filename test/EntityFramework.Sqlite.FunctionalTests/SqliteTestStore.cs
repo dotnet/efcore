@@ -24,6 +24,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         private SqliteTransaction _transaction;
         private readonly string _name;
         private bool _deleteDatabase;
+        public const int CommandTimeout = 30;
 
         public SqliteTestStore(string name)
         {
@@ -53,6 +54,34 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             return this;
         }
 
+        public int ExecuteNonQuery(string sql, params object[] parameters)
+        {
+            using (var command = CreateCommand(sql, parameters))
+            {
+                return command.ExecuteNonQuery();
+            }
+        }
+
+        private DbCommand CreateCommand(string commandText, object[] parameters)
+        {
+            var command = _connection.CreateCommand();
+
+            if (_transaction != null)
+            {
+                command.Transaction = _transaction;
+            }
+
+            command.CommandText = commandText;
+            command.CommandTimeout = CommandTimeout;
+
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                command.Parameters.AddWithValue("@p" + i, parameters[i]);
+            }
+
+            return command;
+        }
+
         public override DbConnection Connection => _connection;
         public override DbTransaction Transaction => _transaction;
 
@@ -73,6 +102,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             {
                 File.Delete(path);
             }
+
+            base.Dispose();
         }
 
         public static string CreateConnectionString(string name) =>
@@ -80,6 +111,6 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 {
                     DataSource = name + ".db"
                 }
-            .ToString();
+                .ToString();
     }
 }

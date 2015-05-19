@@ -44,6 +44,5 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             return new DbContext(_serviceProvider, _options);
         }
-
     }
 }
