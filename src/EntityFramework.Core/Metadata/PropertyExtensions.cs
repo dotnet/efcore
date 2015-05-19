@@ -12,10 +12,6 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class PropertyExtensions
     {
-        private const string MaxLengthAnnotation = "MaxLength";
-        private const string OriginalValueIndexAnnotation = "OriginalValueIndex";
-        private const string ShadowIndexAnnotation = "ShadowIndex";
-
         public static int GetShadowIndex([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -25,12 +21,12 @@ namespace Microsoft.Data.Entity.Metadata
                 return -1;
             }
 
-            if (property[ShadowIndexAnnotation] == null)
+            if (property[CoreAnnotationNames.ShadowIndexAnnotation] == null)
             {
                 return 0;
             }
 
-            return (int)property[ShadowIndexAnnotation];
+            return (int)property[CoreAnnotationNames.ShadowIndexAnnotation];
         }
 
         public static void SetShadowIndex([NotNull] this Property property, int index)
@@ -43,15 +39,15 @@ namespace Microsoft.Data.Entity.Metadata
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
 
-            property[ShadowIndexAnnotation] = index;
+            property[CoreAnnotationNames.ShadowIndexAnnotation] = index;
         }
 
         public static int GetOriginalValueIndex([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
-            Debug.Assert(property[OriginalValueIndexAnnotation] != null);
+            Debug.Assert(property[CoreAnnotationNames.OriginalValueIndexAnnotation] != null);
 
-            return (int)property[OriginalValueIndexAnnotation];
+            return (int)property[CoreAnnotationNames.OriginalValueIndexAnnotation];
         }
 
         public static void SetOriginalValueIndex([NotNull] this Property property, int index)
@@ -63,14 +59,14 @@ namespace Microsoft.Data.Entity.Metadata
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
 
-            property[OriginalValueIndexAnnotation] = index;
+            property[CoreAnnotationNames.OriginalValueIndexAnnotation] = index;
         }
 
         public static int? GetMaxLength([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
-            return (int?)property[MaxLengthAnnotation];
+            return (int?)property[CoreAnnotationNames.MaxLengthAnnotation];
         }
 
         public static void SetMaxLength([NotNull] this Property property, int? maxLength)
@@ -83,7 +79,7 @@ namespace Microsoft.Data.Entity.Metadata
                 throw new ArgumentOutOfRangeException(nameof(maxLength));
             }
 
-            property[MaxLengthAnnotation] = maxLength;
+            property[CoreAnnotationNames.MaxLengthAnnotation] = maxLength;
         }
 
         public static bool IsForeignKey([NotNull] this IProperty property)
