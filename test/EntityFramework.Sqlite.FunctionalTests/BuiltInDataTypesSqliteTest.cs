@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.FunctionalTests;
 
 namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
-    public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<SqliteTestStore, BuiltInDataTypesSqliteFixture>
+    public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqliteFixture>
     {
         public BuiltInDataTypesSqliteTest(BuiltInDataTypesSqliteFixture fixture)
             : base(fixture)

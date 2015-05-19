@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.FunctionalTests;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<SqlServerTestStore, BuiltInDataTypesSqlServerFixture>
+    public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerFixture>
     {
         public BuiltInDataTypesSqlServerTest(BuiltInDataTypesSqlServerFixture fixture)
             : base(fixture)

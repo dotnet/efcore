@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.FunctionalTests;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
-    public class BuiltInDataTypesInMemoryTest : BuiltInDataTypesTestBase<InMemoryTestStore, BuiltInDataTypesInMemoryFixture>
+    public class BuiltInDataTypesInMemoryTest : BuiltInDataTypesTestBase<BuiltInDataTypesInMemoryFixture>
     {
         public BuiltInDataTypesInMemoryTest(BuiltInDataTypesInMemoryFixture fixture)
             : base(fixture)

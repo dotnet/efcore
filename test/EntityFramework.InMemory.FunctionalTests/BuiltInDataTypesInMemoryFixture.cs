@@ -3,35 +3,36 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
-    public class BuiltInDataTypesInMemoryFixture : BuiltInDataTypesFixtureBase<InMemoryTestStore>
+    public class BuiltInDataTypesInMemoryFixture : BuiltInDataTypesFixtureBase
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly DbContextOptions _options;
+        private readonly InMemoryTestStore _testStore;
 
         public BuiltInDataTypesInMemoryFixture()
         {
+            _testStore = new InMemoryTestStore();
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryStore()
                 .ServiceCollection()
                 .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
-        }
 
-        public override InMemoryTestStore CreateTestStore()
-        {
-            return new InMemoryTestStore();
-        }
-
-        public override DbContext CreateContext(InMemoryTestStore testStore)
-        {
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryStore();
-
-            return new DbContext(_serviceProvider, optionsBuilder.Options);
+            _options = optionsBuilder.Options;
+        }
+        
+        public override DbContext CreateContext() => new DbContext(_serviceProvider, _options);
+        public override void Dispose()
+        {
+            _testStore.Dispose();
         }
     }
 }

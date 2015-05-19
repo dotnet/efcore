@@ -3,36 +3,49 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
-    public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase<SqliteTestStore>
+    public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly DbContextOptions _options;
+        private readonly SqliteTestStore _testStore;
 
         public BuiltInDataTypesSqliteFixture()
         {
+            _testStore = SqliteTestStore.CreateScratch();
+
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlite()
                 .ServiceCollection()
                 .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
+
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlite(_testStore.Connection);
+            _options = optionsBuilder.Options;
+
+            using (var context = new DbContext(_serviceProvider, _options))
+            {
+               context.Database.EnsureCreated();
+            }
         }
 
-        public override SqliteTestStore CreateTestStore() => SqliteTestStore.CreateScratch();
-
-        public override DbContext CreateContext(SqliteTestStore testStore)
+        public override DbContext CreateContext()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(testStore.Connection);
-
-            var context = new DbContext(_serviceProvider, optionsBuilder.Options);
-            context.Database.EnsureCreated();
-            context.Database.AsRelational().Connection.UseTransaction(testStore.Transaction);
+            var context = new DbContext(_serviceProvider, _options);
+            context.Database.AsRelational().Connection.UseTransaction(_testStore.Transaction);
 
             return context;
+        }
+
+        public override void Dispose()
+        {
+            _testStore.Dispose();
         }
     }
 }

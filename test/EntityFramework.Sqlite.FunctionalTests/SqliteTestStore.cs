@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public static SqliteTestStore GetOrCreateShared(string name, Action initializeDatabase) =>
             new SqliteTestStore(name).CreateShared(initializeDatabase);
 
-        public static SqliteTestStore CreateScratch() =>
+        public static SqliteTestStore CreateScratch() => 
             new SqliteTestStore("scratch-" + Interlocked.Increment(ref _scratchCount)).CreateTransient();
 
         private SqliteConnection _connection;

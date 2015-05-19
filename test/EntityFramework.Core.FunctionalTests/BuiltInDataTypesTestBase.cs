@@ -7,9 +7,8 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
-    public abstract class BuiltInDataTypesTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : BuiltInDataTypesFixtureBase<TTestStore>, new()
+    public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : BuiltInDataTypesFixtureBase, new()
     {
         [Fact]
         public virtual void Can_insert_and_read_back_all_non_nullable_data_types()
@@ -213,22 +212,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected BuiltInDataTypesTestBase(TFixture fixture)
         {
             Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
         }
 
         protected TFixture Fixture { get; }
 
-        protected TTestStore TestStore { get; }
-
-        public void Dispose()
-        {
-            TestStore.Dispose();
-        }
-
         protected DbContext CreateContext()
         {
-            return Fixture.CreateContext(TestStore);
+            return Fixture.CreateContext();
         }
     }
 }

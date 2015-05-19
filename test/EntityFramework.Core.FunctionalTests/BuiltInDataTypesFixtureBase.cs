@@ -5,12 +5,9 @@ using System;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
-    public abstract class BuiltInDataTypesFixtureBase<TTestStore>
-        where TTestStore : TestStore
+    public abstract class BuiltInDataTypesFixtureBase : IDisposable
     {
-        public abstract TTestStore CreateTestStore();
-
-        public abstract DbContext CreateContext(TTestStore testStore);
+        public abstract DbContext CreateContext();
 
         public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,6 +22,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             context.SaveChanges();
         }
+
+        public abstract void Dispose();
     }
 
     public class BuiltInNonNullableDataTypes

@@ -4,38 +4,42 @@
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class BuiltInDataTypesSqlServerFixture : BuiltInDataTypesFixtureBase<SqlServerTestStore>
+    public class BuiltInDataTypesSqlServerFixture : BuiltInDataTypesFixtureBase
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly DbContextOptions _options;
+        private readonly SqlServerTestStore _testStore;
 
         public BuiltInDataTypesSqlServerFixture()
         {
+            _testStore = SqlServerTestStore.CreateScratch();
+
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
-        }
 
-        public override SqlServerTestStore CreateTestStore()
-        {
-            return SqlServerTestStore.CreateScratch();
-        }
-
-        public override DbContext CreateContext(SqlServerTestStore testStore)
-        {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.Connection);
+            optionsBuilder.UseSqlServer(_testStore.Connection);
 
-            var context = new DbContext(_serviceProvider, optionsBuilder.Options);
-            context.Database.EnsureCreated();
-            context.Database.AsRelational().Connection.UseTransaction(testStore.Transaction);
+            _options = optionsBuilder.Options;
+
+            using (var context = new DbContext(_serviceProvider, _options))
+            {
+                context.Database.EnsureCreated();
+            }
+        }
+
+        public override DbContext CreateContext()
+        {
+            var context = new DbContext(_serviceProvider, _options);
+            context.Database.AsRelational().Connection.UseTransaction(_testStore.Transaction);
             return context;
         }
 
@@ -60,6 +64,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     b.Ignore(dt => dt.TestNullableCharacter);
                     b.Ignore(dt => dt.TestNullableSignedByte);
                 });
+        }
+
+        public override void Dispose()
+        {
+            _testStore.Dispose();
         }
     }
 }
