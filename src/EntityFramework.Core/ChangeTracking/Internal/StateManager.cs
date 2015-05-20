@@ -329,10 +329,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         protected virtual int SaveChanges(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave) => _dataStore.SaveChanges(entriesToSave);
 
-        protected virtual async Task<int> SaveChangesAsync(
+        protected virtual Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
             CancellationToken cancellationToken = default(CancellationToken))
-            => await _dataStore.SaveChangesAsync(entriesToSave, cancellationToken);
+            => _dataStore.SaveChangesAsync(entriesToSave, cancellationToken);
 
         public virtual void AcceptAllChanges()
         {
