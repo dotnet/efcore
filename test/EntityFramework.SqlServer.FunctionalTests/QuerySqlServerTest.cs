@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
+using Xunit.Abstractions;
 
 #if DNXCORE50
 using System.Threading;
@@ -2632,9 +2633,10 @@ ORDER BY COALESCE([c].[Region], 'ZZ')",
                 Sql);
         }
 
-        public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture)
+        public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;
