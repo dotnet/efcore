@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             }
 
             return Expression.Call(
-                relationalQueryCompilationContext.QueryMethodProvider.QueryMethod
+                relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod
                     .MakeGenericMethod(queryMethodInfo.ReturnType),
                 EntityQueryModelVisitor.QueryContextParameter,
                 Expression.Constant(

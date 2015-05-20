@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     _outerCommandBuilder = methodCallExpression.Arguments[1];
                 }
                 else if (newExpression.Method.MethodIsClosedFormOf(
-                    _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod))
+                    _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
                 {
                     newExpression
                         = Expression.Call(
