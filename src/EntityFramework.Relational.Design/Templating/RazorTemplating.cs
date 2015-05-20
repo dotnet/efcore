@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
                 {
                     razorTemplate.Model = templateModel;
                     //ToDo: If there are errors executing the code, they are missed here.
-                    result = await razorTemplate.ExecuteTemplateAsync();
+                    result = await razorTemplate.ExecuteTemplateAsync(cancellationToken);
                 }
 
                 return new TemplateResult()
