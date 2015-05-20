@@ -52,10 +52,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             if (newArguments != methodCallExpression.Arguments)
             {
                 if (methodCallExpression.Method.MethodIsClosedFormOf(
-                    _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod))
+                    _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
                 {
                     return Expression.Call(
-                        _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod
+                        _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod
                             .MakeGenericMethod(typeof(ValueBuffer)),
                         newArguments);
                 }

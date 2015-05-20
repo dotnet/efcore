@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 _foundCreateEntityForQuerySource = true;
             }
 
-            if (expression.Method.MethodIsClosedFormOf(_queryCompilationContext.QueryMethodProvider.QueryMethod))
+            if (expression.Method.MethodIsClosedFormOf(_queryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
             {
                 _foundCreateEntityForQuerySource = false;
 
@@ -230,8 +230,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             targetTableExpression,
                             innerJoinExpression);
 
-                    var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
-
                     selectExpression = targetSelectExpression;
                     readerIndex++;
 
@@ -241,14 +239,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 _queryCompilationContext.QueryMethodProvider
                                     .CreateCollectionIncludeRelatedValuesStrategyMethod,
                                 Expression.Call(
-                                    _queryCompilationContext.QueryMethodProvider.QueryMethod
-                                        .MakeGenericMethod(typeof(ValueBuffer)),
+                                    _queryCompilationContext.QueryMethodProvider.QueryMethod,
                                     EntityQueryModelVisitor.QueryContextParameter,
                                     Expression.Constant(
                                         new CommandBuilder(
                                             () => _queryCompilationContext.CreateSqlQueryGenerator(targetSelectExpression),
-                                            _queryCompilationContext.ValueBufferFactoryFactory)),
-                                    Expression.Lambda(valueBufferParameter, valueBufferParameter)),
+                                            _queryCompilationContext.ValueBufferFactoryFactory))),
                                 materializer));
                 }
             }

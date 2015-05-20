@@ -39,14 +39,14 @@ namespace Microsoft.Data.Entity.Relational.Query
             return default(TResult);
         }
 
-        public virtual MethodInfo QueryMethod => _queryMethodInfo;
+        public virtual MethodInfo ShapedQueryMethod => _shapedQueryMethodInfo;
 
-        private static readonly MethodInfo _queryMethodInfo
+        private static readonly MethodInfo _shapedQueryMethodInfo
             = typeof(QueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod(nameof(_Query));
+                .GetDeclaredMethod(nameof(_ShapedQuery));
 
         [UsedImplicitly]
-        private static IEnumerable<T> _Query<T>(
+        private static IEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             CommandBuilder commandBuilder,
             Func<ValueBuffer, T> shaper)
@@ -57,6 +57,23 @@ namespace Microsoft.Data.Entity.Relational.Query
                     commandBuilder,
                     queryContext.Logger)
                     .Select(shaper);
+        }
+
+        public virtual MethodInfo QueryMethod => _queryMethodInfo;
+
+        private static readonly MethodInfo _queryMethodInfo
+            = typeof(QueryMethodProvider).GetTypeInfo()
+                .GetDeclaredMethod(nameof(_Query));
+
+        [UsedImplicitly]
+        private static IEnumerable<ValueBuffer> _Query(
+            QueryContext queryContext, CommandBuilder commandBuilder)
+        {
+            return
+                new QueryingEnumerable(
+                    ((RelationalQueryContext)queryContext),
+                    commandBuilder,
+                    queryContext.Logger);
         }
 
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;
