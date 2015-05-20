@@ -74,6 +74,13 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return new KeyBuilder(Builder.PrimaryKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
         }
 
+        public virtual KeyBuilder AlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
+        {
+            Check.NotNull(keyExpression, nameof(keyExpression));
+
+            return new KeyBuilder(Builder.Key(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+        }
+
         /// <summary>
         ///     Returns an object that can be used to configure a property of the entity type.
         ///     If the specified property is not already part of the model, it will be added.

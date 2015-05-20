@@ -85,6 +85,13 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return new KeyBuilder(Builder.PrimaryKey(propertyNames, ConfigurationSource.Explicit));
         }
 
+        public virtual KeyBuilder AlternateKey([NotNull] params string[] propertyNames)
+        {
+            Check.NotNull(propertyNames, nameof(propertyNames));
+
+            return new KeyBuilder(Builder.Key(propertyNames, ConfigurationSource.Explicit));
+        }
+
         /// <summary>
         ///     <para>
         ///         Returns an object that can be used to configure a property of the entity type.

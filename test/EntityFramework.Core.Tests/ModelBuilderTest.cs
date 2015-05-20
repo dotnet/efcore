@@ -175,13 +175,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             modelBuilder.Entity<Customer>(b =>
                 {
                     b.Property<int>(Customer.IdProperty.Name + 1);
-                    b.Key(Customer.IdProperty.Name);
+                    b.Ignore(p => p.Details);
+                    b.Ignore(p => p.Orders);
+                    b.Key(Customer.IdProperty.Name + 1);
                 });
 
             var entity = model.GetEntityType(typeof(Customer));
 
             Assert.Equal(1, entity.GetPrimaryKey().Properties.Count);
-            Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
+            Assert.Equal(Customer.IdProperty.Name + 1, entity.GetPrimaryKey().Properties.First().Name);
         }
 
         [Fact]
@@ -287,6 +289,80 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(key, entity.GetKeys().Single());
             Assert.Equal(Customer.NameProperty.Name, entity.GetPrimaryKey().Properties.Single().Name);
+        }
+
+        [Fact]
+        public void Can_set_alternate_key_from_clr_property()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+
+            modelBuilder.Entity<Customer>().AlternateKey(b => b.AlternateKey);
+
+            var entity = model.GetEntityType(typeof(Customer));
+
+            Assert.Equal(1, entity.GetKeys().Count(key => key != entity.GetPrimaryKey()));
+            Assert.Equal(Customer.AlternateKeyProperty.Name, entity.GetKeys().First(key => key != entity.GetPrimaryKey()).Properties.First().Name);
+        }
+
+        [Fact]
+        public void Can_set_alternate_key_from_CLR_property_non_generic()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+
+            modelBuilder.Entity(typeof(Customer), b => b.AlternateKey(Customer.AlternateKeyProperty.Name));
+
+            var entity = model.GetEntityType(typeof(Customer));
+
+            Assert.Equal(1, entity.GetKeys().Count(key => key != entity.GetPrimaryKey()));
+            Assert.Equal(Customer.AlternateKeyProperty.Name, entity.GetKeys().First(key => key != entity.GetPrimaryKey()).Properties.First().Name);
+        }
+
+        [Fact]
+        public void Can_set_alternate_key_from_property_name()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+
+            modelBuilder.Entity<Customer>(b => { b.AlternateKey(Customer.AlternateKeyProperty.Name); });
+
+            var entity = model.GetEntityType(typeof(Customer));
+
+            Assert.Equal(1, entity.GetKeys().Count(key => key != entity.GetPrimaryKey()));
+            Assert.Equal(Customer.AlternateKeyProperty.Name, entity.GetKeys().First(key => key != entity.GetPrimaryKey()).Properties.First().Name);
+        }
+
+        [Fact]
+        public void Can_set_alternate_key_from_property_name_when_no_clr_property()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+
+            modelBuilder.Entity<Customer>(b =>
+            {
+                b.Property<int>(Customer.AlternateKeyProperty.Name + 1);
+                b.AlternateKey(Customer.AlternateKeyProperty.Name + 1);
+            });
+
+            var entity = model.GetEntityType(typeof(Customer));
+
+            Assert.Equal(1, entity.GetKeys().Count(key => key != entity.GetPrimaryKey()));
+            Assert.Equal(Customer.AlternateKeyProperty.Name + 1, entity.GetKeys().First(key => key != entity.GetPrimaryKey()).Properties.First().Name);
+        }
+
+        [Fact]
+        public void Setting_alternate_key_from_clr_property_when_property_ignored_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(Strings.PropertyIgnoredExplicitly(Customer.AlternateKeyProperty.Name, typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(() =>
+                    modelBuilder.Entity<Customer>(b =>
+                    {
+                        b.Ignore(Customer.AlternateKeyProperty.Name);
+                        b.AlternateKey(e => e.AlternateKey);
+                    })).Message);
         }
 
         [Fact]
@@ -6074,6 +6150,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
             public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+            public static readonly PropertyInfo AlternateKeyProperty = typeof(Customer).GetProperty("AlternateKey");
 
             public int Id { get; set; }
             public Guid AlternateKey { get; set; }
