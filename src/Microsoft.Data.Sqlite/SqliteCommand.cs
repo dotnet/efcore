@@ -111,12 +111,12 @@ namespace Microsoft.Data.Sqlite
             {
                 Sqlite3StmtHandle stmt;
                 var rc = NativeMethods.sqlite3_prepare16_v2(
-                    Connection.Handle,
+                    Connection.DbHandle,
                     tail,
                     -1,
                     out stmt,
                     out tail);
-                MarshalEx.ThrowExceptionForRC(rc, Connection.Handle);
+                MarshalEx.ThrowExceptionForRC(rc, Connection.DbHandle);
 
                 // Statement was empty, white space, or a comment
                 if (stmt.IsInvalid)
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 rc = NativeMethods.sqlite3_step(stmt);
-                MarshalEx.ThrowExceptionForRC(rc, Connection.Handle);
+                MarshalEx.ThrowExceptionForRC(rc, Connection.DbHandle);
 
                 // NB: This is only a heuristic to separate SELECT statements from INSERT/UPDATE/DELETE statements. It will result
                 //     in unexpected corner cases, but it's the best we can do without re-parsing SQL
@@ -165,13 +165,13 @@ namespace Microsoft.Data.Sqlite
                 else
                 {
                     hasChanges = true;
-                    changes += NativeMethods.sqlite3_changes(Connection.Handle);
+                    changes += NativeMethods.sqlite3_changes(Connection.DbHandle);
                     stmt.Dispose();
                 }
             }
             while (!string.IsNullOrEmpty(tail));
 
-            return new SqliteDataReader(Connection.Handle, stmts, hasChanges ? changes : -1);
+            return new SqliteDataReader(Connection.DbHandle, stmts, hasChanges ? changes : -1);
         }
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => ExecuteReader(behavior);

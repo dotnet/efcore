@@ -58,6 +58,8 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        public virtual IntPtr Handle => _stmt.DangerousGetHandle();
+
         public override bool HasRows => _hasRows;
         public override bool IsClosed => _closed;
         public override int RecordsAffected { get; }

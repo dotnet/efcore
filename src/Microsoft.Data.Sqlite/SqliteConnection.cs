@@ -26,7 +26,9 @@ namespace Microsoft.Data.Sqlite
             ConnectionString = connectionString;
         }
 
-        internal virtual Sqlite3Handle Handle => _db;
+        internal virtual Sqlite3Handle DbHandle => _db;
+
+        public virtual IntPtr Handle => _db.DangerousGetHandle();
 
         public override string ConnectionString
         {
