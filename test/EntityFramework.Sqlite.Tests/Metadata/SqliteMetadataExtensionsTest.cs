@@ -153,8 +153,8 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
                 .Key(e => e.Id)
                 .Metadata;
 
-            Assert.Null(key.Sqlite().Name);
-            Assert.Null(((IKey)key).Sqlite().Name);
+            Assert.Equal("PK_Customer", key.Sqlite().Name);
+            Assert.Equal("PK_Customer", ((IKey)key).Sqlite().Name);
 
             key.Relational().Name = "PrimaryKey";
 
@@ -188,8 +188,8 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
                 .ForeignKey<Order>(e => e.CustomerId)
                 .Metadata;
 
-            Assert.Null(foreignKey.Sqlite().Name);
-            Assert.Null(((IForeignKey)foreignKey).Sqlite().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Sqlite().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).Sqlite().Name);
 
             foreignKey.Relational().Name = "FK";
 
@@ -217,8 +217,8 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
                 .Index(e => e.Id)
                 .Metadata;
 
-            Assert.Null(index.Sqlite().Name);
-            Assert.Null(((IIndex)index).Sqlite().Name);
+            Assert.Equal("IX_Customer_Id", index.Sqlite().Name);
+            Assert.Equal("IX_Customer_Id", ((IIndex)index).Sqlite().Name);
 
             index.Relational().Name = "MyIndex";
 

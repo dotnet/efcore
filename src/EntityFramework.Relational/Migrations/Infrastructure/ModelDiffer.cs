@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
@@ -14,7 +13,6 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 {
-    // TODO: Move constraint naming
     // TODO: Handle transitive renames (See #1907)
     // TODO: Match similar items
     public class ModelDiffer : IModelDiffer
@@ -410,7 +408,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             if (source != null
                 && target != null)
             {
-                if (Name(source) != Name(target)
+                if (source.Relational().Name != target.Relational().Name
                     || !source.Properties.Select(p => p.Relational().Column).SequenceEqual(
                         target.Properties.Select(p => p.Relational().Column)))
                 {
@@ -434,7 +432,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         {
             foreach (var target in targets)
             {
-                if (string.Equals(Name(source), Name(target), StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(source.Relational().Name, target.Relational().Name, StringComparison.OrdinalIgnoreCase))
                 {
                     return target;
                 }
@@ -451,7 +449,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 {
                     Schema = target.EntityType.Relational().Schema,
                     Table = target.EntityType.Relational().Table,
-                    Name = Name(target),
+                    Name = target.Relational().Name,
                     Columns = target.Properties.Select(p => p.Relational().Column).ToArray()
                 };
             }
@@ -461,7 +459,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 {
                     Schema = target.EntityType.Relational().Schema,
                     Table = target.EntityType.Relational().Table,
-                    Name = Name(target),
+                    Name = target.Relational().Name,
                     Columns = target.Properties.Select(p => p.Relational().Column).ToArray()
                 };
             }
@@ -475,7 +473,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 {
                     Schema = source.EntityType.Relational().Schema,
                     Table = source.EntityType.Relational().Table,
-                    Name = Name(source)
+                    Name = source.Relational().Name
                 };
             }
             else
@@ -484,7 +482,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 {
                     Schema = source.EntityType.Relational().Schema,
                     Table = source.EntityType.Relational().Table,
-                    Name = Name(source)
+                    Name = source.Relational().Name
                 };
             }
         }
@@ -498,7 +496,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Diff(IForeignKey source, IForeignKey target)
         {
-            if (Name(source) != Name(target)
+            if (source.Relational().Name != target.Relational().Name
                 || !source.Properties.Select(p => p.Relational().Column).SequenceEqual(
                     target.Properties.Select(p => p.Relational().Column))
                 || source.PrincipalEntityType.Relational().Table != target.PrincipalEntityType.Relational().Table
@@ -516,7 +514,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         {
             foreach (var target in targets)
             {
-                if (string.Equals(Name(source), Name(target), StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(source.Relational().Name, target.Relational().Name, StringComparison.OrdinalIgnoreCase))
                 {
                     return target;
                 }
@@ -532,7 +530,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             {
                 Schema = target.EntityType.Relational().Schema,
                 Table = target.EntityType.Relational().Table,
-                Name = Name(target),
+                Name = target.Relational().Name,
                 Columns = target.Properties.Select(p => p.Relational().Column).ToArray(),
                 ReferencedSchema = target.PrincipalEntityType.Relational().Schema,
                 ReferencedTable = target.PrincipalEntityType.Relational().Table,
@@ -546,7 +544,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             {
                 Schema = source.EntityType.Relational().Schema,
                 Table = source.EntityType.Relational().Table,
-                Name = Name(source)
+                Name = source.Relational().Name
             };
         }
 
@@ -559,8 +557,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Diff(IIndex source, IIndex target)
         {
-            var sourceName = Name(source);
-            var targetName = Name(target);
+            var sourceName = source.Relational().Name;
+            var targetName = target.Relational().Name;
 
             if (sourceName != targetName)
             {
@@ -590,7 +588,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         {
             foreach (var target in targets)
             {
-                if (string.Equals(Name(source), Name(target), StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(source.Relational().Name, target.Relational().Name, StringComparison.OrdinalIgnoreCase))
                 {
                     return target;
                 }
@@ -603,7 +601,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         {
             yield return new CreateIndexOperation
             {
-                Name = Name(target),
+                Name = target.Relational().Name,
                 Schema = target.EntityType.Relational().Schema,
                 Table = target.EntityType.Relational().Table,
                 Columns = target.Properties.Select(p => p.Relational().Column).ToArray(),
@@ -615,7 +613,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         {
             yield return new DropIndexOperation
             {
-                Name = Name(source),
+                Name = source.Relational().Name,
                 Schema = source.EntityType.Relational().Schema,
                 Table = source.EntityType.Relational().Table
             };
@@ -739,81 +737,6 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             {
                 yield return operation;
             }
-        }
-
-        private string Name([NotNull] IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            var builder = new StringBuilder();
-
-            var schema = entityType.Relational().Schema;
-            if (schema != null)
-            {
-                builder
-                    .Append(schema)
-                    .Append(".");
-            }
-
-            builder.Append(entityType.Relational().Table);
-
-            return builder.ToString();
-        }
-
-        private string Name([NotNull] IReadOnlyCollection<IProperty> properties)
-        {
-            Check.NotNull(properties, nameof(properties));
-
-            return string.Join("_", properties.Select(Name));
-        }
-
-        private string Name([NotNull] IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return property.Relational().Column;
-        }
-
-        private string Name([NotNull] IKey key)
-        {
-            Check.NotNull(key, nameof(key));
-
-            var name = key.Relational().Name;
-            if (name != null)
-            {
-                return name;
-            }
-
-            var builder = new StringBuilder();
-
-            builder
-                .Append(key.IsPrimaryKey() ? "PK_" : "AK_")
-                .Append(Name(key.EntityType));
-
-            if (!key.IsPrimaryKey())
-            {
-                builder
-                    .Append("_")
-                    .Append(Name(key.Properties));
-            }
-
-            return builder.ToString();
-        }
-
-        private string Name([NotNull] IForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
-            return foreignKey.Relational().Name
-                   ?? "FK_" + Name(foreignKey.EntityType) + "_" + Name(foreignKey.PrincipalEntityType) + "_" +
-                   Name(foreignKey.Properties);
-        }
-
-        private string Name([NotNull] IIndex index)
-        {
-            Check.NotNull(index, nameof(index));
-
-            return index.Relational().Name ?? "IX_" + Name(index.EntityType) + "_" + Name(index.Properties);
         }
     }
 }
