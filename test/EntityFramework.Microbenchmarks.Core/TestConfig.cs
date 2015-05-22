@@ -3,7 +3,7 @@
 
 using System;
 using System.IO;
-using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.Configuration;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -70,7 +70,7 @@ namespace EntityFramework.Microbenchmarks.Core
             }
             else
             {
-                var configuration = new Configuration(GetApplicationBathPath());
+                var configuration = new ConfigurationSection(GetApplicationBathPath());
                 if (File.Exists(cliConfigPath))
                 {
                     configuration.AddJsonFile(cliConfigPath);
