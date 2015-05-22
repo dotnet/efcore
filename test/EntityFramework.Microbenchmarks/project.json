@@ -2,8 +2,8 @@
     "dependencies": {
         "EntityFramework.SqlServer": "7.0.0-*",
         "EntityFramework.Microbenchmarks.Core": "1.0.0-*",
-        "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-*",
-        "Microsoft.Framework.ConfigurationModel.Xml": "1.0.0-*",
+        "Microsoft.Framework.Configuration.Json": "1.0.0-*",
+        "Microsoft.Framework.Configuration.Xml": "1.0.0-*",
         "xunit.runner.aspnet": "2.0.0-aspnet-*"
     },
     "commands": {

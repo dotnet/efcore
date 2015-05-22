@@ -44,10 +44,10 @@
     <PackageReference Include="System.Reflection.Metadata">
       <TargetFramework>portable-net45+win8</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
+    <PackageReference Include="Microsoft.Framework.Configuration">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Abstractions">
+    <PackageReference Include="Microsoft.Framework.Configuration.Abstractions">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
