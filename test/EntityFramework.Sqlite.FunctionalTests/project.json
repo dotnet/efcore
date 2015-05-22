@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "EntityFramework.Relational.FunctionalTests": "1.0.0",
+        "EntityFramework.Relational.FunctionalTests": "7.0.0-*",
         "EntityFramework.Sqlite": "7.0.0-*"
     },
     "commands": {

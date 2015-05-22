@@ -1,4 +1,6 @@
 {
+  "version": "7.0.0-*",
+  "description": "Reusable EntityFramework.Core functional tests for provider writers.",
   "dependencies": {
     "EntityFramework.InMemory": "7.0.0-*"
   },
