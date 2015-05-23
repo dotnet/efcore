@@ -79,5 +79,18 @@ namespace Microsoft.Data.Entity.Tests.Utilities
 
             Assert.Equal("Foo\r\n    Foo\r\n", indentedStringBuilder.ToString());
         }
+
+        [Fact]
+        public void Append_line_with_indent_only()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            using (indentedStringBuilder.Indent())
+            {
+                indentedStringBuilder.AppendLine();
+            }
+
+            Assert.Equal("\r\n", indentedStringBuilder.ToString());
+        }
     }
 }

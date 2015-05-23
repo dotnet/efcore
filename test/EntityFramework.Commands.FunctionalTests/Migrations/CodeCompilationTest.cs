@@ -44,7 +44,7 @@ namespace MyNamespace
         public override void Up(MigrationBuilder migration)
         {
         }
-        
+
         public override void Down(MigrationBuilder migration)
         {
         }
@@ -76,12 +76,12 @@ namespace MyNamespace
         {
             get { return ""20150511161616_MyMigration""; }
         }
-        
+
         public override string ProductVersion
         {
             get { return ""7.0.0""; }
         }
-        
+
         public override void BuildTargetModel(ModelBuilder builder)
         {
         }
