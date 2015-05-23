@@ -71,7 +71,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Key(""Id"");
     });
 
@@ -80,9 +80,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<int>(""AlternateId"");
-        
+
         b.Key(""Id"");
     });
 ",
@@ -114,9 +114,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Key(""Id"");
-        
+
         b.Annotation(""AnnotationName"", ""AnnotationValue"");
     });
 ",
@@ -141,9 +141,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<int>(""AlternateId"");
-        
+
         b.Key(""Id"");
     });
 ",
@@ -171,10 +171,10 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
     {
         b.Property<int>(""Id"")
             .GenerateValueOnAdd();
-        
+
         b.Property<int>(""AlternateId"")
             .GenerateValueOnAdd();
-        
+
         b.Key(""Id"", ""AlternateId"");
     });
 ",
@@ -203,11 +203,11 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<int>(""AlternateId"");
-        
+
         b.Key(""Id"");
-        
+
         b.Index(""AlternateId"");
     });
 ",
@@ -232,11 +232,11 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<int>(""AlternateId"");
-        
+
         b.Key(""Id"");
-        
+
         b.Index(""Id"", ""AlternateId"");
     });
 ",
@@ -264,7 +264,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Key(""Id"");
     });
 
@@ -273,9 +273,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<int>(""AlternateId"");
-        
+
         b.Key(""Id"");
     });
 
@@ -307,7 +307,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"");
-        
+
         b.Key(""Id"");
     });
 
@@ -316,10 +316,10 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<int>(""AlternateId"")
             .GenerateValueOnAdd();
-        
+
         b.Key(""Id"");
     });
 
@@ -357,7 +357,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
             .Annotation(""AnnotationName"", ""AnnotationValue"");
-        
+
         b.Key(""Id"");
     });
 ",
@@ -383,10 +383,10 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<string>(""Name"")
             .Required();
-        
+
         b.Key(""Id"");
     });
 ",
@@ -410,10 +410,10 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<int>(""AlternateId"")
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Key(""Id"");
     });
 ",
@@ -437,10 +437,10 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<string>(""Name"")
             .Annotation(""MaxLength"", 100);
-        
+
         b.Key(""Id"");
     });
 ",
@@ -464,10 +464,10 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<int>(""AlternateId"")
             .GenerateValueOnAdd();
-        
+
         b.Key(""Id"");
     });
 ",
@@ -491,10 +491,10 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<int>(""AlternateId"")
             .ConcurrencyToken();
-        
+
         b.Key(""Id"");
     });
 ",
@@ -522,11 +522,11 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<int>(""AlternateId"");
-        
+
         b.Key(""Id"");
-        
+
         b.Index(""AlternateId"")
             .Annotation(""AnnotationName"", ""AnnotationValue"");
     });
@@ -551,11 +551,11 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<int>(""AlternateId"");
-        
+
         b.Key(""Id"");
-        
+
         b.Index(""AlternateId"")
             .Unique();
     });
@@ -588,7 +588,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Key(""Id"");
     });
 
@@ -597,9 +597,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<int>(""AlternateId"");
-        
+
         b.Key(""Id"");
     });
 
@@ -634,7 +634,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
     {
         b.Property<string>(""Id"")
             .GenerateValueOnAdd();
-        
+
         b.Key(""Id"");
     });
 
@@ -643,10 +643,10 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<string>(""Name"")
             .Required();
-        
+
         b.Key(""Id"");
     });
 
@@ -679,7 +679,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
     {
         b.Property<string>(""Id"")
             .GenerateValueOnAdd();
-        
+
         b.Key(""Id"");
     });
 
@@ -688,9 +688,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"")
             .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-        
+
         b.Property<string>(""Name"");
-        
+
         b.Key(""Id"");
     });
 
@@ -740,7 +740,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
                     using Microsoft.Data.Entity.Metadata.ModelConventions;
                     using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 
-                    
+
                     public static class ModelSnapshot
                     {
                         public static IModel Model

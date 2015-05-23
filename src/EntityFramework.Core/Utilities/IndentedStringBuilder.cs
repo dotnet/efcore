@@ -50,9 +50,14 @@ namespace Microsoft.Data.Entity.Utilities
         {
             Check.NotNull(o, nameof(o));
 
-            DoIndent();
+            var value = o.ToString();
 
-            _stringBuilder.AppendLine(o.ToString());
+            if (value != string.Empty)
+            {
+                DoIndent();
+            }
+
+            _stringBuilder.AppendLine(value);
 
             _indentPending = true;
 
