@@ -70,16 +70,17 @@ namespace EntityFramework.Microbenchmarks.Core
             }
             else
             {
-                var configuration = new ConfigurationSection(GetApplicationBathPath());
+                var builder = new ConfigurationBuilder(GetApplicationBathPath());
                 if (File.Exists(cliConfigPath))
                 {
-                    configuration.AddJsonFile(cliConfigPath);
+                    builder.AddJsonFile(cliConfigPath);
                 }
                 else if (File.Exists(vsConfigPath))
                 {
-                    configuration.AddJsonFile(vsConfigPath);
+                    builder.AddJsonFile(vsConfigPath);
                 }
 
+                var configuration = builder.Build();
                 if (configuration.TryGet("Data:DefaultDataSource:DataSource", out _dataSource))
                 {
                     _dataSource = _dataSource.Trim();
@@ -129,7 +130,7 @@ namespace EntityFramework.Microbenchmarks.Core
         }
 
         private string GetApplicationBathPath()
-        { 
+        {
             var applicatioBasePath = ".";
 
 #if DNX451 || DNXCORE50
