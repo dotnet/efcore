@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public override DbContext CreateContext(SqlServerTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseSqlServer(testStore.Connection.ConnectionString);
 
             return new DbContext(_serviceProvider, optionsBuilder.Options);
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public override DbContext CreateContext(DbConnection connection)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseSqlServer(connection);
 
             return new DbContext(_serviceProvider, optionsBuilder.Options);

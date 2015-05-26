@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         public class NullKeysInMemoryFixture : NullKeysFixtureBase
         {
             private readonly IServiceProvider _serviceProvider;
-            private readonly DbContextOptions _options;
+            private readonly EntityOptions _options;
 
             public NullKeysInMemoryFixture()
             {
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-                var optionsBuilder = new DbContextOptionsBuilder();
+                var optionsBuilder = new EntityOptionsBuilder();
                 optionsBuilder.UseInMemoryStore(persist: true);
                 _options = optionsBuilder.Options;
 

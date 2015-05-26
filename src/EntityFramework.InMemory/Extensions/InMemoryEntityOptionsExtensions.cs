@@ -10,9 +10,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public static class InMemoryDbContextOptionsExtensions
+    public static class InMemoryEntityOptionsExtensions
     {
-        public static void UseInMemoryStore([NotNull] this DbContextOptionsBuilder optionsBuilder, bool persist = true)
+        public static void UseInMemoryStore([NotNull] this EntityOptionsBuilder optionsBuilder, bool persist = true)
             => ((IOptionsBuilderExtender)Check.NotNull(optionsBuilder, nameof(optionsBuilder)))
                 .AddOrUpdateExtension(
                     new InMemoryOptionsExtension { Persist = persist });

@@ -8,14 +8,14 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class DbContextOptionsTest
+    public class EntityOptionsTest
     {
         [Fact]
         public void Model_can_be_set_explicitly_in_options()
         {
             var model = new Model();
 
-            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model);
+            var optionsBuilder = new EntityOptionsBuilder().UseModel(model);
 
             Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
         }
@@ -23,13 +23,13 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Extensions_can_be_added_to_options()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
 
-            Assert.Null(optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
+            Assert.Null(optionsBuilder.Options.FindExtension<FakeEntityOptionsExtension1>());
             Assert.Empty(optionsBuilder.Options.Extensions);
 
-            var extension1 = new FakeDbContextOptionsExtension1();
-            var extension2 = new FakeDbContextOptionsExtension2();
+            var extension1 = new FakeEntityOptionsExtension1();
+            var extension2 = new FakeEntityOptionsExtension2();
 
             ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension1);
             ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension2);
@@ -38,17 +38,17 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Contains(extension1, optionsBuilder.Options.Extensions);
             Assert.Contains(extension2, optionsBuilder.Options.Extensions);
 
-            Assert.Same(extension1, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
-            Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension2>());
+            Assert.Same(extension1, optionsBuilder.Options.FindExtension<FakeEntityOptionsExtension1>());
+            Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeEntityOptionsExtension2>());
         }
 
         [Fact]
         public void Can_update_an_existing_extension()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
 
-            var extension1 = new FakeDbContextOptionsExtension1 { Something = "One " };
-            var extension2 = new FakeDbContextOptionsExtension1 { Something = "Two " };
+            var extension1 = new FakeEntityOptionsExtension1 { Something = "One " };
+            var extension2 = new FakeEntityOptionsExtension1 { Something = "Two " };
 
             ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension1);
             ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension2);
@@ -57,22 +57,22 @@ namespace Microsoft.Data.Entity.Tests
             Assert.DoesNotContain(extension1, optionsBuilder.Options.Extensions);
             Assert.Contains(extension2, optionsBuilder.Options.Extensions);
 
-            Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
+            Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeEntityOptionsExtension1>());
         }
 
         [Fact]
         public void IsConfigured_returns_true_if_any_extensions_have_been_added()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
 
             Assert.False(optionsBuilder.IsConfigured);
 
-            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(new FakeDbContextOptionsExtension2());
+            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(new FakeEntityOptionsExtension2());
 
             Assert.True(optionsBuilder.IsConfigured);
         }
 
-        private class FakeDbContextOptionsExtension1 : IDbContextOptionsExtension
+        private class FakeEntityOptionsExtension1 : IEntityOptionsExtension
         {
             public string Something { get; set; }
 
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
-        private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
+        private class FakeEntityOptionsExtension2 : IEntityOptionsExtension
         {
             public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
@@ -93,21 +93,21 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = new Model();
 
-            var optionsBuilder = GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().UseModel(model));
+            var optionsBuilder = GenericCheck(new EntityOptionsBuilder<UnkoolContext>().UseModel(model));
 
             Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
         }
 
-        private DbContextOptionsBuilder<UnkoolContext> GenericCheck(DbContextOptionsBuilder<UnkoolContext> optionsBuilder) => optionsBuilder;
+        private EntityOptionsBuilder<UnkoolContext> GenericCheck(EntityOptionsBuilder<UnkoolContext> optionsBuilder) => optionsBuilder;
 
         [Fact]
         public void Generic_builder_returns_generic_options()
         {
-            var builder = new DbContextOptionsBuilder<UnkoolContext>();
-            Assert.Same(((DbContextOptionsBuilder)builder).Options, GenericCheck(builder.Options));
+            var builder = new EntityOptionsBuilder<UnkoolContext>();
+            Assert.Same(((EntityOptionsBuilder)builder).Options, GenericCheck(builder.Options));
         }
 
-        private DbContextOptions<UnkoolContext> GenericCheck(DbContextOptions<UnkoolContext> options) => options;
+        private EntityOptions<UnkoolContext> GenericCheck(EntityOptions<UnkoolContext> options) => options;
 
         private class UnkoolContext : DbContext
         {

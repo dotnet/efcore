@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private readonly ILoggerFactory _loggerFactory;
 
-        public SqlServerConnection([NotNull] IDbContextOptions options, [NotNull] ILoggerFactory loggerFactory)
+        public SqlServerConnection([NotNull] IEntityOptions options, [NotNull] ILoggerFactory loggerFactory)
             : base(options, loggerFactory)
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer
             var builder = new SqlConnectionStringBuilder { ConnectionString = ConnectionString, InitialCatalog = "master" };
 
             // TODO use clone connection method once implimented see #1406
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseSqlServer(builder.ConnectionString).CommandTimeout(CommandTimeout);
 
             return new SqlServerConnection(optionsBuilder.Options, _loggerFactory);

@@ -14,12 +14,12 @@ namespace Microsoft.Data.Entity.Storage
     public class DataStoreSelector : IDataStoreSelector
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly IDbContextOptions _contextOptions;
+        private readonly IEntityOptions _contextOptions;
         private readonly IDataStoreSource[] _sources;
 
         public DataStoreSelector(
             [NotNull] IServiceProvider serviceProvider,
-            [NotNull] IDbContextOptions contextOptions,
+            [NotNull] IEntityOptions contextOptions,
             [CanBeNull] IEnumerable<IDataStoreSource> sources)
         {
             Check.NotNull(serviceProvider, nameof(serviceProvider));

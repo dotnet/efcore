@@ -398,7 +398,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected class StoreGeneratedContext : DbContext
         {
-            public StoreGeneratedContext(IServiceProvider serviceProvider, DbContextOptions options)
+            public StoreGeneratedContext(IServiceProvider serviceProvider, EntityOptions options)
                 : base(serviceProvider, options)
             {
             }

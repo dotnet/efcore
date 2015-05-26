@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Is_configured_when_configuration_contains_associated_extension()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie");
 
             Assert.True(new SqlServerDataStoreSource().IsConfigured(optionsBuilder.Options));
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Can_not_be_auto_configured()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
 
             var dataStoreSource = new SqlServerDataStoreSource();
             dataStoreSource.AutoConfigure(optionsBuilder);
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Is_not_configured_when_configuration_does_not_contain_associated_extension()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
 
             Assert.False(new SqlServerDataStoreSource().IsConfigured(optionsBuilder.Options));
         }

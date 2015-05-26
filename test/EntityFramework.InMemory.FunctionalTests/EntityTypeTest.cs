@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var nameProperty = entityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
             entityType.GetOrSetPrimaryKey(idProperty);
 
-            var optionsBuilder = new DbContextOptionsBuilder()
+            var optionsBuilder = new EntityOptionsBuilder()
                 .UseModel(model);
             optionsBuilder.UseInMemoryStore();
 

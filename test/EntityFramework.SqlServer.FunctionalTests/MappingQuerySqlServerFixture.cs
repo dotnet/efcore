@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     public class MappingQuerySqlServerFixture : MappingQueryFixtureBase
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly DbContextOptions _options;
+        private readonly EntityOptions _options;
         private readonly SqlServerTestStore _testDatabase;
 
         public MappingQuerySqlServerFixture()
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             _testDatabase = SqlServerNorthwindContext.GetSharedStore();
 
-            var optionsBuilder = new DbContextOptionsBuilder().UseModel(CreateModel());
+            var optionsBuilder = new EntityOptionsBuilder().UseModel(CreateModel());
             optionsBuilder.UseSqlServer(_testDatabase.Connection.ConnectionString);
             _options = optionsBuilder.Options;
         }

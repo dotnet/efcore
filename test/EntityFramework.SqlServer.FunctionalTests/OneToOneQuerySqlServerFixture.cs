@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class OneToOneQuerySqlServerFixture : OneToOneQueryFixtureBase
     {
-        private readonly DbContextOptions _options;
+        private readonly EntityOptions _options;
         private readonly IServiceProvider _serviceProvider;
 
         public OneToOneQuerySqlServerFixture()
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var database = SqlServerTestStore.CreateScratch();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseSqlServer(database.Connection.ConnectionString);
             _options = optionsBuilder.Options;
 

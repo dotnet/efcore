@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity
     ///         they are automatically initialized when the instance of the derived context is created.
     ///     </para>
     ///     <para>
-    ///         Override the <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method to configure the data store (and
+    ///         Override the <see cref="OnConfiguring(EntityOptionsBuilder)" /> method to configure the data store (and
     ///         other
     ///         options) to be
     ///         used for the context.
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbContext" /> class. The
-        ///     <see cref="OnConfiguring(DbContextOptionsBuilder)" />
+        ///     <see cref="OnConfiguring(EntityOptionsBuilder)" />
         ///     method will be called to configure the data store (and other options) to be used for this context.
         /// </summary>
         protected DbContext()
@@ -81,8 +81,8 @@ namespace Microsoft.Data.Entity
         ///         required.
         ///     </para>
         ///     <para>
-        ///         If the <see cref="IServiceProvider" /> has a <see cref="DbContextOptions" /> or
-        ///         <see cref="DbContextOptions{T}" />
+        ///         If the <see cref="IServiceProvider" /> has a <see cref="EntityOptions" /> or
+        ///         <see cref="EntityOptions{T}" />
         ///         registered, then this will be used as the options for this context instance. The <see cref="OnConfiguring" />
         ///         method
         ///         will still be called to allow further configuration of the options.
@@ -98,11 +98,11 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbContext" /> with the specified options. The
-        ///     <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method will still be called to allow further
+        ///     <see cref="OnConfiguring(EntityOptionsBuilder)" /> method will still be called to allow further
         ///     configuration of the options.
         /// </summary>
         /// <param name="options">The options for this context.</param>
-        public DbContext([NotNull] DbContextOptions options)
+        public DbContext([NotNull] EntityOptions options)
         {
             Check.NotNull(options, nameof(options));
 
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity
         ///     Initializes a new instance of the <see cref="DbContext" /> class using an <see cref="IServiceProvider" />
         ///     and the specified options.
         ///     <para>
-        ///         The <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method will still be called to allow further
+        ///         The <see cref="OnConfiguring(EntityOptionsBuilder)" /> method will still be called to allow further
         ///         configuration of the options.
         ///     </para>
         ///     <para>
@@ -125,8 +125,8 @@ namespace Microsoft.Data.Entity
         ///         required.
         ///     </para>
         ///     <para>
-        ///         If the <see cref="IServiceProvider" /> has a <see cref="DbContextOptions" /> or
-        ///         <see cref="DbContextOptions{T}" />
+        ///         If the <see cref="IServiceProvider" /> has a <see cref="EntityOptions" /> or
+        ///         <see cref="EntityOptions{T}" />
         ///         registered, then this will be used as the options for this context instance. The <see cref="OnConfiguring" />
         ///         method
         ///         will still be called to allow further configuration of the options.
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity
         /// </summary>
         /// <param name="serviceProvider">The service provider to be used.</param>
         /// <param name="options">The options for this context.</param>
-        public DbContext([NotNull] IServiceProvider serviceProvider, [NotNull] DbContextOptions options)
+        public DbContext([NotNull] IServiceProvider serviceProvider, [NotNull] EntityOptions options)
         {
             Check.NotNull(serviceProvider, nameof(serviceProvider));
             Check.NotNull(options, nameof(options));
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity
             Initialize(serviceProvider, options);
         }
 
-        private void Initialize(IServiceProvider serviceProvider, DbContextOptions options)
+        private void Initialize(IServiceProvider serviceProvider, EntityOptions options)
         {
             InitializeSets(serviceProvider, options);
             _contextServices = new LazyRef<IDbContextServices>(() => InitializeServices(serviceProvider, options));
@@ -151,17 +151,17 @@ namespace Microsoft.Data.Entity
             _changeTracker = new LazyRef<ChangeTracker>(() => ServiceProvider.GetRequiredService<IChangeTrackerFactory>().CreateChangeTracker());
         }
 
-        private DbContextOptions GetOptions(IServiceProvider serviceProvider)
+        private EntityOptions GetOptions(IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
             {
-                return new DbContextOptions<DbContext>();
+                return new EntityOptions<DbContext>();
             }
 
-            var genericOptions = _optionsTypes.GetOrAdd(GetType(), t => typeof(DbContextOptions<>).MakeGenericType(t));
+            var genericOptions = _optionsTypes.GetOrAdd(GetType(), t => typeof(EntityOptions<>).MakeGenericType(t));
 
-            var options = (DbContextOptions)serviceProvider.GetService(genericOptions)
-                          ?? serviceProvider.GetService<DbContextOptions>();
+            var options = (EntityOptions)serviceProvider.GetService(genericOptions)
+                          ?? serviceProvider.GetService<EntityOptions>();
 
             if (options != null
                 && options.GetType() != genericOptions)
@@ -169,7 +169,7 @@ namespace Microsoft.Data.Entity
                 throw new InvalidOperationException(Strings.NonGenericOptions);
             }
 
-            return options ?? new DbContextOptions<DbContext>();
+            return options ?? new EntityOptions<DbContext>();
         }
 
         private IChangeDetector GetChangeDetector() => ServiceProvider.GetRequiredService<IChangeDetector>();
@@ -178,7 +178,7 @@ namespace Microsoft.Data.Entity
 
         private IServiceProvider ServiceProvider => _contextServices.Value.ServiceProvider;
 
-        private IDbContextServices InitializeServices(IServiceProvider serviceProvider, DbContextOptions options)
+        private IDbContextServices InitializeServices(IServiceProvider serviceProvider, EntityOptions options)
         {
             if (_initializing)
             {
@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity
             {
                 _initializing = true;
 
-                var optionsBuilder = new DbContextOptionsBuilder(options);
+                var optionsBuilder = new EntityOptionsBuilder(options);
                 OnConfiguring(optionsBuilder);
 
                 var dataStores = serviceProvider?.GetService<IEnumerable<IDataStoreSource>>()?.ToList()
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity
             }
         }
 
-        private void InitializeSets(IServiceProvider serviceProvider, DbContextOptions options)
+        private void InitializeSets(IServiceProvider serviceProvider, EntityOptions options)
         {
             serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
@@ -247,17 +247,17 @@ namespace Microsoft.Data.Entity
         ///     This method is called for each instance of the context that is created.
         /// </summary>
         /// <remarks>
-        ///     If you passed an instance of <see cref="DbContextOptions" /> to the constructor of the context (or
-        ///     provided an <see cref="IServiceProvider" /> with <see cref="DbContextOptions" /> registered) then
+        ///     If you passed an instance of <see cref="EntityOptions" /> to the constructor of the context (or
+        ///     provided an <see cref="IServiceProvider" /> with <see cref="EntityOptions" /> registered) then
         ///     it is cloned before being passed to this method. This allows the options to be altered without
-        ///     affecting other context instances that are constructed with the same <see cref="DbContextOptions" />
+        ///     affecting other context instances that are constructed with the same <see cref="EntityOptions" />
         ///     instance.
         /// </remarks>
         /// <param name="optionsBuilder">
         ///     A builder used to create or modify options for this context. Data stores (and other extensions)
         ///     typically define extension methods on this object that allow you to configure the context.
         /// </param>
-        protected internal virtual void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected internal virtual void OnConfiguring(EntityOptionsBuilder optionsBuilder)
         {
         }
 

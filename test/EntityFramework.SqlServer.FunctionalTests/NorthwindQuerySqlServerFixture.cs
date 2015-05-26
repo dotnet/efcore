@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     public class NorthwindQuerySqlServerFixture : NorthwindQueryRelationalFixture, IDisposable
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly DbContextOptions _options;
+        private readonly EntityOptions _options;
         private readonly SqlServerTestStore _testStore;
 
         public NorthwindQuerySqlServerFixture()
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
             _options = optionsBuilder.Options;
 

@@ -103,7 +103,7 @@
     <Compile Include="Query\SqliteQueryGenerator.cs" />
     <Compile Include="SqliteDataStoreConnection.cs" />
     <Compile Include="SqliteDataStoreCreator.cs" />
-    <Compile Include="SqliteDbContextOptionsBuilderExtensions.cs" />
+    <Compile Include="SqliteEntityOptionsBuilderExtensions.cs" />
     <Compile Include="SqliteEntityFrameworkServicesBuilderExtensions.cs" />
     <Compile Include="SqliteModelSource.cs" />
     <Compile Include="SqliteSqlGenerator.cs" />

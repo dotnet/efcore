@@ -332,11 +332,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
                         }))).Message);
         }
 
-        private static IDbContextOptions CreateOptions(
+        private static IEntityOptions CreateOptions(
             FakeOptionsExtension1 configUpdater1,
             FakeOptionsExtension2 configUpdater2 = null)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
 
             if (configUpdater1 != null)
             {
@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         private class FakeConnection : RelationalConnection
         {
-            public FakeConnection(IDbContextOptions options)
+            public FakeConnection(IEntityOptions options)
                 : base(options, new LoggerFactory())
             {
             }

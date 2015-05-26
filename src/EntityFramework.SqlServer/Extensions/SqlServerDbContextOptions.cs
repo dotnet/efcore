@@ -7,14 +7,14 @@ using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Data.Entity.SqlServer.Extensions
 {
-    public class SqlServerDbContextOptionsBuilder : RelationalDbContextOptionsBuilder
+    public class SqlServerEntityOptionsBuilder : RelationalEntityOptionsBuilder
     {
-        public SqlServerDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
+        public SqlServerEntityOptionsBuilder([NotNull] EntityOptionsBuilder optionsBuilder)
             : base(optionsBuilder)
         {
         }
 
-        public virtual SqlServerDbContextOptionsBuilder MaxBatchSize(int maxBatchSize)
+        public virtual SqlServerEntityOptionsBuilder MaxBatchSize(int maxBatchSize)
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
                 {
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.Extensions
             return this;
         }
 
-        public virtual SqlServerDbContextOptionsBuilder CommandTimeout(int? commandTimeout)
+        public virtual SqlServerEntityOptionsBuilder CommandTimeout(int? commandTimeout)
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
                 {
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.Extensions
             return this;
         }
 
-        public virtual SqlServerDbContextOptionsBuilder MigrationsAssembly([NotNull] string assemblyName)
+        public virtual SqlServerEntityOptionsBuilder MigrationsAssembly([NotNull] string assemblyName)
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
                 {
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.SqlServer.Extensions
             return this;
         }
 
-        public virtual SqlServerDbContextOptionsBuilder SuppressAmbientTransactionWarning()
+        public virtual SqlServerEntityOptionsBuilder SuppressAmbientTransactionWarning()
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
                 {

@@ -12,9 +12,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public static class SqlServerDbContextOptionsExtensions
+    public static class SqlServerEntityOptionsExtensions
     {
-        public static SqlServerDbContextOptionsBuilder UseSqlServer([NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] string connectionString)
+        public static SqlServerEntityOptionsBuilder UseSqlServer([NotNull] this EntityOptionsBuilder optionsBuilder, [NotNull] string connectionString)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -25,11 +25,11 @@ namespace Microsoft.Data.Entity
 
             ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension);
 
-            return new SqlServerDbContextOptionsBuilder(optionsBuilder);
+            return new SqlServerEntityOptionsBuilder(optionsBuilder);
         }
 
         // Note: Decision made to use DbConnection not SqlConnection: Issue #772
-        public static SqlServerDbContextOptionsBuilder UseSqlServer([NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] DbConnection connection)
+        public static SqlServerEntityOptionsBuilder UseSqlServer([NotNull] this EntityOptionsBuilder optionsBuilder, [NotNull] DbConnection connection)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(connection, nameof(connection));
@@ -40,10 +40,10 @@ namespace Microsoft.Data.Entity
 
             ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(extension);
 
-            return new SqlServerDbContextOptionsBuilder(optionsBuilder);
+            return new SqlServerEntityOptionsBuilder(optionsBuilder);
         }
 
-        private static SqlServerOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)
+        private static SqlServerOptionsExtension GetOrCreateExtension(EntityOptionsBuilder optionsBuilder)
         {
             var existing = optionsBuilder.Options.FindExtension<SqlServerOptionsExtension>();
             return existing != null

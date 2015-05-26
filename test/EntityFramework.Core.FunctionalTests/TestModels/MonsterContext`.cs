@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
     {
         private readonly Action<ModelBuilder> _onModelCreating;
 
-        public MonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<ModelBuilder> onModelCreating)
+        public MonsterContext(IServiceProvider serviceProvider, EntityOptions options, Action<ModelBuilder> onModelCreating)
             : base(serviceProvider, options)
         {
             _onModelCreating = onModelCreating;

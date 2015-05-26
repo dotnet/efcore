@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
+                    var optionsBuilder = new EntityOptionsBuilder();
                     optionsBuilder.UseSqlite(_connectionString);
 
                     using (var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options))
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
         public override NullSemanticsContext CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseSqlite(testStore.Connection);
 
             var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options);

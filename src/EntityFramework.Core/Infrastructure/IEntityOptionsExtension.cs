@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public interface IDbContextOptionsExtension
+    public interface IEntityOptionsExtension
     {
         void ApplyServices([NotNull] EntityFrameworkServicesBuilder builder);
     }

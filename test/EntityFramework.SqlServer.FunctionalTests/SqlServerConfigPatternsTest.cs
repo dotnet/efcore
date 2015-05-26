@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
                 {
                     optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
                 }
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (await SqlServerNorthwindContext.GetSharedStoreAsync())
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
+                    var optionsBuilder = new EntityOptionsBuilder();
                     optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
 
                     using (var context = new NorthwindContext(optionsBuilder.Options))
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             private class NorthwindContext : DbContext
             {
-                public NorthwindContext(DbContextOptions options)
+                public NorthwindContext(EntityOptions options)
                     : base(options)
                 {
                 }
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
                 {
                     optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
                 }
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
-                    var optionsBuilder = new DbContextOptionsBuilder();
+                    var optionsBuilder = new EntityOptionsBuilder();
                     optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
 
                     using (var context = new NorthwindContext(serviceProvider, optionsBuilder.Options))
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             private class NorthwindContext : DbContext
             {
-                public NorthwindContext(IServiceProvider serviceProvider, DbContextOptions options)
+                public NorthwindContext(IServiceProvider serviceProvider, EntityOptions options)
                     : base(serviceProvider, options)
                 {
                 }
@@ -265,7 +265,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
                 {
                     optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
                 }
@@ -325,7 +325,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
                 {
                     optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
                 }
@@ -342,7 +342,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_register_context_and_configuration_with_DI_container_and_have_both_injected()
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
+                var optionsBuilder = new EntityOptionsBuilder();
                 optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
 
                 var serviceCollection = new ServiceCollection();
@@ -381,7 +381,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             private class NorthwindContext : DbContext
             {
-                public NorthwindContext(IServiceProvider serviceProvider, DbContextOptions options)
+                public NorthwindContext(IServiceProvider serviceProvider, EntityOptions options)
                     : base(serviceProvider, options)
                 {
                     Assert.NotNull(serviceProvider);
@@ -405,7 +405,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_register_configuration_with_DI_container_and_have_it_injected()
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
+                var optionsBuilder = new EntityOptionsBuilder();
                 optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
 
                 var serviceCollection = new ServiceCollection();
@@ -444,7 +444,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             private class NorthwindContext : DbContext
             {
-                public NorthwindContext(DbContextOptions options)
+                public NorthwindContext(EntityOptions options)
                     : base(options)
                 {
                     Assert.NotNull(options);
@@ -466,7 +466,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (await SqlServerNorthwindContext.GetSharedStoreAsync())
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
+                    var optionsBuilder = new EntityOptionsBuilder();
                     optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
 
                     using (var context = new NorthwindContext(optionsBuilder.Options))
@@ -478,7 +478,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             private class NorthwindContext : DbContext
             {
-                public NorthwindContext(DbContextOptions options)
+                public NorthwindContext(EntityOptions options)
                     : base(options)
                 {
                 }
@@ -517,7 +517,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Customer> Customers { get; set; }
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
                 {
                     optionsBuilder.UseSqlServer(_connectionString);
                 }
@@ -578,7 +578,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     ConfigureModel(modelBuilder);
                 }
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
                 {
                     optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
                 }
@@ -660,7 +660,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 public DbSet<Blog> Blogs { get; set; }
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
                 {
                     optionsBuilder.UseInMemoryStore();
                 }
@@ -684,7 +684,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     ConfigureModel(modelBuilder);
                 }
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
                 {
                     optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
                 }

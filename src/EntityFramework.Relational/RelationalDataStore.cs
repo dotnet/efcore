@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Relational
         private readonly ICommandBatchPreparer _batchPreparer;
         private readonly IBatchExecutor _batchExecutor;
         private readonly IRelationalConnection _connection;
-        private readonly IDbContextOptions _options;
+        private readonly IEntityOptions _options;
 
         protected RelationalDataStore(
             [NotNull] IModel model,
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] IRelationalConnection connection,
             [NotNull] ICommandBatchPreparer batchPreparer,
             [NotNull] IBatchExecutor batchExecutor,
-            [NotNull] IDbContextOptions options,
+            [NotNull] IEntityOptions options,
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
 
-        public virtual IDbContextOptions DbContextOptions => _options;
+        public virtual IEntityOptions EntityOptions => _options;
 
         public override int SaveChanges(
             IReadOnlyList<InternalEntityEntry> entries)

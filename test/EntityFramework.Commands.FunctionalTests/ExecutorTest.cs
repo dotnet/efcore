@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Commands
                             {
                                 internal class SimpleContext : DbContext
                                 {
-                                    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                                    protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
                                     {
                                         optionsBuilder.UseSqlServer(""Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=SimpleProject.SimpleContext;Integrated Security=True"");
                                     }
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.Commands
                         {
                             internal class Context1 : DbContext
                             {
-                                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                                protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
                                 {
                                     optionsBuilder.UseSqlServer(""Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=SimpleProject.SimpleContext;Integrated Security=True"");
                                 }

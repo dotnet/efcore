@@ -9,27 +9,27 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class DbContextOptionsBuilder : IOptionsBuilderExtender
+    public class EntityOptionsBuilder : IOptionsBuilderExtender
     {
-        private DbContextOptions _options;
+        private EntityOptions _options;
 
-        public DbContextOptionsBuilder()
-            : this(new DbContextOptions<DbContext>())
+        public EntityOptionsBuilder()
+            : this(new EntityOptions<DbContext>())
         {
         }
 
-        public DbContextOptionsBuilder([NotNull] DbContextOptions options)
+        public EntityOptionsBuilder([NotNull] EntityOptions options)
         {
             Check.NotNull(options, nameof(options));
 
             _options = options;
         }
 
-        public virtual DbContextOptions Options => _options;
+        public virtual EntityOptions Options => _options;
 
         public virtual bool IsConfigured => _options.Extensions.Any();
 
-        public virtual DbContextOptionsBuilder UseModel([NotNull] IModel model)
+        public virtual EntityOptionsBuilder UseModel([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
 

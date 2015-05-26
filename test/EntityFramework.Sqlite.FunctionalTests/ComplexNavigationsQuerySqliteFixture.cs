@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 DatabaseName,
                 () =>
                     {
-                        var optionsBuilder = new DbContextOptionsBuilder();
+                        var optionsBuilder = new EntityOptionsBuilder();
                         optionsBuilder.UseSqlite(_connectionString);
 
                         using (var context = new ComplexNavigationsContext(_serviceProvider, optionsBuilder.Options))
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
         public override ComplexNavigationsContext CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseSqlite(testStore.Connection);
 
             var context = new ComplexNavigationsContext(_serviceProvider, optionsBuilder.Options);

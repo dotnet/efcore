@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var model = new Entity.Metadata.Model();
             var entityType = model.AddEntityType(typeof(object));
 
-            var optionsBuilder = new DbContextOptionsBuilder()
+            var optionsBuilder = new EntityOptionsBuilder()
                 .UseModel(model);
             optionsBuilder.UseInMemoryStore(persist: false);
 

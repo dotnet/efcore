@@ -76,7 +76,7 @@
     <Compile Include="Migrations\SqlServerMigrationSqlGeneratorTest.cs" />
     <Compile Include="CommandConfigurationTests.cs" />
     <Compile Include="SqlServerDataStoreCreatorTest.cs" />
-    <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />
+    <Compile Include="SqlServerEntityOptionsExtensionsTest.cs" />
     <Compile Include="SqlServerDatabaseExtensionsTest.cs" />
     <Compile Include="SqlServerOptionsExtensionTest.cs" />
     <Compile Include="SqlServerConnectionTest.cs" />

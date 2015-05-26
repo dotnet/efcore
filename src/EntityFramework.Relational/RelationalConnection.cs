@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Relational
         private bool _throwOnAmbientTransaction;
 #endif
 
-        protected RelationalConnection([NotNull] IDbContextOptions options, [NotNull] ILoggerFactory loggerFactory)
+        protected RelationalConnection([NotNull] IEntityOptions options, [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(options, nameof(options));
             Check.NotNull(loggerFactory, nameof(loggerFactory));

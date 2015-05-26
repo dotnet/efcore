@@ -9,27 +9,27 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public abstract class DbContextOptions : IDbContextOptions
+    public abstract class EntityOptions : IEntityOptions
     {
-        protected DbContextOptions(
-            [NotNull] IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
+        protected EntityOptions(
+            [NotNull] IReadOnlyDictionary<Type, IEntityOptionsExtension> extensions)
         {
             Check.NotNull(extensions, nameof(extensions));
 
             _extensions = extensions;
         }
 
-        public virtual IEnumerable<IDbContextOptionsExtension> Extensions => _extensions.Values;
+        public virtual IEnumerable<IEntityOptionsExtension> Extensions => _extensions.Values;
 
         public virtual TExtension FindExtension<TExtension>()
-            where TExtension : class, IDbContextOptionsExtension
+            where TExtension : class, IEntityOptionsExtension
         {
-            IDbContextOptionsExtension extension;
+            IEntityOptionsExtension extension;
             return _extensions.TryGetValue(typeof(TExtension), out extension) ? (TExtension)extension : null;
         }
 
         public virtual TExtension GetExtension<TExtension>()
-            where TExtension : class, IDbContextOptionsExtension
+            where TExtension : class, IEntityOptionsExtension
         {
             var extension = FindExtension<TExtension>();
             if (extension == null)
@@ -39,9 +39,9 @@ namespace Microsoft.Data.Entity.Infrastructure
             return extension;
         }
 
-        public abstract DbContextOptions WithExtension<TExtension>([NotNull] TExtension extension)
-            where TExtension : class, IDbContextOptionsExtension;
+        public abstract EntityOptions WithExtension<TExtension>([NotNull] TExtension extension)
+            where TExtension : class, IEntityOptionsExtension;
 
-        private readonly IReadOnlyDictionary<Type, IDbContextOptionsExtension> _extensions;
+        private readonly IReadOnlyDictionary<Type, IEntityOptionsExtension> _extensions;
     }
 }

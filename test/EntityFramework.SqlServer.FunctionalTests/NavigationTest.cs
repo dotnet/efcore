@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             ConfigAction.Invoke(modelBuilder);
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=StateManagerBug;Trusted_Connection=True;MultipleActiveResultSets=true");
         }

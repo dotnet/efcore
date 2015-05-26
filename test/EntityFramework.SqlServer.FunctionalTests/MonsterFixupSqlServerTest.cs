@@ -37,9 +37,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return serviceCollection.BuildServiceProvider();
         }
 
-        protected override DbContextOptions CreateOptions(string databaseName)
+        protected override EntityOptions CreateOptions(string databaseName)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseSqlServer(CreateConnectionString(databaseName));
 
             return optionsBuilder.Options;

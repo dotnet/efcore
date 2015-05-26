@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class NorthwindQueryInMemoryFixture : NorthwindQueryFixtureBase
     {
-        private readonly DbContextOptions _options;
+        private readonly EntityOptions _options;
         private readonly IServiceProvider _serviceProvider;
 
         public NorthwindQueryInMemoryFixture()
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseInMemoryStore();
             _options = optionsBuilder.Options;
 

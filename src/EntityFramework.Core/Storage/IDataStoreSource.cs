@@ -10,8 +10,8 @@ namespace Microsoft.Data.Entity.Storage
     public interface IDataStoreSource
     {
         IDataStoreServices GetStoreServices([NotNull] IServiceProvider serviceProvider);
-        bool IsConfigured([NotNull] IDbContextOptions options);
+        bool IsConfigured([NotNull] IEntityOptions options);
         string Name { get; }
-        void AutoConfigure([NotNull] DbContextOptionsBuilder optionsBuilder);
+        void AutoConfigure([NotNull] EntityOptionsBuilder optionsBuilder);
     }
 }

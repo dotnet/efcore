@@ -10,9 +10,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public static class SqliteDbContextOptionsBuilderExtensions
+    public static class SqliteEntityOptionsBuilderExtensions
     {
-        public static RelationalDbContextOptionsBuilder UseSqlite([NotNull] this DbContextOptionsBuilder options, [NotNull] string connectionString)
+        public static RelationalEntityOptionsBuilder UseSqlite([NotNull] this EntityOptionsBuilder options, [NotNull] string connectionString)
         {
             Check.NotNull(options, nameof(options));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -21,10 +21,10 @@ namespace Microsoft.Data.Entity
             extension.ConnectionString = connectionString;
             ((IOptionsBuilderExtender)options).AddOrUpdateExtension(extension);
 
-            return new RelationalDbContextOptionsBuilder(options);
+            return new RelationalEntityOptionsBuilder(options);
         }
 
-        public static RelationalDbContextOptionsBuilder UseSqlite([NotNull] this DbContextOptionsBuilder options, [NotNull] DbConnection connection)
+        public static RelationalEntityOptionsBuilder UseSqlite([NotNull] this EntityOptionsBuilder options, [NotNull] DbConnection connection)
         {
             Check.NotNull(options, nameof(options));
             Check.NotNull(connection, nameof(connection));
@@ -33,10 +33,10 @@ namespace Microsoft.Data.Entity
             extension.Connection = connection;
             ((IOptionsBuilderExtender)options).AddOrUpdateExtension(extension);
 
-            return new RelationalDbContextOptionsBuilder(options);
+            return new RelationalEntityOptionsBuilder(options);
         }
 
-        private static SqliteOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder options)
+        private static SqliteOptionsExtension GetOrCreateExtension(EntityOptionsBuilder options)
         {
             var existingExtension = options.Options.FindExtension<SqliteOptionsExtension>();
 

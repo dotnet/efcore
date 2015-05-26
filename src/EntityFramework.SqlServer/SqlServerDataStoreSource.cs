@@ -7,7 +7,7 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerDataStoreSource : DataStoreSource<SqlServerDataStoreServices, SqlServerOptionsExtension>
     {
-        public override void AutoConfigure(DbContextOptionsBuilder optionsBuilder)
+        public override void AutoConfigure(EntityOptionsBuilder optionsBuilder)
         {
         }
 
