@@ -48,6 +48,7 @@
     <Compile Include="GearsOfWarQuerySqliteFixture.cs" />
     <Compile Include="GearsOfWarQuerySqliteTest.cs" />
     <Compile Include="IncludeAsyncSqliteTest.cs" />
+    <Compile Include="IncludeOneToOneSqliteTest.cs" />
     <Compile Include="IncludeSqliteTest.cs" />
     <Compile Include="InheritanceSqliteFixture.cs" />
     <Compile Include="InheritanceSqliteTest.cs" />
@@ -68,6 +69,8 @@
     <None Include="northwind.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Include="TransactionSqliteFixture.cs" />
+    <Compile Include="TransactionSqliteTest.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

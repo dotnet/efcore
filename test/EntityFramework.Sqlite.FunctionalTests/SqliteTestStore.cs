@@ -3,6 +3,7 @@
 
 using System;
 using System.Data.Common;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
@@ -17,8 +18,17 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public static SqliteTestStore GetOrCreateShared(string name, Action initializeDatabase) =>
             new SqliteTestStore(name).CreateShared(initializeDatabase);
 
-        public static SqliteTestStore CreateScratch() => 
-            new SqliteTestStore("scratch-" + Interlocked.Increment(ref _scratchCount)).CreateTransient();
+        public static SqliteTestStore CreateScratch(bool sharedCache = false)
+        {
+            string name;
+            do
+            {
+                name = "scratch-" + Interlocked.Increment(ref _scratchCount);
+            }
+            while (File.Exists(name + ".db"));
+
+            return new SqliteTestStore(name).CreateTransient(sharedCache);
+        }
 
         private SqliteConnection _connection;
         private SqliteTransaction _transaction;
@@ -26,7 +36,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         private bool _deleteDatabase;
         public const int CommandTimeout = 30;
 
-        public SqliteTestStore(string name)
+        private SqliteTestStore(string name)
         {
             _name = name;
         }
@@ -43,14 +53,18 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             return this;
         }
 
-        private SqliteTestStore CreateTransient()
+        private SqliteTestStore CreateTransient(bool sharedCache)
         {
-            _connection = new SqliteConnection(CreateConnectionString(_name));
+            _connection = new SqliteConnection(CreateConnectionString(_name, sharedCache));
 
             _connection.Open();
 
-            _deleteDatabase = true;
+            return this.AsTransient();
+        }
 
+        public SqliteTestStore AsTransient()
+        {
+            _deleteDatabase = true;
             return this;
         }
 
@@ -88,29 +102,30 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public override void Dispose()
         {
             Transaction?.Dispose();
+            Connection?.Dispose();
 
-            string path = null;
             if (_deleteDatabase)
             {
-                _connection.Open();
-                path = _connection.DataSource;
+                var fileName = _name + ".db";
+                try
+                {
+                    // TODO figure out why some tests cannot delete db files
+                    File.Delete(fileName);
+                }
+                catch (IOException e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
             }
-
-            _connection.Dispose();
-
-            if (path != null)
-            {
-                File.Delete(path);
-            }
-
             base.Dispose();
         }
 
-        public static string CreateConnectionString(string name) =>
+        public static string CreateConnectionString(string name, bool sharedCache = false) =>
             new SqliteConnectionStringBuilder
-                {
-                    DataSource = name + ".db"
-                }
+            {
+                DataSource = name + ".db",
+                CacheMode = sharedCache ? CacheMode.Shared : CacheMode.Private
+            }
                 .ToString();
     }
 }
