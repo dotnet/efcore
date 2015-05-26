@@ -67,7 +67,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.Common">
       <TargetFramework>net45</TargetFramework>
-      <Assemblies>Microsoft.CodeAnalysis;Microsoft.CodeAnalysis.Desktop</Assemblies>
+      <Assemblies>Microsoft.CodeAnalysis</Assemblies>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp">
       <TargetFramework>net45</TargetFramework>
