@@ -67,6 +67,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true,
                 entryCount: 86);
         }
+        
+        [Fact]
+        public virtual void Skip_no_orderby()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Skip(5),
+                entryCount: 86,
+                asserter: (_, __) => { /* non-deterministic */ });
+        }
 
         [Fact]
         public virtual void Take_Skip()

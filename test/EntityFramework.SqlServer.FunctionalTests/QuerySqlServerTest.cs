@@ -555,7 +555,20 @@ FROM (
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID] OFFSET 5 ROWS",
+ORDER BY [c].[CustomerID]
+OFFSET 5 ROWS",
+                Sql);
+        }
+
+        public override void Skip_no_orderby()
+        {
+            base.Skip_no_orderby();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY 1
+OFFSET 5 ROWS",
                 Sql);
         }
 
@@ -566,7 +579,8 @@ ORDER BY [c].[CustomerID] OFFSET 5 ROWS",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY [c].[ContactName] OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY",
+ORDER BY [c].[ContactName]
+OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY",
                 Sql);
         }
 
@@ -581,7 +595,8 @@ FROM (
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactName]
 ) AS [t0]
-ORDER BY [t0].[ContactName] OFFSET 5 ROWS",
+ORDER BY [t0].[ContactName]
+OFFSET 5 ROWS",
                 Sql);
         }
 
@@ -598,7 +613,8 @@ FROM (
         FROM [Customers] AS [c]
         ORDER BY [c].[ContactName]
     ) AS [t0]
-    ORDER BY [t0].[ContactName] OFFSET 5 ROWS
+    ORDER BY [t0].[ContactName]
+    OFFSET 5 ROWS
 ) AS [t1]",
                 Sql);
         }
@@ -2594,7 +2610,8 @@ FROM (
         FROM [Customers] AS [c]
         ORDER BY COALESCE([c].[Region], 'ZZ')
     ) AS [t0]
-    ORDER BY COALESCE([t0].[Region], 'ZZ') OFFSET 5 ROWS
+    ORDER BY COALESCE([t0].[Region], 'ZZ')
+    OFFSET 5 ROWS
 ) AS [t1]", Sql);
         }
 
@@ -2618,7 +2635,8 @@ FROM (
     FROM [Customers] AS [c]
     ORDER BY [Coalesce]
 ) AS [t0]
-ORDER BY [Coalesce] OFFSET 5 ROWS",
+ORDER BY [Coalesce]
+OFFSET 5 ROWS",
             Sql);
         }
 
