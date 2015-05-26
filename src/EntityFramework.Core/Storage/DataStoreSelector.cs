@@ -27,7 +27,10 @@ namespace Microsoft.Data.Entity.Storage
 
             _serviceProvider = serviceProvider;
             _contextOptions = contextOptions;
-            _sources = sources == null ? new IDataStoreSource[0] : sources.ToArray();
+            _sources = sources == null
+                ? new IDataStoreSource[0]
+                : sources.Distinct((source, storeSource) => source.GetType() == storeSource.GetType())
+                    .ToArray();
         }
 
         public virtual IDataStoreServices SelectDataStore(ServiceProviderSource providerSource)
