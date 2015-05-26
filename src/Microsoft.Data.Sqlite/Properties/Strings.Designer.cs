@@ -75,6 +75,22 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
+        /// The cache mode '{mode}' is invalid.
+        /// </summary>
+        internal static string InvalidCacheMode
+        {
+            get { return GetString("InvalidCacheMode"); }
+        }
+
+        /// <summary>
+        /// The cache mode '{mode}' is invalid.
+        /// </summary>
+        internal static string FormatInvalidCacheMode(object mode)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidCacheMode", "mode"), mode);
+        }
+
+        /// <summary>
         /// The CommandBehavior '{behavior}' is invalid.
         /// </summary>
         internal static string InvalidCommandBehavior
@@ -120,6 +136,22 @@ namespace Microsoft.Data.Sqlite
         internal static string FormatInvalidIsolationLevel(object isolationLevel)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidIsolationLevel", "isolationLevel"), isolationLevel);
+        }
+
+        /// <summary>
+        /// The IsolationLevel '{isolationLevel}' is invalid when the connection is not using Shared Cache mode.
+        /// </summary>
+        internal static string InvalidIsolationLevelForUnsharedCache
+        {
+            get { return GetString("InvalidIsolationLevelForUnsharedCache"); }
+        }
+
+        /// <summary>
+        /// The IsolationLevel '{isolationLevel}' is invalid when the connection is not using Shared Cache mode.
+        /// </summary>
+        internal static string FormatInvalidIsolationLevelForUnsharedCache(object isolationLevel)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidIsolationLevelForUnsharedCache", "isolationLevel"), isolationLevel);
         }
 
         /// <summary>

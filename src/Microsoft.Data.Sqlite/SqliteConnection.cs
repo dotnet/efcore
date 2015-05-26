@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Runtime.InteropServices;
 using Microsoft.Data.Sqlite.Interop;
 
 namespace Microsoft.Data.Sqlite
@@ -13,7 +14,6 @@ namespace Microsoft.Data.Sqlite
         private const string MainDatabaseName = "main";
 
         private string _connectionString;
-        private SqliteConnectionStringBuilder _connectionStringBuilder;
         private ConnectionState _state;
         private Sqlite3Handle _db;
 
@@ -41,15 +41,17 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 _connectionString = value;
-                _connectionStringBuilder = new SqliteConnectionStringBuilder(value);
+                ConnectionStringBuilder = new SqliteConnectionStringBuilder(value);
             }
         }
+        internal SqliteConnectionStringBuilder ConnectionStringBuilder { get; set; }
 
         public override string Database => MainDatabaseName;
         public override string DataSource =>
             _state == ConnectionState.Open
                 ? NativeMethods.sqlite3_db_filename(_db, MainDatabaseName)
-                : _connectionStringBuilder.DataSource;
+                : ConnectionStringBuilder.DataSource;
+
         public override string ServerVersion => NativeMethods.sqlite3_libversion();
         public override ConnectionState State => _state;
         protected internal SqliteTransaction Transaction { get; set; }
@@ -75,7 +77,10 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Strings.OpenRequiresSetConnectionString);
             }
 
-            var rc = NativeMethods.sqlite3_open16(_connectionStringBuilder.DataSource, out _db);
+            var rc = NativeMethods.sqlite3_enable_shared_cache(ConnectionStringBuilder.CacheMode == CacheMode.Shared); // called to ensure mode set correctly before a connection is created
+            MarshalEx.ThrowExceptionForRC(rc, _db);
+
+            rc = NativeMethods.sqlite3_open16(ConnectionStringBuilder.DataSource, out _db);
             MarshalEx.ThrowExceptionForRC(rc, _db);
             SetState(ConnectionState.Open);
         }

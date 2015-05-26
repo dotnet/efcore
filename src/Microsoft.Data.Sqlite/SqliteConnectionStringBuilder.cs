@@ -14,27 +14,32 @@ namespace Microsoft.Data.Sqlite
     public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     {
         private const string DataSourceKeyword = "Data Source";
+        private const string CacheKeyword = "Cache";
 
         private enum Keywords
         {
-            DataSource
+            DataSource,
+            Cache
         }
 
         private static readonly IReadOnlyList<string> _validKeywords;
         private static readonly IReadOnlyDictionary<string, Keywords> _keywords;
 
         private string _dataSource = string.Empty;
+        private CacheMode _cacheMode = CacheMode.Private;
 
         static SqliteConnectionStringBuilder()
         {
-            var validKeywords = new string[1];
+            var validKeywords = new string[2];
             validKeywords[(int)Keywords.DataSource] = DataSourceKeyword;
+            validKeywords[(int)Keywords.Cache] = CacheKeyword;
             _validKeywords = validKeywords;
 
-            _keywords = new Dictionary<string, Keywords>(1, StringComparer.OrdinalIgnoreCase)
-            {
-                [DataSourceKeyword] = Keywords.DataSource
-            };
+            _keywords = new Dictionary<string, Keywords>(2, StringComparer.OrdinalIgnoreCase)
+                {
+                    [DataSourceKeyword] = Keywords.DataSource,
+                    [CacheKeyword] = Keywords.Cache
+                };
         }
 
         public SqliteConnectionStringBuilder()
@@ -68,6 +73,12 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        public CacheMode CacheMode
+        {
+            get { return _cacheMode; }
+            set { base[CacheKeyword] = _cacheMode = value; }
+        }
+
         public override object this[string keyword]
         {
             get { return GetAt(GetIndex(keyword)); }
@@ -84,6 +95,15 @@ namespace Microsoft.Data.Sqlite
                 {
                     case Keywords.DataSource:
                         DataSource = Convert.ToString(value, CultureInfo.InvariantCulture);
+                        return;
+
+                    case Keywords.Cache:
+                        CacheMode mode;
+                        if (!Enum.TryParse<CacheMode>(value as string, out mode))
+                        {
+                            throw new ArgumentException(Strings.FormatInvalidCacheMode(value));
+                        }
+                        CacheMode = mode;
                         return;
 
 #if NET45 || DNX451 || DNXCORE50
@@ -154,6 +174,9 @@ namespace Microsoft.Data.Sqlite
                 case Keywords.DataSource:
                     return DataSource;
 
+                case Keywords.Cache:
+                    return CacheMode;
+
                 default:
 #if NET45 || DNX451 || DNXCORE50
                     Debug.Fail("Unexpected keyword: " + index);
@@ -179,6 +202,10 @@ namespace Microsoft.Data.Sqlite
             {
                 case Keywords.DataSource:
                     _dataSource = string.Empty;
+                    return;
+
+                case Keywords.Cache:
+                    _cacheMode = CacheMode.Private;
                     return;
 
 #if NET45 || DNX451 || DNXCORE50

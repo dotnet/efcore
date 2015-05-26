@@ -21,6 +21,10 @@ namespace Microsoft.Data.Sqlite
 
             if (isolationLevel == IsolationLevel.ReadUncommitted)
             {
+                if (connection.ConnectionStringBuilder.CacheMode != CacheMode.Shared)
+                {
+                    throw new ArgumentException(Strings.FormatInvalidIsolationLevelForUnsharedCache(isolationLevel));
+                }
                 connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1;");
             }
             else if (isolationLevel == IsolationLevel.Serializable)

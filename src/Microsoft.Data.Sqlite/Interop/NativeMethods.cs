@@ -168,7 +168,10 @@ namespace Microsoft.Data.Sqlite.Interop
                 }
             }
         }
-        
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int sqlite3_enable_shared_cache(bool enabled);
+
         [DllImport("sqlite3", EntryPoint = "sqlite3_errmsg16", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr sqlite3_errmsg16_raw(Sqlite3Handle db);
 

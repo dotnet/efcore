@@ -13,7 +13,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Ctor_sets_read_uncommitted()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            using (var connection = new SqliteConnection("Data Source=:memory:;Cache=Shared"))
             {
                 connection.Open();
 
@@ -50,6 +50,24 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(Strings.FormatInvalidIsolationLevel(IsolationLevel.Snapshot), ex.Message);
             }
         }
+
+        [Fact]
+        public void Ctor_throws_when_invalid_isolation_level_without_cache()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+               var ex =  Assert.Throws<ArgumentException>(()=>connection.BeginTransaction(IsolationLevel.ReadUncommitted));
+                Assert.Equal(Strings.FormatInvalidIsolationLevelForUnsharedCache(IsolationLevel.ReadUncommitted), ex.Message);
+            }
+
+            using (var connection = new SqliteConnection("Data Source=:memory:;Cache=Shared"))
+            {
+                connection.Open();
+                connection.BeginTransaction(IsolationLevel.ReadUncommitted);
+            }
+        }
+
 
         [Fact]
         public void IsolationLevel_throws_when_completed()
