@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
@@ -16,7 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query
         {
         }
 
-        protected override string DelimitIdentifier(string identifier) 
+        protected override string DelimitIdentifier(string identifier)
             => "[" + identifier.Replace("]", "]]") + "]";
 
         public override Expression VisitCountExpression(CountExpression countExpression)
@@ -26,10 +27,22 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             if (countExpression.Type == typeof(long))
             {
                 Sql.Append("COUNT_BIG(*)");
+
                 return countExpression;
             }
 
             return base.VisitCountExpression(countExpression);
+        }
+
+        protected override void GenerateLimitOffset(SelectExpression selectExpression)
+        {
+            if (selectExpression.Offset != null
+                && !selectExpression.OrderBy.Any())
+            {
+                Sql.AppendLine().Append("ORDER BY 1");
+            }
+
+            base.GenerateLimitOffset(selectExpression);
         }
     }
 }

@@ -519,7 +519,8 @@ ORDER BY [c].[CustomerID]
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+ORDER BY [c].[CustomerID]
+OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -528,14 +529,16 @@ INNER JOIN (
     FROM (
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
-        ORDER BY [c].[CustomerID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+        ORDER BY [c].[CustomerID]
+        OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t0]
 ) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [c].[CustomerID]
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+ORDER BY [c].[CustomerID]
+OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -544,7 +547,8 @@ INNER JOIN (
     FROM (
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
-        ORDER BY [c].[CustomerID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+        ORDER BY [c].[CustomerID]
+        OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t0]
 ) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [c].[CustomerID]",
@@ -570,7 +574,8 @@ ORDER BY [c].[CustomerID]
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+ORDER BY [c].[CustomerID]
+OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -579,7 +584,8 @@ INNER JOIN (
     FROM (
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
-        ORDER BY [c].[CustomerID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+        ORDER BY [c].[CustomerID]
+        OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t0]
 ) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [c].[CustomerID]",
@@ -654,7 +660,8 @@ ORDER BY [c].[CustomerID]
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY",
+ORDER BY [c].[CustomerID]
+OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY",
                 Sql);
         }
 
@@ -705,12 +712,14 @@ ORDER BY [o].[CustomerID]
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-ORDER BY [o].[CustomerID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+ORDER BY [o].[CustomerID]
+OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-ORDER BY [o].[CustomerID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY",
+ORDER BY [o].[CustomerID]
+OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY",
                 Sql);
         }
 
@@ -726,11 +735,13 @@ ORDER BY [o].[OrderID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-ORDER BY [o].[OrderID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+ORDER BY [o].[OrderID]
+OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-ORDER BY [o].[OrderID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY",
+ORDER BY [o].[OrderID]
+OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY",
                 Sql);
         }
 
@@ -746,12 +757,14 @@ ORDER BY [o].[OrderID]
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-ORDER BY [o].[OrderID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
+ORDER BY [o].[OrderID]
+OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-ORDER BY [o].[OrderID] OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY",
+ORDER BY [o].[OrderID]
+OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY",
                 Sql);
         }
 
