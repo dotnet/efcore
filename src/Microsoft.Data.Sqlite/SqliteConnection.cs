@@ -28,7 +28,7 @@ namespace Microsoft.Data.Sqlite
 
         internal virtual Sqlite3Handle DbHandle => _db;
 
-        public virtual IntPtr Handle => _db.DangerousGetHandle();
+        public virtual IntPtr Handle => _db?.DangerousGetHandle() ?? IntPtr.Zero;
 
         public override string ConnectionString
         {
@@ -87,6 +87,7 @@ namespace Microsoft.Data.Sqlite
                 return;
             }
 
+            Transaction?.Dispose();
             _db.Dispose();
             _db = null;
             SetState(ConnectionState.Closed);
@@ -98,6 +99,8 @@ namespace Microsoft.Data.Sqlite
             {
                 Close();
             }
+
+            base.Dispose(disposing);
         }
 
         // NB: Other providers don't set Transaction
