@@ -225,7 +225,7 @@
     <Compile Include="RelationalDatabaseExtensions.cs" />
     <Compile Include="RelationalDataStoreCreator.cs" />
     <Compile Include="IRelationalDataStoreServices.cs" />
-    <Compile Include="RelationalDbContextOptions.cs" />
+    <Compile Include="RelationalEntityOptionsBuilder.cs" />
     <Compile Include="RelationalDbSetExtensions.cs" />
     <Compile Include="RelationalMetadataExtensions.cs" />
     <Compile Include="RelationalOptionsExtension.cs" />

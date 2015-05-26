@@ -59,7 +59,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="Extensions\SqlServerDbContextOptions.cs" />
+    <Compile Include="Extensions\SqlServerEntityOptionsBuilder.cs" />
     <Compile Include="ISqlServerConnection.cs" />
     <Compile Include="ISqlServerSqlGenerator.cs" />
     <Compile Include="Metadata\ISqlServerEntityTypeExtensions.cs" />
