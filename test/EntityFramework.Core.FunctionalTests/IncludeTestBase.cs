@@ -820,6 +820,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_reference_when_entity_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = context.Set<Order>()
+                        .Include(o => o.Customer)
+                        .Select(o => new { o, o.CustomerID })
+                        .ToList();
+
+                Assert.Equal(830, orders.Count);
+                Assert.Equal(919, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
         public virtual void Include_reference_with_filter()
         {
             using (var context = CreateContext())
