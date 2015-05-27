@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Query.Sql;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Sqlite.Query
@@ -30,21 +31,30 @@ namespace Microsoft.Data.Entity.Sqlite.Query
             [NotNull] IMemberTranslator compositeMemberTranslator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
-                  model,
-                  logger,
-                  linqOperatorProvider,
-                  resultOperatorHandler,
-                  entityMaterializerSource,
-                  entityKeyFactorySource,
-                  clrPropertyGetterSource,
-                  queryMethodProvider,
-                  compositeMethodCallTranslator,
-                  compositeMemberTranslator,
-                  valueBufferFactoryFactory)
+                model,
+                logger,
+                linqOperatorProvider,
+                resultOperatorHandler,
+                entityMaterializerSource,
+                entityKeyFactorySource,
+                clrPropertyGetterSource,
+                queryMethodProvider,
+                compositeMethodCallTranslator,
+                compositeMemberTranslator,
+                valueBufferFactoryFactory)
         {
         }
 
         public override ISqlQueryGenerator CreateSqlQueryGenerator(SelectExpression selectExpression) =>
             new SqliteQuerySqlGenerator(selectExpression);
+
+        public override string GetColumnName(IProperty property) =>
+            Check.NotNull(property, nameof(property)).Sqlite().Column;
+
+        public override string GetSchema(IEntityType entityType) =>
+            Check.NotNull(entityType, nameof(entityType)).Sqlite().Schema;
+
+        public override string GetTableName(IEntityType entityType) =>
+            Check.NotNull(entityType, nameof(entityType)).Sqlite().Table;
     }
 }
