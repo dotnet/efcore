@@ -9,9 +9,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Query
 {
-    public class SqlServerQueryGenerator : DefaultSqlQueryGenerator
+    public class SqlServerQuerySqlGenerator : DefaultQuerySqlGenerator
     {
-        public SqlServerQueryGenerator([NotNull] SelectExpression selectExpression)
+        public SqlServerQuerySqlGenerator([NotNull] SelectExpression selectExpression)
             : base(Check.NotNull(selectExpression, nameof(selectExpression)))
         {
         }

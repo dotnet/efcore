@@ -43,6 +43,6 @@ namespace Microsoft.Data.Entity.Sqlite.Query
         }
 
         public override ISqlQueryGenerator CreateSqlQueryGenerator(SelectExpression selectExpression) =>
-            new SqliteQueryGenerator(selectExpression);
+            new SqliteQuerySqlGenerator(selectExpression);
     }
 }

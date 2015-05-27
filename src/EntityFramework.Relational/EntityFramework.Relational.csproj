@@ -219,7 +219,7 @@
     <Compile Include="Query\RelationalQueryModelVisitor.cs" />
     <Compile Include="Query\RelationalResultOperatorHandler.cs" />
     <Compile Include="Query\Sql\ISqlQueryGenerator.cs" />
-    <Compile Include="Query\Sql\DefaultSqlQueryGenerator.cs" />
+    <Compile Include="Query\Sql\DefaultQuerySqlGenerator.cs" />
     <Compile Include="Query\Sql\RawSqlQueryGenerator.cs" />
     <Compile Include="RelationalDatabase.cs" />
     <Compile Include="RelationalDatabaseExtensions.cs" />

@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
-            return new DefaultSqlQueryGenerator(selectExpression);
+            return new DefaultQuerySqlGenerator(selectExpression);
         }
 
         public virtual string GetTableName([NotNull] IEntityType entityType)

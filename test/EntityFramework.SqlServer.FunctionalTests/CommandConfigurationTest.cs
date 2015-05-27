@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var selectExpression = new SelectExpression();
 
-            return new CommandBuilder(() => new DefaultSqlQueryGenerator(selectExpression), new UntypedValueBufferFactoryFactory());
+            return new CommandBuilder(() => new DefaultQuerySqlGenerator(selectExpression), new UntypedValueBufferFactoryFactory());
         }
 
         [Fact]

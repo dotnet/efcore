@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query
         }
 
         public override ISqlQueryGenerator CreateSqlQueryGenerator(SelectExpression selectExpression) 
-            => new SqlServerQueryGenerator(Check.NotNull(selectExpression, nameof(selectExpression)));
+            => new SqlServerQuerySqlGenerator(Check.NotNull(selectExpression, nameof(selectExpression)));
 
         public override string GetTableName(IEntityType entityType) 
             => Check.NotNull(entityType, nameof(entityType)).SqlServer().Table;

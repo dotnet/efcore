@@ -18,7 +18,7 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Sql
 {
-    public class DefaultSqlQueryGenerator : ThrowingExpressionTreeVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
+    public class DefaultQuerySqlGenerator : ThrowingExpressionTreeVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
     {
         private readonly SelectExpression _selectExpression;
 
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         private List<CommandParameter> _commandParameters;
         private IDictionary<string, object> _parameterValues;
 
-        public DefaultSqlQueryGenerator([NotNull] SelectExpression selectExpression)
+        public DefaultQuerySqlGenerator([NotNull] SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 

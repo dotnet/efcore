@@ -8,11 +8,11 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Sqlite.Query
 {
-    public class SqliteQueryGenerator : DefaultSqlQueryGenerator
+    public class SqliteQuerySqlGenerator : DefaultQuerySqlGenerator
     {
         protected override string ConcatOperator => "||";
 
-        public SqliteQueryGenerator([NotNull] SelectExpression selectExpression)
+        public SqliteQuerySqlGenerator([NotNull] SelectExpression selectExpression)
             : base(selectExpression)
         {
         }

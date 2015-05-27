@@ -100,7 +100,7 @@
     <Compile Include="Migrations\SqliteHistoryRepository.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGenerator.cs" />
     <Compile Include="Query\SqliteQueryCompilationContext.cs" />
-    <Compile Include="Query\SqliteQueryGenerator.cs" />
+    <Compile Include="Query\SqliteQuerySqlGenerator.cs" />
     <Compile Include="SqliteDataStoreConnection.cs" />
     <Compile Include="SqliteDataStoreCreator.cs" />
     <Compile Include="SqliteEntityOptionsBuilderExtensions.cs" />

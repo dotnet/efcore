@@ -95,7 +95,7 @@
     <Compile Include="Migrations\DropDatabaseOperation.cs" />
     <Compile Include="Migrations\SqlServerHistoryRepository.cs" />
     <Compile Include="Query\SqlServerQueryCompilationContext.cs" />
-    <Compile Include="Query\SqlServerQueryGenerator.cs" />
+    <Compile Include="Query\SqlServerQuerySqlGenerator.cs" />
     <Compile Include="SqlServerBuilderExtensions.cs" />
     <Compile Include="SqlServerDatabase.cs" />
     <Compile Include="SqlServerDatabaseExtensions.cs" />
