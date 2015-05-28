@@ -1,21 +1,22 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
 
-#if DNXCORE50
-using System.Threading;
-#endif
-
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>
+    public class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>, IDisposable
     {
+        private readonly CultureInfo _backupCultureInfo;
+
         public override void Where_simple_closure()
         {
             base.Where_simple_closure();
@@ -2635,6 +2636,13 @@ ORDER BY COALESCE([c].[Region], 'ZZ')",
         public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture)
             : base(fixture)
         {
+            _backupCultureInfo = Thread.CurrentThread.CurrentCulture;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+        }
+
+        void IDisposable.Dispose()
+        {
+            Thread.CurrentThread.CurrentCulture = _backupCultureInfo;
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;
