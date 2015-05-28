@@ -10,40 +10,50 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 #if DNX451 || DNXCORE50
-using System.Threading.Tasks;
 using Microsoft.AspNet.Hosting;
-using Microsoft.Framework.Runtime.Infrastructure;
 #endif
 
 namespace Microsoft.Data.Entity.Commands
 {
     public class ContextTool
     {
-        public static DbContext CreateContext([NotNull] Type type)
+        private readonly IServiceProvider _services;
+
+        public ContextTool([CanBeNull] IServiceProvider services)
+        {
+            _services = services;
+        }
+
+        public virtual DbContext CreateContext([NotNull] Type type, [CanBeNull] string startupAssemblyName)
         {
             Check.NotNull(type, nameof(type));
 
-            // TODO: Allow other construction patterns (See #639)
-            return TryCreateContextFromStartup(type) ?? (DbContext)Activator.CreateInstance(type);
-        }
-
-        private static DbContext TryCreateContextFromStartup(Type type)
-        {
 #if DNX451 || DNXCORE50
-            try
+            var context = TryCreateContextFromStartup(type, startupAssemblyName);
+            if (context != null)
             {
-                return new WebHostBuilder(CallContextServiceLocator.Locator.ServiceProvider)
-                    .Build()
-                    .ApplicationServices
-                    .GetService(type) as DbContext;
-            }
-            catch
-            {
+                return context;
             }
 #endif
 
-            return null;
+            // TODO: Allow other construction patterns (See #639)
+            return (DbContext)Activator.CreateInstance(type);
         }
+
+#if DNX451 || DNXCORE50
+        protected virtual DbContext TryCreateContextFromStartup(Type type, string startupAssemblyName)
+        {
+            var hostBuilder = new WebHostBuilder(_services);
+            if (startupAssemblyName != null)
+            {
+                hostBuilder.UseStartup(startupAssemblyName);
+            }
+
+            var appServices = hostBuilder.Build().ApplicationServices;
+
+            return (DbContext)appServices.GetService(type);
+        }
+#endif
 
         public static IEnumerable<Type> GetContextTypes([NotNull] Assembly assembly) =>
             assembly.GetTypes().Where(

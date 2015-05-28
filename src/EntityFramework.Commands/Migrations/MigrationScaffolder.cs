@@ -303,7 +303,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             [NotNull] string subnamespace)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
-            Check.NotEmpty(subnamespace, nameof(subnamespace));
+            Check.NotNull(subnamespace, nameof(subnamespace));
 
             var defaultDirectory = Path.Combine(projectDir, Path.Combine(subnamespace.Split('.')));
 

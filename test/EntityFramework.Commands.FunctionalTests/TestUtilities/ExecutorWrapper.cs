@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 
         public ExecutorWrapper(string targetDir, string targetFileName, string projectDir, string rootNamespace)
         {
+            var targetPath = Path.Combine(targetDir, targetFileName);
             _targetDir = targetDir;
             _domain = AppDomain.CreateDomain(
                 "ExecutorWrapper",
@@ -39,7 +40,8 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                         new LogHandler(),
                         new Hashtable
                             {
-                                { "targetPath", Path.Combine(targetDir, targetFileName) },
+                                { "targetPath", targetPath },
+                                { "startupTargetPath", targetPath },
                                 { "projectDir", projectDir },
                                 { "rootNamespace", rootNamespace }
                             }

@@ -25,7 +25,7 @@ Register-TabExpansion Use-DbContext @{
 	Specifies the default DbContext to use.
 
 .PARAMETER Project
-	Specifies the project to use. If ommitted, the default project is used.
+	Specifies the project to use. If omitted, the default project is used.
 #>
 function Use-DbContext {
     [CmdletBinding()]
@@ -59,13 +59,13 @@ Register-TabExpansion Add-Migration @{
 	Specifies the name of the migration.
 
 .PARAMETER Context
-	Specifies the default DbContext to use. If ommitted, the default DbContext is used.
+	Specifies the default DbContext to use. If omitted, the default DbContext is used.
 
 .PARAMETER Project
-	Specifies the project to use. If ommitted, the default project is used.
+	Specifies the project to use. If omitted, the default project is used.
 
 .PARAMETER $StartupProject
-	Specifies the start-up project to use. If ommitted, the solution's start-up project is used.
+	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Add-Migration {
     [CmdletBinding()]
@@ -111,13 +111,13 @@ Register-TabExpansion Apply-Migration @{
 	Specifies the migration to apply. If '0', all migrations will be unapplied.
 
 .PARAMETER Context
-	Specifies the default DbContext to use. If ommitted, the default DbContext is used.
+	Specifies the default DbContext to use. If omitted, the default DbContext is used.
 
 .PARAMETER Project
-	Specifies the project to use. If ommitted, the default project is used.
+	Specifies the project to use. If omitted, the default project is used.
 
 .PARAMETER $StartupProject
-	Specifies the start-up project to use. If ommitted, the solution's start-up project is used.
+	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Apply-Migration {
     [CmdletBinding()]
@@ -189,13 +189,13 @@ Register-TabExpansion Script-Migration @{
 	Generates an idempotent script.
 
 .PARAMETER Context
-	Specifies the default DbContext to use. If ommitted, the default DbContext is used.
+	Specifies the default DbContext to use. If omitted, the default DbContext is used.
 
 .PARAMETER Project
-	Specifies the project to use. If ommitted, the default project is used.
+	Specifies the project to use. If omitted, the default project is used.
 
 .PARAMETER $StartupProject
-	Specifies the start-up project to use. If ommitted, the solution's start-up project is used.
+	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Script-Migration {
     [CmdletBinding()]
@@ -252,13 +252,13 @@ Register-TabExpansion Remove-Migration @{
 	Removes the last migration.
 
 .PARAMETER Context
-	Specifies the default DbContext to use. If ommitted, the default DbContext is used.
+	Specifies the default DbContext to use. If omitted, the default DbContext is used.
 
 .PARAMETER Project
-	Specifies the project to use. If ommitted, the default project is used.
+	Specifies the project to use. If omitted, the default project is used.
 
 .PARAMETER $StartupProject
-	Specifies the start-up project to use. If ommitted, the solution's start-up project is used.
+	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Remove-Migration {
     [CmdletBinding()]
@@ -296,10 +296,10 @@ Register-TabExpansion Reverse-Engineer @{
 	Specifies the connection string of the database.
 
 .PARAMETER Project
-	Specifies the project to use. If ommitted, the default project is used.
+	Specifies the project to use. If omitted, the default project is used.
 
 .PARAMETER $StartupProject
-	Specifies the start-up project to use. If ommitted, the solution's start-up project is used.
+	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Reverse-Engineer {
     [CmdletBinding()]
@@ -478,6 +478,8 @@ function InvokeOperation($project, $operation, $arguments = @{}, $startupProject
         $typeName = 'Microsoft.Data.Entity.Commands.Executor'
         $targetFileName = GetProperty $properties OutputFileName
         $targetPath = Join-Path $targetDir $targetFileName
+        $startupTargetFileName = GetProperty $startupProperties OutputFileName
+        $startupTargetPath = Join-Path $startupTargetDir $startupTargetFileName
         $rootNamespace = GetProperty $properties RootNamespace
 
         Write-Verbose "Using assembly '$targetFileName'."
@@ -491,6 +493,7 @@ function InvokeOperation($project, $operation, $arguments = @{}, $startupProject
                 [MarshalByRefObject]$logHandler,
                 @{
                     targetPath = [string]$targetPath
+                    startupTargetPath = [string]$startupTargetPath
                     projectDir = $fullPath
                     rootNamespace = $rootNamespace
                 }

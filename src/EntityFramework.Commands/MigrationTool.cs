@@ -8,7 +8,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
@@ -22,8 +21,12 @@ namespace Microsoft.Data.Entity.Commands
         private readonly ILoggerProvider _loggerProvider;
         private readonly LazyRef<ILogger> _logger;
         private readonly Assembly _assembly;
+        private readonly IServiceProvider _services;
 
-        public MigrationTool([NotNull] ILoggerProvider loggerProvider, [NotNull] Assembly assembly)
+        public MigrationTool(
+            [NotNull] ILoggerProvider loggerProvider,
+            [NotNull] Assembly assembly,
+            [CanBeNull] IServiceProvider services = null)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotNull(assembly, nameof(assembly));
@@ -34,11 +37,13 @@ namespace Microsoft.Data.Entity.Commands
             _loggerProvider = loggerProvider;
             _logger = new LazyRef<ILogger>(() => loggerFactory.CreateLogger<MigrationTool>());
             _assembly = assembly;
+            _services = services;
         }
 
         public virtual MigrationFiles AddMigration(
             [NotNull] string migrationName,
             [CanBeNull] string contextTypeName,
+            [CanBeNull] string startupAssemblyName,
             [NotNull] string rootNamespace,
             [NotNull] string projectDir)
         {
@@ -47,7 +52,7 @@ namespace Microsoft.Data.Entity.Commands
             Check.NotEmpty(projectDir, nameof(projectDir));
 
             var contextType = GetContextType(contextTypeName);
-            using (var context = CreateContext(contextType))
+            using (var context = CreateContext(contextType, startupAssemblyName))
             {
                 var services = new DesignTimeServices(((IAccessor<IServiceProvider>)context).Service);
 
@@ -59,10 +64,12 @@ namespace Microsoft.Data.Entity.Commands
             }
         }
 
-        public virtual IEnumerable<Migration> GetMigrations([CanBeNull] string contextTypeName)
+        public virtual IEnumerable<Migration> GetMigrations(
+            [CanBeNull] string contextTypeName,
+            [CanBeNull] string startupAssemblyName)
         {
             var contextType = GetContextType(contextTypeName);
-            using (var context = CreateContext(contextType))
+            using (var context = CreateContext(contextType, startupAssemblyName))
             {
                 var services = new DesignTimeServices(((IAccessor<IServiceProvider>)context).Service);
                 var migrationAssembly = services.GetRequiredService<IMigrationAssembly>();
@@ -75,10 +82,11 @@ namespace Microsoft.Data.Entity.Commands
             [CanBeNull] string fromMigrationName,
             [CanBeNull] string toMigrationName,
             bool idempotent,
-            [CanBeNull] string contextTypeName)
+            [CanBeNull] string contextTypeName,
+            [CanBeNull] string startupAssemblyName)
         {
             var contextType = GetContextType(contextTypeName);
-            using (var context = CreateContext(contextType))
+            using (var context = CreateContext(contextType, startupAssemblyName))
             {
                 var services = ((IAccessor<IServiceProvider>)context).Service;
                 var migrator = services.GetRequiredService<IMigrator>();
@@ -87,10 +95,13 @@ namespace Microsoft.Data.Entity.Commands
             }
         }
 
-        public virtual void ApplyMigration([CanBeNull] string migrationName, [CanBeNull] string contextTypeName)
+        public virtual void ApplyMigration(
+            [CanBeNull] string migrationName,
+            [CanBeNull] string contextTypeName,
+            [CanBeNull] string startupAssemblyName)
         {
             var contextType = GetContextType(contextTypeName);
-            using (var context = CreateContext(contextType))
+            using (var context = CreateContext(contextType, startupAssemblyName))
             {
                 var services = ((IAccessor<IServiceProvider>)context).Service;
                 var migrator = services.GetRequiredService<IMigrator>();
@@ -103,6 +114,7 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual MigrationFiles RemoveMigration(
             [CanBeNull] string contextTypeName,
+            [CanBeNull] string startupAssemblyName,
             [NotNull] string rootNamespace,
             [NotNull] string projectDir)
         {
@@ -110,7 +122,7 @@ namespace Microsoft.Data.Entity.Commands
             Check.NotEmpty(projectDir, nameof(projectDir));
 
             var contextType = GetContextType(contextTypeName);
-            using (var context = CreateContext(contextType))
+            using (var context = CreateContext(contextType, startupAssemblyName))
             {
                 var services = new DesignTimeServices(((IAccessor<IServiceProvider>)context).Service);
                 var scaffolder = CreateScaffolder(services);
@@ -139,9 +151,9 @@ namespace Microsoft.Data.Entity.Commands
                         .Where(t => t != null))
                 .Distinct();
 
-        protected virtual DbContext CreateContext(Type type)
+        protected virtual DbContext CreateContext(Type type, string startupAssemblyName)
         {
-            var context = ContextTool.CreateContext(type);
+            var context = new ContextTool(_services).CreateContext(type, startupAssemblyName);
             var services = ((IAccessor<IServiceProvider>)context).Service;
 
             var loggerFactory = services.GetRequiredService<ILoggerFactory>();

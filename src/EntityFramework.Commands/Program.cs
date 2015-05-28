@@ -6,14 +6,13 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Common.CommandLine;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Commands
 {
@@ -45,7 +44,7 @@ namespace Microsoft.Data.Entity.Commands
             var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose: true));
             var assemblyName = new AssemblyName(appEnv.ApplicationName);
             var assembly = Assembly.Load(assemblyName);
-            _migrationTool = new MigrationTool(loggerProvider, assembly);
+            _migrationTool = new MigrationTool(loggerProvider, assembly, serviceProvider);
             _databaseTool = new DatabaseTool(serviceProvider, loggerProvider);
             _libraryManager = libraryManager;
             _logger = loggerProvider.CreateLogger(typeof(Program).FullName);
@@ -103,8 +102,8 @@ namespace Microsoft.Data.Entity.Commands
                                 "The context class to use",
                                 CommandOptionType.SingleValue);
                             var startupProject = add.Option(
-                                "-s|--startupProjectName <projectName>",
-                                "The name of the project to use as the startup project",
+                                "-s|--startupProject <startupProject>",
+                                "The start-up project to use",
                                 CommandOptionType.SingleValue);
                             add.HelpOption("-h|--help");
                             add.OnExecute(
@@ -136,8 +135,8 @@ namespace Microsoft.Data.Entity.Commands
                                 "The context class to use",
                                 CommandOptionType.SingleValue);
                             var startupProject = apply.Option(
-                                "-s|--startupProjectName <projectName>",
-                                "The name of the project to use as the startup project",
+                                "-s|--startupProject <startupProject>",
+                                "The start-up project to use",
                                 CommandOptionType.SingleValue);
                             apply.HelpOption("-h|--help");
                             apply.OnExecute(() => ApplyMigration(migrationName.Value, context.Value(), startupProject.Value()));
@@ -152,8 +151,12 @@ namespace Microsoft.Data.Entity.Commands
                                 "-c|--context <context>",
                                 "The context class to use",
                                 CommandOptionType.SingleValue);
+                            var startupProject = list.Option(
+                                "-s|--startupProject <startupProject>",
+                                "The start-up project to use",
+                                CommandOptionType.SingleValue);
                             list.HelpOption("-h|--help");
-                            list.OnExecute(() => ListMigrations(context.Value()));
+                            list.OnExecute(() => ListMigrations(context.Value(), startupProject.Value()));
                         },
                         addHelpCommand: false);
                     migration.Command(
@@ -176,8 +179,8 @@ namespace Microsoft.Data.Entity.Commands
                                 "The context class to use",
                                 CommandOptionType.SingleValue);
                             var startupProject = script.Option(
-                                "-s|--startupProjectName <projectName>",
-                                "The name of the project to use as the startup project",
+                                "-s|--startupProject <startupProject>",
+                                "The start-up project to use",
                                 CommandOptionType.SingleValue);
                             script.HelpOption("-h|--help");
                             script.OnExecute(() => ScriptMigration(from.Value, to.Value, output.Value(), idempotent.HasValue(), context.Value(), startupProject.Value()));
@@ -192,8 +195,12 @@ namespace Microsoft.Data.Entity.Commands
                                 "-c|--context <context>",
                                 "The context class to use",
                                 CommandOptionType.SingleValue);
+                            var startupProject = remove.Option(
+                                "-s|--startupProject <startupProject>",
+                                "The start-up project to use",
+                                CommandOptionType.SingleValue);
                             remove.HelpOption("-h|--help");
-                            remove.OnExecute(() => RemoveMigration(context.Value()));
+                            remove.OnExecute(() => RemoveMigration(context.Value(), startupProject.Value()));
                         },
                         addHelpCommand: false);
                     migration.OnExecute(
@@ -268,7 +275,7 @@ namespace Microsoft.Data.Entity.Commands
                 startupProject,
                 () =>
                 {
-                    _migrationTool.AddMigration(name, context, _rootNamespace, _projectDir);
+                    _migrationTool.AddMigration(name, context, startupProject, _rootNamespace, _projectDir);
 
                     _logger.LogInformation("Done. To undo this action, use 'ef migration remove'.");
 
@@ -282,29 +289,34 @@ namespace Microsoft.Data.Entity.Commands
                 startupProject,
                 () =>
                 {
-                    _migrationTool.ApplyMigration(migration, context);
+                    _migrationTool.ApplyMigration(migration, context, startupProject);
 
                     return 0;
                 });
         }
 
-        public virtual int ListMigrations([CanBeNull] string context)
+        public virtual int ListMigrations([CanBeNull] string context, [CanBeNull] string startupProject)
         {
-            var migrations = _migrationTool.GetMigrations(context);
-            var any = false;
-            foreach (var migration in migrations)
-            {
-                // TODO: Show simple names
-                _logger.LogInformation(migration.Id);
-                any = true;
-            }
+            return Execute(
+                startupProject,
+                () =>
+                {
+                    var migrations = _migrationTool.GetMigrations(context, startupProject);
+                    var any = false;
+                    foreach (var migration in migrations)
+                    {
+                        // TODO: Show simple names
+                        _logger.LogInformation(migration.Id);
+                        any = true;
+                    }
 
-            if (!any)
-            {
-                _logger.LogInformation("No migrations were found.");
-            }
+                    if (!any)
+                    {
+                        _logger.LogInformation("No migrations were found.");
+                    }
 
-            return 0;
+                    return 0;
+                });
         }
 
         public virtual int ScriptMigration(
@@ -319,7 +331,7 @@ namespace Microsoft.Data.Entity.Commands
                 startupProject,
                 () =>
                 {
-                    var sql = _migrationTool.ScriptMigration(from, to, idempotent, context);
+                    var sql = _migrationTool.ScriptMigration(from, to, idempotent, context, startupProject);
 
                     if (string.IsNullOrEmpty(output))
                     {
@@ -337,11 +349,16 @@ namespace Microsoft.Data.Entity.Commands
                 });
         }
 
-        public virtual int RemoveMigration([CanBeNull] string context)
+        public virtual int RemoveMigration([CanBeNull] string context, [CanBeNull] string startupProject)
         {
-            _migrationTool.RemoveMigration(context, _rootNamespace, _projectDir);
+            return Execute(
+                startupProject,
+                () =>
+                {
+                    _migrationTool.RemoveMigration(context, startupProject, _rootNamespace, _projectDir);
 
-            return 0;
+                    return 0;
+                });
         }
 
         public virtual int ReverseEngineer([NotNull] string connectionString)

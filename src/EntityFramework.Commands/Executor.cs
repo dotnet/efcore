@@ -18,6 +18,7 @@ namespace Microsoft.Data.Entity.Commands
     {
         private readonly string _projectDir;
         private readonly string _rootNamespace;
+        private readonly string _startupAssemblyName;
         private readonly DatabaseTool _databaseTool;
         private readonly MigrationTool _migrationTool;
 
@@ -31,9 +32,12 @@ namespace Microsoft.Data.Entity.Commands
             var loggerProvider = new LoggerProvider(name => new CommandLoggerAdapter(name, unwrappedLogHandler));
 
             var targetPath = (string)args["targetPath"];
+            var startupTargetPath = (string)args["startupTargetPath"];
 
             _projectDir = (string)args["projectDir"];
             _rootNamespace = (string)args["rootNamespace"];
+
+            _startupAssemblyName = AssemblyName.GetAssemblyName(startupTargetPath).Name;
 
             var assemblyName = AssemblyName.GetAssemblyName(targetPath);
             var assembly = Assembly.Load(assemblyName);
@@ -79,7 +83,12 @@ namespace Microsoft.Data.Entity.Commands
         {
             Check.NotEmpty(migrationName, nameof(migrationName));
 
-            var files = _migrationTool.AddMigration(migrationName, contextTypeName, _rootNamespace, _projectDir);
+            var files = _migrationTool.AddMigration(
+                migrationName,
+                contextTypeName,
+                _startupAssemblyName,
+                _rootNamespace,
+                _projectDir);
 
             // NOTE: First file will be opened in VS
             yield return files.MigrationFile;
@@ -103,7 +112,7 @@ namespace Microsoft.Data.Entity.Commands
         }
 
         public virtual void ApplyMigrationImpl([CanBeNull] string migrationName, [CanBeNull] string contextTypeName) =>
-            _migrationTool.ApplyMigration(migrationName, contextTypeName);
+            _migrationTool.ApplyMigration(migrationName, contextTypeName, _startupAssemblyName);
 
         public class ScriptMigration : OperationBase
         {
@@ -129,8 +138,13 @@ namespace Microsoft.Data.Entity.Commands
             [CanBeNull] string fromMigrationName,
             [CanBeNull] string toMigrationName,
             bool idempotent,
-            [CanBeNull] string contextTypeName) =>
-                _migrationTool.ScriptMigration(fromMigrationName, toMigrationName, idempotent, contextTypeName);
+            [CanBeNull] string contextTypeName)
+            => _migrationTool.ScriptMigration(
+                fromMigrationName,
+                toMigrationName,
+                idempotent,
+                contextTypeName,
+                _startupAssemblyName);
 
         public class RemoveMigration : OperationBase
         {
@@ -151,7 +165,7 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual IEnumerable<string> RemoveMigrationImpl([CanBeNull] string contextTypeName)
         {
-            var files = _migrationTool.RemoveMigration(contextTypeName, _rootNamespace, _projectDir);
+            var files = _migrationTool.RemoveMigration(contextTypeName, _startupAssemblyName, _rootNamespace, _projectDir);
 
             if (files.MigrationFile != null)
             {
@@ -220,7 +234,7 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual IEnumerable<IDictionary> GetMigrationsImpl([CanBeNull] string contextTypeName) =>
             // TODO: Determine safe names (See #1774)
-            _migrationTool.GetMigrations(contextTypeName).Select(
+            _migrationTool.GetMigrations(contextTypeName, _startupAssemblyName).Select(
                 m => new Hashtable {["MigrationId"] = m.Id,["MigrationName"] = m.Id,["SafeName"] = m.Id });
 
         public class ReverseEngineer : OperationBase
