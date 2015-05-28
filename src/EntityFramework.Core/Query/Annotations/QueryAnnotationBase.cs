@@ -6,9 +6,9 @@ using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Query
+namespace Microsoft.Data.Entity.Query.Annotations
 {
-    public abstract class QueryAnnotation
+    public abstract class QueryAnnotationBase
     {
         private IQuerySource _querySource;
         private QueryModel _queryModel;

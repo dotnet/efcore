@@ -41,6 +41,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Applied_to_multiple_body_clauses()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>().AsNoTracking()
+                       from o in context.Set<Order>().AsNoTracking()
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
+                        .ToList();
+
+                Assert.Equal(830, customers.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
         public virtual void Applied_to_body_clause_with_projection()
         {
             using (var context = CreateContext())

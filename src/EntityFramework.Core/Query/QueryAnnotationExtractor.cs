@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
@@ -14,11 +15,11 @@ namespace Microsoft.Data.Entity.Query
 {
     public class QueryAnnotationExtractor
     {
-        public virtual IReadOnlyCollection<QueryAnnotation> ExtractQueryAnnotations([NotNull] QueryModel queryModel)
+        public virtual IReadOnlyCollection<QueryAnnotationBase> ExtractQueryAnnotations([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var queryAnnotations = new List<QueryAnnotation>();
+            var queryAnnotations = new List<QueryAnnotationBase>();
 
             ExtractQueryAnnotations(queryModel, queryAnnotations);
 
@@ -26,7 +27,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static void ExtractQueryAnnotations(
-            QueryModel queryModel, ICollection<QueryAnnotation> queryAnnotations)
+            QueryModel queryModel, ICollection<QueryAnnotationBase> queryAnnotations)
         {
             foreach (var resultOperator
                 in queryModel.ResultOperators
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static Expression ExtractQueryAnnotations(
-            Expression expression, ICollection<QueryAnnotation> queryAnnotations)
+            Expression expression, ICollection<QueryAnnotationBase> queryAnnotations)
         {
             var subQueryExpression = expression as SubQueryExpression;
 

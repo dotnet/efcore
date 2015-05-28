@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -92,7 +91,9 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             base.VisitQueryModel(queryModel);
             var compositePredicateVisitor = new CompositePredicateExpressionTreeVisitor(
-                QueryCompilationContext.QueryAnnotations.OfType<UseRelationalNullSemanticsQueryAnnotation>().Any());
+                QueryCompilationContext
+                    .GetCustomQueryAnnotations(RelationalQueryableExtensions.UseRelationalNullSemanticsMethodInfo)
+                    .Any());
 
             foreach (var selectExpression in _queriesBySource.Values.Where(se => se.Predicate != null))
             {
@@ -457,8 +458,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             int valueBufferOffset)
         {
             return new QuerySourceScope<ValueBuffer>(
-                querySource, 
-                valueBuffer.UpdateOffset(valueBufferOffset), 
+                querySource,
+                valueBuffer.UpdateOffset(valueBufferOffset),
                 parentQuerySourceScope);
         }
 

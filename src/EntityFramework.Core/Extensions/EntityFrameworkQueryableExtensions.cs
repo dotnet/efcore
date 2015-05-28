@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -2310,12 +2309,11 @@ namespace Microsoft.Data.Entity
         /// <returns>
         ///     A new query where the result set will not be tracked by the context.
         /// </returns>
-        public static IQueryable<TEntity> AsNoTracking<TEntity>([NotNull] this IQueryable<TEntity> source) where TEntity : class
-        {
-            Check.NotNull(source, nameof(source));
-
-            return source.AnnotateQuery(new AsNoTrackingQueryAnnotation());
-        }
+        [QueryAnnotationMethod]
+        public static IQueryable<TEntity> AsNoTracking<TEntity>(
+            [NotNull] this IQueryable<TEntity> source)
+            where TEntity : class
+            => QueryableHelpers.CreateQuery(source, s => s.AsNoTracking());
 
         #endregion
 

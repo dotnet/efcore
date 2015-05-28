@@ -10,7 +10,6 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Storage;
@@ -19,7 +18,6 @@ using Microsoft.Framework.Caching.Memory;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
-using Remotion.Linq.Parsing.ExpressionTreeVisitors.TreeEvaluation;
 using Remotion.Linq.Parsing.Structure;
 using Remotion.Linq.Parsing.Structure.ExpressionTreeProcessors;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
@@ -139,6 +137,9 @@ namespace Microsoft.Data.Entity.Query
             bool isAsync,
             Func<Expression, IDataStore, CompiledQuery> compiler)
         {
+            query = new QueryAnnotatingExpressionTreeVisitor()
+                .VisitExpression(query);
+
             var parameterizedQuery
                 = ParameterExtractingExpressionTreeVisitor
                     .ExtractParameters(query, queryContext);
@@ -160,185 +161,6 @@ namespace Microsoft.Data.Entity.Query
             }
 
             return compiledQuery;
-        }
-
-        private class ParameterExtractingExpressionTreeVisitor : ExpressionTreeVisitorBase
-        {
-            public static Expression ExtractParameters(Expression expressionTree, QueryContext queryContext)
-            {
-                var partialEvaluationInfo = EvaluatableTreeFindingExpressionTreeVisitor.Analyze(expressionTree);
-                var visitor = new ParameterExtractingExpressionTreeVisitor(partialEvaluationInfo, queryContext);
-
-                return visitor.VisitExpression(expressionTree);
-            }
-
-            private readonly PartialEvaluationInfo _partialEvaluationInfo;
-            private readonly QueryContext _queryContext;
-
-            private ParameterExtractingExpressionTreeVisitor(
-                PartialEvaluationInfo partialEvaluationInfo, QueryContext queryContext)
-            {
-                _partialEvaluationInfo = partialEvaluationInfo;
-                _queryContext = queryContext;
-            }
-
-            protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
-            {
-                if (methodCallExpression.Method.IsGenericMethod)
-                {
-                    var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
-
-                    if (ReferenceEquals(methodInfo, QueryExtensions.PropertyMethodInfo)
-                        || ReferenceEquals(methodInfo, QueryExtensions.ValueBufferPropertyMethodInfo))
-                    {
-                        return methodCallExpression;
-                    }
-                }
-
-                return base.VisitMethodCallExpression(methodCallExpression);
-            }
-
-            public override Expression VisitExpression(Expression expression)
-            {
-                if (expression == null)
-                {
-                    return null;
-                }
-
-                if (expression.NodeType == ExpressionType.Lambda
-                    || !_partialEvaluationInfo.IsEvaluatableExpression(expression))
-                {
-                    return base.VisitExpression(expression);
-                }
-
-                var e = expression;
-
-                if (expression.NodeType == ExpressionType.Convert)
-                {
-                    var unaryExpression = (UnaryExpression)expression;
-
-                    if ((unaryExpression.Type.IsNullableType()
-                         && !unaryExpression.Operand.Type.IsNullableType())
-                        || unaryExpression.Type == typeof(object))
-                    {
-                        e = unaryExpression.Operand;
-                    }
-                }
-
-                if (e.NodeType != ExpressionType.Constant
-                    && !typeof(IQueryable).GetTypeInfo().IsAssignableFrom(e.Type.GetTypeInfo()))
-                {
-                    try
-                    {
-                        string parameterName;
-
-                        var parameterValue = Evaluate(e, out parameterName);
-
-                        var compilerPrefixIndex = parameterName.LastIndexOf(">", StringComparison.Ordinal);
-                        if (compilerPrefixIndex != -1)
-                        {
-                            parameterName = parameterName.Substring(compilerPrefixIndex + 1);
-                        }
-
-                        parameterName
-                            = $"{CompiledQueryParameterPrefix}{parameterName}_{_queryContext.ParameterValues.Count}";
-
-                        _queryContext.ParameterValues.Add(parameterName, parameterValue);
-
-                        return e.Type == expression.Type
-                            ? Expression.Parameter(e.Type, parameterName)
-                            : (Expression)Expression.Convert(
-                                Expression.Parameter(e.Type, parameterName),
-                                expression.Type);
-                    }
-                    catch (Exception exception)
-                    {
-                        throw new InvalidOperationException(
-                            Strings.ExpressionParameterizationException(expression),
-                            exception);
-                    }
-                }
-
-                return expression;
-            }
-
-            private static object Evaluate(Expression expression, out string parameterName)
-            {
-                parameterName = null;
-
-                if (expression == null)
-                {
-                    return null;
-                }
-
-                switch (expression.NodeType)
-                {
-                    case ExpressionType.MemberAccess:
-                    {
-                        var memberExpression = (MemberExpression)expression;
-                        var @object = Evaluate(memberExpression.Expression, out parameterName);
-
-                        var fieldInfo = memberExpression.Member as FieldInfo;
-
-                        if (fieldInfo != null)
-                        {
-                            parameterName = parameterName != null
-                                ? parameterName + "_" + fieldInfo.Name
-                                : fieldInfo.Name;
-
-                            try
-                            {
-                                return fieldInfo.GetValue(@object);
-                            }
-                            catch
-                            {
-                                // Try again when we compile the delegate
-                            }
-                        }
-
-                        var propertyInfo = memberExpression.Member as PropertyInfo;
-
-                        if (propertyInfo != null)
-                        {
-                            parameterName = parameterName != null
-                                ? parameterName + "_" + propertyInfo.Name
-                                : propertyInfo.Name;
-
-                            try
-                            {
-                                return propertyInfo.GetValue(@object);
-                            }
-                            catch
-                            {
-                                // Try again when we compile the delegate
-                            }
-                        }
-
-                        break;
-                    }
-                    case ExpressionType.Constant:
-                    {
-                        return ((ConstantExpression)expression).Value;
-                    }
-                    case ExpressionType.Call:
-                    {
-                        parameterName = ((MethodCallExpression)expression).Method.Name;
-
-                        break;
-                    }
-                }
-
-                if (parameterName == null)
-                {
-                    parameterName = "p";
-                }
-
-                return
-                    Expression.Lambda<Func<object>>(
-                        Expression.Convert(expression, typeof(object)))
-                        .Compile()
-                        .Invoke();
-            }
         }
 
         private static Delegate CompileQuery(

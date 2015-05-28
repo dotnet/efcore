@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
-using Microsoft.Data.Entity.Relational.Query.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Storage;
@@ -87,29 +86,37 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     : _querySource.ItemName;
 
             var fromSqlAnnotation
-                = relationalQueryCompilationContext.QueryAnnotations
-                    .OfType<FromSqlQueryAnnotation>()
-                    .SingleOrDefault(a => a.QuerySource == _querySource);
+                = relationalQueryCompilationContext
+                    .GetCustomQueryAnnotations(RelationalQueryableExtensions.FromSqlMethodInfo)
+                    .LastOrDefault(a => a.QuerySource == _querySource);
 
-            selectExpression.AddTable(
-                fromSqlAnnotation != null
-                    ? (TableExpressionBase)
-                        new RawSqlDerivedTableExpression(
-                            fromSqlAnnotation.Sql,
-                            fromSqlAnnotation.Parameters,
-                            tableAlias,
-                            _querySource)
-                    : new TableExpression(
+            var composable = true;
+            var sqlString = "";
+            object[] sqlParameters = null;
+
+            if (fromSqlAnnotation == null)
+            {
+                selectExpression.AddTable(
+                    new TableExpression(
                         tableName,
                         relationalQueryCompilationContext.GetSchema(entityType),
                         tableAlias,
                         _querySource));
-
-            var composable = true;
-
-            if (fromSqlAnnotation != null)
+            }
+            else
             {
-                var sqlStart = fromSqlAnnotation.Sql.Cast<char>().SkipWhile(char.IsWhiteSpace).Take(7).ToArray();
+                sqlString = (string)fromSqlAnnotation.Arguments[1];
+                sqlParameters =(object[])fromSqlAnnotation.Arguments[2];
+
+                selectExpression.AddTable(
+                    new RawSqlDerivedTableExpression(
+                        sqlString,
+                        sqlParameters,
+                        tableAlias,
+                        _querySource));
+
+
+                var sqlStart = sqlString.Cast<char>().SkipWhile(char.IsWhiteSpace).Take(7).ToArray();
 
                 if (sqlStart.Length != 7
                     || !char.IsWhiteSpace(sqlStart.Last())
@@ -193,7 +200,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             else
             {
                 sqlQueryGeneratorFactory = () =>
-                    new RawSqlQueryGenerator(selectExpression, fromSqlAnnotation.Sql, fromSqlAnnotation.Parameters);
+                    new RawSqlQueryGenerator(selectExpression, sqlString, sqlParameters);
             }
 
             return Expression.Call(

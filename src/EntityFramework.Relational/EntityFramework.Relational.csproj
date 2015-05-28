@@ -156,8 +156,6 @@
     <Compile Include="RemappingUntypedValueBufferFactory.cs" />
     <Compile Include="UntypedValueBufferFactory.cs" />
     <Compile Include="UntypedValueBufferFactoryFactory.cs" />
-    <Compile Include="Query\Annotations\FromSqlQueryAnnotation.cs" />
-    <Compile Include="Query\Annotations\UseRelationalNullSemanticsQueryAnnotation.cs" />
     <Compile Include="Query\AsyncQueryingEnumerable.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\CommandBuilder.cs" />
@@ -226,7 +224,7 @@
     <Compile Include="RelationalDataStoreCreator.cs" />
     <Compile Include="IRelationalDataStoreServices.cs" />
     <Compile Include="RelationalEntityOptionsBuilder.cs" />
-    <Compile Include="RelationalDbSetExtensions.cs" />
+    <Compile Include="RelationalQueryableExtensions.cs" />
     <Compile Include="RelationalMetadataExtensions.cs" />
     <Compile Include="RelationalOptionsExtension.cs" />
     <Compile Include="RelationalConnection.cs" />

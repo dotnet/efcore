@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ExpressionTreeVisitors;
@@ -21,10 +22,10 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
             Check.NotNull(annotationExpression, nameof(annotationExpression));
 
             _annotationExpression = annotationExpression;
-            Annotation = (QueryAnnotation)annotationExpression.Value;
+            Annotation = (QueryAnnotationBase)annotationExpression.Value;
         }
 
-        public virtual QueryAnnotation Annotation { get; }
+        public virtual QueryAnnotationBase Annotation { get; }
 
         public override string ToString()
             => "AnnotateQuery("

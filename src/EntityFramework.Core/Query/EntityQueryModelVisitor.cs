@@ -423,8 +423,8 @@ namespace Microsoft.Data.Entity.Query
                 return true;
             }
 
-            return QueryCompilationContext.QueryAnnotations
-                .OfType<AsNoTrackingQueryAnnotation>()
+            return QueryCompilationContext
+                .GetCustomQueryAnnotations(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo)
                 .All(qa => qa.QuerySource != querySource);
         }
 

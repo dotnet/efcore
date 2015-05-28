@@ -18,7 +18,21 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             using (var context = CreateContext())
             {
                 var actual = await context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers")
+                    .FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'")
+                    .ToArrayAsync();
+
+                Assert.Equal(14, actual.Length);
+                Assert.Equal(14, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual async Task From_sql_queryable_simple_columns_out_of_order()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql("SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM Customers")
                     .ToArrayAsync();
 
                 Assert.Equal(91, actual.Length);
@@ -27,16 +41,16 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task From_sql_queryable_filter()
+        public virtual async Task From_sql_queryable_simple_columns_out_of_order_and_extra_columns()
         {
             using (var context = CreateContext())
             {
                 var actual = await context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'")
+                    .FromSql("SELECT [Region], [PostalCode], [PostalCode] AS Foo, [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM Customers")
                     .ToArrayAsync();
 
-                Assert.Equal(14, actual.Length);
-                Assert.Equal(14, context.ChangeTracker.Entries().Count());
+                Assert.Equal(91, actual.Length);
+                Assert.Equal(91, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -54,7 +68,23 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             }
         }
 
-        //[Fact]
+        [Fact]
+        public virtual async Task From_sql_queryable_multiple_composed()
+        {
+            using (var context = CreateContext())
+            {
+                var actual
+                    = await (from c in context.Set<Customer>().FromSql("SELECT * FROM Customers")
+                       from o in context.Set<Order>().FromSql("SELECT * FROM Orders")
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
+                        .ToArrayAsync();
+
+                Assert.Equal(830, actual.Length);
+            }
+        }
+
+        [Fact]
         public virtual async Task From_sql_queryable_multiple_line_query()
         {
             using (var context = CreateContext())
@@ -86,49 +116,7 @@ FROM Customers")
             }
         }
 
-        //[Fact]
-        public virtual async Task From_sql_queryable_with_columns_reordered()
-        {
-            using (var context = CreateContext())
-            {
-                var ascending = (await context.Set<Customer>()
-                    .FromSql(@"SELECT
-    Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM
-    Customers
-WHERE
-    CustomerID = 'ALFKI'")
-                    .ToArrayAsync())
-                    .Single();
-
-                var descending = (await context.Set<Customer>()
-                    .FromSql(@"SELECT
-    Region, PostalCode, Phone, Fax, CustomerID, Country, ContactTitle, ContactName, CompanyName, City, Address
-FROM
-    Customers
-WHERE
-    CustomerID = 'ALFKI'")
-                    .ToArrayAsync())
-                    .Single();
-
-                foreach (var actual in new[] { ascending, descending })
-                {
-                    Assert.Equal("ALFKI", actual.CustomerID);
-                    Assert.Equal("Alfreds Futterkiste", actual.CompanyName);
-                    Assert.Equal("Maria Anders", actual.ContactName);
-                    Assert.Equal("Sales Representative", actual.ContactTitle);
-                    Assert.Equal("Obere Str. 57", actual.Address);
-                    Assert.Equal("Berlin", actual.City);
-                    Assert.Null(actual.Region);
-                    Assert.Equal("12209", actual.PostalCode);
-                    Assert.Equal("Germany", actual.Country);
-                    Assert.Equal("030-0074321", actual.Phone);
-                    Assert.Equal("030-0076545", actual.Fax);
-                }
-            }
-        }
-
-        //[Fact]
+        [Fact]
         public virtual async Task From_sql_queryable_with_parameters()
         {
             var city = "London";
@@ -165,7 +153,7 @@ WHERE
             }
         }
 
-        //[Fact]
+        [Fact]
         public virtual async Task From_sql_queryable_simple_cache_key_includes_query_string()
         {
             using (var context = CreateContext())
@@ -186,7 +174,7 @@ WHERE
             }
         }
 
-        //[Fact]
+        [Fact]
         public virtual async Task From_sql_queryable_with_parameters_cache_key_includes_parameters()
         {
             var city = "London";
