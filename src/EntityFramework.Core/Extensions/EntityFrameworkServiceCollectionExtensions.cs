@@ -112,7 +112,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped(p => GetStoreServices(p).ModelBuilderFactory)
                 .AddScoped(p => GetStoreServices(p).ValueGeneratorCache)
                 .AddScoped(p => GetStoreServices(p).ModelSource)
-                .AddTransient<IMemoryCache, MemoryCache>()
+                .AddSingleton<IMemoryCache, MemoryCache>()
                 .AddOptions());
 
             return new EntityFrameworkServicesBuilder(serviceCollection);
