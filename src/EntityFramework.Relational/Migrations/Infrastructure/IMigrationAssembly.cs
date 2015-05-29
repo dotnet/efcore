@@ -9,6 +9,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
     public interface IMigrationAssembly
     {
         IReadOnlyList<Migration> Migrations { get; }
-        IModel ModelSnapshot { get; }
+        ModelSnapshot ModelSnapshot { get; }
+        IModel LastModel { get; }
     }
 }
