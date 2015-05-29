@@ -1,0 +1,24 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public class Test_Spaces_Keywords_Table
+    {
+        public int Test_Spaces_Keywords_TableID { get; set; }
+        public int? @AtSymbolAtStartOfColumn { get; set; }
+        public int @Multiple_At_Symbols_In_Column { get; set; }
+        public int _abstract { get; set; }
+        public int? _Backslashes_In_Column { get; set; }
+        public int? _class { get; set; }
+        public int _Dollar_Sign_Column { get; set; }
+        public int? _Double_Quotes_Column { get; set; }
+        public int? _Exclamation_Mark_Column { get; set; }
+        public int _volatile { get; set; }
+        public int? Commas_In_Column { get; set; }
+        public int? Spaces_In_Column { get; set; }
+        public int Tabs_In_Column { get; set; }
+    }
+}
