@@ -96,6 +96,7 @@
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="ExecutorTest.cs" />
     <Compile Include="HandlerTest.cs" />
+    <Compile Include="Migrations\MigrationScaffolderTest.cs" />
     <Compile Include="Utilities\CSharpHelperTest.cs" />
     <None Include="packages.config" />
     <None Include="project.json" />

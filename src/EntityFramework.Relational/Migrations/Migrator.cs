@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
                 .ToList();
         }
 
-        public virtual bool HasPendingModelChanges() => _modelDiffer.HasDifferences(_migrationAssembly.ModelSnapshot, _model);
+        public virtual bool HasPendingModelChanges() => _modelDiffer.HasDifferences(_migrationAssembly.LastModel, _model);
 
         public virtual void ApplyMigrations(string targetMigration = null)
         {
