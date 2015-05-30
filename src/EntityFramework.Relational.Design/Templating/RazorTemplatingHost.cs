@@ -4,7 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.AspNet.Razor;
-using Microsoft.AspNet.Razor.Generator;
+using Microsoft.AspNet.Razor.CodeGenerators;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.Templating
