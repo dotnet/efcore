@@ -24,5 +24,6 @@ namespace Microsoft.Data.Entity.Relational
         IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
         IRelationalDataStoreCreator RelationalDataStoreCreator { get; }
         IRelationalMetadataExtensionProvider MetadataExtensionProvider { get; }
+        ISqlStatementExecutor SqlStatementExecutor { get; }
     }
 }
