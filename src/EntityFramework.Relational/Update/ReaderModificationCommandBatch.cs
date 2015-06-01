@@ -408,30 +408,26 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         protected virtual void PopulateParameters(DbCommand command, ColumnModification columnModification, IRelationalTypeMapper typeMapper)
         {
-            if (columnModification.ParameterName != null
-                || columnModification.OriginalParameterName != null)
+            var parameterName = columnModification.ParameterName;
+            var originalParameterName = columnModification.OriginalParameterName;
+
+            if (parameterName != null
+                || originalParameterName != null)
             {
                 var property = columnModification.Property;
 
-                var isKey = columnModification.IsKey
-                            || property.IsKey()
-                            || property.IsForeignKey();
+                var typeMapping = typeMapper.MapPropertyType(property);
 
-                // TODO: It would be nice to just pass IProperty to the type mapper, but Migrations uses its own
-                // store model for which there is no easy way to get an IProperty.
-                // Issue #769
-                var extensions = _metadataExtensionProvider.Extensions(property);
-                var typeMapping = typeMapper
-                    .GetTypeMapping(extensions.ColumnType, extensions.Column, property.ClrType, isKey, property.IsConcurrencyToken);
-
-                if (columnModification.ParameterName != null)
+                if (parameterName != null)
                 {
-                    command.Parameters.Add(typeMapping.CreateParameter(command, columnModification, false));
+                    command.Parameters.Add(
+                        typeMapping.CreateParameter(command, parameterName, columnModification.Value, property.IsNullable));
                 }
 
-                if (columnModification.OriginalParameterName != null)
+                if (originalParameterName != null)
                 {
-                    command.Parameters.Add(typeMapping.CreateParameter(command, columnModification, true));
+                    command.Parameters.Add(
+                        typeMapping.CreateParameter(command, originalParameterName, columnModification.OriginalValue, property.IsNullable));
                 }
             }
         }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Relational.Metadata;
@@ -31,7 +32,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         }
 
         protected virtual ModelBuilder CreateModelBuilder() => new ModelBuilderFactory().CreateConventionBuilder();
-        protected virtual ModelDiffer CreateModelDiffer() => new ModelDiffer(new RelationalTypeMapper(), new TestMetadataExtensionProvider());
+        protected virtual ModelDiffer CreateModelDiffer() => new ModelDiffer(new ConcreteTypeMapper(), new TestMetadataExtensionProvider());
 
         private class TestMetadataExtensionProvider : IRelationalMetadataExtensionProvider
         {
@@ -41,6 +42,18 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             public IRelationalKeyExtensions Extensions(IKey key) => key.Relational();
             public IRelationalModelExtensions Extensions(IModel model) => model.Relational();
             public IRelationalPropertyExtensions Extensions(IProperty property) => property.Relational();
+        }
+
+        private class ConcreteTypeMapper : RelationalTypeMapper
+        {
+            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
+                = new Dictionary<Type, RelationalTypeMapping>
+                    {
+                        { typeof(int), new RelationalTypeMapping("int", DbType.String) }
+                    };
+
+            protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
+                = new Dictionary<string, RelationalTypeMapping>();
         }
     }
 }

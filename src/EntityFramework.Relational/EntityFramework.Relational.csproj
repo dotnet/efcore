@@ -241,7 +241,7 @@
     <Compile Include="SqlBatchBuilder.cs" />
     <Compile Include="SqlGenerator.cs" />
     <Compile Include="SqlStatementExecutor.cs" />
-    <Compile Include="RelationalDecimalTypeMapping.cs" />
+    <Compile Include="RelationalScaledTypeMapping.cs" />
     <Compile Include="RelationalSizedTypeMapping.cs" />
     <Compile Include="RelationalTypeMapper.cs" />
     <Compile Include="RelationalTypeMapping.cs" />

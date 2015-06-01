@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                     Schema = sourceEntityTypeExtensions.Schema,
                     Table = sourceEntityTypeExtensions.Table,
                     Name = sourceExtensions.Column,
-                    Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
+                    Type = targetExtensions.ColumnType ?? TypeMapper.MapPropertyType(target).DefaultTypeName,
                     IsNullable = target.IsNullable,
                     DefaultValue = targetExtensions.DefaultValue,
                     DefaultExpression = targetExtensions.DefaultExpression

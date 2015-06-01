@@ -34,5 +34,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             _testStore.Dispose();
         }
+
+        public override bool SupportsBinaryKeys => false;
+
+        public override bool SupportsMaxLength => false;
     }
 }

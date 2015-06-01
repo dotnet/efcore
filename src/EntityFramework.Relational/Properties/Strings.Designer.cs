@@ -69,11 +69,11 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The property '{propertyName}' cannot be mapped because it is of type '{propertyType}' which is currently not supported.
+        /// No mapping to a relational type can be found for the CLR type '{clrType}'
         /// </summary>
-        public static string UnsupportedType([CanBeNull] object propertyName, [CanBeNull] object propertyType)
+        public static string UnsupportedType([CanBeNull] object clrType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedType", "propertyName", "propertyType"), propertyName, propertyType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedType", "clrType"), clrType);
         }
 
         /// <summary>

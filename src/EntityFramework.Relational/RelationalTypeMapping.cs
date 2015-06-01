@@ -5,57 +5,50 @@ using System;
 using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
     public class RelationalTypeMapping
     {
-        public RelationalTypeMapping([NotNull] string storeTypeName, DbType storeType)
+        public RelationalTypeMapping([NotNull] string defaultTypeName, DbType? storeType = null)
         {
-            Check.NotEmpty(storeTypeName, nameof(storeTypeName));
+            Check.NotEmpty(defaultTypeName, nameof(defaultTypeName));
 
-            StoreTypeName = storeTypeName;
+            DefaultTypeName = defaultTypeName;
             StoreType = storeType;
         }
 
-        public virtual string StoreTypeName { get; }
+        public virtual string DefaultTypeName { get; }
 
-        public virtual DbType StoreType { get; }
+        public virtual DbType? StoreType { get; }
 
-        public virtual DbParameter CreateParameter([NotNull] DbCommand command, [NotNull] ColumnModification columnModification, bool useOriginalValue)
+        public virtual DbParameter CreateParameter(
+            [NotNull] DbCommand command,
+            [NotNull] string name,
+            [CanBeNull] object value,
+            bool isNullable)
         {
             Check.NotNull(command, nameof(command));
-            Check.NotNull(columnModification, nameof(columnModification));
 
             var parameter = command.CreateParameter();
             parameter.Direction = ParameterDirection.Input;
-            if (useOriginalValue)
+            parameter.ParameterName = name;
+            parameter.Value = value ?? DBNull.Value;
+            parameter.IsNullable = isNullable;
+
+            if (StoreType.HasValue)
             {
-                Check.NotNull(columnModification.OriginalParameterName, nameof(columnModification), "OriginalParameterName");
-                parameter.ParameterName = columnModification.OriginalParameterName;
-                parameter.Value = columnModification.OriginalValue ?? DBNull.Value;
-            }
-            else
-            {
-                Check.NotNull(columnModification.ParameterName, nameof(columnModification), "ParameterName");
-                parameter.ParameterName = columnModification.ParameterName;
-                parameter.Value = columnModification.Value ?? DBNull.Value;
+                parameter.DbType = StoreType.Value;
             }
 
-            ConfigureParameter(parameter, columnModification);
+            ConfigureParameter(parameter);
 
             return parameter;
         }
 
-        protected virtual void ConfigureParameter([NotNull] DbParameter parameter, [NotNull] ColumnModification columnModification)
+        protected virtual void ConfigureParameter([NotNull] DbParameter parameter)
         {
-            Check.NotNull(parameter, nameof(parameter));
-            Check.NotNull(columnModification, nameof(columnModification));
-
-            parameter.DbType = StoreType;
-            parameter.IsNullable = columnModification.Property.IsNullable;
         }
     }
 }

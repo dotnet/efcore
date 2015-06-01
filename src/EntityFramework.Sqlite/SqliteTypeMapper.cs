@@ -2,60 +2,56 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data;
+using System.Collections.Generic;
 using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Data.Entity.Sqlite
 {
     public class SqliteTypeMapper : RelationalTypeMapper
     {
-        private static readonly RelationalTypeMapping _integer = new RelationalTypeMapping("INTEGER", DbType.Int64);
-        private static readonly RelationalTypeMapping _real = new RelationalTypeMapping("REAL", DbType.Double);
-        private static readonly RelationalTypeMapping _blob = new RelationalTypeMapping("BLOB", DbType.Binary);
-        private static readonly RelationalTypeMapping _text = new RelationalTypeMapping("TEXT", DbType.String);
+        private readonly RelationalTypeMapping _integer = new RelationalTypeMapping("INTEGER");
+        private readonly RelationalTypeMapping _real = new RelationalTypeMapping("REAL");
+        private readonly RelationalTypeMapping _blob = new RelationalTypeMapping("BLOB");
+        private readonly RelationalTypeMapping _text = new RelationalTypeMapping("TEXT");
 
-        public override RelationalTypeMapping GetTypeMapping(
-            string specifiedType,
-            string storageName,
-            Type propertyType,
-            bool isKey,
-            bool isConcurrencyToken)
+        private readonly Dictionary<string, RelationalTypeMapping> _simpleNameMappings;
+
+        private readonly Dictionary<Type, RelationalTypeMapping> _simpleMappings;
+
+        public SqliteTypeMapper()
         {
-            propertyType = propertyType.UnwrapNullableType().UnwrapEnumType();
+            _simpleNameMappings
+                = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase);
 
-            if (propertyType == typeof(bool)
-                || propertyType == typeof(byte)
-                || propertyType == typeof(char)
-                || propertyType == typeof(int)
-                || propertyType == typeof(long)
-                || propertyType == typeof(sbyte)
-                || propertyType == typeof(short)
-                || propertyType == typeof(uint)
-                || propertyType == typeof(ulong)
-                || propertyType == typeof(ushort))
-            {
-                return _integer;
-            }
-            else if (propertyType == typeof(byte[])
-                || propertyType == typeof(Guid))
-            {
-                return _blob;
-            }
-            else if (propertyType == typeof(DateTime)
-                || propertyType == typeof(DateTimeOffset)
-                || propertyType == typeof(decimal)
-                || propertyType == typeof(TimeSpan)
-                || propertyType == typeof(string))
-            {
-                return _text;
-            }
-            else if (propertyType == typeof(double)
-                || propertyType == typeof(float))
-            {
-                return _real;
-            }
-
-            throw new NotSupportedException(Strings.UnsupportedType(storageName, propertyType.Name));
+            _simpleMappings
+                = new Dictionary<Type, RelationalTypeMapping>
+                    {
+                        { typeof(string), _text },
+                        { typeof(byte[]), _blob },
+                        { typeof(bool), _integer },
+                        { typeof(byte), _integer },
+                        { typeof(char), _integer },
+                        { typeof(int), _integer },
+                        { typeof(long), _integer },
+                        { typeof(sbyte), _integer },
+                        { typeof(short), _integer },
+                        { typeof(uint), _integer },
+                        { typeof(ulong), _integer },
+                        { typeof(ushort), _integer },
+                        { typeof(DateTime), _text },
+                        { typeof(DateTimeOffset), _text },
+                        { typeof(TimeSpan), _text },
+                        { typeof(decimal), _text },
+                        { typeof(double), _real },
+                        { typeof(float), _real },
+                        { typeof(Guid), _blob }
+                    };
         }
+
+        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings
+            => _simpleMappings;
+
+        protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings
+            => _simpleNameMappings;
     }
 }
