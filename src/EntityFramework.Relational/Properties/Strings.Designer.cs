@@ -109,14 +109,6 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// A query containing the Skip operator must include at least one OrderBy operation.
-        /// </summary>
-        public static string SkipNeedsOrderBy
-        {
-            get { return GetString("SkipNeedsOrderBy"); }
-        }
-
-        /// <summary>
         /// The SQL Server sequence '{sequenceName}' was already specified with a different definition.
         /// </summary>
         public static string SequenceDefinitionMismatch([CanBeNull] object sequenceName)
@@ -341,14 +333,6 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The required column '{column}' was not present in the results of a 'FromSql' operation.
-        /// </summary>
-        public static string FromSqlMissingColumn([CanBeNull] object column)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("FromSqlMissingColumn", "column"), column);
-        }
-
-        /// <summary>
         /// Generating down script for migration '{migration}'.
         /// </summary>
         public static string GeneratingDown([CanBeNull] object migration)
@@ -386,6 +370,14 @@ namespace Microsoft.Data.Entity.Relational
         public static string UsingConnection([CanBeNull] object database, [CanBeNull] object dataSource)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UsingConnection", "database", "dataSource"), database, dataSource);
+        }
+
+        /// <summary>
+        /// The required column '{column}' was not present in the results of a 'FromSql' operation.
+        /// </summary>
+        public static string FromSqlMissingColumn([CanBeNull] object column)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FromSqlMissingColumn", "column"), column);
         }
 
         private static string GetString(string name, params string[] formatterNames)

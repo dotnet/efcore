@@ -498,12 +498,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             if (selectExpression.Offset != null)
             {
-                if (!selectExpression.OrderBy.Any())
-                {
-                    throw new InvalidOperationException(Strings.SkipNeedsOrderBy);
-                }
-
-                _sql.Append(" OFFSET ")
+                _sql.AppendLine()
+                    .Append("OFFSET ")
                     .Append(selectExpression.Offset)
                     .Append(" ROWS");
 
