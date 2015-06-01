@@ -26,22 +26,11 @@
                 "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-*"
             }
         },
-        ".NETPortable,Version=v4.5,Profile=Profile7": {
+        "netportable50": {
             "dependencies": {
-                "System.Data.Common": "4.0.0-*"
-            },
-            "frameworkAssemblies": {
-                "System.Collections": "4.0.0.0",
-                "System.Diagnostics.Debug": "4.0.0.0",
-                "System.Globalization": "4.0.0.0",
-                "System.Linq": "4.0.0.0",
-                "System.Reflection": "4.0.0.0",
-                "System.Resources.ResourceManager": "4.0.0.0",
-                "System.Runtime": "4.0.0.0",
-                "System.Runtime.Extensions": "4.0.0.0",
-                "System.Runtime.InteropServices": "4.0.0.0",
-                "System.Text.Encoding": "4.0.0.0",
-                "System.Threading.Tasks": "4.0.0.0"
+                "System.Data.Common": "4.0.0-*",
+                "System.Runtime.InteropServices": "4.0.20-*",
+                "System.Linq": "4.0.0-*"
             }
         }
     }
