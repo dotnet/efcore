@@ -76,21 +76,21 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Does_simple_SQL_Server_mappings_to_DbTypes()
         {
-            Assert.Null(GetTypeMapping(typeof(int)).StoreType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int)).StoreType);
             Assert.Null(GetTypeMapping(typeof(string)).StoreType);
             Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).StoreType);
             Assert.Null(GetTypeMapping(typeof(TimeSpan)).StoreType);
             Assert.Null(GetTypeMapping(typeof(Guid)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(char)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(byte)).StoreType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(char)).StoreType);
+            Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte)).StoreType);
             Assert.Null(GetTypeMapping(typeof(double)).StoreType);
             Assert.Null(GetTypeMapping(typeof(sbyte)).StoreType);
             Assert.Null(GetTypeMapping(typeof(ushort)).StoreType);
             Assert.Null(GetTypeMapping(typeof(uint)).StoreType);
             Assert.Null(GetTypeMapping(typeof(ulong)).StoreType);
             Assert.Null(GetTypeMapping(typeof(bool)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(short)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(long)).StoreType);
+            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short)).StoreType);
+            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long)).StoreType);
             Assert.Null(GetTypeMapping(typeof(float)).StoreType);
             Assert.Null(GetTypeMapping(typeof(DateTimeOffset)).StoreType);
         }
@@ -98,21 +98,21 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Does_simple_SQL_Server_mappings_for_nullable_CLR_types_to_DbTypes()
         {
-            Assert.Null(GetTypeMapping(typeof(int?)).StoreType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(string)).StoreType);
             Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).StoreType);
             Assert.Null(GetTypeMapping(typeof(TimeSpan?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(Guid?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(char?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(byte?)).StoreType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(char?)).StoreType);
+            Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(double?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(sbyte?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(ushort?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(uint?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(ulong?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(bool?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(short?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(long?)).StoreType);
+            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short?)).StoreType);
+            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(float?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(DateTimeOffset?)).StoreType);
         }
@@ -120,22 +120,22 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Does_simple_SQL_Server_mappings_for_enums_to_DbTypes()
         {
-            Assert.Null(GetTypeMapping(typeof(IntEnum)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(ByteEnum)).StoreType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(IntEnum)).StoreType);
+            Assert.Equal(DbType.Byte, GetTypeMapping(typeof(ByteEnum)).StoreType);
             Assert.Null(GetTypeMapping(typeof(SByteEnum)).StoreType);
             Assert.Null(GetTypeMapping(typeof(UShortEnum)).StoreType);
             Assert.Null(GetTypeMapping(typeof(UIntEnum)).StoreType);
             Assert.Null(GetTypeMapping(typeof(ULongEnum)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(ShortEnum)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(LongEnum)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(IntEnum?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(ByteEnum?)).StoreType);
+            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(ShortEnum)).StoreType);
+            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(LongEnum)).StoreType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(IntEnum?)).StoreType);
+            Assert.Equal(DbType.Byte, GetTypeMapping(typeof(ByteEnum?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(SByteEnum?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(UShortEnum?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(UIntEnum?)).StoreType);
             Assert.Null(GetTypeMapping(typeof(ULongEnum?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(ShortEnum?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(LongEnum?)).StoreType);
+            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(ShortEnum?)).StoreType);
+            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(LongEnum?)).StoreType);
         }
 
         [Fact]

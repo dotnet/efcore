@@ -17,11 +17,11 @@ namespace Microsoft.Data.Entity.SqlServer
         private readonly RelationalTypeMapping _varbinarymax = new RelationalTypeMapping("varbinary(max)", DbType.Binary);
         private readonly RelationalTypeMapping _varbinary900 = new RelationalSizedTypeMapping("varbinary(900)", DbType.Binary, 900);
         private readonly RelationalTypeMapping _rowversion = new RelationalSizedTypeMapping("rowversion", DbType.Binary, 8);
-        private readonly RelationalTypeMapping _int = new RelationalTypeMapping("int");
-        private readonly RelationalTypeMapping _bigint = new RelationalTypeMapping("bigint");
+        private readonly RelationalTypeMapping _int = new RelationalTypeMapping("int", DbType.Int32);
+        private readonly RelationalTypeMapping _bigint = new RelationalTypeMapping("bigint", DbType.Int64);
         private readonly RelationalTypeMapping _bit = new RelationalTypeMapping("bit");
-        private readonly RelationalTypeMapping _smallint = new RelationalTypeMapping("smallint");
-        private readonly RelationalTypeMapping _tinyint = new RelationalTypeMapping("tinyint");
+        private readonly RelationalTypeMapping _smallint = new RelationalTypeMapping("smallint", DbType.Int16);
+        private readonly RelationalTypeMapping _tinyint = new RelationalTypeMapping("tinyint", DbType.Byte);
         private readonly RelationalSizedTypeMapping _nchar = new RelationalSizedTypeMapping("nchar", DbType.StringFixedLength, 1);
         private readonly RelationalSizedTypeMapping _nvarchar = new RelationalSizedTypeMapping("nvarchar", 1);
         private readonly RelationalTypeMapping _varcharmax = new RelationalTypeMapping("varchar(max)", DbType.AnsiString);
