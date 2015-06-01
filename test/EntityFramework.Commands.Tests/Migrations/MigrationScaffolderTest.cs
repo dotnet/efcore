@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations.History;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
@@ -41,7 +42,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     context,
                     new EntityOptions<TContext>().WithExtension(new MockRelationalOptionsExtension()),
                     modelFactory),
-                new ModelDiffer(new RelationalTypeMapper()),
+                new ModelDiffer(new RelationalTypeMapper(), new MockRelationalMetadataExtensionProvider()),
                 new MigrationIdGenerator(),
                 new CSharpMigrationGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpModelGenerator(code)),
                 new MockHistoryRepository(),
@@ -78,6 +79,16 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             public IReadOnlyList<IHistoryRow> GetAppliedMigrations() => null;
             public MigrationOperation GetDeleteOperation(string migrationId) => null;
             public MigrationOperation GetInsertOperation(IHistoryRow row) => null;
+        }
+
+        private class MockRelationalMetadataExtensionProvider : IRelationalMetadataExtensionProvider
+        {
+            public IRelationalIndexExtensions Extensions(IIndex index) => index.Relational();
+            public IRelationalModelExtensions Extensions(IModel model) => model.Relational();
+            public IRelationalPropertyExtensions Extensions(IProperty property) => property.Relational();
+            public IRelationalKeyExtensions Extensions(IKey key) => key.Relational();
+            public IRelationalForeignKeyExtensions Extensions(IForeignKey foreignKey) => foreignKey.Relational();
+            public IRelationalEntityTypeExtensions Extensions(IEntityType entityType) => entityType.Relational();
         }
     }
 }

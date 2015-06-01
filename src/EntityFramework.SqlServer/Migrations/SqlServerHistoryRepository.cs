@@ -108,7 +108,7 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
 
             if (ifNotExists)
             {
-                builder.AppendLine("IF NOT EXISTS(SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE[TABLE_SCHEMA] = N'dbo' AND[TABLE_NAME] = '" + MigrationHistoryTableName + "' AND[TABLE_TYPE] = 'BASE TABLE')");
+                builder.AppendLine("IF NOT EXISTS(SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_SCHEMA] = N'dbo' AND [TABLE_NAME] = '" + MigrationHistoryTableName + "' AND [TABLE_TYPE] = 'BASE TABLE')");
                 builder.IncrementIndent();
             }
 
