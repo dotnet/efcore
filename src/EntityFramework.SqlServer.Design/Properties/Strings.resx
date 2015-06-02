@@ -127,7 +127,7 @@
     <value>For columnId {columnId}. Could not find table with TableId {tableId}. Skipping column.</value>
   </data>
   <data name="CannotFindToColumnForConstraintId" xml:space="preserve">
-    <value>For foreign key ConstraintId {constraintId}, could not find ToColumn with ColumnId {toColumnId}.</value>
+    <value>For foreign key ConstraintId {constraintId}. Could not find ToColumn with ColumnId {toColumnId}.</value>
   </data>
   <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
     <value>For columnId {columnId}. Could not find type mapping for SQL Server type {sqlServerDataType}. Skipping column.</value>
@@ -139,7 +139,7 @@
     <value>Unable to interpret the string {sqlServerStringLiteral} as a SQLServer string literal.</value>
   </data>
   <data name="DataTypeDoesNotAllowIdentityStrategy" xml:space="preserve">
-    <value>For columnId: {columnId}. The SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow ValueGenerationStrategy Identity. Generating a matching Property but ignoring the Identity setting.</value>
+    <value>For columnId {columnId}. The SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow ValueGenerationStrategy Identity. Generating a matching Property but ignoring the Identity setting.</value>
   </data>
   <data name="NoPrimaryKeyColumns" xml:space="preserve">
     <value>Attempt to generate EntityType {entityTypeName} failed. Unable to identify any primary key columns in the underlying SQL Server table {schemaName}.{tableName}.</value>
