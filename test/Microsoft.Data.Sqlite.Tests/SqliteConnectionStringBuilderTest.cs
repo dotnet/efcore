@@ -199,14 +199,13 @@ namespace Microsoft.Data.Sqlite
         public void ToString_builds_string()
         {
             var builder = new SqliteConnectionStringBuilder
-            {
-                DataSource = "test.db",
-                CacheMode = CacheMode.Shared
-            };
+                {
+                    DataSource = "test.db",
+                    CacheMode = CacheMode.Shared
+                };
             Assert.Equal("Data Source=test.db;Cache=Shared", builder.ToString());
 
             Assert.Equal("Data Source=test2.db", new SqliteConnectionStringBuilder(" Data Source = test2.db ").ToString());
         }
-
     }
 }

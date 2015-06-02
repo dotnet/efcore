@@ -27,7 +27,7 @@ namespace Microsoft.Data.Sqlite
         public override bool IsSynchronized => false;
 #endif
 
-        public virtual new SqliteParameter this[int index]
+        public new virtual SqliteParameter this[int index]
         {
             get { return _parameters[index]; }
             set
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        public virtual new SqliteParameter this[string parameterName]
+        public new virtual SqliteParameter this[string parameterName]
         {
             get { return this[IndexOfChecked(parameterName)]; }
             set { this[IndexOfChecked(parameterName)] = value; }
@@ -65,10 +65,13 @@ namespace Microsoft.Data.Sqlite
 
         public SqliteParameter Add(string parameterName, SqliteType type) =>
             Add(new SqliteParameter(parameterName, type));
+
         public SqliteParameter Add(string parameterName, SqliteType type, int size) =>
             Add(new SqliteParameter(parameterName, type, size));
+
         public SqliteParameter Add(string parameterName, SqliteType type, int size, string sourceColumn) =>
             Add(new SqliteParameter(parameterName, type, size, sourceColumn));
+
         public override void AddRange(Array values) => Add(values.Cast<SqliteParameter>());
         public virtual void AddRange(IEnumerable<SqliteParameter> values) => _parameters.AddRange(values);
 

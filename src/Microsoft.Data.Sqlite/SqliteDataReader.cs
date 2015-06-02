@@ -9,9 +9,9 @@ using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Data.Sqlite.Interop;
 using Microsoft.Data.Sqlite.Utilities;
-
 #if NET45 || DNX451
 using System.Data;
+
 #endif
 
 namespace Microsoft.Data.Sqlite
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Sqlite
         public override bool IsClosed => _closed;
         public override int RecordsAffected { get; }
 
-        /// <remarks>The <paramref name="name"/> parameter is case sensitive.</remarks>
+        /// <remarks>The <paramref name="name" /> parameter is case sensitive.</remarks>
         public override object this[string name] => GetValue(GetOrdinal(name));
 
         public override object this[int ordinal] => GetValue(ordinal);
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Sqlite
 #if NET45 || DNX451
             return new DbEnumerator(this);
 #else
-            // TODO: Remove when the System.Data.Common includes DbEnumerator
+    // TODO: Remove when the System.Data.Common includes DbEnumerator
             throw new NotImplementedException();
 #endif
         }
@@ -119,7 +119,6 @@ namespace Microsoft.Data.Sqlite
             return true;
         }
 
-
 #if NET45 || DNX451
         // TODO: Remove when fixed in System.Data.Common
         public override void Close() => Dispose(true);
@@ -159,7 +158,8 @@ namespace Microsoft.Data.Sqlite
             }
 
             var name = NativeMethods.sqlite3_column_name16(_stmt, ordinal);
-            if (name == null && (ordinal < 0 || ordinal >= FieldCount))
+            if (name == null
+                && (ordinal < 0 || ordinal >= FieldCount))
             {
                 // NB: Message is provided by the framework
                 throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Sqlite
             return name;
         }
 
-        /// <remarks>The <paramref name="name"/> parameter is case sensitive.</remarks>
+        /// <remarks>The <paramref name="name" /> parameter is case sensitive.</remarks>
         public override int GetOrdinal(string name)
         {
             for (var i = 0; i < FieldCount; i++)
@@ -258,7 +258,8 @@ namespace Microsoft.Data.Sqlite
         private int GetSqliteType(int ordinal)
         {
             var type = NativeMethods.sqlite3_column_type(_stmt, ordinal);
-            if (type == Constants.SQLITE_NULL && (ordinal < 0 || ordinal >= FieldCount))
+            if (type == Constants.SQLITE_NULL
+                && (ordinal < 0 || ordinal >= FieldCount))
             {
                 // NB: Message is provided by the framework
                 throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
@@ -339,27 +340,27 @@ namespace Microsoft.Data.Sqlite
             {
                 return (T)(object)GetBoolean(ordinal);
             }
-            else if (type == typeof(byte))
+            if (type == typeof(byte))
             {
                 return (T)(object)GetByte(ordinal);
             }
-            else if (type == typeof(byte[]))
+            if (type == typeof(byte[]))
             {
                 return (T)(object)GetBlob(ordinal);
             }
-            else if (type == typeof(char))
+            if (type == typeof(char))
             {
                 return (T)(object)GetChar(ordinal);
             }
-            else if (type == typeof(DateTime))
+            if (type == typeof(DateTime))
             {
                 return (T)(object)GetDateTime(ordinal);
             }
-            else if (type == typeof(DateTimeOffset))
+            if (type == typeof(DateTimeOffset))
             {
                 return (T)(object)DateTimeOffset.Parse(GetString(ordinal));
             }
-            else if (type == typeof(DBNull))
+            if (type == typeof(DBNull))
             {
                 if (!_stepped || _done)
                 {
@@ -368,55 +369,55 @@ namespace Microsoft.Data.Sqlite
 
                 return (T)(object)DBNull.Value;
             }
-            else if (type == typeof(decimal))
+            if (type == typeof(decimal))
             {
                 return (T)(object)GetDecimal(ordinal);
             }
-            else if (type == typeof(double))
+            if (type == typeof(double))
             {
                 return (T)(object)GetDouble(ordinal);
             }
-            else if (type == typeof(float))
+            if (type == typeof(float))
             {
                 return (T)(object)GetFloat(ordinal);
             }
-            else if (type == typeof(Guid))
+            if (type == typeof(Guid))
             {
                 return (T)(object)GetGuid(ordinal);
             }
-            else if (type == typeof(int))
+            if (type == typeof(int))
             {
                 return (T)(object)GetInt32(ordinal);
             }
-            else if (type == typeof(long))
+            if (type == typeof(long))
             {
                 return (T)(object)GetInt64(ordinal);
             }
-            else if (type == typeof(sbyte))
+            if (type == typeof(sbyte))
             {
                 return (T)(object)((sbyte)GetInt64(ordinal));
             }
-            else if (type == typeof(short))
+            if (type == typeof(short))
             {
                 return (T)(object)GetInt16(ordinal);
             }
-            else if (type == typeof(string))
+            if (type == typeof(string))
             {
                 return (T)(object)GetString(ordinal);
             }
-            else if (type == typeof(TimeSpan))
+            if (type == typeof(TimeSpan))
             {
                 return (T)(object)TimeSpan.Parse(GetString(ordinal));
             }
-            else if (type == typeof(uint))
+            if (type == typeof(uint))
             {
                 return (T)(object)((uint)GetInt64(ordinal));
             }
-            else if (type == typeof(ulong))
+            if (type == typeof(ulong))
             {
                 return (T)(object)((ulong)GetInt64(ordinal));
             }
-            else if (type == typeof(ushort))
+            if (type == typeof(ushort))
             {
                 return (T)(object)((ushort)GetInt64(ordinal));
             }

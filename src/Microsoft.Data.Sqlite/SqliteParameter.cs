@@ -108,6 +108,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         public override void ResetDbType() => ResetSqliteType();
+
         public virtual void ResetSqliteType()
         {
             DbType = DbType.String;
@@ -249,6 +250,7 @@ namespace Microsoft.Data.Sqlite
 
         private static void BindBlob(Sqlite3StmtHandle stmt, int index, byte[] value) =>
             NativeMethods.sqlite3_bind_blob(stmt, index, value, value.Length, Constants.SQLITE_TRANSIENT);
+
         private static void BindText(Sqlite3StmtHandle stmt, int index, string value) =>
             NativeMethods.sqlite3_bind_text16(stmt, index, value, value.Length * 2, Constants.SQLITE_TRANSIENT);
     }

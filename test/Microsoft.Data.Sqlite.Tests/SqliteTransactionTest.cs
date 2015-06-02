@@ -57,7 +57,7 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-               var ex =  Assert.Throws<ArgumentException>(()=>connection.BeginTransaction(IsolationLevel.ReadUncommitted));
+                var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(IsolationLevel.ReadUncommitted));
                 Assert.Equal(Strings.FormatInvalidIsolationLevelForUnsharedCache(IsolationLevel.ReadUncommitted), ex.Message);
             }
 
@@ -67,7 +67,6 @@ namespace Microsoft.Data.Sqlite
                 connection.BeginTransaction(IsolationLevel.ReadUncommitted);
             }
         }
-
 
         [Fact]
         public void IsolationLevel_throws_when_completed()

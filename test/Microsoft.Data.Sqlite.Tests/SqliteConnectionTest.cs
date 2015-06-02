@@ -119,13 +119,13 @@ namespace Microsoft.Data.Sqlite
             {
                 var raised = false;
                 StateChangeEventHandler handler = (sender, e) =>
-                {
-                    raised = true;
+                    {
+                        raised = true;
 
-                    Assert.Equal(connection, sender);
-                    Assert.Equal(ConnectionState.Closed, e.OriginalState);
-                    Assert.Equal(ConnectionState.Open, e.CurrentState);
-                };
+                        Assert.Equal(connection, sender);
+                        Assert.Equal(ConnectionState.Closed, e.OriginalState);
+                        Assert.Equal(ConnectionState.Open, e.CurrentState);
+                    };
 
                 connection.StateChange += handler;
                 try
@@ -151,13 +151,13 @@ namespace Microsoft.Data.Sqlite
 
                 var raised = false;
                 StateChangeEventHandler handler = (sender, e) =>
-                {
-                    raised = true;
+                    {
+                        raised = true;
 
-                    Assert.Equal(connection, sender);
-                    Assert.Equal(ConnectionState.Open, e.OriginalState);
-                    Assert.Equal(ConnectionState.Closed, e.CurrentState);
-                };
+                        Assert.Equal(connection, sender);
+                        Assert.Equal(ConnectionState.Open, e.OriginalState);
+                        Assert.Equal(ConnectionState.Closed, e.CurrentState);
+                    };
 
                 connection.StateChange += handler;
                 try

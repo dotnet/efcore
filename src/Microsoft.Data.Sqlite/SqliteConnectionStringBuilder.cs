@@ -99,7 +99,7 @@ namespace Microsoft.Data.Sqlite
 
                     case Keywords.Cache:
                         CacheMode mode;
-                        if (!Enum.TryParse<CacheMode>(value as string, out mode))
+                        if (!Enum.TryParse(value as string, out mode))
                         {
                             throw new ArgumentException(Strings.FormatInvalidCacheMode(value));
                         }

@@ -40,7 +40,7 @@ namespace Microsoft.Data.Sqlite
             connection.ExecuteNonQuery("BEGIN;");
         }
 
-        public virtual new SqliteConnection Connection => _connection;
+        public new virtual SqliteConnection Connection => _connection;
         protected override DbConnection DbConnection => Connection;
 
         public override IsolationLevel IsolationLevel
@@ -83,7 +83,9 @@ namespace Microsoft.Data.Sqlite
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && !_completed && _connection.State == ConnectionState.Open)
+            if (disposing
+                && !_completed
+                && _connection.State == ConnectionState.Open)
             {
                 RollbackInternal();
             }

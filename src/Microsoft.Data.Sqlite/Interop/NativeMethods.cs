@@ -4,9 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-
 #if NET45 || DNX451 || DNXCORE50
-
 using Microsoft.Framework.Internal;
 
 #if DNX451 || DNXCORE50

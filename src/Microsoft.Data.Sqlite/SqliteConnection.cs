@@ -4,7 +4,6 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Runtime.InteropServices;
 using Microsoft.Data.Sqlite.Interop;
 
 namespace Microsoft.Data.Sqlite
@@ -44,9 +43,11 @@ namespace Microsoft.Data.Sqlite
                 ConnectionStringBuilder = new SqliteConnectionStringBuilder(value);
             }
         }
+
         internal SqliteConnectionStringBuilder ConnectionStringBuilder { get; set; }
 
         public override string Database => MainDatabaseName;
+
         public override string DataSource =>
             _state == ConnectionState.Open
                 ? NativeMethods.sqlite3_db_filename(_db, MainDatabaseName)
@@ -87,7 +88,8 @@ namespace Microsoft.Data.Sqlite
 
         public override void Close()
         {
-            if (_db == null || _db.IsInvalid)
+            if (_db == null
+                || _db.IsInvalid)
             {
                 return;
             }
@@ -109,12 +111,12 @@ namespace Microsoft.Data.Sqlite
         }
 
         // NB: Other providers don't set Transaction
-        public virtual new SqliteCommand CreateCommand() => new SqliteCommand { Connection = this, Transaction = Transaction };
+        public new virtual SqliteCommand CreateCommand() => new SqliteCommand { Connection = this, Transaction = Transaction };
         protected override DbCommand CreateDbCommand() => CreateCommand();
-        public virtual new SqliteTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
+        public new virtual SqliteTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) => BeginTransaction(isolationLevel);
 
-        public virtual new SqliteTransaction BeginTransaction(IsolationLevel isolationLevel)
+        public new virtual SqliteTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             if (_state != ConnectionState.Open)
             {

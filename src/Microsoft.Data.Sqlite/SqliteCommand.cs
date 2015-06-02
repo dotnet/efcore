@@ -14,7 +14,7 @@ namespace Microsoft.Data.Sqlite
 {
     public class SqliteCommand : DbCommand
     {
-        private Lazy<SqliteParameterCollection> _parameters = new Lazy<SqliteParameterCollection>(
+        private readonly Lazy<SqliteParameterCollection> _parameters = new Lazy<SqliteParameterCollection>(
             () => new SqliteParameterCollection());
 
         public SqliteCommand()
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         public override string CommandText { get; set; }
-        public virtual new SqliteConnection Connection { get; set; }
+        public new virtual SqliteConnection Connection { get; set; }
 
         protected override DbConnection DbConnection
         {
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Sqlite
             set { Connection = (SqliteConnection)value; }
         }
 
-        public virtual new SqliteTransaction Transaction { get; set; }
+        public new virtual SqliteTransaction Transaction { get; set; }
 
         protected override DbTransaction DbTransaction
         {
@@ -67,27 +67,28 @@ namespace Microsoft.Data.Sqlite
             set { Transaction = (SqliteTransaction)value; }
         }
 
-        public virtual new SqliteParameterCollection Parameters => _parameters.Value;
+        public new virtual SqliteParameterCollection Parameters => _parameters.Value;
         protected override DbParameterCollection DbParameterCollection => Parameters;
         public override int CommandTimeout { get; set; }
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
-        public virtual new SqliteParameter CreateParameter() => new SqliteParameter();
+        public new virtual SqliteParameter CreateParameter() => new SqliteParameter();
         protected override DbParameter CreateDbParameter() => CreateParameter();
 
         public override void Prepare()
         {
         }
 
-        public virtual new SqliteDataReader ExecuteReader() => ExecuteReader(CommandBehavior.Default);
+        public new virtual SqliteDataReader ExecuteReader() => ExecuteReader(CommandBehavior.Default);
 
-        public virtual new SqliteDataReader ExecuteReader(CommandBehavior behavior)
+        public new virtual SqliteDataReader ExecuteReader(CommandBehavior behavior)
         {
             if (behavior != CommandBehavior.Default)
             {
                 throw new ArgumentException(Strings.FormatInvalidCommandBehavior(behavior));
             }
-            if (Connection == null || Connection.State != ConnectionState.Open)
+            if (Connection == null
+                || Connection.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteReader"));
             }
@@ -144,7 +145,8 @@ namespace Microsoft.Data.Sqlite
                     {
                         var name = NativeMethods.sqlite3_bind_parameter_name(stmt, i);
 
-                        if (_parameters.IsValueCreated ||
+                        if (_parameters.IsValueCreated
+                            ||
                             !_parameters.Value.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
                         {
                             unboundParams.Add(name);
@@ -175,14 +177,17 @@ namespace Microsoft.Data.Sqlite
         }
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => ExecuteReader(behavior);
-        public virtual new Task<SqliteDataReader> ExecuteReaderAsync() =>
+
+        public new virtual Task<SqliteDataReader> ExecuteReaderAsync() =>
             ExecuteReaderAsync(CommandBehavior.Default, CancellationToken.None);
-        public virtual new Task<SqliteDataReader> ExecuteReaderAsync(CancellationToken cancellationToken) =>
+
+        public new virtual Task<SqliteDataReader> ExecuteReaderAsync(CancellationToken cancellationToken) =>
             ExecuteReaderAsync(CommandBehavior.Default, cancellationToken);
-        public virtual new Task<SqliteDataReader> ExecuteReaderAsync(CommandBehavior behavior) =>
+
+        public new virtual Task<SqliteDataReader> ExecuteReaderAsync(CommandBehavior behavior) =>
             ExecuteReaderAsync(behavior, CancellationToken.None);
 
-        public virtual new Task<SqliteDataReader> ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+        public new virtual Task<SqliteDataReader> ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -192,11 +197,12 @@ namespace Microsoft.Data.Sqlite
         protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(
             CommandBehavior behavior,
             CancellationToken cancellationToken) =>
-            await ExecuteReaderAsync(behavior, cancellationToken);
+                await ExecuteReaderAsync(behavior, cancellationToken);
 
         public override int ExecuteNonQuery()
         {
-            if (Connection == null || Connection.State != ConnectionState.Open)
+            if (Connection == null
+                || Connection.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteNonQuery"));
             }
@@ -213,7 +219,8 @@ namespace Microsoft.Data.Sqlite
 
         public override object ExecuteScalar()
         {
-            if (Connection == null || Connection.State != ConnectionState.Open)
+            if (Connection == null
+                || Connection.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteScalar"));
             }
