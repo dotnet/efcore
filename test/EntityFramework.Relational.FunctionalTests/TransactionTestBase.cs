@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         [Fact]
-        public void Query_uses_explicit_transaction()
+        public virtual void Query_uses_explicit_transaction()
         {
             using (var context = CreateContext())
             {
@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         [Fact]
-        public async Task QueryAsync_uses_explicit_transaction()
+        public virtual async Task QueryAsync_uses_explicit_transaction()
         {
             using (var context = CreateContext())
             {
