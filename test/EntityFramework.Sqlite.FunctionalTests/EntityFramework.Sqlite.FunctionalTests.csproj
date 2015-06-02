@@ -74,6 +74,8 @@
     <Compile Include="AsNoTrackingSqliteTest.cs" />
     <Compile Include="AsyncFromSqlQuerySqliteTest.cs" />
     <Compile Include="AsyncQuerySqliteTest.cs" />
+    <Compile Include="BuiltInDataTypesSqliteFixture.cs" />
+    <Compile Include="BuiltInDataTypesSqliteTest.cs" />
     <Compile Include="ChangeTrackingSqliteTest.cs" />
     <Compile Include="ComplexNavigationsQuerySqliteFixture.cs" />
     <Compile Include="ComplexNavigationsQuerySqliteTest.cs" />
