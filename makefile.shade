@@ -4,6 +4,7 @@ use assembly='WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf
 use namespace='System.IO.Compression'
 use namespace='System.IO.Packaging'
 use namespace='System.Net.Http'
+use namespace='System.IO'
 
 var VERSION='0.1'
 var FULL_VERSION='0.1'
@@ -16,9 +17,13 @@ var sqliteDllPath='src/Microsoft.Data.Sqlite/redist/x86/sqlite3.dll'
 #sqlite-download target='initialize' if='!File.Exists(sqliteDllPath)'
     var sqliteUri='https://sqlite.org/2015/sqlite-dll-win32-x86-3081002.zip'
     @{
-        using (var client = new HttpClient())
-        using (var archiveStream = client.GetStreamAsync(sqliteUri).Result)
-        using (var archive = new ZipArchive(archiveStream))
+        var tmpFile = "sqlite-dll-win32-x86-3080900.zip";
+        using (var webClient = new WebClient()) 
+        {
+            webClient.DownloadFile(sqliteUri, tmpFile);
+        }
+        using (var fileStream = new FileStream(tmpFile, FileMode.Open))
+        using (var archive = new ZipArchive(fileStream))
         {
             var entry = archive.GetEntry("sqlite3.dll");
             if (entry == null)
@@ -32,6 +37,7 @@ var sqliteDllPath='src/Microsoft.Data.Sqlite/redist/x86/sqlite3.dll'
                 entryStream.CopyTo(dllStream);
             }
         }
+        File.Delete(tmpFile);
     }
 
 #nupkg-patch target='compile'
@@ -44,12 +50,12 @@ var sqliteDllPath='src/Microsoft.Data.Sqlite/redist/x86/sqlite3.dll'
             {
                 CreatePartFromFile(
                     package,
-                    @"src\Microsoft.Data.Sqlite\build\net451\Microsoft.Data.Sqlite.targets",
-                    @"build\net451\Microsoft.Data.Sqlite.targets");
+                    @"src/Microsoft.Data.Sqlite/build/net451/Microsoft.Data.Sqlite.targets",
+                    @"build/net451/Microsoft.Data.Sqlite.targets");
                 CreatePartFromFile(
                     package,
-                    @"src\Microsoft.Data.Sqlite\redist\x86\sqlite3.dll",
-                    @"redist\x86\sqlite3.dll");
+                    @"src/Microsoft.Data.Sqlite/redist/x86/sqlite3.dll",
+                    @"redist/x86/sqlite3.dll");
             }
         }
     }
