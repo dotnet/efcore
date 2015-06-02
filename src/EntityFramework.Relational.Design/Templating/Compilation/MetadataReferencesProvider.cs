@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
 
         private void InitializeReferences()
         {
-#if DNXCORE50
+#if DNXCORE50 || NETCORE50
             AddReferenceFromName("System.Collections");
             AddReferenceFromName("System.Dynamic.Runtime");
             AddReferenceFromName("System.Linq");

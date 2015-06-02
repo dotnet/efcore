@@ -18,20 +18,11 @@
         "System.Transactions": "4.0.0.0"
       }
     },
-    "dnxcore50": {
+    "netportable50": {
       "dependencies": {
         "System.Data.Common": "4.0.0-*",
         "System.Text.RegularExpressions": "4.0.10-*",
         "Microsoft.CSharp": "4.0.0-*"
-      }
-    },
-    ".NETPortable,Version=v4.5,Profile=Profile7": {
-      "dependencies": {
-        "System.Data.Common": "4.0.0-*"
-      },
-      "frameworkAssemblies": {
-        "Microsoft.CSharp": "4.0.0.0",
-        "System.Text.RegularExpressions": "4.0.0.0"
       }
     }
   }

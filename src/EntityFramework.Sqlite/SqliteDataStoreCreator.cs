@@ -1,19 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.Utilities;
-
-#if NET45 || DNXCORE50
-using System.IO;
-#else
-using System;
-using System.Reflection;
-#endif
 
 
 namespace Microsoft.Data.Entity.Sqlite
@@ -88,12 +82,7 @@ namespace Microsoft.Data.Entity.Sqlite
 
             if (path != null)
             {
-#if NET45 || DNXCORE50
                 File.Delete(path);
-#else
-                // TODO: Remove with netcore451
-                Type.GetType("System.IO.File").GetRuntimeMethod("Delete", new[] { typeof(string) }).Invoke(null, new[] { path });
-#endif
             }
         }
     }

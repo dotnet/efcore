@@ -26,9 +26,9 @@
         "Microsoft.Framework.CommandLineUtils.Sources": { "version": "1.0.0-*", "type": "build" }
       }
     },
-    ".NETPortable,Version=v4.5,Profile=Profile7": {
+    "netcore50": {
       "bin": {
-        "assembly": "lib\\portable-net45+win\\_._"
+        "assembly": "lib\\netcore50\\_._"
       }
     }
   },
