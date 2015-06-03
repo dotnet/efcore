@@ -16,7 +16,7 @@
                 "System.Net.NetworkInformation":  "4.0.10-beta-*"
             }
         },
-        "dnx451": {
+        "dnx46": {
             "frameworkAssemblies": {
                 "System.ComponentModel.DataAnnotations": ""
             }

@@ -7,7 +7,7 @@
     },
     "frameworks": {
         "net45": { },
-        "dnx451": { },
+        "dnx46": { },
         "dnxcore50": {
             "dependencies": {
                 "System.Threading": "4.0.10-beta-*"
