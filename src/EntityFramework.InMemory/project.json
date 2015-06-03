@@ -13,7 +13,6 @@
   },
   "frameworks": {
     "net45": { },
-    "dnxcore50": { },
-    ".NETPortable,Version=v4.5,Profile=Profile7": { }
+    "netportable50": { }
   }
 }
