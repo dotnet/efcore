@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.AspNet.Testing;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
@@ -2411,12 +2412,13 @@ INNER JOIN ""Orders"" AS ""o0"" ON ""o"".""CustomerID"" = ""o0"".""CustomerID"""
                 Sql);
         }
 
+        [ReplaceCulture]
         public override void Where_chain()
         {
             base.Where_chain();
 
             Assert.Equal(
-                @"@__p_0: 1/1/1998 12:00:00 AM
+                @"@__p_0: 01/01/1998 00:00:00
 
 SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
