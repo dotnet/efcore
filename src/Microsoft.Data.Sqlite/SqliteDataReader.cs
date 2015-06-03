@@ -219,9 +219,7 @@ namespace Microsoft.Data.Sqlite
                     return "INTEGER";
 
                 default:
-#if NET45 || DNX451 || DNXCORE50
                     Debug.Fail("Unexpected column type: " + sqliteType);
-#endif
                     return "INTEGER";
             }
         }
@@ -252,9 +250,7 @@ namespace Microsoft.Data.Sqlite
                     return typeof(int);
 
                 default:
-#if NET45 || DNX451 || DNXCORE50
                     Debug.Fail("Unexpected column type: " + sqliteType);
-#endif
                     return typeof(int);
             }
         }
@@ -459,9 +455,7 @@ namespace Microsoft.Data.Sqlite
                     return DBNull.Value;
 
                 default:
-#if NET45 || DNX451 || DNXCORE50
                     Debug.Fail("Unexpected column type: " + sqliteType);
-#endif
                     return GetInt32(ordinal);
             }
         }
