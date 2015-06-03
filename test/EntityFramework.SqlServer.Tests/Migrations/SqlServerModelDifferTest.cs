@@ -4,6 +4,7 @@
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Migrations
@@ -35,7 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 });
         }
 
-        protected override ModelBuilder CreateModelBuilder() => new SqlServerModelBuilderFactory().CreateConventionBuilder();
+        protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
         protected override ModelDiffer CreateModelDiffer()
             => new SqlServerModelDiffer(new SqlServerTypeMapper(), new SqlServerMetadataExtensionProvider());
     }

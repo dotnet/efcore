@@ -95,11 +95,11 @@
     <Compile Include="Query\SqlServerQuerySqlGenerator.cs" />
     <Compile Include="SqlServerBuilderExtensions.cs" />
     <Compile Include="SqlServerCompositeMemberTranslator.cs" />
+    <Compile Include="SqlServerConventionSetBuilder.cs" />
     <Compile Include="SqlServerDatabase.cs" />
     <Compile Include="SqlServerDatabaseExtensions.cs" />
     <Compile Include="SqlServerCompositeMethodCallTranslator.cs" />
     <Compile Include="SqlServerMetadataExtensions.cs" />
-    <Compile Include="SqlServerModelBuilderFactory.cs" />
     <Compile Include="Migrations\SqlServerModelDiffer.cs" />
     <Compile Include="SqlServerModelSource.cs" />
     <Compile Include="SqlServerDataStoreServices.cs" />

@@ -2,29 +2,59 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.Relational.Migrations;
+using Microsoft.Data.Entity.Relational.Migrations.History;
+using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Relational.Migrations.Sql;
+using Microsoft.Data.Entity.Relational.Query;
+using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Data.Entity.Relational.ValueGeneration;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests
 {
-    public class RelationalEntityServicesBuilderExtensionsTest
+    public abstract class RelationalEntityServicesBuilderExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
     {
         [Fact]
-        public void AddRelational_does_not_replace_services_already_registered()
+        public override void Services_wire_up_correctly()
         {
-            var services = new ServiceCollection()
-                .AddSingleton<IComparer<ModificationCommand>, FakeModificationCommandComparer>();
+            base.Services_wire_up_correctly();
 
-            services.AddEntityFramework().AddRelational();
+            VerifySingleton<IParameterNameGeneratorFactory>();
+            VerifySingleton<IComparer<ModificationCommand>>();
+            VerifySingleton<IMigrationIdGenerator>();
+            VerifySingleton<SqlStatementExecutor>();
+            VerifySingleton<UntypedValueBufferFactoryFactory>();
+            VerifySingleton<TypedValueBufferFactoryFactory>();
+            VerifySingleton<IMigrationModelFactory>();
+            VerifySingleton<RelationalModelValidator>();
 
-            var serviceProvider = services.BuildServiceProvider();
+            VerifyScoped<IMigrator>();
+            VerifyScoped<IMigrationAssembly>();
+            VerifyScoped<RelationalQueryContextFactory>();
+            VerifyScoped<BatchExecutor>();
+            VerifyScoped<ModelDiffer>();
+            VerifyScoped<RelationalDatabaseFactory>();
+            VerifyScoped<RelationalValueGeneratorSelector>();
+            VerifyScoped<CommandBatchPreparer>();
 
-            Assert.IsType<FakeModificationCommandComparer>(serviceProvider.GetRequiredService<IComparer<ModificationCommand>>());
-        }
-
-        private class FakeModificationCommandComparer : ModificationCommandComparer
-        {
+            VerifyScoped<ISqlStatementExecutor>();
+            VerifyScoped<IMethodCallTranslator>();
+            VerifyScoped<IMemberTranslator>();
+            VerifyScoped<IModelDiffer>();
+            VerifyScoped<IHistoryRepository>();
+            VerifyScoped<IMigrationSqlGenerator>();
+            VerifyScoped<IRelationalConnection>();
+            VerifyScoped<IRelationalTypeMapper>();
+            VerifyScoped<IModificationCommandBatchFactory>();
+            VerifyScoped<ICommandBatchPreparer>();
+            VerifyScoped<IRelationalValueBufferFactoryFactory>();
+            VerifyScoped<IRelationalDataStoreCreator>();
+            VerifyScoped<ISqlGenerator>();
+            VerifyScoped<IRelationalMetadataExtensionProvider>();
         }
     }
 }

@@ -7,7 +7,8 @@ using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -42,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests
             return CreateServiceProvider(customServices, AddProviderServices);
         }
 
-        public IServiceProvider CreateServiceProvider(
+        private IServiceProvider CreateServiceProvider(
             IServiceCollection customServices,
             Func<EntityFrameworkServicesBuilder, EntityFrameworkServicesBuilder> addProviderServices)
         {
@@ -168,7 +169,14 @@ namespace Microsoft.Data.Entity.Tests
 
         public ModelBuilder CreateConventionBuilder(Model model = null)
         {
-            return new ModelBuilderFactory().CreateConventionBuilder(model ?? new Model());
+            var contextServices = CreateContextServices();
+
+            var conventionSetBuilder = contextServices.GetRequiredService<IDataStoreServices>().ConventionSetBuilder;
+            var conventionSet = contextServices.GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet();
+            conventionSet = conventionSetBuilder == null
+                ? conventionSet
+                : conventionSetBuilder.AddConventions(conventionSet);
+            return new ModelBuilder(conventionSet, model ?? new Model());
         }
 
         public InternalEntityEntry CreateInternalEntry<TEntity>(

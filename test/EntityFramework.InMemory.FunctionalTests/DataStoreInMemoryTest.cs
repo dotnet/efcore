@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -105,12 +106,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
         private static Model CreateModel()
         {
-            var model = new Model();
-            var modelBuilder = new ModelBuilderFactory().CreateConventionBuilder(model);
+            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder.Entity<Customer>();
 
-            return model;
+            return modelBuilder.Model;
         }
 
         [Fact]

@@ -5,7 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Internal
 {
@@ -13,19 +14,33 @@ namespace Microsoft.Data.Entity.Internal
     {
         private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
         protected IDbSetFinder SetFinder { get; }
+        protected ICoreConventionSetBuilder CoreConventionSetBuilder { get; }
 
-        protected ModelSource([NotNull] IDbSetFinder setFinder)
+        protected ModelSource(
+            [NotNull] IDbSetFinder setFinder,
+            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder)
         {
+            Check.NotNull(setFinder, nameof(setFinder));
+            Check.NotNull(coreConventionSetBuilder, nameof(coreConventionSetBuilder));
+
             SetFinder = setFinder;
+            CoreConventionSetBuilder = coreConventionSetBuilder;
         }
 
-        public virtual IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory, IModelValidator validator)
-            => _models.GetOrAdd(context.GetType(), k => CreateModel(context, modelBuilderFactory, validator));
+        public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
+            => _models.GetOrAdd(context.GetType(), k => CreateModel(context, conventionSetBuilder, validator));
 
-        protected virtual IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory, IModelValidator validator)
+        protected virtual IModel CreateModel(
+            [NotNull] DbContext context,
+            [CanBeNull] IConventionSetBuilder conventionSetBuilder,
+            [NotNull] IModelValidator validator)
         {
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(validator, nameof(validator));
+
+            var conventionSet = CreateConventionSet(conventionSetBuilder);
             var model = new Model();
-            var modelBuilder = modelBuilderFactory.CreateConventionBuilder(model);
+            var modelBuilder = new ModelBuilder(conventionSet, model);
 
             FindSets(modelBuilder, context);
 
@@ -34,6 +49,14 @@ namespace Microsoft.Data.Entity.Internal
             validator.Validate(model);
 
             return model;
+        }
+
+        protected virtual ConventionSet CreateConventionSet([CanBeNull] IConventionSetBuilder conventionSetBuilder)
+        {
+            var conventionSet = CoreConventionSetBuilder.CreateConventionSet();
+            return conventionSetBuilder == null
+                ? conventionSet
+                : conventionSetBuilder.AddConventions(conventionSet);
         }
 
         protected virtual void FindSets(ModelBuilder modelBuilder, DbContext context)

@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
@@ -685,7 +686,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 
         private void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel> assert)
         {
-            var modelBuilder = new ModelBuilderFactory().CreateConventionBuilder();
+            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
             buildModel(modelBuilder);
             var model = modelBuilder.Model;
 

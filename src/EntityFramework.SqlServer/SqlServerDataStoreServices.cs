@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations.History;
@@ -34,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer
         public override IRelationalConnection RelationalConnection => GetService<ISqlServerConnection>();
         public override IValueGeneratorSelector ValueGeneratorSelector => GetService<SqlServerValueGeneratorSelector>();
         public override IRelationalDataStoreCreator RelationalDataStoreCreator => GetService<SqlServerDataStoreCreator>();
-        public override IModelBuilderFactory ModelBuilderFactory => GetService<SqlServerModelBuilderFactory>();
+        public override IConventionSetBuilder ConventionSetBuilder => GetService<SqlServerConventionSetBuilder>();
         public override IModelDiffer ModelDiffer => GetService<SqlServerModelDiffer>();
         public override IHistoryRepository HistoryRepository => GetService<SqlServerHistoryRepository>();
         public override IMigrationSqlGenerator MigrationSqlGenerator => GetService<SqlServerMigrationSqlGenerator>();

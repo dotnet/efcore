@@ -5,7 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Storage
 
         protected virtual TService GetService<TService>() => Services.GetRequiredService<TService>();
 
-        public virtual IModelBuilderFactory ModelBuilderFactory => GetService<ModelBuilderFactory>();
+        public virtual IConventionSetBuilder ConventionSetBuilder => null;
         public virtual IValueGeneratorSelector ValueGeneratorSelector => GetService<ValueGeneratorSelector>();
         public virtual IModelValidator ModelValidator => GetService<LoggingModelValidator>();
 

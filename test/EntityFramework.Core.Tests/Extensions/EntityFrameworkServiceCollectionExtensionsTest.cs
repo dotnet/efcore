@@ -9,11 +9,12 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Framework.Caching.Memory;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -25,6 +26,12 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Services_wire_up_correctly()
         {
+            VerifyScoped<IEntityStateListener>(isExistingReplaced: true);
+            VerifyScoped<IForeignKeyListener>(isExistingReplaced: true);
+            VerifyScoped<INavigationListener>(isExistingReplaced: true);
+            VerifyScoped<IKeyListener>(isExistingReplaced: true);
+            VerifyScoped<IPropertyListener>(isExistingReplaced: true);
+
             VerifySingleton<IDbSetFinder>();
             VerifySingleton<IDbSetInitializer>();
             VerifySingleton<IDbSetSource>();
@@ -34,7 +41,6 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<IClrCollectionAccessorSource>();
             VerifySingleton<ICollectionTypeFactory>();
             VerifySingleton<IEntityMaterializerSource>();
-            VerifySingleton<IModelValidator>();
             VerifySingleton<IMemberMapper>();
             VerifySingleton<IFieldMatcher>();
             VerifySingleton<IOriginalValuesFactory>();
@@ -43,9 +49,9 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<IEntityEntryMetadataServices>();
             VerifySingleton<ICompiledQueryCache>();
             VerifySingleton<ILoggerFactory>();
-
-            VerifyCached<IModelBuilderFactory>();
-            VerifyCached<IModel>();
+            VerifySingleton<ICoreConventionSetBuilder>();
+            VerifySingleton<LoggingModelValidator>();
+            VerifySingleton<IMemoryCache>();
 
             VerifyScoped<IKeyPropagator>();
             VerifyScoped<INavigationFixer>();
@@ -59,45 +65,34 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<IChangeDetector>();
             VerifyScoped<IEntityEntryGraphIterator>();
             VerifyScoped<IDbContextServices>();
+            VerifyScoped<IDataStoreSelector>();
+            VerifyScoped<ValueGeneratorSelector>();
+
+            VerifyScoped<IModel>();
             VerifyScoped<DbContext>();
             VerifyScoped<IDbContextOptions>();
-            VerifyScoped<IDataStoreSelector>();
+            VerifyScoped<IDataStoreServices>();
             VerifyScoped<IDataStore>();
+            VerifyScoped<IQueryContextFactory>();
             VerifyScoped<IDataStoreConnection>();
             VerifyScoped<IDatabaseFactory>();
             VerifyScoped<IValueGeneratorSelector>();
             VerifyScoped<IDataStoreCreator>();
-
-            VerifyScoped<IEntityStateListener>(isExistingReplaced: true);
-            VerifyScoped<IForeignKeyListener>(isExistingReplaced: true);
-            VerifyScoped<INavigationListener>(isExistingReplaced: true);
-            VerifyScoped<IKeyListener>(isExistingReplaced: true);
-            VerifyScoped<IPropertyListener>(isExistingReplaced: true);
-        }
-
-        protected void VerifyCommonDataStoreServices()
-        {
+            VerifyOptionalScoped<IConventionSetBuilder>();
+            VerifyScoped<IValueGeneratorCache>();
+            VerifyScoped<IModelSource>();
+            VerifyScoped<IModelValidator>();
             VerifySingleton<IDataStoreSource>(isExistingReplaced: true);
-            Assert.NotNull(VerifyCached<IModel>());
-            Assert.NotNull(VerifyScoped<DbContext>());
-            Assert.NotNull(VerifyScoped<IDbContextOptions>());
-            Assert.NotNull(VerifyScoped<IDataStore>());
-            Assert.NotNull(VerifyScoped<IDataStoreConnection>());
-            Assert.NotNull(VerifyScoped<IDatabaseFactory>());
-            Assert.NotNull(VerifyScoped<IValueGeneratorSelector>());
-            Assert.NotNull(VerifyScoped<IDataStoreCreator>());
-            Assert.NotNull(VerifySingleton<IModelBuilderFactory>());
         }
-
-        private readonly IServiceProvider _serviceProvider;
+        
         private readonly DbContext _firstContext;
         private readonly DbContext _secondContext;
 
         public EntityFrameworkServiceCollectionExtensionsTest()
         {
-            _serviceProvider = GetServices().BuildServiceProvider();
-            _firstContext = CreateContext(_serviceProvider);
-            _secondContext = CreateContext(_serviceProvider);
+            var serviceProvider = GetServices().BuildServiceProvider();
+            _firstContext = CreateContext(serviceProvider);
+            _secondContext = CreateContext(serviceProvider);
         }
 
         protected virtual IServiceCollection GetServices(IServiceCollection services = null)
@@ -107,12 +102,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddInMemoryStore()
                 .ServiceCollection();
         }
-
-        protected virtual DbContextOptions GetOptions()
-        {
-            return TestHelpers.Instance.CreateOptions();
-        }
-
+        
         protected virtual DbContext CreateContext(IServiceProvider serviceProvider)
         {
             return TestHelpers.Instance.CreateContext(serviceProvider);
@@ -127,61 +117,64 @@ namespace Microsoft.Data.Entity.Tests
         protected TService VerifySingleton<TService>(bool isExistingReplaced = false)
             where TService : class
         {
-            return VerifyService<TService>(((IAccessor<IServiceProvider>)_firstContext).Service, isExistingReplaced, isScoped: false, isCached: false);
+            return VerifyService<TService>(isExistingReplaced, isSingleton: true, isRequired: true);
         }
 
         protected TService VerifyScoped<TService>(bool isExistingReplaced = false)
             where TService : class
         {
-            return VerifyService<TService>(((IAccessor<IServiceProvider>)_firstContext).Service, isExistingReplaced, isScoped: true, isCached: false);
+            return VerifyService<TService>(isExistingReplaced, isSingleton: false, isRequired: true);
         }
 
-        protected TService VerifyCached<TService>(bool isExistingReplaced = false)
+        protected TService VerifyOptionalSingleton<TService>()
             where TService : class
         {
-            return VerifyService<TService>(((IAccessor<IServiceProvider>)_firstContext).Service, isExistingReplaced, isScoped: true, isCached: true);
+            return VerifyService<TService>(isExistingReplaced: false, isSingleton: true, isRequired: false);
         }
 
-        private TService VerifyService<TService>(IServiceProvider serviceProvider, bool isExistingReplaced, bool isScoped, bool isCached)
+        protected TService VerifyOptionalScoped<TService>()
             where TService : class
         {
-            var service = serviceProvider.GetRequiredService<TService>();
+            return VerifyService<TService>(isExistingReplaced: false, isSingleton: false, isRequired: false);
+        }
 
-            Assert.NotNull(service);
-            Assert.Same(service, serviceProvider.GetRequiredService<TService>());
+        private TService VerifyService<TService>(
+            bool isExistingReplaced,
+            bool isSingleton,
+            bool isRequired)
+            where TService : class
+        {
+            var provider = ((IAccessor<IServiceProvider>)_firstContext).Service;
+            var service = provider.GetService<TService>();
+            if (isRequired)
+            {
+                Assert.NotNull(service);
+            }
 
-            var scopedService = ((IAccessor<IServiceProvider>)_secondContext).Service.GetRequiredService<TService>();
+            Assert.Same(service, provider.GetService<TService>());
 
-            if (isCached)
+            var otherScopeService = ((IAccessor<IServiceProvider>)_secondContext).Service.GetService<TService>();
+
+            if (isSingleton)
             {
-                Assert.Same(service, scopedService);
+                Assert.Same(service, otherScopeService);
             }
-            else if (isScoped)
-            {
-                Assert.NotSame(service, scopedService);
-            }
-            else
-            {
-                Assert.Same(service, scopedService);
-            }
-            Assert.Equal(1, serviceProvider.GetRequiredService<IEnumerable<TService>>().Count());
+            Assert.Equal(1, ((IAccessor<IServiceProvider>)_firstContext).Service.GetRequiredServices<TService>().Count());
 
             if (typeof(TService) != typeof(IDbContextServices))
             {
-                var customServices = isScoped
-                    ? new ServiceCollection().AddScoped(p => service)
-                    : new ServiceCollection().AddSingleton(p => service);
+                var customServices = new ServiceCollection().AddSingleton(p => service);
 
-                var serviceProviderWithCustomService = ((IAccessor<IServiceProvider>)new DbContext(GetServices(customServices).BuildServiceProvider(), GetOptions())).Service;
+                var serviceProviderWithCustomService = ((IAccessor<IServiceProvider>)CreateContext(GetServices(customServices).BuildServiceProvider())).Service;
                 if (isExistingReplaced)
                 {
-                    Assert.NotSame(service, serviceProviderWithCustomService.GetRequiredService<TService>());
-                    Assert.Equal(2, serviceProviderWithCustomService.GetRequiredService<IEnumerable<TService>>().Count());
+                    Assert.NotSame(service, serviceProviderWithCustomService.GetService<TService>());
+                    Assert.Equal(2, serviceProviderWithCustomService.GetRequiredServices<TService>().Count());
                 }
                 else
                 {
-                    Assert.Same(service, serviceProviderWithCustomService.GetRequiredService<TService>());
-                    Assert.Equal(1, serviceProviderWithCustomService.GetRequiredService<IEnumerable<TService>>().Count());
+                    Assert.Same(service, serviceProviderWithCustomService.GetService<TService>());
+                    Assert.Equal(1, serviceProviderWithCustomService.GetRequiredServices<TService>().Count());
                 }
             }
 

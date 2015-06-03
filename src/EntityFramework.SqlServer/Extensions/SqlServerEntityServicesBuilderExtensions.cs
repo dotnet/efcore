@@ -25,7 +25,7 @@ namespace Microsoft.Framework.DependencyInjection
             ((IAccessor<IServiceCollection>)builder.AddRelational()).Service
                 .AddSingleton<IDataStoreSource, SqlServerDataStoreSource>()
                 .TryAdd(new ServiceCollection()
-                    .AddSingleton<SqlServerModelBuilderFactory>()
+                    .AddSingleton<SqlServerConventionSetBuilder>()
                     .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                     .AddSingleton<ISqlServerSqlGenerator, SqlServerSqlGenerator>()
                     .AddSingleton<SqlServerTypeMapper>()

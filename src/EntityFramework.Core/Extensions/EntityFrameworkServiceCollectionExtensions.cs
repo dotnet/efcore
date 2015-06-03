@@ -7,8 +7,8 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -84,8 +84,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<IEntityEntryMetadataServices, EntityEntryMetadataServices>()
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .AddSingleton<ICoreConventionSetBuilder, CoreConventionSetBuilder>()
                 .AddSingleton<LoggingModelValidator>()
-                .AddSingleton<ModelBuilderFactory>()
                 .AddScoped<IKeyPropagator, KeyPropagator>()
                 .AddScoped<INavigationFixer, NavigationFixer>()
                 .AddScoped<IStateManager, StateManager>()
@@ -103,13 +103,14 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped(p => GetContextServices(p).Model)
                 .AddScoped(p => GetContextServices(p).Context)
                 .AddScoped(p => GetContextServices(p).ContextOptions)
+                .AddScoped(p => GetContextServices(p).DataStoreServices)
                 .AddScoped(p => GetStoreServices(p).Store)
                 .AddScoped(p => GetStoreServices(p).QueryContextFactory)
                 .AddScoped(p => GetStoreServices(p).Connection)
                 .AddScoped(p => GetStoreServices(p).DatabaseFactory)
                 .AddScoped(p => GetStoreServices(p).ValueGeneratorSelector)
                 .AddScoped(p => GetStoreServices(p).Creator)
-                .AddScoped(p => GetStoreServices(p).ModelBuilderFactory)
+                .AddScoped(p => GetStoreServices(p).ConventionSetBuilder)
                 .AddScoped(p => GetStoreServices(p).ValueGeneratorCache)
                 .AddScoped(p => GetStoreServices(p).ModelSource)
                 .AddScoped(p => GetStoreServices(p).ModelValidator)

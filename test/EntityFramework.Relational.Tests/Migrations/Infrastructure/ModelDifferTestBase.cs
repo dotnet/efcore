@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Tests;
 
 namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 {
@@ -31,7 +32,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             assertAction(operations);
         }
 
-        protected virtual ModelBuilder CreateModelBuilder() => new ModelBuilderFactory().CreateConventionBuilder();
+        protected virtual ModelBuilder CreateModelBuilder() => TestHelpers.Instance.CreateConventionBuilder();
         protected virtual ModelDiffer CreateModelDiffer() => new ModelDiffer(new ConcreteTypeMapper(), new TestMetadataExtensionProvider());
 
         private class TestMetadataExtensionProvider : IRelationalMetadataExtensionProvider

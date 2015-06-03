@@ -3,13 +3,16 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerModelSource : ModelSource
     {
-        public SqlServerModelSource([NotNull] IDbSetFinder setFinder)
-            : base(setFinder)
+        public SqlServerModelSource(
+            [NotNull] IDbSetFinder setFinder,
+            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder)
+            : base(setFinder, coreConventionSetBuilder)
         {
         }
     }

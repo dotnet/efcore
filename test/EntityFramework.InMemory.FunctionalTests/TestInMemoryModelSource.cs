@@ -3,10 +3,9 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
@@ -15,16 +14,22 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
     {
         private readonly TestModelSource _testModelSource;
 
-        public TestInMemoryModelSource(Action<ModelBuilder> onModelCreating, IDbSetFinder setFinder)
-            : base(setFinder)
+        public TestInMemoryModelSource(
+            Action<ModelBuilder> onModelCreating,
+            IDbSetFinder setFinder,
+            ICoreConventionSetBuilder coreConventionSetBuilder)
+            : base(setFinder, coreConventionSetBuilder)
         {
-            _testModelSource = new TestModelSource(onModelCreating, setFinder);
+            _testModelSource = new TestModelSource(onModelCreating, setFinder, coreConventionSetBuilder);
         }
 
-        public override IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory, IModelValidator validator) 
-            => _testModelSource.GetModel(context, modelBuilderFactory, validator);
+        public override IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator) 
+            => _testModelSource.GetModel(context, conventionSetBuilder, validator);
 
         public static Func<IServiceProvider, InMemoryModelSource> GetFactory(Action<ModelBuilder> onModelCreating) 
-            => p => new TestInMemoryModelSource(onModelCreating, p.GetRequiredService<IDbSetFinder>());
+            => p => new TestInMemoryModelSource(
+                onModelCreating,
+                p.GetRequiredService<IDbSetFinder>(),
+                p.GetRequiredService<ICoreConventionSetBuilder>());
     }
 }

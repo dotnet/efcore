@@ -3,14 +3,12 @@
 
 using System;
 using Microsoft.Data.Entity.InMemory.Query;
-using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Tests;
-using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
 {
-    public class InMemoryEntityFrameworkServicesBuilderExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
+    public class InMemoryEntityServicesBuilderExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
     {
         [Fact]
         public override void Services_wire_up_correctly()
@@ -18,7 +16,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             base.Services_wire_up_correctly();
 
             // In memory dingletones
-            VerifySingleton<ModelBuilderFactory>();
             VerifySingleton<InMemoryValueGeneratorCache>();
             VerifySingleton<IInMemoryDatabase>();
             VerifySingleton<InMemoryModelSource>();
@@ -31,16 +28,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             VerifyScoped<IInMemoryDataStore>();
             VerifyScoped<InMemoryConnection>();
             VerifyScoped<InMemoryDataStoreCreator>();
-
-            VerifyCommonDataStoreServices();
-        }
-
-        protected override IServiceCollection GetServices(IServiceCollection services = null)
-        {
-            return (services ?? new ServiceCollection())
-                .AddEntityFramework()
-                .AddInMemoryStore()
-                .ServiceCollection();
         }
 
         protected override DbContext CreateContext(IServiceProvider serviceProvider)

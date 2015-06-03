@@ -143,6 +143,9 @@
     <Compile Include="DbContextOptionsBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\CoreAnnotationNames.cs" />
+    <Compile Include="Metadata\ModelConventions\CoreConventionSetBuilder.cs" />
+    <Compile Include="Metadata\ModelConventions\IConventionSetBuilder.cs" />
+    <Compile Include="Metadata\ModelConventions\ICoreConventionSetBuilder.cs" />
     <Compile Include="Metadata\MetadataHelper.cs" />
     <Compile Include="Metadata\ModelConventions\IPropertyConvention.cs" />
     <Compile Include="Metadata\ModelConventions\IModelConvention.cs" />
@@ -176,7 +179,6 @@
     <Compile Include="Metadata\Internal\IEntityMaterializerSource.cs" />
     <Compile Include="Metadata\Internal\IFieldMatcher.cs" />
     <Compile Include="Metadata\Internal\IMemberMapper.cs" />
-    <Compile Include="Metadata\Builders\IModelBuilderFactory.cs" />
     <Compile Include="Metadata\ModelConventions\IForeignKeyRemovedConvention.cs" />
     <Compile Include="Metadata\ModelConventions\IKeyConvention.cs" />
     <Compile Include="Metadata\ModelConventions\KeyConvention.cs" />
@@ -257,7 +259,6 @@
     <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />
     <Compile Include="Metadata\Index.cs" />
-    <Compile Include="Metadata\Builders\ModelBuilderFactory.cs" />
     <Compile Include="Metadata\ModelConventions\ForeignKeyPropertyDiscoveryConvention.cs" />
     <Compile Include="Metadata\NavigationExtensions.cs" />
     <Compile Include="Metadata\EntityTypeNameComparer.cs" />

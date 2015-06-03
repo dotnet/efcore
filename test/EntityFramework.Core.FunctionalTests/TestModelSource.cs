@@ -2,10 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -13,16 +12,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         private readonly Action<ModelBuilder> _onModelCreating;
 
-        public TestModelSource(Action<ModelBuilder> onModelCreating, IDbSetFinder setFinder)
-            : base(setFinder)
+        public TestModelSource(
+            Action<ModelBuilder> onModelCreating,
+            IDbSetFinder setFinder,
+            ICoreConventionSetBuilder coreConventionSetBuilder)
+            : base(setFinder, coreConventionSetBuilder)
         {
             _onModelCreating = onModelCreating;
         }
 
-        protected override IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory, IModelValidator validator)
+        protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
         {
+            var conventionSet = CreateConventionSet(conventionSetBuilder);
             var model = new Model();
-            var modelBuilder = modelBuilderFactory.CreateConventionBuilder(model);
+            var modelBuilder = new ModelBuilder(conventionSet, model);
 
             FindSets(modelBuilder, context);
 

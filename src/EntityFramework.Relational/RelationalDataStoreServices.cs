@@ -5,7 +5,6 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations.History;
@@ -28,7 +27,6 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public override IDatabaseFactory DatabaseFactory => GetService<RelationalDatabaseFactory>();
-        public override IModelBuilderFactory ModelBuilderFactory => GetService<ModelBuilderFactory>();
         public override IQueryContextFactory QueryContextFactory => GetService<RelationalQueryContextFactory>();
         public override IValueGeneratorSelector ValueGeneratorSelector => GetService<RelationalValueGeneratorSelector>();
         public virtual IRelationalTypeMapper TypeMapper => GetService<RelationalTypeMapper>();

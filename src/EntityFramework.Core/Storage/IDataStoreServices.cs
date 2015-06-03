@@ -3,7 +3,7 @@
 
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.ValueGeneration;
 
@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Storage
         IDataStoreConnection Connection { get; }
         IValueGeneratorSelector ValueGeneratorSelector { get; }
         IDatabaseFactory DatabaseFactory { get; }
-        IModelBuilderFactory ModelBuilderFactory { get; }
+        IConventionSetBuilder ConventionSetBuilder { get; }
         IModelSource ModelSource { get; }
         IModelValidator ModelValidator { get; }
         IQueryContextFactory QueryContextFactory { get; }

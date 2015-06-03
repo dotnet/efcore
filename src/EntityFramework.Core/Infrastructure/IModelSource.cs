@@ -4,12 +4,12 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
     public interface IModelSource
     {
-        IModel GetModel([NotNull] DbContext context, [NotNull] IModelBuilderFactory builder, [NotNull] IModelValidator validator);
+        IModel GetModel([NotNull] DbContext context, [CanBeNull] IConventionSetBuilder conventionSetBuilder, [NotNull] IModelValidator validator);
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.ModelConventions
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.ModelConventions
         [Fact]
         public void Annotations_are_added_when_conventional_model_builder_is_used()
         {
-            var model = new SqlServerModelBuilderFactory().CreateConventionBuilder(new Model()).Model;
+            var model = SqlServerTestHelpers.Instance.CreateConventionBuilder().Model;
 
             Assert.Equal(1, model.Annotations.Count());
 
@@ -25,8 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.ModelConventions
         [Fact]
         public void Annotations_are_added_when_conventional_model_builder_is_used_with_sequences()
         {
-            var model = new SqlServerModelBuilderFactory()
-                .CreateConventionBuilder(new Model())
+            var model = SqlServerTestHelpers.Instance.CreateConventionBuilder()
                 .ForSqlServer(b => b.UseSequence())
                 .Model;
 

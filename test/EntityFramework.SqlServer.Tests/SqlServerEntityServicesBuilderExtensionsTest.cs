@@ -2,14 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Migrations;
-using Microsoft.Data.Entity.Relational.Migrations.History;
-using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Relational.Migrations.Sql;
-using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Relational.Tests;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.SqlServer.Update;
@@ -20,28 +13,24 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
 {
-    public class SqlServerEntityFrameworkServicesBuilderExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
+    public class SqlServerEntityServicesBuilderExtensionsTest : RelationalEntityServicesBuilderExtensionsTest
     {
         [Fact]
         public override void Services_wire_up_correctly()
         {
             base.Services_wire_up_correctly();
 
-            // Relational
-            VerifySingleton<IComparer<ModificationCommand>>();
-
             // SQL Server dingletones
-            VerifySingleton<SqlServerModelBuilderFactory>();
+            VerifySingleton<SqlServerConventionSetBuilder>();
             VerifySingleton<ISqlServerValueGeneratorCache>();
             VerifySingleton<ISqlServerSqlGenerator>();
-            VerifySingleton<ISqlStatementExecutor>();
             VerifySingleton<SqlServerTypeMapper>();
             VerifySingleton<SqlServerModelSource>();
             VerifySingleton<SqlServerMetadataExtensionProvider>();
 
             // SQL Server scoped
-            VerifyScoped<SqlServerModificationCommandBatchFactory>();
             VerifyScoped<ISqlServerSequenceValueGeneratorFactory>();
+            VerifyScoped<SqlServerModificationCommandBatchFactory>();
             VerifyScoped<SqlServerValueGeneratorSelector>();
             VerifyScoped<SqlServerDataStoreServices>();
             VerifyScoped<SqlServerDataStore>();
@@ -50,16 +39,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifyScoped<SqlServerMigrationSqlGenerator>();
             VerifyScoped<SqlServerDataStoreCreator>();
             VerifyScoped<SqlServerHistoryRepository>();
-
-            VerifyCommonDataStoreServices();
-
-            // Migrations
-            VerifyScoped<IMigrationAssembly>();
-            VerifyScoped<IHistoryRepository>();
-            VerifyScoped<IMigrator>();
-            VerifySingleton<IMigrationIdGenerator>();
-            VerifyScoped<IModelDiffer>();
-            VerifyScoped<IMigrationSqlGenerator>();
+            VerifyScoped<SqlServerCompositeMethodCallTranslator>();
+            VerifyScoped<SqlServerCompositeMemberTranslator>();
         }
 
         protected override IServiceCollection GetServices(IServiceCollection services = null)
@@ -68,11 +49,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection();
-        }
-
-        protected override DbContextOptions GetOptions()
-        {
-            return SqlServerTestHelpers.Instance.CreateOptions();
         }
 
         protected override DbContext CreateContext(IServiceProvider serviceProvider)

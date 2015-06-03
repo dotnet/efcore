@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -38,14 +39,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private class MyModelSource : InMemoryModelSource
         {
-            public MyModelSource(IDbSetFinder setFinder)
-                : base(setFinder)
+            public MyModelSource(
+                IDbSetFinder setFinder,
+                ICoreConventionSetBuilder coreConventionSetBuilder)
+                : base(setFinder, coreConventionSetBuilder)
             {
             }
 
-            protected override IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory, IModelValidator validator)
+            protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
             {
-                var model = base.CreateModel(context, modelBuilderFactory, validator) as Model;
+                var model = base.CreateModel(context, conventionSetBuilder, validator) as Model;
 
                 model["AllYourModelAreBelongTo"] = "Us!";
 

@@ -34,8 +34,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ModelBuilder" /> class that will
-        ///     apply a set of conventions. Consider using a <see cref="IModelBuilderFactory" /> to
-        ///     create a ModelBuilder with appropriate conventions configured.
+        ///     apply a set of conventions.
         /// </summary>
         /// <param name="conventions"> The conventions to be applied to the model. </param>
         public ModelBuilder([NotNull] ConventionSet conventions)
@@ -47,9 +46,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ModelBuilder" /> class that will
-        ///     configure an existing model and apply a set of conventions. Consider using a
-        ///     <see cref="IModelBuilderFactory" /> to create a ModelBuilder with appropriate
-        ///     conventions configured.
+        ///     configure an existing model and apply a set of conventions.
         /// </summary>
         /// <param name="conventions"> The conventions to be applied to the model. </param>
         /// <param name="model"> The model to be configured. </param>

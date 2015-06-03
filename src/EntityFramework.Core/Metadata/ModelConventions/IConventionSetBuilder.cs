@@ -3,11 +3,10 @@
 
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Metadata.Builders
+namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
-    public interface IModelBuilderFactory
+    public interface IConventionSetBuilder
     {
-        ModelBuilder CreateConventionBuilder();
-        ModelBuilder CreateConventionBuilder([NotNull] Model model);
+        ConventionSet AddConventions([NotNull] ConventionSet conventionSet);
     }
 }

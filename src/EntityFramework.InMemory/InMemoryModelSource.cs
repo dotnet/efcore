@@ -3,13 +3,16 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 
 namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryModelSource : ModelSource
     {
-        public InMemoryModelSource([NotNull] IDbSetFinder setFinder)
-            : base(setFinder)
+        public InMemoryModelSource(
+            [NotNull] IDbSetFinder setFinder,
+            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder)
+            : base(setFinder, coreConventionSetBuilder)
         {
         }
     }

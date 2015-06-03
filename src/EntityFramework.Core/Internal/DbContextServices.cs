@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -53,7 +54,8 @@ namespace Microsoft.Data.Entity.Internal
             try
             {
                 _inOnModelCreating = true;
-                return _dataStoreServices.Value.ModelSource.GetModel(_context, _dataStoreServices.Value.ModelBuilderFactory, _dataStoreServices.Value.ModelValidator);
+
+                return _dataStoreServices.Value.ModelSource.GetModel(_context, _dataStoreServices.Value.ConventionSetBuilder, _dataStoreServices.Value.ModelValidator);
             }
             finally
             {

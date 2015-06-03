@@ -910,7 +910,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         private static IModel BuildModel()
         {
-            var builder = new ModelBuilderFactory().CreateConventionBuilder();
+            var builder = TestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<Product>(b =>
                 {
