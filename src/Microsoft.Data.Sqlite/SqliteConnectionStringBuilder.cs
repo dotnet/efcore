@@ -106,11 +106,9 @@ namespace Microsoft.Data.Sqlite
                         CacheMode = mode;
                         return;
 
-#if NET45 || DNX451 || DNXCORE50
                     default:
                         Debug.Fail("Unexpected keyword: " + keyword);
                         return;
-#endif
                 }
             }
         }
@@ -178,9 +176,7 @@ namespace Microsoft.Data.Sqlite
                     return CacheMode;
 
                 default:
-#if NET45 || DNX451 || DNXCORE50
                     Debug.Fail("Unexpected keyword: " + index);
-#endif
                     return null;
             }
         }

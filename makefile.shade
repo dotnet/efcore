@@ -14,7 +14,7 @@ k-standard-goals
 
 var sqliteDllPath='src/Microsoft.Data.Sqlite/redist/x86/sqlite3.dll'
 #sqlite-download target='initialize' if='!File.Exists(sqliteDllPath)'
-    var sqliteUri='http://sqlite.org/2015/sqlite-dll-win32-x86-3080900.zip'
+    var sqliteUri='https://sqlite.org/2015/sqlite-dll-win32-x86-3081002.zip'
     @{
         using (var client = new HttpClient())
         using (var archiveStream = client.GetStreamAsync(sqliteUri).Result)
