@@ -28,10 +28,11 @@ namespace Microsoft.Data.Sqlite.Interop
             return Encoding.UTF8.GetString(bytes, 0, i);
         }
 
-        public static IntPtr StringToHGlobalUTF8(string s)
+        public static IntPtr StringToHGlobalUTF8(string s, out int length)
         {
             if (s == null)
             {
+                length = 0;
                 return IntPtr.Zero;
             }
 
@@ -39,8 +40,15 @@ namespace Microsoft.Data.Sqlite.Interop
             var ptr = Marshal.AllocHGlobal(bytes.Length + 1);
             Marshal.Copy(bytes, 0, ptr, bytes.Length);
             Marshal.WriteByte(ptr, bytes.Length, 0);
+            length = bytes.Length;
 
             return ptr;
+        }
+
+        public static IntPtr StringToHGlobalUTF8(string s)
+        {
+            int temp;
+            return StringToHGlobalUTF8(s, out temp);
         }
 
         public static void ThrowExceptionForRC(int rc, Sqlite3Handle db)
@@ -54,7 +62,7 @@ namespace Microsoft.Data.Sqlite.Interop
 
             var message = db == null || db.IsInvalid
                 ? NativeMethods.sqlite3_errstr(rc)
-                : NativeMethods.sqlite3_errmsg16(db);
+                : NativeMethods.sqlite3_errmsg(db);
 
             throw new SqliteException("Error: " + message, rc);
         }

@@ -1,3 +1,4 @@
+.DS_Store
 *.db
 *.suo
 *.user
@@ -9,6 +10,7 @@
 bin/
 obj/
 project.lock.json
+.settings
 
 # Ignore vagrant - used for cross-platform testing
 .vagrant/

@@ -78,10 +78,10 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Strings.OpenRequiresSetConnectionString);
             }
 
-            var rc = NativeMethods.sqlite3_enable_shared_cache(ConnectionStringBuilder.CacheMode == CacheMode.Shared); // called to ensure mode set correctly before a connection is created
-            MarshalEx.ThrowExceptionForRC(rc, _db);
+            var flags = Constants.SQLITE_OPEN_READWRITE | Constants.SQLITE_OPEN_CREATE;
+            flags |= (ConnectionStringBuilder.CacheMode == CacheMode.Shared) ? Constants.SQLITE_OPEN_SHAREDCACHE : Constants.SQLITE_OPEN_PRIVATECACHE;
 
-            rc = NativeMethods.sqlite3_open16(ConnectionStringBuilder.DataSource, out _db);
+            var rc = NativeMethods.sqlite3_open_v2(ConnectionStringBuilder.DataSource, out _db, flags, vfs: null);
             MarshalEx.ThrowExceptionForRC(rc, _db);
             SetState(ConnectionState.Open);
         }

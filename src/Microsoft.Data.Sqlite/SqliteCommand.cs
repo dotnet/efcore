@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Interop;
@@ -111,10 +112,9 @@ namespace Microsoft.Data.Sqlite
             do
             {
                 Sqlite3StmtHandle stmt;
-                var rc = NativeMethods.sqlite3_prepare16_v2(
+                var rc = NativeMethods.sqlite3_prepare_v2(
                     Connection.DbHandle,
                     tail,
-                    -1,
                     out stmt,
                     out tail);
                 MarshalEx.ThrowExceptionForRC(rc, Connection.DbHandle);

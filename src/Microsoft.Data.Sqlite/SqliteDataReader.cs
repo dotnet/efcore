@@ -157,7 +157,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Strings.FormatDataReaderClosed("GetName"));
             }
 
-            var name = NativeMethods.sqlite3_column_name16(_stmt, ordinal);
+            var name = NativeMethods.sqlite3_column_name(_stmt, ordinal);
             if (name == null
                 && (ordinal < 0 || ordinal >= FieldCount))
             {
@@ -190,7 +190,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Strings.FormatDataReaderClosed("GetDataTypeName"));
             }
 
-            var typeName = NativeMethods.sqlite3_column_decltype16(_stmt, ordinal);
+            var typeName = NativeMethods.sqlite3_column_decltype(_stmt, ordinal);
             if (typeName != null)
             {
                 var i = typeName.IndexOf('(');
@@ -320,7 +320,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidCastException();
             }
 
-            return NativeMethods.sqlite3_column_text16(_stmt, ordinal);
+            return NativeMethods.sqlite3_column_text(_stmt, ordinal);
         }
 
         public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
