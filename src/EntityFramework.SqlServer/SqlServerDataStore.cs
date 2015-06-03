@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
+using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
@@ -29,7 +30,9 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] IBatchExecutor batchExecutor,
             [NotNull] IEntityOptions options,
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
+            [NotNull] IMemberTranslator compositeMemberTranslator)
             : base(
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
@@ -40,7 +43,9 @@ namespace Microsoft.Data.Entity.SqlServer
                 Check.NotNull(batchExecutor, nameof(batchExecutor)),
                 Check.NotNull(options, nameof(options)),
                 Check.NotNull(loggerFactory, nameof(loggerFactory)),
-                Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory)))
+                Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory)),
+                Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator)),
+                Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator)))
         {
         }
 
@@ -48,12 +53,14 @@ namespace Microsoft.Data.Entity.SqlServer
             ILinqOperatorProvider linqOperatorProvider,
             IResultOperatorHandler resultOperatorHandler,
             IQueryMethodProvider enumerableMethodProvider,
-            IMethodCallTranslator methodCallTranslator)
+            IMethodCallTranslator compositeMethodCallTranslator,
+            IMemberTranslator compositeMemberTranslator)
         {
             Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
             Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
             Check.NotNull(enumerableMethodProvider, nameof(enumerableMethodProvider));
-            Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
+            Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator));
+            Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator));
 
             return new SqlServerQueryCompilationContext(
                 Model,
@@ -64,7 +71,8 @@ namespace Microsoft.Data.Entity.SqlServer
                 EntityKeyFactorySource,
                 ClrPropertyGetterSource,
                 enumerableMethodProvider,
-                methodCallTranslator,
+                compositeMethodCallTranslator,
+                compositeMemberTranslator,
                 ValueBufferFactoryFactory);
         }
     }

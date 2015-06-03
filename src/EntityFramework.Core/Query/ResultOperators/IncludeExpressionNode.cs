@@ -14,9 +14,9 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
     public class IncludeExpressionNode : ResultOperatorExpressionNodeBase
     {
         public static readonly MethodInfo[] SupportedMethods =
-            {
-                EntityFrameworkQueryableExtensions.IncludeMethodInfo
-            };
+        {
+            EntityFrameworkQueryableExtensions.IncludeMethodInfo
+        };
 
         private readonly LambdaExpression _navigationPropertyPathLambda;
 

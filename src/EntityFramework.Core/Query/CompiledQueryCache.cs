@@ -9,18 +9,21 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Caching.Memory;
+using JetBrains.Annotations;
 using Remotion.Linq;
+using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.StreamedData;
+using Remotion.Linq.Parsing;
 using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
 using Remotion.Linq.Parsing.Structure;
 using Remotion.Linq.Parsing.Structure.ExpressionTreeProcessors;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
+using Microsoft.Data.Entity.Query.Expressions;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -67,10 +70,10 @@ namespace Microsoft.Data.Entity.Query
                             = CompileQuery(ds, DataStore.CompileQueryMethod, resultItemType, queryModel);
 
                         return new CompiledQuery
-                            {
-                                ResultItemType = resultItemType,
-                                Executor = executor
-                            };
+                        {
+                            ResultItemType = resultItemType,
+                            Executor = executor
+                        };
                     });
 
             return
@@ -95,10 +98,10 @@ namespace Microsoft.Data.Entity.Query
                             = CompileQuery(ds, DataStore.CompileAsyncQueryMethod, typeof(TResult), queryModel);
 
                         return new CompiledQuery
-                            {
-                                ResultItemType = typeof(TResult),
-                                Executor = executor
-                            };
+                        {
+                            ResultItemType = typeof(TResult),
+                            Executor = executor
+                        };
                     });
 
             return ((Func<QueryContext, IAsyncEnumerable<TResult>>)compiledQuery.Executor)(queryContext);
@@ -120,10 +123,10 @@ namespace Microsoft.Data.Entity.Query
                             = CompileQuery(ds, DataStore.CompileAsyncQueryMethod, typeof(TResult), queryModel);
 
                         return new CompiledQuery
-                            {
-                                ResultItemType = typeof(TResult),
-                                Executor = executor
-                            };
+                        {
+                            ResultItemType = typeof(TResult),
+                            Executor = executor
+                        };
                     });
 
             return ((Func<QueryContext, IAsyncEnumerable<TResult>>)compiledQuery.Executor)(queryContext)
@@ -187,8 +190,45 @@ namespace Microsoft.Data.Entity.Query
                     new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
                         {
                             new PartialEvaluatingExpressionTreeProcessor(),
+                            new FunctionEvaluationEnablingProcessor(),
                             new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
                         })));
+
+        private class FunctionEvaluationEnablingProcessor : IExpressionTreeProcessor
+        {
+            public Expression Process(Expression expressionTree)
+            {
+                return new FunctionEvaluationEnablingVisitor().VisitExpression(expressionTree);
+            }
+        }
+
+        private class FunctionEvaluationEnablingVisitor : ExpressionTreeVisitorBase
+        {
+            protected override Expression VisitExtensionExpression(ExtensionExpression expression)
+            {
+                var methodCallWrapper = expression as MethodCallEvaluationPreventingExpression;
+                if (methodCallWrapper != null)
+                {
+                    return VisitExpression(methodCallWrapper.MethodCall);
+                }
+
+                var propertyWrapper = expression as PropertyEvaluationPreventingExpression;
+                if (propertyWrapper != null)
+                {
+                    return VisitExpression(propertyWrapper.MemberExpression);
+                }
+
+                return base.VisitExtensionExpression(expression);
+            }
+
+            protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+            {
+                var clonedModel = expression.QueryModel.Clone();
+                clonedModel.TransformExpressions(VisitExpression);
+
+                return new SubQueryExpression(clonedModel);
+            }
+        }
 
         private static CompoundNodeTypeProvider CreateNodeTypeProvider()
         {

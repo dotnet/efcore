@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -13,6 +12,7 @@ using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
+using JetBrains.Annotations;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Relational.Query
@@ -31,7 +31,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] IQueryMethodProvider queryMethodProvider,
-            [NotNull] IMethodCallTranslator methodCallTranslator,
+            [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
+            [NotNull] IMemberTranslator compositeMemberTranslator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
                 Check.NotNull(model, nameof(model)),
@@ -43,11 +44,13 @@ namespace Microsoft.Data.Entity.Relational.Query
                 Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)))
         {
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
-            Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
+            Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator));
+            Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator));
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
             QueryMethodProvider = queryMethodProvider;
-            MethodCallTranslator = methodCallTranslator;
+            CompositeMethodCallTranslator = compositeMethodCallTranslator;
+            CompositeMemberTranslator = compositeMemberTranslator;
             ValueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
@@ -77,7 +80,9 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public virtual IQueryMethodProvider QueryMethodProvider { get; }
 
-        public virtual IMethodCallTranslator MethodCallTranslator { get; }
+        public virtual IMethodCallTranslator CompositeMethodCallTranslator { get; }
+
+        public virtual IMemberTranslator CompositeMemberTranslator { get; }
 
         public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
 

@@ -1139,7 +1139,21 @@ WHERE [e].[ReportsTo] = @__nullableIntPrm_0",
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]",
+FROM [Customers] AS [c]
+WHERE (LEN([c].[City]) = 6)",
+                Sql);
+        }
+
+        public override void Where_datetime_now()
+        {
+            base.Where_datetime_now();
+
+            Assert.Equal(
+                @"@__myDatetime_0: 4/10/2015 12:00:00 AM
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (GETDATE() <> @__myDatetime_0)",
                 Sql);
         }
 
@@ -2204,6 +2218,7 @@ WHERE [c].[ContactName] LIKE @__LocalMethod1_0 + '%'",
                 Sql);
         }
 
+
         public override void String_EndsWith_Literal()
         {
             base.String_EndsWith_Literal();
@@ -2299,6 +2314,28 @@ WHERE [c].[ContactName] LIKE ('%' + [c].[ContactName] + '%')",
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE ('%' + @__LocalMethod1_0 + '%')",
+                Sql);
+        }
+
+        public override void Where_string_to_lower()
+        {
+            base.Where_string_to_lower();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (LOWER([c].[CustomerID]) = 'alfki')",
+                Sql);
+        }
+
+        public override void Where_string_to_upper()
+        {
+            base.Where_string_to_upper();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (UPPER([c].[CustomerID]) = 'ALFKI')",
                 Sql);
         }
 

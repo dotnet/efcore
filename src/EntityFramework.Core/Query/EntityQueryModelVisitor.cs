@@ -1009,7 +1009,7 @@ namespace Microsoft.Data.Entity.Query
 
             var properties = new List<IPropertyBase>();
 
-            while (memberExpression != null)
+            while (memberExpression?.Expression != null)
             {
                 var entityType
                     = QueryCompilationContext.Model

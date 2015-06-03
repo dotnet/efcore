@@ -49,16 +49,19 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
         {
             var newExpression = base.VisitMemberExpression(memberExpression);
 
-            _queryModelVisitor
-                .BindMemberExpression(
-                    memberExpression,
-                    (property, querySource) =>
-                        {
-                            if (querySource != null)
+            if (memberExpression.Expression != null)
+            {
+                _queryModelVisitor
+                    .BindMemberExpression(
+                        memberExpression,
+                        (property, querySource) =>
                             {
-                                _querySources[querySource]--;
-                            }
-                        });
+                                if (querySource != null)
+                                {
+                                    _querySources[querySource]--;
+                                }
+                            });
+            }
 
             return newExpression;
         }

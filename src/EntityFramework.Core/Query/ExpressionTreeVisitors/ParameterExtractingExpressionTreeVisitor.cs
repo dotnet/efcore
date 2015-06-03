@@ -17,10 +17,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             [NotNull] Expression expressionTree,
             [NotNull] QueryContext queryContext)
         {
-            var partialEvaluationInfo = EvaluatableTreeFindingExpressionTreeVisitor.Analyze(expressionTree);
+
+            var functionEvaluationDisabledExpression = new FunctionEvaluationDisablingVisitor().VisitExpression(expressionTree);
+            var partialEvaluationInfo = EvaluatableTreeFindingExpressionTreeVisitor.Analyze(functionEvaluationDisabledExpression);
             var visitor = new ParameterExtractingExpressionTreeVisitor(partialEvaluationInfo, queryContext);
 
-            return visitor.VisitExpression(expressionTree);
+            return visitor.VisitExpression(functionEvaluationDisabledExpression);
         }
 
         private readonly PartialEvaluationInfo _partialEvaluationInfo;

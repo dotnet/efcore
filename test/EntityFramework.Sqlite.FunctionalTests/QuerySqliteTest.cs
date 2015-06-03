@@ -1140,7 +1140,8 @@ WHERE ""e"".""ReportsTo"" = @__nullableIntPrm_0",
 
             Assert.Equal(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""",
+FROM ""Customers"" AS ""c""
+WHERE (length(""c"".""City"") = 6)",
                 Sql);
         }
 
@@ -2303,6 +2304,28 @@ WHERE ""c"".""ContactName"" LIKE ('%' || ""c"".""ContactName"" || '%')",
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
 WHERE ""c"".""ContactName"" LIKE ('%' || @__LocalMethod1_0 || '%')",
+                Sql);
+        }
+
+        public override void Where_string_to_lower()
+        {
+            base.Where_string_to_lower();
+
+            Assert.Equal(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (lower(""c"".""CustomerID"") = 'alfki')",
+                Sql);
+        }
+
+        public override void Where_string_to_upper()
+        {
+            base.Where_string_to_upper();
+
+            Assert.Equal(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (upper(""c"".""CustomerID"") = 'ALFKI')",
                 Sql);
         }
 

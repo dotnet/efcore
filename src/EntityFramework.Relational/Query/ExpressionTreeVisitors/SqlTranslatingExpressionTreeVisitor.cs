@@ -119,9 +119,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var ifTrue = VisitExpression(expression.IfTrue);
             var ifFalse = VisitExpression(expression.IfFalse);
 
-            Equals(ifTrue.Type, ifFalse.Type);
+            if (test != null && ifTrue != null && ifFalse != null)
+            {
+                return expression.Update(test, ifTrue, ifFalse);
+            }
 
-            return expression.Update(test, ifTrue, ifFalse);
+            return null;
         }
 
         private static Expression UnfoldStructuralComparison(ExpressionType expressionType, Expression expression)
@@ -205,7 +208,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             var operand = VisitExpression(methodCallExpression.Object);
 
-            if (operand != null)
+            if (operand != null || methodCallExpression.Object == null)
             {
                 var arguments
                     = methodCallExpression.Arguments
@@ -215,19 +218,21 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                 if (arguments.Length == methodCallExpression.Arguments.Count)
                 {
-                    var boundExpression
-                        = Expression.Call(
-                            operand,
-                            methodCallExpression.Method,
-                            arguments);
+                    var boundExpression = operand != null
+                        ? Expression.Call(operand, methodCallExpression.Method, arguments)
+                        : Expression.Call(methodCallExpression.Method, arguments);
 
-                    return _queryModelVisitor.QueryCompilationContext.MethodCallTranslator
-                        .Translate(boundExpression);
+                    var translatedExpression = 
+                        _queryModelVisitor.QueryCompilationContext.CompositeMethodCallTranslator.Translate(boundExpression);
+
+                    if (translatedExpression != null)
+                    {
+                        return translatedExpression;
+                    }
                 }
             }
-            else
-            {
-                return _queryModelVisitor
+
+            return _queryModelVisitor
                     .BindMethodCallExpression(
                         methodCallExpression,
                         (property, querySource, selectExpression)
@@ -236,14 +241,25 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                     _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
                                     property,
                                     selectExpression.FindTableForQuerySource(querySource))));
-            }
-
-            return null;
         }
 
         protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
+
+            var newExpression = VisitExpression(memberExpression.Expression);
+            if (newExpression != null || memberExpression.Expression == null)
+            {
+                var newMemberExpression = newExpression != memberExpression.Expression
+                    ? Expression.Property(newExpression, memberExpression.Member.Name)
+                    : memberExpression;
+
+                var translatedExpression = _queryModelVisitor.QueryCompilationContext.CompositeMemberTranslator.Translate(newMemberExpression);
+                if (translatedExpression != null)
+                {
+                    return translatedExpression;
+                }
+            }
 
             return _queryModelVisitor
                 .BindMemberExpression(
@@ -335,6 +351,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 typeof(byte),
                 typeof(byte[]),
                 typeof(char),
+                typeof(decimal),
                 typeof(DateTime),
                 typeof(DateTimeOffset),
                 typeof(double),
