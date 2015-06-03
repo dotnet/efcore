@@ -21,6 +21,7 @@
                 "System.AppContext": "4.0.0-*",
                 "System.Data.Common": "4.0.0-*",
                 "System.IO.FileSystem": "4.0.0-*",
+                "System.Linq": "4.0.0-*",
                 "System.Runtime.InteropServices": "4.0.20-*",
                 "Microsoft.Framework.Runtime.Abstractions": "1.0.0-*",
                 "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-*"
