@@ -11,7 +11,7 @@
   "compile": "..\\Shared\\*.cs",
   "frameworks": {
     "net45": { },
-    "netportable50": {
+    "dotnet": {
       "dependencies": {
         "System.IO.FileSystem": "4.0.0-*"
       }

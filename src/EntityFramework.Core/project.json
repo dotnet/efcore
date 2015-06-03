@@ -54,7 +54,7 @@
         "System.Threading": "4.0.0.0"
       }
     },
-    "netportable50": {
+    "dotnet": {
       "dependencies": {
         "System.Collections": "4.0.10-*",
         "System.Collections.Concurrent": "4.0.10-*",
