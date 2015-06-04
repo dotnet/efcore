@@ -1149,7 +1149,7 @@ WHERE (LEN([c].[City]) = 6)",
             base.Where_datetime_now();
 
             Assert.Equal(
-                @"@__myDatetime_0: 4/10/2015 12:00:00 AM
+                @"@__myDatetime_0: 04/10/2015 00:00:00
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
