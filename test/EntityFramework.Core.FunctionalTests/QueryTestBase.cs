@@ -2987,95 +2987,92 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return "m";
         }
 
-        //[Fact]
-        public virtual void Where_math_abs()
+        [Fact]
+        public virtual void Where_math_abs1()
         {
             AssertQuery<OrderDetail>(
                 ods => ods.Where(od => Math.Abs(od.ProductID) > 10),
-                entryCount: 67);
-
-            AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Math.Abs(od.Discount) > 10),
-                entryCount: 67);
-
-            AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Math.Abs(od.Quantity) > 10),
-                entryCount: 67);
-
-            AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Math.Abs(od.UnitPrice) > 10),
-                entryCount: 67);
+                entryCount: 1939);
         }
 
-        //[Fact]
+        [Fact]
+        public virtual void Where_math_abs2()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => Math.Abs(od.Quantity) > 10),
+                entryCount: 1547);
+        }
+
+        [Fact]
+        public virtual void Where_math_abs3()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => Math.Abs(od.UnitPrice) > 10),
+                entryCount: 1677);
+        }
+
+        [Fact]
         public virtual void Where_math_abs_uncorrelated()
         {
             AssertQuery<OrderDetail>(
                 ods => ods.Where(od => Math.Abs(-10) < od.ProductID),
-                entryCount: 67);
+                entryCount: 1939);
         }
 
-        //[Fact]
-        public virtual void Where_math_ceiling()
+        [Fact]
+        public virtual void Where_math_ceiling1()
         {
             AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Math.Ceiling(od.Discount) > 10),
-                entryCount: 67);
-
-            AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Math.Ceiling(od.UnitPrice) > 10),
-                entryCount: 67);
+                ods => ods.Where(od => Math.Ceiling(od.Discount) > 0),
+                entryCount: 838);
         }
 
-        //[Fact]
+        [Fact]
+        public virtual void Where_math_ceiling2()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => Math.Ceiling(od.UnitPrice) > 10),
+                entryCount: 1677);
+        }
+
+        [Fact]
         public virtual void Where_math_floor()
         {
             AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Math.Floor(od.Discount) > 10),
-                entryCount: 67);
-
-            AssertQuery<OrderDetail>(
                 ods => ods.Where(od => Math.Floor(od.UnitPrice) > 10),
-                entryCount: 67);
+                entryCount: 1658);
         }
 
-        //[Fact]
+        [Fact]
         public virtual void Where_math_power()
         {
             AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Math.Pow(od.Discount, 2) > 10),
-                entryCount: 67);
+                ods => ods.Where(od => Math.Pow(od.Discount, 2) > 0.05f),
+                entryCount: 154);
         }
 
-        //[Fact]
+        [Fact]
         public virtual void Where_math_round()
         {
             AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Math.Round(od.Discount) > 10),
-                entryCount: 67);
-
-            AssertQuery<OrderDetail>(
                 ods => ods.Where(od => Math.Round(od.UnitPrice) > 10),
-                entryCount: 67);
+                entryCount: 1662);
         }
 
-        //[Fact]
+        [Fact]
         public virtual void Where_math_truncate()
         {
             AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Math.Truncate(od.Discount) > 10),
-                entryCount: 67);
-
-            AssertQuery<OrderDetail>(
                 ods => ods.Where(od => Math.Truncate(od.UnitPrice) > 10),
-                entryCount: 67);
+                entryCount: 1658);
         }
 
+        [Fact]
         public virtual void Where_guid_newguid()
         {
             AssertQuery<OrderDetail>(
                 ods => ods.Where(od => Guid.NewGuid() != default(Guid)),
-                entryCount: 67);
+                entryCount: 2155);
         }
 
         [Fact]
@@ -3091,6 +3088,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.CustomerID.ToLower() == "alfki"),
                 entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_functions_nested()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => Math.Pow(c.CustomerID.Length, 2) == 25),
+                entryCount: 91);
         }
 
         [Fact]

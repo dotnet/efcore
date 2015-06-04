@@ -2318,6 +2318,140 @@ WHERE [c].[ContactName] LIKE ('%' + @__LocalMethod1_0 + '%')",
                 Sql);
         }
 
+        public override void Where_math_abs1()
+        {
+            base.Where_math_abs1();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (abs([od].[ProductID]) > 10)",
+                Sql);
+        }
+
+        public override void Where_math_abs2()
+        {
+            base.Where_math_abs2();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (abs([od].[Quantity]) > 10)",
+                Sql);
+        }
+
+        public override void Where_math_abs3()
+        {
+            base.Where_math_abs3();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (abs([od].[UnitPrice]) > 10)",
+                Sql);
+        }
+
+        public override void Where_math_abs_uncorrelated()
+        {
+            base.Where_math_abs_uncorrelated();
+
+            Assert.Equal(
+                @"@__Abs_0: 10
+
+SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE @__Abs_0 < [od].[ProductID]",
+                Sql);
+        }
+
+        public override void Where_math_ceiling1()
+        {
+            base.Where_math_ceiling1();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (CEILING([od].[Discount]) > 0E0)",
+                Sql);
+        }
+
+        public override void Where_math_ceiling2()
+        {
+            base.Where_math_ceiling2();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (CEILING([od].[UnitPrice]) > 10)",
+                Sql);
+        }
+
+        public override void Where_math_floor()
+        {
+            base.Where_math_floor();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (FLOOR([od].[UnitPrice]) > 10)",
+                Sql);
+        }
+
+        public override void Where_math_power()
+        {
+            base.Where_math_power();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (POWER([od].[Discount], 2E0) > 0.0500000007450581E0)",
+                Sql);
+        }
+
+        public override void Where_math_round()
+        {
+            base.Where_math_round();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (ROUND([od].[UnitPrice], 0) > 10)",
+                Sql);
+        }
+
+        public override void Where_math_truncate()
+        {
+            base.Where_math_truncate();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (ROUND([od].[UnitPrice], 0, 1) > 10)",
+                Sql);
+        }
+
+        public override void Where_guid_newguid()
+        {
+            base.Where_guid_newguid();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE (NEWID() <> '00000000-0000-0000-0000-000000000000')",
+                Sql);
+        }
+
+        public override void Where_functions_nested()
+        {
+            base.Where_functions_nested();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (POWER(LEN([c].[CustomerID]), 2E0) = 25E0)",
+                Sql);
+        }
+
         public override void Where_string_to_lower()
         {
             base.Where_string_to_lower();

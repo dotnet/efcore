@@ -21,7 +21,9 @@ namespace Microsoft.Data.Entity.SqlServer.Query.Methods
 
             if (methodInfos.Contains(methodCallExpression.Method))
             {
-                return new SqlFunctionExpression("ROUND", methodCallExpression.Arguments, methodCallExpression.Type);
+                var arguments = new[] { methodCallExpression.Arguments[0], Expression.Constant(0) };
+
+                return new SqlFunctionExpression("ROUND", arguments, methodCallExpression.Type);
             }
 
             return null;
