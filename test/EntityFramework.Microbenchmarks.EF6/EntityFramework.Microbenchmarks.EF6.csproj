@@ -8,7 +8,7 @@
     <ProjectGuid>{CF26777E-6ADA-4AA8-96BA-96E43E4933A1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EntityFramework.Microbenchmarks.EF6</RootNamespace>
+    <RootNamespace>EntityFramework.Microbenchmarks</RootNamespace>
     <AssemblyName>EntityFramework.Microbenchmarks.EF6</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

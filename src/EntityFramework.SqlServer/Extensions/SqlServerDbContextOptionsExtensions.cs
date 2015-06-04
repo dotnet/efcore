@@ -20,9 +20,7 @@ namespace Microsoft.Data.Entity
             Check.NotEmpty(connectionString, nameof(connectionString));
 
             var extension = GetOrCreateExtension(optionsBuilder);
-
             extension.ConnectionString = connectionString;
-
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
             return new SqlServerDbContextOptionsBuilder(optionsBuilder);
@@ -35,9 +33,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(connection, nameof(connection));
 
             var extension = GetOrCreateExtension(optionsBuilder);
-
             extension.Connection = connection;
-
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
             return new SqlServerDbContextOptionsBuilder(optionsBuilder);

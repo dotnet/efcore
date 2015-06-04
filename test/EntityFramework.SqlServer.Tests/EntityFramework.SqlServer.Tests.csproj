@@ -8,7 +8,7 @@
     <ProjectGuid>{3159FABC-0C89-41FF-A279-48665CC068DC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.SqlServer.Tests</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.SqlServer</RootNamespace>
     <AssemblyName>EntityFramework.SqlServer.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

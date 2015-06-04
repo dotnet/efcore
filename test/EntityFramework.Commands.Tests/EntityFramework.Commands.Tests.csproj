@@ -8,7 +8,7 @@
     <ProjectGuid>{38F9AD16-B3B4-48A5-B814-77660CF409AE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Commands.Tests</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.Commands</RootNamespace>
     <AssemblyName>EntityFramework.Commands.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
