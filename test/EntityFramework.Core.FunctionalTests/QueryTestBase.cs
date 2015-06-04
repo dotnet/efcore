@@ -710,7 +710,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Where_client_deep_inside_predicate_and_server_top_level()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.CustomerID != "ALFKI" && (c.CustomerID == "FUBAR" || (c.CustomerID != "AROUT" && c.IsLondon))),
+                cs => cs.Where(c => c.CustomerID != "ALFKI" && (c.CustomerID == "MAUMAR" || (c.CustomerID != "AROUT" && c.IsLondon))),
                 entryCount: 5);
         }
 
