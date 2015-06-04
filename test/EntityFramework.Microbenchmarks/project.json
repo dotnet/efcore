@@ -1,25 +1,26 @@
 {
-    "dependencies": {
-        "EntityFramework.SqlServer": "7.0.0-*",
-        "EntityFramework.Microbenchmarks.Core": "1.0.0-*",
-        "Microsoft.Framework.Configuration.Json": "1.0.0-*",
-        "Microsoft.Framework.Configuration.Xml": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+  "dependencies": {
+    "EntityFramework.SqlServer": "7.0.0-*",
+    "EntityFramework.Microbenchmarks.Core": "1.0.0-*",
+    "Microsoft.Framework.Configuration.Json": "1.0.0-*",
+    "Microsoft.Framework.Configuration.Xml": "1.0.0-*",
+    "xunit.runner.aspnet": "2.0.0-aspnet-*"
+  },
+  "commands": {
+    "test": "xunit.runner.aspnet"
+  },
+  "frameworks": {
+    "net46": { },
+    "dnxcore50": {
+      "dependencies": {
+        "System.ComponentModel.Annotations": "4.0.10-beta-*",
+        "System.Net.NetworkInformation": "4.0.10-beta-*"
+      }
     },
-    "commands": {
-        "test": "xunit.runner.aspnet"
-    },
-    "frameworks": {
-        "dnxcore50": {
-            "dependencies": {
-                "System.ComponentModel.Annotations": "4.0.10-beta-*",
-                "System.Net.NetworkInformation":  "4.0.10-beta-*"
-            }
-        },
-        "dnx451": {
-            "frameworkAssemblies": {
-                "System.ComponentModel.DataAnnotations": ""
-            }
-        }
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.ComponentModel.DataAnnotations": ""
+      }
     }
+  }
 }

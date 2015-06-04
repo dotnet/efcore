@@ -3,7 +3,6 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\..\tools\EntityFramework.props" />
   <PropertyGroup>
-    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{71415CEC-8111-4C73-8751-512D22F10602}</ProjectGuid>
@@ -11,10 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Data.Entity</RootNamespace>
     <AssemblyName>EntityFramework.Core</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
@@ -23,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;CSPROJ</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -40,27 +36,7 @@
     <DocumentationFile>bin\Release\EntityFramework.Core.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Ix-Async">
-      <TargetFramework>portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1</TargetFramework>
-      <Assemblies>System.Interactive.Async</Assemblies>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Immutable">
-      <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Caching.Abstractions">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Caching.Memory">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
-    <PackageReference Include="Microsoft.Framework.DependencyInjection.Abstractions" />
-    <PackageReference Include="Microsoft.Framework.Logging" />
-    <PackageReference Include="Microsoft.Framework.Logging.Abstractions" />
-    <PackageReference Include="Microsoft.Framework.OptionsModel" />
-    <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+win+wpa81+wp80</TargetFramework>
-    </PackageReference>
+    <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\tools\Resources.cs">
@@ -264,7 +240,6 @@
     <Compile Include="Storage\IDataStore.cs" />
     <Compile Include="Storage\IDataStoreConnection.cs" />
     <Compile Include="Storage\IDataStoreSelector.cs" />
-    <Compile Include="Utilities\INotifyPropertyChanging.cs" />
     <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />
     <Compile Include="Metadata\Index.cs" />
@@ -407,11 +382,7 @@
     </Content>
     <None Include="project.json" />
   </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

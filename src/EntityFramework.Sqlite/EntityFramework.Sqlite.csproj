@@ -3,7 +3,6 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\..\tools\EntityFramework.props" />
   <PropertyGroup>
-    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{E340807B-ECBB-41DF-A164-23FE833C76DE}</ProjectGuid>
@@ -11,10 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Data.Entity.Sqlite</RootNamespace>
     <AssemblyName>EntityFramework.Sqlite</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -37,16 +33,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.Common">
-      <TargetFramework>portable-wpa81+wp80+win80+net45+aspnetcore50</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Data.Sqlite" />
-    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
-    <PackageReference Include="Microsoft.Framework.DependencyInjection.Abstractions" />
-    <PackageReference Include="Microsoft.Framework.Logging.Abstractions" />
-    <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+win+wpa81+wp80</TargetFramework>
-    </PackageReference>
+    <Reference Include="System.Data" />
     <ProjectReference Include="..\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>EntityFramework.Core</Name>
@@ -132,10 +119,7 @@
     </Content>
     <None Include="project.json" />
   </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

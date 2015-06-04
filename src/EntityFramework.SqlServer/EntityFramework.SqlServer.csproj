@@ -33,24 +33,8 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+win+wpa81+wp80</TargetFramework>
-    </PackageReference>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <PackageReference Include="System.Data.Common">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Logging.Abstractions">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.DependencyInjection">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.DependencyInjection.Abstractions">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\tools\Resources.cs">
@@ -170,9 +154,6 @@
       <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
       <Name>EntityFramework.Relational</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -3,7 +3,6 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\..\tools\EntityFramework.props" />
   <PropertyGroup>
-    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</ProjectGuid>
@@ -11,10 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Data.Entity.InMemory</RootNamespace>
     <AssemblyName>EntityFramework.InMemory</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -37,20 +33,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Ix-Async">
-      <TargetFramework>portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1</TargetFramework>
-      <Assemblies>System.Interactive.Async</Assemblies>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Immutable">
-      <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
-    <PackageReference Include="Microsoft.Framework.DependencyInjection.Abstractions" />
-    <PackageReference Include="Microsoft.Framework.Logging" />
-    <PackageReference Include="Microsoft.Framework.Logging.Abstractions" />
-    <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+win+wpa81+wp80</TargetFramework>
-    </PackageReference>
+    <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\tools\Resources.cs">
@@ -115,10 +98,7 @@
       <Name>EntityFramework.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

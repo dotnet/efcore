@@ -8,10 +8,10 @@
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "net45": {
+    "net46": {
       "dependencies": {
-        "xunit": "2.0.0-rc3-build2880",
-        "xunit.extensibility.core": "2.0.0-rc3-build2880"
+        "xunit.assert": "2.0.0-rc3-build2880",
+        "xunit.extensibility.execution": "2.0.0-rc3-build2880"
       },
       "frameworkAssemblies": {
         "System.Threading.Tasks": { "version": "4.0.0.0", "type": "build" },

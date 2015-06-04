@@ -1,19 +1,20 @@
 {
-    "dependencies": {
-        "EntityFramework": "6.1.2",
-        "EntityFramework.Microbenchmarks.Core":  "1.0.0",
-        "Microsoft.Framework.Configuration.Json": "1.0.0-*",
-        "Microsoft.Framework.Configuration.Xml": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-    },
-    "commands": {
-        "test": "xunit.runner.aspnet"
-    },
-    "frameworks": {
-        "dnx451": {
-            "frameworkAssemblies": {
-                "System.ComponentModel.DataAnnotations": ""
-            }
-        }
+  "dependencies": {
+    "EntityFramework": "6.1.2",
+    "EntityFramework.Microbenchmarks.Core": "1.0.0",
+    "Microsoft.Framework.Configuration.Json": "1.0.0-*",
+    "Microsoft.Framework.Configuration.Xml": "1.0.0-*",
+    "xunit.runner.aspnet": "2.0.0-aspnet-*"
+  },
+  "commands": {
+    "test": "xunit.runner.aspnet"
+  },
+  "frameworks": {
+    "net46": { },
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.ComponentModel.DataAnnotations": ""
+      }
     }
+  }
 }

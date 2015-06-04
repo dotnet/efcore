@@ -1,15 +1,21 @@
 {
-    "dependencies": {
-        "EntityFramework.Commands": "7.0.0-*",
-        "EntityFramework.SqlServer": "7.0.0-*",
-        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+  "dependencies": {
+    "EntityFramework.Commands": "7.0.0-*",
+    "EntityFramework.SqlServer": "7.0.0-*",
+    "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
+    "xunit.runner.aspnet": "2.0.0-aspnet-*"
+  },
+  "compile": "..\\..\\src\\EntityFramework.Commands\\tools\\Handlers.cs",
+  "commands": {
+    "test": "xunit.runner.aspnet"
+  },
+  "frameworks": {
+    "net46": {
+      "dependencies": {
+        "xunit.assert": "2.0.0-rc3-build2880",
+        "xunit.extensibility.execution": "2.0.0-rc3-build2880"
+      }
     },
-    "compile": "..\\..\\src\\EntityFramework.Commands\\tools\\Handlers.cs",
-    "commands": {
-        "test": "xunit.runner.aspnet"
-    },
-    "frameworks": {
-        "dnx451": { }
-    }
+    "dnx451": { }
+  }
 }
