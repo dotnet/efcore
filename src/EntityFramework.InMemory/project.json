@@ -13,6 +13,6 @@
   },
   "frameworks": {
     "net45": { },
-    "netportable50": { }
+    "dotnet": { }
   }
 }

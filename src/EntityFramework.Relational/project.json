@@ -18,7 +18,7 @@
         "System.Transactions": "4.0.0.0"
       }
     },
-    "netportable50": {
+    "dotnet": {
       "dependencies": {
         "System.Data.Common": "4.0.0-*",
         "System.Text.RegularExpressions": "4.0.10-*",
