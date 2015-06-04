@@ -69,8 +69,8 @@ WHERE [c].[CustomerID] = [o].[CustomerID]",
             base.From_sql_queryable_multiple_composed_with_closure_parameters();
 
             Assert.Equal(
-                @"@p0: 1/1/1997 12:00:00 AM
-@p1: 1/1/1998 12:00:00 AM
+                @"@p0: 01/01/1997 00:00:00
+@p1: 01/01/1998 00:00:00
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
