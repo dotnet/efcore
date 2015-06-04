@@ -2389,7 +2389,7 @@ INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]",
             base.Where_chain();
 
             Assert.Equal(
-                @"@__p_0: 1/1/1998 12:00:00 AM
+                @"@__p_0: 01/01/1998 00:00:00
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]

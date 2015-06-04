@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational;
@@ -25,11 +26,11 @@ namespace Microsoft.Framework.Logging
             }
             var paramList = new StringBuilder();
 
-            paramList.AppendFormat("{0}: {1}", (parameters[0]).ParameterName, (parameters[0]).Value);
+            paramList.AppendFormat("{0}: {1}", (parameters[0]).ParameterName, Convert.ToString((parameters[0]).Value, CultureInfo.InvariantCulture));
             for (var i = 1; i < parameters.Count; i++)
             {
                 paramList.AppendLine();
-                paramList.AppendFormat("{0}: {1}", (parameters[i]).ParameterName, (parameters[i]).Value);
+                paramList.AppendFormat(CultureInfo.InvariantCulture, "{0}: {1}", (parameters[i]).ParameterName, Convert.ToString((parameters[i]).Value, CultureInfo.InvariantCulture));
             }
             logger.LogDebug(RelationalLoggingEventIds.Sql, paramList.ToString());
         }
