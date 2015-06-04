@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Infrastructure
     public interface IOptionsBuilderExtender
     {
         void AddOrUpdateExtension<TExtension>([NotNull] TExtension extension)
-            where TExtension : class, IDbContextOptionsExtension;
+            where TExtension : class, IEntityOptionsExtension;
     }
 }

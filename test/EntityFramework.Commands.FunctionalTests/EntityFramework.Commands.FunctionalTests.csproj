@@ -45,20 +45,19 @@
       <TargetFramework>portable-net45+win8</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.Common">
-      <Assemblies>Microsoft.CodeAnalysis;Microsoft.CodeAnalysis.Desktop</Assemblies>
+      <Assemblies>Microsoft.CodeAnalysis</Assemblies>
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp">
       <TargetFramework>net45</TargetFramework>
-      <Assemblies>Microsoft.CodeAnalysis.CSharp;Microsoft.CodeAnalysis.CSharp.Desktop</Assemblies>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.Caching.Memory">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
+    <PackageReference Include="Microsoft.Framework.Configuration">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Abstractions">
+    <PackageReference Include="Microsoft.Framework.Configuration.Abstractions">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection">

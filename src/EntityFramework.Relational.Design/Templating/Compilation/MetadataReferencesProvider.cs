@@ -10,7 +10,6 @@ using Microsoft.Data.Entity.Utilities;
 
 #if DNX451 || DNXCORE50
 using System.IO;
-using System.Linq;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Compilation;
@@ -21,6 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
 {
     public class MetadataReferencesProvider
     {
+        private bool _isInitialized;
         private List<MetadataReference> _references = new List<MetadataReference>();
         private IServiceProvider _serviceProvider;
 
@@ -29,16 +29,28 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
             Check.NotNull(serviceProvider, nameof(serviceProvider));
 
             _serviceProvider = serviceProvider;
-            AddDefaultReferences();
         }
 
         public virtual List<MetadataReference> GetApplicationReferences()
         {
+            if (!_isInitialized)
+            {
+                InitializeReferences();
+            }
+
             return _references;
         }
 
-        public virtual void AddDefaultReferences()
+        private void InitializeReferences()
         {
+#if DNXCORE50 || NETCORE50
+            AddReferenceFromName("System.Collections");
+            AddReferenceFromName("System.Dynamic.Runtime");
+            AddReferenceFromName("System.Linq");
+            AddReferenceFromName("System.Runtime");
+            AddReferenceFromName("System.Threading.Tasks");
+            AddReferenceFromName("Microsoft.CSharp");
+#else
             _references.Add(MetadataReference.CreateFromAssembly(
                 Assembly.Load(new AssemblyName("mscorlib"))));
             _references.Add(MetadataReference.CreateFromAssembly(
@@ -47,30 +59,41 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
                 Assembly.Load(new AssemblyName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"))));
             _references.Add(MetadataReference.CreateFromAssembly(
                 Assembly.Load(new AssemblyName("Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"))));
+#endif
             AddReferenceFromName("EntityFramework.Relational.Design");
+            _isInitialized = true;
         }
 
         public virtual void AddReferenceFromName([NotNull]string name)
         {
             Check.NotEmpty(name, nameof(name));
 
+            if (!_isInitialized)
+            {
+                InitializeReferences();
+            }
+
 #if DNX451 || DNXCORE50
             var libraryManager = _serviceProvider.GetRequiredService<ILibraryManager>();
-            foreach(var metadataReference in libraryManager.GetLibraryExport(name).MetadataReferences)
+            var libraryExport = libraryManager.GetLibraryExport(name);
+            if (libraryExport != null)
             {
-                var roslynReference = metadataReference as IRoslynMetadataReference;
-                if (roslynReference != null)
+                foreach(var metadataReference in libraryExport.MetadataReferences)
                 {
-                    _references.Add(roslynReference.MetadataReference);
-                    return;
-                }
+                    var roslynReference = metadataReference as IRoslynMetadataReference;
+                    if (roslynReference != null)
+                    {
+                        _references.Add(roslynReference.MetadataReference);
+                        return;
+                    }
 
-                var fileMetadataReference = metadataReference as IMetadataFileReference;
-                if (fileMetadataReference != null)
-                {
-                    var metadata = AssemblyMetadata.CreateFromStream(File.OpenRead(fileMetadataReference.Path));
-                    _references.Add(metadata.GetReference());
-                    return;
+                    var fileMetadataReference = metadataReference as IMetadataFileReference;
+                    if (fileMetadataReference != null)
+                    {
+                        var metadata = AssemblyMetadata.CreateFromStream(File.OpenRead(fileMetadataReference.Path));
+                        _references.Add(metadata.GetReference());
+                        return;
+                    }
                 }
             }
 

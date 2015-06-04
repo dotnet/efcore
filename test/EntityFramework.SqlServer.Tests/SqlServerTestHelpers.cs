@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Tests
             return builder.AddSqlServer();
         }
 
-        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+        protected override void UseProviderOptions(EntityOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(new SqlConnection("Database=DummyDatabase"));
         }

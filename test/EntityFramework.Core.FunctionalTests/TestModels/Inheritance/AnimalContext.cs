@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Inheritance
     {
         public static readonly string StoreName = "Animals";
 
-        public AnimalContext(IServiceProvider serviceProvider, DbContextOptions options)
+        public AnimalContext(IServiceProvider serviceProvider, EntityOptions options)
             : base(serviceProvider, options)
         {
         }

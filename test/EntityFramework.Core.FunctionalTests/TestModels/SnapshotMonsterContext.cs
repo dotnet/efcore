@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
         SnapshotMonsterContext.Computer, SnapshotMonsterContext.ComputerDetail, SnapshotMonsterContext.Driver,
         SnapshotMonsterContext.License>
     {
-        public SnapshotMonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<ModelBuilder> onModelCreating)
+        public SnapshotMonsterContext(IServiceProvider serviceProvider, EntityOptions options, Action<ModelBuilder> onModelCreating)
             : base(serviceProvider, options, onModelCreating)
         {
         }

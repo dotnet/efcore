@@ -7,7 +7,7 @@ namespace Microsoft.Data.Entity.Sqlite
 {
     public class SqliteDataStoreSource : DataStoreSource<SqliteDataStoreServices, SqliteOptionsExtension>
     {
-        public override void AutoConfigure(DbContextOptionsBuilder optionsBuilder)
+        public override void AutoConfigure(EntityOptionsBuilder optionsBuilder)
         {
         }
 

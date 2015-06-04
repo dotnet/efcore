@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
-                var optionsBuilder = new DbContextOptionsBuilder();
+                var optionsBuilder = new EntityOptionsBuilder();
                 optionsBuilder.UseSqlServer(testDatabase.Connection.ConnectionString);
 
                 using (var context = new BloggingContext(serviceProvider, optionsBuilder.Options))
@@ -249,11 +249,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         await testDatabase.Connection.OpenAsync();
                     }
 
-                    var tables = await testDatabase.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES");
+                    var tables = await testDatabase.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
                     Assert.Equal(1, tables.Count());
                     Assert.Equal("Blog", tables.Single());
 
-                    var columns = await testDatabase.QueryAsync<string>("SELECT TABLE_NAME + '.' + COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS");
+                    var columns = await testDatabase.QueryAsync<string>("SELECT TABLE_NAME + '.' + COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Blog'");
                     Assert.Equal(2, columns.Count());
                     Assert.True(columns.Any(c => c == "Blog.Id"));
                     Assert.True(columns.Any(c => c == "Blog.Name"));
@@ -329,7 +329,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     await testDatabase.Connection.OpenAsync();
                 }
 
-                Assert.Equal(0, (await testDatabase.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES")).Count());
+                Assert.Equal(0, (await testDatabase.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")).Count());
 
                 Assert.True(await testDatabase.ExecuteScalarAsync<bool>(
                     string.Concat(
@@ -373,7 +373,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseSqlServer(testStore.Connection.ConnectionString);
 
             return ((IAccessor<IServiceProvider>)new DbContext(
@@ -389,7 +389,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class BloggingContext : DbContext
         {
-            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
+            public BloggingContext(IServiceProvider serviceProvider, EntityOptions options)
                 : base(serviceProvider, options)
             {
             }

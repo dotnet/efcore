@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
             var services = Mock.Of<IDataStoreServices>();
             var source = CreateSource("DataStore1", configured: true, available: false, services: services);
 
-            var selector = new DataStoreSelector(Mock.Of<IServiceProvider>(), Mock.Of<IDbContextOptions>(), new[] { source });
+            var selector = new DataStoreSelector(Mock.Of<IServiceProvider>(), Mock.Of<IEntityOptions>(), new[] { source });
 
             Assert.Same(services, selector.SelectDataStore(ServiceProviderSource.Explicit));
         }
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(
                 Mock.Of<IServiceProvider>(), 
-                Mock.Of<IDbContextOptions>(), 
+                Mock.Of<IEntityOptions>(), 
                 new[] { source1, source2, source3, source4 });
 
             Assert.Equal(Strings.MultipleDataStoresConfigured("'DataStore1' 'DataStore2' 'DataStore4' "),
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
         {
             var selector = new DataStoreSelector(
                 Mock.Of<IServiceProvider>(),
-                Mock.Of<IDbContextOptions>(),
+                Mock.Of<IEntityOptions>(),
                 null);
 
             Assert.Equal(Strings.NoDataStoreService,
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
         {
             var selector = new DataStoreSelector(
                 Mock.Of<IServiceProvider>(),
-                Mock.Of<IDbContextOptions>(),
+                Mock.Of<IEntityOptions>(),
                 null);
 
             Assert.Equal(Strings.NoDataStoreConfigured,
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(
                 Mock.Of<IServiceProvider>(),
-                Mock.Of<IDbContextOptions>(),
+                Mock.Of<IEntityOptions>(),
                 new[] { source1, source2, source3 });
 
             Assert.Equal(Strings.MultipleDataStoresAvailable("'DataStore1' 'DataStore2' 'DataStore3' "),
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(
                 Mock.Of<IServiceProvider>(),
-                Mock.Of<IDbContextOptions>(),
+                Mock.Of<IEntityOptions>(),
                 new[] { source });
 
             Assert.Equal(Strings.NoDataStoreConfigured,
@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
         private static IDataStoreSource CreateSource(string name, bool configured, bool available, IDataStoreServices services = null)
         {
             var sourceMock = new Mock<IDataStoreSource>();
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(configured);
+            sourceMock.Setup(m => m.IsConfigured(It.IsAny<IEntityOptions>())).Returns(configured);
             sourceMock.Setup(m => m.GetStoreServices(It.IsAny<IServiceProvider>())).Returns(services);
             sourceMock.Setup(m => m.Name).Returns(name);
 

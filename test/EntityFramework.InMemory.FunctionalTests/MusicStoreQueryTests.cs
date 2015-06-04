@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .ServiceCollection()
                     .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseInMemoryStore(persist: true);
 
             using (var db = new MusicStoreContext(serviceProvider, optionsBuilder.Options))
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
         public class MusicStoreContext : DbContext
         {
-            public MusicStoreContext(IServiceProvider serviceProvider, DbContextOptions options)
+            public MusicStoreContext(IServiceProvider serviceProvider, EntityOptions options)
                 : base(serviceProvider, options)
             {
             }

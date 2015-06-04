@@ -69,11 +69,11 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The property '{propertyName}' cannot be mapped because it is of type '{propertyType}' which is currently not supported.
+        /// No mapping to a relational type can be found for the CLR type '{clrType}'
         /// </summary>
-        public static string UnsupportedType([CanBeNull] object propertyName, [CanBeNull] object propertyType)
+        public static string UnsupportedType([CanBeNull] object clrType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedType", "propertyName", "propertyType"), propertyName, propertyType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedType", "clrType"), clrType);
         }
 
         /// <summary>
@@ -106,14 +106,6 @@ namespace Microsoft.Data.Entity.Relational
         public static string TransactionAssociatedWithDifferentConnection
         {
             get { return GetString("TransactionAssociatedWithDifferentConnection"); }
-        }
-
-        /// <summary>
-        /// A query containing the Skip operator must include at least one OrderBy operation.
-        /// </summary>
-        public static string SkipNeedsOrderBy
-        {
-            get { return GetString("SkipNeedsOrderBy"); }
         }
 
         /// <summary>
@@ -341,14 +333,6 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The required column '{column}' was not present in the results of a 'FromSql' operation.
-        /// </summary>
-        public static string FromSqlMissingColumn([CanBeNull] object column)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("FromSqlMissingColumn", "column"), column);
-        }
-
-        /// <summary>
         /// Generating down script for migration '{migration}'.
         /// </summary>
         public static string GeneratingDown([CanBeNull] object migration)
@@ -386,6 +370,14 @@ namespace Microsoft.Data.Entity.Relational
         public static string UsingConnection([CanBeNull] object database, [CanBeNull] object dataSource)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UsingConnection", "database", "dataSource"), database, dataSource);
+        }
+
+        /// <summary>
+        /// The required column '{column}' was not present in the results of a 'FromSql' operation.
+        /// </summary>
+        public static string FromSqlMissingColumn([CanBeNull] object column)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FromSqlMissingColumn", "column"), column);
         }
 
         private static string GetString(string name, params string[] formatterNames)

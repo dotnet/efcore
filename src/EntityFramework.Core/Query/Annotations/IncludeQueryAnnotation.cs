@@ -11,7 +11,7 @@ using Remotion.Linq.Clauses.ExpressionTreeVisitors;
 
 namespace Microsoft.Data.Entity.Query.Annotations
 {
-    public class IncludeQueryAnnotation : QueryAnnotation
+    public class IncludeQueryAnnotation : QueryAnnotationBase
     {
         private readonly List<PropertyInfo> _chainedNavigationProperties;
 

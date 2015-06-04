@@ -2,10 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq.Clauses;
@@ -14,7 +17,7 @@ namespace Microsoft.Data.Entity.Query
 {
     public abstract class QueryCompilationContext
     {
-        private IReadOnlyCollection<QueryAnnotation> _queryAnnotations;
+        private IReadOnlyCollection<QueryAnnotationBase> _queryAnnotations;
         private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
 
         protected QueryCompilationContext(
@@ -53,7 +56,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
 
-        public virtual IReadOnlyCollection<QueryAnnotation> QueryAnnotations
+        public virtual IReadOnlyCollection<QueryAnnotationBase> QueryAnnotations
         {
             get { return _queryAnnotations; }
             [param: NotNull]
@@ -64,6 +67,11 @@ namespace Microsoft.Data.Entity.Query
                 _queryAnnotations = value;
             }
         }
+
+        public virtual IEnumerable<QueryAnnotation> GetCustomQueryAnnotations([NotNull] MethodInfo methodInfo)
+            => _queryAnnotations
+                .OfType<QueryAnnotation>()
+                .Where(qa => qa.IsCallTo(Check.NotNull(methodInfo, nameof(methodInfo))));
 
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor() => CreateQueryModelVisitor(null);
 

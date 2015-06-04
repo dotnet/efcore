@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
         private static IInMemoryDataStore CreateStore(IServiceProvider serviceProvider, bool persist)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseInMemoryStore(persist: persist);
 
             return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, optionsBuilder.Options).GetRequiredService<IInMemoryDataStore>();

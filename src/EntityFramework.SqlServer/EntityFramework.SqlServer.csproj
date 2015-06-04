@@ -59,7 +59,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="Extensions\SqlServerDbContextOptions.cs" />
+    <Compile Include="Extensions\SqlServerEntityOptionsBuilder.cs" />
     <Compile Include="ISqlServerConnection.cs" />
     <Compile Include="ISqlServerSqlGenerator.cs" />
     <Compile Include="Metadata\ISqlServerEntityTypeExtensions.cs" />
@@ -94,11 +94,26 @@
     <Compile Include="Migrations\CreateDatabaseOperation.cs" />
     <Compile Include="Migrations\DropDatabaseOperation.cs" />
     <Compile Include="Migrations\SqlServerHistoryRepository.cs" />
+    <Compile Include="Query\Methods\DateTimeNowTranslator.cs" />
+    <Compile Include="Query\Methods\MathAbsTranslator.cs" />
+    <Compile Include="Query\Methods\MathCeilingTranslator.cs" />
+    <Compile Include="Query\Methods\MathFloorTranslator.cs" />
+    <Compile Include="Query\Methods\MathPowerTranslator.cs" />
+    <Compile Include="Query\Methods\MathRoundTranslator.cs" />
+    <Compile Include="Query\Methods\MathTruncateTranslator.cs" />
+    <Compile Include="Query\Methods\NewGuidTranslator.cs" />
+    <Compile Include="Query\Methods\StringLengthTranslator.cs" />
+    <Compile Include="Query\Methods\StringReplaceTranslator.cs" />
+    <Compile Include="Query\Methods\StringSubstringTranslator.cs" />
+    <Compile Include="Query\Methods\StringToLowerTranslator.cs" />
+    <Compile Include="Query\Methods\StringToUpperTranslator.cs" />
     <Compile Include="Query\SqlServerQueryCompilationContext.cs" />
-    <Compile Include="Query\SqlServerQueryGenerator.cs" />
+    <Compile Include="Query\SqlServerQuerySqlGenerator.cs" />
     <Compile Include="SqlServerBuilderExtensions.cs" />
+    <Compile Include="SqlServerCompositeMemberTranslator.cs" />
     <Compile Include="SqlServerDatabase.cs" />
     <Compile Include="SqlServerDatabaseExtensions.cs" />
+    <Compile Include="SqlServerCompositeMethodCallTranslator.cs" />
     <Compile Include="SqlServerMetadataExtensions.cs" />
     <Compile Include="SqlServerModelBuilderFactory.cs" />
     <Compile Include="Migrations\SqlServerModelDiffer.cs" />
@@ -113,7 +128,7 @@
     <Compile Include="Migrations\SqlServerMigrationSqlGenerator.cs" />
     <Compile Include="SqlServerSqlGenerator.cs" />
     <Compile Include="SqlServerTypeMapper.cs" />
-    <Compile Include="Extensions\SqlServerDbContextOptionsExtensions.cs" />
+    <Compile Include="Extensions\SqlServerEntityOptionsExtensions.cs" />
     <Compile Include="Extensions\SqlServerEntityServicesBuilderExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs.cs" />

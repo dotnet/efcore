@@ -13,6 +13,7 @@ using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
+using Microsoft.Data.Entity.Relational.Query.Methods;
 
 namespace Microsoft.Data.Entity.Relational.Tests
 {
@@ -25,12 +26,16 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var commandBatchPreparerMock = new Mock<ICommandBatchPreparer>();
             var batchExecutorMock = new Mock<IBatchExecutor>();
             var valueBufferMock = new Mock<IRelationalValueBufferFactoryFactory>();
+            var methodCallTranslatorMock = new Mock<IMethodCallTranslator>();
+            var memberTranslatorMock = new Mock<IMemberTranslator>();
 
             var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
                 .AddInstance(commandBatchPreparerMock.Object)
                 .AddInstance(batchExecutorMock.Object)
                 .AddInstance(valueBufferMock.Object)
+                .AddInstance(methodCallTranslatorMock.Object)
+                .AddInstance(memberTranslatorMock.Object)
                 .AddScoped<FakeRelationalDataStore>();
 
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
@@ -42,7 +47,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             await relationalDataStore.SaveChangesAsync(entries, cancellationToken);
 
-            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries, relationalDataStore.DbContextOptions));
+            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries, relationalDataStore.EntityOptions));
             batchExecutorMock.Verify(be => be.ExecuteAsync(It.IsAny<IEnumerable<ModificationCommandBatch>>(), relationalConnectionMock.Object, cancellationToken));
         }
 
@@ -53,12 +58,16 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var commandBatchPreparerMock = new Mock<ICommandBatchPreparer>();
             var batchExecutorMock = new Mock<IBatchExecutor>();
             var valueBufferMock = new Mock<IRelationalValueBufferFactoryFactory>();
+            var methodCallTranslatorMock = new Mock<IMethodCallTranslator>();
+            var memberTranslatorMock = new Mock<IMemberTranslator>();
 
             var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
                 .AddInstance(commandBatchPreparerMock.Object)
                 .AddInstance(batchExecutorMock.Object)
                 .AddInstance(valueBufferMock.Object)
+                .AddInstance(methodCallTranslatorMock.Object)
+                .AddInstance(memberTranslatorMock.Object)
                 .AddScoped<FakeRelationalDataStore>();
 
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
@@ -69,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             relationalDataStore.SaveChanges(entries);
 
-            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries, relationalDataStore.DbContextOptions));
+            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries, relationalDataStore.EntityOptions));
             batchExecutorMock.Verify(be => be.Execute(It.IsAny<IEnumerable<ModificationCommandBatch>>(), relationalConnectionMock.Object));
         }
 
@@ -83,9 +92,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 IRelationalConnection connection,
                 ICommandBatchPreparer batchPreparer,
                 IBatchExecutor batchExecutor,
-                IDbContextOptions options,
+                IEntityOptions options,
                 ILoggerFactory loggerFactory,
-                IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+                IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+                IMethodCallTranslator compositeMethodCallTranslator,
+                IMemberTranslator compositeMemberTranslator)
                 : base(
                       model, 
                       entityKeyFactorySource, 
@@ -96,7 +107,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
                       batchExecutor, 
                       options, 
                       loggerFactory,
-                      valueBufferFactoryFactory)
+                      valueBufferFactoryFactory,
+                      compositeMethodCallTranslator,
+                      compositeMemberTranslator)
             {
             }
         }

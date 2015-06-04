@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             public InMemoryGraphUpdatesTestStore(IServiceProvider serviceProvider)
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
+                var optionsBuilder = new EntityOptionsBuilder();
                 optionsBuilder.UseInMemoryStore(persist: true);
 
                 Context = new GraphUpdatesContext(serviceProvider, optionsBuilder.Options);

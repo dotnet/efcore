@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
         /// <param name="optionsAction">
         ///     <para>
-        ///         An optional action to configure the <see cref="DbContextOptions" /> for the context. This provides an
+        ///         An optional action to configure the <see cref="EntityOptions" /> for the context. This provides an
         ///         alternative to performing configuration of the context by overriding the
         ///         <see cref="DbContext.OnConfiguring" /> method in your derived context.
         ///     </para>
@@ -55,9 +55,9 @@ namespace Microsoft.Data.Entity.Infrastructure
         ///         in addition to configuration performed here.
         ///     </para>
         ///     <para>
-        ///         You do not need to expose a constructor parameter for the <see cref="DbContextOptions" /> to be passed to the
+        ///         You do not need to expose a constructor parameter for the <see cref="EntityOptions" /> to be passed to the
         ///         context. If you choose to expose a constructor parameter, you must type it as the generic
-        ///         <see cref="DbContextOptions{T}" /> as that is the type that will be registered in the
+        ///         <see cref="EntityOptions{TContext}" /> as that is the type that will be registered in the
         ///         <see cref="IServiceCollection" /> (in order to support multiple context types being registered in the
         ///         same <see cref="IServiceCollection" />).
         ///     </para>
@@ -65,26 +65,26 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// <returns>
         ///     A builder that allows further Entity Framework specific setup of the <see cref="IServiceCollection" />.
         /// </returns>
-        public virtual EntityFrameworkServicesBuilder AddDbContext<TContext>([CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null)
+        public virtual EntityFrameworkServicesBuilder AddDbContext<TContext>([CanBeNull] Action<EntityOptionsBuilder> optionsAction = null)
             where TContext : DbContext
         {
-            _serviceCollection.AddSingleton(_ => DbContextOptionsFactory<TContext>(optionsAction));
-            _serviceCollection.AddSingleton<DbContextOptions>(p => p.GetRequiredService<DbContextOptions<TContext>>());
+            _serviceCollection.AddSingleton(_ => EntityOptionsFactory<TContext>(optionsAction));
+            _serviceCollection.AddSingleton<EntityOptions>(p => p.GetRequiredService<EntityOptions<TContext>>());
 
             _serviceCollection.AddScoped(typeof(TContext), DbContextActivator.CreateInstance<TContext>);
 
             return this;
         }
 
-        private static DbContextOptions<TContext> DbContextOptionsFactory<TContext>(
-            [CanBeNull] Action<DbContextOptionsBuilder> optionsAction)
+        private static EntityOptions<TContext> EntityOptionsFactory<TContext>(
+            [CanBeNull] Action<EntityOptionsBuilder> optionsAction)
             where TContext : DbContext
         {
-            var options = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
+            var options = new EntityOptions<TContext>(new Dictionary<Type, IEntityOptionsExtension>());
 
             if (optionsAction != null)
             {
-                var builder = new DbContextOptionsBuilder<TContext>(options);
+                var builder = new EntityOptionsBuilder<TContext>(options);
                 optionsAction(builder);
                 options = builder.Options;
             }

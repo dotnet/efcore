@@ -23,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CSPROJ</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -33,7 +33,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;CSPROJ</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -149,18 +149,18 @@
     <Compile Include="ChangeTracking\Internal\ValueGenerationManager.cs" />
     <Compile Include="ChangeTracking\KeyValueEntityTracker.cs" />
     <Compile Include="DbContext.cs" />
-    <Compile Include="DbContextOptionsBuilder.cs" />
-    <Compile Include="DbContextOptionsBuilder`.cs" />
+    <Compile Include="EntityOptionsBuilder.cs" />
+    <Compile Include="EntityOptionsBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\CoreAnnotationNames.cs" />
     <Compile Include="Metadata\ModelConventions\IPropertyConvention.cs" />
     <Compile Include="Metadata\ModelConventions\IModelConvention.cs" />
     <Compile Include="Metadata\StoreGeneratedPattern.cs" />
     <Compile Include="Infrastructure\CoreOptionsExtension.cs" />
-    <Compile Include="Infrastructure\DbContextOptions.cs" />
-    <Compile Include="Infrastructure\DbContextOptions`.cs" />
+    <Compile Include="Infrastructure\EntityOptions.cs" />
+    <Compile Include="Infrastructure\EntityOptions`.cs" />
     <Compile Include="Infrastructure\IDatabaseFactory.cs" />
-    <Compile Include="Infrastructure\IDbContextOptions.cs" />
+    <Compile Include="Infrastructure\IEntityOptions.cs" />
     <Compile Include="Infrastructure\IOptionsBuilderExtender.cs" />
     <Compile Include="Infrastructure\EntityFrameworkServicesBuilder.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
@@ -190,14 +190,23 @@
     <Compile Include="Metadata\ModelConventions\IKeyConvention.cs" />
     <Compile Include="Metadata\ModelConventions\KeyConvention.cs" />
     <Compile Include="ModelBuilder.cs" />
-    <Compile Include="Query\Annotations\AsNoTrackingQueryAnnotation.cs" />
+    <Compile Include="Query\Annotations\QueryAnnotation.cs" />
     <Compile Include="Query\Annotations\IncludeQueryAnnotation.cs" />
     <Compile Include="Query\EntityLoadInfo.cs" />
     <Compile Include="Query\EntityTrackingInfo.cs" />
+    <Compile Include="Query\ExpressionEvaluationHelpers.cs" />
+    <Compile Include="Query\Expressions\MethodCallEvaluationPreventingExpression.cs" />
+    <Compile Include="Query\Expressions\PropertyEvaluationPreventingExpression.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ExpressionStringBuilder.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ExpressionTreeVisitorBase.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\FunctionEvaluationDisablingVisitor.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\ParameterExtractingExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\QueryAnnotatingExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\ReducingExpressionTreeVisitor.cs" />
     <Compile Include="Query\IEntityQueryProvider.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />
+    <Compile Include="Query\QueryableHelpers.cs" />
+    <Compile Include="Query\QueryAnnotationMethodAttribute.cs" />
     <Compile Include="Query\SharedQueryExtensions.cs" />
     <Compile Include="DbSet`.cs" />
     <Compile Include="EntityState.cs" />
@@ -233,8 +242,8 @@
     <Compile Include="Query\ICompiledQueryCache.cs" />
     <Compile Include="Query\IncludeSpecification.cs" />
     <Compile Include="Query\IQueryContextFactory.cs" />
-    <Compile Include="Query\QueryAnnotation.cs" />
-    <Compile Include="Query\QueryAnnotationExtensions.cs" />
+    <Compile Include="Query\Annotations\QueryAnnotationBase.cs" />
+    <Compile Include="Internal\QueryAnnotationExtensions.cs" />
     <Compile Include="Query\QueryAnnotationExtractor.cs" />
     <Compile Include="Query\CompiledQueryCache.cs" />
     <Compile Include="Query\QueryContextFactory.cs" />
@@ -277,7 +286,7 @@
     <Compile Include="Extensions\EntityFrameworkServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\EntityFrameworkQueryableExtensions.cs" />
     <Compile Include="Infrastructure\Database.cs" />
-    <Compile Include="Infrastructure\IDbContextOptionsExtension.cs" />
+    <Compile Include="Infrastructure\IEntityOptionsExtension.cs" />
     <Compile Include="Infrastructure\IModelSource.cs" />
     <Compile Include="Infrastructure\Annotation.cs" />
     <Compile Include="Metadata\Internal\ClrAccessorSource.cs" />

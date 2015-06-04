@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels
         public static readonly string DatabaseName = StoreName;
         public static readonly string ConnectionString = SqlServerTestStore.CreateConnectionString(DatabaseName);
 
-        public SqlServerNorthwindContext(IServiceProvider serviceProvider, DbContextOptions options)
+        public SqlServerNorthwindContext(IServiceProvider serviceProvider, EntityOptions options)
             : base(serviceProvider, options)
         {
         }

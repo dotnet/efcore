@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(customServices);
 
-            using (var context = new JustAContext(serviceProvider, new DbContextOptionsBuilder().Options))
+            using (var context = new JustAContext(serviceProvider, new EntityOptionsBuilder().Options))
             {
                 Assert.NotNull(context.One);
                 Assert.NotNull(context.GetTwo());
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests
 
         public class JustAContext : DbContext
         {
-            public JustAContext(IServiceProvider serviceProvider, DbContextOptions options)
+            public JustAContext(IServiceProvider serviceProvider, EntityOptions options)
                 : base(serviceProvider, options)
             {
             }

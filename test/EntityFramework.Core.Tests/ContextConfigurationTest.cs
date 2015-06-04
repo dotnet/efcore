@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private class GiddyupContext : DbContext
         {
-            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected internal override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseInMemoryStore();
             }

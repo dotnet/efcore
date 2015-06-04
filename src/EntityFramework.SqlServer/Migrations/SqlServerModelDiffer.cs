@@ -10,50 +10,17 @@ using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.SqlServer.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Migrations
 {
     public class SqlServerModelDiffer : ModelDiffer
     {
-        public SqlServerModelDiffer([NotNull] IRelationalTypeMapper typeMapper)
-            : base(typeMapper)
+        public SqlServerModelDiffer(
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalMetadataExtensionProvider metadataExtensions)
+            : base(typeMapper, metadataExtensions)
         {
         }
-
-        #region IModel
-
-        private static readonly LazyRef<Sequence> _defaultSequence =
-            new LazyRef<Sequence>(() => new Sequence(Sequence.DefaultName));
-
-        protected override IEnumerable<MigrationOperation> Diff([CanBeNull] IModel source, [CanBeNull] IModel target)
-        {
-            var operations = base.Diff(source, target);
-
-            // TODO: Remove when the default sequence is added to the model (See #1568)
-            var sourceUsesDefaultSequence = DefaultSequenceUsed(source);
-            var targetUsesDefaultSequence = DefaultSequenceUsed(target);
-            if (sourceUsesDefaultSequence == false && targetUsesDefaultSequence)
-            {
-                operations = operations.Concat(Add(_defaultSequence.Value));
-            }
-            else if (sourceUsesDefaultSequence && targetUsesDefaultSequence == false)
-            {
-                operations = operations.Concat(Remove(_defaultSequence.Value));
-            }
-
-            return operations;
-        }
-
-        private bool DefaultSequenceUsed(IModel model) =>
-            model != null
-            && (model.SqlServer().DefaultSequenceName == null || model.SqlServer().DefaultSequenceName == Sequence.DefaultName)
-            && (model.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.Sequence
-                || model.EntityTypes.SelectMany(t => t.GetProperties()).Any(
-                    p => p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.Sequence
-                         && (p.SqlServer().SequenceName == null || p.SqlServer().SequenceName == Sequence.DefaultName)));
-
-        #endregion
 
         #region IProperty
 
@@ -69,15 +36,19 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 && (source.SqlServer().ComputedExpression != target.SqlServer().ComputedExpression
                     || sourceValueGenerationStrategy != targetValueGenerationStrategy))
             {
+                var sourceExtensions = MetadataExtensions.Extensions(source);
+                var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.EntityType);
+                var targetExtensions = MetadataExtensions.Extensions(target);
+
                 alterColumnOperation = new AlterColumnOperation
                 {
-                    Schema = source.EntityType.Relational().Schema,
-                    Table = source.EntityType.Relational().Table,
-                    Name = source.Relational().Column,
-                    Type = TypeMapper.GetTypeMapping(target).StoreTypeName,
+                    Schema = sourceEntityTypeExtensions.Schema,
+                    Table = sourceEntityTypeExtensions.Table,
+                    Name = sourceExtensions.Column,
+                    Type = targetExtensions.ColumnType ?? TypeMapper.MapPropertyType(target).DefaultTypeName,
                     IsNullable = target.IsNullable,
-                    DefaultValue = target.Relational().DefaultValue,
-                    DefaultExpression = target.Relational().DefaultExpression
+                    DefaultValue = targetExtensions.DefaultValue,
+                    DefaultExpression = targetExtensions.DefaultExpression
                 };
                 operations.Add(alterColumnOperation);
             }
@@ -184,12 +155,15 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             {
                 operations.AddRange(Remove(source));
 
+                var targetExtensions = MetadataExtensions.Extensions(target);
+                var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.EntityType);
+
                 createIndexOperation = new CreateIndexOperation
                 {
-                    Name = target.Relational().Name,
-                    Schema = target.EntityType.Relational().Schema,
-                    Table = target.EntityType.Relational().Table,
-                    Columns = target.Properties.Select(p => p.Relational().Column).ToArray(),
+                    Name = targetExtensions.Name,
+                    Schema = targetEntityTypeExtensions.Schema,
+                    Table = targetEntityTypeExtensions.Table,
+                    Columns = GetColumnNames(target.Properties),
                     IsUnique = target.IsUnique
                 };
                 operations.Add(createIndexOperation);

@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Storage
 {
     public abstract class DataStoreSource<TStoreServices, TOptionsExtension> : IDataStoreSource
         where TStoreServices : class, IDataStoreServices
-        where TOptionsExtension : class, IDbContextOptionsExtension
+        where TOptionsExtension : class, IEntityOptionsExtension
     {
         public virtual IDataStoreServices GetStoreServices(IServiceProvider serviceProvider)
         {
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Storage
             return serviceProvider.GetRequiredService<TStoreServices>();
         }
 
-        public virtual bool IsConfigured(IDbContextOptions options)
+        public virtual bool IsConfigured(IEntityOptions options)
         {
             Check.NotNull(options, nameof(options));
 
@@ -29,6 +29,6 @@ namespace Microsoft.Data.Entity.Storage
 
         public abstract string Name { get; }
 
-        public abstract void AutoConfigure(DbContextOptionsBuilder optionsBuilder);
+        public abstract void AutoConfigure(EntityOptionsBuilder optionsBuilder);
     }
 }

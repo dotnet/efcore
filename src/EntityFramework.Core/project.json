@@ -6,12 +6,15 @@
   },
   "dependencies": {
     "Ix-Async": "1.2.3",
+    "Microsoft.Framework.Caching.Abstractions": "1.0.0-*",
     "Microsoft.Framework.Caching.Memory": "1.0.0-*",
     "Microsoft.Framework.DependencyInjection": "1.0.0-*",
+    "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-*",
     "Microsoft.Framework.Logging": "1.0.0-*",
+    "Microsoft.Framework.Logging.Abstractions": "1.0.0-*",
     "Microsoft.Framework.OptionsModel": "1.0.0-*",
     "Remotion.Linq": "2.0.0-alpha-002",
-    "System.Collections.Immutable": "1.1.34-rc"
+    "System.Collections.Immutable": "1.1.36"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
@@ -54,36 +57,24 @@
         "System.Threading": "4.0.0.0"
       }
     },
-    "dnxcore50": {
+    "dotnet": {
       "dependencies": {
+        "System.Collections": "4.0.10-*",
+        "System.Collections.Concurrent": "4.0.10-*",
+        "System.ComponentModel": "4.0.0-*",
         "System.Diagnostics.Debug": "4.0.10-*",
         "System.Diagnostics.Tools": "4.0.0-*",
+        "System.Linq": "4.0.0-*",
         "System.Linq.Queryable": "4.0.0-*",
         "System.ObjectModel": "4.0.10-*",
+        "System.Reflection": "4.0.10-*",
         "System.Reflection.Extensions": "4.0.0-*",
         "System.Resources.ResourceManager": "4.0.0-*",
-        "System.Runtime.Extensions": "4.0.10-*"
-      }
-    },
-    ".NETPortable,Version=v4.5,Profile=Profile7": {
-      "frameworkAssemblies": {
-        "System.Collections": "4.0.0.0",
-        "System.Diagnostics.Debug": "4.0.0.0",
-        "System.Diagnostics.Tools": "4.0.0.0",
-        "System.Dynamic.Runtime": "4.0.0.0",
-        "System.Globalization": "4.0.0.0",
-        "System.IO": "4.0.0.0",
-        "System.Linq": "4.0.0.0",
-        "System.Linq.Expressions": "4.0.0.0",
-        "System.Linq.Queryable": "4.0.0.0",
-        "System.ObjectModel": "4.0.0.0",
-        "System.Reflection": "4.0.0.0",
-        "System.Reflection.Extensions": "4.0.0.0",
-        "System.Resources.ResourceManager": "4.0.0.0",
-        "System.Runtime": "4.0.0.0",
-        "System.Runtime.Extensions": "4.0.0.0",
-        "System.Threading": "4.0.0.0",
-        "System.Threading.Tasks": "4.0.0.0"
+        "System.Runtime": "4.0.20-*",
+        "System.Runtime.Extensions": "4.0.10-*",
+        "System.Runtime.InteropServices": "4.0.20-*",
+        "System.Threading": "4.0.10-*",
+        "System.Threading.Tasks": "4.0.10-*"
       }
     }
   }

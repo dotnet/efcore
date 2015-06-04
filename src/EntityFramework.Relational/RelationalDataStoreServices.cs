@@ -15,6 +15,7 @@ using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.ValueGeneration;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Data.Entity.Relational.Query.Methods;
 
 namespace Microsoft.Data.Entity.Relational
 {
@@ -29,13 +30,15 @@ namespace Microsoft.Data.Entity.Relational
         public override IModelBuilderFactory ModelBuilderFactory => GetService<ModelBuilderFactory>();
         public override IQueryContextFactory QueryContextFactory => GetService<RelationalQueryContextFactory>();
         public override IValueGeneratorSelector ValueGeneratorSelector => GetService<RelationalValueGeneratorSelector>();
-
         public virtual IRelationalTypeMapper TypeMapper => GetService<RelationalTypeMapper>();
         public virtual IModelDiffer ModelDiffer => GetService<ModelDiffer>();
         public virtual IBatchExecutor BatchExecutor => GetService<BatchExecutor>();
         public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory => GetService<TypedValueBufferFactoryFactory>();
         public virtual ICommandBatchPreparer CommandBatchPreparer => GetService<CommandBatchPreparer>();
+        public virtual ISqlStatementExecutor SqlStatementExecutor => GetService<SqlStatementExecutor>();
 
+        public abstract IMethodCallTranslator CompositeMethodCallTranslator { get; }
+        public abstract IMemberTranslator CompositeMemberTranslator { get; }
         public abstract IHistoryRepository HistoryRepository { get; }
         public abstract IMigrationSqlGenerator MigrationSqlGenerator { get; }
         public abstract IRelationalConnection RelationalConnection { get; }

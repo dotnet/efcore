@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         }
 
         public override ModificationCommandBatch Create(
-            IDbContextOptions options,
+            IEntityOptions options,
             IRelationalMetadataExtensionProvider metadataExtensionProvider)
         {
             Check.NotNull(options, nameof(options));

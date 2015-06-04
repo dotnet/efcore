@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Sqlite.Update
         }
 
         public override ModificationCommandBatch Create(
-            IDbContextOptions options,
+            IEntityOptions options,
             IRelationalMetadataExtensionProvider metadataExtensionProvider)
             => new SingularModificationCommandBatch(SqlGenerator, metadataExtensionProvider);
     }

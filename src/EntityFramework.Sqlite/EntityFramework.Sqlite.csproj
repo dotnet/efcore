@@ -67,17 +67,50 @@
       <Link>Utilities\Check.cs</Link>
     </Compile>
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
-      <Link>Extensions\SharedTypeExtensions.cs</Link>
+      <Link>Utilities\SharedTypeExtensions.cs</Link>
     </Compile>
-    <Compile Include="Extensions\SqliteDbContextOptionsBuilderExtensions.cs" />
-    <Compile Include="Extensions\SqliteEntityFrameworkServicesBuilderExtensions.cs" />
+    <Compile Include="Metadata\Builders\SqliteEntityTypeBuilderExtensions.cs" />
+    <Compile Include="Metadata\Builders\SqliteReferenceCollectionBuilderExtensions.cs" />
+    <Compile Include="Metadata\Builders\SqliteReferenceReferenceBuilderExtensions.cs" />
+    <Compile Include="Metadata\Builders\SqliteCollectionReferenceBuilderExtensions.cs" />
+    <Compile Include="Metadata\Builders\SqliteIndexBuilderExtensions.cs" />
+    <Compile Include="Metadata\Builders\SqliteKeyBuilderExtensions.cs" />
+    <Compile Include="Metadata\Builders\SqlitePropertyBuilderExtensions.cs" />
+    <Compile Include="Metadata\ISqliteEntityTypeExtensions.cs" />
+    <Compile Include="Metadata\ISqliteForeignKeyExtensions.cs" />
+    <Compile Include="Metadata\ISqliteIndexExtensions.cs" />
+    <Compile Include="Metadata\ISqliteKeyExtensions.cs" />
+    <Compile Include="Metadata\ISqliteModelExtensions.cs" />
+    <Compile Include="Metadata\ISqlitePropertyExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlySqliteEntityTypeExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlySqliteForeignKeyExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlySqliteIndexExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlySqliteKeyExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlySqliteModelExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlySqlitePropertyExtensions.cs" />
+    <Compile Include="Metadata\SqliteAnnotationNames.cs" />
+    <Compile Include="Metadata\SqliteEntityTypeExtensions.cs" />
+    <Compile Include="Metadata\SqliteForeignKeyExtensions.cs" />
+    <Compile Include="Metadata\SqliteIndexExtensions.cs" />
+    <Compile Include="Metadata\SqliteKeyExtensions.cs" />
     <Compile Include="Metadata\SqliteMetadataExtensionProvider.cs" />
+    <Compile Include="Metadata\SqliteMetadataExtensions.cs" />
+    <Compile Include="Metadata\SqliteModelExtensions.cs" />
+    <Compile Include="Metadata\SqlitePropertyExtensions.cs" />
     <Compile Include="Migrations\SqliteHistoryRepository.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGenerator.cs" />
+    <Compile Include="Query\Methods\MathAbsTranslator.cs" />
+    <Compile Include="Query\Methods\StringLengthTranslator.cs" />
+    <Compile Include="Query\Methods\StringToLowerTranslator.cs" />
+    <Compile Include="Query\Methods\StringToUpperTranslator.cs" />
     <Compile Include="Query\SqliteQueryCompilationContext.cs" />
-    <Compile Include="Query\SqliteQueryGenerator.cs" />
+    <Compile Include="Query\SqliteQuerySqlGenerator.cs" />
+    <Compile Include="SqliteCompositeMemberTranslator.cs" />
     <Compile Include="SqliteDataStoreConnection.cs" />
     <Compile Include="SqliteDataStoreCreator.cs" />
+    <Compile Include="SqliteEntityOptionsBuilderExtensions.cs" />
+    <Compile Include="SqliteEntityFrameworkServicesBuilderExtensions.cs" />
+    <Compile Include="SqliteCompositeMethodCallTranslator.cs" />
     <Compile Include="SqliteModelSource.cs" />
     <Compile Include="SqliteSqlGenerator.cs" />
     <Compile Include="SqliteTypeMapper.cs" />

@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
-                        var optionsBuilder = new DbContextOptionsBuilder();
+                        var optionsBuilder = new EntityOptionsBuilder();
                         optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName));
 
                         using (var context = new StoreGeneratedContext(_serviceProvider, optionsBuilder.Options))
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public override DbContext CreateContext(SqlServerTestStore testStore)
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
+                var optionsBuilder = new EntityOptionsBuilder();
                 optionsBuilder.UseSqlServer(testStore.Connection);
 
                 var context = new StoreGeneratedContext(_serviceProvider, optionsBuilder.Options);

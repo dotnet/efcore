@@ -5,6 +5,7 @@ using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations.History;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
+using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Storage;
 
@@ -24,5 +25,8 @@ namespace Microsoft.Data.Entity.Relational
         IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
         IRelationalDataStoreCreator RelationalDataStoreCreator { get; }
         IRelationalMetadataExtensionProvider MetadataExtensionProvider { get; }
+        ISqlStatementExecutor SqlStatementExecutor { get; }
+        IMethodCallTranslator CompositeMethodCallTranslator { get; }
+        IMemberTranslator CompositeMemberTranslator { get; }
     }
 }

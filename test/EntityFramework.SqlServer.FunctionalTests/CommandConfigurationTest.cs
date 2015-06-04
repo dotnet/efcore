@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var selectExpression = new SelectExpression();
 
-            return new CommandBuilder(() => new DefaultSqlQueryGenerator(selectExpression), new UntypedValueBufferFactoryFactory());
+            return new CommandBuilder(() => new DefaultQuerySqlGenerator(selectExpression), new UntypedValueBufferFactoryFactory());
         }
 
         [Fact]
@@ -340,7 +340,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public int CountLinesContaining(string source, string searchTerm)
         {
-            string[] text = source.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            var text = source.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             var matchQuery = from word in text
                 where word.Contains(searchTerm)
@@ -377,7 +377,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
 
             public override ModificationCommandBatch Create(
-                IDbContextOptions options,
+                IEntityOptions options,
                 IRelationalMetadataExtensionProvider metadataExtensionProvider)
             {
                 var optionsExtension = options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
@@ -400,7 +400,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<KettleChips> Chips { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName));
             }
@@ -420,7 +420,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
             }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer("Database=" + DatabaseName).CommandTimeout(77);
 

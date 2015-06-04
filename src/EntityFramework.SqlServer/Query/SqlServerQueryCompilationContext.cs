@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
+using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.SqlServer.Query
 {
@@ -27,7 +28,8 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] IQueryMethodProvider queryMethodProvider,
-            [NotNull] IMethodCallTranslator methodCallTranslator,
+            [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
+            [NotNull] IMemberTranslator compositeMembrTranslator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
                 Check.NotNull(model, nameof(model)),
@@ -38,13 +40,14 @@ namespace Microsoft.Data.Entity.SqlServer.Query
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
                 Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)),
                 Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
-                Check.NotNull(methodCallTranslator, nameof(methodCallTranslator)),
+                Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator)),
+                Check.NotNull(compositeMembrTranslator, nameof(compositeMembrTranslator)),
                 Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory)))
         {
         }
 
         public override ISqlQueryGenerator CreateSqlQueryGenerator(SelectExpression selectExpression) 
-            => new SqlServerQueryGenerator(Check.NotNull(selectExpression, nameof(selectExpression)));
+            => new SqlServerQuerySqlGenerator(Check.NotNull(selectExpression, nameof(selectExpression)));
 
         public override string GetTableName(IEntityType entityType) 
             => Check.NotNull(entityType, nameof(entityType)).SqlServer().Table;

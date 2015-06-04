@@ -423,8 +423,8 @@ namespace Microsoft.Data.Entity.Query
                 return true;
             }
 
-            return QueryCompilationContext.QueryAnnotations
-                .OfType<AsNoTrackingQueryAnnotation>()
+            return QueryCompilationContext
+                .GetCustomQueryAnnotations(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo)
                 .All(qa => qa.QuerySource != querySource);
         }
 
@@ -1009,7 +1009,7 @@ namespace Microsoft.Data.Entity.Query
 
             var properties = new List<IPropertyBase>();
 
-            while (memberExpression != null)
+            while (memberExpression?.Expression != null)
             {
                 var entityType
                     = QueryCompilationContext.Model

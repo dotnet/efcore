@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .Name(null);
 
-            Assert.Null(foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
         }
 
         [Fact]
@@ -247,7 +247,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .Name(null);
 
-            Assert.Null(foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
         }
 
         [Fact]
@@ -312,7 +312,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .Name(null);
 
-            Assert.Null(foreignKey.Relational().Name);
+            Assert.Equal("FK_OrderDetails_Order_OrderId", foreignKey.Relational().Name);
         }
 
         [Fact]

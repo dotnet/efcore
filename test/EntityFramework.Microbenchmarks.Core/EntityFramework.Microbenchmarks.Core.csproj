@@ -39,13 +39,13 @@
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
+    <PackageReference Include="Microsoft.Framework.Configuration">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Abstractions">
+    <PackageReference Include="Microsoft.Framework.Configuration.Abstractions">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Json">
+    <PackageReference Include="Microsoft.Framework.Configuration.Json">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">

@@ -13,13 +13,13 @@ namespace Microsoft.Data.Entity.Internal
     {
         IDbContextServices Initialize(
             [NotNull] IServiceProvider scopedProvider,
-            [NotNull] IDbContextOptions contextOptions,
+            [NotNull] IEntityOptions contextOptions,
             [NotNull] DbContext context,
             ServiceProviderSource serviceProviderSource);
 
         DbContext Context { get; }
         IModel Model { get; }
-        IDbContextOptions ContextOptions { get; }
+        IEntityOptions ContextOptions { get; }
         IDataStoreServices DataStoreServices { get; }
         IServiceProvider ServiceProvider { get; }
     }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.AspNet.Testing;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Xunit;
 
@@ -13,16 +14,25 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             base.From_sql_queryable_simple();
 
             Assert.Equal(
-                @"SELECT * FROM Customers",
+                @"SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'",
                 Sql);
         }
 
-        public override void From_sql_queryable_filter()
+        public override void From_sql_queryable_simple_columns_out_of_order()
         {
-            base.From_sql_queryable_filter();
+            base.From_sql_queryable_simple_columns_out_of_order();
 
             Assert.Equal(
-                @"SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'",
+                @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM Customers",
+                Sql);
+        }
+
+        public override void From_sql_queryable_simple_columns_out_of_order_and_extra_columns()
+        {
+            base.From_sql_queryable_simple_columns_out_of_order_and_extra_columns();
+
+            Assert.Equal(
+                @"SELECT [Region], [PostalCode], [PostalCode] AS Foo, [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM Customers",
                 Sql);
         }
 
@@ -36,6 +46,42 @@ FROM (
     SELECT * FROM Customers
 ) AS [c]
 WHERE [c].[ContactName] LIKE ('%' + 'z' + '%')",
+                Sql);
+        }
+
+        public override void From_sql_queryable_multiple_composed()
+        {
+            base.From_sql_queryable_multiple_composed();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT * FROM Customers
+) AS [c]
+CROSS JOIN (
+    SELECT * FROM Orders
+) AS [o]
+WHERE [c].[CustomerID] = [o].[CustomerID]",
+                Sql);
+        }
+
+        [ReplaceCulture]
+        public override void From_sql_queryable_multiple_composed_with_closure_parameters()
+        {
+            base.From_sql_queryable_multiple_composed_with_closure_parameters();
+
+            Assert.Equal(
+                @"@p0: 01/01/1997 00:00:00
+@p1: 01/01/1998 00:00:00
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT * FROM Customers
+) AS [c]
+CROSS JOIN (
+    SELECT * FROM Orders WHERE OrderDate BETWEEN @p0 AND @p1
+) AS [o]
+WHERE [c].[CustomerID] = [o].[CustomerID]",
                 Sql);
         }
 
@@ -63,26 +109,6 @@ FROM (
 WHERE [c].[City] = 'London'",
                 Sql);
         }
-
-        public override void From_sql_queryable_with_columns_reordered()
-        {
-            base.From_sql_queryable_with_columns_reordered();
-
-            Assert.Equal(@"SELECT
-    Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM
-    Customers
-WHERE
-    CustomerID = 'ALFKI'
-
-SELECT
-    Region, PostalCode, Phone, Fax, CustomerID, Country, ContactTitle, ContactName, CompanyName, City, Address
-FROM
-    Customers
-WHERE
-    CustomerID = 'ALFKI'",
-                Sql);
-}
 
         public override void From_sql_queryable_with_parameters()
         {

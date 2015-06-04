@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
+                    var optionsBuilder = new EntityOptionsBuilder();
                     optionsBuilder.UseSqlite(_connectionString);
 
                     using (var context = new GearsOfWarContext(_serviceProvider, optionsBuilder.Options))
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
         public override GearsOfWarContext CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new EntityOptionsBuilder();
             optionsBuilder.UseSqlite(testStore.Connection);
 
             var context = new GearsOfWarContext(_serviceProvider, optionsBuilder.Options);

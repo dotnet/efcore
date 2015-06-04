@@ -4,27 +4,35 @@
 using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
     public class RelationalSizedTypeMapping : RelationalTypeMapping
     {
-        public RelationalSizedTypeMapping([NotNull] string storeTypeName, DbType storeType, int size)
-            : base(storeTypeName, storeType)
+        public RelationalSizedTypeMapping(
+            [NotNull] string defaultTypeName,
+            DbType? storeType,
+            int size)
+            : base(defaultTypeName, storeType)
         {
             Size = size;
         }
 
-        protected override void ConfigureParameter(DbParameter parameter, ColumnModification columnModification)
+        public RelationalSizedTypeMapping(
+            [NotNull] string defaultTypeName,
+            int size)
+            : this(defaultTypeName, null, size)
+        {
+        }
+
+        protected override void ConfigureParameter(DbParameter parameter)
         {
             Check.NotNull(parameter, nameof(parameter));
-            Check.NotNull(columnModification, nameof(columnModification));
 
             parameter.Size = Size;
 
-            base.ConfigureParameter(parameter, columnModification);
+            base.ConfigureParameter(parameter);
         }
 
         public virtual int Size { get; }

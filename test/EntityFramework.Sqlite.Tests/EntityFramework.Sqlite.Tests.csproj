@@ -75,7 +75,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="Extensions\SqliteDbContextOptionsBuilderExtensionsTest.cs" />
+    <Compile Include="Extensions\SqliteEntityOptionsBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\Builders\SqliteBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\SqliteMetadataExtensionsTest.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGeneratorTest.cs" />
     <Compile Include="SqliteSqlGeneratorTest.cs" />
     <None Include="packages.config" />

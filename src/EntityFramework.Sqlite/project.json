@@ -11,7 +11,10 @@
   "compile": "..\\Shared\\*.cs",
   "frameworks": {
     "net45": { },
-    "dnxcore50": { },
-    ".NETPortable,Version=v4.5,Profile=Profile7": { }
+    "dotnet": {
+      "dependencies": {
+        "System.IO.FileSystem": "4.0.0-*"
+      }
+    }
   }
 }

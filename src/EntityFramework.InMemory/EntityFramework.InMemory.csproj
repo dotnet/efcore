@@ -79,7 +79,7 @@
     <Compile Include="Metadata\EntityTypeNameEqualityComparer.cs" />
     <Compile Include="Query\InMemoryQueryCompilationContext.cs" />
     <Compile Include="Query\InMemoryQueryContext.cs" />
-    <Compile Include="Extensions\InMemoryDbContextOptionsExtensions.cs" />
+    <Compile Include="Extensions\InMemoryEntityOptionsExtensions.cs" />
     <Compile Include="Extensions\InMemoryEntityServicesBuilderExtensions.cs" />
     <Compile Include="InMemoryIntegerValueGenerator.cs" />
     <Compile Include="InMemoryValueGeneratorCache.cs" />

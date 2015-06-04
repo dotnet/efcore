@@ -13,40 +13,6 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public interface ISqlStatementExecutor
-    {
-        Task ExecuteNonQueryAsync(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
-            [NotNull] IEnumerable<SqlBatch> sqlBatches,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        Task<object> ExecuteScalarAsync(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
-            [NotNull] string sql,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        Task<object> ExecuteAsync(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] Func<Task<object>> action,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        void ExecuteNonQuery(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
-            [NotNull] IEnumerable<SqlBatch> sqlBatches);
-
-        object ExecuteScalar(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
-            [NotNull] string sql);
-
-        object Execute(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] Func<object> action);
-    }
-
     public class SqlStatementExecutor : ISqlStatementExecutor
     {
         private readonly LazyRef<ILogger> _logger;

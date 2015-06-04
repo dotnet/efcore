@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.AspNet.Testing;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
+using Xunit.Abstractions;
 
 #if DNXCORE50
 using System.Threading;
@@ -554,7 +556,20 @@ FROM (
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID] OFFSET 5 ROWS",
+ORDER BY [c].[CustomerID]
+OFFSET 5 ROWS",
+                Sql);
+        }
+
+        public override void Skip_no_orderby()
+        {
+            base.Skip_no_orderby();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY @@ROWCOUNT
+OFFSET 5 ROWS",
                 Sql);
         }
 
@@ -565,7 +580,8 @@ ORDER BY [c].[CustomerID] OFFSET 5 ROWS",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY [c].[ContactName] OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY",
+ORDER BY [c].[ContactName]
+OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY",
                 Sql);
         }
 
@@ -580,7 +596,8 @@ FROM (
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactName]
 ) AS [t0]
-ORDER BY [t0].[ContactName] OFFSET 5 ROWS",
+ORDER BY [t0].[ContactName]
+OFFSET 5 ROWS",
                 Sql);
         }
 
@@ -597,7 +614,8 @@ FROM (
         FROM [Customers] AS [c]
         ORDER BY [c].[ContactName]
     ) AS [t0]
-    ORDER BY [t0].[ContactName] OFFSET 5 ROWS
+    ORDER BY [t0].[ContactName]
+    OFFSET 5 ROWS
 ) AS [t1]",
                 Sql);
         }
@@ -1122,7 +1140,21 @@ WHERE [e].[ReportsTo] = @__nullableIntPrm_0",
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]",
+FROM [Customers] AS [c]
+WHERE (LEN([c].[City]) = 6)",
+                Sql);
+        }
+
+        public override void Where_datetime_now()
+        {
+            base.Where_datetime_now();
+
+            Assert.Equal(
+                @"@__myDatetime_0: 4/10/2015 12:00:00 AM
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (GETDATE() <> @__myDatetime_0)",
                 Sql);
         }
 
@@ -1453,7 +1485,7 @@ CROSS JOIN [Employees] AS [e3]",
             Assert.Equal(
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
-CROSS JOIN [Orders] AS [o]", 
+CROSS JOIN [Orders] AS [o]",
                 Sql);
         }
 
@@ -1464,7 +1496,7 @@ CROSS JOIN [Orders] AS [o]",
             Assert.Equal(
                 @"SELECT COUNT_BIG(*)
 FROM [Customers] AS [c]
-CROSS JOIN [Orders] AS [o]", 
+CROSS JOIN [Orders] AS [o]",
                 Sql);
         }
 
@@ -1481,7 +1513,7 @@ CROSS JOIN [Orders] AS [o]",
             CROSS JOIN [Orders] AS [o])
         )
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END", 
+END",
                 Sql);
         }
 
@@ -2187,6 +2219,7 @@ WHERE [c].[ContactName] LIKE @__LocalMethod1_0 + '%'",
                 Sql);
         }
 
+
         public override void String_EndsWith_Literal()
         {
             base.String_EndsWith_Literal();
@@ -2285,6 +2318,28 @@ WHERE [c].[ContactName] LIKE ('%' + @__LocalMethod1_0 + '%')",
                 Sql);
         }
 
+        public override void Where_string_to_lower()
+        {
+            base.Where_string_to_lower();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (LOWER([c].[CustomerID]) = 'alfki')",
+                Sql);
+        }
+
+        public override void Where_string_to_upper()
+        {
+            base.Where_string_to_upper();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (UPPER([c].[CustomerID]) = 'ALFKI')",
+                Sql);
+        }
+
         public override void Select_nested_collection()
         {
             base.Select_nested_collection();
@@ -2367,12 +2422,13 @@ INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]",
                 Sql);
         }
 
+        [ReplaceCulture]
         public override void Where_chain()
         {
             base.Where_chain();
 
             Assert.Equal(
-                @"@__p_0: 1/1/1998 12:00:00 AM
+                @"@__p_0: 01/01/1998 00:00:00
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -2593,7 +2649,8 @@ FROM (
         FROM [Customers] AS [c]
         ORDER BY COALESCE([c].[Region], 'ZZ')
     ) AS [t0]
-    ORDER BY COALESCE([t0].[Region], 'ZZ') OFFSET 5 ROWS
+    ORDER BY COALESCE([t0].[Region], 'ZZ')
+    OFFSET 5 ROWS
 ) AS [t1]", Sql);
         }
 
@@ -2617,7 +2674,8 @@ FROM (
     FROM [Customers] AS [c]
     ORDER BY [Coalesce]
 ) AS [t0]
-ORDER BY [Coalesce] OFFSET 5 ROWS",
+ORDER BY [Coalesce]
+OFFSET 5 ROWS",
             Sql);
         }
 
@@ -2632,9 +2690,10 @@ ORDER BY COALESCE([c].[Region], 'ZZ')",
                 Sql);
         }
 
-        public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture)
+        public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

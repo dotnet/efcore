@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var inMemoryTestStore = testStore as InMemoryTestStore;
             if (inMemoryTestStore != null)
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
+                var optionsBuilder = new EntityOptionsBuilder();
                 optionsBuilder.UseInMemoryStore();
 
                 return new CrossStoreContext(_serviceProvider, optionsBuilder.Options);
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var sqliteTestStore = testStore as SqliteTestStore;
             if (sqliteTestStore != null)
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
+                var optionsBuilder = new EntityOptionsBuilder();
                 optionsBuilder.UseSqlite(sqliteTestStore.Connection);
 
                 var context = new CrossStoreContext(_serviceProvider, optionsBuilder.Options);
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var sqlServerTestStore = testStore as SqlServerTestStore;
             if (sqlServerTestStore != null)
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
+                var optionsBuilder = new EntityOptionsBuilder();
                 optionsBuilder.UseSqlServer(sqlServerTestStore.Connection);
 
                 var context = new CrossStoreContext(_serviceProvider, optionsBuilder.Options);

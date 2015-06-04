@@ -75,15 +75,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return currentExpression;
         }
 
-        private class ReducingExpressionVisitor : ExpressionTreeVisitor
-        {
-            public override Expression VisitExpression(Expression node)
-                => node != null
-                   && node.CanReduce
-                    ? base.VisitExpression(node.Reduce())
-                    : base.VisitExpression(node);
-        }
-
         private class ParameterExpressionDetectingVisitor : ExpressionTreeVisitor
         {
             public bool ContainsParameters { get; set; }

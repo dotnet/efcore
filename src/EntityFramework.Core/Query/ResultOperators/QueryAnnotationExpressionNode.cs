@@ -4,6 +4,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
@@ -12,7 +13,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
 {
     public class QueryAnnotationExpressionNode : ResultOperatorExpressionNodeBase
     {
-        public static readonly MethodInfo[] SupportedMethods = { QueryAnnotationExtensions.AnnotateQueryMethodInfo };
+        public static readonly MethodInfo[] SupportedMethods = { QueryAnnotationExtensions.QueryAnnotationMethodInfo };
 
         private readonly ConstantExpression _annotationExpression;
 

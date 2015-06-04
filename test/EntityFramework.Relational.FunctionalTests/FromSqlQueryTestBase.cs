@@ -18,11 +18,11 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers")
+                    .FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'")
                     .ToArray();
 
-                Assert.Equal(91, actual.Length);
-                Assert.Equal(91, context.ChangeTracker.Entries().Count());
+                Assert.Equal(14, actual.Length);
+                Assert.Equal(14, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -71,20 +71,6 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         [Fact]
-        public virtual void From_sql_queryable_filter()
-        {
-            using (var context = CreateContext())
-            {
-                var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'")
-                    .ToArray();
-
-                Assert.Equal(14, actual.Length);
-                Assert.Equal(14, context.ChangeTracker.Entries().Count());
-            }
-        }
-
-        [Fact]
         public virtual void From_sql_queryable_composed()
         {
             using (var context = CreateContext())
@@ -95,6 +81,43 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                     .ToArray();
 
                 Assert.Equal(14, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_multiple_composed()
+        {
+            using (var context = CreateContext())
+            {
+                var actual
+                    = (from c in context.Set<Customer>().FromSql("SELECT * FROM Customers")
+                       from o in context.Set<Order>().FromSql("SELECT * FROM Orders")
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
+                        .ToArray();
+
+                Assert.Equal(830, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_multiple_composed_with_closure_parameters()
+        {
+            var startDate = new DateTime(1997, 1, 1);
+            var endDate = new DateTime(1998, 1, 1);
+
+            using (var context = CreateContext())
+            {
+                var actual
+                    = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM Customers")
+                       from o in context.Set<Order>().FromSql("SELECT * FROM Orders WHERE OrderDate BETWEEN {0} AND {1}",
+                        startDate,
+                        endDate)
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
+                        .ToArray();
+
+                Assert.Equal(411, actual.Length);
             }
         }
 
@@ -127,48 +150,6 @@ FROM Customers")
 
                 Assert.Equal(6, actual.Length);
                 Assert.True(actual.All(c => c.City == "London"));
-            }
-        }
-
-        [Fact]
-        public virtual void From_sql_queryable_with_columns_reordered()
-        {
-            using (var context = CreateContext())
-            {
-                var ascending = context.Set<Customer>()
-                    .FromSql(@"SELECT
-    Address, City, CompanyName, ContactName, ContactTitle, Country, CustomerID, Fax, Phone, PostalCode, Region
-FROM
-    Customers
-WHERE
-    CustomerID = 'ALFKI'")
-                    .ToArray()
-                    .Single();
-
-                var descending = context.Set<Customer>()
-                    .FromSql(@"SELECT
-    Region, PostalCode, Phone, Fax, CustomerID, Country, ContactTitle, ContactName, CompanyName, City, Address
-FROM
-    Customers
-WHERE
-    CustomerID = 'ALFKI'")
-                    .ToArray()
-                    .Single();
-
-                foreach (var actual in new[] { ascending, descending })
-                {
-                    Assert.Equal("ALFKI", actual.CustomerID);
-                    Assert.Equal("Alfreds Futterkiste", actual.CompanyName);
-                    Assert.Equal("Maria Anders", actual.ContactName);
-                    Assert.Equal("Sales Representative", actual.ContactTitle);
-                    Assert.Equal("Obere Str. 57", actual.Address);
-                    Assert.Equal("Berlin", actual.City);
-                    Assert.Null(actual.Region);
-                    Assert.Equal("12209", actual.PostalCode);
-                    Assert.Equal("Germany", actual.Country);
-                    Assert.Equal("030-0074321", actual.Phone);
-                    Assert.Equal("030-0076545", actual.Fax);
-                }
             }
         }
 

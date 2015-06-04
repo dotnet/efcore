@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.AspNet.Testing;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
@@ -1140,7 +1141,8 @@ WHERE ""e"".""ReportsTo"" = @__nullableIntPrm_0",
 
             Assert.Equal(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""",
+FROM ""Customers"" AS ""c""
+WHERE (length(""c"".""City"") = 6)",
                 Sql);
         }
 
@@ -2306,6 +2308,28 @@ WHERE ""c"".""ContactName"" LIKE ('%' || @__LocalMethod1_0 || '%')",
                 Sql);
         }
 
+        public override void Where_string_to_lower()
+        {
+            base.Where_string_to_lower();
+
+            Assert.Equal(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (lower(""c"".""CustomerID"") = 'alfki')",
+                Sql);
+        }
+
+        public override void Where_string_to_upper()
+        {
+            base.Where_string_to_upper();
+
+            Assert.Equal(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (upper(""c"".""CustomerID"") = 'ALFKI')",
+                Sql);
+        }
+
         public override void Select_nested_collection()
         {
             base.Select_nested_collection();
@@ -2388,12 +2412,13 @@ INNER JOIN ""Orders"" AS ""o0"" ON ""o"".""CustomerID"" = ""o0"".""CustomerID"""
                 Sql);
         }
 
+        [ReplaceCulture]
         public override void Where_chain()
         {
             base.Where_chain();
 
             Assert.Equal(
-                @"@__p_0: 1/1/1998 12:00:00 AM
+                @"@__p_0: 01/01/1998 00:00:00
 
 SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""

@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Relational.Update
     public interface IModificationCommandBatchFactory
     {
         ModificationCommandBatch Create(
-            [NotNull] IDbContextOptions options,
+            [NotNull] IEntityOptions options,
             [NotNull] IRelationalMetadataExtensionProvider metadataExtensionProvider);
 
         bool AddCommand(

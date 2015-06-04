@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +32,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var relationalTypeMapper = new RelationalTypeMapper();
+            var relationalTypeMapper = new ConcreteTypeMapper();
             var batchExecutor = new BatchExecutorForTest(relationalTypeMapper);
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
@@ -59,7 +61,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var relationalTypeMapper = new RelationalTypeMapper();
+            var relationalTypeMapper = new ConcreteTypeMapper();
             var batchExecutor = new BatchExecutorForTest(relationalTypeMapper);
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
@@ -83,10 +85,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             {
             }
 
-            protected override ILogger Logger
-            {
-                get { return null; }
-            }
+            protected override ILogger Logger => null;
+        }
+
+        private class ConcreteTypeMapper : RelationalTypeMapper
+        {
+            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
+                = new Dictionary<Type, RelationalTypeMapping>();
+
+            protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
+                = new Dictionary<string, RelationalTypeMapping>();
         }
     }
 }

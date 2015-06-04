@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
     public class CollectionNavigationBuilder<TEntity, TRelatedEntity> : CollectionNavigationBuilder
         where TEntity : class
+        where TRelatedEntity : class
     {
         /// <summary>
         ///     <para>

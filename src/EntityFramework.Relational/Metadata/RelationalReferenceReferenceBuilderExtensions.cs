@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity
             [NotNull] this ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder,
             [CanBeNull] string name)
             where TEntity : class
+            where TRelatedEntity : class
             => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)Name(
                 (ReferenceReferenceBuilder)referenceReferenceBuilder, name);
     }

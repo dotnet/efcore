@@ -7,11 +7,6 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class AsNoTrackingInMemoryTest : AsNoTrackingTestBase<NorthwindQueryInMemoryFixture>
     {
-        public override void Applied_to_projection()
-        {
-            base.Applied_to_projection();
-        }
-
         public AsNoTrackingInMemoryTest(NorthwindQueryInMemoryFixture fixture)
             : base(fixture)
         {

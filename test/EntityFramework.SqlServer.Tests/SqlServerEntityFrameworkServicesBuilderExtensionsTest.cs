@@ -33,15 +33,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             // SQL Server dingletones
             VerifySingleton<SqlServerModelBuilderFactory>();
             VerifySingleton<ISqlServerValueGeneratorCache>();
-            VerifySingleton<ISqlServerSequenceValueGeneratorFactory>();
             VerifySingleton<ISqlServerSqlGenerator>();
             VerifySingleton<ISqlStatementExecutor>();
             VerifySingleton<SqlServerTypeMapper>();
-            VerifySingleton<SqlServerModificationCommandBatchFactory>();
             VerifySingleton<SqlServerModelSource>();
             VerifySingleton<SqlServerMetadataExtensionProvider>();
 
             // SQL Server scoped
+            VerifyScoped<SqlServerModificationCommandBatchFactory>();
+            VerifyScoped<ISqlServerSequenceValueGeneratorFactory>();
             VerifyScoped<SqlServerValueGeneratorSelector>();
             VerifyScoped<SqlServerDataStoreServices>();
             VerifyScoped<SqlServerDataStore>();
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ServiceCollection();
         }
 
-        protected override DbContextOptions GetOptions()
+        protected override EntityOptions GetOptions()
         {
             return SqlServerTestHelpers.Instance.CreateOptions();
         }

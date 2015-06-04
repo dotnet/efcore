@@ -3,16 +3,17 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Query;
+using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.ValueGeneration;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
+using JetBrains.Annotations;
 
 // Intentionally in this namespace since this is for use by other relational providers rather than
 // by top-level app developers.
@@ -29,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>()
                 .AddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()
                 .AddSingleton<IMigrationIdGenerator, MigrationIdGenerator>()
-                .AddSingleton<ISqlStatementExecutor, SqlStatementExecutor>()
+                .AddSingleton<SqlStatementExecutor>()
                 .AddSingleton<UntypedValueBufferFactoryFactory>()
                 .AddSingleton<TypedValueBufferFactoryFactory>()
                 .AddSingleton<IMigrationModelFactory, MigrationModelFactory>()
@@ -41,6 +42,9 @@ namespace Microsoft.Data.Entity.Relational
                 .AddScoped<RelationalDatabaseFactory>()
                 .AddScoped<RelationalValueGeneratorSelector>()
                 .AddScoped<CommandBatchPreparer>()
+                .AddScoped(p => GetStoreServices(p).SqlStatementExecutor)
+                .AddScoped(p => GetStoreServices(p).CompositeMethodCallTranslator)
+                .AddScoped(p => GetStoreServices(p).CompositeMemberTranslator)
                 .AddScoped(p => GetStoreServices(p).ModelDiffer)
                 .AddScoped(p => GetStoreServices(p).HistoryRepository)
                 .AddScoped(p => GetStoreServices(p).MigrationSqlGenerator)

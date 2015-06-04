@@ -168,8 +168,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .Key(e => e.Id)
                 .Metadata;
 
-            Assert.Null(key.Relational().Name);
-            Assert.Null(((IKey)key).Relational().Name);
+            Assert.Equal("PK_Customer", key.Relational().Name);
+            Assert.Equal("PK_Customer", ((IKey)key).Relational().Name);
 
             key.Relational().Name = "PrimaryKey";
 
@@ -178,8 +178,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             key.Relational().Name = null;
 
-            Assert.Null(key.Relational().Name);
-            Assert.Null(((IKey)key).Relational().Name);
+            Assert.Equal("PK_Customer", key.Relational().Name);
+            Assert.Equal("PK_Customer", ((IKey)key).Relational().Name);
         }
 
         [Fact]
@@ -198,8 +198,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .ForeignKey<Order>(e => e.CustomerId)
                 .Metadata;
 
-            Assert.Null(foreignKey.Relational().Name);
-            Assert.Null(((IForeignKey)foreignKey).Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).Relational().Name);
 
             foreignKey.Relational().Name = "FK";
 
@@ -208,8 +208,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             foreignKey.Relational().Name = null;
 
-            Assert.Null(foreignKey.Relational().Name);
-            Assert.Null(((IForeignKey)foreignKey).Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
+            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).Relational().Name);
         }
 
         [Fact]
@@ -222,8 +222,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .Index(e => e.Id)
                 .Metadata;
 
-            Assert.Null(index.Relational().Name);
-            Assert.Null(((IIndex)index).Relational().Name);
+            Assert.Equal("IX_Customer_Id", index.Relational().Name);
+            Assert.Equal("IX_Customer_Id", ((IIndex)index).Relational().Name);
 
             index.Relational().Name = "MyIndex";
 
@@ -232,8 +232,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             index.Relational().Name = null;
 
-            Assert.Null(index.Relational().Name);
-            Assert.Null(((IIndex)index).Relational().Name);
+            Assert.Equal("IX_Customer_Id", index.Relational().Name);
+            Assert.Equal("IX_Customer_Id", ((IIndex)index).Relational().Name);
         }
 
         [Fact]

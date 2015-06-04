@@ -13,16 +13,25 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             base.From_sql_queryable_simple();
 
             Assert.Equal(
-                @"SELECT * FROM Customers",
+                @"SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'",
                 Sql);
         }
 
-        public override void From_sql_queryable_filter()
+        public override void From_sql_queryable_simple_columns_out_of_order()
         {
-            base.From_sql_queryable_filter();
+            base.From_sql_queryable_simple_columns_out_of_order();
 
             Assert.Equal(
-                @"SELECT * FROM Customers WHERE Customers.ContactName LIKE '%z%'",
+                @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM Customers",
+                Sql);
+        }
+
+        public override void From_sql_queryable_simple_columns_out_of_order_and_extra_columns()
+        {
+            base.From_sql_queryable_simple_columns_out_of_order_and_extra_columns();
+
+            Assert.Equal(
+                @"SELECT [Region], [PostalCode], [PostalCode] AS Foo, [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM Customers",
                 Sql);
         }
 
@@ -36,6 +45,22 @@ FROM (
     SELECT * FROM Customers
 ) AS ""c""
 WHERE ""c"".""ContactName"" LIKE ('%' || 'z' || '%')",
+                Sql);
+        }
+
+        public override void From_sql_queryable_multiple_composed()
+        {
+            base.From_sql_queryable_multiple_composed();
+
+            Assert.Equal(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region"", ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM (
+    SELECT * FROM Customers
+) AS ""c""
+CROSS JOIN (
+    SELECT * FROM Orders
+) AS ""o""
+WHERE ""c"".""CustomerID"" = ""o"".""CustomerID""",
                 Sql);
         }
 
@@ -182,6 +207,32 @@ ORDER BY ""c"".""CustomerID""",
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""",
+                Sql);
+        }
+
+        public override void From_sql_composed_with_nullable_predicate()
+        {
+            base.From_sql_composed_with_nullable_predicate();
+
+            Assert.Equal(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM (
+    SELECT * FROM Customers
+) AS ""c""
+WHERE (""c"".""ContactName"" = ""c"".""CompanyName"" OR (""c"".""ContactName"" IS NULL AND ""c"".""CompanyName"" IS NULL))",
+                Sql);
+        }
+
+        public override void From_sql_composed_with_relational_null_comparison()
+        {
+            base.From_sql_composed_with_relational_null_comparison();
+
+            Assert.Equal(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM (
+    SELECT * FROM Customers
+) AS ""c""
+WHERE ""c"".""ContactName"" = ""c"".""CompanyName""",
                 Sql);
         }
 

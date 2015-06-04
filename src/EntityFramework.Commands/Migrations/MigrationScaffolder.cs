@@ -80,9 +80,10 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             var lastMigration = _migrationAssembly.Migrations.LastOrDefault();
             var migrationNamespace = GetNamespace(lastMigration?.GetType(), rootNamespace + ".Migrations");
             var modelSnapshot = _migrationAssembly.ModelSnapshot;
-            var upOperations = _modelDiffer.GetDifferences(modelSnapshot, _model);
+            var lastModel = _migrationAssembly.LastModel;
+            var upOperations = _modelDiffer.GetDifferences(lastModel, _model);
             var downOperations = upOperations.Any()
-                ? _modelDiffer.GetDifferences(_model, modelSnapshot)
+                ? _modelDiffer.GetDifferences(_model, lastModel)
                 : new List<MigrationOperation>();
             var migrationId = _idGenerator.CreateId(migrationName);
             var modelSnapshotNamespace = GetNamespace(modelSnapshot?.GetType(), migrationNamespace);
@@ -155,6 +156,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 throw new InvalidOperationException(Strings.NoSnapshot);
             }
 
+            var lastModel = _migrationAssembly.LastModel;
             var language = _migrationCodeGenerator.Language;
 
             IModel model = null;
@@ -164,7 +166,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 var migration = migrations.Last();
                 model = _modelFactory.CreateModel(migration.BuildTargetModel);
 
-                if (!_modelDiffer.HasDifferences(model, modelSnapshot))
+                if (!_modelDiffer.HasDifferences(model, lastModel))
                 {
                     if (_historyRepository.GetAppliedMigrations().Any(
                         e => e.MigrationId.Equals(migration.Id, StringComparison.OrdinalIgnoreCase)))

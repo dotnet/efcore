@@ -121,6 +121,7 @@ namespace Microsoft.Data.Entity
             [NotNull] this ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder,
             [NotNull] Action<SqlServerForeignKeyBuilder> builderAction)
             where TEntity : class
+            where TRelatedEntity : class
         {
             Check.NotNull(referenceCollectionBuilder, nameof(referenceCollectionBuilder));
             Check.NotNull(builderAction, nameof(builderAction));
@@ -151,6 +152,7 @@ namespace Microsoft.Data.Entity
             [NotNull] this CollectionReferenceBuilder<TEntity, TRelatedEntity> collectionReferenceBuilder,
             [NotNull] Action<SqlServerForeignKeyBuilder> builderAction)
             where TEntity : class
+            where TRelatedEntity : class
         {
             Check.NotNull(collectionReferenceBuilder, nameof(collectionReferenceBuilder));
             Check.NotNull(builderAction, nameof(builderAction));
@@ -180,6 +182,8 @@ namespace Microsoft.Data.Entity
         public static ReferenceReferenceBuilder<TEntity, TRelatedEntity> ForSqlServer<TEntity, TRelatedEntity>(
             [NotNull] this ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder,
             [NotNull] Action<SqlServerForeignKeyBuilder> builderAction)
+            where TEntity : class
+            where TRelatedEntity : class
         {
             Check.NotNull(referenceReferenceBuilder, nameof(referenceReferenceBuilder));
             Check.NotNull(builderAction, nameof(builderAction));

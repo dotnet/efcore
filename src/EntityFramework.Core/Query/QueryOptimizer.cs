@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -16,9 +17,9 @@ namespace Microsoft.Data.Entity.Query
 {
     public class QueryOptimizer : SubQueryFromClauseFlattener
     {
-        private readonly IReadOnlyCollection<QueryAnnotation> _queryAnnotations;
+        private readonly IReadOnlyCollection<QueryAnnotationBase> _queryAnnotations;
 
-        public QueryOptimizer([NotNull] IReadOnlyCollection<QueryAnnotation> queryAnnotations)
+        public QueryOptimizer([NotNull] IReadOnlyCollection<QueryAnnotationBase> queryAnnotations)
         {
             Check.NotNull(queryAnnotations, nameof(queryAnnotations));
 
