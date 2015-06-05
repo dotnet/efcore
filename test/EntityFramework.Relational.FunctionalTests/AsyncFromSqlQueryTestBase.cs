@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
+using System;
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
@@ -81,6 +82,50 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                         .ToArrayAsync();
 
                 Assert.Equal(830, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual async Task From_sql_queryable_multiple_composed_with_closure_parameters()
+        {
+            var startDate = new DateTime(1997, 1, 1);
+            var endDate = new DateTime(1998, 1, 1);
+
+            using (var context = CreateContext())
+            {
+                var actual
+                    = await (from c in context.Set<Customer>().FromSql(@"SELECT * FROM Customers")
+                       from o in context.Set<Order>().FromSql("SELECT * FROM Orders WHERE OrderDate BETWEEN {0} AND {1}",
+                        startDate,
+                        endDate)
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
+                        .ToArrayAsync();
+
+                Assert.Equal(411, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual async Task From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters()
+        {
+            var city = "London";
+            var startDate = new DateTime(1997, 1, 1);
+            var endDate = new DateTime(1998, 1, 1);
+
+            using (var context = CreateContext())
+            {
+                var actual
+                    = await (from c in context.Set<Customer>().FromSql(@"SELECT * FROM Customers WHERE City = {0}",
+                        city)
+                       from o in context.Set<Order>().FromSql("SELECT * FROM Orders WHERE OrderDate BETWEEN {0} AND {1}",
+                        startDate,
+                        endDate)
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
+                        .ToArrayAsync();
+
+                Assert.Equal(25, actual.Length);
             }
         }
 

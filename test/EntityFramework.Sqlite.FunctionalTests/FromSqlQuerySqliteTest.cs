@@ -64,6 +64,45 @@ WHERE ""c"".""CustomerID"" = ""o"".""CustomerID""",
                 Sql);
         }
 
+        public override void From_sql_queryable_multiple_composed_with_closure_parameters()
+        {
+            base.From_sql_queryable_multiple_composed_with_closure_parameters();
+
+            Assert.Equal(
+                @"@p0: 01/01/1997 00:00:00
+@p1: 01/01/1998 00:00:00
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region"", ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM (
+    SELECT * FROM Customers
+) AS ""c""
+CROSS JOIN (
+    SELECT * FROM Orders WHERE OrderDate BETWEEN @p0 AND @p1
+) AS ""o""
+WHERE ""c"".""CustomerID"" = ""o"".""CustomerID""",
+                Sql);
+        }
+
+        public override void From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters()
+        {
+            base.From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters();
+
+            Assert.Equal(
+                @"@p0: London
+@p1: 01/01/1997 00:00:00
+@p2: 01/01/1998 00:00:00
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region"", ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM (
+    SELECT * FROM Customers WHERE City = @p0
+) AS ""c""
+CROSS JOIN (
+    SELECT * FROM Orders WHERE OrderDate BETWEEN @p1 AND @p2
+) AS ""o""
+WHERE ""c"".""CustomerID"" = ""o"".""CustomerID""",
+                Sql);
+        }
+
         public override void From_sql_queryable_multiple_line_query()
         {
             base.From_sql_queryable_multiple_line_query();
@@ -148,6 +187,15 @@ SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
         public override void From_sql_queryable_simple_as_no_tracking_not_composed()
         {
             base.From_sql_queryable_simple_as_no_tracking_not_composed();
+
+            Assert.Equal(
+                @"SELECT * FROM Customers",
+                Sql);
+        }
+
+        public override void From_sql_queryable_simple_projection_not_composed()
+        {
+            base.From_sql_queryable_simple_projection_not_composed();
 
             Assert.Equal(
                 @"SELECT * FROM Customers",

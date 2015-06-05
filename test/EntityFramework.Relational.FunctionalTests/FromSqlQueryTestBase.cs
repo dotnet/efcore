@@ -122,6 +122,29 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         [Fact]
+        public virtual void From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters()
+        {
+            var city = "London";
+            var startDate = new DateTime(1997, 1, 1);
+            var endDate = new DateTime(1998, 1, 1);
+
+            using (var context = CreateContext())
+            {
+                var actual
+                    = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM Customers WHERE City = {0}",
+                        city)
+                       from o in context.Set<Order>().FromSql("SELECT * FROM Orders WHERE OrderDate BETWEEN {0} AND {1}",
+                        startDate,
+                        endDate)
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
+                        .ToArray();
+
+                Assert.Equal(25, actual.Length);
+            }
+        }
+
+        [Fact]
         public virtual void From_sql_queryable_multiple_line_query()
         {
             using (var context = CreateContext())

@@ -27,6 +27,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         private IndentedStringBuilder _sql;
         private List<CommandParameter> _commandParameters;
         private IDictionary<string, object> _parameterValues;
+        private int _rawSqlParameterIndex;
 
         public DefaultQuerySqlGenerator(
             [NotNull] SelectExpression selectExpression,
@@ -47,6 +48,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             _sql = new IndentedStringBuilder();
             _commandParameters = new List<CommandParameter>();
             _parameterValues = parameterValues;
+            _rawSqlParameterIndex = 0;
 
             Visit(_selectExpression);
 
@@ -239,7 +241,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
                 for (var index = 0; index < rawSqlDerivedTableExpression.Parameters.Count(); index++)
                 {
-                    var parameterName = ParameterPrefix + "p" + index;
+                    var parameterName = ParameterPrefix + "p" + _rawSqlParameterIndex++;
                     var value = rawSqlDerivedTableExpression.Parameters[index];
 
                     _commandParameters.Add(
