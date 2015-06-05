@@ -32,6 +32,7 @@
                 "System.Data.Common": "4.0.0-*",
                 "System.Globalization": "4.0.10-*",
                 "System.Linq": "4.0.0-*",
+                "System.Reflection": "4.0.10-*",
                 "System.Runtime.InteropServices": "4.0.20-*",
                 "System.Threading.Tasks": "4.0.10-*"
             }
