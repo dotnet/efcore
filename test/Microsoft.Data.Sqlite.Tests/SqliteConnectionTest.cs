@@ -105,7 +105,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Open_throws_when_error()
         {
-            var connection = new SqliteConnection("Data Source=/:*?\"<>|");
+            var connection = new SqliteConnection("Data Source=fakeproto://data.db?mode=invalidmode");
 
             var ex = Assert.Throws<SqliteException>(() => connection.Open());
 
