@@ -30,7 +30,7 @@ namespace Microsoft.Framework.Logging
             for (var i = 1; i < parameters.Count; i++)
             {
                 paramList.AppendLine();
-                paramList.AppendFormat(CultureInfo.InvariantCulture, "{0}: {1}", (parameters[i]).ParameterName, Convert.ToString((parameters[i]).Value, CultureInfo.InvariantCulture));
+                paramList.AppendFormat("{0}: {1}", (parameters[i]).ParameterName, Convert.ToString((parameters[i]).Value, CultureInfo.InvariantCulture));
             }
             logger.LogDebug(RelationalLoggingEventIds.Sql, paramList.ToString());
         }
