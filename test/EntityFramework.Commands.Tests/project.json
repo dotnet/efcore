@@ -6,7 +6,7 @@
   },
   "compile": "..\\..\\src\\EntityFramework.Commands\\tools\\Handlers.cs",
   "commands": {
-    "test": "xunit.runner.aspnet"
+    "test": "xunit.runner.dnx"
   },
   "frameworks": {
     "net46": { },
