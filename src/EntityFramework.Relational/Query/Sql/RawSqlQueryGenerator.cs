@@ -20,8 +20,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         private readonly List<CommandParameter> _commandParameters;
 
         public RawSqlQueryGenerator(
-            [NotNull] SelectExpression selectExpression, [NotNull] string sql, [NotNull] object[] parameters)
+            [NotNull] SelectExpression selectExpression, 
+            [NotNull] string sql, 
+            [NotNull] object[] parameters, 
+            [NotNull] IRelationalTypeMapper typeMapper)
         {
+            Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
@@ -30,7 +34,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             _sql = sql;
             _inputParameters = parameters;
             _commandParameters = new List<CommandParameter>();
+            TypeMapper = typeMapper;
         }
+
+        public virtual IRelationalTypeMapper TypeMapper { get; }
 
         public virtual IReadOnlyList<CommandParameter> Parameters => _commandParameters;
 
@@ -48,7 +55,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             {
                 var parameterName = ParameterPrefix + "p" + index;
 
-                _commandParameters.Add(new CommandParameter(parameterName, _inputParameters[index]));
+                var value = _inputParameters[index];
+                _commandParameters.Add(new CommandParameter(parameterName, value, TypeMapper.GetDefaultMapping(value)));
 
                 substitutions[index] = parameterName;
             }

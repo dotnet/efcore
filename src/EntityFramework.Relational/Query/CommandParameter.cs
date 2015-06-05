@@ -8,17 +8,25 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class CommandParameter
     {
-        public CommandParameter([NotNull] string name, [NotNull] object value)
+
+        public CommandParameter(
+            [NotNull] string name, 
+            [NotNull] object value, 
+            [NotNull] RelationalTypeMapping typeMapping)
         {
             Check.NotNull(name, nameof(name));
             Check.NotNull(value, nameof(value));
+            Check.NotNull(typeMapping, nameof(typeMapping));
 
             Name = name;
             Value = value;
+            TypeMapping = typeMapping;
         }
 
         public virtual string Name { get; }
 
         public virtual object Value { get; }
+
+        public virtual RelationalTypeMapping TypeMapping { get; }
     }
 }

@@ -30,7 +30,8 @@ namespace Microsoft.Data.Entity.Sqlite
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
-            [NotNull] IMemberTranslator compositeMemberTranslator)
+            [NotNull] IMemberTranslator compositeMemberTranslator,
+            [NotNull] IRelationalTypeMapper typeMapper)
             : base(
                   model,
                   entityKeyFactorySource,
@@ -43,7 +44,8 @@ namespace Microsoft.Data.Entity.Sqlite
                   loggerFactory,
                   valueBufferFactoryFactory,
                   compositeMethodCallTranslator,
-                  compositeMemberTranslator)
+                  compositeMemberTranslator,
+                  typeMapper)
         {
         }
 
@@ -64,6 +66,7 @@ namespace Microsoft.Data.Entity.Sqlite
                 queryMethodProvider,
                 compositeMethodCallTranslator,
                 compositeMemberTranslator,
-                ValueBufferFactoryFactory);
+                ValueBufferFactoryFactory,
+                TypeMapper);
     }
 }

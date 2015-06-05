@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -32,20 +31,22 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
-            [NotNull] IMemberTranslator compositeMemberTranslator)
+            [NotNull] IMemberTranslator compositeMemberTranslator,
+            [NotNull] IRelationalTypeMapper typeMapper)
             : base(
-                Check.NotNull(model, nameof(model)),
-                Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
-                Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
-                Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)),
-                Check.NotNull(connection, nameof(connection)),
-                Check.NotNull(batchPreparer, nameof(batchPreparer)),
-                Check.NotNull(batchExecutor, nameof(batchExecutor)),
-                Check.NotNull(options, nameof(options)),
-                Check.NotNull(loggerFactory, nameof(loggerFactory)),
-                Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory)),
-                Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator)),
-                Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator)))
+                model,
+                entityKeyFactorySource,
+                entityMaterializerSource,
+                clrPropertyGetterSource,
+                connection,
+                batchPreparer,
+                batchExecutor,
+                options,
+                loggerFactory,
+                valueBufferFactoryFactory,
+                compositeMethodCallTranslator,
+                compositeMemberTranslator,
+                typeMapper)
         {
         }
 
@@ -73,7 +74,8 @@ namespace Microsoft.Data.Entity.SqlServer
                 enumerableMethodProvider,
                 compositeMethodCallTranslator,
                 compositeMemberTranslator,
-                ValueBufferFactoryFactory);
+                ValueBufferFactoryFactory,
+                TypeMapper);
         }
     }
 }

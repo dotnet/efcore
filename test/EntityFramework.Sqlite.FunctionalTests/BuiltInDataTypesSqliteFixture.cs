@@ -90,8 +90,6 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public override void Dispose() => _testStore.Dispose();
 
         public override bool SupportsBinaryKeys => true;
-
-        public override bool SupportsMaxLength => false;
     }
 
     public class MappedDataTypes

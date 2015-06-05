@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         {
             var mapping = GetTypeMapping(typeof(string));
 
-            Assert.Equal("just_string(max)", mapping.DefaultTypeName);
+            Assert.Equal("just_string(2000)", mapping.DefaultTypeName);
         }
 
         [Fact]
@@ -38,6 +38,15 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
 
             Assert.Equal("just_string(666)", mapping.DefaultTypeName);
             Assert.Equal(666, ((RelationalSizedTypeMapping)mapping).Size);
+        }
+
+
+        [Fact]
+        public void Does_type_mapping_from_string_with_MaxLength_greater_than_unbounded_max()
+        {
+            var mapping = GetTypeMapping(typeof(string), 2020);
+
+            Assert.Equal("just_string(max)", mapping.DefaultTypeName);
         }
 
         [Fact]
@@ -55,6 +64,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
 
             Assert.Equal("just_binary(777)", mapping.DefaultTypeName);
             Assert.Equal(777, ((RelationalSizedTypeMapping)mapping).Size);
+        }
+
+        [Fact]
+        public void Does_type_mapping_from_btye_array_greater_than_unbounded_max()
+        {
+            var mapping = GetTypeMapping(typeof(byte[]), 2020);
+
+            Assert.Equal("just_binary(max)", mapping.DefaultTypeName);
         }
 
         private static RelationalTypeMapping GetTypeMapping(Type propertyType, int? maxLength = null)
@@ -86,7 +103,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         {
             var mapping = GetNamedMapping(typeof(string), "some_string(max)");
 
-            Assert.Equal("just_string(max)", mapping.DefaultTypeName);
+            Assert.Equal("just_string(2000)", mapping.DefaultTypeName);
         }
 
         [Fact]
@@ -94,8 +111,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         {
             var mapping = GetNamedMapping(typeof(string), "some_string(666)");
 
-            Assert.Equal("some_string(666)", mapping.DefaultTypeName);
-            Assert.Equal(666, ((RelationalSizedTypeMapping)mapping).Size);
+            Assert.Equal("just_string(2000)", mapping.DefaultTypeName);
         }
 
         [Fact]
@@ -104,15 +120,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             var mapping = GetNamedMapping(typeof(byte[]), "some_binary(max)");
 
             Assert.Equal("just_binary(max)", mapping.DefaultTypeName);
-        }
-
-        [Fact]
-        public void Does_type_mapping_from_named_binary_with_MaxLength()
-        {
-            var mapping = GetNamedMapping(typeof(byte[]), "some_binary(777)");
-
-            Assert.Equal("some_binary(777)", mapping.DefaultTypeName);
-            Assert.Equal(777, ((RelationalSizedTypeMapping)mapping).Size);
         }
 
         private static RelationalTypeMapping GetNamedMapping(Type propertyType, string typeName)
@@ -127,8 +134,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
 
         private class ConcreteTypeMapper : RelationalTypeMapper
         {
-            private static readonly RelationalTypeMapping _string = new RelationalTypeMapping("just_string(max)");
+            private static readonly RelationalTypeMapping _string = new RelationalTypeMapping("just_string(2000)");
+            private static readonly RelationalTypeMapping _unboundedStrng = new RelationalTypeMapping("just_string(max)");
             private static readonly RelationalTypeMapping _stringKey = new RelationalSizedTypeMapping("just_string(450)", 450);
+            private static readonly RelationalTypeMapping _unboundedBinary = new RelationalTypeMapping("just_binary(max)", DbType.Binary);
             private static readonly RelationalTypeMapping _binary = new RelationalTypeMapping("just_binary(max)", DbType.Binary);
             private static readonly RelationalTypeMapping _binaryKey = new RelationalSizedTypeMapping("just_binary(900)", DbType.Binary, 900);
             private static readonly RelationalTypeMapping _rowversion = new RelationalSizedTypeMapping("rowversion", DbType.Binary, 8);
@@ -149,26 +158,21 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
                         { "some_binary(max)", _binary }
                     };
 
-            protected override RelationalTypeMapping TryMapFromName(
-                string typeName,
-                string typeNamePrefix,
-                int? firstQualifier,
-                int? secondQualifier)
-            {
-                return TryMapSized(typeName, typeNamePrefix, new[] { "just_string", "some_string" }, firstQualifier)
-                       ?? TryMapSized(typeName, typeNamePrefix, new[] { "just_binary", "some_binary" }, firstQualifier, DbType.Binary)
-                       ?? base.TryMapFromName(typeName, typeNamePrefix, firstQualifier, secondQualifier);
-            }
-
-            protected override RelationalTypeMapping MapCustom(IProperty property)
+            protected override RelationalTypeMapping GetCustomMapping(IProperty property)
             {
                 var clrType = property.ClrType.UnwrapEnumType();
 
                 return clrType == typeof(string)
-                    ? MapString(property, "just_string", _string, _stringKey)
+                    ? MapString(
+                        property, 2000,
+                        l => new RelationalSizedTypeMapping("just_string(" + l + ")", l),
+                        _unboundedStrng, _string, _stringKey)
                     : clrType == typeof(byte[])
-                        ? MapByteArray(property, "just_binary", _binary, _binaryKey, _rowversion)
-                        : base.MapCustom(property);
+                        ? MapByteArray(
+                            property, 2000,
+                            l => new RelationalSizedTypeMapping("just_binary(" + l + ")", l),
+                            _unboundedBinary, _binary, _binaryKey, _rowversion)
+                        : base.GetCustomMapping(property);
             }
         }
     }

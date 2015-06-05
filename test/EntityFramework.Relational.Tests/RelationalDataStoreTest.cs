@@ -28,6 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var valueBufferMock = new Mock<IRelationalValueBufferFactoryFactory>();
             var methodCallTranslatorMock = new Mock<IMethodCallTranslator>();
             var memberTranslatorMock = new Mock<IMemberTranslator>();
+            var typeMapperMock = new Mock<IRelationalTypeMapper>();
 
             var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
@@ -36,6 +37,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 .AddInstance(valueBufferMock.Object)
                 .AddInstance(methodCallTranslatorMock.Object)
                 .AddInstance(memberTranslatorMock.Object)
+                .AddInstance(typeMapperMock.Object)
                 .AddScoped<FakeRelationalDataStore>();
 
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
@@ -60,6 +62,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var valueBufferMock = new Mock<IRelationalValueBufferFactoryFactory>();
             var methodCallTranslatorMock = new Mock<IMethodCallTranslator>();
             var memberTranslatorMock = new Mock<IMemberTranslator>();
+            var typeMapperMock = new Mock<IRelationalTypeMapper>();
 
             var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
@@ -68,6 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 .AddInstance(valueBufferMock.Object)
                 .AddInstance(methodCallTranslatorMock.Object)
                 .AddInstance(memberTranslatorMock.Object)
+                .AddInstance(typeMapperMock.Object)
                 .AddScoped<FakeRelationalDataStore>();
 
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
@@ -96,7 +100,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 ILoggerFactory loggerFactory,
                 IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
                 IMethodCallTranslator compositeMethodCallTranslator,
-                IMemberTranslator compositeMemberTranslator)
+                IMemberTranslator compositeMemberTranslator,
+                IRelationalTypeMapper typeMapper)
                 : base(
                       model, 
                       entityKeyFactorySource, 
@@ -109,7 +114,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
                       loggerFactory,
                       valueBufferFactoryFactory,
                       compositeMethodCallTranslator,
-                      compositeMemberTranslator)
+                      compositeMemberTranslator,
+                      typeMapper)
             {
             }
         }

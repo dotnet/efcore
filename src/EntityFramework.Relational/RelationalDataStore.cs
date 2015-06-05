@@ -42,13 +42,9 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
-            [NotNull] IMemberTranslator compositeMemberTranslator)
-            : base(
-                Check.NotNull(model, nameof(model)),
-                Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
-                Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
-                Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)),
-                Check.NotNull(loggerFactory, nameof(loggerFactory)))
+            [NotNull] IMemberTranslator compositeMemberTranslator,
+            [NotNull] IRelationalTypeMapper typeMapper)
+            : base(model, entityKeyFactorySource, entityMaterializerSource, clrPropertyGetterSource, loggerFactory)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(batchPreparer, nameof(batchPreparer));
@@ -58,6 +54,7 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
             Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator));
             Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator));
+            Check.NotNull(typeMapper, nameof(typeMapper));
 
             _batchPreparer = batchPreparer;
             _batchExecutor = batchExecutor;
@@ -65,9 +62,12 @@ namespace Microsoft.Data.Entity.Relational
             _options = options;
             _compositeMethodCallTranslator = compositeMethodCallTranslator;
             _compositeMemberTranslator = compositeMemberTranslator;
+            TypeMapper = typeMapper;
 
             ValueBufferFactoryFactory = valueBufferFactoryFactory;
         }
+
+        public virtual IRelationalTypeMapper TypeMapper { get; }
 
         public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
 
@@ -128,6 +128,7 @@ namespace Microsoft.Data.Entity.Relational
                 Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
                 Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator)),
                 Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator)),
-                ValueBufferFactoryFactory);
+                ValueBufferFactoryFactory,
+                TypeMapper);
     }
 }

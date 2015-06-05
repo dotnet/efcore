@@ -26,6 +26,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     b.Property(e => e.ByteArray5).MaxLength(5);
                     b.Property(e => e.String3).MaxLength(3);
+                    b.Property(e => e.ByteArray9000).MaxLength(9000);
+                    b.Property(e => e.String9000).MaxLength(9000);
                 });
         }
 
@@ -42,8 +44,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public abstract void Dispose();
 
         public abstract bool SupportsBinaryKeys { get; }
-
-        public abstract bool SupportsMaxLength { get; }
     }
 
     public class BuiltInDataTypes
@@ -97,6 +97,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public int Id { get; set; }
         public string String3 { get; set; }
         public byte[] ByteArray5 { get; set; }
+        public string String9000 { get; set; }
+        public byte[] ByteArray9000 { get; set; }
     }
 
     public class BinaryKeyDataType

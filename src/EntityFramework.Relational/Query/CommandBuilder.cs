@@ -57,14 +57,11 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             foreach (var commandParameter in sqlQueryGenerator.Parameters)
             {
-                var parameter = command.CreateParameter();
-
-                parameter.ParameterName = commandParameter.Name;
-                parameter.Value = commandParameter.Value;
-
-                // TODO: Parameter facets?
-
-                command.Parameters.Add(parameter);
+                command.Parameters.Add(
+                    commandParameter.TypeMapping.CreateParameter(
+                        command, 
+                        commandParameter.Name, 
+                        commandParameter.Value));
             }
 
             return command;

@@ -13,6 +13,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         IReadOnlyList<CommandParameter> Parameters { get; }
 
+        IRelationalTypeMapper TypeMapper { get; }
+
         IRelationalValueBufferFactory CreateValueBufferFactory(
             [NotNull] IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory,
             [NotNull] DbDataReader dataReader);

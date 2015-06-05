@@ -27,12 +27,17 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         private List<CommandParameter> _commandParameters;
         private IDictionary<string, object> _parameterValues;
 
-        public DefaultQuerySqlGenerator([NotNull] SelectExpression selectExpression)
+        public DefaultQuerySqlGenerator(
+            [NotNull] SelectExpression selectExpression,
+            [CanBeNull] IRelationalTypeMapper typeMapper)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
             _selectExpression = selectExpression;
+            TypeMapper = typeMapper;
         }
+
+        public virtual IRelationalTypeMapper TypeMapper { get; }
 
         public virtual string GenerateSql(IDictionary<string, object> parameterValues)
         {
@@ -234,8 +239,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 for (var index = 0; index < rawSqlDerivedTableExpression.Parameters.Count(); index++)
                 {
                     var parameterName = ParameterPrefix + "p" + index;
+                    var value = rawSqlDerivedTableExpression.Parameters[index];
 
-                    _commandParameters.Add(new CommandParameter(parameterName, rawSqlDerivedTableExpression.Parameters[index]));
+                    _commandParameters.Add(
+                        new CommandParameter(parameterName, value, TypeMapper.GetDefaultMapping(value)));
 
                     substitutions[index] = parameterName;
                 }
@@ -829,7 +836,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             if (_commandParameters.All(commandParameter => commandParameter.Name != parameterName))
             {
-                _commandParameters.Add(new CommandParameter(parameterName, _parameterValues[parameterExpression.Name]));
+                var value = _parameterValues[parameterExpression.Name];
+                _commandParameters.Add(new CommandParameter(parameterName, value, TypeMapper.GetDefaultMapping(value)));
             }
 
             return parameterExpression;

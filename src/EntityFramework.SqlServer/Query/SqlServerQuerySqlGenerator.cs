@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
@@ -12,8 +13,10 @@ namespace Microsoft.Data.Entity.SqlServer.Query
 {
     public class SqlServerQuerySqlGenerator : DefaultQuerySqlGenerator
     {
-        public SqlServerQuerySqlGenerator([NotNull] SelectExpression selectExpression)
-            : base(Check.NotNull(selectExpression, nameof(selectExpression)))
+        public SqlServerQuerySqlGenerator(
+            [NotNull] SelectExpression selectExpression, 
+            [NotNull] IRelationalTypeMapper typeMapper)
+            : base(selectExpression, typeMapper)
         {
         }
 

@@ -149,6 +149,7 @@
     <Compile Include="RelationalDatabaseFactory.cs" />
     <Compile Include="RelationalDataStoreServices.cs" />
     <Compile Include="RelationalModelValidator.cs" />
+    <Compile Include="RelationalTypeMapperExtensions.cs" />
     <Compile Include="RemappingUntypedValueBufferFactory.cs" />
     <Compile Include="UntypedValueBufferFactory.cs" />
     <Compile Include="UntypedValueBufferFactoryFactory.cs" />
@@ -234,7 +235,6 @@
     <Compile Include="SqlBatchBuilder.cs" />
     <Compile Include="SqlGenerator.cs" />
     <Compile Include="SqlStatementExecutor.cs" />
-    <Compile Include="RelationalScaledTypeMapping.cs" />
     <Compile Include="RelationalSizedTypeMapping.cs" />
     <Compile Include="RelationalTypeMapper.cs" />
     <Compile Include="RelationalTypeMapping.cs" />

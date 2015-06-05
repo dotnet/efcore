@@ -36,7 +36,5 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         }
 
         public override bool SupportsBinaryKeys => false;
-
-        public override bool SupportsMaxLength => false;
     }
 }

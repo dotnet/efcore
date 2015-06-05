@@ -29,7 +29,8 @@ namespace Microsoft.Data.Entity.Sqlite.Query
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
             [NotNull] IMemberTranslator compositeMemberTranslator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] IRelationalTypeMapper typeMapper)
             : base(
                 model,
                 logger,
@@ -41,12 +42,13 @@ namespace Microsoft.Data.Entity.Sqlite.Query
                 queryMethodProvider,
                 compositeMethodCallTranslator,
                 compositeMemberTranslator,
-                valueBufferFactoryFactory)
+                valueBufferFactoryFactory,
+                typeMapper)
         {
         }
 
         public override ISqlQueryGenerator CreateSqlQueryGenerator(SelectExpression selectExpression) =>
-            new SqliteQuerySqlGenerator(selectExpression);
+            new SqliteQuerySqlGenerator(selectExpression, TypeMapper);
 
         public override string GetColumnName(IProperty property) =>
             Check.NotNull(property, nameof(property)).Sqlite().Column;

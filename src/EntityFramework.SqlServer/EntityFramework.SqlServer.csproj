@@ -103,6 +103,7 @@
     <Compile Include="Migrations\SqlServerModelDiffer.cs" />
     <Compile Include="SqlServerModelSource.cs" />
     <Compile Include="SqlServerDataStoreServices.cs" />
+    <Compile Include="SqlServerMaxLengthMapping.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchFactory.cs" />
     <Compile Include="SqlServerOptionsExtension.cs" />
     <Compile Include="SqlServerConnection.cs" />

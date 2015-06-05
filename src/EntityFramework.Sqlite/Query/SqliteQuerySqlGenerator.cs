@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
@@ -12,8 +13,10 @@ namespace Microsoft.Data.Entity.Sqlite.Query
     {
         protected override string ConcatOperator => "||";
 
-        public SqliteQuerySqlGenerator([NotNull] SelectExpression selectExpression)
-            : base(selectExpression)
+        public SqliteQuerySqlGenerator(
+            [NotNull] SelectExpression selectExpression, 
+            [NotNull] IRelationalTypeMapper typeMapper)
+            : base(selectExpression, typeMapper)
         {
         }
 

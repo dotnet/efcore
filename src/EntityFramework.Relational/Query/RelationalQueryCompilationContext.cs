@@ -33,25 +33,29 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
             [NotNull] IMemberTranslator compositeMemberTranslator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] IRelationalTypeMapper typeMapper)
             : base(
-                Check.NotNull(model, nameof(model)),
-                Check.NotNull(logger, nameof(logger)),
-                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
-                Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
-                Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
-                Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
-                Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)))
+                model,
+                logger,
+                linqOperatorProvider,
+                resultOperatorHandler,
+                entityMaterializerSource,
+                entityKeyFactorySource,
+                clrPropertyGetterSource)
+
         {
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
             Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator));
             Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator));
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
+            Check.NotNull(typeMapper, nameof(typeMapper));
 
             QueryMethodProvider = queryMethodProvider;
             CompositeMethodCallTranslator = compositeMethodCallTranslator;
             CompositeMemberTranslator = compositeMemberTranslator;
             ValueBufferFactoryFactory = valueBufferFactoryFactory;
+            TypeMapper = typeMapper;
         }
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor(
@@ -86,11 +90,13 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
 
+        public virtual IRelationalTypeMapper TypeMapper { get; }
+
         public virtual ISqlQueryGenerator CreateSqlQueryGenerator([NotNull] SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
-            return new DefaultQuerySqlGenerator(selectExpression);
+            return new DefaultQuerySqlGenerator(selectExpression, TypeMapper);
         }
 
         public virtual string GetTableName([NotNull] IEntityType entityType)

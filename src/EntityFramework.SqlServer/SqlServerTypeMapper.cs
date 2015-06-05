@@ -12,28 +12,28 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerTypeMapper : RelationalTypeMapper
     {
-        private readonly RelationalTypeMapping _nvarcharmax = new RelationalTypeMapping("nvarchar(max)");
-        private readonly RelationalTypeMapping _nvarchar450 = new RelationalSizedTypeMapping("nvarchar(450)", 450);
-        private readonly RelationalTypeMapping _varbinarymax = new RelationalTypeMapping("varbinary(max)", DbType.Binary);
-        private readonly RelationalTypeMapping _varbinary900 = new RelationalSizedTypeMapping("varbinary(900)", DbType.Binary, 900);
-        private readonly RelationalTypeMapping _rowversion = new RelationalSizedTypeMapping("rowversion", DbType.Binary, 8);
+        private readonly SqlServerMaxLengthMapping _nvarcharmax = new SqlServerMaxLengthMapping("nvarchar(max)");
+        private readonly SqlServerMaxLengthMapping _nvarchar450 = new SqlServerMaxLengthMapping("nvarchar(450)");
+        private readonly SqlServerMaxLengthMapping _varbinarymax = new SqlServerMaxLengthMapping("varbinary(max)", DbType.Binary);
+        private readonly SqlServerMaxLengthMapping _varbinary900 = new SqlServerMaxLengthMapping("varbinary(900)", DbType.Binary);
+        private readonly RelationalSizedTypeMapping _rowversion = new RelationalSizedTypeMapping("rowversion", DbType.Binary, 8);
         private readonly RelationalTypeMapping _int = new RelationalTypeMapping("int", DbType.Int32);
         private readonly RelationalTypeMapping _bigint = new RelationalTypeMapping("bigint", DbType.Int64);
         private readonly RelationalTypeMapping _bit = new RelationalTypeMapping("bit");
         private readonly RelationalTypeMapping _smallint = new RelationalTypeMapping("smallint", DbType.Int16);
         private readonly RelationalTypeMapping _tinyint = new RelationalTypeMapping("tinyint", DbType.Byte);
-        private readonly RelationalSizedTypeMapping _nchar = new RelationalSizedTypeMapping("nchar", DbType.StringFixedLength, 1);
-        private readonly RelationalSizedTypeMapping _nvarchar = new RelationalSizedTypeMapping("nvarchar", 1);
-        private readonly RelationalTypeMapping _varcharmax = new RelationalTypeMapping("varchar(max)", DbType.AnsiString);
-        private readonly RelationalSizedTypeMapping _char = new RelationalSizedTypeMapping("char", DbType.AnsiStringFixedLength, 1);
-        private readonly RelationalSizedTypeMapping _varchar = new RelationalSizedTypeMapping("varchar", DbType.AnsiString, 1);
-        private readonly RelationalSizedTypeMapping _varbinary = new RelationalSizedTypeMapping("binary", DbType.Binary, 1);
+        private readonly SqlServerMaxLengthMapping _nchar = new SqlServerMaxLengthMapping("nchar", DbType.StringFixedLength);
+        private readonly SqlServerMaxLengthMapping _nvarchar = new SqlServerMaxLengthMapping("nvarchar");
+        private readonly RelationalTypeMapping _varcharmax = new SqlServerMaxLengthMapping("varchar(max)", DbType.AnsiString);
+        private readonly SqlServerMaxLengthMapping _char = new SqlServerMaxLengthMapping("char", DbType.AnsiStringFixedLength);
+        private readonly SqlServerMaxLengthMapping _varchar = new SqlServerMaxLengthMapping("varchar", DbType.AnsiString);
+        private readonly SqlServerMaxLengthMapping _varbinary = new SqlServerMaxLengthMapping("varbinary", DbType.Binary);
         private readonly RelationalTypeMapping _datetime2 = new RelationalTypeMapping("datetime2", DbType.DateTime2);
         private readonly RelationalTypeMapping _double = new RelationalTypeMapping("float");
         private readonly RelationalTypeMapping _datetimeoffset = new RelationalTypeMapping("datetimeoffset");
         private readonly RelationalTypeMapping _real = new RelationalTypeMapping("real");
         private readonly RelationalTypeMapping _uniqueidentifier = new RelationalTypeMapping("uniqueidentifier");
-        private readonly RelationalScaledTypeMapping _decimal = new RelationalScaledTypeMapping("decimal(18, 2)", 18, 2);
+        private readonly RelationalTypeMapping _decimal = new RelationalTypeMapping("decimal(18, 2)");
         private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time");
 
         private readonly Dictionary<string, RelationalTypeMapping> _simpleNameMappings;
@@ -99,36 +99,33 @@ namespace Microsoft.Data.Entity.SqlServer
         protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings
             => _simpleNameMappings;
 
-        protected override RelationalTypeMapping TryMapFromName(
-            string typeName,
-            string typeNamePrefix,
-            int? firstQualifier,
-            int? secondQualifier)
+        public override RelationalTypeMapping GetDefaultMapping(Type clrType)
         {
-            return TryMapSized(typeName, typeNamePrefix, new[] { "nvarchar", "national char varying", "national character varying" }, firstQualifier)
-                   ?? TryMapSized(typeName, typeNamePrefix, new[] { "varbinary", "binary varying" }, firstQualifier, DbType.Binary)
-                   ?? TryMapSized(typeName, typeNamePrefix, new[] { "varchar", "char varying", "character varying" }, firstQualifier, DbType.AnsiString)
-                   ?? TryMapScaled(typeName, typeNamePrefix, new[] { "decimal", "numeric", "dec" }, firstQualifier, secondQualifier)
-                   ?? TryMapScaled(typeName, typeNamePrefix, new[] { "float", "double precision" }, firstQualifier, secondQualifier)
-                   ?? TryMapScaled(typeName, typeNamePrefix, new[] { "datetime2" }, firstQualifier, secondQualifier, DbType.DateTime2)
-                   ?? TryMapScaled(typeName, typeNamePrefix, new[] { "datetimeoffset" }, firstQualifier, secondQualifier)
-                   ?? TryMapSized(typeName, typeNamePrefix, new[] { "nchar", "national char", "national character" }, firstQualifier, DbType.AnsiStringFixedLength)
-                   ?? TryMapSized(typeName, typeNamePrefix, new[] { "char", "character" }, firstQualifier, DbType.StringFixedLength)
-                   ?? TryMapSized(typeName, typeNamePrefix, new[] { "binary" }, firstQualifier, DbType.Binary)
-                   ?? base.TryMapFromName(typeName, typeNamePrefix, firstQualifier, secondQualifier);
+            Check.NotNull(clrType, nameof(clrType));
+
+            return clrType == typeof(string)
+                ? _nvarcharmax
+                : (clrType == typeof(byte[])
+                    ? _varbinarymax
+                    : base.GetDefaultMapping(clrType));
         }
 
-        protected override RelationalTypeMapping MapCustom(IProperty property)
+        protected override RelationalTypeMapping GetCustomMapping(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
             var clrType = property.ClrType.UnwrapEnumType();
 
             return clrType == typeof(string)
-                ? MapString(property, "nvarchar", _nvarcharmax, _nvarchar450)
+                ? MapString(
+                    property, 4000,
+                    maxLength => new SqlServerMaxLengthMapping("nvarchar(" + maxLength + ")"),
+                    _nvarcharmax, _nvarcharmax, _nvarchar450)
                 : clrType == typeof(byte[])
-                    ? MapByteArray(property, "varbinary", _varbinarymax, _varbinary900, _rowversion)
-                    : base.MapCustom(property);
+                    ? MapByteArray(property, 8000,
+                        maxLength => new SqlServerMaxLengthMapping("varbinary(" + maxLength + ")", DbType.Binary),
+                        _varbinarymax, _varbinarymax, _varbinary900, _rowversion)
+                    : base.GetCustomMapping(property);
         }
     }
 }

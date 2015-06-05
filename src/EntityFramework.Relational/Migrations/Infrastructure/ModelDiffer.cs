@@ -757,7 +757,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             {
                 Schema = target.Schema,
                 Name = target.Name,
-                Type = TypeMapper.MapSequenceType(target).DefaultTypeName,
+                Type = TypeMapper.GetDefaultMapping(target.Type).DefaultTypeName,
                 StartWith = target.StartValue,
                 IncrementBy = target.IncrementBy,
                 MinValue = target.MinValue,

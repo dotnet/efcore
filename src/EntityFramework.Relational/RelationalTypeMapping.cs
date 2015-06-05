@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] DbCommand command,
             [NotNull] string name,
             [CanBeNull] object value,
-            bool isNullable)
+            bool? isNullable = null)
         {
             Check.NotNull(command, nameof(command));
 
@@ -35,7 +35,11 @@ namespace Microsoft.Data.Entity.Relational
             parameter.Direction = ParameterDirection.Input;
             parameter.ParameterName = name;
             parameter.Value = value ?? DBNull.Value;
-            parameter.IsNullable = isNullable;
+
+            if (isNullable.HasValue)
+            {
+                parameter.IsNullable = isNullable.Value;
+            }
 
             if (StoreType.HasValue)
             {

@@ -200,7 +200,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             else
             {
                 sqlQueryGeneratorFactory = () =>
-                    new RawSqlQueryGenerator(selectExpression, sqlString, sqlParameters);
+                    new RawSqlQueryGenerator(selectExpression, sqlString, sqlParameters, relationalQueryCompilationContext.TypeMapper);
             }
 
             return Expression.Call(

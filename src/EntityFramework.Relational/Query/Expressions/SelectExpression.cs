@@ -604,7 +604,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override string ToString()
         {
-            return new DefaultQuerySqlGenerator(this).GenerateSql(new Dictionary<string, object>());
+            return new DefaultQuerySqlGenerator(this, null).GenerateSql(new Dictionary<string, object>());
         }
 
         public virtual void UpdateOrderByColumnBinding([NotNull] IEnumerable<Ordering> orderBy, [NotNull] JoinExpressionBase innerJoinExpression)

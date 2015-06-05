@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -30,24 +29,26 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
             [NotNull] IMemberTranslator compositeMemberTranslator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] IRelationalTypeMapper typeMapper)
             : base(
-                Check.NotNull(model, nameof(model)),
-                Check.NotNull(logger, nameof(logger)),
-                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
-                Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
-                Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
-                Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
-                Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)),
-                Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
-                Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator)),
-                Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator)),
-                Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory)))
+                model,
+                logger,
+                linqOperatorProvider,
+                resultOperatorHandler,
+                entityMaterializerSource,
+                entityKeyFactorySource,
+                clrPropertyGetterSource,
+                queryMethodProvider,
+                compositeMethodCallTranslator,
+                compositeMemberTranslator,
+                valueBufferFactoryFactory,
+                typeMapper)
         {
         }
 
         public override ISqlQueryGenerator CreateSqlQueryGenerator(SelectExpression selectExpression) 
-            => new SqlServerQuerySqlGenerator(Check.NotNull(selectExpression, nameof(selectExpression)));
+            => new SqlServerQuerySqlGenerator(Check.NotNull(selectExpression, nameof(selectExpression)), TypeMapper);
 
         public override string GetTableName(IEntityType entityType) 
             => Check.NotNull(entityType, nameof(entityType)).SqlServer().Table;
