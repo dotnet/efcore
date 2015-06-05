@@ -9,3 +9,7 @@
 bin/
 obj/
 project.lock.json
+
+# Ignore vagrant - used for cross-platform testing
+.vagrant/
+Vagrantfile

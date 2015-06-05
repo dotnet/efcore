@@ -1,4 +1,10 @@
 language: csharp
-sudo: false
+before_install:
+  - sudo apt-get autoremove sqlite3
+  - sudo apt-add-repository -y ppa:travis-ci/sqlite3
+  - sudo apt-get update -qq -y
+  - sudo apt-cache show sqlite3
+  - sudo apt-get install -y sqlite3=3.7.15.1-1~travis1
+  - sqlite3 -version
 script:
   - ./build.sh --quiet verify
