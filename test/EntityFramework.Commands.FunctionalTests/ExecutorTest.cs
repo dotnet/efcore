@@ -53,6 +53,7 @@ namespace Microsoft.Data.Entity.Commands
                         TargetDir = TargetDir,
                         References =
                                 {
+                                    BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                                     BuildReference.ByName("EntityFramework.Core", copyLocal: true),
@@ -136,6 +137,7 @@ namespace Microsoft.Data.Entity.Commands
                     TargetDir = targetDir,
                     References =
                             {
+                                BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
                                 BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                 BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                                 BuildReference.ByName("EntityFramework.Core", copyLocal: true),
@@ -257,6 +259,7 @@ namespace Microsoft.Data.Entity.Commands
                     TargetDir = targetDir,
                     References =
                             {
+                                BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
                                 BuildReference.ByName("System.Reflection.Metadata", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Core"),
                                 BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
