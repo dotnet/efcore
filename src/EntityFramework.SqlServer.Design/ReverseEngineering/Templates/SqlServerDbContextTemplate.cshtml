@@ -87,9 +87,9 @@ var firstEntity = true;
         firstProperty = false;
         var propertyConfigurationLines = LayoutPropertyConfigurationLines(propertyConfig, "property", "    ");
         var propertyConfigurationLineCount = propertyConfigurationLines.Count;
-        if (propertyConfigurationLineCount == 1)
+        @if (propertyConfigurationLineCount == 1)
         {
-            foreach (var line in propertyConfigurationLines)
+            @foreach (var line in propertyConfigurationLines)
             {
 @:                entity.Property(e => e.@(propertyConfig.Property.Name))@(line);
             }
@@ -98,7 +98,7 @@ var firstEntity = true;
         {
 @:                entity.Property(e => e.@(propertyConfig.Property.Name))
             var lineCount = 0;
-            foreach (var line in propertyConfigurationLines)
+            @foreach (var line in propertyConfigurationLines)
             {
                 var outputLine = line;
                 if (++lineCount == propertyConfigurationLineCount)
