@@ -15,6 +15,6 @@
   "resource": "ReverseEngineering/Templates/*.cshtml",
   "frameworks": {
     "net45": { },
-    "dnxcore50": { }
+    "dnx451": { }
   }
 }
