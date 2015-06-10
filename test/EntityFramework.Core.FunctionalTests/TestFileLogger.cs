@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     lock (_logFilePath)
                     {
-                        File.AppendAllText(_logFilePath, message + "\r\n");
+                        File.AppendAllText(_logFilePath, message + Environment.NewLine);
                     }
                 }
             }

@@ -1701,9 +1701,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         public virtual void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
-            where TMessage : class
-            where TProductPhoto : class
-            where TProductReview : class
+            where TMessage : class, IMessage
+            where TProductPhoto : class, IProductPhoto
+            where TProductReview : class, IProductReview
         {
         }
 

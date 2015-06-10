@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
@@ -8,6 +9,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
 {
     public class IndentedStringBuilderTest
     {
+        private readonly string _nl = Environment.NewLine;
+
         [Fact]
         public void Append_at_start_with_indent()
         {
@@ -49,7 +52,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                 indentedStringBuilder.AppendLine();
             }
 
-            Assert.Equal("Foo\r\n    Foo\r\n", indentedStringBuilder.ToString());
+            Assert.Equal($"Foo{_nl}    Foo{_nl}", indentedStringBuilder.ToString());
         }
 
         [Fact]
@@ -62,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                 indentedStringBuilder.AppendLine("Foo");
             }
 
-            Assert.Equal("    Foo\r\n", indentedStringBuilder.ToString());
+            Assert.Equal("    Foo" + _nl, indentedStringBuilder.ToString());
         }
 
         [Fact]
@@ -77,7 +80,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                 indentedStringBuilder.AppendLine("Foo");
             }
 
-            Assert.Equal("Foo\r\n    Foo\r\n", indentedStringBuilder.ToString());
+            Assert.Equal($"Foo{_nl}    Foo{_nl}", indentedStringBuilder.ToString());
         }
 
         [Fact]
@@ -90,7 +93,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                 indentedStringBuilder.AppendLine();
             }
 
-            Assert.Equal("\r\n", indentedStringBuilder.ToString());
+            Assert.Equal(Environment.NewLine, indentedStringBuilder.ToString());
         }
     }
 }

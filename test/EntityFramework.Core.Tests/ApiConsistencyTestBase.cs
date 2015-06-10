@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity
 
             Assert.False(
                 nonVirtualMethods.Any(),
-                "\r\n-- Missing virtual APIs --\r\n" + string.Join("\r\n", nonVirtualMethods));
+                "\r\n-- Missing virtual APIs --\r\n" + string.Join(Environment.NewLine, nonVirtualMethods));
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity
 
             Assert.False(
                 parametersMissingAttribute.Any(),
-                "\r\n-- Missing NotNull annotations --\r\n" + string.Join("\r\n", parametersMissingAttribute));
+                "\r\n-- Missing NotNull annotations --\r\n" + string.Join(Environment.NewLine, parametersMissingAttribute));
         }
 
         [Fact]
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity
 
             Assert.False(
                 missingOverloads.Any(),
-                "\r\n-- Missing async overloads --\r\n" + string.Join("\r\n", missingOverloads));
+                "\r\n-- Missing async overloads --\r\n" + string.Join(Environment.NewLine, missingOverloads));
 
             var missingSuffixMethods
                 = asyncMethods
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity
 
             Assert.False(
                 missingSuffixMethods.Any(),
-                "\r\n-- Missing async suffix --\r\n" + string.Join("\r\n", missingSuffixMethods));
+                "\r\n-- Missing async suffix --\r\n" + string.Join(Environment.NewLine, missingSuffixMethods));
         }
 
         protected virtual IEnumerable<string> GetCancellationTokenExceptions()

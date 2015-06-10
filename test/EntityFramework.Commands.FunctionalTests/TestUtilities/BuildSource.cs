@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                 if (!result.Success)
                 {
                     throw new InvalidOperationException(
-                        $"Build failed. Diagnostics: {string.Join("\r\n", result.Diagnostics)}");
+                        $"Build failed. Diagnostics: {string.Join(Environment.NewLine, result.Diagnostics)}");
                 }
             }
 
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                 if (!result.Success)
                 {
                     throw new InvalidOperationException(
-                        $"Build failed. Diagnostics: {string.Join("\r\n", result.Diagnostics)}");
+                        $"Build failed. Diagnostics: {string.Join(Environment.NewLine, result.Diagnostics)}");
                 }
 
                 assembly = Assembly.Load(stream.ToArray());

@@ -70,40 +70,40 @@ var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configur
             {
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Commands\build\netcore50\EntityFramework.Commands.targets",
-                    @"build\netcore50\EntityFramework.Commands.targets");
+                    @"src/EntityFramework.Commands/build/netcore50/EntityFramework.Commands.targets",
+                    @"build/netcore50/EntityFramework.Commands.targets");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Commands\lib\netcore50\_._",
-                    @"lib\netcore50\_._");
+                    @"src/EntityFramework.Commands/lib/netcore50/_._",
+                    @"lib/netcore50/_._");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Commands\tools\about_EntityFramework.help.txt",
-                    @"tools\about_EntityFramework.help.txt");
+                    @"src/EntityFramework.Commands/tools/about_EntityFramework.help.txt",
+                    @"tools/about_EntityFramework.help.txt");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Commands\tools\EntityFramework.psd1",
-                    @"tools\EntityFramework.psd1");
+                    @"src/EntityFramework.Commands/tools/EntityFramework.psd1",
+                    @"tools/EntityFramework.psd1");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Commands\tools\EntityFramework.psm1",
-                    @"tools\EntityFramework.psm1");
+                    @"src/EntityFramework.Commands/tools/EntityFramework.psm1",
+                    @"tools/EntityFramework.psm1");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Commands\tools\Handlers.cs",
-                    @"tools\Handlers.cs");
+                    @"src/EntityFramework.Commands/tools/Handlers.cs",
+                    @"tools/Handlers.cs");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Commands\IHandlers.cs",
-                    @"tools\IHandlers.cs");
+                    @"src/EntityFramework.Commands/IHandlers.cs",
+                    @"tools/IHandlers.cs");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Commands\tools\init.ps1",
-                    @"tools\init.ps1");
+                    @"src/EntityFramework.Commands/tools/init.ps1",
+                    @"tools/init.ps1");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Commands\tools\install.ps1",
-                    @"tools\install.ps1");
+                    @"src/EntityFramework.Commands/tools/install.ps1",
+                    @"tools/install.ps1");
             }
         }
         
@@ -115,12 +115,12 @@ var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configur
             {
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Relational.Design\build\netcore50\EntityFramework.Relational.Design.targets",
-                    @"build\netcore50\EntityFramework.Relational.Design.targets");
+                    @"src/EntityFramework.Relational.Design/build/netcore50/EntityFramework.Relational.Design.targets",
+                    @"build/netcore50/EntityFramework.Relational.Design.targets");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Relational.Design\lib\netcore50\_._",
-                    @"lib\netcore50\_._");
+                    @"src/EntityFramework.Relational.Design/lib/netcore50/_._",
+                    @"lib/netcore50/_._");
             }
         }
     }

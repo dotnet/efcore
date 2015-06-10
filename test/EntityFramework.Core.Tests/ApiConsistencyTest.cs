@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Tests
                      && method.ReturnType == typeof(void)
                  select type.Name + "." + method.Name;
 
-            Assert.Equal("", string.Join("\r\n", voidMethods));
+            Assert.Equal("", string.Join(Environment.NewLine, voidMethods));
         }
 
         protected override Assembly TargetAssembly

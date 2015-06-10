@@ -75,9 +75,9 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public override void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
         {
             base.OnModelCreating<TMessage, TProductPhoto, TProductReview>(builder);
-            builder.Entity<TMessage>().Key("MessageId");
-            builder.Entity<TProductPhoto>().Key("PhotoId");
-            builder.Entity<TProductReview>().Key("ReviewId");
+            builder.Entity<TMessage>().Key(e => e.MessageId);
+            builder.Entity<TProductPhoto>().Key(e => e.PhotoId);
+            builder.Entity<TProductReview>().Key(e => e.ReviewId);
         }
     }
 }

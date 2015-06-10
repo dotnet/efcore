@@ -80,9 +80,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             base.OnModelCreating<TMessage, TProductPhoto, TProductReview>(builder);
 
-            builder.Entity<TMessage>().Property(typeof(int), "MessageId").ForSqlServer().UseIdentity();
-            builder.Entity<TProductPhoto>().Property(typeof(int), "PhotoId").ForSqlServer().UseIdentity();
-            builder.Entity<TProductReview>().Property(typeof(int), "ReviewId").ForSqlServer().UseIdentity();
+            builder.Entity<TMessage>().Property(e => e.MessageId).ForSqlServer().UseIdentity();
+            builder.Entity<TProductPhoto>().Property(e => e.PhotoId).ForSqlServer().UseIdentity();
+            builder.Entity<TProductReview>().Property(e => e.ReviewId).ForSqlServer().UseIdentity();
         }
     }
 
