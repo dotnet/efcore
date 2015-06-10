@@ -40,6 +40,8 @@
     <Compile Include="CommandConfigurationTest.cs" />
     <Compile Include="ComputedColumnTest.cs" />
     <Compile Include="FromSqlSprocQuerySqlServerTest.cs" />
+    <Compile Include="GraphUpdatesWithIdentitySqlServerTest.cs" />
+    <Compile Include="GraphUpdatesWithSequenceSqlServerTest.cs" />
     <Compile Include="NorthwindSprocQuerySqlServerFixture.cs" />
     <Compile Include="FromSqlQuerySqlServerTest.cs" />
     <Compile Include="NavigationTest.cs" />
@@ -64,7 +66,6 @@
     <Compile Include="SqlServerFixture.cs" />
     <Compile Include="GearsOfWarQuerySqlServerFixture.cs" />
     <Compile Include="GearsOfWarQuerySqlServerTest.cs" />
-    <Compile Include="GraphUpdatesSqlServerTest.cs" />
     <Compile Include="GraphUpdatesSqlServerTestBase.cs" />
     <Compile Include="IncludeAsyncSqlServerTest.cs" />
     <Compile Include="IncludeOneToOneSqlServerTest.cs" />

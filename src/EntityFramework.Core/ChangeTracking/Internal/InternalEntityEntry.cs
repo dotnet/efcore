@@ -17,8 +17,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private StateData _stateData;
         private Sidecar[] _sidecars;
 
-        private readonly Dictionary<IForeignKey, EntityKey> _principalKeys = new Dictionary<IForeignKey, EntityKey>();
-
         protected InternalEntityEntry(
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
@@ -329,20 +327,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual EntityKey GetDependentKeySnapshot([NotNull] IForeignKey foreignKey)
             => CreateKey(foreignKey.PrincipalEntityType, foreignKey.Properties, RelationshipsSnapshot);
 
+        // TODO cache principal key in a way that does not break store-generated keys
         public virtual EntityKey GetPrincipalKey(
             [NotNull] IForeignKey foreignKey,
             [NotNull] IEntityType principalEntityType,
-            [NotNull] IReadOnlyList<IProperty> principalProperties)
-        {
-            EntityKey result;
-            if (!_principalKeys.TryGetValue(foreignKey, out result))
-            {
-                _principalKeys.Add(foreignKey,
-                    result = CreateKey(principalEntityType, principalProperties, this));
-            }
-
-            return result;
-        }
+            [NotNull] IReadOnlyList<IProperty> principalProperties) => CreateKey(principalEntityType, principalProperties, this);
 
         public virtual object[] GetValueBuffer() => EntityType.GetProperties().Select(p => this[p]).ToArray();
 
