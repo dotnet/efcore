@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual async Task Distinct_Skip()
         {
             await AssertQuery<Customer>(
-                cs => cs.Distinct().OrderBy(c => c.ContactName).Skip(5),
+                cs => cs.Distinct().OrderBy(c => c.CustomerID).Skip(5),
                 assertOrder: true,
                 entryCount: 86);
         }
@@ -2558,7 +2558,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             await AssertQuery<Customer>(
                 cs =>
-                    cs.Select(c => c.City).Distinct().OrderBy(c => c),
+                    cs.Select(c => c.Country).Distinct().OrderBy(c => c),
                 assertOrder: true);
         }
 

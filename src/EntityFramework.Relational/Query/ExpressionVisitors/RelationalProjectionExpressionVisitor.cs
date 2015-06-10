@@ -66,7 +66,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
         public override Expression Visit(Expression expression)
         {
             if (expression != null
-                && !(expression is QuerySourceReferenceExpression)
                 && !(expression is ConstantExpression))
             {
                 var sqlExpression
@@ -74,7 +73,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 
                 if (sqlExpression == null)
                 {
-                    _requiresClientEval = true;
+                    if (!(expression is QuerySourceReferenceExpression))
+                    {
+                        _requiresClientEval = true;
+                    }
                 }
                 else
                 {
@@ -85,13 +87,16 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 
                     if (!(expression is NewExpression))
                     {
-                        var columnExpression = sqlExpression.TryGetColumnExpression();
-
-                        if (columnExpression != null)
+                        if (!(expression is QuerySourceReferenceExpression))
                         {
-                            selectExpression.AddToProjection(columnExpression);
+                            var columnExpression = sqlExpression.TryGetColumnExpression();
 
-                            return expression;
+                            if (columnExpression != null)
+                            {
+                                selectExpression.AddToProjection(columnExpression);
+
+                                return expression;
+                            }
                         }
 
                         var index = selectExpression.AddToProjection(sqlExpression);

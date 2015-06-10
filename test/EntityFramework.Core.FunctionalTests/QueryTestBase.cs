@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Distinct_Skip()
         {
             AssertQuery<Customer>(
-                cs => cs.Distinct().OrderBy(c => c.ContactName).Skip(5),
+                cs => cs.Distinct().OrderBy(c => c.CustomerID).Skip(5),
                 assertOrder: true,
                 entryCount: 86);
         }
@@ -1047,8 +1047,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Where_primitive()
         {
             AssertQuery<Employee>(
-                es =>
-                    es.Select(e => e.EmployeeID).Take(9).Where(i => i == 5));
+                es => es.Select(e => e.EmployeeID).Take(9).Where(i => i == 5));
         }
 
         [Fact]
@@ -1685,6 +1684,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Employee, Customer>(
                 (es, cs) => from e in es
+                            from c in cs
+                            select new { c, e });
+        }
+
+        [Fact]
+        public virtual void SelectMany_simple_subquery()
+        {
+            AssertQuery<Employee, Customer>(
+                (es, cs) => from e in es.Take(9)
                             from c in cs
                             select new { c, e });
         }
@@ -2691,25 +2699,31 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Distinct_Scalar()
         {
             AssertQuery<Customer>(
-                cs =>
-                    cs.Select(c => c.City).Distinct());
+                cs => cs.Select(c => c.City).Distinct());
         }
 
         [Fact]
         public virtual void OrderBy_Distinct()
         {
             AssertQuery<Customer>(
-                cs =>
-                    cs.OrderBy(c => c.CustomerID).Select(c => c.City).Distinct());
+                cs => cs.OrderBy(c => c.CustomerID).Select(c => c.City).Distinct());
         }
 
         [Fact]
         public virtual void Distinct_OrderBy()
         {
             AssertQuery<Customer>(
-                cs =>
-                    cs.Select(c => c.City).Distinct().OrderBy(c => c),
+                cs => cs.Select(c => c.Country).Distinct().OrderBy(c => c),
                 assertOrder: true);
+        }
+
+        [Fact]
+        public virtual void Distinct_OrderBy2()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Distinct().OrderBy(c => c.CustomerID),
+                assertOrder: true,
+                entryCount: 91);
         }
 
         [Fact]
@@ -2741,24 +2755,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Select_Distinct_Count()
         {
             AssertQuery<Customer>(
-                cs =>
-                    cs.Select(c => c.City).Distinct().Count());
+                cs => cs.Select(c => c.City).Distinct().Count());
         }
 
         [Fact]
         public virtual void Select_Select_Distinct_Count()
         {
             AssertQuery<Customer>(
-                cs =>
-                    cs.Select(c => c.City).Select(c => c).Distinct().Count());
+                cs => cs.Select(c => c.City).Select(c => c).Distinct().Count());
         }
 
         [Fact]
         public virtual void Single_Throws()
         {
             Assert.Throws<InvalidOperationException>(() =>
-                AssertQuery<Customer>(
-                    cs => cs.Single()));
+                AssertQuery<Customer>(cs => cs.Single()));
         }
 
         [Fact]

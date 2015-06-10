@@ -460,8 +460,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(fromClause, nameof(fromClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            _expression
-                = ReplaceClauseReferences(fromClause.FromExpression, fromClause);
+            _expression = CompileMainFromClauseExpression(fromClause);
 
             var sequenceType = _expression.Type.GetSequenceType();
 
@@ -498,6 +497,13 @@ namespace Microsoft.Data.Entity.Query
                     fromClause,
                     QueryResultScope.GetResult(QueryResultScopeParameter, fromClause, elementType));
             }
+        }
+
+        protected virtual Expression CompileMainFromClauseExpression([NotNull] MainFromClause mainFromClause)
+        {
+            Check.NotNull(mainFromClause, nameof(mainFromClause));
+
+            return ReplaceClauseReferences(mainFromClause.FromExpression, mainFromClause);
         }
 
         public override void VisitAdditionalFromClause(

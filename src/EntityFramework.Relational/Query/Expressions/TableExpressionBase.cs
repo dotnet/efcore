@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override Type Type => typeof(object);
 
-        public virtual IQuerySource QuerySource { get; }
+        public virtual IQuerySource QuerySource { get; [param: NotNull] set; }
 
         public virtual string Alias { get; [param: NotNull] set; }
 

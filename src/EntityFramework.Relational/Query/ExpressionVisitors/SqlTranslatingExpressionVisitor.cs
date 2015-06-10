@@ -5,11 +5,16 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
+using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Parsing;
+using Remotion.Linq.Parsing.ExpressionVisitors;
+
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
@@ -30,7 +35,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 
         public virtual Expression ClientEvalPredicate { get; private set; }
 
-        protected override Expression VisitBinary([NotNull] BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
@@ -204,7 +209,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             return null;
         }
 
-        protected override Expression VisitMethodCall([NotNull] MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
@@ -215,18 +220,21 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             {
                 var arguments
                     = methodCallExpression.Arguments
+                        .Where(e => !(e is QuerySourceReferenceExpression))
                         .Select(Visit)
                         .Where(e => e != null)
                         .ToArray();
 
                 if (arguments.Length == methodCallExpression.Arguments.Count)
                 {
-                    var boundExpression = operand != null
-                        ? Expression.Call(operand, methodCallExpression.Method, arguments)
-                        : Expression.Call(methodCallExpression.Method, arguments);
+                    var boundExpression
+                        = operand != null
+                            ? Expression.Call(operand, methodCallExpression.Method, arguments)
+                            : Expression.Call(methodCallExpression.Method, arguments);
 
                     var translatedExpression =
-                        _queryModelVisitor.QueryCompilationContext.CompositeMethodCallTranslator.Translate(boundExpression);
+                        _queryModelVisitor.QueryCompilationContext.CompositeMethodCallTranslator
+                            .Translate(boundExpression);
 
                     if (translatedExpression != null)
                     {
@@ -239,29 +247,33 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                 .BindMethodCallExpression(
                     methodCallExpression,
                     (property, querySource, selectExpression)
-                        => new AliasExpression(
-                            new ColumnExpression(
-                                _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
-                                property,
-                                selectExpression.FindTableForQuerySource(querySource))));
+                        => CreateAliasedColumnExpression(property, querySource, selectExpression));
         }
 
-        protected override Expression VisitMember([NotNull] MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
 
-            var newExpression = Visit(memberExpression.Expression);
-            if (newExpression != null
-                || memberExpression.Expression == null)
+            if (!(memberExpression.Expression is QuerySourceReferenceExpression))
             {
-                var newMemberExpression = newExpression != memberExpression.Expression
-                    ? Expression.Property(newExpression, memberExpression.Member.Name)
-                    : memberExpression;
+                var newExpression = Visit(memberExpression.Expression);
 
-                var translatedExpression = _queryModelVisitor.QueryCompilationContext.CompositeMemberTranslator.Translate(newMemberExpression);
-                if (translatedExpression != null)
+                if (newExpression != null
+                    || memberExpression.Expression == null)
                 {
-                    return translatedExpression;
+                    var newMemberExpression
+                        = newExpression != memberExpression.Expression
+                            ? Expression.Property(newExpression, memberExpression.Member.Name)
+                            : memberExpression;
+
+                    var translatedExpression
+                        = _queryModelVisitor.QueryCompilationContext.CompositeMemberTranslator
+                            .Translate(newMemberExpression);
+
+                    if (translatedExpression != null)
+                    {
+                        return translatedExpression;
+                    }
                 }
             }
 
@@ -269,14 +281,20 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                 .BindMemberExpression(
                     memberExpression,
                     (property, querySource, selectExpression)
-                        => new AliasExpression(
-                            new ColumnExpression(
-                                _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
-                                property,
-                                selectExpression.FindTableForQuerySource(querySource))));
+                        => CreateAliasedColumnExpression(property, querySource, selectExpression));
         }
 
-        protected override Expression VisitUnary([NotNull] UnaryExpression expression)
+        private AliasExpression CreateAliasedColumnExpression(
+            IProperty property, IQuerySource querySource, SelectExpression selectExpression)
+        {
+            return new AliasExpression(
+                new ColumnExpression(
+                    _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                    property,
+                    selectExpression.GetTableForQuerySource(querySource)));
+        }
+
+        protected override Expression VisitUnary(UnaryExpression expression)
         {
             switch (expression.NodeType)
             {
@@ -301,7 +319,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             return null;
         }
 
-        protected override Expression VisitNew([NotNull] NewExpression newExpression)
+        protected override Expression VisitNew(NewExpression newExpression)
         {
             Check.NotNull(newExpression, nameof(newExpression));
 
@@ -332,10 +350,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                 && expression.QueryModel.ResultOperators.Count == 1)
             {
                 var contains = expression.QueryModel.ResultOperators.First() as ContainsResultOperator;
+
                 if (contains != null)
                 {
                     var parameter = expression.QueryModel.MainFromClause.FromExpression as ParameterExpression;
                     var memberItem = contains.Item as MemberExpression;
+
                     if (parameter != null
                         && memberItem != null)
                     {
@@ -350,28 +370,28 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
         }
 
         private static readonly Type[] _supportedConstantTypes =
-        {
-            typeof(bool),
-            typeof(byte),
-            typeof(byte[]),
-            typeof(char),
-            typeof(decimal),
-            typeof(DateTime),
-            typeof(DateTimeOffset),
-            typeof(double),
-            typeof(float),
-            typeof(Guid),
-            typeof(int),
-            typeof(long),
-            typeof(sbyte),
-            typeof(short),
-            typeof(string),
-            typeof(uint),
-            typeof(ulong),
-            typeof(ushort)
-        };
+            {
+                typeof(bool),
+                typeof(byte),
+                typeof(byte[]),
+                typeof(char),
+                typeof(decimal),
+                typeof(DateTime),
+                typeof(DateTimeOffset),
+                typeof(double),
+                typeof(float),
+                typeof(Guid),
+                typeof(int),
+                typeof(long),
+                typeof(sbyte),
+                typeof(short),
+                typeof(string),
+                typeof(uint),
+                typeof(ulong),
+                typeof(ushort)
+            };
 
-        protected override Expression VisitConstant([NotNull] ConstantExpression constantExpression)
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             Check.NotNull(constantExpression, nameof(constantExpression));
 
@@ -387,7 +407,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                 : null;
         }
 
-        protected override Expression VisitParameter([NotNull] ParameterExpression parameterExpression)
+        protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
             Check.NotNull(parameterExpression, nameof(parameterExpression));
 
@@ -396,6 +416,16 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             return _supportedConstantTypes.Contains(underlyingType)
                 ? parameterExpression
                 : null;
+        }
+
+        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression querySourceReferenceExpression)
+        {
+            var selector
+                = ((querySourceReferenceExpression.ReferencedQuerySource as FromClauseBase)
+                    ?.FromExpression as SubQueryExpression)
+                    ?.QueryModel.SelectClause.Selector;
+
+            return selector != null ? Visit(selector) : null;
         }
 
         protected override TResult VisitUnhandledItem<TItem, TResult>(

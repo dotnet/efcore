@@ -701,9 +701,12 @@ FROM (
             base.Take_OrderBy_Count();
 
             Assert.Equal(
-                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-FROM ""Orders"" AS ""o""
-LIMIT 5",
+                @"SELECT COUNT(*)
+FROM (
+    SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+    FROM ""Orders"" AS ""o""
+    LIMIT 5
+) AS ""t0""",
                 Sql);
         }
 
@@ -772,9 +775,12 @@ FROM ""Customers"" AS ""c""",
             base.Select_scalar_primitive_after_take();
 
             Assert.Equal(
-                @"SELECT ""e"".""EmployeeID"", ""e"".""City"", ""e"".""Country"", ""e"".""FirstName"", ""e"".""ReportsTo"", ""e"".""Title""
-FROM ""Employees"" AS ""e""
-LIMIT 9",
+                @"SELECT ""t0"".""EmployeeID""
+FROM (
+    SELECT ""e"".""EmployeeID"", ""e"".""City"", ""e"".""Country"", ""e"".""FirstName"", ""e"".""ReportsTo"", ""e"".""Title""
+    FROM ""Employees"" AS ""e""
+    LIMIT 9
+) AS ""t0""",
                 Sql);
         }
 
@@ -1745,9 +1751,12 @@ FROM ""Customers"" AS ""c""", // Ordering not preserved by distinct
             base.Distinct_OrderBy();
 
             Assert.Equal(
-                @"SELECT DISTINCT ""c"".""City""
-FROM ""Customers"" AS ""c""",
-                //ORDER BY c.""City""", // TODO: Sub-query flattening
+                @"SELECT ""t0"".""Country""
+FROM (
+    SELECT DISTINCT ""c"".""Country""
+    FROM ""Customers"" AS ""c""
+) AS ""t0""
+ORDER BY ""t0"".""Country""",
                 Sql);
         }
 
@@ -1832,9 +1841,13 @@ WHERE 1 = 0",
             base.Where_primitive();
 
             Assert.Equal(
-                @"SELECT ""e"".""EmployeeID""
-FROM ""Employees"" AS ""e""
-LIMIT 9",
+                @"SELECT ""t0"".""EmployeeID""
+FROM (
+    SELECT ""e"".""EmployeeID""
+    FROM ""Employees"" AS ""e""
+    LIMIT 9
+) AS ""t0""
+WHERE ""t0"".""EmployeeID"" = 5",
                 Sql);
         }
 

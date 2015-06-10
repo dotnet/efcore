@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                 = _queryCompilationContext.FindSelectExpression(querySource);
 
             var targetTableExpression
-                = selectExpression.FindTableForQuerySource(querySource);
+                = selectExpression.GetTableForQuerySource(querySource);
 
             var readerIndex = 0;
             var canProduceInnerJoin = true;

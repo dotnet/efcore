@@ -19,6 +19,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     {
         private readonly EntityQueryModelVisitor _queryModelVisitor;
         private readonly bool _inProjection;
+        
+        private bool _inMember;
 
         public MemberAccessBindingExpressionVisitor(
             [NotNull] QuerySourceMapping querySourceMapping,
@@ -34,12 +36,19 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             _inProjection = inProjection;
         }
 
-        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
+        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression querySourceReferenceExpression)
         {
             var newExpression
-                = QuerySourceMapping.ContainsMapping(expression.ReferencedQuerySource)
-                    ? QuerySourceMapping.GetExpression(expression.ReferencedQuerySource)
-                    : base.VisitQuerySourceReference(expression);
+                = QuerySourceMapping.ContainsMapping(querySourceReferenceExpression.ReferencedQuerySource)
+                    ? QuerySourceMapping.GetExpression(querySourceReferenceExpression.ReferencedQuerySource)
+                    : base.VisitQuerySourceReference(querySourceReferenceExpression);
+
+            if (!_inMember
+                && !ReferenceEquals(newExpression, querySourceReferenceExpression)
+                && newExpression.Type == typeof(ValueBuffer))
+            {
+                return _queryModelVisitor.BindReadValueMethod(querySourceReferenceExpression.Type, newExpression, 0);
+            }
 
             if (_inProjection
                 && newExpression.Type.IsConstructedGenericType)
@@ -69,7 +78,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            _inMember = memberExpression.Expression is QuerySourceReferenceExpression;
+
             var newExpression = Visit(memberExpression.Expression);
+
+            _inMember = false;
 
             if (newExpression != memberExpression.Expression)
             {
@@ -103,8 +116,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     methodCallExpression.Method.GetGenericMethodDefinition(),
                     QueryExtensions.PropertyMethodInfo))
             {
+                _inMember = true;
+
                 var newArguments
                     = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCall");
+
+                _inMember = false;
 
                 if (newArguments[0].Type == typeof(ValueBuffer))
                 {

@@ -17,6 +17,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>
     {
+        public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+            : base(fixture)
+        {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+        }
+
         public override void Where_simple_closure()
         {
             base.Where_simple_closure();
@@ -708,8 +714,11 @@ FROM (
             base.Take_OrderBy_Count();
 
             Assert.Equal(
-                @"SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+                @"SELECT COUNT(*)
+FROM (
+    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+) AS [t0]",
                 Sql);
         }
 
@@ -828,8 +837,11 @@ FROM [Customers] AS [c]",
             base.Select_scalar_primitive_after_take();
 
             Assert.Equal(
-                @"SELECT TOP(9) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]",
+                @"SELECT [t0].[EmployeeID]
+FROM (
+    SELECT TOP(9) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+) AS [t0]",
                 Sql);
         }
 
@@ -1469,6 +1481,20 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
+        public override void SelectMany_simple_subquery()
+        {
+            base.SelectMany_simple_subquery();
+
+            Assert.StartsWith(
+                @"SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT TOP(9) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+) AS [t0]
+CROSS JOIN [Customers] AS [c]",
+                Sql);
+        }
+
         public override void SelectMany_simple1()
         {
             base.SelectMany_simple1();
@@ -1806,9 +1832,26 @@ FROM [Customers] AS [c]", // Ordering not preserved by distinct
             base.Distinct_OrderBy();
 
             Assert.Equal(
-                @"SELECT DISTINCT [c].[City]
-FROM [Customers] AS [c]",
-                //ORDER BY c.[City]", // TODO: Sub-query flattening
+                @"SELECT [t0].[Country]
+FROM (
+    SELECT DISTINCT [c].[Country]
+    FROM [Customers] AS [c]
+) AS [t0]
+ORDER BY [t0].[Country]",
+                Sql);
+        }
+
+        public override void Distinct_OrderBy2()
+        {
+            base.Distinct_OrderBy2();
+
+            Assert.Equal(
+                @"SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+FROM (
+    SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+) AS [t0]
+ORDER BY [t0].[CustomerID]",
                 Sql);
         }
 
@@ -1893,8 +1936,12 @@ WHERE 1 = 0",
             base.Where_primitive();
 
             Assert.Equal(
-                @"SELECT TOP(9) [e].[EmployeeID]
-FROM [Employees] AS [e]",
+                @"SELECT [t0].[EmployeeID]
+FROM (
+    SELECT TOP(9) [e].[EmployeeID]
+    FROM [Employees] AS [e]
+) AS [t0]
+WHERE [t0].[EmployeeID] = 5",
                 Sql);
         }
 
@@ -2870,12 +2917,6 @@ OFFSET 5 ROWS",
 FROM [Customers] AS [c]
 ORDER BY COALESCE([c].[Region], 'ZZ')",
                 Sql);
-        }
-
-        public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
-            : base(fixture)
-        {
-            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

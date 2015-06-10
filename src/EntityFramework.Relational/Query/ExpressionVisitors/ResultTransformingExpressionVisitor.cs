@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             _relationalQueryCompilationContext = relationalQueryCompilationContext;
         }
 
-        protected override Expression VisitMethodCall([NotNull] MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             return methodCallExpression;
         }
 
-        protected override Expression VisitLambda<T>([NotNull] Expression<T> lambdaExpression)
+        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
         {
             Check.NotNull(lambdaExpression, nameof(lambdaExpression));
 

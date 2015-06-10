@@ -137,6 +137,7 @@
     <Compile Include="Migrations\Sql\MigrationSqlGenerator.cs" />
     <Compile Include="Migrations\Infrastructure\ModelDiffer.cs" />
     <Compile Include="Query\Expressions\SqlFunctionExpression.cs" />
+    <Compile Include="Query\ExpressionVisitors\ShapedQueryFindingExpressionVisitor.cs" />
     <Compile Include="Query\IValueBufferCursor.cs" />
     <Compile Include="Query\Methods\IMemberTranslator.cs" />
     <Compile Include="Query\Methods\MultipleOverloadStaticMethodCallTranslator.cs" />

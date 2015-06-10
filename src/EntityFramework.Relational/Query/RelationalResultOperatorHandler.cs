@@ -111,6 +111,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             Func<HandlerContext, Expression> resultHandler;
             if (relationalQueryModelVisitor.RequiresClientFilter
                 || relationalQueryModelVisitor.RequiresClientResultOperator
+                || relationalQueryModelVisitor.RequiresClientSelectMany
                 || !_resultHandlers.TryGetValue(resultOperator.GetType(), out resultHandler)
                 || selectExpression == null)
             {

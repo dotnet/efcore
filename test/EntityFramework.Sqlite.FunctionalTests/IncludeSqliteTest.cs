@@ -4,11 +4,18 @@
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
     public class IncludeSqliteTest : IncludeTestBase<NorthwindQuerySqliteFixture>
     {
+        public IncludeSqliteTest(NorthwindQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
+            : base(fixture)
+        {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+        }
+
         public override void Include_collection()
         {
             base.Include_collection();
@@ -425,67 +432,26 @@ ORDER BY ""c"".""CustomerID""",
 
             Assert.Equal(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-LIMIT 5
-
-SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
+FROM (
+    SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+    FROM ""Customers"" AS ""c""
+    ORDER BY ""c"".""CustomerID""
+    LIMIT 5
+) AS ""t0""
+CROSS JOIN ""Customers"" AS ""c""
 ORDER BY ""c"".""CustomerID""
 
 SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
 INNER JOIN (
     SELECT DISTINCT ""c"".""CustomerID""
-    FROM ""Customers"" AS ""c""
-) AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
-ORDER BY ""c"".""CustomerID""
-
-SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-
-SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-FROM ""Orders"" AS ""o""
-INNER JOIN (
-    SELECT DISTINCT ""c"".""CustomerID""
-    FROM ""Customers"" AS ""c""
-) AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
-ORDER BY ""c"".""CustomerID""
-
-SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-
-SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-FROM ""Orders"" AS ""o""
-INNER JOIN (
-    SELECT DISTINCT ""c"".""CustomerID""
-    FROM ""Customers"" AS ""c""
-) AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
-ORDER BY ""c"".""CustomerID""
-
-SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-
-SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-FROM ""Orders"" AS ""o""
-INNER JOIN (
-    SELECT DISTINCT ""c"".""CustomerID""
-    FROM ""Customers"" AS ""c""
-) AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
-ORDER BY ""c"".""CustomerID""
-
-SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-
-SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-FROM ""Orders"" AS ""o""
-INNER JOIN (
-    SELECT DISTINCT ""c"".""CustomerID""
-    FROM ""Customers"" AS ""c""
+    FROM (
+        SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+        FROM ""Customers"" AS ""c""
+        ORDER BY ""c"".""CustomerID""
+        LIMIT 5
+    ) AS ""t0""
+    CROSS JOIN ""Customers"" AS ""c""
 ) AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
 ORDER BY ""c"".""CustomerID""",
                 Sql);
@@ -496,19 +462,27 @@ ORDER BY ""c"".""CustomerID""",
             base.Include_duplicate_collection();
 
             Assert.Equal(
-                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-LIMIT 2
+                @"SELECT ""t0"".""CustomerID"", ""t0"".""Address"", ""t0"".""City"", ""t0"".""CompanyName"", ""t0"".""ContactName"", ""t0"".""ContactTitle"", ""t0"".""Country"", ""t0"".""Fax"", ""t0"".""Phone"", ""t0"".""PostalCode"", ""t0"".""Region""
+FROM (
+    SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+    FROM ""Customers"" AS ""c""
+    ORDER BY ""c"".""CustomerID""
+    LIMIT 2
+) AS ""t0""
+ORDER BY ""t0"".""CustomerID""
 
 SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
 INNER JOIN (
-    SELECT DISTINCT ""c"".""CustomerID""
-    FROM ""Customers"" AS ""c""
-    LIMIT 2
-) AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
-ORDER BY ""c"".""CustomerID""
+    SELECT DISTINCT ""t0"".""CustomerID""
+    FROM (
+        SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+        FROM ""Customers"" AS ""c""
+        ORDER BY ""c"".""CustomerID""
+        LIMIT 2
+    ) AS ""t0""
+) AS ""t0"" ON ""o"".""CustomerID"" = ""t0"".""CustomerID""
+ORDER BY ""t0"".""CustomerID""
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
@@ -553,19 +527,27 @@ ORDER BY ""c"".""CustomerID""",
             base.Include_duplicate_collection_result_operator();
 
             Assert.Equal(
-                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-LIMIT 2
+                @"SELECT ""t0"".""CustomerID"", ""t0"".""Address"", ""t0"".""City"", ""t0"".""CompanyName"", ""t0"".""ContactName"", ""t0"".""ContactTitle"", ""t0"".""Country"", ""t0"".""Fax"", ""t0"".""Phone"", ""t0"".""PostalCode"", ""t0"".""Region""
+FROM (
+    SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+    FROM ""Customers"" AS ""c""
+    ORDER BY ""c"".""CustomerID""
+    LIMIT 2
+) AS ""t0""
+ORDER BY ""t0"".""CustomerID""
 
 SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
 INNER JOIN (
-    SELECT DISTINCT ""c"".""CustomerID""
-    FROM ""Customers"" AS ""c""
-    LIMIT 2
-) AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
-ORDER BY ""c"".""CustomerID""
+    SELECT DISTINCT ""t0"".""CustomerID""
+    FROM (
+        SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+        FROM ""Customers"" AS ""c""
+        ORDER BY ""c"".""CustomerID""
+        LIMIT 2
+    ) AS ""t0""
+) AS ""t0"" ON ""o"".""CustomerID"" = ""t0"".""CustomerID""
+ORDER BY ""t0"".""CustomerID""
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
@@ -615,25 +597,14 @@ ORDER BY ""c"".""City"", ""c"".""CustomerID""",
             base.Include_collection_on_additional_from_clause2();
 
             Assert.Equal(
-                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-LIMIT 5
-
-SELECT 1
-FROM ""Customers"" AS ""c""
-
-SELECT 1
-FROM ""Customers"" AS ""c""
-
-SELECT 1
-FROM ""Customers"" AS ""c""
-
-SELECT 1
-FROM ""Customers"" AS ""c""
-
-SELECT 1
-FROM ""Customers"" AS ""c""",
+                @"SELECT ""t0"".""CustomerID"", ""t0"".""Address"", ""t0"".""City"", ""t0"".""CompanyName"", ""t0"".""ContactName"", ""t0"".""ContactTitle"", ""t0"".""Country"", ""t0"".""Fax"", ""t0"".""Phone"", ""t0"".""PostalCode"", ""t0"".""Region""
+FROM (
+    SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+    FROM ""Customers"" AS ""c""
+    ORDER BY ""c"".""CustomerID""
+    LIMIT 5
+) AS ""t0""
+CROSS JOIN ""Customers"" AS ""c""",
                 Sql);
         }
 
@@ -642,19 +613,27 @@ FROM ""Customers"" AS ""c""",
             base.Include_duplicate_collection_result_operator2();
 
             Assert.Equal(
-                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-LIMIT 2
+                @"SELECT ""t0"".""CustomerID"", ""t0"".""Address"", ""t0"".""City"", ""t0"".""CompanyName"", ""t0"".""ContactName"", ""t0"".""ContactTitle"", ""t0"".""Country"", ""t0"".""Fax"", ""t0"".""Phone"", ""t0"".""PostalCode"", ""t0"".""Region""
+FROM (
+    SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+    FROM ""Customers"" AS ""c""
+    ORDER BY ""c"".""CustomerID""
+    LIMIT 2
+) AS ""t0""
+ORDER BY ""t0"".""CustomerID""
 
 SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
 INNER JOIN (
-    SELECT DISTINCT ""c"".""CustomerID""
-    FROM ""Customers"" AS ""c""
-    LIMIT 2
-) AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
-ORDER BY ""c"".""CustomerID""
+    SELECT DISTINCT ""t0"".""CustomerID""
+    FROM (
+        SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+        FROM ""Customers"" AS ""c""
+        ORDER BY ""c"".""CustomerID""
+        LIMIT 2
+    ) AS ""t0""
+) AS ""t0"" ON ""o"".""CustomerID"" = ""t0"".""CustomerID""
+ORDER BY ""t0"".""CustomerID""
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
@@ -702,11 +681,14 @@ INNER JOIN ""Orders"" AS ""o0"" ON ""o"".""OrderID"" = ""o0"".""OrderID""",
             base.Include_duplicate_reference();
 
             Assert.Equal(
-                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate"", ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Orders"" AS ""o""
-LEFT JOIN ""Customers"" AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
-ORDER BY ""o"".""CustomerID""
-LIMIT 2
+                @"SELECT ""t0"".""OrderID"", ""t0"".""CustomerID"", ""t0"".""EmployeeID"", ""t0"".""OrderDate"", ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM (
+    SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+    FROM ""Orders"" AS ""o""
+    ORDER BY ""o"".""CustomerID""
+    LIMIT 2
+) AS ""t0""
+LEFT JOIN ""Customers"" AS ""c"" ON ""t0"".""CustomerID"" = ""c"".""CustomerID""
 
 SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate"", ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Orders"" AS ""o""
@@ -727,11 +709,14 @@ LIMIT 2 OFFSET 2",
             base.Include_duplicate_reference2();
 
             Assert.Equal(
-                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate"", ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Orders"" AS ""o""
-LEFT JOIN ""Customers"" AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
-ORDER BY ""o"".""OrderID""
-LIMIT 2
+                @"SELECT ""t0"".""OrderID"", ""t0"".""CustomerID"", ""t0"".""EmployeeID"", ""t0"".""OrderDate"", ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM (
+    SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+    FROM ""Orders"" AS ""o""
+    ORDER BY ""o"".""OrderID""
+    LIMIT 2
+) AS ""t0""
+LEFT JOIN ""Customers"" AS ""c"" ON ""t0"".""CustomerID"" = ""c"".""CustomerID""
 
 SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
@@ -750,10 +735,13 @@ LIMIT 2 OFFSET 2",
             base.Include_duplicate_reference3();
 
             Assert.Equal(
-                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-FROM ""Orders"" AS ""o""
-ORDER BY ""o"".""OrderID""
-LIMIT 2
+                @"SELECT ""t0"".""OrderID"", ""t0"".""CustomerID"", ""t0"".""EmployeeID"", ""t0"".""OrderDate""
+FROM (
+    SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+    FROM ""Orders"" AS ""o""
+    ORDER BY ""o"".""OrderID""
+    LIMIT 2
+) AS ""t0""
 
 SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate"", ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Orders"" AS ""o""
@@ -902,11 +890,6 @@ INNER JOIN (
 ) AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
 ORDER BY ""c"".""CustomerID""",
                 Sql);
-        }
-
-        public IncludeSqliteTest(NorthwindQuerySqliteFixture fixture)
-            : base(fixture)
-        {
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

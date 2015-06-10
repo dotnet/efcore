@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     let selectExpression = v.TryGetQuery(querySource)
                     where selectExpression != null
                     select selectExpression)
-                    .Single();
+                    .First();
         }
 
         public virtual IQueryMethodProvider QueryMethodProvider { get; }

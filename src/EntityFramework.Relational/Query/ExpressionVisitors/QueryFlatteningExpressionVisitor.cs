@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             _operatorToFlatten = operatorToFlatten;
         }
 
-        protected override Expression VisitMethodCall([NotNull] MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 

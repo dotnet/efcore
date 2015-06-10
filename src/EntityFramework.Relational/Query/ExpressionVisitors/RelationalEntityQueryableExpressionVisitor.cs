@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
@@ -36,7 +37,27 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 
         private new RelationalQueryModelVisitor QueryModelVisitor => (RelationalQueryModelVisitor)base.QueryModelVisitor;
 
-        protected override Expression VisitMember([NotNull] MemberExpression memberExpression)
+        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        {
+            Check.NotNull(subQueryExpression, nameof(subQueryExpression));
+
+            var queryModelVisitor = (RelationalQueryModelVisitor)CreateQueryModelVisitor();
+
+            queryModelVisitor.VisitQueryModel(subQueryExpression.QueryModel);
+
+            if (queryModelVisitor.Queries.Count == 1
+                && !queryModelVisitor.RequiresClientFilter
+                && !queryModelVisitor.RequiresClientSelectMany
+                && !queryModelVisitor.RequiresClientProjection
+                && !queryModelVisitor.RequiresClientResultOperator)
+            {
+                QueryModelVisitor.AddSubquery(_querySource, queryModelVisitor.Queries.First());
+            }
+
+            return queryModelVisitor.Expression;
+        }
+
+        protected override Expression VisitMember(MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
 
@@ -53,7 +74,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             return base.VisitMember(memberExpression);
         }
 
-        protected override Expression VisitMethodCall([NotNull] MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
@@ -115,7 +136,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                         tableAlias,
                         _querySource));
 
-                var sqlStart = sqlString.Cast<char>().SkipWhile(char.IsWhiteSpace).Take(7).ToArray();
+                var sqlStart = sqlString.SkipWhile(char.IsWhiteSpace).Take(7).ToArray();
 
                 if (sqlStart.Length != 7
                     || !char.IsWhiteSpace(sqlStart.Last())
@@ -126,6 +147,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                     {
                         throw new InvalidOperationException(Strings.StoredProcedureIncludeNotSupported);
                     }
+
                     QueryModelVisitor.RequiresClientEval = true;
 
                     composable = false;
