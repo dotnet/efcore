@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Sequence("StartAtZeroSequence").Start(0);
                 modelBuilder.ForSqlServer().UseSequence("StartAtZeroSequence");
 
-                SetSentinelValues(modelBuilder);
+                SetSentinelValues(modelBuilder, IntSentinel);
             }
         }
     }

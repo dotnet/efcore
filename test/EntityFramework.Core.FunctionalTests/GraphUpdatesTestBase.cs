@@ -2435,12 +2435,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     };
             }
 
-            protected static void SetSentinelValues(ModelBuilder modelBuilder)
+            protected static void SetSentinelValues(ModelBuilder modelBuilder, int intSentinel)
             {
                 foreach (var property in modelBuilder.Model.EntityTypes.SelectMany(e => e.Properties)
                     .Where(p => p.ClrType == typeof(int) || p.ClrType == typeof(int?)))
                 {
-                    property.SentinelValue = -1;
+                    property.SentinelValue = intSentinel;
                 }
 
                 var sentinelGuid = new Guid("{71334AF2-51DE-4015-9CC1-10CE02D151BB}");

@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 base.OnModelCreating(modelBuilder);
 
-                SetSentinelValues(modelBuilder);
+                SetSentinelValues(modelBuilder, IntSentinel);
             }
         }
     }
