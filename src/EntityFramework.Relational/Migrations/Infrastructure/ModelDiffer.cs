@@ -15,7 +15,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 {
     // TODO: Handle transitive renames (See #1907)
-    // TODO: Match similar items
+    // TODO: Structural matching
     public class ModelDiffer : IModelDiffer
     {
         private static readonly Type[] _dropOperationTypes =
@@ -208,23 +208,39 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         #region IEntityType
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IEntityType> source, IEnumerable<IEntityType> target) =>
-            DiffCollection(source, target, Diff, TryMatch, Add, Remove);
+        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IEntityType> source, IEnumerable<IEntityType> target)
+            => DiffCollection(
+                source, target,
+                Diff, Add, Remove,
+                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
+                (s, t) => string.Equals(
+                        MetadataExtensions.Extensions(s).Schema,
+                        MetadataExtensions.Extensions(t).Schema,
+                        StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(
+                        MetadataExtensions.Extensions(s).Table,
+                        MetadataExtensions.Extensions(t).Table,
+                        StringComparison.OrdinalIgnoreCase),
+                (s, t) => string.Equals(
+                     MetadataExtensions.Extensions(s).Table,
+                     MetadataExtensions.Extensions(t).Table,
+                     StringComparison.OrdinalIgnoreCase));
 
         protected virtual IEnumerable<MigrationOperation> Diff(IEntityType source, IEntityType target)
         {
             var sourceExtensions = MetadataExtensions.Extensions(source);
             var targetExtensions = MetadataExtensions.Extensions(target);
 
-            if (sourceExtensions.Schema != targetExtensions.Schema
-                || sourceExtensions.Table != targetExtensions.Table)
+            var schemaChanged = sourceExtensions.Schema != targetExtensions.Schema;
+            var renamed = sourceExtensions.Table != targetExtensions.Table;
+            if (schemaChanged || renamed)
             {
                 yield return new RenameTableOperation
                 {
                     Schema = sourceExtensions.Schema,
                     Name = sourceExtensions.Table,
-                    NewSchema = targetExtensions.Schema,
-                    NewName = targetExtensions.Table
+                    NewSchema = schemaChanged ? targetExtensions.Schema : null,
+                    NewName = renamed ? targetExtensions.Table : null
                 };
             }
 
@@ -232,7 +248,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             var targetPrimaryKey = target.GetPrimaryKey();
 
             var operations = Diff(source.GetProperties(), target.GetProperties())
-                .Concat(Diff(sourcePrimaryKey, targetPrimaryKey))
+                .Concat(Diff(new[] { sourcePrimaryKey }, new[] { targetPrimaryKey }))
                 .Concat(Diff(source.GetKeys().Where(k => k != sourcePrimaryKey), target.GetKeys().Where(k => k != targetPrimaryKey)))
                 .Concat(Diff(source.GetForeignKeys(), target.GetForeignKeys()))
                 .Concat(Diff(source.GetIndexes(), target.GetIndexes()));
@@ -240,41 +256,6 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             {
                 yield return operation;
             }
-        }
-
-        protected virtual IEntityType TryMatch(IEntityType source, IEnumerable<IEntityType> targets)
-        {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
-
-            var candidates = new Dictionary<IEntityType, int>();
-            foreach (var target in targets)
-            {
-                if (string.Equals(source.Name, target.Name, StringComparison.OrdinalIgnoreCase))
-                {
-                    return target;
-                }
-
-                var targetExtensions = MetadataExtensions.Extensions(target);
-                if (string.Equals(
-                    sourceExtensions.Table,
-                    targetExtensions.Table,
-                    StringComparison.OrdinalIgnoreCase))
-                {
-                    if (string.Equals(
-                        sourceExtensions.Schema,
-                        targetExtensions.Schema,
-                        StringComparison.OrdinalIgnoreCase))
-                    {
-                        candidates.Add(target, 0);
-                    }
-                    else
-                    {
-                        candidates.Add(target, 1);
-                    }
-                }
-            }
-
-            return candidates.OrderBy(c => c.Value).Select(c => c.Key).FirstOrDefault();
         }
 
         protected virtual IEnumerable<MigrationOperation> Add(IEntityType target)
@@ -288,13 +269,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             };
 
             createTableOperation.Columns.AddRange(target.GetProperties().SelectMany(Add).Cast<AddColumnOperation>());
-
             var primaryKey = target.GetPrimaryKey();
-            if (primaryKey != null)
-            {
-                createTableOperation.PrimaryKey = Add(primaryKey).Cast<AddPrimaryKeyOperation>().Single();
-            }
-
+            createTableOperation.PrimaryKey = Add(primaryKey).Cast<AddPrimaryKeyOperation>().Single();
             createTableOperation.UniqueConstraints.AddRange(
                 target.GetKeys().Where(k => k != primaryKey).SelectMany(Add).Cast<AddUniqueConstraintOperation>());
             createTableOperation.ForeignKeys.AddRange(target.GetForeignKeys().SelectMany(Add).Cast<AddForeignKeyOperation>());
@@ -322,8 +298,15 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         #region IProperty
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IProperty> source, IEnumerable<IProperty> target) =>
-            DiffCollection(source, target, Diff, TryMatch, Add, Remove);
+        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IProperty> source, IEnumerable<IProperty> target)
+            => DiffCollection(
+                source, target,
+                Diff, Add, Remove,
+                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
+                (s, t) => string.Equals(
+                    MetadataExtensions.Extensions(s).Column,
+                    MetadataExtensions.Extensions(t).Column,
+                    StringComparison.OrdinalIgnoreCase));
 
         protected virtual IEnumerable<MigrationOperation> Diff(IProperty source, IProperty target)
         {
@@ -350,16 +333,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
             var isNullableChanged = source.IsNullable != target.IsNullable;
             var columnTypeChanged = sourceColumnType != targetColumnType;
-
-            // TODO: How do DefaultExpression and DefaultValue relate to IsStoreComputed?
             if (isNullableChanged
-                || source.StoreGeneratedPattern != target.StoreGeneratedPattern
                 || columnTypeChanged
                 || sourceExtensions.DefaultExpression != targetExtensions.DefaultExpression
                 || sourceExtensions.DefaultValue != targetExtensions.DefaultValue)
             {
                 var isDestructiveChange = (isNullableChanged && source.IsNullable)
-                    // TODO: Detect type narrowing
+                                          // TODO: Detect type narrowing
                                           || columnTypeChanged;
 
                 yield return new AlterColumnOperation
@@ -374,31 +354,6 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     IsDestructiveChange = isDestructiveChange
                 };
             }
-        }
-
-        protected virtual IProperty TryMatch(IProperty source, IEnumerable<IProperty> targets)
-        {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
-
-            var candidates = new List<IProperty>();
-            foreach (var target in targets)
-            {
-                if (string.Equals(source.Name, target.Name, StringComparison.OrdinalIgnoreCase))
-                {
-                    return target;
-                }
-
-                var targetExtensions = MetadataExtensions.Extensions(target);
-                if (string.Equals(
-                    sourceExtensions.Column,
-                    targetExtensions.Column,
-                    StringComparison.OrdinalIgnoreCase))
-                {
-                    candidates.Add(target);
-                }
-            }
-
-            return candidates.FirstOrDefault();
         }
 
         protected virtual IEnumerable<MigrationOperation> Add(IProperty target)
@@ -435,52 +390,16 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         #region IKey
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IKey> source, IEnumerable<IKey> target) =>
-            DiffCollection(source, target, Diff, TryMatch, Add, Remove);
+        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IKey> source, IEnumerable<IKey> target)
+            => DiffCollection(
+                source, target,
+                Diff, Add, Remove,
+                (s, t) => MetadataExtensions.Extensions(s).Name == MetadataExtensions.Extensions(t).Name
+                    && GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties))
+                    && s.IsPrimaryKey() == t.IsPrimaryKey());
 
         protected virtual IEnumerable<MigrationOperation> Diff(IKey source, IKey target)
-        {
-            if (source != null
-                && target != null)
-            {
-                var sourceExtensions = MetadataExtensions.Extensions(source);
-                var targetExtensions = MetadataExtensions.Extensions(target);
-
-                if (sourceExtensions.Name != targetExtensions.Name
-                    || !source.Properties.Select(p => MetadataExtensions.Extensions(p).Column).SequenceEqual(
-                        target.Properties.Select(p => MetadataExtensions.Extensions(p).Column)))
-                {
-                    return Remove(source)
-                        .Concat(Add(target));
-                }
-            }
-            else if (target != null)
-            {
-                return Add(target);
-            }
-            else if (source != null)
-            {
-                return Remove(source);
-            }
-
-            return Enumerable.Empty<MigrationOperation>();
-        }
-
-        protected virtual IKey TryMatch(IKey source, IEnumerable<IKey> targets)
-        {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
-
-            foreach (var target in targets)
-            {
-                var targetExtensions = MetadataExtensions.Extensions(target);
-                if (string.Equals(sourceExtensions.Name, targetExtensions.Name, StringComparison.OrdinalIgnoreCase))
-                {
-                    return target;
-                }
-            }
-
-            return null;
-        }
+            => Enumerable.Empty<MigrationOperation>();
 
         protected virtual IEnumerable<MigrationOperation> Add(IKey target)
         {
@@ -538,45 +457,24 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         #region IForeignKey
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IForeignKey> source, IEnumerable<IForeignKey> target) =>
-            DiffCollection(source, target, Diff, TryMatch, Add, Remove);
+        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IForeignKey> source, IEnumerable<IForeignKey> target)
+            => DiffCollection(
+                source, target,
+                Diff, Add, Remove,
+                (s, t) =>
+                {
+                    var sourcePrincipalEntityTypeExtensions = MetadataExtensions.Extensions(s.PrincipalEntityType);
+                    var targetPrincipalEntityTypeExtensions = MetadataExtensions.Extensions(t.PrincipalEntityType);
+
+                    return MetadataExtensions.Extensions(s).Name == MetadataExtensions.Extensions(t).Name
+                        && GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties))
+                        && sourcePrincipalEntityTypeExtensions.Schema == targetPrincipalEntityTypeExtensions.Schema
+                        && sourcePrincipalEntityTypeExtensions.Table == targetPrincipalEntityTypeExtensions.Table
+                        && GetColumnNames(s.PrincipalKey.Properties).SequenceEqual(GetColumnNames(t.PrincipalKey.Properties));
+                });
 
         protected virtual IEnumerable<MigrationOperation> Diff(IForeignKey source, IForeignKey target)
-        {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
-            var sourcePrincipalEntityTypeExtensions = MetadataExtensions.Extensions(source.PrincipalEntityType);
-            var targetExtensions = MetadataExtensions.Extensions(target);
-            var targetPrincipalEntityTypeExtensions = MetadataExtensions.Extensions(target.PrincipalEntityType);
-
-            if (sourceExtensions.Name != targetExtensions.Name
-                || !source.Properties.Select(p => MetadataExtensions.Extensions(p).Column).SequenceEqual(
-                    target.Properties.Select(p => MetadataExtensions.Extensions(p).Column))
-                || sourcePrincipalEntityTypeExtensions.Table != targetPrincipalEntityTypeExtensions.Table
-                || !source.PrincipalKey.Properties.Select(p => MetadataExtensions.Extensions(p).Column).SequenceEqual(
-                    target.PrincipalKey.Properties.Select(p => MetadataExtensions.Extensions(p).Column)))
-            {
-                return Remove(source)
-                    .Concat(Add(target));
-            }
-
-            return Enumerable.Empty<MigrationOperation>();
-        }
-
-        protected virtual IForeignKey TryMatch(IForeignKey source, IEnumerable<IForeignKey> targets)
-        {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
-
-            foreach (var target in targets)
-            {
-                var targetExtensions = MetadataExtensions.Extensions(target);
-                if (string.Equals(sourceExtensions.Name, targetExtensions.Name, StringComparison.OrdinalIgnoreCase))
-                {
-                    return target;
-                }
-            }
-
-            return null;
-        }
+            => Enumerable.Empty<MigrationOperation>();
 
         protected virtual IEnumerable<MigrationOperation> Add(IForeignKey target)
         {
@@ -584,7 +482,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.EntityType);
             var targetPrincipalEntityTypeExtensions = MetadataExtensions.Extensions(target.PrincipalEntityType);
 
-            // TODO: Set CascadeOnDelete (See #1084)
+            // TODO: Set OnDelete (See #1084)
             yield return new AddForeignKeyOperation
             {
                 Schema = targetEntityTypeExtensions.Schema,
@@ -614,17 +512,24 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         #region IIndex
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IIndex> source, IEnumerable<IIndex> target) =>
-            DiffCollection(source, target, Diff, TryMatch, Add, Remove);
+        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IIndex> source, IEnumerable<IIndex> target)
+            => DiffCollection(
+                source, target,
+                Diff, Add, Remove,
+                (s, t) => string.Equals(
+                        MetadataExtensions.Extensions(s).Name,
+                        MetadataExtensions.Extensions(t).Name,
+                        StringComparison.OrdinalIgnoreCase)
+                    && GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties))
+                    && s.IsUnique == t.IsUnique,
+                (s, t) => GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties))
+                    && s.IsUnique == t.IsUnique);
 
         protected virtual IEnumerable<MigrationOperation> Diff(IIndex source, IIndex target)
         {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
             var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.EntityType);
-            var targetExtensions = MetadataExtensions.Extensions(target);
-
-            var sourceName = sourceExtensions.Name;
-            var targetName = targetExtensions.Name;
+            var sourceName = MetadataExtensions.Extensions(source).Name;
+            var targetName = MetadataExtensions.Extensions(target).Name;
 
             if (sourceName != targetName)
             {
@@ -636,34 +541,6 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     NewName = targetName
                 };
             }
-
-            if (!source.Properties.Select(p => MetadataExtensions.Extensions(p).Column).SequenceEqual(
-                target.Properties.Select(p => MetadataExtensions.Extensions(p).Column))
-                || source.IsUnique != target.IsUnique)
-            {
-                var operations = Remove(source)
-                    .Concat(Add(target));
-                foreach (var operation in operations)
-                {
-                    yield return operation;
-                }
-            }
-        }
-
-        protected virtual IIndex TryMatch(IIndex source, IEnumerable<IIndex> targets)
-        {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
-
-            foreach (var target in targets)
-            {
-                var targetExtensions = MetadataExtensions.Extensions(target);
-                if (string.Equals(sourceExtensions.Name, targetExtensions.Name, StringComparison.OrdinalIgnoreCase))
-                {
-                    return target;
-                }
-            }
-
-            return null;
         }
 
         protected virtual IEnumerable<MigrationOperation> Add(IIndex target)
@@ -698,30 +575,36 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         #region ISequence
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<ISequence> source, IEnumerable<ISequence> target) =>
-            DiffCollection(source, target, Diff, TryMatch, Add, Remove);
+        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<ISequence> source, IEnumerable<ISequence> target)
+            => DiffCollection(
+                source, target,
+                Diff, Add, Remove,
+                (s, t) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+                    && s.Type == t.Type,
+                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+                    && s.Type == t.Type);
 
         protected virtual IEnumerable<MigrationOperation> Diff(ISequence source, ISequence target)
         {
-            if (source.Schema != target.Schema
-                || source.Name != target.Name)
+            var schemaChanged = source.Schema != target.Schema;
+            var renamed = source.Name != target.Name;
+            if (schemaChanged || renamed)
             {
                 yield return new RenameSequenceOperation
                 {
                     Schema = source.Schema,
                     Name = source.Name,
-                    NewSchema = target.Schema,
-                    NewName = target.Name
+                    NewSchema = schemaChanged ? target.Schema : null,
+                    NewName = renamed ? target.Name : null
                 };
             }
 
             if (source.IncrementBy != target.IncrementBy
                 || source.MaxValue != target.MaxValue
                 || source.MinValue != target.MinValue
-                || source.StartValue != target.StartValue
                 || source.Cycle != target.Cycle)
             {
-                // TODO: What about StartValue and StoreType?
                 yield return new AlterSequenceOperation
                 {
                     Schema = source.Schema,
@@ -732,24 +615,6 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     Cycle = target.Cycle
                 };
             }
-        }
-
-        protected virtual ISequence TryMatch(ISequence source, IEnumerable<ISequence> targets)
-        {
-            var candidates = new List<ISequence>();
-            foreach (var target in targets)
-            {
-                if (string.Equals(source.Name, target.Name, StringComparison.OrdinalIgnoreCase))
-                {
-                    if (string.Equals(source.Schema, target.Schema, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return target;
-                    }
-                    candidates.Add(target);
-                }
-            }
-
-            return candidates.FirstOrDefault();
         }
 
         protected virtual IEnumerable<MigrationOperation> Add(ISequence target)
@@ -778,39 +643,63 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         #endregion
 
-        // TODO: Better factoring?
         protected virtual IEnumerable<MigrationOperation> DiffCollection<T>(
             IEnumerable<T> sources,
             IEnumerable<T> targets,
             Func<T, T, IEnumerable<MigrationOperation>> diff,
-            Func<T, IEnumerable<T>, T> tryMatch,
             Func<T, IEnumerable<MigrationOperation>> add,
-            Func<T, IEnumerable<MigrationOperation>> remove)
+            Func<T, IEnumerable<MigrationOperation>> remove,
+            params Func<T, T, bool>[] predicates)
         {
-            var added = new List<T>(targets);
-            foreach (var source in sources)
+            var sourceList = sources.ToList();
+            var targetList = targets.ToList();
+
+            foreach (var predicate in predicates)
             {
-                var target = tryMatch(source, added);
-                if (target == null)
+                for (var i = sourceList.Count - 1; i >= 0; i--)
                 {
-                    foreach (var operation in remove(source))
+                    var source = sourceList[i];
+                    var paired = false;
+
+                    for (var j = targetList.Count - 1; j >= 0; j--)
                     {
-                        yield return operation;
+                        var target = targetList[j];
+
+                        if (predicate(source, target))
+                        {
+                            targetList.RemoveAt(j);
+                            paired = true;
+
+                            foreach (var operation in diff(source, target))
+                            {
+                                yield return operation;
+                            }
+
+                            break;
+                        }
                     }
-                }
-                else
-                {
-                    added.Remove(target);
-                    foreach (var operation in diff(source, target))
+
+                    if (paired)
                     {
-                        yield return operation;
+                        sourceList.RemoveAt(i);
                     }
                 }
             }
 
-            foreach (var operation in added.SelectMany(add))
+            foreach (var source in sourceList)
             {
-                yield return operation;
+                foreach (var operation in remove(source))
+                {
+                    yield return operation;
+                }
+            }
+
+            foreach (var target in targetList)
+            {
+                foreach (var operation in add(target))
+                {
+                    yield return operation;
+                }
             }
         }
 

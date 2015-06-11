@@ -9,7 +9,15 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
     {
         public virtual string Schema { get; [param: CanBeNull] set; }
         public virtual string Name { get; [param: NotNull] set; }
+
+        /// <summary>
+        /// The new schema name or null if unchanged.
+        /// </summary>
         public virtual string NewSchema { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        /// The new table name or null if unchanged.
+        /// </summary>
         public virtual string NewName { get; [param: CanBeNull] set; }
     }
 }

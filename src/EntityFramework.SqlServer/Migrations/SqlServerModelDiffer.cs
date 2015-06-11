@@ -114,13 +114,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             {
                 if (source.SqlServer().IsClustered != target.SqlServer().IsClustered)
                 {
-                    if (source != null
-                        && !operations.Any(o => o is DropPrimaryKeyOperation || o is DropUniqueConstraintOperation))
-                    {
-                        operations.AddRange(Remove(source));
-                    }
-
-                    operations.AddRange(Add(target));
+                    operations.AddRange(Remove(source).Concat(Add(target)));
                 }
             }
             else if (target.SqlServer().IsClustered != null)

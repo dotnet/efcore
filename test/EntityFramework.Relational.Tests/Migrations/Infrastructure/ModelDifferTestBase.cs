@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.Tests;
@@ -50,7 +48,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
                 = new Dictionary<Type, RelationalTypeMapping>
                     {
-                        { typeof(int), new RelationalTypeMapping("int", DbType.String) }
+                        { typeof(int), new RelationalTypeMapping("int") },
+                        { typeof(long), new RelationalTypeMapping("bigint") },
+                        { typeof(string), new RelationalTypeMapping("nvarchar(4000)") }
                     };
 
             protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
