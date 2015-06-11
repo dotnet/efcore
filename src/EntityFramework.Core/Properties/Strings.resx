@@ -498,4 +498,7 @@
   <data name="CannotBeNullablePK" xml:space="preserve">
     <value>The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the property is a part of the primary key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
   </data>
+  <data name="ShadowEntity" xml:space="preserve">
+    <value>Entity type '{entityType}' is in shadow-state. A valid model requires all entity types to have corresponding CLR type.</value>
+  </data>
 </root>

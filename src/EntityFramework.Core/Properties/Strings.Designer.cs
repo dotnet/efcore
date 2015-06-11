@@ -1028,6 +1028,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("CannotBeNullablePK", "property", "entity"), property, entity);
         }
 
+        /// <summary>
+        /// Entity type '{entityType}' is in shadow-state. A valid model requires all entity types to have corresponding CLR type.
+        /// </summary>
+        public static string ShadowEntity([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ShadowEntity", "entityType"), entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

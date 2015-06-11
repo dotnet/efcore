@@ -13,8 +13,18 @@ namespace Microsoft.Data.Entity.Internal
     {
         public virtual void Validate(IModel model)
         {
+            EnsureNoShadowEntities(model);
             EnsureNoShadowKeys(model);
             EnsureValidForeignKeyChains(model);
+        }
+
+        protected void EnsureNoShadowEntities(IModel model)
+        {
+            var firstShadowEntity = model.EntityTypes.FirstOrDefault(entityType => !entityType.HasClrType());
+            if (firstShadowEntity != null)
+            {
+                ShowError(Strings.ShadowEntity(firstShadowEntity.Name));
+            }
         }
 
         protected void EnsureNoShadowKeys(IModel model)

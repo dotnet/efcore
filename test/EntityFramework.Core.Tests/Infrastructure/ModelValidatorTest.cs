@@ -10,14 +10,23 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
     public abstract class ModelValidatorTest
     {
         [Fact]
+        public virtual void Detects_shadow_entities()
+        {
+            var model = new Model();
+            model.AddEntityType("A");
+
+            VerifyError(Strings.ShadowEntity("A"), model);
+        }
+
+        [Fact]
         public virtual void Detects_shadow_keys()
         {
             var model = new Model();
-            var entityType = model.AddEntityType("E");
+            var entityType = model.AddEntityType(typeof(A));
             var keyProperty = entityType.AddProperty("Id", typeof(int), shadowProperty: true);
             entityType.AddKey(keyProperty);
 
-            VerifyWarning(Strings.ShadowKey("{'Id'}", "E", "{'Id'}"), model);
+            VerifyWarning(Strings.ShadowKey("{'Id'}", typeof(A).FullName, "{'Id'}"), model);
         }
 
         [Fact]
@@ -43,7 +52,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
             CreateForeignKey(keyA, keyB);
             CreateForeignKey(keyB, keyA);
-            
+
             VerifyError(Strings.CircularDependency("'A' {'P0'} -> 'B' {'P0'}, 'B' {'P0'} -> 'A' {'P0'}"), model);
         }
 
