@@ -33,6 +33,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="System" />
     <Reference Include="System.Data" />
     <ProjectReference Include="..\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
@@ -86,6 +87,9 @@
     <Compile Include="Metadata\SqlitePropertyExtensions.cs" />
     <Compile Include="Migrations\SqliteHistoryRepository.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGenerator.cs" />
+    <Compile Include="Properties\Strings.Designer.cs">
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
     <Compile Include="Query\Methods\MathAbsTranslator.cs" />
     <Compile Include="Query\Methods\StringLengthTranslator.cs" />
     <Compile Include="Query\Methods\StringToLowerTranslator.cs" />
@@ -118,6 +122,12 @@
       <LastGenOutput>Resources.cs</LastGenOutput>
     </Content>
     <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Strings.resx">
+      <LogicalName>EntityFramework.Sqlite.Strings.resources</LogicalName>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

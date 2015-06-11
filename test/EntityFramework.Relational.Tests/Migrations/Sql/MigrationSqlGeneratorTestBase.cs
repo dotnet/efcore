@@ -165,13 +165,15 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
         }
 
         [Fact]
-        public virtual void AlterTableOperation()
+        public virtual void RenameTableOperation_within_schema()
         {
             Generate(
                 new RenameTableOperation
                 {
                     Name = "People",
-                    Schema = "dbo"
+                    Schema = "dbo",
+                    NewName = "Personas",
+                    NewSchema = "dbo"
                 });
         }
 

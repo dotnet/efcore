@@ -10,6 +10,9 @@ namespace Microsoft.Data.Entity.Sqlite
 {
     public class SqliteSqlGenerator : SqlGenerator
     {
+        // TODO throw a logger warning that this call was improperly made. The SQLite provider should never specify a schema
+        public override string DelimitIdentifier(string tableName, string schemaName) => base.DelimitIdentifier(tableName);
+
         protected override void AppendIdentityWhereCondition(StringBuilder builder, ColumnModification columnModification)
         {
             Check.NotNull(builder, nameof(builder));

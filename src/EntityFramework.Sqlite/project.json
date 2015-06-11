@@ -9,6 +9,9 @@
     "Microsoft.Data.Sqlite": "1.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
+  "namedResource": {
+    "EntityFramework.Sqlite.Strings": "Properties/Strings.resx"
+  },
   "frameworks": {
     "net45": { },
     "dotnet": {
