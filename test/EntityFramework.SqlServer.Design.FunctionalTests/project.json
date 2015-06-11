@@ -7,9 +7,10 @@
     "Microsoft.Framework.Runtime": "1.0.0-*"
   },
   "commands": {
-    "test": "xunit.runner.aspnet"
+    "test": "xunit.runner.dnx"
   },
   "frameworks": {
+    "net46": { },
     "dnx451": { }
   }
 }
