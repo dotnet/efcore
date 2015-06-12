@@ -783,7 +783,7 @@ LIMIT 9",
             base.Select_constant_null_string();
 
             Assert.Equal(
-                @"SELECT NULL
+                @"SELECT 1
 FROM ""Customers"" AS ""c""",
                 Sql);
         }

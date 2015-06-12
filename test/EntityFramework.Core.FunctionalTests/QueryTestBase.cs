@@ -1342,6 +1342,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Select_anonymous_bool_constant_true()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.CustomerID, ConstantTrue = true }));
+        }
+
+        [Fact]
+        public virtual void Select_anonymous_bool_constant_in_expression()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.CustomerID, Expression = c.CustomerID.Length + 5 }));
+        }
+
+        [Fact]
         public virtual void Select_customer_table()
         {
             AssertQuery<Customer>(

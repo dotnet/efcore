@@ -66,7 +66,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
         public override Expression Visit(Expression expression)
         {
             if (expression != null
-                && !(expression is QuerySourceReferenceExpression))
+                && !(expression is QuerySourceReferenceExpression)
+                && !(expression is ConstantExpression))
             {
                 var sqlExpression
                     = _sqlTranslatingExpressionVisitor.Visit(expression);

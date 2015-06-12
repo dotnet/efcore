@@ -773,6 +773,56 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
+        public override void Select_anonymous_one()
+        {
+            base.Select_anonymous_one();
+
+            Assert.Equal(
+                @"SELECT [c].[City]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Select_anonymous_two()
+        {
+            base.Select_anonymous_two();
+
+            Assert.Equal(
+                @"SELECT [c].[City], [c].[Phone]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Select_anonymous_three()
+        {
+            base.Select_anonymous_three();
+
+            Assert.Equal(
+                @"SELECT [c].[City], [c].[Phone], [c].[Country]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Select_anonymous_bool_constant_true()
+        {
+            base.Select_anonymous_bool_constant_true();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Select_anonymous_bool_constant_in_expression()
+        {
+            base.Select_anonymous_bool_constant_in_expression();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], (LEN([c].[CustomerID]) + 5)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void Select_scalar_primitive_after_take()
         {
             base.Select_scalar_primitive_after_take();
@@ -788,7 +838,7 @@ FROM [Employees] AS [e]",
             base.Select_constant_null_string();
 
             Assert.Equal(
-                @"SELECT NULL
+                @"SELECT 1
 FROM [Customers] AS [c]",
                 Sql);
         }
