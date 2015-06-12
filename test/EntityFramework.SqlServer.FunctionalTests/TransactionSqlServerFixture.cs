@@ -4,9 +4,7 @@
 using System;
 using System.Data.Common;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
-using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests

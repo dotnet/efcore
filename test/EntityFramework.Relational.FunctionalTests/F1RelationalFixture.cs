@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Chassis>().Table("Chassis");
-            modelBuilder.Entity<Team>().Table("Teams");
+            modelBuilder.Entity<Team>().Table("Teams").Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
             modelBuilder.Entity<Driver>().Table("Drivers");
             modelBuilder.Entity<Engine>().Table("Engines");
             modelBuilder.Entity<EngineSupplier>().Table("EngineSuppliers");

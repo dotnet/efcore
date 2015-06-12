@@ -12,8 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -24,18 +22,13 @@ namespace Microsoft.Data.Entity.Relational.Update
     {
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
         private readonly List<bool> _resultSetEnd = new List<bool>();
-        private readonly IRelationalMetadataExtensionProvider _metadataExtensionProvider;
         protected StringBuilder CachedCommandText { get; set; }
         protected int LastCachedCommandIndex;
 
         protected ReaderModificationCommandBatch(
-            [NotNull] ISqlGenerator sqlGenerator,
-            [NotNull] IRelationalMetadataExtensionProvider metadataExtensionProvider)
+            [NotNull] ISqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
-            Check.NotNull(metadataExtensionProvider, nameof(metadataExtensionProvider));
-
-            _metadataExtensionProvider = metadataExtensionProvider;
         }
 
         public override IReadOnlyList<ModificationCommand> ModificationCommands => _modificationCommands;

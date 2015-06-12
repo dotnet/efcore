@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -42,6 +43,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
                 : base(serviceProvider, options)
             {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog>().Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
             }
 
             public DbSet<Blog> Blogs { get; set; }

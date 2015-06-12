@@ -29,10 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
             var maxBatchSize = optionsExtension?.MaxBatchSize;
 
-            return new SqlServerModificationCommandBatch(
-                (ISqlServerSqlGenerator)SqlGenerator,
-                metadataExtensionProvider,
-                maxBatchSize);
+            return new SqlServerModificationCommandBatch((ISqlServerSqlGenerator)SqlGenerator, maxBatchSize);
         }
     }
 }

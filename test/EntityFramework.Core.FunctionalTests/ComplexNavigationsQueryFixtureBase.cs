@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsModel;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -14,10 +15,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Level1>().Key(e => e.Id);
-            modelBuilder.Entity<Level2>().Key(e => e.Id);
-            modelBuilder.Entity<Level3>().Key(e => e.Id);
-            modelBuilder.Entity<Level4>().Key(e => e.Id);
+            modelBuilder.Entity<Level1>().Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+            modelBuilder.Entity<Level2>().Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+            modelBuilder.Entity<Level3>().Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+            modelBuilder.Entity<Level4>().Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
 
             modelBuilder.Entity<Level1>().Reference(e => e.OneToOne_Required_PK).InverseReference(e => e.OneToOne_Required_PK_Inverse).PrincipalKey<Level1>(e => e.Id).Required(true);
             modelBuilder.Entity<Level1>().Reference(e => e.OneToOne_Optional_PK).InverseReference(e => e.OneToOne_Optional_PK_Inverse).PrincipalKey<Level1>(e => e.Id).Required(false);

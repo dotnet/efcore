@@ -12,9 +12,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
         }
 
-        protected override bool SnapshotSupported
-        {
-            get { return true; }
-        }
+        protected override bool SnapshotSupported => true;
     }
 }

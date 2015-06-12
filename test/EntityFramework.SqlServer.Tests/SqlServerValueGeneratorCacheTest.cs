@@ -93,7 +93,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .GenerateValueOnAdd()
-                .ForSqlServer(b => b.UseDefaultValueGeneration())
                 .Metadata;
 
             var cache = new SqlServerValueGeneratorCache();
@@ -109,7 +108,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .GenerateValueOnAdd()
-                .ForSqlServer(b => b.UseDefaultValueGeneration())
                 .Metadata;
 
             var cache = new SqlServerValueGeneratorCache();
@@ -159,7 +157,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .GenerateValueOnAdd()
-                .ForSqlServer(b => b.UseDefaultValueGeneration())
                 .Metadata;
 
             var cache = new SqlServerValueGeneratorCache();
@@ -196,7 +193,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .GenerateValueOnAdd()
-                .ForSqlServer(b => b.UseDefaultValueGeneration())
                 .Metadata;
 
             var cache = new SqlServerValueGeneratorCache();
@@ -240,7 +236,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .GenerateValueOnAdd()
-                .ForSqlServer(b => b.UseDefaultValueGeneration())
                 .Metadata;
 
             var cache = new SqlServerValueGeneratorCache();
@@ -256,7 +251,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .GenerateValueOnAdd()
-                .ForSqlServer(b => b.UseDefaultValueGeneration())
                 .Metadata;
 
             var cache = new SqlServerValueGeneratorCache();
@@ -306,7 +300,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .GenerateValueOnAdd()
-                .ForSqlServer(b => b.UseDefaultValueGeneration())
                 .Metadata;
 
             var cache = new SqlServerValueGeneratorCache();
@@ -326,7 +319,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .GenerateValueOnAdd()
-                .ForSqlServer(b => b.UseDefaultValueGeneration())
                 .Metadata;
 
             var cache = new SqlServerValueGeneratorCache();
@@ -356,7 +348,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .GenerateValueOnAdd()
-                .ForSqlServer(b => b.UseDefaultValueGeneration())
                 .Metadata;
 
             var cache = new SqlServerValueGeneratorCache();
@@ -391,7 +382,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .GenerateValueOnAdd()
-                .ForSqlServer(b => b.UseDefaultValueGeneration())
                 .Metadata;
 
             var cache = new SqlServerValueGeneratorCache();

@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.Equal(10, result.Count);
 
-                var level1 = result.Where(e => e.Name == "L1 01").Single();
+                var level1 = result.Single(e => e.Name == "L1 01");
 
                 Assert.Equal(5, level1.OneToMany_Optional.Count);
                 Assert.True(level1.OneToMany_Optional.Select(e => e.Name).Contains("L2 02"));
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.True(level1.OneToMany_Optional.Select(e => e.Name).Contains("L2 08"));
                 Assert.True(level1.OneToMany_Optional.Select(e => e.Name).Contains("L2 10"));
 
-                var level2 = level1.OneToMany_Optional.Where(e => e.Name == "L2 02").Single();
+                var level2 = level1.OneToMany_Optional.Single(e => e.Name == "L2 02");
 
                 Assert.Equal(2, level2.OneToMany_Optional.Count);
                 Assert.True(level2.OneToMany_Optional.Select(e => e.Name).Contains("L3 04"));
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.Equal(10, result.Count);
 
-                var level1 = result.Where(e => e.Name == "L1 01").Single();
+                var level1 = result.Single(e => e.Name == "L1 01");
 
                 Assert.Equal(5, level1.OneToMany_Optional.Count);
                 Assert.True(level1.OneToMany_Optional.Select(e => e.Name).Contains("L2 02"));
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.True(level1.OneToMany_Optional.Select(e => e.Name).Contains("L2 08"));
                 Assert.True(level1.OneToMany_Optional.Select(e => e.Name).Contains("L2 10"));
 
-                var level2 = level1.OneToMany_Optional.Where(e => e.Name == "L2 02").Single();
+                var level2 = level1.OneToMany_Optional.Single(e => e.Name == "L2 02");
 
                 Assert.Equal(2, level2.OneToMany_Optional.Count);
                 Assert.True(level2.OneToMany_Optional.Select(e => e.Name).Contains("L3 04"));

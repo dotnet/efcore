@@ -4,6 +4,7 @@
 using System;
 using System.Reflection;
 using System.Collections.Generic;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -20,10 +21,27 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<StringKeyDataType>();
             modelBuilder.Entity<StringForeignKeyDataType>();
 
+            modelBuilder.Entity<BuiltInDataTypes>()
+                .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.None);
+
+            modelBuilder.Entity<BuiltInNullableDataTypes>()
+                .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.None);
+
+            modelBuilder.Entity<BinaryForeignKeyDataType>()
+                .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.None);
+
+            modelBuilder.Entity<StringForeignKeyDataType>()
+                .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.None);
+
             MakeRequired<BuiltInDataTypes>(modelBuilder);
 
             modelBuilder.Entity<MaxLengthDataTypes>(b =>
                 {
+                    b.Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
                     b.Property(e => e.ByteArray5).MaxLength(5);
                     b.Property(e => e.String3).MaxLength(3);
                     b.Property(e => e.ByteArray9000).MaxLength(9000);

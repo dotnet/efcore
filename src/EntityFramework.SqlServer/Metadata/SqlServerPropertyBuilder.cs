@@ -97,24 +97,5 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
             return this;
         }
-
-        public virtual SqlServerPropertyBuilder UseDefaultValueGeneration()
-        {
-            _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Default;
-            _property.StoreGeneratedPattern = StoreGeneratedPattern.Identity;
-            _property.SqlServer().SequenceName = null;
-            _property.SqlServer().SequenceSchema = null;
-
-            return this;
-        }
-
-        public virtual SqlServerPropertyBuilder UseNoValueGeneration()
-        {
-            _property.SqlServer().ValueGenerationStrategy = null;
-            _property.SqlServer().SequenceName = null;
-            _property.SqlServer().SequenceSchema = null;
-
-            return this;
-        }
     }
 }

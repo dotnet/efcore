@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.Relational.Metadata;
@@ -362,9 +363,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public TestSqlServerModificationCommandBatch(
                 ISqlServerSqlGenerator sqlGenerator,
-                IRelationalMetadataExtensionProvider metadataExtensionProvider,
                 int? maxBatchSize)
-                : base(sqlGenerator, metadataExtensionProvider, maxBatchSize)
+                : base(sqlGenerator, maxBatchSize)
             {
             }
         }
@@ -387,7 +387,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 return new TestSqlServerModificationCommandBatch(
                     (ISqlServerSqlGenerator)SqlGenerator,
-                    metadataExtensionProvider,
                     maxBatchSize);
             }
         }
@@ -404,6 +403,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName));
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.ForSqlServer().UseSequence();
             }
         }
 

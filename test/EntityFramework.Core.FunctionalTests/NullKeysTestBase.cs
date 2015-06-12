@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -192,15 +193,27 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .InverseReference(e => e.Self)
                     .ForeignKey<WithStringFk>(e => e.SelfFk);
 
-                modelBuilder.Entity<WithIntKey>()
-                    .Collection(e => e.Dependents)
-                    .InverseReference(e => e.Principal)
-                    .ForeignKey(e => e.Fk);
+                modelBuilder.Entity<WithIntKey>(b =>
+                    {
+                        b.Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+                        b.Collection(e => e.Dependents)
+                            .InverseReference(e => e.Principal)
+                            .ForeignKey(e => e.Fk);
+                    });
 
-                modelBuilder.Entity<WithNullableIntKey>()
-                    .Collection(e => e.Dependents)
-                    .InverseReference(e => e.Principal)
-                    .ForeignKey(e => e.Fk);
+                modelBuilder.Entity<WithNullableIntKey>(b =>
+                    {
+                        b.Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+                        b.Collection(e => e.Dependents)
+                            .InverseReference(e => e.Principal)
+                            .ForeignKey(e => e.Fk);
+                    });
+
+                modelBuilder.Entity<WithIntFk>()
+                    .Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+
+                modelBuilder.Entity<WithNullableIntFk>()
+                    .Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
             }
 
             protected void EnsureCreated()

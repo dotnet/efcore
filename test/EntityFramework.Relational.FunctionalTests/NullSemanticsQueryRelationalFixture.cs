@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemantics;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
@@ -15,19 +16,17 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<NullSemanticsEntity1>().Key(e => e.Id);
-            modelBuilder.Entity<NullSemanticsEntity1>().Property(e => e.Id).GenerateValueOnAdd(false);
+            modelBuilder.Entity<NullSemanticsEntity1>().Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
 
-            modelBuilder.Entity<NullSemanticsEntity1>().Property(e => e.StringA).Required(true);
-            modelBuilder.Entity<NullSemanticsEntity1>().Property(e => e.StringB).Required(true);
-            modelBuilder.Entity<NullSemanticsEntity1>().Property(e => e.StringC).Required(true);
+            modelBuilder.Entity<NullSemanticsEntity1>().Property(e => e.StringA).Required();
+            modelBuilder.Entity<NullSemanticsEntity1>().Property(e => e.StringB).Required();
+            modelBuilder.Entity<NullSemanticsEntity1>().Property(e => e.StringC).Required();
 
-            modelBuilder.Entity<NullSemanticsEntity2>().Key(e => e.Id);
-            modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.Id).GenerateValueOnAdd(false);
+            modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
 
-            modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.StringA).Required(true);
-            modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.StringB).Required(true);
-            modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.StringC).Required(true);
+            modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.StringA).Required();
+            modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.StringB).Required();
+            modelBuilder.Entity<NullSemanticsEntity2>().Property(e => e.StringC).Required();
         }
     }
 }

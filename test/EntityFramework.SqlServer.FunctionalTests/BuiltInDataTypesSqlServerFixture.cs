@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -69,8 +70,31 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     b.Ignore(dt => dt.TestNullableSignedByte);
                 });
 
-            modelBuilder.Entity<MappedDataTypes>().Key(e => e.Int);
-            modelBuilder.Entity<MappedNullableDataTypes>().Key(e => e.Int);
+            modelBuilder.Entity<MappedDataTypes>(b =>
+                {
+                    b.Key(e => e.Int);
+                    b.Property(e => e.Int)
+                        .StoreGeneratedPattern(StoreGeneratedPattern.None);
+                });
+
+            modelBuilder.Entity<MappedNullableDataTypes>(b =>
+            {
+                b.Key(e => e.Int);
+                b.Property(e => e.Int)
+                    .StoreGeneratedPattern(StoreGeneratedPattern.None);
+            });
+
+            modelBuilder.Entity<MappedSizedDataTypes>()
+                .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.None);
+
+            modelBuilder.Entity<MappedScaledDataTypes>()
+                .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.None);
+
+            modelBuilder.Entity<MappedPrecisionAndScaledDataTypes>()
+                .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.None);
 
             MapColumnTypes<MappedDataTypes>(modelBuilder);
             MapColumnTypes<MappedNullableDataTypes>(modelBuilder);

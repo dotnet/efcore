@@ -621,29 +621,19 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null : "Test" });
         }
 
-        private class MetadataExtensionProviderFake : IRelationalMetadataExtensionProvider
-        {
-            public IRelationalEntityTypeExtensions Extensions(IEntityType entityType) => entityType.Relational();
-            public IRelationalForeignKeyExtensions Extensions(IForeignKey foreignKey) => foreignKey.Relational();
-            public IRelationalIndexExtensions Extensions(IIndex index) => index.Relational();
-            public IRelationalKeyExtensions Extensions(IKey key) => key.Relational();
-            public IRelationalPropertyExtensions Extensions(IProperty property) => property.Relational();
-            public IRelationalModelExtensions Extensions(IModel model) => model.Relational();
-        }
-
         private class ModificationCommandBatchFake : ReaderModificationCommandBatch
         {
             private readonly DbDataReader _reader;
 
             public ModificationCommandBatchFake(ISqlGenerator sqlGenerator = null)
-                : base(sqlGenerator ?? new FakeSqlGenerator(), new MetadataExtensionProviderFake())
+                : base(sqlGenerator ?? new FakeSqlGenerator())
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;
             }
 
             public ModificationCommandBatchFake(DbDataReader reader, ISqlGenerator sqlGenerator = null)
-                : base(sqlGenerator ?? new FakeSqlGenerator(), new MetadataExtensionProviderFake())
+                : base(sqlGenerator ?? new FakeSqlGenerator())
             {
                 _reader = reader;
                 ShouldAddCommand = true;

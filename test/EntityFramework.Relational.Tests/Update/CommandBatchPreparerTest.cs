@@ -383,7 +383,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 IDbContextOptions options,
                 IRelationalMetadataExtensionProvider metadataExtensionProvider)
             {
-                return new SingularModificationCommandBatch(SqlGenerator, metadataExtensionProvider);
+                return new SingularModificationCommandBatch(SqlGenerator);
             }
         }
     }
