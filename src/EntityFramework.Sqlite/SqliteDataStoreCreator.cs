@@ -14,8 +14,6 @@ namespace Microsoft.Data.Entity.Sqlite
 {
     public class SqliteDataStoreCreator : RelationalDataStoreCreator
     {
-        private const int SQLITE_CANTOPEN = 14;
-
         private readonly IRelationalConnection _connection;
         private readonly IModelDiffer _modelDiffer;
         private readonly IMigrationSqlGenerator _migrationSqlGenerator;
@@ -25,7 +23,9 @@ namespace Microsoft.Data.Entity.Sqlite
             [NotNull] IRelationalConnection connection,
             [NotNull] IModelDiffer modelDiffer,
             [NotNull] IMigrationSqlGenerator migrationSqlGenerator,
-            [NotNull] ISqlStatementExecutor sqlStatementExecutor)
+            [NotNull] ISqlStatementExecutor sqlStatementExecutor,
+            [NotNull] IModel model)
+            : base(model)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
@@ -44,12 +44,10 @@ namespace Microsoft.Data.Entity.Sqlite
             _connection.Close();
         }
 
-        public override void CreateTables(IModel model)
+        public override void CreateTables()
         {
-            Check.NotNull(model, nameof(model));
-
-            var operations = _modelDiffer.GetDifferences(null, model);
-            var statements = _migrationSqlGenerator.Generate(operations, model);
+            var operations = _modelDiffer.GetDifferences(null, Model);
+            var statements = _migrationSqlGenerator.Generate(operations, Model);
             _executor.ExecuteNonQuery(_connection, null, statements);
         }
 

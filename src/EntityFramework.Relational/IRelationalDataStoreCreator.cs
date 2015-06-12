@@ -3,8 +3,6 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Relational
@@ -23,9 +21,9 @@ namespace Microsoft.Data.Entity.Relational
 
         Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        void CreateTables([NotNull] IModel model);
+        void CreateTables();
 
-        Task CreateTablesAsync([NotNull] IModel model, CancellationToken cancellationToken = default(CancellationToken));
+        Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         bool HasTables();
 

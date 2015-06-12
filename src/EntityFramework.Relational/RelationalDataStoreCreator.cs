@@ -3,6 +3,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -10,6 +11,15 @@ namespace Microsoft.Data.Entity.Relational
 {
     public abstract class RelationalDataStoreCreator : IRelationalDataStoreCreator
     {
+        protected RelationalDataStoreCreator([NotNull] IModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            Model = model;
+        }
+
+        protected virtual IModel Model { get; }
+
         public abstract bool Exists();
 
         public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -41,13 +51,13 @@ namespace Microsoft.Data.Entity.Relational
             return Task.FromResult(0);
         }
 
-        public abstract void CreateTables(IModel model);
+        public abstract void CreateTables();
 
-        public virtual Task CreateTablesAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            CreateTables(model);
+            CreateTables();
 
             return Task.FromResult(0);
         }
@@ -61,10 +71,8 @@ namespace Microsoft.Data.Entity.Relational
             return Task.FromResult(HasTables());
         }
 
-        public virtual bool EnsureDeleted(IModel model)
+        public virtual bool EnsureDeleted()
         {
-            Check.NotNull(model, nameof(model));
-
             if (Exists())
             {
                 Delete();
@@ -73,10 +81,8 @@ namespace Microsoft.Data.Entity.Relational
             return false;
         }
 
-        public virtual async Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(model, nameof(model));
-
             if (await ExistsAsync(cancellationToken))
             {
                 await DeleteAsync(cancellationToken);
@@ -86,41 +92,37 @@ namespace Microsoft.Data.Entity.Relational
             return false;
         }
 
-        public virtual bool EnsureCreated(IModel model)
+        public virtual bool EnsureCreated()
         {
-            Check.NotNull(model, nameof(model));
-
             if (!Exists())
             {
                 Create();
-                CreateTables(model);
+                CreateTables();
                 return true;
             }
 
             if (!HasTables())
             {
-                CreateTables(model);
+                CreateTables();
                 return true;
             }
 
             return false;
         }
 
-        public virtual async Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(model, nameof(model));
-
             if (!await ExistsAsync(cancellationToken))
             {
                 await CreateAsync(cancellationToken);
-                await CreateTablesAsync(model, cancellationToken);
+                await CreateTablesAsync(cancellationToken);
 
                 return true;
             }
 
             if (!await HasTablesAsync(cancellationToken))
             {
-                await CreateTablesAsync(model, cancellationToken);
+                await CreateTablesAsync(cancellationToken);
 
                 return true;
             }

@@ -18,15 +18,15 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             var model = CreateModel();
-            var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true));
+            var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true), model);
 
-            Assert.True(creator.EnsureCreated(model));
-            Assert.False(creator.EnsureCreated(model));
-            Assert.False(creator.EnsureCreated(model));
+            Assert.True(creator.EnsureCreated());
+            Assert.False(creator.EnsureCreated());
+            Assert.False(creator.EnsureCreated());
 
-            creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true));
+            creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true), model);
 
-            Assert.False(creator.EnsureCreated(model));
+            Assert.False(creator.EnsureCreated());
         }
 
         [Fact]
@@ -34,17 +34,17 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             var model = CreateModel();
-            var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false));
+            var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false), model);
 
-            Assert.True(creator.EnsureCreated(model));
-            Assert.False(creator.EnsureCreated(model));
-            Assert.False(creator.EnsureCreated(model));
+            Assert.True(creator.EnsureCreated());
+            Assert.False(creator.EnsureCreated());
+            Assert.False(creator.EnsureCreated());
 
-            creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false));
+            creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false), model);
 
-            Assert.True(creator.EnsureCreated(model));
-            Assert.False(creator.EnsureCreated(model));
-            Assert.False(creator.EnsureCreated(model));
+            Assert.True(creator.EnsureCreated());
+            Assert.False(creator.EnsureCreated());
+            Assert.False(creator.EnsureCreated());
         }
 
         [Fact]
@@ -52,15 +52,15 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             var model = CreateModel();
-            var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true));
+            var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true), model);
 
-            Assert.True(await creator.EnsureCreatedAsync(model));
-            Assert.False(await creator.EnsureCreatedAsync(model));
-            Assert.False(await creator.EnsureCreatedAsync(model));
+            Assert.True(await creator.EnsureCreatedAsync());
+            Assert.False(await creator.EnsureCreatedAsync());
+            Assert.False(await creator.EnsureCreatedAsync());
 
-            creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true));
+            creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true), model);
 
-            Assert.False(await creator.EnsureCreatedAsync(model));
+            Assert.False(await creator.EnsureCreatedAsync());
         }
 
         [Fact]
@@ -68,17 +68,17 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             var model = CreateModel();
-            var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false));
+            var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false), model);
 
-            Assert.True(await creator.EnsureCreatedAsync(model));
-            Assert.False(await creator.EnsureCreatedAsync(model));
-            Assert.False(await creator.EnsureCreatedAsync(model));
+            Assert.True(await creator.EnsureCreatedAsync());
+            Assert.False(await creator.EnsureCreatedAsync());
+            Assert.False(await creator.EnsureCreatedAsync());
 
-            creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false));
+            creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false), model);
 
-            Assert.True(await creator.EnsureCreatedAsync(model));
-            Assert.False(await creator.EnsureCreatedAsync(model));
-            Assert.False(await creator.EnsureCreatedAsync(model));
+            Assert.True(await creator.EnsureCreatedAsync());
+            Assert.False(await creator.EnsureCreatedAsync());
+            Assert.False(await creator.EnsureCreatedAsync());
         }
 
         private static IInMemoryDataStore CreateStore(IServiceProvider serviceProvider, bool persist)

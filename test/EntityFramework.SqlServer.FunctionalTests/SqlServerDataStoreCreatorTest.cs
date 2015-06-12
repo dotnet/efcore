@@ -237,11 +237,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     if (async)
                     {
-                        await creator.CreateTablesAsync(context.Model);
+                        await creator.CreateTablesAsync();
                     }
                     else
                     {
-                        creator.CreateTables(context.Model);
+                        creator.CreateTables();
                     }
 
                     if (testDatabase.Connection.State != ConnectionState.Open)
@@ -281,8 +281,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 var errorNumber
                     = async
-                        ? (await Assert.ThrowsAsync<SqlException>(() => creator.CreateTablesAsync(new Model()))).Number
-                        : Assert.Throws<SqlException>(() => creator.CreateTables(new Model())).Number;
+                        ? (await Assert.ThrowsAsync<SqlException>(() => creator.CreateTablesAsync())).Number
+                        : Assert.Throws<SqlException>(() => creator.CreateTables()).Number;
 
                 if (errorNumber != 233) // skip if no-process transient failure
                 {

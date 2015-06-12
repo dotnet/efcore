@@ -13,16 +13,19 @@ namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryDataStoreCreator : IDataStoreCreator
     {
+        private readonly IModel _model;
         private readonly IInMemoryDataStore _dataStore;
 
-        public InMemoryDataStoreCreator([NotNull] IInMemoryDataStore dataStore)
+        public InMemoryDataStoreCreator([NotNull] IInMemoryDataStore dataStore, [NotNull] IModel model)
         {
             Check.NotNull(dataStore, nameof(dataStore));
+            Check.NotNull(model, nameof(model));
 
             _dataStore = dataStore;
+            _model = model;
         }
 
-        public virtual bool EnsureDeleted(IModel model)
+        public virtual bool EnsureDeleted()
         {
             if (_dataStore.Database.Any())
             {
@@ -32,12 +35,12 @@ namespace Microsoft.Data.Entity.InMemory
             return false;
         }
 
-        public virtual Task<bool> EnsureDeletedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
-            => Task.FromResult(EnsureDeleted(model));
+        public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult(EnsureDeleted());
 
-        public virtual bool EnsureCreated(IModel model) => _dataStore.EnsureDatabaseCreated(model);
+        public virtual bool EnsureCreated() => _dataStore.EnsureDatabaseCreated(_model);
 
-        public virtual Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
-            => Task.FromResult(_dataStore.EnsureDatabaseCreated(model));
+        public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult(_dataStore.EnsureDatabaseCreated(_model));
     }
 }

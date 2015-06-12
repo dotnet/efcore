@@ -3,16 +3,14 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Storage
 {
     public interface IDataStoreCreator
     {
-        bool EnsureDeleted([NotNull] IModel model);
-        Task<bool> EnsureDeletedAsync([NotNull] IModel model, CancellationToken cancellationToken = default(CancellationToken));
-        bool EnsureCreated([NotNull] IModel model);
-        Task<bool> EnsureCreatedAsync([NotNull] IModel model, CancellationToken cancellationToken = default(CancellationToken));
+        bool EnsureDeleted();
+        Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken));
+        bool EnsureCreated();
+        Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

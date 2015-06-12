@@ -33,18 +33,18 @@ namespace Microsoft.Data.Entity.Infrastructure
         }
 
         // TODO: Make sure API docs say that return value indicates whether or not the database or tables were created
-        public virtual bool EnsureCreated() => _dataStoreCreator.EnsureCreated(_context.Model);
+        public virtual bool EnsureCreated() => _dataStoreCreator.EnsureCreated();
 
         // TODO: Make sure API docs say that return value indicates whether or not the database or tables were created
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => _dataStoreCreator.EnsureCreatedAsync(_context.Model, cancellationToken);
+            => _dataStoreCreator.EnsureCreatedAsync(cancellationToken);
 
         // TODO: Make sure API docs say that return value indicates whether or not the database was deleted
-        public virtual bool EnsureDeleted() => _dataStoreCreator.EnsureDeleted(_context.Model);
+        public virtual bool EnsureDeleted() => _dataStoreCreator.EnsureDeleted();
 
         // TODO: Make sure API docs say that return value indicates whether or not the database was deleted
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => _dataStoreCreator.EnsureDeletedAsync(_context.Model, cancellationToken);
+            => _dataStoreCreator.EnsureDeletedAsync(cancellationToken);
 
         IDataStoreCreator IAccessor<IDataStoreCreator>.Service => _dataStoreCreator;
 

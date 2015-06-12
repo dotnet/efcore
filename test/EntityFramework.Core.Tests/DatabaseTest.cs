@@ -20,11 +20,10 @@ namespace Microsoft.Data.Entity.Tests
         public void Methods_delegate_to_configured_store_creator()
         {
             var context = TestHelpers.Instance.CreateContext();
-            var model = context.Model;
 
             var creatorMock = new Mock<IDataStoreCreator>();
-            creatorMock.Setup(m => m.EnsureCreated(model)).Returns(true);
-            creatorMock.Setup(m => m.EnsureDeleted(model)).Returns(true);
+            creatorMock.Setup(m => m.EnsureCreated()).Returns(true);
+            creatorMock.Setup(m => m.EnsureDeleted()).Returns(true);
 
             var database = new ConcreteDatabase(
                 context,
@@ -32,22 +31,21 @@ namespace Microsoft.Data.Entity.Tests
                 new LoggerFactory());
 
             Assert.True(database.EnsureCreated());
-            creatorMock.Verify(m => m.EnsureCreated(model), Times.Once);
+            creatorMock.Verify(m => m.EnsureCreated(), Times.Once);
 
             Assert.True(database.EnsureDeleted());
-            creatorMock.Verify(m => m.EnsureDeleted(model), Times.Once);
+            creatorMock.Verify(m => m.EnsureDeleted(), Times.Once);
         }
 
         [Fact]
         public async void Async_methods_delegate_to_configured_store_creator()
         {
             var context = TestHelpers.Instance.CreateContext();
-            var model = context.Model;
             var cancellationToken = new CancellationTokenSource().Token;
 
             var creatorMock = new Mock<IDataStoreCreator>();
-            creatorMock.Setup(m => m.EnsureCreatedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
-            creatorMock.Setup(m => m.EnsureDeletedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
+            creatorMock.Setup(m => m.EnsureCreatedAsync(cancellationToken)).Returns(Task.FromResult(true));
+            creatorMock.Setup(m => m.EnsureDeletedAsync(cancellationToken)).Returns(Task.FromResult(true));
 
             var database = new ConcreteDatabase(
                 context,
@@ -55,10 +53,10 @@ namespace Microsoft.Data.Entity.Tests
                 new LoggerFactory());
 
             Assert.True(await database.EnsureCreatedAsync(cancellationToken));
-            creatorMock.Verify(m => m.EnsureCreatedAsync(model, cancellationToken), Times.Once);
+            creatorMock.Verify(m => m.EnsureCreatedAsync(cancellationToken), Times.Once);
 
             Assert.True(await database.EnsureDeletedAsync(cancellationToken));
-            creatorMock.Verify(m => m.EnsureDeletedAsync(model, cancellationToken), Times.Once);
+            creatorMock.Verify(m => m.EnsureDeletedAsync(cancellationToken), Times.Once);
         }
 
         [Fact]

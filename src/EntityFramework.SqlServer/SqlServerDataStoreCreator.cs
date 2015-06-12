@@ -27,7 +27,9 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] ISqlServerConnection connection,
             [NotNull] IModelDiffer modelDiffer,
             [NotNull] IMigrationSqlGenerator sqlGenerator,
-            [NotNull] ISqlStatementExecutor statementExecutor)
+            [NotNull] ISqlStatementExecutor statementExecutor,
+            [NotNull] IModel model)
+            : base(model)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
@@ -63,18 +65,18 @@ namespace Microsoft.Data.Entity.SqlServer
             await ExistsAsync(retryOnNotExists: true, cancellationToken: cancellationToken);
         }
 
-        public override void CreateTables(IModel model) 
+        public override void CreateTables() 
             => _statementExecutor.ExecuteNonQuery(
                 _connection, 
                 _connection.DbTransaction, 
-                CreateSchemaCommands(Check.NotNull(model, nameof(model))));
+                CreateSchemaCommands());
 
-        public override async Task CreateTablesAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken)) 
+        public override async Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken)) 
             => await _statementExecutor
             .ExecuteNonQueryAsync(
                 _connection, 
                 _connection.DbTransaction, 
-                CreateSchemaCommands(Check.NotNull(model, nameof(model))), 
+                CreateSchemaCommands(), 
                 cancellationToken);
 
         public override bool HasTables()
@@ -84,8 +86,8 @@ namespace Microsoft.Data.Entity.SqlServer
             => (int)(await _statementExecutor
                 .ExecuteScalarAsync(_connection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)) != 0;
 
-        private IEnumerable<SqlBatch> CreateSchemaCommands(IModel model)
-            => _sqlGenerator.Generate(_modelDiffer.GetDifferences(null, model), model);
+        private IEnumerable<SqlBatch> CreateSchemaCommands()
+            => _sqlGenerator.Generate(_modelDiffer.GetDifferences(null, Model), Model);
 
         private string CreateHasTablesCommand()
             => "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE') SELECT 1 ELSE SELECT 0";

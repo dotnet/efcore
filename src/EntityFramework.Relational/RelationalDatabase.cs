@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -52,10 +51,10 @@ namespace Microsoft.Data.Entity.Relational
             return RelationalDataStoreCreator.CreateAsync(cancellationToken);
         }
 
-        public virtual void CreateTables() => RelationalDataStoreCreator.CreateTables(Model);
+        public virtual void CreateTables() => RelationalDataStoreCreator.CreateTables();
 
         public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => RelationalDataStoreCreator.CreateTablesAsync(Model, cancellationToken);
+            => RelationalDataStoreCreator.CreateTablesAsync(cancellationToken);
 
         public virtual void Delete() => RelationalDataStoreCreator.Delete();
 
@@ -76,7 +75,5 @@ namespace Microsoft.Data.Entity.Relational
         private IRelationalDataStoreCreator RelationalDataStoreCreator => (IRelationalDataStoreCreator)((IAccessor<IDataStoreCreator>)this).Service;
 
         private ILogger Logger => ((IAccessor<ILogger>)this).Service;
-
-        private IModel Model => ((IAccessor<IModel>)this).Service;
     }
 }

@@ -19,11 +19,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             var context = TestHelpers.Instance.CreateContext();
             var model = context.Model;
-            var creatorMock = new Mock<RelationalDataStoreCreator>();
+            var creatorMock = new Mock<RelationalDataStoreCreator>(model);
             creatorMock.Setup(m => m.Exists()).Returns(true);
             creatorMock.Setup(m => m.HasTables()).Returns(true);
-            creatorMock.Setup(m => m.EnsureCreated(model)).Returns(true);
-            creatorMock.Setup(m => m.EnsureDeleted(model)).Returns(true);
+            creatorMock.Setup(m => m.EnsureCreated()).Returns(true);
+            creatorMock.Setup(m => m.EnsureDeleted()).Returns(true);
 
             var connectionMock = new Mock<IRelationalConnection>();
             var dbConnectionMock = new Mock<DbConnection>();
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             creatorMock.Verify(m => m.Create(), Times.Once);
 
             database.CreateTables();
-            creatorMock.Verify(m => m.CreateTables(model), Times.Once);
+            creatorMock.Verify(m => m.CreateTables(), Times.Once);
 
             Assert.True(database.HasTables());
             creatorMock.Verify(m => m.HasTables(), Times.Once);
@@ -53,10 +53,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
             creatorMock.Verify(m => m.Delete(), Times.Once);
 
             Assert.True(database.EnsureCreated());
-            creatorMock.Verify(m => m.EnsureCreated(model), Times.Once);
+            creatorMock.Verify(m => m.EnsureCreated(), Times.Once);
 
             Assert.True(database.EnsureDeleted());
-            creatorMock.Verify(m => m.EnsureDeleted(model), Times.Once);
+            creatorMock.Verify(m => m.EnsureDeleted(), Times.Once);
 
             Assert.Same(connectionMock.Object, database.Connection);
         }
@@ -68,11 +68,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var model = context.Model;
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var creatorMock = new Mock<RelationalDataStoreCreator>();
+            var creatorMock = new Mock<RelationalDataStoreCreator>(model);
             creatorMock.Setup(m => m.ExistsAsync(cancellationToken)).Returns(Task.FromResult(true));
             creatorMock.Setup(m => m.HasTablesAsync(cancellationToken)).Returns(Task.FromResult(true));
-            creatorMock.Setup(m => m.EnsureCreatedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
-            creatorMock.Setup(m => m.EnsureDeletedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
+            creatorMock.Setup(m => m.EnsureCreatedAsync(cancellationToken)).Returns(Task.FromResult(true));
+            creatorMock.Setup(m => m.EnsureDeletedAsync(cancellationToken)).Returns(Task.FromResult(true));
 
             var connectionMock = new Mock<IRelationalConnection>();
             var dbConnectionMock = new Mock<DbConnection>();
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             creatorMock.Verify(m => m.CreateAsync(cancellationToken), Times.Once);
 
             await database.CreateTablesAsync(cancellationToken);
-            creatorMock.Verify(m => m.CreateTablesAsync(model, cancellationToken), Times.Once);
+            creatorMock.Verify(m => m.CreateTablesAsync(cancellationToken), Times.Once);
 
             Assert.True(await database.HasTablesAsync(cancellationToken));
             creatorMock.Verify(m => m.HasTablesAsync(cancellationToken), Times.Once);
@@ -102,10 +102,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
             creatorMock.Verify(m => m.DeleteAsync(cancellationToken), Times.Once);
 
             Assert.True(await database.EnsureCreatedAsync(cancellationToken));
-            creatorMock.Verify(m => m.EnsureCreatedAsync(model, cancellationToken), Times.Once);
+            creatorMock.Verify(m => m.EnsureCreatedAsync(cancellationToken), Times.Once);
 
             Assert.True(await database.EnsureDeletedAsync(cancellationToken));
-            creatorMock.Verify(m => m.EnsureDeletedAsync(model, cancellationToken), Times.Once);
+            creatorMock.Verify(m => m.EnsureDeletedAsync(cancellationToken), Times.Once);
         }
 
         private class ConcreteRelationalDatabase : RelationalDatabase
