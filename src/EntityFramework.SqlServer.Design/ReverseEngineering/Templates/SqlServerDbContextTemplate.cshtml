@@ -51,16 +51,16 @@ var className = Model.ClassName ?? Model.Helper.ClassName(Model.ConnectionString
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlServer(@Model.Helper.VerbatimStringLiteral(@Model.ConnectionString));
+            options.UseSqlServer(@Model.Helper.VerbatimStringLiteral(Model.ConnectionString));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 @{
 var firstEntity = true;
-}@foreach(var entityConfig in Model.Helper.EntityConfigurations)
+}@foreach (var entityConfig in Model.Helper.EntityConfigurations)
 {
-    @if(!firstEntity)
+    @if (!firstEntity)
     {
 @:
     }
@@ -68,9 +68,9 @@ var firstEntity = true;
 @:            modelBuilder.Entity<@entityConfig.EntityType.DisplayName()>(entity =>
 @:            {
     var firstEntityFacet = true;
-    @foreach (var entityFacet in @entityConfig.FacetConfigurations)
+    @foreach (var entityFacet in entityConfig.FacetConfigurations)
     {
-        @if(!firstEntityFacet)
+        @if (!firstEntityFacet)
         {
 @:
         }
@@ -78,7 +78,7 @@ var firstEntity = true;
 @:                entity.@(entityFacet.ToString());
     }                        
     var firstProperty = true;
-    @foreach (var propertyConfig in @entityConfig.PropertyConfigurations)
+    @foreach (var propertyConfig in entityConfig.PropertyConfigurations)
     {
         @if (!firstEntityFacet || !firstProperty)
         {
@@ -86,7 +86,8 @@ var firstEntity = true;
         }
         firstProperty = false;
         var propertyConfigurationLines = LayoutPropertyConfigurationLines(propertyConfig, "property", "    ");
-        var propertyConfigurationLineCount = propertyConfigurationLines.Count;
+        @* dnxcore50 requires below be cast to explicit data type, not var. Similarly below. *@
+        int propertyConfigurationLineCount = propertyConfigurationLines.Count;
         @if (propertyConfigurationLineCount == 1)
         {
             @foreach (var line in propertyConfigurationLines)
@@ -98,7 +99,7 @@ var firstEntity = true;
         {
 @:                entity.Property(e => e.@(propertyConfig.Property.Name))
             var lineCount = 0;
-            @foreach (var line in propertyConfigurationLines)
+            @foreach (string line in propertyConfigurationLines)
             {
                 var outputLine = line;
                 if (++lineCount == propertyConfigurationLineCount)
@@ -110,7 +111,7 @@ var firstEntity = true;
         }
     }
     var firstNavigation = true;
-    @foreach (var navigationConfig in @entityConfig.NavigationConfigurations)
+    @foreach (var navigationConfig in entityConfig.NavigationConfigurations)
     {
         @if (!firstEntityFacet || !firstProperty || !firstNavigation)
         {
@@ -123,7 +124,7 @@ var firstEntity = true;
 }
         }@* End of OnModelCreating() *@
 
-@foreach(var et in Model.Helper.OrderedEntityTypes())
+@foreach (var et in Model.Helper.OrderedEntityTypes())
 {
 @:        public virtual DbSet<@et.Name> @et.Name { get; set; }
 }
