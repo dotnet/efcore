@@ -5,62 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata
 {
-    public class ModelBuilderTest
+    public abstract class ModelBuilderTest
     {
-        [Fact]
-        public void Can_create_a_model_builder_with_given_conventions_and_model()
-        {
-            var convention = new TestConvention();
-            var conventions = new ConventionSet();
-            conventions.EntityTypeAddedConventions.Add(convention);
-
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(conventions, model);
-
-            Assert.Same(model, modelBuilder.Model);
-
-            modelBuilder.Entity<Random>();
-
-            Assert.True(convention.Applied);
-            Assert.NotNull(model.GetEntityType(typeof(Random)));
-        }
-
-        [Fact]
-        public void Can_create_a_model_builder_with_given_conventions_only()
-        {
-            var convention = new TestConvention();
-            var conventions = new ConventionSet();
-            conventions.EntityTypeAddedConventions.Add(convention);
-
-            var modelBuilder = new ModelBuilder(conventions);
-
-            modelBuilder.Entity<Random>();
-
-            Assert.True(convention.Applied);
-            Assert.NotNull(modelBuilder.Model.GetEntityType(typeof(Random)));
-        }
-
-        private class TestConvention : IEntityTypeConvention
-        {
-            public bool Applied { get; set; }
-
-            public InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
-            {
-                Applied = true;
-
-                return entityTypeBuilder;
-            }
-        }
+        // TODO: add shadow entity type tests
 
         [Fact]
         public void Can_get_entity_builder_for_clr_type()
@@ -75,49 +31,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Can_get_entity_builder_for_clr_type_non_generic()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-
-            var entityBuilder = modelBuilder.Entity(typeof(Customer));
-
-            Assert.NotNull(entityBuilder);
-            Assert.Equal(typeof(Customer).FullName, model.GetEntityType(typeof(Customer)).Name);
-        }
-
-        [Fact]
-        public void Can_get_entity_builder_for_type_name_string_non_generic()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-
-            var entityBuilder = modelBuilder.Entity(typeof(Customer).FullName);
-
-            Assert.NotNull(entityBuilder);
-            Assert.Equal(typeof(Customer).FullName, model.GetEntityType(typeof(Customer)).Name);
-        }
-
-        [Fact]
         public void Cannot_get_entity_builder_for_ignored_clr_type()
         {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
+            var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Ignore<Customer>();
-
-            Assert.Equal(Strings.EntityIgnoredExplicitly(typeof(Customer).FullName),
-                Assert.Throws<InvalidOperationException>(() =>
-                    modelBuilder.Entity(typeof(Customer))).Message);
-        }
-
-        [Fact]
-        public void Cannot_get_entity_builder_for_ignored_clr_type_non_generic()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-
-            modelBuilder.Ignore(typeof(Customer));
 
             Assert.Equal(Strings.EntityIgnoredExplicitly(typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() =>
@@ -131,34 +49,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = CreateModelBuilder(model);
 
             modelBuilder.Entity<Customer>().Key(b => b.Id);
-
-            var entity = model.GetEntityType(typeof(Customer));
-
-            Assert.Equal(1, entity.GetPrimaryKey().Properties.Count);
-            Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
-        }
-
-        [Fact]
-        public void Can_set_entity_key_from_CLR_property_non_generic()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-
-            modelBuilder.Entity(typeof(Customer), b => b.Key(Customer.IdProperty.Name));
-
-            var entity = model.GetEntityType(typeof(Customer));
-
-            Assert.Equal(1, entity.GetPrimaryKey().Properties.Count);
-            Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
-        }
-
-        [Fact]
-        public void Can_set_entity_key_from_property_name()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-
-            modelBuilder.Entity<Customer>(b => { b.Key(Customer.IdProperty.Name); });
 
             var entity = model.GetEntityType(typeof(Customer));
 
@@ -218,23 +108,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_composite_entity_key_from_property_names()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-            modelBuilder.Ignore<CustomerDetails>();
-            modelBuilder.Ignore<Order>();
-
-            modelBuilder.Entity<Customer>(b => { b.Key(Customer.IdProperty.Name, Customer.NameProperty.Name); });
-
-            var entity = model.GetEntityType(typeof(Customer));
-
-            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count);
-            Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
-            Assert.Equal(Customer.NameProperty.Name, entity.GetPrimaryKey().Properties.Last().Name);
-        }
-
-        [Fact]
         public void Can_set_composite_entity_key_from_property_names_when_mixed_properties()
         {
             var model = new Model();
@@ -261,18 +134,18 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
 
-            modelBuilder
-                .Entity<Customer>(
-                    b => b.Key(e => new { e.Id, e.Name })
-                        .Annotation("A1", "V1")
-                        .Annotation("A2", "V2"));
+            var keyBuilder = modelBuilder
+                .Entity<Customer>()
+                .Key(e => new { e.Id, e.Name });
+
+            keyBuilder.Annotation("A1", "V1")
+                .Annotation("A2", "V2");
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count);
             Assert.Equal(new[] { Customer.IdProperty.Name, Customer.NameProperty.Name }, entity.GetPrimaryKey().Properties.Select(p => p.Name));
-            Assert.Equal("V1", entity.GetPrimaryKey()["A1"]);
-            Assert.Equal("V2", entity.GetPrimaryKey()["A2"]);
+            Assert.Equal("V1", keyBuilder.Metadata["A1"]);
+            Assert.Equal("V2", keyBuilder.Metadata["A2"]);
         }
 
         [Fact]
@@ -306,44 +179,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_alternate_key_from_CLR_property_non_generic()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-
-            modelBuilder.Entity(typeof(Customer), b => b.AlternateKey(Customer.AlternateKeyProperty.Name));
-
-            var entity = model.GetEntityType(typeof(Customer));
-
-            Assert.Equal(1, entity.GetKeys().Count(key => key != entity.GetPrimaryKey()));
-            Assert.Equal(Customer.AlternateKeyProperty.Name, entity.GetKeys().First(key => key != entity.GetPrimaryKey()).Properties.First().Name);
-        }
-
-        [Fact]
-        public void Can_set_alternate_key_from_property_name()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-
-            modelBuilder.Entity<Customer>(b => { b.AlternateKey(Customer.AlternateKeyProperty.Name); });
-
-            var entity = model.GetEntityType(typeof(Customer));
-
-            Assert.Equal(1, entity.GetKeys().Count(key => key != entity.GetPrimaryKey()));
-            Assert.Equal(Customer.AlternateKeyProperty.Name, entity.GetKeys().First(key => key != entity.GetPrimaryKey()).Properties.First().Name);
-        }
-
-        [Fact]
         public void Can_set_alternate_key_from_property_name_when_no_clr_property()
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
 
             modelBuilder.Entity<Customer>(b =>
-            {
-                b.Property<int>(Customer.AlternateKeyProperty.Name + 1);
-                b.AlternateKey(Customer.AlternateKeyProperty.Name + 1);
-            });
+                {
+                    b.Property<int>(Customer.AlternateKeyProperty.Name + 1);
+                    b.AlternateKey(Customer.AlternateKeyProperty.Name + 1);
+                });
 
             var entity = model.GetEntityType(typeof(Customer));
 
@@ -359,36 +204,34 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(Strings.PropertyIgnoredExplicitly(Customer.AlternateKeyProperty.Name, typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() =>
                     modelBuilder.Entity<Customer>(b =>
-                    {
-                        b.Ignore(Customer.AlternateKeyProperty.Name);
-                        b.AlternateKey(e => e.AlternateKey);
-                    })).Message);
+                        {
+                            b.Ignore(Customer.AlternateKeyProperty.Name);
+                            b.AlternateKey(e => e.AlternateKey);
+                        })).Message);
         }
 
         [Fact]
         public void Can_set_entity_annotation()
         {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
+            var modelBuilder = CreateModelBuilder();
 
-            modelBuilder
+            var entityBuilder = modelBuilder
                 .Entity<Customer>()
                 .Annotation("foo", "bar");
 
-            Assert.Equal("bar", model.GetEntityType(typeof(Customer))["foo"]);
+            Assert.Equal("bar", entityBuilder.Metadata["foo"]);
         }
 
         [Fact]
         public void Can_set_property_annotation()
         {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
+            var modelBuilder = CreateModelBuilder();
 
-            modelBuilder
+            var propertyBuilder = modelBuilder
                 .Entity<Customer>()
                 .Property(c => c.Name).Annotation("foo", "bar");
 
-            Assert.Equal("bar", model.GetEntityType(typeof(Customer)).GetProperty(Customer.NameProperty.Name)["foo"]);
+            Assert.Equal("bar", propertyBuilder.Metadata["foo"]);
         }
 
         [Fact]
@@ -397,11 +240,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
 
-            modelBuilder
+            var propertyBuilder = modelBuilder
                 .Entity<Customer>()
                 .Property<string>(Customer.NameProperty.Name).Annotation("foo", "bar");
 
-            Assert.Equal("bar", model.GetEntityType(typeof(Customer)).GetProperty(Customer.NameProperty.Name)["foo"]);
+            Assert.Equal("bar", propertyBuilder.Metadata["foo"]);
         }
 
         [Fact]
@@ -432,8 +275,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property(e => e.Down);
                     b.Property<int>("Charm");
                     b.Property<string>("Strange");
-                    b.Property(typeof(int), "Top");
-                    b.Property(typeof(string), "Bottom");
+                    b.Property<int>("Top");
+                    b.Property<string>("Bottom");
                 });
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
@@ -558,8 +401,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property(e => e.Down).Required();
                     b.Property<int>("Charm").Required();
                     b.Property<string>("Strange").Required();
-                    b.Property(typeof(int), "Top").Required();
-                    b.Property(typeof(string), "Bottom").Required();
+                    b.Property<int>("Top").Required();
+                    b.Property<string>("Bottom").Required();
                 });
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
@@ -582,7 +425,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 {
                     b.Property(e => e.Down).Required(false);
                     b.Property<string>("Strange").Required(false);
-                    b.Property(typeof(string), "Bottom").Required(false);
+                    b.Property<string>("Bottom").Required(false);
                 });
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
@@ -610,7 +453,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
                     Assert.Equal(
                         Strings.CannotBeNullable("Top", "Quarks", "Int32"),
-                        Assert.Throws<InvalidOperationException>(() => b.Property(typeof(int), "Top").Required(false)).Message);
+                        Assert.Throws<InvalidOperationException>(() => b.Property<int>("Top").Required(false)).Message);
                 });
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
@@ -629,9 +472,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             modelBuilder.Entity<Quarks>(b =>
                 {
                     b.Property<int>("Charm");
-                    b.Property(typeof(int), "Top");
+                    b.Property<int>("Top");
                     b.Property<string>("Gluon");
-                    b.Property(typeof(string), "Photon");
+                    b.Property<string>("Photon");
                 });
 
             var entityType = model.GetEntityType(typeof(Quarks));
@@ -661,8 +504,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property(e => e.Down).ConcurrencyToken(false);
                     b.Property<int>("Charm").ConcurrencyToken(true);
                     b.Property<string>("Strange").ConcurrencyToken(false);
-                    b.Property(typeof(int), "Top").ConcurrencyToken();
-                    b.Property(typeof(string), "Bottom").ConcurrencyToken(false);
+                    b.Property<int>("Top").ConcurrencyToken();
+                    b.Property<string>("Bottom").ConcurrencyToken(false);
                 });
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
@@ -697,8 +540,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property(e => e.Down).Metadata.IsValueGeneratedOnAdd = true;
                     b.Property<int>("Charm").Metadata.IsValueGeneratedOnAdd = true;
                     b.Property<string>("Strange").Metadata.IsValueGeneratedOnAdd = false;
-                    b.Property(typeof(int), "Top").Metadata.IsValueGeneratedOnAdd = true;
-                    b.Property(typeof(string), "Bottom").Metadata.IsValueGeneratedOnAdd = false;
+                    b.Property<int>("Top").Metadata.IsValueGeneratedOnAdd = true;
+                    b.Property<string>("Bottom").Metadata.IsValueGeneratedOnAdd = false;
                 });
 
             var entityType = model.GetEntityType(typeof(Quarks));
@@ -724,8 +567,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property(e => e.Down).StoreGeneratedPattern(StoreGeneratedPattern.None);
                     b.Property<int>("Charm").StoreGeneratedPattern(StoreGeneratedPattern.Identity);
                     b.Property<string>("Strange").StoreGeneratedPattern(StoreGeneratedPattern.None);
-                    b.Property(typeof(int), "Top").StoreGeneratedPattern(StoreGeneratedPattern.Computed);
-                    b.Property(typeof(string), "Bottom").StoreGeneratedPattern(StoreGeneratedPattern.None);
+                    b.Property<int>("Top").StoreGeneratedPattern(StoreGeneratedPattern.Computed);
+                    b.Property<string>("Bottom").StoreGeneratedPattern(StoreGeneratedPattern.None);
                 });
 
             var entityType = model.GetEntityType(typeof(Quarks));
@@ -751,8 +594,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property(e => e.Down).MaxLength(100);
                     b.Property<int>("Charm").MaxLength(0);
                     b.Property<string>("Strange").MaxLength(100);
-                    b.Property(typeof(int), "Top").MaxLength(0);
-                    b.Property(typeof(string), "Bottom").MaxLength(100);
+                    b.Property<int>("Top").MaxLength(0);
+                    b.Property<string>("Bottom").MaxLength(100);
                 });
 
             var entityType = model.GetEntityType(typeof(Quarks));
@@ -792,7 +635,27 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(1, entityType.Indexes.Count());
+            var index = entityType.Indexes.Single();
+            Assert.Equal(Customer.NameProperty.Name, index.Properties.Single().Name);
+        }
+
+        [Fact]
+        public void Can_add_index_when_no_clr_property()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+
+            modelBuilder
+                .Entity<Customer>(b =>
+                    {
+                        b.Property<int>("Index");
+                        b.Index("Index");
+                    });
+
+            var entityType = model.GetEntityType(typeof(Customer));
+
+            var index = entityType.Indexes.Single();
+            Assert.Equal("Index", index.Properties.Single().Name);
         }
 
         [Fact]
@@ -801,18 +664,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
 
-            modelBuilder.Entity<Customer>(b =>
-                {
-                    b.Index(ix => ix.Id).Unique();
-                    b.Index(ix => ix.Name).Annotation("A1", "V1");
-                });
+            var entityBuilder = modelBuilder.Entity<Customer>();
+            var firstIndexBuilder = entityBuilder.Index(ix => ix.Id).Unique();
+            var secondIndexBuilder = entityBuilder.Index(ix => ix.Name).Annotation("A1", "V1");
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Customer));
 
             Assert.Equal(2, entityType.GetIndexes().Count());
-            Assert.True(entityType.GetIndexes().First().IsUnique);
-            Assert.False(entityType.GetIndexes().Last().IsUnique);
-            Assert.Equal("V1", entityType.GetIndexes().Last()["A1"]);
+            Assert.True(firstIndexBuilder.Metadata.IsUnique);
+            Assert.False(((IIndex)secondIndexBuilder.Metadata).IsUnique);
+            Assert.Equal("V1", secondIndexBuilder.Metadata["A1"]);
         }
 
         [Fact]
@@ -3118,48 +2979,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void ManyToOne_can_be_created_using_type_name_string()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-            modelBuilder.Entity<Customer>();
-            modelBuilder.Entity<Order>();
-            modelBuilder.Ignore<OrderDetails>();
-            modelBuilder.Ignore<CustomerDetails>();
-
-            var dependentType = model.GetEntityType(typeof(Order));
-            var principalType = model.GetEntityType(typeof(Customer));
-
-            var fkProperty = dependentType.GetProperty("CustomerId");
-            var principalProperty = principalType.GetProperty(Customer.IdProperty.Name);
-
-            var principalKey = principalType.GetKeys().Single();
-            var dependentKey = dependentType.GetKeys().Single();
-
-            modelBuilder.Entity<Order>()
-                .Reference(typeof(Customer).FullName, "Customer")
-                .InverseCollection("Orders")
-                .ForeignKey("CustomerId")
-                .PrincipalKey("Id");
-
-            var fk = dependentType.GetForeignKeys().Single();
-            Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
-
-            Assert.Equal("Customer", dependentType.Navigations.Single().Name);
-            Assert.Equal("Orders", principalType.Navigations.Single().Name);
-            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
-            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
-            AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.Properties.Select(p => p.Name));
-            AssertEqual(new[] { "AnotherCustomerId", fkProperty.Name, dependentKey.Properties.Single().Name }, dependentType.Properties.Select(p => p.Name));
-            Assert.Empty(principalType.GetForeignKeys());
-            Assert.Same(principalKey, principalType.GetKeys().Single());
-            Assert.Same(dependentKey, dependentType.GetKeys().Single());
-            Assert.Same(principalKey, principalType.GetPrimaryKey());
-            Assert.Same(dependentKey, dependentType.GetPrimaryKey());
-        }
-
-        [Fact]
         public void OneToOne_finds_existing_navs_and_uses_associated_FK()
         {
             var model = new Model();
@@ -3920,49 +3739,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
             Assert.Equal(expectedPrincipalProperties, principalType.Properties);
             Assert.Equal(expectedDependentProperties, dependentType.Properties);
-            Assert.Empty(principalType.GetForeignKeys());
-            Assert.Same(principalKey, principalType.GetKeys().Single());
-            Assert.Same(dependentKey, dependentType.GetKeys().Single());
-            Assert.Same(principalKey, principalType.GetPrimaryKey());
-            Assert.Same(dependentKey, dependentType.GetPrimaryKey());
-        }
-
-        [Fact]
-        public void OneToOne_can_be_created_using_type_name_string()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-            modelBuilder.Entity<Order>();
-            modelBuilder.Entity<OrderDetails>();
-            modelBuilder.Ignore<Customer>();
-
-            var dependentType = model.GetEntityType(typeof(OrderDetails));
-            var principalType = model.GetEntityType(typeof(Order));
-
-            var fkProperty = dependentType.GetProperty("OrderId");
-            var principalProperty = principalType.GetProperty("OrderId");
-
-            var principalPropertyCount = principalType.PropertyCount;
-            var dependentPropertyCount = dependentType.PropertyCount;
-            var principalKey = principalType.GetKeys().Single();
-            var dependentKey = dependentType.GetKeys().Single();
-
-            modelBuilder.Entity<Order>()
-                .Reference(typeof(OrderDetails).FullName, "Details")
-                .InverseReference("Order")
-                .ForeignKey(typeof(OrderDetails).FullName, "OrderId")
-                .PrincipalKey(typeof(Order), "OrderId");
-
-            var fk = dependentType.GetForeignKeys().Single();
-            Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Same(principalProperty, fk.PrincipalKey.Properties.Single());
-
-            Assert.Equal("Order", dependentType.Navigations.Single().Name);
-            Assert.Equal("Details", principalType.Navigations.Single().Name);
-            Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
-            Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
-            Assert.Equal(principalPropertyCount, principalType.PropertyCount);
-            Assert.Equal(dependentPropertyCount, dependentType.PropertyCount);
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.GetKeys().Single());
             Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -6096,15 +5872,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                         .PrincipalKey(typeof(Customer), "Id")).Message);
         }
 
-        [Fact]
-        public void Can_convert_to_non_convention_builder()
-        {
-            var model = new Model();
-            var modelBuilder = CreateModelBuilder(model);
-
-            Assert.Same(model, new ModelBuilder(new ConventionSet(), modelBuilder.Model).Model);
-        }
-
         private class Whoopper
         {
             public int Id1 { get; set; }
@@ -6550,7 +6317,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public ICollection<Hob> Hobs { get; set; }
         }
 
-        private ModelBuilder HobNobBuilder()
+        private TestModelBuilder HobNobBuilder()
         {
             var builder = CreateModelBuilder(new Model());
 
@@ -6558,127 +6325,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             builder.Entity<Nob>().Key(e => new { e.Id1, e.Id2 });
 
             return builder;
-        }
-
-        [Fact]
-        public void Generic_OneToMany_is_preserved_when_chaining_from_Annotation()
-        {
-            var modelBuilder = CreateModelBuilder();
-            modelBuilder.Ignore<OrderDetails>();
-
-            AssertIsGenericOneToMany(modelBuilder
-                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .Annotation("X", "Y"));
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
-            Assert.Equal("Y", entityType.GetForeignKeys().Single()["X"]);
-        }
-
-        [Fact]
-        public void Generic_OneToMany_is_preserved_when_chaining_from_ForeignKey()
-        {
-            var modelBuilder = CreateModelBuilder();
-            modelBuilder.Ignore<OrderDetails>();
-
-            AssertIsGenericOneToMany(modelBuilder
-                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .ForeignKey("AnotherCustomerId"));
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
-            Assert.Equal("AnotherCustomerId", entityType.GetForeignKeys().Single().Properties.Single().Name);
-        }
-
-        [Fact]
-        public void Generic_OneToMany_is_preserved_when_chaining_from_PrincipalKey()
-        {
-            var modelBuilder = CreateModelBuilder();
-            modelBuilder.Ignore<OrderDetails>();
-
-            AssertIsGenericOneToMany(modelBuilder
-                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .PrincipalKey("AlternateKey"));
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
-            Assert.Equal("AlternateKey", entityType.GetForeignKeys().Single().PrincipalKey.Properties.Single().Name);
-        }
-
-        [Fact]
-        public void Generic_OneToMany_is_preserved_when_chaining_from_Required()
-        {
-            var modelBuilder = CreateModelBuilder();
-            modelBuilder.Ignore<CustomerDetails>();
-            modelBuilder.Ignore<OrderDetails>();
-
-            AssertIsGenericOneToMany(modelBuilder
-                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .Required(false));
-
-            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Order));
-            Assert.False(entityType.GetForeignKeys().Single().IsRequired);
-        }
-
-        private static void AssertIsGenericOneToMany(ReferenceCollectionBuilder<Customer, Order> _)
-        {
-        }
-
-        [Fact]
-        public void Generic_ManyToOne_is_preserved_when_chaining_from_Annotation()
-        {
-            var modelBuilder = CreateModelBuilder();
-            modelBuilder.Ignore<OrderDetails>();
-
-            AssertIsGenericManyToOne(modelBuilder
-                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .Annotation("X", "Y"));
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
-            Assert.Equal("Y", entityType.GetForeignKeys().Single()["X"]);
-        }
-
-        [Fact]
-        public void Generic_ManyToOne_is_preserved_when_chaining_from_ForeignKey()
-        {
-            var modelBuilder = CreateModelBuilder();
-            modelBuilder.Ignore<OrderDetails>();
-
-            AssertIsGenericManyToOne(modelBuilder
-                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .ForeignKey("AnotherCustomerId"));
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
-            Assert.Equal("AnotherCustomerId", entityType.GetForeignKeys().Single().Properties.Single().Name);
-        }
-
-        [Fact]
-        public void Generic_ManyToOne_is_preserved_when_chaining_from_PrincipalKey()
-        {
-            var modelBuilder = CreateModelBuilder();
-            modelBuilder.Ignore<OrderDetails>();
-
-            AssertIsGenericManyToOne(modelBuilder
-                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .PrincipalKey("AlternateKey"));
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
-            Assert.Equal("AlternateKey", entityType.GetForeignKeys().Single().PrincipalKey.Properties.Single().Name);
-        }
-
-        [Fact]
-        public void Generic_ManyToOne_is_preserved_when_chaining_from_Required()
-        {
-            var modelBuilder = CreateModelBuilder();
-            modelBuilder.Ignore<OrderDetails>();
-
-            AssertIsGenericManyToOne(modelBuilder
-                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .Required(false));
-
-            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Order));
-            Assert.False(entityType.GetForeignKeys().Single().IsRequired);
-        }
-
-        private static void AssertIsGenericManyToOne(CollectionReferenceBuilder<Order, Customer> _)
-        {
         }
 
         [Fact]
@@ -6809,14 +6455,184 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 new SortedSet<string>(actualProperties.Select(p => p.Name), StringComparer.Ordinal));
         }
 
-        protected virtual ModelBuilder CreateModelBuilder()
+        protected TestModelBuilder CreateModelBuilder()
         {
             return CreateModelBuilder(new Model());
         }
 
-        protected virtual ModelBuilder CreateModelBuilder(Model model)
+        protected TestModelBuilder CreateModelBuilder(Model model)
         {
-            return TestHelpers.Instance.CreateConventionBuilder(model);
+            return CreateTestModelBuilder(TestHelpers.Instance.CreateConventionBuilder(model));
+        }
+
+        protected abstract TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder);
+
+        protected abstract class TestModelBuilder
+        {
+            protected TestModelBuilder(ModelBuilder modelBuilder)
+            {
+                ModelBuilder = modelBuilder;
+            }
+
+            public virtual Model Model => ModelBuilder.Model;
+            protected ModelBuilder ModelBuilder { get; }
+
+            public abstract TestEntityTypeBuilder<TEntity> Entity<TEntity>()
+                where TEntity : class;
+
+            public abstract TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
+                where TEntity : class;
+
+            public abstract TestModelBuilder Ignore<TEntity>()
+                where TEntity : class;
+        }
+
+        protected abstract class TestEntityTypeBuilder<TEntity>
+            where TEntity : class
+        {
+            public abstract EntityType Metadata { get; }
+            public abstract TestEntityTypeBuilder<TEntity> Annotation(string annotation, object value);
+            public abstract TestKeyBuilder Key(Expression<Func<TEntity, object>> keyExpression);
+            public abstract TestKeyBuilder Key(params string[] propertyNames);
+            public abstract TestKeyBuilder AlternateKey(Expression<Func<TEntity, object>> keyExpression);
+            public abstract TestKeyBuilder AlternateKey(params string[] propertyNames);
+
+            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
+                Expression<Func<TEntity, TProperty>> propertyExpression);
+
+            public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
+
+            public abstract TestEntityTypeBuilder<TEntity> Ignore(
+                Expression<Func<TEntity, object>> propertyExpression);
+
+            public abstract TestEntityTypeBuilder<TEntity> Ignore(string propertyName);
+
+            public abstract TestIndexBuilder Index(Expression<Func<TEntity, object>> indexExpression);
+            public abstract TestIndexBuilder Index(params string[] propertyNames);
+
+            public abstract TestReferenceNavigationBuilder<TEntity, TRelatedEntity> Reference<TRelatedEntity>(
+                Expression<Func<TEntity, TRelatedEntity>> reference = null)
+                where TRelatedEntity : class;
+
+            public abstract TestCollectionNavigationBuilder<TEntity, TRelatedEntity> Collection<TRelatedEntity>(
+                Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null)
+                where TRelatedEntity : class;
+        }
+
+        protected class TestKeyBuilder
+        {
+            public TestKeyBuilder(KeyBuilder keyBuilder)
+            {
+                KeyBuilder = keyBuilder;
+            }
+
+            private KeyBuilder KeyBuilder { get; }
+            public Key Metadata => KeyBuilder.Metadata;
+
+            public virtual TestKeyBuilder Annotation(string annotation, object value)
+            {
+                return new TestKeyBuilder(KeyBuilder.Annotation(annotation, value));
+            }
+        }
+
+        protected class TestIndexBuilder
+        {
+            public TestIndexBuilder(IndexBuilder indexBuilder)
+            {
+                IndexBuilder = indexBuilder;
+            }
+
+            private IndexBuilder IndexBuilder { get; }
+            public Index Metadata => IndexBuilder.Metadata;
+
+            public virtual TestIndexBuilder Annotation(string annotation, object value)
+            {
+                return new TestIndexBuilder(IndexBuilder.Annotation(annotation, value));
+            }
+
+            public virtual TestIndexBuilder Unique(bool isUnique = true)
+            {
+                return new TestIndexBuilder(IndexBuilder.Unique(isUnique));
+            }
+        }
+
+        protected abstract class TestPropertyBuilder<TProperty>
+        {
+            public abstract Property Metadata { get; }
+            public abstract TestPropertyBuilder<TProperty> Annotation(string annotation, object value);
+            public abstract TestPropertyBuilder<TProperty> Required(bool isRequired = true);
+            public abstract TestPropertyBuilder<TProperty> MaxLength(int maxLength);
+            public abstract TestPropertyBuilder<TProperty> ConcurrencyToken(bool isConcurrencyToken = true);
+
+            public abstract TestPropertyBuilder<TProperty> StoreGeneratedPattern(
+                StoreGeneratedPattern storeGeneratedPattern);
+        }
+
+        protected abstract class TestCollectionNavigationBuilder<TEntity, TRelatedEntity>
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> InverseReference(
+                Expression<Func<TRelatedEntity, TEntity>> reference = null);
+        }
+
+        protected abstract class TestReferenceNavigationBuilder<TEntity, TRelatedEntity>
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            public abstract TestReferenceCollectionBuilder<TRelatedEntity, TEntity> InverseCollection(
+                Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> collection = null);
+
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> InverseReference(
+                Expression<Func<TRelatedEntity, TEntity>> reference = null);
+        }
+
+        protected abstract class TestReferenceCollectionBuilder<TEntity, TRelatedEntity>
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            public abstract ForeignKey Metadata { get; }
+
+            public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> ForeignKey(
+                Expression<Func<TRelatedEntity, object>> foreignKeyExpression);
+
+            public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> PrincipalKey(
+                Expression<Func<TEntity, object>> keyExpression);
+
+            public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> ForeignKey(
+                params string[] foreignKeyPropertyNames);
+
+            public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> PrincipalKey(
+                params string[] keyPropertyNames);
+
+            public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> Annotation(
+                string annotation, object value);
+
+            public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> Required(bool isRequired = true);
+        }
+
+        protected abstract class TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            public abstract ForeignKey Metadata { get; }
+
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> Annotation(
+                string annotation, object value);
+
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> ForeignKey<TDependentEntity>(
+                Expression<Func<TDependentEntity, object>> foreignKeyExpression);
+
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> PrincipalKey<TPrincipalEntity>(
+                Expression<Func<TPrincipalEntity, object>> keyExpression);
+
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> ForeignKey(
+                Type dependentEntityType, params string[] foreignKeyPropertyNames);
+
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> PrincipalKey(
+                Type principalEntityType, params string[] keyPropertyNames);
+
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> Required(bool isRequired = true);
         }
     }
 }

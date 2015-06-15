@@ -60,7 +60,6 @@
     <Compile Include="Metadata\Builders\SqliteEntityTypeBuilderExtensions.cs" />
     <Compile Include="Metadata\Builders\SqliteReferenceCollectionBuilderExtensions.cs" />
     <Compile Include="Metadata\Builders\SqliteReferenceReferenceBuilderExtensions.cs" />
-    <Compile Include="Metadata\Builders\SqliteCollectionReferenceBuilderExtensions.cs" />
     <Compile Include="Metadata\Builders\SqliteIndexBuilderExtensions.cs" />
     <Compile Include="Metadata\Builders\SqliteKeyBuilderExtensions.cs" />
     <Compile Include="Metadata\Builders\SqlitePropertyBuilderExtensions.cs" />

@@ -890,10 +890,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         {
         }
 
-        private void AssertIsGeneric(CollectionReferenceBuilder<Order, Customer> _)
-        {
-        }
-
         private void AssertIsGeneric(ReferenceReferenceBuilder<Order, OrderDetails> _)
         {
         }

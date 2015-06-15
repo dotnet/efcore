@@ -158,12 +158,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var builder = CreateModelBuilder();
 
-            var returnedBuilder = builder
-                .Entity<Gunter>().Collection(e => e.Gates).InverseReference(e => e.Gunter)
+            var relationshipBuilder = builder
+                .Entity<Gunter>().Collection(e => e.Gates).InverseReference(e => e.Gunter);
+
+            var returnedBuilder = relationshipBuilder
                 .OneToManyBuilderExtension("V1")
                 .OneToManyBuilderExtension("V2");
 
-            Assert.IsType<ReferenceCollectionBuilder<Gunter, Gate>>(returnedBuilder);
+            Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).GetForeignKeys().Single();
@@ -178,12 +180,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var builder = CreateModelBuilder();
 
-            var returnedBuilder = builder
-                .Entity<Gate>().Reference(e => e.Gunter).InverseCollection(e => e.Gates)
+            var relationshipBuilder = builder
+                .Entity<Gate>().Reference(e => e.Gunter).InverseCollection(e => e.Gates);
+
+            var returnedBuilder = relationshipBuilder
                 .ManyToOneBuilderExtension("V1")
                 .ManyToOneBuilderExtension("V2");
 
-            Assert.IsType<CollectionReferenceBuilder<Gate, Gunter>>(returnedBuilder);
+            Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).GetForeignKeys().Single();
@@ -198,13 +202,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var builder = CreateModelBuilder();
 
-            var returnedBuilder = builder
+            var relationshipBuilder = builder
                 .Entity<Avatar>().Reference(e => e.Gunter).InverseReference(e => e.Avatar)
-                .PrincipalKey<Gunter>(e => e.Id)
+                .PrincipalKey<Gunter>(e => e.Id);
+
+            var returnedBuilder = relationshipBuilder
                 .OneToOneBuilderExtension("V1")
                 .OneToOneBuilderExtension("V2");
 
-            Assert.IsType<ReferenceReferenceBuilder<Avatar, Gunter>>(returnedBuilder);
+            Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Avatar)).GetForeignKeys().Single();
@@ -360,12 +366,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var builder = CreateModelBuilder();
 
-            var returnedBuilder = builder
-                .Entity<Gunter>().Collection(e => e.Gates).InverseReference(e => e.Gunter)
+            var relationshipBuilder = builder
+                .Entity<Gunter>().Collection(e => e.Gates).InverseReference(e => e.Gunter);
+
+            var returnedBuilder = relationshipBuilder
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ReferenceCollectionBuilder<Gunter, Gate>>(returnedBuilder);
+            Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).GetForeignKeys().Single();
@@ -380,12 +388,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var builder = CreateModelBuilder();
 
-            var returnedBuilder = builder
-                .Entity<Gate>().Reference(e => e.Gunter).InverseCollection(e => e.Gates)
+            var relationshipBuilder = builder
+                .Entity<Gate>().Reference(e => e.Gunter).InverseCollection(e => e.Gates);
+
+            var returnedBuilder = relationshipBuilder
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<CollectionReferenceBuilder<Gate, Gunter>>(returnedBuilder);
+            Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).GetForeignKeys().Single();
@@ -400,13 +410,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var builder = CreateModelBuilder();
 
-            var returnedBuilder = builder
+            var relationshipBuilder = builder
                 .Entity<Avatar>().Reference(e => e.Gunter).InverseReference(e => e.Avatar)
-                .PrincipalKey<Gunter>(e => e.Id)
+                .PrincipalKey<Gunter>(e => e.Id);
+
+            var returnedBuilder = relationshipBuilder
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ReferenceReferenceBuilder<Avatar, Gunter>>(returnedBuilder);
+            Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Avatar)).GetForeignKeys().Single();
@@ -466,7 +478,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             return builder;
         }
 
-        public static EntityTypeBuilder<TEntity> GenericEntityBuilderExtension<TEntity>(this EntityTypeBuilder<TEntity>builder, string value)
+        public static EntityTypeBuilder<TEntity> GenericEntityBuilderExtension<TEntity>(this EntityTypeBuilder<TEntity> builder, string value)
             where TEntity : class
         {
             builder.Annotation("Annotation", value + ".Annotation");
@@ -512,7 +524,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             return builder;
         }
 
-        public static CollectionReferenceBuilder ManyToOneBuilderExtension(this CollectionReferenceBuilder builder, string value)
+        public static ReferenceCollectionBuilder ManyToOneBuilderExtension(this ReferenceCollectionBuilder builder, string value)
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
@@ -586,15 +598,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         public static ReferenceCollectionBuilder SharedNameExtension(this ReferenceCollectionBuilder builder, string value)
-        {
-            builder.Annotation("Annotation", value + ".Annotation");
-            builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
-
-            return builder;
-        }
-
-        public static CollectionReferenceBuilder SharedNameExtension(this CollectionReferenceBuilder builder, string value)
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";

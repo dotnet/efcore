@@ -132,37 +132,6 @@ namespace Microsoft.Data.Entity
         }
 
         public static SqlServerForeignKeyBuilder ForSqlServer(
-            [NotNull] this CollectionReferenceBuilder collectionReferenceBuilder)
-            => new SqlServerForeignKeyBuilder(
-                Check.NotNull(collectionReferenceBuilder, nameof(collectionReferenceBuilder)).Metadata);
-
-        public static CollectionReferenceBuilder ForSqlServer(
-            [NotNull] this CollectionReferenceBuilder collectionReferenceBuilder,
-            [NotNull] Action<SqlServerForeignKeyBuilder> builderAction)
-        {
-            Check.NotNull(collectionReferenceBuilder, nameof(collectionReferenceBuilder));
-            Check.NotNull(builderAction, nameof(builderAction));
-
-            builderAction(ForSqlServer(collectionReferenceBuilder));
-
-            return collectionReferenceBuilder;
-        }
-
-        public static CollectionReferenceBuilder<TEntity, TRelatedEntity> ForSqlServer<TEntity, TRelatedEntity>(
-            [NotNull] this CollectionReferenceBuilder<TEntity, TRelatedEntity> collectionReferenceBuilder,
-            [NotNull] Action<SqlServerForeignKeyBuilder> builderAction)
-            where TEntity : class
-            where TRelatedEntity : class
-        {
-            Check.NotNull(collectionReferenceBuilder, nameof(collectionReferenceBuilder));
-            Check.NotNull(builderAction, nameof(builderAction));
-
-            builderAction(ForSqlServer(collectionReferenceBuilder));
-
-            return collectionReferenceBuilder;
-        }
-
-        public static SqlServerForeignKeyBuilder ForSqlServer(
             [NotNull] this ReferenceReferenceBuilder referenceReferenceBuilder)
             => new SqlServerForeignKeyBuilder(
                 Check.NotNull(referenceReferenceBuilder, nameof(referenceReferenceBuilder)).Metadata);

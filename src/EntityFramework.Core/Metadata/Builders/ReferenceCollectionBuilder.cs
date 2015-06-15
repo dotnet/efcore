@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder ForeignKey([NotNull] params string[] foreignKeyPropertyNames)
         {
-            Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
+            Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
             return new ReferenceCollectionBuilder(Builder.ForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
         }
@@ -104,14 +104,14 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
         ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique index (or the primary key) then a new unique index
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique constraint
         ///     will be introduced.
         /// </summary>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder PrincipalKey([NotNull] params string[] keyPropertyNames)
         {
-            Check.NotNull(keyPropertyNames, nameof(keyPropertyNames));
+            Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
             return new ReferenceCollectionBuilder(Builder.PrincipalKey(keyPropertyNames, ConfigurationSource.Explicit));
         }
@@ -120,10 +120,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
         ///     be assigned null).
         /// </summary>
-        /// <param name="required"> A value indicating whether this is a required relationship. </param>
+        /// <param name="isRequired"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder Required(bool required = true)
-            => new ReferenceCollectionBuilder(Builder.Required(required, ConfigurationSource.Explicit));
+        public virtual ReferenceCollectionBuilder Required(bool isRequired = true)
+            => new ReferenceCollectionBuilder(Builder.Required(isRequired, ConfigurationSource.Explicit));
 
         private InternalRelationshipBuilder Builder => ((IAccessor<InternalRelationshipBuilder>)this).Service;
     }

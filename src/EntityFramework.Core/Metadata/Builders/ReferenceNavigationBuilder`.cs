@@ -57,21 +57,21 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     configured without a navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual CollectionReferenceBuilder<TEntity, TRelatedEntity> InverseCollection(
+        public virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> InverseCollection(
             [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> collection)
-            => new CollectionReferenceBuilder<TEntity, TRelatedEntity>(InverseCollectionBuilder(collection?.GetPropertyAccess().Name));
+            => new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(InverseCollectionBuilder(collection?.GetPropertyAccess().Name));
 
         /// <summary>
         ///     Configures this as a one-to-one relationship.
         /// </summary>
-        /// <param name="inverseReference">
+        /// <param name="reference">
         ///     A lambda expression representing the reference navigation property on the other end of this
         ///     relationship (<c>t => t.Reference1</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> InverseReference([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverseReference = null)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(InverseReferenceBuilder(inverseReference?.GetPropertyAccess().Name));
+        public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> InverseReference([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> reference)
+            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(InverseReferenceBuilder(reference?.GetPropertyAccess().Name));
 
         /// <summary>
         ///     Configures this as a one-to-many relationship.
@@ -81,7 +81,19 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public new virtual CollectionReferenceBuilder<TEntity, TRelatedEntity> InverseCollection([CanBeNull] string collection = null)
-            => new CollectionReferenceBuilder<TEntity, TRelatedEntity>(InverseCollectionBuilder(collection));
+        public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> InverseCollection([CanBeNull] string collection = null)
+            => new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(InverseCollectionBuilder(collection));
+
+
+        /// <summary>
+        ///     Configures this as a one-to-one relationship.
+        /// </summary>
+        /// <param name="reference">
+        ///     The name of the reference navigation property on the other end of this relationship.
+        ///     If null, there is no navigation property on the other end of the relationship.
+        /// </param>
+        /// <returns> An object to further configure the relationship. </returns>
+        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> InverseReference([CanBeNull] string reference = null)
+            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(InverseReferenceBuilder(reference));
     }
 }

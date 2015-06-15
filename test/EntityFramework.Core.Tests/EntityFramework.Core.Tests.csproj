@@ -90,8 +90,9 @@
     <Compile Include="Metadata\ModelConventions\RelationshipDiscoveryConventionTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
     <Compile Include="Extensions\QueryableExtensionsTest.cs" />
-    <Compile Include="Metadata\NonGenericRelationshipBuilderTest.cs" />
     <Compile Include="Metadata\TypedAnnotationTest.cs" />
+    <Compile Include="ModelBuilderGenericTest.cs" />
+    <Compile Include="ModelBuilderNonGenericTest.cs" />
     <Compile Include="ModelBuilderTest.cs" />
     <Compile Include="ModelSourceTest.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />

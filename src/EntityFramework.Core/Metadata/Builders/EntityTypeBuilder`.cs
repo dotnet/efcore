@@ -74,6 +74,19 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return new KeyBuilder(Builder.PrimaryKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
         }
 
+        /// <summary>
+        ///     Creates a new unique constraint for this entity type if one does not already exist over the specified properties.
+        /// </summary>
+        /// <param name="keyExpression">
+        ///     <para>
+        ///         A lambda expression representing the unique constraint property(s) (<c>t => t.Id1</c>).
+        ///     </para>
+        ///     <para>
+        ///         If the unique constraint is made up of multiple properties then specify an anonymous type including the
+        ///         properties (<c>t => new { t.Id1, t.Id2 }</c>).
+        ///     </para>
+        /// </param>
+        /// <returns> An object that can be used to configure the unique constraint. </returns>
         public virtual KeyBuilder AlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
         {
             Check.NotNull(keyExpression, nameof(keyExpression));
@@ -111,6 +124,20 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
             var propertyName = propertyExpression.GetPropertyAccess().Name;
+            Builder.Ignore(propertyName, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Excludes the given property from the entity type. This method is typically used to remove properties
+        ///     from the entity type that were added by convention.
+        /// </summary>
+        /// <param name="propertyName"> The name of then property to be removed from the entity type. </param>
+        public new virtual EntityTypeBuilder<TEntity> Ignore([NotNull] string propertyName)
+        {
+            Check.NotEmpty(propertyName, nameof(propertyName));
+
             Builder.Ignore(propertyName, ConfigurationSource.Explicit);
 
             return this;

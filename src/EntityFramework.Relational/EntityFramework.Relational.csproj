@@ -59,7 +59,6 @@
     <Compile Include="ISqlGenerator.cs" />
     <Compile Include="ISqlStatementExecutor.cs" />
     <Compile Include="Metadata\IRelationalMetadataExtensionProvider.cs" />
-    <Compile Include="Metadata\RelationalCollectionReferenceBuilderExtensions.cs" />
     <Compile Include="Metadata\RelationalReferenceReferenceBuilderExtensions.cs" />
     <Compile Include="Migrations\Builders\ColumnsBuilder.cs" />
     <Compile Include="Migrations\Builders\CreateTableBuilder.cs" />

@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity
         /// </summary>
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same typeBuilder instance so that multiple configuration calls can be chained. </returns>
+        /// <returns> The same <see cref="ModelBuilder" /> instance so that multiple configuration calls can be chained. </returns>
         public virtual ModelBuilder Annotation([NotNull] string annotation, [NotNull] object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     The internal typeBuilder being used to configure this model.
+        ///     The internal <see cref="ModelBuilder" /> being used to configure this model.
         /// </summary>
         InternalModelBuilder IAccessor<InternalModelBuilder>.Service => _builder;
 
@@ -107,6 +107,13 @@ namespace Microsoft.Data.Entity
             return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit));
         }
 
+        /// <summary>
+        ///     Returns an object that can be used to configure a given entity type in the model.
+        ///     If an entity type with the provided name is not already part of the model,
+        ///     a new entity type that does not have a corresponding CLR type will be added to the model.
+        /// </summary>
+        /// <param name="name"> The name of the entity type to be configured. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder Entity([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -128,7 +135,7 @@ namespace Microsoft.Data.Entity
         /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
         /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
         /// <returns>
-        ///     The same typeBuilder instance so that additional configuration calls can be chained.
+        ///     The same <see cref="ModelBuilder"/> instance so that additional configuration calls can be chained.
         /// </returns>
         public virtual ModelBuilder Entity<TEntity>([NotNull] Action<EntityTypeBuilder<TEntity>> buildAction) where TEntity : class
         {
@@ -153,7 +160,7 @@ namespace Microsoft.Data.Entity
         /// <param name="type"> The entity type to be configured. </param>
         /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
         /// <returns>
-        ///     The same typeBuilder instance so that additional configuration calls can be chained.
+        ///     The same <see cref="ModelBuilder"/> instance so that additional configuration calls can be chained.
         /// </returns>
         public virtual ModelBuilder Entity([NotNull] Type type, [NotNull] Action<EntityTypeBuilder> buildAction)
         {
@@ -165,6 +172,23 @@ namespace Microsoft.Data.Entity
             return this;
         }
 
+        /// <summary>
+        ///     <para>
+        ///         Performs configuration of a given entity type in the model.
+        ///         If an entity type with the provided name is not already part of the model,
+        ///         a new entity type that does not have a corresponding CLR type will be added to the model.
+        ///     </para>
+        ///     <para>
+        ///         This overload allows configuration of the entity type to be done in line in the method call rather
+        ///         than being chained after a call to <see cref="Entity(string)" />. This allows additional
+        ///         configuration at the model level to be chained after configuration for the entity type.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the entity type to be configured. </param>
+        /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder"/> instance so that additional configuration calls can be chained.
+        /// </returns>
         public virtual ModelBuilder Entity([NotNull] string name, [NotNull] Action<EntityTypeBuilder> buildAction)
         {
             Check.NotEmpty(name, nameof(name));

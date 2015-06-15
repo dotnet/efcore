@@ -20,11 +20,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
-    /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-    public class ReferenceCollectionBuilder<TEntity, TRelatedEntity> : ReferenceCollectionBuilder
-        where TEntity : class
-        where TRelatedEntity : class
+    /// <typeparam name="TPrincipalEntity"> The principal entity type in this relationship. </typeparam>
+    /// <typeparam name="TDependentEntity"> The dependent entity type in this relationship. </typeparam>
+    public class ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> : ReferenceCollectionBuilder
+        where TPrincipalEntity : class
+        where TDependentEntity : class
     {
         /// <summary>
         ///     <para>
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///         Configures the property(s) to use as the foreign key for this relationship.
         ///     </para>
         ///     <para>
-        ///         If <see cref="PrincipalKey(Expression{Func{TEntity, object}})" /> is not specified, then an
+        ///         If <see cref="PrincipalKey(Expression{Func{TPrincipalEntity, object}})" /> is not specified, then an
         ///         attempt will be made to match the data type and order of foreign key properties against the primary
         ///         key of
         ///         the principal entity type. If they do not match, new shadow state properties that form a unique
@@ -64,22 +64,22 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     <para>
         ///         If the foreign key is made up of multiple properties then specify an anonymous type including the
         ///         properties (<c>t => new { t.Id1, t.Id2 }</c>). The order specified should match the order of
-        ///         corresponding keys in <see cref="PrincipalKey(Expression{Func{TEntity, object}})" />.
+        ///         corresponding keys in <see cref="PrincipalKey(Expression{Func{TPrincipalEntity, object}})" />.
         ///     </para>
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> ForeignKey(
-            [NotNull] Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
+        public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> ForeignKey(
+            [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
         {
             Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression));
 
-            return new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(Builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
         }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
         ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique index (or the primary key) then a new unique index
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique constraint
         ///     will be introduced.
         /// </summary>
         /// <param name="keyExpression">
@@ -92,12 +92,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> PrincipalKey(
-            [NotNull] Expression<Func<TEntity, object>> keyExpression)
+        public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> PrincipalKey(
+            [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
         {
             Check.NotNull(keyExpression, nameof(keyExpression));
 
-            return new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(Builder.PrincipalKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.PrincipalKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -107,12 +107,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> Annotation([NotNull] string annotation, [NotNull] object value)
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> Annotation([NotNull] string annotation, [NotNull] object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotNull(value, nameof(value));
 
-            return (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)base.Annotation(annotation, value);
+            return (ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>)base.Annotation(annotation, value);
         }
 
         /// <summary>
@@ -137,36 +137,36 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     The name(s) of the foreign key property(s).
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> ForeignKey([NotNull] params string[] foreignKeyPropertyNames)
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> ForeignKey([NotNull] params string[] foreignKeyPropertyNames)
         {
-            Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
+            Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
-            return new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(Builder.ForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.ForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
         ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique index (or the primary key) then a new unique index
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique constraint
         ///     will be introduced.
         /// </summary>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> PrincipalKey([NotNull] params string[] keyPropertyNames)
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> PrincipalKey([NotNull] params string[] keyPropertyNames)
         {
-            Check.NotNull(keyPropertyNames, nameof(keyPropertyNames));
+            Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
-            return new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(Builder.PrincipalKey(keyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.PrincipalKey(keyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
         ///     be assigned null).
         /// </summary>
-        /// <param name="required"> A value indicating whether this is a required relationship. </param>
+        /// <param name="isRequired"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> Required(bool required = true)
-            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(Builder.Required(required, ConfigurationSource.Explicit));
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> Required(bool isRequired = true)
+            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.Required(isRequired, ConfigurationSource.Explicit));
 
         private InternalRelationshipBuilder Builder => ((IAccessor<InternalRelationshipBuilder>)this).Service;
     }

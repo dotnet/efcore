@@ -1603,11 +1603,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         private void AssertIsGeneric(ReferenceCollectionBuilder<Customer, Order> _)
         {
         }
-
-        private void AssertIsGeneric(CollectionReferenceBuilder<Order, Customer> _)
-        {
-        }
-
+        
         private void AssertIsGeneric(ReferenceReferenceBuilder<Order, OrderDetails> _)
         {
         }

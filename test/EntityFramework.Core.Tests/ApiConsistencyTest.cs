@@ -26,8 +26,6 @@ namespace Microsoft.Data.Entity.Tests
                     typeof(ModelBuilder),
                     typeof(CollectionNavigationBuilder),
                     typeof(CollectionNavigationBuilder<SampleEntity, SampleEntity>),
-                    typeof(CollectionReferenceBuilder),
-                    typeof(CollectionReferenceBuilder<SampleEntity, SampleEntity>),
                     typeof(EntityTypeBuilder),
                     typeof(EntityTypeBuilder<>),
                     typeof(IndexBuilder),

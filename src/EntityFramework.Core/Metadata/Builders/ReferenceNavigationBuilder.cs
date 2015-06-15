@@ -75,8 +75,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual CollectionReferenceBuilder InverseCollection([CanBeNull] string collection = null)
-            => new CollectionReferenceBuilder(InverseCollectionBuilder(collection));
+        public virtual ReferenceCollectionBuilder InverseCollection([CanBeNull] string collection = null)
+            => new ReferenceCollectionBuilder(InverseCollectionBuilder(collection));
 
         /// <summary>
         ///     Returns the internal builder to be used when <see cref="InverseCollection" /> is called.
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
-        protected virtual InternalRelationshipBuilder InverseCollectionBuilder(string collection)
+        protected virtual InternalRelationshipBuilder InverseCollectionBuilder([CanBeNull] string collection)
         {
             var needToInvert = _builder.Metadata.PrincipalEntityType != RelatedEntityType;
             Debug.Assert((needToInvert && _builder.Metadata.EntityType == RelatedEntityType)
@@ -111,23 +111,23 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     Configures this as a one-to-one relationship.
         /// </summary>
-        /// <param name="inverseReference">
+        /// <param name="reference">
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceReferenceBuilder InverseReference([CanBeNull] string inverseReference = null)
-            => new ReferenceReferenceBuilder(InverseReferenceBuilder(inverseReference));
+        public virtual ReferenceReferenceBuilder InverseReference([CanBeNull] string reference = null)
+            => new ReferenceReferenceBuilder(InverseReferenceBuilder(reference));
 
         /// <summary>
         ///     Returns the internal builder to be used when <see cref="InverseReference" /> is called.
         /// </summary>
-        /// <param name="inverseReferenceName">
+        /// <param name="reference">
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
-        protected virtual InternalRelationshipBuilder InverseReferenceBuilder(string inverseReferenceName)
+        protected virtual InternalRelationshipBuilder InverseReferenceBuilder([CanBeNull] string reference)
         {
             var builder = Builder;
             if (!((IForeignKey)_builder.Metadata).IsUnique)
@@ -148,8 +148,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                          || (foreignKey.PrincipalEntityType == RelatedEntityType
                              && foreignKey.DependentToPrincipal?.Name == ReferenceName));
             builder = inverseToPrincipal
-                ? builder.NavigationToPrincipal(inverseReferenceName, ConfigurationSource.Explicit, strictPreferExisting: false)
-                : builder.NavigationToDependent(inverseReferenceName, ConfigurationSource.Explicit, strictPreferExisting: false);
+                ? builder.NavigationToPrincipal(reference, ConfigurationSource.Explicit, strictPreferExisting: false)
+                : builder.NavigationToDependent(reference, ConfigurationSource.Explicit, strictPreferExisting: false);
 
             return builder;
         }

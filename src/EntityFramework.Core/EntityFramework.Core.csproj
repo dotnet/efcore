@@ -77,8 +77,6 @@
     <Compile Include="Metadata\Builders\EntityTypeBuilder`.cs" />
     <Compile Include="Metadata\Builders\IndexBuilder.cs" />
     <Compile Include="Metadata\Builders\KeyBuilder.cs" />
-    <Compile Include="Metadata\Builders\CollectionReferenceBuilder.cs" />
-    <Compile Include="Metadata\Builders\CollectionReferenceBuilder`.cs" />
     <Compile Include="Metadata\Builders\PropertyBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceCollectionBuilder.cs" />
     <Compile Include="Metadata\Builders\ReferenceCollectionBuilder`.cs" />
