@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new EntityOptionsBuilder();
+                    var optionsBuilder = new DbContextOptionsBuilder();
                     optionsBuilder.UseSqlServer(_connectionString);
 
                     using (var context = new F1Context(_serviceProvider, optionsBuilder.Options))
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public override F1Context CreateContext(SqlServerTestStore testStore)
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(testStore.Connection);
 
             var context = new F1Context(_serviceProvider, optionsBuilder.Options);

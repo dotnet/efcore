@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.InMemory
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] IInMemoryDatabase persistentDatabase,
-            [NotNull] IEntityOptions options,
+            [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory)
             : base(
                 Check.NotNull(model, nameof(model)),

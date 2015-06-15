@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract class RelationalOptionsExtension : IEntityOptionsExtension
+    public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     {
         private string _connectionString;
         private DbConnection _connection;
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual string MigrationsAssembly { get; [param: CanBeNull] set; }
 
-        public static RelationalOptionsExtension Extract([NotNull] IEntityOptions options)
+        public static RelationalOptionsExtension Extract([NotNull] IDbContextOptions options)
         {
             Check.NotNull(options, nameof(options));
 

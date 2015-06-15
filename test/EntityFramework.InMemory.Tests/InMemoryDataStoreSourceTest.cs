@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Is_configured_when_configuration_contains_associated_extension()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryStore();
 
             Assert.True(new InMemoryDataStoreSource().IsConfigured(optionsBuilder.Options));
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Can_be_auto_configured()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
 
             var dataStoreSource = new InMemoryDataStoreSource();
             dataStoreSource.AutoConfigure(optionsBuilder);
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Is_not_configured_when_configuration_does_not_contain_associated_extension()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
 
             Assert.False(new InMemoryDataStoreSource().IsConfigured(optionsBuilder.Options));
         }

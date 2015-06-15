@@ -21,17 +21,17 @@ namespace Microsoft.Data.Entity.Tests
 
         public static TestHelpers Instance { get; } = new TestHelpers();
 
-        public EntityOptions CreateOptions(IModel model)
+        public DbContextOptions CreateOptions(IModel model)
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             UseProviderOptions(optionsBuilder.UseModel(model));
 
             return optionsBuilder.Options;
         }
 
-        public EntityOptions CreateOptions()
+        public DbContextOptions CreateOptions()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             UseProviderOptions(optionsBuilder);
 
             return optionsBuilder.Options;
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests
             return builder.AddInMemoryStore();
         }
 
-        protected virtual void UseProviderOptions(EntityOptionsBuilder optionsBuilder)
+        protected virtual void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
         {
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Tests
             return new DbContext(serviceProvider, CreateOptions(model));
         }
 
-        public DbContext CreateContext(IServiceProvider serviceProvider, EntityOptions options)
+        public DbContext CreateContext(IServiceProvider serviceProvider, DbContextOptions options)
         {
             return new DbContext(serviceProvider, options);
         }
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Tests
             return new DbContext(CreateServiceProvider(), CreateOptions(model));
         }
 
-        public DbContext CreateContext(EntityOptions options)
+        public DbContext CreateContext(DbContextOptions options)
         {
             return new DbContext(CreateServiceProvider(), options);
         }
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Tests
             return new DbContext(CreateServiceProvider(customServices), CreateOptions(model));
         }
 
-        public DbContext CreateContext(IServiceCollection customServices, EntityOptions options)
+        public DbContext CreateContext(IServiceCollection customServices, DbContextOptions options)
         {
             return new DbContext(CreateServiceProvider(customServices), options);
         }
@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.Tests
             return ((IAccessor<IServiceProvider>)CreateContext(serviceProvider, model)).Service;
         }
 
-        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, EntityOptions options)
+        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, DbContextOptions options)
         {
             return ((IAccessor<IServiceProvider>)CreateContext(serviceProvider, options)).Service;
         }
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.Tests
             return ((IAccessor<IServiceProvider>)CreateContext(model)).Service;
         }
 
-        public IServiceProvider CreateContextServices(EntityOptions options)
+        public IServiceProvider CreateContextServices(DbContextOptions options)
         {
             return ((IAccessor<IServiceProvider>)CreateContext(options)).Service;
         }
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Tests
             return ((IAccessor<IServiceProvider>)CreateContext(customServices, model)).Service;
         }
 
-        public IServiceProvider CreateContextServices(IServiceCollection customServices, EntityOptions options)
+        public IServiceProvider CreateContextServices(IServiceCollection customServices, DbContextOptions options)
         {
             return ((IAccessor<IServiceProvider>)CreateContext(customServices, options)).Service;
         }

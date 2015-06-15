@@ -989,7 +989,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The EntityOptions object registered in the service provider must be a EntityOptions&lt;TContext&gt; where TContext is the type of the DbContext being used.
+        /// The DbContextOptions object registered in the service provider must be a DbContextOptions&lt;TContext&gt; where TContext is the type of the DbContext being used.
         /// </summary>
         public static string NonGenericOptions
         {

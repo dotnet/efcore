@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             customerType.GetOrSetPrimaryKey(customerType.AddProperty("Id", typeof(int), shadowProperty: true));
             customerType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
 
-            var optionsBuilder = new EntityOptionsBuilder()
+            var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
             optionsBuilder.UseInMemoryStore();
 
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             customerType.GetOrSetPrimaryKey(customerType.GetOrAddProperty("Id", typeof(int)));
             customerType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
 
-            var optionsBuilder = new EntityOptionsBuilder()
+            var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
             optionsBuilder.UseInMemoryStore();
 

@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         public MigrationAssembly(
             [NotNull] DbContext context,
-            [NotNull] IEntityOptions options,
+            [NotNull] IDbContextOptions options,
             [NotNull] IMigrationModelFactory modelFactory)
         {
             Check.NotNull(context, nameof(context));

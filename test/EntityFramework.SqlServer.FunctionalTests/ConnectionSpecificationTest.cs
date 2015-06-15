@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class StringInOnConfiguringContext : NorthwindContextBase
         {
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
             }
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 _connection = connection;
             }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer(_connection);
             }
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class StringInConfigContext : NorthwindContextBase
         {
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer("Database=Crunchie");
             }
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             public bool UseSqlServer { get; set; }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 if (UseSqlServer)
                 {
@@ -264,7 +264,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public void Can_depend_on_EntityOptions()
+        public void Can_depend_on_DbContextOptions()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
@@ -285,12 +285,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public void Can_depend_on_EntityOptions_with_default_service_provider()
+        public void Can_depend_on_DbContextOptions_with_default_service_provider()
         {
             using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var context = new OptionsContext(
-                    new EntityOptions<OptionsContext>(),
+                    new DbContextOptions<OptionsContext>(),
                     new SqlConnection(SqlServerNorthwindContext.ConnectionString)))
                 {
                     Assert.True(context.Customers.Any());
@@ -301,16 +301,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private class OptionsContext : NorthwindContextBase
         {
             private readonly SqlConnection _connection;
-            private readonly EntityOptions<OptionsContext> _options;
+            private readonly DbContextOptions<OptionsContext> _options;
 
-            public OptionsContext(EntityOptions<OptionsContext> options, SqlConnection connection)
+            public OptionsContext(DbContextOptions<OptionsContext> options, SqlConnection connection)
                 : base(options)
             {
                 _options = options;
                 _connection = connection;
             }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
@@ -358,12 +358,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (SqlServerNorthwindContext.GetSharedStore())
             {
-                using (var context = new MultipleContext1(new EntityOptions<MultipleContext1>()))
+                using (var context = new MultipleContext1(new DbContextOptions<MultipleContext1>()))
                 {
                     Assert.True(context.Customers.Any());
                 }
 
-                using (var context = new MultipleContext2(new EntityOptions<MultipleContext2>()))
+                using (var context = new MultipleContext2(new DbContextOptions<MultipleContext2>()))
                 {
                     Assert.False(context.Customers.Any());
                 }
@@ -372,15 +372,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class MultipleContext1 : NorthwindContextBase
         {
-            private readonly EntityOptions<MultipleContext1> _options;
+            private readonly DbContextOptions<MultipleContext1> _options;
 
-            public MultipleContext1(EntityOptions<MultipleContext1> options)
+            public MultipleContext1(DbContextOptions<MultipleContext1> options)
                 : base(options)
             {
                 _options = options;
             }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
@@ -392,15 +392,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class MultipleContext2 : NorthwindContextBase
         {
-            private readonly EntityOptions<MultipleContext2> _options;
+            private readonly DbContextOptions<MultipleContext2> _options;
 
-            public MultipleContext2(EntityOptions<MultipleContext2> options)
+            public MultipleContext2(DbContextOptions<MultipleContext2> options)
                 : base(options)
             {
                 _options = options;
             }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
@@ -436,7 +436,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (SqlServerNorthwindContext.GetSharedStore())
             {
-                using (var context = new NonGenericOptionsContext(new EntityOptions<DbContext>()))
+                using (var context = new NonGenericOptionsContext(new DbContextOptions<DbContext>()))
                 {
                     Assert.True(context.Customers.Any());
                 }
@@ -445,15 +445,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class NonGenericOptionsContext : NorthwindContextBase
         {
-            private readonly EntityOptions _options;
+            private readonly DbContextOptions _options;
 
-            public NonGenericOptionsContext(EntityOptions options)
+            public NonGenericOptionsContext(DbContextOptions options)
                 : base(options)
             {
                 _options = options;
             }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
@@ -469,7 +469,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
             }
 
-            protected NorthwindContextBase(EntityOptions options)
+            protected NorthwindContextBase(DbContextOptions options)
                 : base(options)
             {
             }

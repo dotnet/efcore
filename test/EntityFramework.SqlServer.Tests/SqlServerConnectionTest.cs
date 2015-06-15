@@ -31,9 +31,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             }
         }
 
-        public static IEntityOptions CreateOptions()
+        public static IDbContextOptions CreateOptions()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;Trusted_Connection=True;");
 
             return optionsBuilder.Options;

@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
     public class BuiltInDataTypesInMemoryFixture : BuiltInDataTypesFixtureBase
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly EntityOptions _options;
+        private readonly DbContextOptions _options;
         private readonly InMemoryTestStore _testStore;
 
         public BuiltInDataTypesInMemoryFixture()
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryStore();
             _options = optionsBuilder.Options;
         }

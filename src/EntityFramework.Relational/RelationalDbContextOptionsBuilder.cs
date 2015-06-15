@@ -6,15 +6,15 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class RelationalEntityOptionsBuilder
+    public class RelationalDbContextOptionsBuilder
     {
-        public RelationalEntityOptionsBuilder([NotNull] EntityOptionsBuilder optionsBuilder)
+        public RelationalDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 
             OptionsBuilder = optionsBuilder;
         }
 
-        protected EntityOptionsBuilder OptionsBuilder { get; }
+        protected DbContextOptionsBuilder OptionsBuilder { get; }
     }
 }

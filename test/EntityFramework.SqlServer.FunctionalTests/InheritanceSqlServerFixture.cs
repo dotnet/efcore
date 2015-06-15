@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class InheritanceSqlServerFixture : InheritanceFixtureBase
     {
-        private readonly EntityOptions _options;
+        private readonly DbContextOptions _options;
         private readonly IServiceProvider _serviceProvider;
 
         public InheritanceSqlServerFixture()
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var testStore = SqlServerTestStore.CreateScratch();
 
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(testStore.Connection);
             _options = optionsBuilder.Options;
 

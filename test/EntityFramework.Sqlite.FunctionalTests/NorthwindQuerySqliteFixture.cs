@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
     public class NorthwindQuerySqliteFixture : NorthwindQueryRelationalFixture, IDisposable
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly EntityOptions _options;
+        private readonly DbContextOptions _options;
         private readonly SqliteTestStore _testStore;
 
         public NorthwindQuerySqliteFixture()
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlite(_testStore.Connection.ConnectionString);
             _options = optionsBuilder.Options;
 

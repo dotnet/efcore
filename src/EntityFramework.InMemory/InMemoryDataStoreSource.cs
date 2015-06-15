@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryDataStoreSource : DataStoreSource<InMemoryDataStoreServices, InMemoryOptionsExtension>
     {
-        public override void AutoConfigure(EntityOptionsBuilder optionsBuilder)
+        public override void AutoConfigure(DbContextOptionsBuilder optionsBuilder)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 

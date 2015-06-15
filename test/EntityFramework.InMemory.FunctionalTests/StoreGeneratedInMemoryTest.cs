@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 return InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
-                        var optionsBuilder = new EntityOptionsBuilder();
+                        var optionsBuilder = new DbContextOptionsBuilder();
                         optionsBuilder.UseInMemoryStore();
 
                         using (var context = new StoreGeneratedContext(_serviceProvider, optionsBuilder.Options))
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
             {
-                var optionsBuilder = new EntityOptionsBuilder();
+                var optionsBuilder = new DbContextOptionsBuilder();
                 optionsBuilder.UseInMemoryStore();
 
                 var context = new StoreGeneratedContext(_serviceProvider, optionsBuilder.Options);

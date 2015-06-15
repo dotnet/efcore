@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private class FakeSqlServerConnection : SqlServerConnection
         {
-            public FakeSqlServerConnection(IEntityOptions options, ILoggerFactory loggerFactory)
+            public FakeSqlServerConnection(IDbContextOptions options, ILoggerFactory loggerFactory)
                 : base(options, loggerFactory)
             {
             }

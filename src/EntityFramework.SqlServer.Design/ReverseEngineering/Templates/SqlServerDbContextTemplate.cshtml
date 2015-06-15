@@ -49,7 +49,7 @@ namespace @Model.Namespace
 var className = Model.ClassName ?? Model.Helper.ClassName(Model.ConnectionString);
 }    public partial class @className : DbContext
     {
-        protected override void OnConfiguring(EntityOptionsBuilder options)
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             options.UseSqlServer(@Model.Helper.VerbatimStringLiteral(@Model.ConnectionString));
         }

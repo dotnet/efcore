@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<IEntityEntryGraphIterator>();
             VerifyScoped<IDbContextServices>();
             VerifyScoped<DbContext>();
-            VerifyScoped<IEntityOptions>();
+            VerifyScoped<IDbContextOptions>();
             VerifyScoped<IDataStoreSelector>();
             VerifyScoped<IDataStore>();
             VerifyScoped<IDataStoreConnection>();
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<IDataStoreSource>(isExistingReplaced: true);
             Assert.NotNull(VerifyCached<IModel>());
             Assert.NotNull(VerifyScoped<DbContext>());
-            Assert.NotNull(VerifyScoped<IEntityOptions>());
+            Assert.NotNull(VerifyScoped<IDbContextOptions>());
             Assert.NotNull(VerifyScoped<IDataStore>());
             Assert.NotNull(VerifyScoped<IDataStoreConnection>());
             Assert.NotNull(VerifyScoped<IDatabaseFactory>());
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Tests
                 .ServiceCollection();
         }
 
-        protected virtual EntityOptions GetOptions()
+        protected virtual DbContextOptions GetOptions()
         {
             return TestHelpers.Instance.CreateOptions();
         }

@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
     public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly EntityOptions _options;
+        private readonly DbContextOptions _options;
         private readonly SqliteTestStore _testStore;
 
         public BuiltInDataTypesSqliteFixture()
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlite(_testStore.Connection);
 
             _options = optionsBuilder.Options;

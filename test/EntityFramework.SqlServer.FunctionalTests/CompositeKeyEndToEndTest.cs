@@ -194,7 +194,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public DbSet<Unicorn> Unicorns { get; set; }
             public DbSet<EarthPony> EarthPonies { get; set; }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
             }

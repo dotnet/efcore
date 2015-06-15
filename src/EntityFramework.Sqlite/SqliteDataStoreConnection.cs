@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Sqlite
 {
     public class SqliteDataStoreConnection : RelationalConnection
     {
-        public SqliteDataStoreConnection([NotNull] IEntityOptions options, [NotNull] ILoggerFactory loggerFactory)
+        public SqliteDataStoreConnection([NotNull] IDbContextOptions options, [NotNull] ILoggerFactory loggerFactory)
             : base(options, loggerFactory)
         {
         }

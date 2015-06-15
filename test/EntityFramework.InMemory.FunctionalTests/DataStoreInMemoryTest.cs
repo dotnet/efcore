@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 .AddInstance(TestFileLogger.Factory)
                 .BuildServiceProvider();
 
-            var optionsBuilder = new EntityOptionsBuilder()
+            var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
             optionsBuilder.UseInMemoryStore(persist: true);
 
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             public DbSet<Artist> Artists { get; set; }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseInMemoryStore();
             }

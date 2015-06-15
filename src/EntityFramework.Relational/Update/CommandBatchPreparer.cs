@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             _metadataExtensionProvider = metadataExtensions;
         }
 
-        public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<InternalEntityEntry> entries, IEntityOptions options)
+        public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<InternalEntityEntry> entries, IDbContextOptions options)
         {
             Check.NotNull(entries, nameof(entries));
 

@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var optionsBuilder = new EntityOptionsBuilder();
+                var optionsBuilder = new DbContextOptionsBuilder();
                 optionsBuilder.UseSqlServer(testDatabase.Connection.ConnectionString);
 
                 using (var db = new BloggingContext(_fixture.ServiceProvider, optionsBuilder.Options))
@@ -200,7 +200,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var optionsBuilder = new EntityOptionsBuilder();
+                var optionsBuilder = new DbContextOptionsBuilder();
                 optionsBuilder.UseSqlServer(testDatabase.Connection.ConnectionString);
 
                 int updatedId;
@@ -329,7 +329,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public DbSet<Jack> Jacks { get; set; }
             public DbSet<Black> Blacks { get; set; }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer(Connection);
             }
@@ -380,7 +380,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var optionsBuilder = new EntityOptionsBuilder();
+                var optionsBuilder = new DbContextOptionsBuilder();
                 optionsBuilder.UseSqlServer(testDatabase.Connection.ConnectionString);
 
                 int blog1Id;
@@ -514,7 +514,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Customer> Customers { get; set; }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
             }
@@ -538,7 +538,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class BloggingContext : BloggingContext<Blog>
         {
-            public BloggingContext(IServiceProvider serviceProvider, EntityOptions options)
+            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
                 : base(serviceProvider, options)
             {
             }
@@ -567,7 +567,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private class BloggingContext<TBlog> : DbContext
             where TBlog : class, IBlog
         {
-            public BloggingContext(IServiceProvider serviceProvider, EntityOptions options)
+            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
                 : base(serviceProvider, options)
             {
             }

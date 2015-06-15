@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Internal
 
         public static ServiceProviderCache Instance { get; } = new ServiceProviderCache();
 
-        public virtual IServiceProvider GetOrAdd(IEntityOptions options)
+        public virtual IServiceProvider GetOrAdd(IDbContextOptions options)
         {
             var services = new ServiceCollection();
             var builder = services.AddEntityFramework();

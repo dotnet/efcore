@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
     public class InheritanceSqliteFixture : InheritanceFixtureBase
     {
-        private readonly EntityOptions _options;
+        private readonly DbContextOptions _options;
         private readonly IServiceProvider _serviceProvider;
 
         public InheritanceSqliteFixture()
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
             var testStore = SqliteTestStore.CreateScratch();
 
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlite(testStore.Connection);
             _options = optionsBuilder.Options;
 

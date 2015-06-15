@@ -25,9 +25,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             return serviceCollection.BuildServiceProvider();
         }
 
-        protected override EntityOptions CreateOptions(string databaseName)
+        protected override DbContextOptions CreateOptions(string databaseName)
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryStore();
 
             return optionsBuilder.Options;

@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider();
 
-            var options = new EntityOptionsBuilder().Options;
+            var options = new DbContextOptionsBuilder().Options;
 
             IServiceProvider contextServices;
             using (var context = new DbContext(serviceProvider, options))
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Each_context_gets_new_scoped_services_with_implicit_services_and_explicit_config()
         {
-            var options = new EntityOptionsBuilder().Options;
+            var options = new DbContextOptionsBuilder().Options;
 
             IServiceProvider contextServices;
             using (var context = new DbContext(options))
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new DbContext(serviceProvider, new EntityOptionsBuilder().Options))
+            using (var context = new DbContext(serviceProvider, new DbContextOptionsBuilder().Options))
             {
                 var changeDetector = (FakeChangeDetector)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IChangeDetector>();
 
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new DbContext(serviceProvider, new EntityOptionsBuilder().Options))
+            using (var context = new DbContext(serviceProvider, new DbContextOptionsBuilder().Options))
             {
                 var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IStateManager>();
 
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new DbContext(serviceProvider, new EntityOptionsBuilder().Options))
+            using (var context = new DbContext(serviceProvider, new DbContextOptionsBuilder().Options))
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
@@ -1456,7 +1456,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(
                 TestHelpers.Instance.CreateServiceProvider(),
-                new EntityOptionsBuilder().UseModel(model).Options))
+                new DbContextOptionsBuilder().UseModel(model).Options))
             {
                 Assert.Equal(
                     new[] { typeof(TheGu).FullName },
@@ -1503,7 +1503,7 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.ModelValidator).Returns(new LoggingModelValidator(new LoggerFactory()));
 
             var sourceMock = new Mock<IDataStoreSource>();
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<IEntityOptions>())).Returns(true);
+            sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
             sourceMock.Setup(m => m.GetStoreServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
 
             var services = new ServiceCollection();
@@ -1511,7 +1511,7 @@ namespace Microsoft.Data.Entity.Tests
             services.AddInstance(sourceMock.Object);
             var serviceProvider = services.BuildServiceProvider();
 
-            using (var context = new EarlyLearningCenter(serviceProvider, new EntityOptionsBuilder().Options))
+            using (var context = new EarlyLearningCenter(serviceProvider, new DbContextOptionsBuilder().Options))
             {
                 context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
                 context.Entry(new Category { Id = 2 }).State = EntityState.Unchanged;
@@ -1546,7 +1546,7 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.ModelValidator).Returns(new LoggingModelValidator(new LoggerFactory()));
 
             var sourceMock = new Mock<IDataStoreSource>();
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<IEntityOptions>())).Returns(true);
+            sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
             sourceMock.Setup(m => m.GetStoreServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
 
             var services = new ServiceCollection();
@@ -1554,7 +1554,7 @@ namespace Microsoft.Data.Entity.Tests
             services.AddInstance(sourceMock.Object);
             var serviceProvider = services.BuildServiceProvider();
 
-            using (var context = new EarlyLearningCenter(serviceProvider, new EntityOptionsBuilder().Options))
+            using (var context = new EarlyLearningCenter(serviceProvider, new DbContextOptionsBuilder().Options))
             {
                 context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
                 context.Entry(new Category { Id = 2 }).State = EntityState.Modified;
@@ -1593,7 +1593,7 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.ModelValidator).Returns(new LoggingModelValidator(new LoggerFactory()));
 
             var sourceMock = new Mock<IDataStoreSource>();
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<IEntityOptions>())).Returns(true);
+            sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
             sourceMock.Setup(m => m.GetStoreServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
 
             var services = new ServiceCollection();
@@ -1601,7 +1601,7 @@ namespace Microsoft.Data.Entity.Tests
             services.AddInstance(sourceMock.Object);
             var serviceProvider = services.BuildServiceProvider();
 
-            using (var context = new EarlyLearningCenter(serviceProvider, new EntityOptionsBuilder().Options))
+            using (var context = new EarlyLearningCenter(serviceProvider, new DbContextOptionsBuilder().Options))
             {
                 context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
                 context.Entry(new Category { Id = 2 }).State = EntityState.Modified;
@@ -1886,7 +1886,7 @@ namespace Microsoft.Data.Entity.Tests
             {
             }
 
-            public EarlyLearningCenter(IServiceProvider serviceProvider, EntityOptions options)
+            public EarlyLearningCenter(IServiceProvider serviceProvider, DbContextOptions options)
                 : base(serviceProvider, options)
             {
             }
@@ -1895,7 +1895,7 @@ namespace Microsoft.Data.Entity.Tests
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
 
-            protected internal override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseInMemoryStore(persist: false);
             }
@@ -1955,7 +1955,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.NotNull(serviceProvider.GetRequiredService<FakeService>());
                 Assert.NotSame(serviceProvider, contextServices);
-                Assert.Equal(0, contextServices.GetRequiredService<IEntityOptions>().Extensions.Count());
+                Assert.Equal(0, contextServices.GetRequiredService<IDbContextOptions>().Extensions.Count());
             }
         }
 
@@ -1963,20 +1963,20 @@ namespace Microsoft.Data.Entity.Tests
         public void Context_with_defaults_and_options_action_can_be_used_as_service()
         {
             var services = new ServiceCollection();
-            var contextOptionsExtension = new FakeEntityOptionsExtension();
+            var contextOptionsExtension = new FakeDbContextOptionsExtension();
 
             services
                 .AddSingleton<FakeService>()
                 .AddEntityFramework()
                 .AddDbContext<ContextWithDefaults>(optionsBuilder
-                    => ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(contextOptionsExtension));
+                    => ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(contextOptionsExtension));
 
             var serviceProvider = services.BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var options = contextServices.GetRequiredService<IEntityOptions>();
+                var options = contextServices.GetRequiredService<IDbContextOptions>();
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count());
@@ -1988,20 +1988,20 @@ namespace Microsoft.Data.Entity.Tests
         public void Context_with_service_provider_and_options_action_can_be_used_as_service()
         {
             var services = new ServiceCollection();
-            var contextOptionsExtension = new FakeEntityOptionsExtension();
+            var contextOptionsExtension = new FakeDbContextOptionsExtension();
 
             services
                 .AddSingleton<FakeService>()
                 .AddEntityFramework()
                 .AddDbContext<ContextWithServiceProvider>(optionsBuilder
-                    => ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(contextOptionsExtension));
+                    => ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(contextOptionsExtension));
 
             var serviceProvider = services.BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<ContextWithServiceProvider>())
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var options = contextServices.GetRequiredService<IEntityOptions>();
+                var options = contextServices.GetRequiredService<IDbContextOptions>();
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count());
@@ -2013,20 +2013,20 @@ namespace Microsoft.Data.Entity.Tests
         public void Context_with_options_and_options_action_can_be_used_as_service()
         {
             var services = new ServiceCollection();
-            var contextOptionsExtension = new FakeEntityOptionsExtension();
+            var contextOptionsExtension = new FakeDbContextOptionsExtension();
 
             services
                 .AddSingleton<FakeService>()
                 .AddEntityFramework()
                 .AddDbContext<ContextWithOptions>(optionsBuilder
-                    => ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(contextOptionsExtension));
+                    => ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(contextOptionsExtension));
 
             var serviceProvider = services.BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<ContextWithOptions>())
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var options = contextServices.GetRequiredService<IEntityOptions>();
+                var options = contextServices.GetRequiredService<IDbContextOptions>();
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count());
@@ -2038,7 +2038,7 @@ namespace Microsoft.Data.Entity.Tests
         {
         }
 
-        private class FakeEntityOptionsExtension : IEntityOptionsExtension
+        private class FakeDbContextOptionsExtension : IDbContextOptionsExtension
         {
             public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
@@ -2062,7 +2062,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private class ContextWithOptions : DbContext
         {
-            public ContextWithOptions(EntityOptions<ContextWithOptions> contextOptions)
+            public ContextWithOptions(DbContextOptions<ContextWithOptions> contextOptions)
                 : base(contextOptions)
             {
             }
@@ -2163,7 +2163,7 @@ namespace Microsoft.Data.Entity.Tests
 
             public DbSet<Product> Products { get; set; }
 
-            protected internal override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 Products.ToList();
 
@@ -2243,7 +2243,7 @@ namespace Microsoft.Data.Entity.Tests
 
             public DbSet<Product> Products { get; set; }
 
-            protected internal override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseInMemoryStore(persist: true);
             }

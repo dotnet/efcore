@@ -332,20 +332,20 @@ namespace Microsoft.Data.Entity.Relational.Tests
                         }))).Message);
         }
 
-        private static IEntityOptions CreateOptions(
+        private static IDbContextOptions CreateOptions(
             FakeOptionsExtension1 configUpdater1,
             FakeOptionsExtension2 configUpdater2 = null)
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
 
             if (configUpdater1 != null)
             {
-                ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(configUpdater1);
+                ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(configUpdater1);
             }
 
             if (configUpdater2 != null)
             {
-                ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(configUpdater2);
+                ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(configUpdater2);
             }
 
             return optionsBuilder.Options;
@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         private class FakeConnection : RelationalConnection
         {
-            public FakeConnection(IEntityOptions options)
+            public FakeConnection(IDbContextOptions options)
                 : base(options, new LoggerFactory())
             {
             }

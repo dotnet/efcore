@@ -1678,7 +1678,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected abstract IServiceProvider CreateServiceProvider(bool throwingStateManager = false);
 
-        protected abstract EntityOptions CreateOptions(string databaseName);
+        protected abstract DbContextOptions CreateOptions(string databaseName);
 
         protected abstract Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext);
 

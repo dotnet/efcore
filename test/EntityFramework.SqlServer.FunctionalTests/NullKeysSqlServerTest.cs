@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public class NullKeysSqlServerFixture : NullKeysFixtureBase
         {
             private readonly IServiceProvider _serviceProvider;
-            private readonly EntityOptions _options;
+            private readonly DbContextOptions _options;
 
             public NullKeysSqlServerFixture()
             {
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-                var optionsBuilder = new EntityOptionsBuilder();
+                var optionsBuilder = new DbContextOptionsBuilder();
                 optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("StringsContext"));
                 _options = optionsBuilder.Options;
 

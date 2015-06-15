@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             entry.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, new EntityOptions<DbContext>()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, new DbContextOptions<DbContext>()).ToArray();
             Assert.Equal(1, commandBatches.Count());
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count());
 
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             entry.SetEntityState(EntityState.Modified);
             entry.SetPropertyModified(entry.EntityType.GetPrimaryKey().Properties.Single(), isModified: false);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, new EntityOptions<DbContext>()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, new DbContextOptions<DbContext>()).ToArray();
             Assert.Equal(1, commandBatches.Count());
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count());
 
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             entry.SetEntityState(EntityState.Deleted);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, new EntityOptions<DbContext>()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, new DbContextOptions<DbContext>()).ToArray();
             Assert.Equal(1, commandBatches.Count());
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count());
 
@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var relatedentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
             relatedentry.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedentry, entry }, new EntityOptions<DbContext>()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedentry, entry }, new DbContextOptions<DbContext>()).ToArray();
 
             Assert.Equal(
                 new[] { entry, relatedentry },
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var relatedentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
             relatedentry.SetEntityState(EntityState.Modified);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedentry, entry }, new EntityOptions<DbContext>()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedentry, entry }, new DbContextOptions<DbContext>()).ToArray();
 
             Assert.Equal(
                 new[] { entry, relatedentry },
@@ -175,7 +175,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var secondentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1 });
             secondentry.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { secondentry, firstentry }, new EntityOptions<DbContext>()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { secondentry, firstentry }, new DbContextOptions<DbContext>()).ToArray();
 
             Assert.Equal(
                 new[] { firstentry, secondentry },
@@ -199,7 +199,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             relatedentry.OriginalValues[relatedentry.EntityType.GetProperty("RelatedId")] = 42;
             relatedentry.SetPropertyModified(relatedentry.EntityType.GetPrimaryKey().Properties.Single(), isModified: false);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedentry, previousParent, newParent }, new EntityOptions<DbContext>()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedentry, previousParent, newParent }, new DbContextOptions<DbContext>()).ToArray();
 
             Assert.Equal(
                 new[] { newParent, relatedentry, previousParent },
@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             relatedentry.SetEntityState(EntityState.Added);
 
             var modificationCommandBatchFactoryMock = new Mock<IModificationCommandBatchFactory>();
-            var options = new Mock<IEntityOptions>().Object;
+            var options = new Mock<IDbContextOptions>().Object;
 
             var commandBatches = CreateCommandBatchPreparer(modificationCommandBatchFactoryMock.Object).BatchCommands(new[] { relatedentry, entry }, options);
 
@@ -257,12 +257,12 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                         model.GetEntityType(typeof(RelatedFakeEntity)).GetForeignKeys().First(),
                         model.GetEntityType(typeof(FakeEntity)).GetForeignKeys().First())),
                 Assert.Throws<InvalidOperationException>(
-                    () => { var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { fakeEntry, relatedFakeEntry }, new EntityOptions<DbContext>()).ToArray(); }).Message);
+                    () => { var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { fakeEntry, relatedFakeEntry }, new DbContextOptions<DbContext>()).ToArray(); }).Message);
         }
 
         private static IServiceProvider CreateContextServices(IModel model)
         {
-            var optionsBuilder = new EntityOptionsBuilder()
+            var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
             optionsBuilder.UseInMemoryStore(persist: false);
 
@@ -380,7 +380,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             }
 
             public override ModificationCommandBatch Create(
-                IEntityOptions options,
+                IDbContextOptions options,
                 IRelationalMetadataExtensionProvider metadataExtensionProvider)
             {
                 return new SingularModificationCommandBatch(SqlGenerator, metadataExtensionProvider);

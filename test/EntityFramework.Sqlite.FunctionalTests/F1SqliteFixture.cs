@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new EntityOptionsBuilder();
+                    var optionsBuilder = new DbContextOptionsBuilder();
                     optionsBuilder.UseSqlite(_connectionString);
 
                     using (var context = new F1Context(_serviceProvider, optionsBuilder.Options))
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
         public override F1Context CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlite(testStore.Connection);
 
             var context = new F1Context(_serviceProvider, optionsBuilder.Options);

@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
     {
         public static readonly string AtsTableSuffix = Guid.NewGuid().ToString().Replace("-", "");
 
-        public CrossStoreContext(IServiceProvider serviceProvider, EntityOptions options)
+        public CrossStoreContext(IServiceProvider serviceProvider, DbContextOptions options)
             : base(serviceProvider, options)
         {
         }

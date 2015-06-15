@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public class CoreOptionsExtension : IEntityOptionsExtension
+    public class CoreOptionsExtension : IDbContextOptionsExtension
     {
         public virtual IModel Model { get; [param: CanBeNull] set; }
 

@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .ServiceCollection()
                     .BuildServiceProvider();
 
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(testStore.Connection.ConnectionString);
 
             return new BloggingContext(serviceProvider, optionsBuilder.Options);
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class BloggingContext : DbContext
         {
-            public BloggingContext(IServiceProvider serviceProvider, EntityOptions options)
+            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
                 : base(serviceProvider, options)
             {
             }

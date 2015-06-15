@@ -7,12 +7,12 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
 {
-    public class SqlServerEntityOptionsExtensionsTest
+    public class SqlServerDbContextOptionsExtensionsTest
     {
         [Fact]
         public void Can_add_extension_with_max_batch_size()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie").MaxBatchSize(123);
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Can_add_extension_with_command_timeout()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie").CommandTimeout(30);
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Can_add_extension_with_ambient_transaction_warning_suppressed()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie").SuppressAmbientTransactionWarning();
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Can_add_extension_with_connection_string()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie");
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Can_add_extension_with_connection_string_using_generic_options()
         {
-            var optionsBuilder = new EntityOptionsBuilder<DbContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
             optionsBuilder.UseSqlServer("Database=Whisper");
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Can_add_extension_with_connection()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             var connection = new SqlConnection();
 
             optionsBuilder.UseSqlServer(connection);
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Can_add_extension_with_connection_using_generic_options()
         {
-            var optionsBuilder = new EntityOptionsBuilder<DbContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
             var connection = new SqlConnection();
 
             optionsBuilder.UseSqlServer(connection);

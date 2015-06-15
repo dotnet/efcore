@@ -5,9 +5,8 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public interface IOptionsBuilderExtender
+    public interface IDbContextOptionsExtension
     {
-        void AddOrUpdateExtension<TExtension>([NotNull] TExtension extension)
-            where TExtension : class, IEntityOptionsExtension;
+        void ApplyServices([NotNull] EntityFrameworkServicesBuilder builder);
     }
 }

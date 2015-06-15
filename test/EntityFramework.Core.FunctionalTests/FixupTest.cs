@@ -255,7 +255,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     });
             }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseInMemoryStore(persist: false);
             }

@@ -5,10 +5,10 @@ using System.Collections.Generic;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public interface IEntityOptions
+    public interface IDbContextOptions
     {
-        IEnumerable<IEntityOptionsExtension> Extensions { get; }
+        IEnumerable<IDbContextOptionsExtension> Extensions { get; }
 
-        TExtension FindExtension<TExtension>() where TExtension : class, IEntityOptionsExtension;
+        TExtension FindExtension<TExtension>() where TExtension : class, IDbContextOptionsExtension;
     }
 }

@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
     public class MappingQuerySqliteFixture : MappingQueryFixtureBase
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly EntityOptions _options;
+        private readonly DbContextOptions _options;
         private readonly SqliteTestStore _testDatabase;
 
         public MappingQuerySqliteFixture()
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
             _testDatabase = SqliteNorthwindContext.GetSharedStore();
 
-            var optionsBuilder = new EntityOptionsBuilder().UseModel(CreateModel());
+            var optionsBuilder = new DbContextOptionsBuilder().UseModel(CreateModel());
             optionsBuilder.UseSqlite(_testDatabase.Connection.ConnectionString);
             _options = optionsBuilder.Options;
         }

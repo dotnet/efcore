@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] ISqlServerConnection connection,
             [NotNull] ICommandBatchPreparer batchPreparer,
             [NotNull] IBatchExecutor batchExecutor,
-            [NotNull] IEntityOptions options,
+            [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,

@@ -129,14 +129,14 @@ namespace Microsoft.Data.Entity.Tests
             Assert.NotSame(cache.GetOrAdd(config1), cache.GetOrAdd(config2));
         }
 
-        private static EntityOptions CreateOptions(Action<EntityFrameworkServicesBuilder> builderAction)
+        private static DbContextOptions CreateOptions(Action<EntityFrameworkServicesBuilder> builderAction)
         {
-            var optionsBuilder = new EntityOptionsBuilder();
-            ((IOptionsBuilderExtender)optionsBuilder).AddOrUpdateExtension(new FakeEntityOptionsExtension { BuilderAction = builderAction });
+            var optionsBuilder = new DbContextOptionsBuilder();
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(new FakeDbContextOptionsExtension { BuilderAction = builderAction });
             return optionsBuilder.Options;
         }
 
-        private class FakeEntityOptionsExtension : IEntityOptionsExtension
+        private class FakeDbContextOptionsExtension : IDbContextOptionsExtension
         {
             public Action<EntityFrameworkServicesBuilder> BuilderAction { get; set; }
 

@@ -7,57 +7,57 @@ using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Data.Entity.SqlServer.Extensions
 {
-    public class SqlServerEntityOptionsBuilder : RelationalEntityOptionsBuilder
+    public class SqlServerDbContextOptionsBuilder : RelationalDbContextOptionsBuilder
     {
-        public SqlServerEntityOptionsBuilder([NotNull] EntityOptionsBuilder optionsBuilder)
+        public SqlServerDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
             : base(optionsBuilder)
         {
         }
 
-        public virtual SqlServerEntityOptionsBuilder MaxBatchSize(int maxBatchSize)
+        public virtual SqlServerDbContextOptionsBuilder MaxBatchSize(int maxBatchSize)
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
                 {
                     MaxBatchSize = maxBatchSize
                 };
 
-            ((IOptionsBuilderExtender)OptionsBuilder).AddOrUpdateExtension(extension);
+            ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
 
             return this;
         }
 
-        public virtual SqlServerEntityOptionsBuilder CommandTimeout(int? commandTimeout)
+        public virtual SqlServerDbContextOptionsBuilder CommandTimeout(int? commandTimeout)
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
                 {
                     CommandTimeout = commandTimeout
                 };
 
-            ((IOptionsBuilderExtender)OptionsBuilder).AddOrUpdateExtension(extension);
+            ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
 
             return this;
         }
 
-        public virtual SqlServerEntityOptionsBuilder MigrationsAssembly([NotNull] string assemblyName)
+        public virtual SqlServerDbContextOptionsBuilder MigrationsAssembly([NotNull] string assemblyName)
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
                 {
                     MigrationsAssembly = assemblyName
                 };
 
-            ((IOptionsBuilderExtender)OptionsBuilder).AddOrUpdateExtension(extension);
+            ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
 
             return this;
         }
 
-        public virtual SqlServerEntityOptionsBuilder SuppressAmbientTransactionWarning()
+        public virtual SqlServerDbContextOptionsBuilder SuppressAmbientTransactionWarning()
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
                 {
                     ThrowOnAmbientTransaction = false
                 };
 
-            ((IOptionsBuilderExtender)OptionsBuilder).AddOrUpdateExtension(extension);
+            ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
 
             return this;
         }

@@ -9,28 +9,28 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public class EntityOptions<TContext> : EntityOptions
+    public class DbContextOptions<TContext> : DbContextOptions
         where TContext : DbContext
     {
-        public EntityOptions()
-            : base(new Dictionary<Type, IEntityOptionsExtension>())
+        public DbContextOptions()
+            : base(new Dictionary<Type, IDbContextOptionsExtension>())
         {
         }
 
-        public EntityOptions(
-            [NotNull] IReadOnlyDictionary<Type, IEntityOptionsExtension> extensions)
+        public DbContextOptions(
+            [NotNull] IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
             : base(extensions)
         {
         }
 
-        public override EntityOptions WithExtension<TExtension>(TExtension extension)
+        public override DbContextOptions WithExtension<TExtension>(TExtension extension)
         {
             Check.NotNull(extension, nameof(extension));
 
             var extensions = Extensions.ToDictionary(p => p.GetType(), p => p);
             extensions[typeof(TExtension)] = extension;
 
-            return new EntityOptions<TContext>(extensions);
+            return new DbContextOptions<TContext>(extensions);
         }
     }
 }

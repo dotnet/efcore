@@ -378,7 +378,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
 
             public override ModificationCommandBatch Create(
-                IEntityOptions options,
+                IDbContextOptions options,
                 IRelationalMetadataExtensionProvider metadataExtensionProvider)
             {
                 var optionsExtension = options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
@@ -401,7 +401,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<KettleChips> Chips { get; set; }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName));
             }
@@ -421,7 +421,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
             }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer("Database=" + DatabaseName).CommandTimeout(77);
 

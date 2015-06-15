@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public class NullKeysSqliteFixture : NullKeysFixtureBase
         {
             private readonly IServiceProvider _serviceProvider;
-            private readonly EntityOptions _options;
+            private readonly DbContextOptions _options;
 
             public NullKeysSqliteFixture()
             {
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                     .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-                var optionsBuilder = new EntityOptionsBuilder();
+                var optionsBuilder = new DbContextOptionsBuilder();
                 optionsBuilder.UseSqlite(SqliteTestStore.CreateConnectionString("StringsContext"));
                 _options = optionsBuilder.Options;
 

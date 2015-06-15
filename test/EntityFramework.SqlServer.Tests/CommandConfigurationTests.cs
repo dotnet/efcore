@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             [Fact]
             public void Setting_CommandTimeout_to_negative_value_throws()
             {
-                var optionsBuilder = new EntityOptionsBuilder().UseSqlServer("No=LoveyDovey");
+                var optionsBuilder = new DbContextOptionsBuilder().UseSqlServer("No=LoveyDovey");
 
                 Assert.Throws<InvalidOperationException>(() => optionsBuilder.CommandTimeout(-55));
 
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     Database.AsRelational().Connection.CommandTimeout = commandTimeout;
                 }
 
-                protected internal override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+                protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 {
                     var connectionMock = new Mock<DbConnection>();
                     optionsBuilder.UseSqlServer(connectionMock.Object);

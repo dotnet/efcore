@@ -5,7 +5,7 @@ namespace E2ETest.Namespace
 {
     public partial class SqlServerReverseEngineerTestE2EContext : DbContext
     {
-        protected override void OnConfiguring(EntityOptionsBuilder options)
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             options.UseSqlServer(@"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=SqlServerReverseEngineerTestE2E;Integrated Security=True;MultipleActiveResultSets=True;Connect Timeout=30");
         }

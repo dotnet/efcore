@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemantics
     {
         public static readonly string StoreName = "NullSemantics";
 
-        public NullSemanticsContext(IServiceProvider serviceProvider, EntityOptions options)
+        public NullSemanticsContext(IServiceProvider serviceProvider, DbContextOptions options)
             : base(serviceProvider, options)
         {
         }

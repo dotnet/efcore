@@ -7,12 +7,12 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Sqlite.Extensions
 {
-    public class SqliteEntityOptionsBuilderExtensionsTest
+    public class SqliteDbContextOptionsBuilderExtensionsTest
     {
         [Fact]
         public void Can_add_extension_with_connection_string()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlite("Database=Crunchie");
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Sqlite.Extensions
         [Fact]
         public void Can_add_extension_with_connection_string_using_generic_options()
         {
-            var optionsBuilder = new EntityOptionsBuilder<DbContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
             optionsBuilder.UseSqlite("Database=Whisper");
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Sqlite.Extensions
         [Fact]
         public void Can_add_extension_with_connection()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             var connection = new SqliteConnection();
 
             optionsBuilder.UseSqlite(connection);
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Sqlite.Extensions
         [Fact]
         public void Can_add_extension_with_connection_using_generic_options()
         {
-            var optionsBuilder = new EntityOptionsBuilder<DbContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
             var connection = new SqliteConnection();
 
             optionsBuilder.UseSqlite(connection);

@@ -95,7 +95,7 @@
     <Compile Include="SqliteCompositeMemberTranslator.cs" />
     <Compile Include="SqliteDataStoreConnection.cs" />
     <Compile Include="SqliteDataStoreCreator.cs" />
-    <Compile Include="SqliteEntityOptionsBuilderExtensions.cs" />
+    <Compile Include="SqliteDbContextOptionsBuilderExtensions.cs" />
     <Compile Include="SqliteEntityFrameworkServicesBuilderExtensions.cs" />
     <Compile Include="SqliteCompositeMethodCallTranslator.cs" />
     <Compile Include="SqliteModelSource.cs" />

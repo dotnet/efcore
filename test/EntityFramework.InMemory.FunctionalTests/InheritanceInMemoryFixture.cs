@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class InheritanceInMemoryFixture : InheritanceFixtureBase
     {
-        private readonly EntityOptionsBuilder _optionsBuilder = new EntityOptionsBuilder();
+        private readonly DbContextOptionsBuilder _optionsBuilder = new DbContextOptionsBuilder();
         private readonly IServiceProvider _serviceProvider;
 
         public InheritanceInMemoryFixture()

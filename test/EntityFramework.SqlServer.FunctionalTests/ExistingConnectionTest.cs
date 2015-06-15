@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Customer> Customers { get; set; }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer(_connection);
             }

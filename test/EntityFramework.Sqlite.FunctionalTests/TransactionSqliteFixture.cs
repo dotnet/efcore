@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
         public override DbContext CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlite(testStore.Connection.ConnectionString);
 
             return new DbContext(_serviceProvider, optionsBuilder.Options);
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
         public override DbContext CreateContext(DbConnection connection)
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlite(connection);
 
             return new DbContext(_serviceProvider, optionsBuilder.Options);

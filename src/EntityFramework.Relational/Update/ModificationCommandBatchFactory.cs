@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         protected ISqlGenerator SqlGenerator { get; }
 
         public abstract ModificationCommandBatch Create(
-            IEntityOptions options,
+            IDbContextOptions options,
             IRelationalMetadataExtensionProvider metadataExtensionProvider);
 
         public virtual bool AddCommand(

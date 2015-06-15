@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ServiceCollection();
         }
 
-        protected override EntityOptions GetOptions()
+        protected override DbContextOptions GetOptions()
         {
             return SqlServerTestHelpers.Instance.CreateOptions();
         }

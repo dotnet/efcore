@@ -10,33 +10,33 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public static class SqliteEntityOptionsBuilderExtensions
+    public static class SqliteDbContextOptionsBuilderExtensions
     {
-        public static RelationalEntityOptionsBuilder UseSqlite([NotNull] this EntityOptionsBuilder options, [NotNull] string connectionString)
+        public static RelationalDbContextOptionsBuilder UseSqlite([NotNull] this DbContextOptionsBuilder options, [NotNull] string connectionString)
         {
             Check.NotNull(options, nameof(options));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
             var extension = GetOrCreateExtension(options);
             extension.ConnectionString = connectionString;
-            ((IOptionsBuilderExtender)options).AddOrUpdateExtension(extension);
+            ((IDbContextOptionsBuilderInfrastructure)options).AddOrUpdateExtension(extension);
 
-            return new RelationalEntityOptionsBuilder(options);
+            return new RelationalDbContextOptionsBuilder(options);
         }
 
-        public static RelationalEntityOptionsBuilder UseSqlite([NotNull] this EntityOptionsBuilder options, [NotNull] DbConnection connection)
+        public static RelationalDbContextOptionsBuilder UseSqlite([NotNull] this DbContextOptionsBuilder options, [NotNull] DbConnection connection)
         {
             Check.NotNull(options, nameof(options));
             Check.NotNull(connection, nameof(connection));
 
             var extension = GetOrCreateExtension(options);
             extension.Connection = connection;
-            ((IOptionsBuilderExtender)options).AddOrUpdateExtension(extension);
+            ((IDbContextOptionsBuilderInfrastructure)options).AddOrUpdateExtension(extension);
 
-            return new RelationalEntityOptionsBuilder(options);
+            return new RelationalDbContextOptionsBuilder(options);
         }
 
-        private static SqliteOptionsExtension GetOrCreateExtension(EntityOptionsBuilder options)
+        private static SqliteOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder options)
         {
             var existingExtension = options.Options.FindExtension<SqliteOptionsExtension>();
 

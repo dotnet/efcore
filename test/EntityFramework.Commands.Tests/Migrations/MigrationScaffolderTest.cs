@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 new Model(),
                 new MigrationAssembly(
                     context,
-                    new EntityOptions<TContext>().WithExtension(new MockRelationalOptionsExtension()),
+                    new DbContextOptions<TContext>().WithExtension(new MockRelationalOptionsExtension()),
                     modelFactory),
                 new ModelDiffer(new ConcreteTypeMapper(), new MockRelationalMetadataExtensionProvider()),
                 new MigrationIdGenerator(),

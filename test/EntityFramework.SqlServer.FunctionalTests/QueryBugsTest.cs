@@ -19,14 +19,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static void CreateTestStore<TContext>(
             string databaseName, 
             IServiceProvider serviceProvider,
-            Func<IServiceProvider, EntityOptions, TContext> contextCreator,
+            Func<IServiceProvider, DbContextOptions, TContext> contextCreator,
             Action<TContext> contextInitializer)
             where TContext : DbContext, IDisposable
         {
             var connectionString = SqlServerTestStore.CreateConnectionString(databaseName);
             SqlServerTestStore.GetOrCreateShared(databaseName, () =>
                 {
-                    var optionsBuilder = new EntityOptionsBuilder();
+                    var optionsBuilder = new DbContextOptionsBuilder();
                     optionsBuilder.UseSqlServer(connectionString);
 
                     using (var context = contextCreator(serviceProvider, optionsBuilder.Options))
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             public DbSet<Product> Products { get; set; }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"));
             }
@@ -222,7 +222,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName] AND [o
             public DbSet<Customer> Customers { get; set; }
             public DbSet<Order> Orders { get; set; }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"));
             }
@@ -360,7 +360,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             public DbSet<Details> Details { get; set; }
             public DbSet<Dragon> Dragons { get; set; }
 
-            protected override void OnConfiguring(EntityOptionsBuilder optionsBuilder)
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro963"));
             }

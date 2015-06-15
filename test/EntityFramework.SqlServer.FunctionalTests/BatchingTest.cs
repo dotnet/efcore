@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public void Batches_are_divided_correctly_with_two_inserted_columns()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(_testStore.Connection);
 
             using (var context = new BloggingContext(_serviceProvider, optionsBuilder.Options))
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class BloggingContext : DbContext
         {
-            public BloggingContext(IServiceProvider serviceProvider, EntityOptions options)
+            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
                 : base(serviceProvider, options)
             {
             }

@@ -11,6 +11,6 @@ namespace Microsoft.Data.Entity.Relational.Update
     public interface ICommandBatchPreparer
     {
         IEnumerable<ModificationCommandBatch> BatchCommands(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entries, [NotNull] IEntityOptions options);
+            [NotNull] IReadOnlyList<InternalEntityEntry> entries, [NotNull] IDbContextOptions options);
     }
 }

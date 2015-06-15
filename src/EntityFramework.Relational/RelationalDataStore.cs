@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Relational
         private readonly ICommandBatchPreparer _batchPreparer;
         private readonly IBatchExecutor _batchExecutor;
         private readonly IRelationalConnection _connection;
-        private readonly IEntityOptions _options;
+        private readonly IDbContextOptions _options;
         private readonly IMethodCallTranslator _compositeMethodCallTranslator;
         private readonly IMemberTranslator _compositeMemberTranslator;
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] IRelationalConnection connection,
             [NotNull] ICommandBatchPreparer batchPreparer,
             [NotNull] IBatchExecutor batchExecutor,
-            [NotNull] IEntityOptions options,
+            [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
 
-        public virtual IEntityOptions EntityOptions => _options;
+        public virtual IDbContextOptions DbContextOptions => _options;
 
         public override int SaveChanges(
             IReadOnlyList<InternalEntityEntry> entries)

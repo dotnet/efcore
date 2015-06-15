@@ -9,36 +9,36 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class EntityOptionsBuilder : IOptionsBuilderExtender
+    public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     {
-        private EntityOptions _options;
+        private DbContextOptions _options;
 
-        public EntityOptionsBuilder()
-            : this(new EntityOptions<DbContext>())
+        public DbContextOptionsBuilder()
+            : this(new DbContextOptions<DbContext>())
         {
         }
 
-        public EntityOptionsBuilder([NotNull] EntityOptions options)
+        public DbContextOptionsBuilder([NotNull] DbContextOptions options)
         {
             Check.NotNull(options, nameof(options));
 
             _options = options;
         }
 
-        public virtual EntityOptions Options => _options;
+        public virtual DbContextOptions Options => _options;
 
         public virtual bool IsConfigured => _options.Extensions.Any();
 
-        public virtual EntityOptionsBuilder UseModel([NotNull] IModel model)
+        public virtual DbContextOptionsBuilder UseModel([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
 
-            ((IOptionsBuilderExtender)this).AddOrUpdateExtension(new CoreOptionsExtension { Model = model });
+            ((IDbContextOptionsBuilderInfrastructure)this).AddOrUpdateExtension(new CoreOptionsExtension { Model = model });
 
             return this;
         }
 
-        void IOptionsBuilderExtender.AddOrUpdateExtension<TExtension>(TExtension extension)
+        void IDbContextOptionsBuilderInfrastructure.AddOrUpdateExtension<TExtension>(TExtension extension)
         {
             Check.NotNull(extension, nameof(extension));
 

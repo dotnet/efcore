@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
     public class OneToOneQuerySqliteFixture : OneToOneQueryFixtureBase
     {
-        private readonly EntityOptions _options;
+        private readonly DbContextOptions _options;
         private readonly IServiceProvider _serviceProvider;
 
         public OneToOneQuerySqliteFixture()
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
             var database = SqliteTestStore.CreateScratch();
 
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlite(database.Connection.ConnectionString);
             _options = optionsBuilder.Options;
 

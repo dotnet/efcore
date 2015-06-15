@@ -6,12 +6,12 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
 {
-    public class InMemoryEntityOptionsExtensionsTest
+    public class InMemoryDbContextOptionsExtensionsTest
     {
         [Fact]
         public void Can_add_extension_with_connection_string()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryStore(persist: false);
 
             var extension = (InMemoryOptionsExtension)optionsBuilder.Options.Extensions.Single();
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Can_add_extension_with_connection_string_using_generic_builder()
         {
-            var optionsBuilder = new EntityOptionsBuilder<DbContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
             optionsBuilder.UseInMemoryStore(persist: false);
 
             var extension = (InMemoryOptionsExtension)optionsBuilder.Options.Extensions.Single();
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Can_add_extension_using_persist_true()
         {
-            var optionsBuilder = new EntityOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryStore(persist: true);
 
             var extension = (InMemoryOptionsExtension)optionsBuilder.Options.Extensions.Single();

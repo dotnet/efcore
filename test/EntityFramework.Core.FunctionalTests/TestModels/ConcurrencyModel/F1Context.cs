@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 {
     public class F1Context : DbContext
     {
-        public F1Context(IServiceProvider serviceProvider, EntityOptions options)
+        public F1Context(IServiceProvider serviceProvider, DbContextOptions options)
             : base(serviceProvider, options)
         {
         }
