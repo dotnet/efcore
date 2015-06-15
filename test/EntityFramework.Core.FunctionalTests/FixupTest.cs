@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
 

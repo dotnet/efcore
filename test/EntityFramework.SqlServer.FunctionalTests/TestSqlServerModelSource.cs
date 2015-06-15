@@ -14,16 +14,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     {
         private readonly TestModelSource _testModelSource;
 
-        public TestSqlServerModelSource(Action<ModelBuilder> onModelCreating, IDbSetFinder setFinder, IModelValidator modelValidator)
-            : base(setFinder, modelValidator)
+        public TestSqlServerModelSource(Action<ModelBuilder> onModelCreating, IDbSetFinder setFinder)
+            : base(setFinder)
         {
             _testModelSource = new TestModelSource(onModelCreating, setFinder);
         }
 
-        public override IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory) 
-            => _testModelSource.GetModel(context, modelBuilderFactory);
+        public override IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory, IModelValidator validator) 
+            => _testModelSource.GetModel(context, modelBuilderFactory, validator);
 
         public static Func<IServiceProvider, SqlServerModelSource> GetFactory(Action<ModelBuilder> onModelCreating) 
-            => p => new TestSqlServerModelSource(onModelCreating, p.GetRequiredService<IDbSetFinder>(), p.GetRequiredService<IModelValidator>());
+            => p => new TestSqlServerModelSource(onModelCreating, p.GetRequiredService<IDbSetFinder>());
     }
 }

@@ -148,6 +148,7 @@
     <Compile Include="Query\RelationalCompositeMemberTranslator.cs" />
     <Compile Include="RelationalDatabaseFactory.cs" />
     <Compile Include="RelationalDataStoreServices.cs" />
+    <Compile Include="RelationalModelValidator.cs" />
     <Compile Include="RemappingUntypedValueBufferFactory.cs" />
     <Compile Include="UntypedValueBufferFactory.cs" />
     <Compile Include="UntypedValueBufferFactoryFactory.cs" />

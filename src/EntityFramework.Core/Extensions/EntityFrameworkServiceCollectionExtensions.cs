@@ -76,7 +76,6 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<IClrCollectionAccessorSource, ClrCollectionAccessorSource>()
                 .AddSingleton<ICollectionTypeFactory, CollectionTypeFactory>()
                 .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
-                .AddSingleton<IModelValidator, LoggingModelValidator>()
                 .AddSingleton<IMemberMapper, MemberMapper>()
                 .AddSingleton<IFieldMatcher, FieldMatcher>()
                 .AddSingleton<IOriginalValuesFactory, OriginalValuesFactory>()
@@ -85,6 +84,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<IEntityEntryMetadataServices, EntityEntryMetadataServices>()
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .AddSingleton<LoggingModelValidator>()
                 .AddSingleton<ModelBuilderFactory>()
                 .AddScoped<IKeyPropagator, KeyPropagator>()
                 .AddScoped<INavigationFixer, NavigationFixer>()
@@ -112,6 +112,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped(p => GetStoreServices(p).ModelBuilderFactory)
                 .AddScoped(p => GetStoreServices(p).ValueGeneratorCache)
                 .AddScoped(p => GetStoreServices(p).ModelSource)
+                .AddScoped(p => GetStoreServices(p).ModelValidator)
                 .AddSingleton<IMemoryCache, MemoryCache>()
                 .AddOptions());
 

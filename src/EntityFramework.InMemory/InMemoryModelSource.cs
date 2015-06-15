@@ -8,8 +8,8 @@ namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryModelSource : ModelSource
     {
-        public InMemoryModelSource([NotNull] IDbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
-            : base(setFinder, modelValidator)
+        public InMemoryModelSource([NotNull] IDbSetFinder setFinder)
+            : base(setFinder)
         {
         }
     }

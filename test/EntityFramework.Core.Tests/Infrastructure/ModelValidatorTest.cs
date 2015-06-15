@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             return foreignKey;
         }
 
-        private class A
+        public class A
         {
             public int? P0 { get; set; }
             public int? P1 { get; set; }
@@ -260,7 +260,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             public int? P3 { get; set; }
         }
 
-        private class B
+        public class B
         {
             public int? P0 { get; set; }
             public int? P1 { get; set; }

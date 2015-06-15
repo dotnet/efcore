@@ -34,6 +34,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<UntypedValueBufferFactoryFactory>()
                 .AddSingleton<TypedValueBufferFactoryFactory>()
                 .AddSingleton<IMigrationModelFactory, MigrationModelFactory>()
+                .AddSingleton<RelationalModelValidator>()
                 .AddScoped<IMigrator, Migrator>()
                 .AddScoped<IMigrationAssembly, MigrationAssembly>()
                 .AddScoped<RelationalQueryContextFactory>()

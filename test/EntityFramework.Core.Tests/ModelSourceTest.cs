@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests
                         new DbSetProperty(typeof(JustAClass), "Three", typeof(Random), hasSetter: true)
                     });
 
-            var model = CreateDefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object, new ModelBuilderFactory());
+            var model = CreateDefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object, new ModelBuilderFactory(), new LoggingModelValidator(new LoggerFactory()));
 
             Assert.Equal(
                 new[] { TypeNameHelper.GetTypeDisplayName(typeof(Random)), TypeNameHelper.GetTypeDisplayName(typeof(object)) },
@@ -47,12 +47,12 @@ namespace Microsoft.Data.Entity.Tests
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model1 = modelSource.GetModel(new Context1(), new ModelBuilderFactory());
-            var model2 = modelSource.GetModel(new Context2(), new ModelBuilderFactory());
+            var model1 = modelSource.GetModel(new Context1(), new ModelBuilderFactory(), new LoggingModelValidator(new LoggerFactory()));
+            var model2 = modelSource.GetModel(new Context2(), new ModelBuilderFactory(), new LoggingModelValidator(new LoggerFactory()));
 
             Assert.NotSame(model1, model2);
-            Assert.Same(model1, modelSource.GetModel(new Context1(), new ModelBuilderFactory()));
-            Assert.Same(model2, modelSource.GetModel(new Context2(), new ModelBuilderFactory()));
+            Assert.Same(model1, modelSource.GetModel(new Context1(), new ModelBuilderFactory(), new LoggingModelValidator(new LoggerFactory())));
+            Assert.Same(model2, modelSource.GetModel(new Context2(), new ModelBuilderFactory(), new LoggingModelValidator(new LoggerFactory())));
         }
 
         private class Context1 : DbContext
@@ -64,12 +64,12 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         private IModelSource CreateDefaultModelSource(IDbSetFinder setFinder) 
-            => new ConcreteModelSource(setFinder, Mock.Of<IModelValidator>());
+            => new ConcreteModelSource(setFinder);
 
         private class ConcreteModelSource : ModelSource
         {
-            public ConcreteModelSource(IDbSetFinder setFinder, IModelValidator modelValidator)
-                : base(setFinder, modelValidator)
+            public ConcreteModelSource(IDbSetFinder setFinder)
+                : base(setFinder)
             {
             }
         }

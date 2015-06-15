@@ -380,6 +380,14 @@ namespace Microsoft.Data.Entity.Relational
             return string.Format(CultureInfo.CurrentCulture, GetString("FromSqlMissingColumn", "column"), column);
         }
 
+        /// <summary>
+        /// Cannot use table '{table}' in schema '{schema}' for entity '{entityType}' since it is being used for another entity.
+        /// </summary>
+        public static string DuplicateTableName([CanBeNull] object table, [CanBeNull] object schema, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateTableName", "table", "schema", "entityType"), table, schema, entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

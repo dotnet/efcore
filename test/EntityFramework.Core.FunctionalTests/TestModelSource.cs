@@ -14,12 +14,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         private readonly Action<ModelBuilder> _onModelCreating;
 
         public TestModelSource(Action<ModelBuilder> onModelCreating, IDbSetFinder setFinder)
-            : base(setFinder, new ThrowingModelValidator())
+            : base(setFinder)
         {
             _onModelCreating = onModelCreating;
         }
 
-        protected override IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
+        protected override IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory, IModelValidator validator)
         {
             var model = new Model();
             var modelBuilder = modelBuilderFactory.CreateConventionBuilder(model);
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             _onModelCreating(modelBuilder);
 
-            Validator.Validate(model);
+            validator.Validate(model);
 
             return model;
         }

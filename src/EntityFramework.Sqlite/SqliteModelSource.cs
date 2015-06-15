@@ -8,8 +8,8 @@ namespace Microsoft.Data.Entity.Sqlite
 {
     public class SqliteModelSource : ModelSource
     {
-        public SqliteModelSource([NotNull] IDbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
-            : base(setFinder, modelValidator)
+        public SqliteModelSource([NotNull] IDbSetFinder setFinder)
+            : base(setFinder)
         {
         }
     }

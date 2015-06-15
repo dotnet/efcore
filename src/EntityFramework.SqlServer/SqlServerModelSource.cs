@@ -8,8 +8,8 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerModelSource : ModelSource
     {
-        public SqlServerModelSource([NotNull] IDbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
-            : base(setFinder, modelValidator)
+        public SqlServerModelSource([NotNull] IDbSetFinder setFinder)
+            : base(setFinder)
         {
         }
     }

@@ -14,8 +14,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
     {
         private readonly TestModelSource _testModelSource;
 
-        public TestSqliteModelSource(Action<ModelBuilder> onModelCreating, IDbSetFinder setFinder, IModelValidator modelValidator)
-            : base(setFinder, modelValidator)
+        public TestSqliteModelSource(Action<ModelBuilder> onModelCreating, IDbSetFinder setFinder)
+            : base(setFinder)
         {
             _testModelSource = new TestModelSource(onModelCreating, setFinder);
         }
@@ -23,10 +23,9 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public static Func<IServiceProvider, SqliteModelSource> GetFactory(Action<ModelBuilder> onModelCreating) =>
             p => new TestSqliteModelSource(
                 onModelCreating,
-                p.GetRequiredService<IDbSetFinder>(),
-                p.GetRequiredService<IModelValidator>());
+                p.GetRequiredService<IDbSetFinder>());
 
-        public override IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory) =>
-            _testModelSource.GetModel(context, modelBuilderFactory);
+        public override IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory, IModelValidator validator) =>
+            _testModelSource.GetModel(context, modelBuilderFactory, validator);
     }
 }

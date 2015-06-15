@@ -1498,8 +1498,9 @@ namespace Microsoft.Data.Entity.Tests
             var servicesMock = new Mock<IDataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), Mock.Of<IModelValidator>())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder())
                 { CallBase = true }.Object);
+            servicesMock.Setup(m => m.ModelValidator).Returns(new LoggingModelValidator(new LoggerFactory()));
 
             var sourceMock = new Mock<IDataStoreSource>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IEntityOptions>())).Returns(true);
@@ -1540,8 +1541,9 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.Store).Returns(store.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), Mock.Of<IModelValidator>())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder())
                 { CallBase = true }.Object);
+            servicesMock.Setup(m => m.ModelValidator).Returns(new LoggingModelValidator(new LoggerFactory()));
 
             var sourceMock = new Mock<IDataStoreSource>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IEntityOptions>())).Returns(true);
@@ -1586,8 +1588,9 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.Store).Returns(store.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), Mock.Of<IModelValidator>())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder())
                 { CallBase = true }.Object);
+            servicesMock.Setup(m => m.ModelValidator).Returns(new LoggingModelValidator(new LoggerFactory()));
 
             var sourceMock = new Mock<IDataStoreSource>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IEntityOptions>())).Returns(true);
@@ -1657,7 +1660,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddSingleton<IDbSetFinder, DbSetFinder>()
                 .AddSingleton<IDbSetSource, DbSetSource>()
                 .AddSingleton<IClrAccessorSource<IClrPropertyGetter>, ClrPropertyGetterSource>()
-                .AddSingleton<IClrAccessorSource<IClrPropertySetter>, ClrPropertySetterSource >()
+                .AddSingleton<IClrAccessorSource<IClrPropertySetter>, ClrPropertySetterSource>()
                 .AddSingleton<IClrCollectionAccessorSource, ClrCollectionAccessorSource>()
                 .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
                 .AddSingleton<IMemberMapper, MemberMapper>()
@@ -1928,7 +1931,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private class FakeModelSource : IModelSource
         {
-            public virtual IModel GetModel(DbContext context, IModelBuilderFactory modelBuilder = null)
+            public virtual IModel GetModel(DbContext context, IModelBuilderFactory modelBuilder = null, IModelValidator validator = null)
             {
                 return null;
             }

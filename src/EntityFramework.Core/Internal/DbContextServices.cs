@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Internal
             try
             {
                 _inOnModelCreating = true;
-                return _dataStoreServices.Value.ModelSource.GetModel(_context, _dataStoreServices.Value.ModelBuilderFactory);
+                return _dataStoreServices.Value.ModelSource.GetModel(_context, _dataStoreServices.Value.ModelBuilderFactory, _dataStoreServices.Value.ModelValidator);
             }
             finally
             {

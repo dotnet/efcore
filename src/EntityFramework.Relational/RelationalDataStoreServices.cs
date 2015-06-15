@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Metadata;
@@ -36,6 +37,7 @@ namespace Microsoft.Data.Entity.Relational
         public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory => GetService<TypedValueBufferFactoryFactory>();
         public virtual ICommandBatchPreparer CommandBatchPreparer => GetService<CommandBatchPreparer>();
         public virtual ISqlStatementExecutor SqlStatementExecutor => GetService<SqlStatementExecutor>();
+        public override IModelValidator ModelValidator => GetService<RelationalModelValidator>();
 
         public abstract IMethodCallTranslator CompositeMethodCallTranslator { get; }
         public abstract IMemberTranslator CompositeMemberTranslator { get; }

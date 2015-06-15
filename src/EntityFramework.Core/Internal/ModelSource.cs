@@ -14,18 +14,16 @@ namespace Microsoft.Data.Entity.Internal
     {
         private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
         protected IDbSetFinder SetFinder { get; }
-        protected IModelValidator Validator { get; }
 
-        protected ModelSource([NotNull] IDbSetFinder setFinder, [NotNull] IModelValidator modelValidator)
+        protected ModelSource([NotNull] IDbSetFinder setFinder)
         {
             SetFinder = setFinder;
-            Validator = modelValidator;
         }
 
-        public virtual IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
-            => _models.GetOrAdd(context.GetType(), k => CreateModel(context, modelBuilderFactory));
+        public virtual IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory, IModelValidator validator)
+            => _models.GetOrAdd(context.GetType(), k => CreateModel(context, modelBuilderFactory, validator));
 
-        protected virtual IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
+        protected virtual IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory, IModelValidator validator)
         {
             var model = new Model();
             var modelBuilder = modelBuilderFactory.CreateConventionBuilder(model);
@@ -34,7 +32,7 @@ namespace Microsoft.Data.Entity.Internal
 
             OnModelCreating(context, modelBuilder);
 
-            Validator.Validate(model);
+            validator.Validate(model);
 
             return model;
         }

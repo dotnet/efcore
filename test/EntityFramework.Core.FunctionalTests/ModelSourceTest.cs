@@ -38,14 +38,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private class MyModelSource : InMemoryModelSource
         {
-            public MyModelSource(IDbSetFinder setFinder, IModelValidator modelValidator)
-                : base(setFinder, modelValidator)
+            public MyModelSource(IDbSetFinder setFinder)
+                : base(setFinder)
             {
             }
 
-            protected override IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
+            protected override IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory, IModelValidator validator)
             {
-                var model = base.CreateModel(context, modelBuilderFactory) as Model;
+                var model = base.CreateModel(context, modelBuilderFactory, validator) as Model;
 
                 model["AllYourModelAreBelongTo"] = "Us!";
 
