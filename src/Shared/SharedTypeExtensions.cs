@@ -39,7 +39,8 @@ namespace System
                    || type == typeof(uint)
                    || type == typeof(ulong)
                    || type == typeof(ushort)
-                   || type == typeof(sbyte);
+                   || type == typeof(sbyte)
+                   || type == typeof(char);
         }
 
         public static PropertyInfo GetAnyProperty(this Type type, string name)
@@ -59,7 +60,6 @@ namespace System
 
             return type == typeof(bool)
                    || type == typeof(byte[])
-                   || type == typeof(char)
                    || type == typeof(DateTime)
                    || type == typeof(DateTimeOffset)
                    || type == typeof(decimal)

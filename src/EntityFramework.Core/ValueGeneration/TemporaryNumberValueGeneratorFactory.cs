@@ -36,6 +36,11 @@ namespace Microsoft.Data.Entity.ValueGeneration
                 return new TemporaryNumberValueGenerator<byte>();
             }
 
+            if (type == typeof(char))
+            {
+                return new TemporaryNumberValueGenerator<char>();
+            }
+
             if (type == typeof(ulong))
             {
                 return new TemporaryNumberValueGenerator<ulong>();

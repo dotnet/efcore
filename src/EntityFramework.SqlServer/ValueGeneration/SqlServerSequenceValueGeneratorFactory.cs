@@ -52,6 +52,11 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
                 return new SqlServerSequenceValueGenerator<byte>(_executor, _sqlGenerator, generatorState, connection);
             }
 
+            if (property.ClrType.UnwrapNullableType() == typeof(char))
+            {
+                return new SqlServerSequenceValueGenerator<char>(_executor, _sqlGenerator, generatorState, connection);
+            }
+
             if (property.ClrType.UnwrapNullableType() == typeof(ulong))
             {
                 return new SqlServerSequenceValueGenerator<ulong>(_executor, _sqlGenerator, generatorState, connection);

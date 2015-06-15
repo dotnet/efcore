@@ -27,10 +27,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.IsType<TemporaryNumberValueGenerator<long>>(selector.Select(entityType.GetProperty("Long"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<short>>(selector.Select(entityType.GetProperty("Short"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<byte>>(selector.Select(entityType.GetProperty("Byte"), entityType));
+            Assert.IsType<TemporaryNumberValueGenerator<char>>(selector.Select(entityType.GetProperty("Char"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<int>>(selector.Select(entityType.GetProperty("NullableInt"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<long>>(selector.Select(entityType.GetProperty("NullableLong"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<short>>(selector.Select(entityType.GetProperty("NullableShort"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<byte>>(selector.Select(entityType.GetProperty("NullableByte"), entityType));
+            Assert.IsType<TemporaryNumberValueGenerator<char>>(selector.Select(entityType.GetProperty("NullableChar"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<uint>>(selector.Select(entityType.GetProperty("UInt"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<ulong>>(selector.Select(entityType.GetProperty("ULong"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<ushort>>(selector.Select(entityType.GetProperty("UShort"), entityType));
@@ -59,10 +61,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.IsType<SqlServerSequenceValueGenerator<long>>(selector.Select(entityType.GetProperty("Long"), entityType));
             Assert.IsType<SqlServerSequenceValueGenerator<short>>(selector.Select(entityType.GetProperty("Short"), entityType));
             Assert.IsType<SqlServerSequenceValueGenerator<byte>>(selector.Select(entityType.GetProperty("Byte"), entityType));
+            Assert.IsType<SqlServerSequenceValueGenerator<char>>(selector.Select(entityType.GetProperty("Char"), entityType));
             Assert.IsType<SqlServerSequenceValueGenerator<int>>(selector.Select(entityType.GetProperty("NullableInt"), entityType));
             Assert.IsType<SqlServerSequenceValueGenerator<long>>(selector.Select(entityType.GetProperty("NullableLong"), entityType));
             Assert.IsType<SqlServerSequenceValueGenerator<short>>(selector.Select(entityType.GetProperty("NullableShort"), entityType));
             Assert.IsType<SqlServerSequenceValueGenerator<byte>>(selector.Select(entityType.GetProperty("NullableByte"), entityType));
+            Assert.IsType<SqlServerSequenceValueGenerator<char>>(selector.Select(entityType.GetProperty("NullableChar"), entityType));
             Assert.IsType<SqlServerSequenceValueGenerator<uint>>(selector.Select(entityType.GetProperty("UInt"), entityType));
             Assert.IsType<SqlServerSequenceValueGenerator<ulong>>(selector.Select(entityType.GetProperty("ULong"), entityType));
             Assert.IsType<SqlServerSequenceValueGenerator<ushort>>(selector.Select(entityType.GetProperty("UShort"), entityType));
@@ -141,10 +145,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             public long Long { get; set; }
             public short Short { get; set; }
             public byte Byte { get; set; }
+            public char Char { get; set; }
             public int? NullableInt { get; set; }
             public long? NullableLong { get; set; }
             public short? NullableShort { get; set; }
             public byte? NullableByte { get; set; }
+            public char? NullableChar { get; set; }
             public uint UInt { get; set; }
             public ulong ULong { get; set; }
             public ushort UShort { get; set; }
