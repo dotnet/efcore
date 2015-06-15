@@ -1063,5 +1063,24 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                     });
             }
         }
+
+        public class KeyValueEntityTracker
+        {
+            private readonly bool _updateExistingEntities;
+
+            public KeyValueEntityTracker(bool updateExistingEntities)
+            {
+                _updateExistingEntities = updateExistingEntities;
+            }
+
+            public virtual void TrackEntity(EntityEntry entry)
+                => ((IAccessor<InternalEntityEntry>)entry).Service
+                    .SetEntityState(DetermineState(entry), acceptChanges: true);
+
+            public virtual EntityState DetermineState(EntityEntry entry)
+                => entry.IsKeySet
+                    ? (_updateExistingEntities ? EntityState.Modified : EntityState.Unchanged)
+                    : EntityState.Added;
+        }
     }
 }

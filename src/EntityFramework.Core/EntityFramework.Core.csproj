@@ -123,7 +123,6 @@
     <Compile Include="ChangeTracking\Internal\StoreGeneratedValues.cs" />
     <Compile Include="ChangeTracking\Internal\StoreGeneratedValuesFactory.cs" />
     <Compile Include="ChangeTracking\Internal\ValueGenerationManager.cs" />
-    <Compile Include="ChangeTracking\KeyValueEntityTracker.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="EntityOptionsBuilder.cs" />
     <Compile Include="EntityOptionsBuilder`.cs" />
