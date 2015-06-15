@@ -10,6 +10,9 @@ using Microsoft.Data.Sqlite.Interop;
 
 namespace Microsoft.Data.Sqlite
 {
+    /// <summary>
+    /// A collection of <see cref="SqliteParameter"/>.
+    /// </summary>
     public class SqliteParameterCollection : DbParameterCollection
     {
         private readonly List<SqliteParameter> _parameters = new List<SqliteParameter>();

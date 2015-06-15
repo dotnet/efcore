@@ -5,6 +5,10 @@ using Microsoft.Data.Sqlite.Interop;
 
 namespace Microsoft.Data.Sqlite
 {
+    /// <summary>
+    /// Represents the type affinities used by columns in SQLite tables. 
+    /// <see href="https://www.sqlite.org/datatype3.html#affinity">See SQLite.org for more details on type affinity</see>
+    /// </summary>
     public enum SqliteType
     {
         Integer = Constants.SQLITE_INTEGER,

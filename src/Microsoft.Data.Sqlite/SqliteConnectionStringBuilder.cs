@@ -11,6 +11,9 @@ using System.Globalization;
 
 namespace Microsoft.Data.Sqlite
 {
+    /// <summary>
+    /// Provides a simple way to create and manage the contents of connection strings used by <see cref="SqliteConnection"/>.
+    /// </summary>
     public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     {
         private const string DataSourceKeyword = "Data Source";

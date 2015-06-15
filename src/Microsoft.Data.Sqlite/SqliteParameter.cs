@@ -13,6 +13,9 @@ namespace Microsoft.Data.Sqlite
     // TODO: Truncate to specified size
     // TODO: Convert to specified type
     // TODO: Infer type and size from value
+    /// <summary>
+    /// Represents a parameter and its value in a SQL statement to be executed against a SQLite database.
+    /// </summary>
     public class SqliteParameter : DbParameter
     {
         private string _parameterName = string.Empty;
@@ -59,6 +62,9 @@ namespace Microsoft.Data.Sqlite
         }
 
         public override DbType DbType { get; set; } = DbType.String;
+        /// <summary>
+        /// Represents the type affinity for this parameter.
+        /// </summary>
         public virtual SqliteType SqliteType { get; set; } = SqliteType.Text;
 
         public override ParameterDirection Direction
@@ -109,6 +115,9 @@ namespace Microsoft.Data.Sqlite
 
         public override void ResetDbType() => ResetSqliteType();
 
+        /// <summary>
+        /// Sets the parameter type to <see cref="SqliteType">SqliteType.Text</see>.
+        /// </summary>
         public virtual void ResetSqliteType()
         {
             DbType = DbType.String;

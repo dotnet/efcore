@@ -8,6 +8,9 @@ using Microsoft.Data.Sqlite.Interop;
 
 namespace Microsoft.Data.Sqlite
 {
+    /// <summary>
+    /// Represents a connection with a SQLite database.
+    /// </summary>
     public class SqliteConnection : DbConnection
     {
         private const string MainDatabaseName = "main";
@@ -27,6 +30,9 @@ namespace Microsoft.Data.Sqlite
 
         internal virtual Sqlite3Handle DbHandle => _db;
 
+        /// <summary>
+        /// Represents an unmanaged pointer to a sqlite3 database object. <see href="https://www.sqlite.org/c3ref/sqlite3.html">See SQLite.org for more documentation on proper usage of this object.</see>
+        /// </summary>
         public virtual IntPtr Handle => _db?.DangerousGetHandle() ?? IntPtr.Zero;
 
         public override string ConnectionString
@@ -53,6 +59,9 @@ namespace Microsoft.Data.Sqlite
                 ? NativeMethods.sqlite3_db_filename(_db, MainDatabaseName)
                 : ConnectionStringBuilder.DataSource;
 
+        /// <summary>
+        /// Corresponds to the version of the SQLite library used by the connection.
+        /// </summary>
         public override string ServerVersion => NativeMethods.sqlite3_libversion();
         public override ConnectionState State => _state;
         protected internal SqliteTransaction Transaction { get; set; }

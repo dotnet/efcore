@@ -17,6 +17,9 @@ using System.Data;
 
 namespace Microsoft.Data.Sqlite
 {
+    /// <summary>
+    /// Provides methods for reading the result of a statement executed against a SQLite database.
+    /// </summary>
     public class SqliteDataReader : DbDataReader
     {
         private readonly Sqlite3Handle _db;
@@ -59,6 +62,9 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        /// <summary>
+        /// Represents an unmanaged pointer to a sqlite3_stmt object. <see href="https://www.sqlite.org/c3ref/stmt.html">See SQLite.org for more documentation on proper usage of this object.</see>
+        /// </summary>
         public virtual IntPtr Handle => _stmt?.DangerousGetHandle() ?? IntPtr.Zero;
 
         public override bool HasRows => _hasRows;

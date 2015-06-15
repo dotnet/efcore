@@ -8,6 +8,9 @@ using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
 {
+    /// <summary>
+    /// Represents a transaction made against a SQLite database.
+    /// </summary>
     public class SqliteTransaction : DbTransaction
     {
         private SqliteConnection _connection;
@@ -43,6 +46,9 @@ namespace Microsoft.Data.Sqlite
         public new virtual SqliteConnection Connection => _connection;
         protected override DbConnection DbConnection => Connection;
 
+        /// <summary>
+        /// Specifies the IsolationLevel for this transaction. This cannot be changed if the transaction is complete or closed.
+        /// </summary>
         public override IsolationLevel IsolationLevel
         {
             get
@@ -60,6 +66,9 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        /// <summary>
+        /// Persists the results of all statements executed during this transaction.
+        /// </summary>
         public override void Commit()
         {
             if (_completed || _connection.State != ConnectionState.Open)
@@ -71,6 +80,9 @@ namespace Microsoft.Data.Sqlite
             Complete();
         }
 
+        /// <summary>
+        /// Reverses all changes made in this transaction. 
+        /// </summary>
         public override void Rollback()
         {
             if (_completed || _connection.State != ConnectionState.Open)

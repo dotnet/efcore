@@ -13,6 +13,10 @@ namespace Microsoft.Data.Sqlite
             SqliteErrorCode = errorCode;
         }
 
+        /// <summary>
+        /// The error code produced by SQLite. The value's meaning depends on the context in which the exception is thrown. 
+        /// <see href="https://www.sqlite.org/rescode.html">See SQLite.org for a list of error codes.</see>
+        /// </summary>
         public virtual int SqliteErrorCode { get; }
     }
 }
