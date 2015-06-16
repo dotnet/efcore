@@ -53,14 +53,14 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
             AddReferenceFromName("System.Threading.Tasks");
             AddReferenceFromName("Microsoft.CSharp");
 #else
-            _references.Add(MetadataReference.CreateFromAssembly(
-                Assembly.Load(new AssemblyName("mscorlib"))));
-            _references.Add(MetadataReference.CreateFromAssembly(
-                Assembly.Load(new AssemblyName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"))));
-            _references.Add(MetadataReference.CreateFromAssembly(
-                Assembly.Load(new AssemblyName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"))));
-            _references.Add(MetadataReference.CreateFromAssembly(
-                Assembly.Load(new AssemblyName("Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"))));
+            _references.Add(MetadataReference.CreateFromFile(
+                Assembly.Load(new AssemblyName("mscorlib")).Location));
+            _references.Add(MetadataReference.CreateFromFile(
+                Assembly.Load(new AssemblyName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location));
+            _references.Add(MetadataReference.CreateFromFile(
+                Assembly.Load(new AssemblyName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location));
+            _references.Add(MetadataReference.CreateFromFile(
+                Assembly.Load(new AssemblyName("Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")).Location));
 #endif
             AddReferenceFromName("EntityFramework.Relational.Design");
         }
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
 
             throw new InvalidOperationException(Strings.UnableToCreateMetadataReference(name));
 #else
-            _references.Add(MetadataReference.CreateFromAssembly(Assembly.Load(name)));
+            _references.Add(MetadataReference.CreateFromFile(Assembly.Load(name).Location));
 #endif
         }
     }

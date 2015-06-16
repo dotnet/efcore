@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
             if (!string.IsNullOrEmpty(assembly.Location))
             {
                 return new BuildReference(
-                    MetadataReference.CreateFromAssembly(assembly),
+                    MetadataReference.CreateFromFile(assembly.Location),
                     copyLocal,
                     new Uri(assembly.CodeBase).LocalPath);
             }
