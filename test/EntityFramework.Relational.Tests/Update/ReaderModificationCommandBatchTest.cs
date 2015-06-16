@@ -600,7 +600,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var key = entityType.GetOrAddProperty("Id", typeof(int));
             key.StoreGeneratedPattern = generateKeyValues ? StoreGeneratedPattern.Identity : StoreGeneratedPattern.None;
-            key.GenerateValueOnAdd = generateKeyValues;
             key.Relational().Column = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 

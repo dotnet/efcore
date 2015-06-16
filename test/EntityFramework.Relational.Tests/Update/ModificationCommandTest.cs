@@ -2,9 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Xunit;
@@ -371,7 +369,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var entityType = model.AddEntityType(typeof(T1));
 
             var key = entityType.GetOrAddProperty("Id", typeof(int));
-            key.GenerateValueOnAdd = generateKeyValues;
             key.StoreGeneratedPattern = generateKeyValues ? StoreGeneratedPattern.Identity : StoreGeneratedPattern.None;
             key.Relational().Column = "Col1";
             entityType.GetOrSetPrimaryKey(key);

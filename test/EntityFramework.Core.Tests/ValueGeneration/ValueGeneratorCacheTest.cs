@@ -47,9 +47,9 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
 
             var entityType = model.AddEntityType("Led");
             var property1 = entityType.GetOrAddProperty("Zeppelin", typeof(Guid), shadowProperty: true);
-            property1.GenerateValueOnAdd = generateValues;
+            property1.IsValueGeneratedOnAdd = generateValues;
             var property2 = entityType.GetOrAddProperty("Stairway", typeof(Guid), shadowProperty: true);
-            property2.GenerateValueOnAdd = generateValues;
+            property2.IsValueGeneratedOnAdd = generateValues;
 
             return model;
         }

@@ -692,24 +692,24 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             modelBuilder.Entity<Quarks>(b =>
                 {
-                    b.Property(e => e.Id).GenerateValueOnAdd(false);
-                    b.Property(e => e.Up).GenerateValueOnAdd();
-                    b.Property(e => e.Down).GenerateValueOnAdd(true);
-                    b.Property<int>("Charm").GenerateValueOnAdd();
-                    b.Property<string>("Strange").GenerateValueOnAdd(false);
-                    b.Property(typeof(int), "Top").GenerateValueOnAdd();
-                    b.Property(typeof(string), "Bottom").GenerateValueOnAdd(false);
+                    b.Property(e => e.Id).Metadata.IsValueGeneratedOnAdd = false;
+                    b.Property(e => e.Up).Metadata.IsValueGeneratedOnAdd = true;
+                    b.Property(e => e.Down).Metadata.IsValueGeneratedOnAdd = true;
+                    b.Property<int>("Charm").Metadata.IsValueGeneratedOnAdd = true;
+                    b.Property<string>("Strange").Metadata.IsValueGeneratedOnAdd = false;
+                    b.Property(typeof(int), "Top").Metadata.IsValueGeneratedOnAdd = true;
+                    b.Property(typeof(string), "Bottom").Metadata.IsValueGeneratedOnAdd = false;
                 });
 
             var entityType = model.GetEntityType(typeof(Quarks));
 
-            Assert.Equal(false, entityType.GetProperty(Customer.IdProperty.Name).GenerateValueOnAdd);
-            Assert.Equal(true, entityType.GetProperty("Up").GenerateValueOnAdd);
-            Assert.Equal(true, entityType.GetProperty("Down").GenerateValueOnAdd);
-            Assert.Equal(true, entityType.GetProperty("Charm").GenerateValueOnAdd);
-            Assert.Equal(false, entityType.GetProperty("Strange").GenerateValueOnAdd);
-            Assert.Equal(true, entityType.GetProperty("Top").GenerateValueOnAdd);
-            Assert.Equal(false, entityType.GetProperty("Bottom").GenerateValueOnAdd);
+            Assert.Equal(false, entityType.GetProperty(Customer.IdProperty.Name).IsValueGeneratedOnAdd);
+            Assert.Equal(true, entityType.GetProperty("Up").IsValueGeneratedOnAdd);
+            Assert.Equal(true, entityType.GetProperty("Down").IsValueGeneratedOnAdd);
+            Assert.Equal(true, entityType.GetProperty("Charm").IsValueGeneratedOnAdd);
+            Assert.Equal(false, entityType.GetProperty("Strange").IsValueGeneratedOnAdd);
+            Assert.Equal(true, entityType.GetProperty("Top").IsValueGeneratedOnAdd);
+            Assert.Equal(false, entityType.GetProperty("Bottom").IsValueGeneratedOnAdd);
         }
 
         [Fact]
@@ -776,7 +776,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Annotation("A", "V")
                 .ConcurrencyToken()
                 .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
-                .GenerateValueOnAdd()
                 .MaxLength(100)
                 .Required();
         }

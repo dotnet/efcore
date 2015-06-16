@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             discriminatorProperty.IsNullable = false;
             //discriminatorProperty.IsReadOnlyBeforeSave = true; // #2132
             discriminatorProperty.IsReadOnlyAfterSave = true;
-            discriminatorProperty.GenerateValueOnAdd = true;
+            discriminatorProperty.IsValueGeneratedOnAdd = true;
 
             animal.Relational().DiscriminatorProperty = discriminatorProperty;
         }

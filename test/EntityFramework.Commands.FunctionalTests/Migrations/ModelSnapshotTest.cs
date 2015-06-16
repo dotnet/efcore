@@ -70,7 +70,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Key(""Id"");
@@ -79,7 +78,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<int>(""AlternateId"");
@@ -113,7 +111,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Key(""Id"");
@@ -140,7 +137,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<int>(""AlternateId"");
@@ -170,11 +166,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
                 @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
-        b.Property<int>(""Id"")
-            .GenerateValueOnAdd();
+        b.Property<int>(""Id"");
 
-        b.Property<int>(""AlternateId"")
-            .GenerateValueOnAdd();
+        b.Property<int>(""AlternateId"");
 
         b.Key(""Id"", ""AlternateId"");
     });
@@ -202,7 +196,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<int>(""AlternateId"");
@@ -231,7 +224,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<int>(""AlternateId"");
@@ -263,7 +255,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Key(""Id"");
@@ -272,7 +263,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<int>(""AlternateId"");
@@ -315,11 +305,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
-        b.Property<int>(""AlternateId"")
-            .GenerateValueOnAdd();
+        b.Property<int>(""AlternateId"");
 
         b.Key(""Id"");
     });
@@ -355,7 +343,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
             .Annotation(""AnnotationName"", ""AnnotationValue"");
 
@@ -382,7 +369,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<string>(""Name"")
@@ -409,7 +395,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<int>(""AlternateId"")
@@ -436,7 +421,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<string>(""Name"")
@@ -452,29 +436,27 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         }
 
         [Fact]
-        public void Property_generateValueOnAdd_is_stored_in_snapshot()
+        public void Property_isValueGeneratedOnAdd_is_not_stored_in_snapshot()
         {
             Test(
                 builder =>
                     {
-                        builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").GenerateValueOnAdd();
+                        builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").Metadata.IsValueGeneratedOnAdd = true;
                     },
                 @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
-        b.Property<int>(""AlternateId"")
-            .GenerateValueOnAdd();
+        b.Property<int>(""AlternateId"");
 
         b.Key(""Id"");
     });
 ",
                 o =>
                     {
-                        Assert.Equal(true, o.EntityTypes[0].GetProperty("AlternateId").IsValueGeneratedOnAdd);
+                        Assert.Equal(false, o.EntityTypes[0].GetProperty("AlternateId").IsValueGeneratedOnAdd);
                     });
         }
 
@@ -490,7 +472,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<int>(""AlternateId"")
@@ -521,7 +502,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<int>(""AlternateId"");
@@ -550,7 +530,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<int>(""AlternateId"");
@@ -587,7 +566,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Key(""Id"");
@@ -596,7 +574,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<int>(""AlternateId"");
@@ -633,8 +610,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
                 @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringKey"", b =>
     {
-        b.Property<string>(""Id"")
-            .GenerateValueOnAdd();
+        b.Property<string>(""Id"");
 
         b.Key(""Id"");
     });
@@ -642,7 +618,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<string>(""Name"")
@@ -678,8 +653,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
                 @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringKey"", b =>
     {
-        b.Property<string>(""Id"")
-            .GenerateValueOnAdd();
+        b.Property<string>(""Id"");
 
         b.Key(""Id"");
     });
@@ -687,7 +661,6 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValueOnAdd()
             .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
         b.Property<string>(""Name"");

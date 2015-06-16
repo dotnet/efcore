@@ -121,13 +121,13 @@ namespace Microsoft.Data.Entity.Metadata
             => StoreGeneratedPattern == Metadata.StoreGeneratedPattern.Computed
                || this.IsKey();
 
-        public virtual bool? GenerateValueOnAdd
+        public virtual bool? IsValueGeneratedOnAdd
         {
-            get { return GetFlag(PropertyFlags.GenerateValueOnAdd); }
-            set { SetFlag(value, PropertyFlags.GenerateValueOnAdd); }
+            get { return GetFlag(PropertyFlags.IsValueGeneratedOnAdd); }
+            set { SetFlag(value, PropertyFlags.IsValueGeneratedOnAdd); }
         }
 
-        protected virtual bool DefaultGenerateValueOnAdd => false;
+        protected virtual bool DefaultIsValueGeneratedOnAdd => false;
 
         public virtual bool IsShadowProperty
         {
@@ -236,7 +236,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         bool IProperty.IsReadOnlyAfterSave => IsReadOnlyAfterSave ?? DefaultIsReadOnlyAfterSave;
 
-        bool IProperty.IsValueGeneratedOnAdd => GenerateValueOnAdd ?? DefaultGenerateValueOnAdd;
+        bool IProperty.IsValueGeneratedOnAdd => IsValueGeneratedOnAdd ?? DefaultIsValueGeneratedOnAdd;
 
         bool IProperty.IsConcurrencyToken => IsConcurrencyToken ?? DefaultIsConcurrencyToken;
 
@@ -251,7 +251,7 @@ namespace Microsoft.Data.Entity.Metadata
             IsReadOnlyAfterSave = 8,
             IsIdentity = 16,
             IsComputed = 32,
-            GenerateValueOnAdd = 64,
+            IsValueGeneratedOnAdd = 64,
             IsShadowProperty = 128
         }
     }

@@ -116,21 +116,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures whether a value is generated for this property when a new instance of the entity type
-        ///     is added to a context. Data stores will typically register an appropriate
-        ///     <see cref="ValueGenerator" /> to handle generating values. This functionality is typically
-        ///     used for key values and is switched on by convention.
-        /// </summary>
-        /// <param name="generateValue"> A value indicating whether a value should be generated. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder GenerateValueOnAdd(bool generateValue = true)
-        {
-            Builder.GenerateValueOnAdd(generateValue, ConfigurationSource.Explicit);
-
-            return this;
-        }
-
-        /// <summary>
         ///     <para>
         ///         Configures whether a value is generated for this property by the data store when an
         ///         instance of this entity type is saved.

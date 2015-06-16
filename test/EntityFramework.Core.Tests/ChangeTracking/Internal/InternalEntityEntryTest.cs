@@ -1505,7 +1505,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entityType1 = model.AddEntityType(typeof(SomeEntity));
             var key1 = entityType1.GetOrAddProperty("Id", typeof(int));
-            key1.GenerateValueOnAdd = true;
+            key1.IsValueGeneratedOnAdd = true;
             entityType1.GetOrSetPrimaryKey(key1);
             entityType1.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
 
@@ -1516,7 +1516,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var fk = entityType2.GetOrAddProperty("SomeEntityId", typeof(int));
             entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.GetPrimaryKey());
             var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
-            justAProperty.GenerateValueOnAdd = true;
+            justAProperty.IsValueGeneratedOnAdd = true;
 
             var entityType3 = model.AddEntityType(typeof(FullNotificationEntity));
             entityType3.GetOrSetPrimaryKey(entityType3.GetOrAddProperty("Id", typeof(int)));

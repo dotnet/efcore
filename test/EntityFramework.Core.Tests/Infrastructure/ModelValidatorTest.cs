@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             CreateForeignKey(keyA, keyB);
             CreateForeignKey(keyB, keyA);
 
-            keyA.Properties[0].GenerateValueOnAdd = true;
+            keyA.Properties[0].IsValueGeneratedOnAdd = true;
 
             Validate(model);
         }
@@ -112,8 +112,8 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             CreateForeignKey(keyA, keyB);
             CreateForeignKey(keyB, keyA);
             
-            keyA.Properties[0].GenerateValueOnAdd = true;
-            keyB.Properties[0].GenerateValueOnAdd = true;
+            keyA.Properties[0].IsValueGeneratedOnAdd = true;
+            keyB.Properties[0].IsValueGeneratedOnAdd = true;
 
             VerifyError(Strings.ForeignKeyValueGenerationOnAdd("P0", "A", "{'P0'}"), model);
         }
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
             CreateForeignKey(keyA, keyB);
 
-            keyA.Properties[0].GenerateValueOnAdd = true;
+            keyA.Properties[0].IsValueGeneratedOnAdd = true;
 
             VerifyError(Strings.ForeignKeyValueGenerationOnAdd("P0", "A", "{'P0'}"), model);
         }
@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             CreateForeignKey(keyA1, keyB);
             CreateForeignKey(keyB, keyA2);
 
-            keyB.Properties[0].GenerateValueOnAdd = true;
+            keyB.Properties[0].IsValueGeneratedOnAdd = true;
 
             VerifyError(Strings.ForeignKeyValueGenerationOnAdd("P0", "B", "{'P0'}"), model);
         }
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
             CreateForeignKey(keyA, keyB);
 
-            keyB.Properties[0].GenerateValueOnAdd = false;
+            keyB.Properties[0].IsValueGeneratedOnAdd = false;
 
             VerifyError(Strings.PrincipalKeyNoValueGenerationOnAdd("P0", "B"), model);
         }
@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             for (int i = 0; i < propertyCount; i++)
             {
                 keyProperties[i] = entityType.GetOrAddProperty("P" + (startingPropertyIndex + i), typeof(int?));
-                keyProperties[i].GenerateValueOnAdd = true;
+                keyProperties[i].IsValueGeneratedOnAdd = true;
             }
             return entityType.AddKey(keyProperties);
         }
@@ -246,7 +246,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             foreignKey.IsRequired = false;
             foreach (var property in dependentKey.Properties)
             {
-                property.GenerateValueOnAdd = false;
+                property.IsValueGeneratedOnAdd = false;
             }
 
             return foreignKey;

@@ -117,7 +117,6 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 if (value == null)
                 {
                     property[SqlServerValueGenerationAnnotation] = null;
-                    property.GenerateValueOnAdd = null;
                 }
                 else
                 {
@@ -141,7 +140,6 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
                     // TODO: Issue #777: Non-string annotations
                     property[SqlServerValueGenerationAnnotation] = value.ToString();
-                    property.GenerateValueOnAdd = true;
                 }
             }
         }

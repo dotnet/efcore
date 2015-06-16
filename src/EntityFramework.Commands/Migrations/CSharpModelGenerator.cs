@@ -168,13 +168,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         .Append(".ConcurrencyToken()");
                 }
 
-                if (property.IsValueGeneratedOnAdd)
-                {
-                    stringBuilder
-                        .AppendLine()
-                        .Append(".GenerateValueOnAdd()");
-                }
-
                 if (property.IsNullable != (property.ClrType.IsNullableType() && !property.IsPrimaryKey()))
                 {
                     stringBuilder

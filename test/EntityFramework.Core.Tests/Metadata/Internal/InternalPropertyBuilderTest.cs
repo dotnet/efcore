@@ -49,10 +49,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(builder.GenerateValueOnAdd(true, ConfigurationSource.Convention));
             Assert.True(builder.GenerateValueOnAdd(false, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(false, metadata.GenerateValueOnAdd);
+            Assert.Equal(false, metadata.IsValueGeneratedOnAdd);
 
             Assert.False(builder.GenerateValueOnAdd(true, ConfigurationSource.Convention));
-            Assert.Equal(false, metadata.GenerateValueOnAdd);
+            Assert.Equal(false, metadata.IsValueGeneratedOnAdd);
         }
 
         [Fact]
@@ -60,15 +60,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
-            metadata.GenerateValueOnAdd = true;
+            metadata.IsValueGeneratedOnAdd = true;
 
             Assert.True(builder.GenerateValueOnAdd(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.GenerateValueOnAdd(false, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(true, metadata.GenerateValueOnAdd);
+            Assert.Equal(true, metadata.IsValueGeneratedOnAdd);
 
             Assert.True(builder.GenerateValueOnAdd(false, ConfigurationSource.Explicit));
-            Assert.Equal(false, metadata.GenerateValueOnAdd);
+            Assert.Equal(false, metadata.IsValueGeneratedOnAdd);
         }
 
         [Fact]

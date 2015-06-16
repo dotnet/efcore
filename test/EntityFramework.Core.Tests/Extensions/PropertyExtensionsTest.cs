@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests
             var entityType = new EntityType("Entity", model);
             var property = entityType.AddProperty("Property", typeof(int), true);
 
-            property.GenerateValueOnAdd = true;
+            property.IsValueGeneratedOnAdd = true;
 
             Assert.Equal(property, property.GetGenerationProperty());
         }
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Tests
             var thirdProperty = thirdType.AddProperty("ID", typeof(int), true);
             var thirdForeignKey = thirdType.AddForeignKey(thirdProperty, secondKey);
 
-            firstProperty.GenerateValueOnAdd = true;
+            firstProperty.IsValueGeneratedOnAdd = true;
 
             Assert.Equal(firstProperty, thirdProperty.GetGenerationProperty());
         }
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var endFK = endType.AddForeignKey(endProperty, middleKey1);
 
-            rightId2.GenerateValueOnAdd = true;
+            rightId2.IsValueGeneratedOnAdd = true;
 
             Assert.Equal(rightId2, endProperty.GetGenerationProperty());
         }
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Tests
             var secondForeignKey1 = secondType.AddForeignKey(secondId1, firstKey);
             var secondForeignKey2 = secondType.AddForeignKey(new[] { secondId1, secondId2 }, leafKey);
 
-            leafId1.GenerateValueOnAdd = true;
+            leafId1.IsValueGeneratedOnAdd = true;
 
             Assert.Equal(leafId1, secondId1.GetGenerationProperty());
         }

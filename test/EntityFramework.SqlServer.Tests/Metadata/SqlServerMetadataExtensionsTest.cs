@@ -672,20 +672,20 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
             Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Null(property.GenerateValueOnAdd);
+            Assert.Null(property.IsValueGeneratedOnAdd);
             Assert.False(((IProperty)property).IsValueGeneratedOnAdd);
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, ((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Equal(true, property.GenerateValueOnAdd);
+            Assert.Null(property.IsValueGeneratedOnAdd);
 
             property.SqlServer().ValueGenerationStrategy = null;
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
             Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Null(property.GenerateValueOnAdd);
+            Assert.Null(property.IsValueGeneratedOnAdd);
         }
 
         [Fact]
@@ -700,20 +700,20 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
             Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Null(property.GenerateValueOnAdd);
+            Assert.Null(property.IsValueGeneratedOnAdd);
             Assert.False(((IProperty)property).IsValueGeneratedOnAdd);
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, ((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Equal(true, property.GenerateValueOnAdd);
+            Assert.Null(property.IsValueGeneratedOnAdd);
 
             property.SqlServer().ValueGenerationStrategy = null;
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
             Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Null(property.GenerateValueOnAdd);
+            Assert.Null(property.IsValueGeneratedOnAdd);
         }
 
         [Fact]

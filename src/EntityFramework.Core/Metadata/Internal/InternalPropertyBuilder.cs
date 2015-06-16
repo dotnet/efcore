@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ConfigurationSource? _maxLengthConfigurationSource;
         private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
         private ConfigurationSource _isShadowPropertyConfigurationSource;
-        private ConfigurationSource? _generateValueOnAddConfigurationSource;
+        private ConfigurationSource? _isValueGeneratedOnAddConfigurationSource;
         private ConfigurationSource? _storeGeneratedPatternConfigurationSource;
 
         public InternalPropertyBuilder(
@@ -108,20 +108,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool GenerateValueOnAdd(bool? generateValue, ConfigurationSource configurationSource)
         {
-            if (configurationSource.CanSet(_generateValueOnAddConfigurationSource, Metadata.GenerateValueOnAdd.HasValue)
-                || Metadata.GenerateValueOnAdd.Value == generateValue)
+            if (configurationSource.CanSet(_isValueGeneratedOnAddConfigurationSource, Metadata.IsValueGeneratedOnAdd.HasValue)
+                || Metadata.IsValueGeneratedOnAdd.Value == generateValue)
             {
-                if (_generateValueOnAddConfigurationSource == null
-                    && Metadata.GenerateValueOnAdd != null)
+                if (_isValueGeneratedOnAddConfigurationSource == null
+                    && Metadata.IsValueGeneratedOnAdd != null)
                 {
-                    _generateValueOnAddConfigurationSource = ConfigurationSource.Explicit;
+                    _isValueGeneratedOnAddConfigurationSource = ConfigurationSource.Explicit;
                 }
                 else
                 {
-                    _generateValueOnAddConfigurationSource = configurationSource.Max(_generateValueOnAddConfigurationSource);
+                    _isValueGeneratedOnAddConfigurationSource = configurationSource.Max(_isValueGeneratedOnAddConfigurationSource);
                 }
 
-                Metadata.GenerateValueOnAdd = generateValue;
+                Metadata.IsValueGeneratedOnAdd = generateValue;
                 return true;
             }
 

@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             foreach (var property in entityType.Properties)
             {
-                property.GenerateValueOnAdd = generateValues;
+                property.IsValueGeneratedOnAdd = generateValues;
             }
 
             entityType.GetProperty("AlwaysIdentity").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
