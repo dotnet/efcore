@@ -452,7 +452,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     isUnique,
                     isRequired,
                     configurationSource,
-                    replacedConfigurationSource);
+                    replacedConfigurationSource.Value);
         }
 
         private InternalRelationshipBuilder AddRelationship(
@@ -465,7 +465,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             bool? isUnique,
             bool? isRequired,
             ConfigurationSource configurationSource,
-            ConfigurationSource? replacedConfigurationSource)
+            ConfigurationSource replacedConfigurationSource)
         {
             var principalEntityTypeBuilder = ModelBuilder.Entity(principalType.Name, configurationSource);
             var dependentEntityTypeBuilder = ModelBuilder.Entity(dependentType.Name, configurationSource);
@@ -481,7 +481,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 isUnique,
                 isRequired,
                 b => dependentEntityTypeBuilder
-                    .Relationship(b.Metadata, existingForeignKey: true, configurationSource: replacedConfigurationSource.Value)
+                    .Relationship(b.Metadata, existingForeignKey: true, configurationSource: replacedConfigurationSource)
                     .MergeConfigurationSourceWith(this));
         }
 

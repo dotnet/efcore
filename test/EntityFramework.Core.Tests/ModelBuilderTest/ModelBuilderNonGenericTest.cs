@@ -9,25 +9,53 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Metadata
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Data.Entity.Tests
 {
-    public class ModelBuilderNonNonGenericTest : ModelBuilderTest
+    public class ModelBuilderNonGenericTest : ModelBuilderTest
     {
-        [Fact]
-        public void Can_set_model_annotation()
+        public class NonGenericNonRelationship : NonRelationshipTestBase
         {
-            var model = new Model();
-            var modelBuilder = (NonGenericTestModelBuilder)CreateModelBuilder(model);
+            [Fact]
+            public void Can_set_model_annotation()
+            {
+                var model = new Model();
+                var modelBuilder = (NonGenericTestModelBuilder)CreateModelBuilder(model);
 
-            modelBuilder = modelBuilder.Annotation("Fus", "Ro");
+                modelBuilder = modelBuilder.Annotation("Fus", "Ro");
 
-            Assert.NotNull(modelBuilder);
-            Assert.Equal("Ro", model.GetAnnotation("Fus").Value);
+                Assert.NotNull(modelBuilder);
+                Assert.Equal("Ro", model.GetAnnotation("Fus").Value);
+            }
+
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
+            {
+                return new NonGenericTestModelBuilder(modelBuilder);
+            }
         }
 
-        protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
+        public class NonGenericOneToMany : OneToManyTestBase
         {
-            return new NonGenericTestModelBuilder(modelBuilder);
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
+            {
+                return new NonGenericTestModelBuilder(modelBuilder);
+            }
+        }
+
+        public class NonGenericManyToOne : ManyToOneTestBase
+        {
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
+            {
+                return new NonGenericTestModelBuilder(modelBuilder);
+            }
+        }
+
+        public class NonGenericOneToOne : OneToOneTestBase
+        {
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
+            {
+                return new NonGenericTestModelBuilder(modelBuilder);
+            }
         }
 
         private class NonGenericTestModelBuilder : TestModelBuilder
@@ -51,7 +79,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 => new NonGenericTestModelBuilder(ModelBuilder.Ignore(typeof(TEntity)));
         }
 
-        private class NonGenericTestEntityTypeBuilder<TEntity> : TestEntityTypeBuilder<TEntity>
+        protected class NonGenericTestEntityTypeBuilder<TEntity> : TestEntityTypeBuilder<TEntity>
             where TEntity : class
         {
             public NonGenericTestEntityTypeBuilder(EntityTypeBuilder entityTypeBuilder)
@@ -59,11 +87,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 EntityTypeBuilder = entityTypeBuilder;
             }
 
-            private EntityTypeBuilder EntityTypeBuilder { get; }
+            protected EntityTypeBuilder EntityTypeBuilder { get; }
             public override EntityType Metadata => EntityTypeBuilder.Metadata;
 
+            protected virtual NonGenericTestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder entityTypeBuilder)
+                => new NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder);
+
             public override TestEntityTypeBuilder<TEntity> Annotation(string annotation, object value)
-                => new NonGenericTestEntityTypeBuilder<TEntity>(EntityTypeBuilder.Annotation(annotation, value));
+                => Wrap(EntityTypeBuilder.Annotation(annotation, value));
 
             public override TestKeyBuilder Key(Expression<Func<TEntity, object>> keyExpression)
                 => new TestKeyBuilder(EntityTypeBuilder.Key(keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
@@ -87,13 +118,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 => new NonGenericTestPropertyBuilder<TProperty>(EntityTypeBuilder.Property<TProperty>(propertyName));
 
             public override TestEntityTypeBuilder<TEntity> Ignore(Expression<Func<TEntity, object>> propertyExpression)
-            {
-                var propertyInfo = propertyExpression.GetPropertyAccess();
-                return new NonGenericTestEntityTypeBuilder<TEntity>(EntityTypeBuilder.Ignore(propertyInfo.Name));
-            }
+                => Wrap(EntityTypeBuilder.Ignore(propertyExpression.GetPropertyAccess().Name));
 
             public override TestEntityTypeBuilder<TEntity> Ignore(string propertyName)
-                => new NonGenericTestEntityTypeBuilder<TEntity>(EntityTypeBuilder.Ignore(propertyName));
+                => Wrap(EntityTypeBuilder.Ignore(propertyName));
 
             public override TestIndexBuilder Index(Expression<Func<TEntity, object>> indexExpression)
                 => new TestIndexBuilder(EntityTypeBuilder.Index(indexExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
@@ -102,19 +130,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 => new TestIndexBuilder(EntityTypeBuilder.Index(propertyNames));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> Reference<TRelatedEntity>(Expression<Func<TEntity, TRelatedEntity>> reference = null)
-            {
-                var navigationName = reference?.GetPropertyAccess().Name;
-                return new NonGenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.Reference(typeof(TRelatedEntity), navigationName));
-            }
+                => new NonGenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.Reference(typeof(TRelatedEntity), reference?.GetPropertyAccess().Name));
 
             public override TestCollectionNavigationBuilder<TEntity, TRelatedEntity> Collection<TRelatedEntity>(Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null)
-            {
-                var navigationName = collection?.GetPropertyAccess().Name;
-                return new NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.Collection(typeof(TRelatedEntity), navigationName));
-            }
+                => new NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.Collection(typeof(TRelatedEntity), collection?.GetPropertyAccess().Name));
         }
 
-        private class NonGenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>
+        protected class NonGenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>
         {
             public NonGenericTestPropertyBuilder(PropertyBuilder propertyBuilder)
             {
@@ -141,7 +163,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.StoreGeneratedPattern(storeGeneratedPattern));
         }
 
-        private class NonGenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>
+        protected class NonGenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -150,22 +172,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 ReferenceNavigationBuilder = referenceNavigationBuilder;
             }
 
-            private ReferenceNavigationBuilder ReferenceNavigationBuilder { get; }
+            protected ReferenceNavigationBuilder ReferenceNavigationBuilder { get; }
 
             public override TestReferenceCollectionBuilder<TRelatedEntity, TEntity> InverseCollection(Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> collection = null)
-            {
-                var collectionName = collection?.GetPropertyAccess().Name;
-                return new NonGenericTestReferenceCollectionBuilder<TRelatedEntity, TEntity>(ReferenceNavigationBuilder.InverseCollection(collectionName));
-            }
+                => new NonGenericTestReferenceCollectionBuilder<TRelatedEntity, TEntity>(ReferenceNavigationBuilder.InverseCollection(collection?.GetPropertyAccess().Name));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> InverseReference(Expression<Func<TRelatedEntity, TEntity>> reference = null)
-            {
-                var referenceName = reference?.GetPropertyAccess().Name;
-                return new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder.InverseReference(referenceName));
-            }
+                => new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder.InverseReference(reference?.GetPropertyAccess().Name));
         }
 
-        private class NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity> : TestCollectionNavigationBuilder<TEntity, TRelatedEntity>
+        protected class NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity> : TestCollectionNavigationBuilder<TEntity, TRelatedEntity>
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -177,13 +193,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             private CollectionNavigationBuilder CollectionNavigationBuilder { get; }
 
             public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> InverseReference(Expression<Func<TRelatedEntity, TEntity>> reference = null)
-            {
-                var referenceName = reference?.GetPropertyAccess().Name;
-                return new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(CollectionNavigationBuilder.InverseReference(referenceName));
-            }
+                => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(CollectionNavigationBuilder.InverseReference(reference?.GetPropertyAccess().Name));
         }
 
-        private class NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity> : TestReferenceCollectionBuilder<TEntity, TRelatedEntity>
+        protected class NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity> : TestReferenceCollectionBuilder<TEntity, TRelatedEntity>
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -215,7 +228,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder.Required(isRequired));
         }
 
-        private class NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> : TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
+        protected class NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> : TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -224,27 +237,30 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 ReferenceReferenceBuilder = referenceReferenceBuilder;
             }
 
-            private ReferenceReferenceBuilder ReferenceReferenceBuilder { get; }
+            protected ReferenceReferenceBuilder ReferenceReferenceBuilder { get; }
 
             public override ForeignKey Metadata => ReferenceReferenceBuilder.Metadata;
 
+            protected virtual NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> Wrap(ReferenceReferenceBuilder referenceReferenceBuilder)
+                => new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder);
+
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> Annotation(string annotation, object value)
-                => new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder.Annotation(annotation, value));
+                => Wrap(ReferenceReferenceBuilder.Annotation(annotation, value));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> ForeignKey<TDependentEntity>(Expression<Func<TDependentEntity, object>> foreignKeyExpression)
-                => new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder.ForeignKey(typeof(TDependentEntity), foreignKeyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+                => Wrap(ReferenceReferenceBuilder.ForeignKey(typeof(TDependentEntity), foreignKeyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> PrincipalKey<TPrincipalEntity>(Expression<Func<TPrincipalEntity, object>> keyExpression)
-                => new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder.PrincipalKey(typeof(TPrincipalEntity), keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+                => Wrap(ReferenceReferenceBuilder.PrincipalKey(typeof(TPrincipalEntity), keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> ForeignKey(Type dependentEntityType, params string[] foreignKeyPropertyNames)
-                => new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder.ForeignKey(dependentEntityType, foreignKeyPropertyNames));
+                => Wrap(ReferenceReferenceBuilder.ForeignKey(dependentEntityType, foreignKeyPropertyNames));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> PrincipalKey(Type principalEntityType, params string[] keyPropertyNames)
-                => new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder.PrincipalKey(principalEntityType, keyPropertyNames));
+                => Wrap(ReferenceReferenceBuilder.PrincipalKey(principalEntityType, keyPropertyNames));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> Required(bool isRequired = true)
-                => new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder.Required(isRequired));
+                => Wrap(ReferenceReferenceBuilder.Required(isRequired));
         }
     }
 }
