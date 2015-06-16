@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                 {
                     Expression.Constant(_querySource),
                     EntityQueryModelVisitor.QueryContextParameter,
-                    EntityQueryModelVisitor.QuerySourceScopeParameter,
+                    EntityQueryModelVisitor.QueryResultScopeParameter,
                     _valueBufferParameter,
                     Expression.Constant(0)
                 };

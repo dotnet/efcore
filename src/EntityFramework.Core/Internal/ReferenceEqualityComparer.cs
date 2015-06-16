@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Internal
 {
     public sealed class ReferenceEqualityComparer : IEqualityComparer<object>
     {

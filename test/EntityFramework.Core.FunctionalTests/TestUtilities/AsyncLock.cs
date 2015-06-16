@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.FunctionalTests
 {
     public sealed class AsyncLock
     {

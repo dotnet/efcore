@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Internal
 {
     [DebuggerStepThrough]
     public sealed class ThreadSafeLazyRef<T>
@@ -19,8 +19,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         public ThreadSafeLazyRef([NotNull] Func<T> initializer)
         {
-            Check.NotNull(initializer, nameof(initializer));
-
             _initializer = initializer;
         }
 
@@ -54,8 +52,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         public void ExchangeValue([NotNull] Func<T, T> newValueCreator)
         {
-            Check.NotNull(newValueCreator, nameof(newValueCreator));
-
             T originalValue, newValue;
 
             do

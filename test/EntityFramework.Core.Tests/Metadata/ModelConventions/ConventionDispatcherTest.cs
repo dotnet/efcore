@@ -208,7 +208,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 modelBuilder = new InternalModelBuilder(b.Metadata, new ConventionSet());
                 return b;
             });
-            conventions.ModelConventions.Add(convention.Object);
+            conventions.ModelInitializedConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IModelConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
@@ -216,7 +216,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 nullConventionCalled = true;
                 return null;
             });
-            conventions.ModelConventions.Add(nullConvention.Object);
+            conventions.ModelInitializedConventions.Add(nullConvention.Object);
 
             var extraConvention = new Mock<IModelConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 Assert.False(true);
                 return null;
             });
-            conventions.ModelConventions.Add(extraConvention.Object);
+            conventions.ModelInitializedConventions.Add(extraConvention.Object);
 
             var builder = new ModelBuilder(conventions);
 

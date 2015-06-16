@@ -449,17 +449,17 @@ namespace Microsoft.Data.Entity.Relational.Query
                 .GetDeclaredMethod(nameof(CreateValueBuffer));
 
         [UsedImplicitly]
-        private static QuerySourceScope<ValueBuffer> CreateValueBuffer(
+        private static QueryResultScope<ValueBuffer> CreateValueBuffer(
             IQuerySource querySource,
             QueryContext queryContext,
-            QuerySourceScope parentQuerySourceScope,
+            QueryResultScope parentQueryResultScope,
             ValueBuffer valueBuffer,
             int valueBufferOffset)
         {
-            return new QuerySourceScope<ValueBuffer>(
+            return new QueryResultScope<ValueBuffer>(
                 querySource,
                 valueBuffer.UpdateOffset(valueBufferOffset),
-                parentQuerySourceScope);
+                parentQueryResultScope);
         }
 
         public static readonly MethodInfo CreateEntityMethodInfo
@@ -467,10 +467,10 @@ namespace Microsoft.Data.Entity.Relational.Query
                 .GetDeclaredMethod(nameof(CreateEntity));
 
         [UsedImplicitly]
-        private static QuerySourceScope<TEntity> CreateEntity<TEntity>(
+        private static QueryResultScope<TEntity> CreateEntity<TEntity>(
             IQuerySource querySource,
             QueryContext queryContext,
-            QuerySourceScope parentQuerySourceScope,
+            QueryResultScope parentQueryResultScope,
             ValueBuffer valueBuffer,
             int valueBufferOffset,
             IEntityType entityType,
@@ -485,7 +485,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             var entityKey
                 = entityKeyFactory.Create(entityType, keyProperties, valueBuffer);
 
-            return new QuerySourceScope<TEntity>(
+            return new QueryResultScope<TEntity>(
                 querySource,
                 (TEntity)queryContext.QueryBuffer
                     .GetEntity(
@@ -495,7 +495,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                             valueBuffer,
                             materializer),
                         queryStateManager),
-                parentQuerySourceScope);
+                parentQueryResultScope);
         }
     }
 }

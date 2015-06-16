@@ -98,10 +98,3 @@ namespace JetBrains.Annotations
         WithMembers = Itself | Members
     }
 }
-
-namespace Microsoft.Data.Entity.Relational.Utilities
-{
-    internal sealed class ValidatedNotNullAttribute : Attribute
-    {
-    }
-}

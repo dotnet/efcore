@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Tests
             var model = CreateDefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object, new ModelBuilderFactory(), new LoggingModelValidator(new LoggerFactory()));
 
             Assert.Equal(
-                new[] { TypeNameHelper.GetTypeDisplayName(typeof(Random)), TypeNameHelper.GetTypeDisplayName(typeof(object)) },
+                new[] { typeof(Random).DisplayName(), typeof(object).DisplayName() },
                 model.EntityTypes.Select(e => e.Name).ToArray());
         }
 

@@ -117,6 +117,7 @@
     <Compile Include="TestModels\MonsterContext`.cs" />
     <Compile Include="TestModels\MonsterModel.cs" />
     <Compile Include="TestModels\SnapshotMonsterContext.cs" />
+    <Compile Include="TestUtilities\AsyncLock.cs" />
     <Compile Include="TestUtilities\Extensions.cs" />
     <Compile Include="ThrowingMonsterStateManager.cs" />
     <None Include="project.json" />

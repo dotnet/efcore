@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -48,7 +49,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (entityType.ClrType != null)
             {
-                return TypeNameHelper.GetTypeDisplayName(entityType.ClrType, false);
+                return entityType.ClrType.DisplayName(false);
             }
 
             var lastDot = entityType.Name.LastIndexOfAny(new[] { '.', '+' });

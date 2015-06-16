@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (ClrType != null)
                 {
-                    return TypeNameHelper.GetTypeDisplayName(ClrType) ?? (string)_typeOrName;
+                    return ClrType.DisplayName() ?? (string)_typeOrName;
                 }
                 return (string)_typeOrName;
             }
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             if (ClrType != null)
             {
-                return TypeNameHelper.GetTypeDisplayName(ClrType, false) ?? ParseSimpleName();
+                return ClrType.DisplayName(false) ?? ParseSimpleName();
             }
             return ParseSimpleName();
         }

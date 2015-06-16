@@ -5,9 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Internal
 {
     public class Multigraph<TVertex, TEdge> : Graph<TVertex>
     {
@@ -32,28 +31,16 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         public virtual void AddVertex([NotNull] TVertex vertex)
-        {
-            Check.NotNull(vertex, nameof(vertex));
-
-            _vertices.Add(vertex);
-        }
+            => _vertices.Add(vertex);
 
         public virtual void AddVertices([NotNull] IEnumerable<TVertex> verticies)
-        {
-            Check.NotNull(verticies, nameof(verticies));
-
-            _vertices.UnionWith(verticies);
-        }
+            => _vertices.UnionWith(verticies);
 
         public virtual void AddEdge([NotNull] TVertex from, [NotNull] TVertex to, [NotNull] TEdge edge)
             => AddEdges(@from, to, new[] { edge });
 
         public virtual void AddEdges([NotNull] TVertex from, [NotNull] TVertex to, [NotNull] IEnumerable<TEdge> edges)
         {
-            Check.NotNull(from, nameof(from));
-            Check.NotNull(to, nameof(to));
-            Check.NotNull(edges, nameof(edges));
-
             if (!_vertices.Contains(from))
             {
                 throw new InvalidOperationException(Strings.GraphDoesNotContainVertex(from));

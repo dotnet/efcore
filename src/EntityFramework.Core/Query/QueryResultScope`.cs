@@ -6,14 +6,14 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class QuerySourceScope<TResult> : QuerySourceScope
+    public class QueryResultScope<TResult> : QueryResultScope
     {
         public readonly TResult Result;
 
-        public QuerySourceScope(
+        public QueryResultScope(
             [NotNull] IQuerySource querySource,
             [NotNull] TResult result,
-            [CanBeNull] QuerySourceScope parentScope)
+            [CanBeNull] QueryResultScope parentScope)
             : base(querySource, parentScope)
         {
             Result = result;

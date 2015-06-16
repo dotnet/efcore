@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             var conventions = base.CreateConventionSet();
 
-            conventions.ModelConventions.Add(new SqlServerValueGenerationStrategyConvention());
+            conventions.ModelInitializedConventions.Add(new SqlServerValueGenerationStrategyConvention());
 
             return conventions;
         }

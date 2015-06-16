@@ -6,7 +6,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Internal
 {
     public class ModelNavigationsGraphAdapter : Graph<EntityType>
     {
@@ -14,8 +14,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         public ModelNavigationsGraphAdapter([NotNull] Model model)
         {
-            Check.NotNull(model, nameof(model));
-
             _model = model;
         }
 

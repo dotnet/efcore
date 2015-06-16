@@ -110,14 +110,14 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                     = Expression.Call(
                         _relationalQueryCompilationContext.LinqOperatorProvider.SelectMany
                             .MakeGenericMethod(
-                                typeof(QuerySourceScope),
-                                typeof(QuerySourceScope)),
+                                typeof(QueryResultScope),
+                                typeof(QueryResultScope)),
                         _outerSelectManyExpression.Arguments[0],
                         newExpression.Arguments[1] is LambdaExpression
                             ? newExpression.Arguments[1]
                             : Expression.Lambda(
                                 newExpression.Arguments[1],
-                                EntityQueryModelVisitor.QuerySourceScopeParameter));
+                                EntityQueryModelVisitor.QueryResultScopeParameter));
             }
 
             return newExpression;

@@ -12,5 +12,11 @@ namespace System.Reflection
     {
         public static bool IsStatic(this PropertyInfo property)
             => (property.GetMethod ?? property.SetMethod).IsStatic;
+
+        public static bool IsCandidateProperty(this PropertyInfo propertyInfo)
+            => !propertyInfo.IsStatic()
+               && propertyInfo.GetIndexParameters().Length == 0
+               && propertyInfo.CanRead
+               && propertyInfo.CanWrite;
     }
 }

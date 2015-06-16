@@ -99,8 +99,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                         return
                             QueryModelVisitor.BindReadValueMethod(
                                 expression.Type,
-                                QuerySourceScope.GetResult(
-                                    EntityQueryModelVisitor.QuerySourceScopeParameter,
+                                QueryResultScope.GetResult(
+                                    EntityQueryModelVisitor.QueryResultScopeParameter,
                                     _querySource,
                                     typeof(ValueBuffer)),
                                 index);

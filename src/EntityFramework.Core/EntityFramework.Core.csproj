@@ -56,6 +56,21 @@
     </Compile>
     <Compile Include="ChangeTracking\ChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\IChangeTrackerFactory.cs" />
+    <Compile Include="Extensions\Internal\ExpressionExtensions.cs" />
+    <Compile Include="Extensions\Internal\ListExtensions.cs" />
+    <Compile Include="Extensions\Internal\PropertyInfoExtensions.cs" />
+    <Compile Include="Internal\EnumerableExtensions.cs" />
+    <Compile Include="Internal\Graph.cs" />
+    <Compile Include="Internal\IndentedStringBuilder.cs" />
+    <Compile Include="Internal\LazyRef.cs" />
+    <Compile Include="Internal\ModelForeignKeyUndirectedGraphAdapter.cs" />
+    <Compile Include="Internal\ModelNavigationsGraphAdapter.cs" />
+    <Compile Include="Internal\Multigraph.cs" />
+    <Compile Include="Internal\ReferenceEnumerableEqualityComparer.cs" />
+    <Compile Include="Internal\ReferenceEqualityComparer.cs" />
+    <Compile Include="Internal\ThreadSafeDictionaryCache.cs" />
+    <Compile Include="Internal\ThreadSafeLazyRef.cs" />
+    <Compile Include="Internal\TypeExtensions.cs" />
     <Compile Include="Metadata\Builders\CollectionNavigationBuilder.cs" />
     <Compile Include="Metadata\Builders\CollectionNavigationBuilder`.cs" />
     <Compile Include="Metadata\Builders\EntityTypeBuilder.cs" />
@@ -128,6 +143,7 @@
     <Compile Include="DbContextOptionsBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\CoreAnnotationNames.cs" />
+    <Compile Include="Metadata\MetadataHelper.cs" />
     <Compile Include="Metadata\ModelConventions\IPropertyConvention.cs" />
     <Compile Include="Metadata\ModelConventions\IModelConvention.cs" />
     <Compile Include="Metadata\StoreGeneratedPattern.cs" />
@@ -204,7 +220,6 @@
     <Compile Include="Metadata\Internal\InternalPropertyBuilder.cs" />
     <Compile Include="Metadata\Internal\InternalRelationshipBuilder.cs" />
     <Compile Include="Metadata\Internal\MetadataDictionary.cs" />
-    <Compile Include="Metadata\ModelConventions\ConventionsPropertyInfoExtensions.cs" />
     <Compile Include="Metadata\ModelConventions\RelationshipDiscoveryConvention.cs" />
     <Compile Include="Metadata\TypedAnnotation.cs" />
     <Compile Include="Query\ExpressionVisitors\EntityQueryableExpressionVisitor.cs" />
@@ -249,7 +264,7 @@
     <Compile Include="Metadata\PropertyExtensions.cs" />
     <Compile Include="Query\IResultOperatorHandler.cs" />
     <Compile Include="Query\QueryCompilationContext.cs" />
-    <Compile Include="Query\QuerySourceScope`.cs" />
+    <Compile Include="Query\QueryResultScope`.cs" />
     <Compile Include="Query\ResultOperatorHandler.cs" />
     <Compile Include="Internal\ServiceProviderCache.cs" />
     <Compile Include="ChangeTracking\ChangeTracker.cs" />
@@ -313,7 +328,7 @@
     <Compile Include="Query\ILinqOperatorProvider.cs" />
     <Compile Include="Query\LinqOperatorProvider.cs" />
     <Compile Include="Query\QueryContext.cs" />
-    <Compile Include="Query\QuerySourceScope.cs" />
+    <Compile Include="Query\QueryResultScope.cs" />
     <Compile Include="Query\TaskResultAsyncEnumerable.cs" />
     <Compile Include="Storage\DataStore.cs" />
     <Compile Include="Storage\IDataStoreCreator.cs" />
@@ -324,23 +339,6 @@
     <Compile Include="Storage\DataStoreTransaction.cs" />
     <Compile Include="Update\DbUpdateConcurrencyException.cs" />
     <Compile Include="Update\DbUpdateException.cs" />
-    <Compile Include="Utilities\AsyncLock.cs" />
-    <Compile Include="Utilities\ModelNavigationsGraphAdapter.cs" />
-    <Compile Include="Utilities\ModelForeignKeyUndirectedGraphAdapter.cs" />
-    <Compile Include="Utilities\EnumerableExtensions.cs" />
-    <Compile Include="Utilities\ExpressionExtensions.cs" />
-    <Compile Include="Utilities\Graph.cs" />
-    <Compile Include="Utilities\IndentedStringBuilder.cs" />
-    <Compile Include="Utilities\LazyRef.cs" />
-    <Compile Include="Utilities\ListExtensions.cs" />
-    <Compile Include="Utilities\MetadataHelper.cs" />
-    <Compile Include="Utilities\Multigraph.cs" />
-    <Compile Include="Utilities\PropertyInfoExtensions.cs" />
-    <Compile Include="Utilities\ReferenceEqualityComparer.cs" />
-    <Compile Include="Utilities\ReferenceEnumerableEqualityComparer.cs" />
-    <Compile Include="Utilities\ThreadSafeDictionaryCache.cs" />
-    <Compile Include="Utilities\ThreadSafeLazyRef.cs" />
-    <Compile Include="Utilities\TypeExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>Utilities\CodeAnnotations.cs</Link>
     </Compile>
@@ -350,7 +348,6 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>Extensions\Internal\SharedTypeExtensions.cs</Link>
     </Compile>
-    <Compile Include="Utilities\TypeNameHelper.cs" />
     <Compile Include="ValueGeneration\GuidValueGenerator.cs" />
     <Compile Include="ValueGeneration\HiLoValueGeneratorState.cs" />
     <Compile Include="ValueGeneration\HiLoValueGenerator.cs" />

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.Templating;

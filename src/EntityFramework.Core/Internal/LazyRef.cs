@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Internal
 {
     [DebuggerStepThrough]
     public sealed class LazyRef<T>
@@ -15,8 +15,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         public LazyRef([NotNull] Func<T> initializer)
         {
-            Check.NotNull(initializer, nameof(initializer));
-
             _initializer = initializer;
         }
 
@@ -40,8 +38,6 @@ namespace Microsoft.Data.Entity.Utilities
             [param: NotNull]
             set
             {
-                Check.NotNull(value, nameof(value));
-
                 _value = value;
                 _initializer = null;
             }
@@ -51,8 +47,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         public void Reset([NotNull] Func<T> initializer)
         {
-            Check.NotNull(initializer, nameof(initializer));
-
             _initializer = initializer;
             _value = default(T);
         }

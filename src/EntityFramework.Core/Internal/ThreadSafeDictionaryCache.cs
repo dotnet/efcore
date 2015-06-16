@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Internal
 {
     public class ThreadSafeDictionaryCache<TKey, TValue>
     {
@@ -28,9 +28,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         public virtual TValue GetOrAdd([NotNull] TKey key, [NotNull] Func<TKey, TValue> factory)
         {
-            Check.NotNull(key, nameof(key));
-            Check.NotNull(factory, nameof(factory));
-
             TValue value;
             if (!_cache.Value.TryGetValue(key, out value))
             {

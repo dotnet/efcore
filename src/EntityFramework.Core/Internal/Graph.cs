@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Internal
 {
     public abstract class Graph<TVertex>
     {
@@ -16,8 +16,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         public virtual ISet<TVertex> GetUnreachableVertices([NotNull] IReadOnlyList<TVertex> roots)
         {
-            Check.NotNull(roots, nameof(roots));
-
             var unreachableVertices = new HashSet<TVertex>(Vertices);
             unreachableVertices.ExceptWith(roots);
             var visitingQueue = new List<TVertex>(roots);

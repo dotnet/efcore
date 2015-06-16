@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Internal
 {
     public class IndentedStringBuilder
     {
@@ -23,15 +23,11 @@ namespace Microsoft.Data.Entity.Utilities
 
         public IndentedStringBuilder([NotNull] IndentedStringBuilder from)
         {
-            Check.NotNull(from, nameof(from));
-
             _indent = from._indent;
         }
 
         public virtual IndentedStringBuilder Append([NotNull] object o)
         {
-            Check.NotNull(o, nameof(o));
-
             DoIndent();
 
             _stringBuilder.Append(o);
@@ -48,8 +44,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         public virtual IndentedStringBuilder AppendLine([NotNull] object o)
         {
-            Check.NotNull(o, nameof(o));
-
             var value = o.ToString();
 
             if (value != string.Empty)
@@ -66,8 +60,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         public virtual IndentedStringBuilder AppendLines([NotNull] object o)
         {
-            Check.NotNull(o, nameof(o));
-
             using (var reader = new StringReader(o.ToString()))
             {
                 string line;
@@ -120,10 +112,7 @@ namespace Microsoft.Data.Entity.Utilities
                 _stringBuilder.IncrementIndent();
             }
 
-            public void Dispose()
-            {
-                _stringBuilder.DecrementIndent();
-            }
+            public void Dispose() => _stringBuilder.DecrementIndent();
         }
     }
 }

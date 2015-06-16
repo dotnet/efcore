@@ -7,9 +7,9 @@ using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.Data.Entity.Internal
 {
-    public static class TypeNameHelper
+    public static class TypeExtensions
     {
         private static readonly Dictionary<Type, string> _builtInTypeNames = new Dictionary<Type, string>
         {
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Utilities
             { typeof(ushort), "ushort" }
         };
 
-        public static string GetTypeDisplayName([NotNull] Type type, bool fullName = true)
+        public static string DisplayName([NotNull] this Type type, bool fullName = true)
         {
             var sb = new StringBuilder();
             ProcessTypeName(type, sb, fullName);

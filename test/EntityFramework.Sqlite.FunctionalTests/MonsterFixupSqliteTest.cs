@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Sqlite;
 using Microsoft.Framework.DependencyInjection;
 
@@ -48,9 +47,9 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         private static string CreateConnectionString(string name)
         {
             return new SqliteConnectionStringBuilder
-                {
-                    DataSource = name + ".db"
-                }.ConnectionString;
+            {
+                DataSource = name + ".db"
+            }.ConnectionString;
         }
 
         protected override async Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)

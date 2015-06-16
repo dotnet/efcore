@@ -74,12 +74,12 @@ namespace Microsoft.Data.Entity.Query
 
             return CallWithPossibleCancellationToken(
                 entityQueryModelVisitor.LinqOperatorProvider.All
-                    .MakeGenericMethod(typeof(QuerySourceScope)),
+                    .MakeGenericMethod(typeof(QueryResultScope)),
                 entityQueryModelVisitor.CreateScope(
                     entityQueryModelVisitor.Expression,
                     entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType,
                     queryModel.MainFromClause),
-                Expression.Lambda(predicate, EntityQueryModelVisitor.QuerySourceScopeParameter));
+                Expression.Lambda(predicate, EntityQueryModelVisitor.QueryResultScopeParameter));
         }
 
         private static Expression HandleAny(EntityQueryModelVisitor entityQueryModelVisitor)
@@ -194,15 +194,15 @@ namespace Microsoft.Data.Entity.Query
             return Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.GroupBy
                     .MakeGenericMethod(
-                        typeof(QuerySourceScope),
+                        typeof(QueryResultScope),
                         groupResultOperator.KeySelector.Type,
                         groupResultOperator.ElementSelector.Type),
                 entityQueryModelVisitor.CreateScope(
                     entityQueryModelVisitor.Expression,
                     entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType,
                     queryModel.MainFromClause),
-                Expression.Lambda(keySelector, EntityQueryModelVisitor.QuerySourceScopeParameter),
-                Expression.Lambda(elementSelector, EntityQueryModelVisitor.QuerySourceScopeParameter));
+                Expression.Lambda(keySelector, EntityQueryModelVisitor.QueryResultScopeParameter),
+                Expression.Lambda(elementSelector, EntityQueryModelVisitor.QueryResultScopeParameter));
         }
 
         private static Expression HandleLast(

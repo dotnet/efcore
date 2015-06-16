@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                 {
                     return Expression.Call(
                         _relationalQueryCompilationContext.LinqOperatorProvider.SelectMany
-                            .MakeGenericMethod(typeof(QuerySourceScope), typeof(ValueBuffer)),
+                            .MakeGenericMethod(typeof(QueryResultScope), typeof(ValueBuffer)),
                         newArguments);
                 }
 

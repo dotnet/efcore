@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
 
-            foreach (var modelConvention in _conventionSet.ModelConventions)
+            foreach (var modelConvention in _conventionSet.ModelInitializedConventions)
             {
                 modelBuilder = modelConvention.Apply(modelBuilder);
                 if (modelBuilder == null)

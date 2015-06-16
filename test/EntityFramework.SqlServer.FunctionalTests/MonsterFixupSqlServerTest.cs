@@ -10,7 +10,6 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -48,13 +47,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static string CreateConnectionString(string name)
         {
             return new SqlConnectionStringBuilder
-                {
-                    DataSource = @"(localdb)\MSSQLLocalDB",
-                    MultipleActiveResultSets = true,
-                    InitialCatalog = name,
-                    IntegratedSecurity = true,
-                    ConnectTimeout = 30
-                }.ConnectionString;
+            {
+                DataSource = @"(localdb)\MSSQLLocalDB",
+                MultipleActiveResultSets = true,
+                InitialCatalog = name,
+                IntegratedSecurity = true,
+                ConnectTimeout = 30
+            }.ConnectionString;
         }
 
         protected override async Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)
@@ -85,5 +84,4 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             builder.Entity<TProductReview>().Property(e => e.ReviewId).ForSqlServer().UseIdentity();
         }
     }
-
 }

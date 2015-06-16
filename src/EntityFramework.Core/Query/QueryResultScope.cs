@@ -9,14 +9,14 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public abstract class QuerySourceScope
+    public abstract class QueryResultScope
     {
         private static readonly MethodInfo _createMethodInfo
-            = typeof(QuerySourceScope).GetTypeInfo()
+            = typeof(QueryResultScope).GetTypeInfo()
                 .GetDeclaredMethod(nameof(_Create));
 
         private static readonly MethodInfo _getResultMethodInfo
-            = typeof(QuerySourceScope).GetTypeInfo()
+            = typeof(QueryResultScope).GetTypeInfo()
                 .GetDeclaredMethod(nameof(_GetResult));
 
         public static Expression Create(
@@ -30,32 +30,32 @@ namespace Microsoft.Data.Entity.Query
                 parentScope);
 
         public static Expression GetResult(
-            [NotNull] Expression querySourceScope,
+            [NotNull] Expression queryResultScope,
             [NotNull] IQuerySource querySource,
             [NotNull] Type resultType)
             => Expression.Call(
-                querySourceScope,
+                queryResultScope,
                 _getResultMethodInfo.MakeGenericMethod(resultType),
                 Expression.Constant(querySource));
 
-        private readonly QuerySourceScope _parentScope;
+        private readonly QueryResultScope _parentScope;
         private readonly IQuerySource _querySource;
 
-        protected QuerySourceScope(IQuerySource querySource, QuerySourceScope parentScope)
+        protected QueryResultScope(IQuerySource querySource, QueryResultScope parentScope)
         {
             _querySource = querySource;
             _parentScope = parentScope;
         }
 
         [UsedImplicitly]
-        private static QuerySourceScope<TResult> _Create<TResult>(
-            IQuerySource querySource, TResult result, QuerySourceScope parentScope)
-            => new QuerySourceScope<TResult>(querySource, result, parentScope);
+        private static QueryResultScope<TResult> _Create<TResult>(
+            IQuerySource querySource, TResult result, QueryResultScope parentScope)
+            => new QueryResultScope<TResult>(querySource, result, parentScope);
 
         [UsedImplicitly]
         private TResult _GetResult<TResult>(IQuerySource querySource)
             => _querySource == querySource
-                ? ((QuerySourceScope<TResult>)this).Result
+                ? ((QueryResultScope<TResult>)this).Result
                 : _parentScope._GetResult<TResult>(querySource);
 
         public virtual object GetResult([NotNull] IQuerySource querySource)

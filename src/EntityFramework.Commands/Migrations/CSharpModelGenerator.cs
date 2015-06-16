@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 

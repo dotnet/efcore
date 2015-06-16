@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             IReadOnlyList<INavigation> navigationPath,
             IReadOnlyList<Func<IAsyncIncludeRelatedValuesStrategy>> includeRelatedValuesStrategyFactories,
             bool querySourceRequiresTracking)
-            where T : QuerySourceScope
+            where T : QueryResultScope
         {
             queryContext.BeginIncludeScope();
 
@@ -108,17 +108,17 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             return
                 innerResults.Select(
-                    async (querySourceScope, cancellationToken) =>
+                    async (queryResultScope, cancellationToken) =>
                         {
                             await queryContext.QueryBuffer
                                 .IncludeAsync(
-                                    querySourceScope.GetResult(querySource),
+                                    queryResultScope.GetResult(querySource),
                                     navigationPath,
                                     relatedValueBuffers,
                                     cancellationToken,
                                     querySourceRequiresTracking);
 
-                            return querySourceScope;
+                            return queryResultScope;
                         })
                     .Finally(() =>
                         {

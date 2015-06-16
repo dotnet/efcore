@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Query
     {
         [UsedImplicitly]
         private static IEnumerable<TResult> UnwrapResults<TResult>(
-            IEnumerable<QuerySourceScope<TResult>> results)
+            IEnumerable<QueryResultScope<TResult>> results)
         {
             // ReSharper disable once MergeConditionalExpression
             return results.Select(qss => qss != null ? qss.Result : default(TResult));

@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             {
                 foreach (var navigationPropertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                 {
-                    Type entityClrType;
-                    if (!navigationPropertyInfo.IsCandidateNavigationProperty(out entityClrType)
+                    var entityClrType = FindCandidateNavigationPropertyType(navigationPropertyInfo);
+                    if (entityClrType == null
                         || !entityTypeBuilder.CanAddNavigation(navigationPropertyInfo.Name, ConfigurationSource.Convention))
                     {
                         continue;
@@ -59,8 +59,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                         new Tuple<List<PropertyInfo>, List<PropertyInfo>>(navigations, reverseNavigations);
                     foreach (var reversePropertyInfo in targetEntityTypeBuilder.Metadata.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                     {
-                        Type reverseEntityClrType;
-                        if (!reversePropertyInfo.IsCandidateNavigationProperty(out reverseEntityClrType)
+                        var reverseEntityClrType = FindCandidateNavigationPropertyType(reversePropertyInfo);
+                        if (reverseEntityClrType == null
                             || !targetEntityTypeBuilder.CanAddNavigation(reversePropertyInfo.Name, ConfigurationSource.Convention)
                             || entityType.ClrType != reverseEntityClrType
                             || navigationPropertyInfo == reversePropertyInfo)
@@ -99,6 +99,31 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             }
 
             return entityTypeBuilder;
+        }
+
+        protected virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
+        {
+            Check.NotNull(propertyInfo, nameof(propertyInfo));
+
+            if (!propertyInfo.IsCandidateProperty())
+            {
+                return null;
+            }
+
+            var targetType = propertyInfo.PropertyType;
+            targetType = targetType.TryGetSequenceType() ?? targetType;
+            targetType = targetType.UnwrapNullableType();
+
+            var typeInfo = targetType.GetTypeInfo();
+            if (targetType.IsPrimitive()
+                || typeInfo.IsValueType
+                || typeInfo.IsAbstract
+                || typeInfo.IsInterface)
+            {
+                return null;
+            }
+
+            return targetType;
         }
 
         private static void TryBuildRelationship(

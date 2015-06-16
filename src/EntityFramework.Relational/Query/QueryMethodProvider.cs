@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             IReadOnlyList<INavigation> navigationPath,
             IReadOnlyList<Func<IIncludeRelatedValuesStrategy>> includeRelatedValuesStrategyFactories,
             bool querySourceRequiresTracking)
-            where T : QuerySourceScope
+            where T : QueryResultScope
         {
             queryContext.BeginIncludeScope();
 
