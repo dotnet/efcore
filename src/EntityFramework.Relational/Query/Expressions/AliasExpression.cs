@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return newInnerExpression != _expression ? new AliasExpression(Alias, newInnerExpression) : this;
         }
 
-        public override string ToString() 
+        public override string ToString()
             => this.TryGetColumnExpression()?.ToString() ?? Expression.NodeType + " " + Alias;
     }
 }

@@ -132,14 +132,14 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
             Check.NotEmpty(migrationId, nameof(migrationId));
 
             return new SqlOperation
-                {
-                    Sql = new StringBuilder()
-                        .AppendLine("DELETE FROM [dbo].[" + MigrationHistoryTableName + "]")
-                        .Append("WHERE [MigrationId] = '").Append(_sql.EscapeLiteral(migrationId))
-                        .Append("' AND [ContextKey] = '").Append(_sql.EscapeLiteral(_contextType.FullName))
-                        .AppendLine("';")
-                        .ToString()
-                };
+            {
+                Sql = new StringBuilder()
+                    .AppendLine("DELETE FROM [dbo].[" + MigrationHistoryTableName + "]")
+                    .Append("WHERE [MigrationId] = '").Append(_sql.EscapeLiteral(migrationId))
+                    .Append("' AND [ContextKey] = '").Append(_sql.EscapeLiteral(_contextType.FullName))
+                    .AppendLine("';")
+                    .ToString()
+            };
         }
 
         public virtual MigrationOperation GetInsertOperation(IHistoryRow row)
@@ -147,14 +147,14 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
             Check.NotNull(row, nameof(row));
 
             return new SqlOperation
-                {
-                    Sql = new StringBuilder()
-                        .AppendLine("INSERT INTO [dbo].[" + MigrationHistoryTableName + "] ([MigrationId], [ContextKey], [ProductVersion])")
-                        .Append("VALUES ('").Append(_sql.EscapeLiteral(row.MigrationId)).Append("', '")
-                        .Append(_sql.EscapeLiteral(_contextType.FullName)).Append("', '")
-                        .Append(_sql.EscapeLiteral(row.ProductVersion)).AppendLine("');")
-                        .ToString()
-                };
+            {
+                Sql = new StringBuilder()
+                    .AppendLine("INSERT INTO [dbo].[" + MigrationHistoryTableName + "] ([MigrationId], [ContextKey], [ProductVersion])")
+                    .Append("VALUES ('").Append(_sql.EscapeLiteral(row.MigrationId)).Append("', '")
+                    .Append(_sql.EscapeLiteral(_contextType.FullName)).Append("', '")
+                    .Append(_sql.EscapeLiteral(row.ProductVersion)).AppendLine("');")
+                    .ToString()
+            };
         }
 
         public virtual string BeginIfNotExists(string migrationId)

@@ -9,6 +9,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     public class DbContextGeneratorModel : BaseGeneratorModel
     {
         public virtual IModel MetadataModel { get; [param: NotNull] set; }
-        public virtual DbContextCodeGeneratorHelper Helper { get;[param: NotNull] set; }
+        public virtual DbContextCodeGeneratorHelper Helper { get; [param: NotNull] set; }
     }
 }

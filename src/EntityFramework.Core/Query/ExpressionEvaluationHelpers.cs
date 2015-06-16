@@ -24,58 +24,58 @@ namespace Microsoft.Data.Entity.Query
             switch (expression.NodeType)
             {
                 case ExpressionType.MemberAccess:
+                {
+                    var memberExpression = (MemberExpression)expression;
+                    var @object = Evaluate(memberExpression.Expression, out parameterName);
+
+                    var fieldInfo = memberExpression.Member as FieldInfo;
+
+                    if (fieldInfo != null)
                     {
-                        var memberExpression = (MemberExpression)expression;
-                        var @object = Evaluate(memberExpression.Expression, out parameterName);
+                        parameterName = parameterName != null
+                            ? parameterName + "_" + fieldInfo.Name
+                            : fieldInfo.Name;
 
-                        var fieldInfo = memberExpression.Member as FieldInfo;
-
-                        if (fieldInfo != null)
+                        try
                         {
-                            parameterName = parameterName != null
-                                ? parameterName + "_" + fieldInfo.Name
-                                : fieldInfo.Name;
-
-                            try
-                            {
-                                return fieldInfo.GetValue(@object);
-                            }
-                            catch
-                            {
-                                // Try again when we compile the delegate
-                            }
+                            return fieldInfo.GetValue(@object);
                         }
-
-                        var propertyInfo = memberExpression.Member as PropertyInfo;
-
-                        if (propertyInfo != null)
+                        catch
                         {
-                            parameterName = parameterName != null
-                                ? parameterName + "_" + propertyInfo.Name
-                                : propertyInfo.Name;
-
-                            try
-                            {
-                                return propertyInfo.GetValue(@object);
-                            }
-                            catch
-                            {
-                                // Try again when we compile the delegate
-                            }
+                            // Try again when we compile the delegate
                         }
-
-                        break;
                     }
+
+                    var propertyInfo = memberExpression.Member as PropertyInfo;
+
+                    if (propertyInfo != null)
+                    {
+                        parameterName = parameterName != null
+                            ? parameterName + "_" + propertyInfo.Name
+                            : propertyInfo.Name;
+
+                        try
+                        {
+                            return propertyInfo.GetValue(@object);
+                        }
+                        catch
+                        {
+                            // Try again when we compile the delegate
+                        }
+                    }
+
+                    break;
+                }
                 case ExpressionType.Constant:
-                    {
-                        return ((ConstantExpression)expression).Value;
-                    }
+                {
+                    return ((ConstantExpression)expression).Value;
+                }
                 case ExpressionType.Call:
-                    {
-                        parameterName = ((MethodCallExpression)expression).Method.Name;
+                {
+                    parameterName = ((MethodCallExpression)expression).Method.Name;
 
-                        break;
-                    }
+                    break;
+                }
             }
 
             if (parameterName == null)

@@ -38,9 +38,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         private InternalEntityEntry NewInternalEntityEntry(
-            IStateManager stateManager, 
-            IEntityType entityType, 
-            object entity, 
+            IStateManager stateManager,
+            IEntityType entityType,
+            object entity,
             ValueBuffer valueBuffer)
         {
             if (!entityType.HasClrType())

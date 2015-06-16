@@ -10,28 +10,28 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
 {
     public class CompiledAssemblyResult
     {
-        public virtual bool Success { get;[param: NotNull]set; }
+        public virtual bool Success { get; [param: NotNull] set; }
 
-        public virtual Assembly Assembly { get;[param: NotNull]set; }
+        public virtual Assembly Assembly { get; [param: NotNull] set; }
 
-        public virtual IEnumerable<string> ErrorMessages { get;[param: NotNull]set; }
+        public virtual IEnumerable<string> ErrorMessages { get; [param: NotNull] set; }
 
-        public static CompiledAssemblyResult FromAssembly([NotNull]Assembly assembly)
+        public static CompiledAssemblyResult FromAssembly([NotNull] Assembly assembly)
         {
             Check.NotNull(assembly, nameof(assembly));
 
-            return new CompiledAssemblyResult()
+            return new CompiledAssemblyResult
             {
                 Assembly = assembly,
                 Success = true
             };
         }
 
-        public static CompiledAssemblyResult FromErrorMessages([NotNull]IEnumerable<string> errorMessages)
+        public static CompiledAssemblyResult FromErrorMessages([NotNull] IEnumerable<string> errorMessages)
         {
             Check.NotNull(errorMessages, nameof(errorMessages));
 
-            return new CompiledAssemblyResult()
+            return new CompiledAssemblyResult
             {
                 ErrorMessages = errorMessages,
                 Success = false

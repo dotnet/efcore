@@ -36,7 +36,6 @@ namespace Microsoft.Data.Entity.Internal
                         ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<IEntityQueryProvider>()));
         }
 
-
         public InternalDbSet([NotNull] IQueryable<TEntity> source, [NotNull] DbSet<TEntity> dbSet)
         {
             Check.NotNull(source, nameof(source));

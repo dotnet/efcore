@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.Utilities;
 
-
 namespace Microsoft.Data.Entity.Sqlite
 {
     public class SqliteDataStoreCreator : RelationalDataStoreCreator
@@ -50,7 +49,6 @@ namespace Microsoft.Data.Entity.Sqlite
             var statements = _migrationSqlGenerator.Generate(operations, Model);
             _executor.ExecuteNonQuery(_connection, null, statements);
         }
-
 
         public override bool Exists() => true;
 

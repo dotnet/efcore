@@ -13,13 +13,12 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         {
         }
 
-        public virtual new string Name
+        public new virtual string Name
         {
             get { return base.Name; }
-            [param: CanBeNull]
-            set { Key[SqliteNameAnnotation] = value; }
+            [param: CanBeNull] set { Key[SqliteNameAnnotation] = value; }
         }
 
-        protected virtual new Key Key => (Key)base.Key;
+        protected new virtual Key Key => (Key)base.Key;
     }
 }

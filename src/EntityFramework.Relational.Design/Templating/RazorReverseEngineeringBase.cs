@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
     {
         private TextWriter Output { get; set; }
 
-        public virtual dynamic Model { get;[param: NotNull]set; }
+        public virtual dynamic Model { get; [param: NotNull] set; }
 
         public abstract Task ExecuteAsync();
 
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
         public virtual async Task<string> ExecuteTemplateAsync(
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            StringBuilder output = new StringBuilder();
+            var output = new StringBuilder();
             using (var writer = new StringWriter(output))
             {
                 Output = writer;
@@ -37,12 +37,12 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
             return output.ToString();
         }
 
-        public virtual void WriteLiteral([NotNull]object value)
+        public virtual void WriteLiteral([NotNull] object value)
         {
             WriteLiteralTo(Output, value);
         }
 
-        public virtual void WriteLiteralTo([NotNull]TextWriter writer, [NotNull]object text)
+        public virtual void WriteLiteralTo([NotNull] TextWriter writer, [NotNull] object text)
         {
             if (text != null)
             {
@@ -50,12 +50,12 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
             }
         }
 
-        public virtual void Write([NotNull]object value)
+        public virtual void Write([NotNull] object value)
         {
             WriteTo(Output, value);
         }
 
-        public virtual void WriteTo([NotNull]TextWriter writer, [NotNull]object content)
+        public virtual void WriteTo([NotNull] TextWriter writer, [NotNull] object content)
         {
             if (content != null)
             {

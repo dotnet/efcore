@@ -65,19 +65,19 @@ namespace Microsoft.Data.Entity.SqlServer
             await ExistsAsync(retryOnNotExists: true, cancellationToken: cancellationToken);
         }
 
-        public override void CreateTables() 
+        public override void CreateTables()
             => _statementExecutor.ExecuteNonQuery(
-                _connection, 
-                _connection.DbTransaction, 
+                _connection,
+                _connection.DbTransaction,
                 CreateSchemaCommands());
 
-        public override async Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken)) 
+        public override async Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
             => await _statementExecutor
-            .ExecuteNonQueryAsync(
-                _connection, 
-                _connection.DbTransaction, 
-                CreateSchemaCommands(), 
-                cancellationToken);
+                .ExecuteNonQueryAsync(
+                    _connection,
+                    _connection.DbTransaction,
+                    CreateSchemaCommands(),
+                    cancellationToken);
 
         public override bool HasTables()
             => (int)_statementExecutor.ExecuteScalar(_connection, _connection.DbTransaction, CreateHasTablesCommand()) != 0;
@@ -209,11 +209,11 @@ namespace Microsoft.Data.Entity.SqlServer
         private IEnumerable<SqlBatch> CreateDropCommands()
         {
             var operations = new MigrationOperation[]
-                {
-                    // TODO Check DbConnection.Database always gives us what we want
-                    // Issue #775
-                    new DropDatabaseOperation { Name = _connection.DbConnection.Database }
-                };
+            {
+                // TODO Check DbConnection.Database always gives us what we want
+                // Issue #775
+                new DropDatabaseOperation { Name = _connection.DbConnection.Database }
+            };
 
             var masterCommands = _sqlGenerator.Generate(operations);
             return masterCommands;

@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuratio
 {
     public class SqlServerNavigationPropertyInitializer
     {
-        public SqlServerNavigationPropertyInitializer([NotNull]string navPropName, [NotNull]string principalEntityTypeName)
+        public SqlServerNavigationPropertyInitializer([NotNull] string navPropName, [NotNull] string principalEntityTypeName)
         {
             Check.NotEmpty(navPropName, nameof(navPropName));
             Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuratio
             PrincipalEntityTypeName = principalEntityTypeName;
         }
 
-        public virtual string NavigationPropertyName { get;[param: NotNull]private set; }
-        public virtual string PrincipalEntityTypeName { get;[param: NotNull]private set; }
+        public virtual string NavigationPropertyName { get; [param: NotNull] private set; }
+        public virtual string PrincipalEntityTypeName { get; [param: NotNull] private set; }
     }
 }

@@ -57,17 +57,17 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(referencedTable, nameof(referencedTable));
 
             var operation = new AddForeignKeyOperation
-                {
-                    Schema = Operation.Schema,
-                    Table = Operation.Name,
-                    Name = name,
-                    Columns = Map(columns),
-                    ReferencedSchema = referencedSchema,
-                    ReferencedTable = referencedTable,
-                    ReferencedColumns = referencedColumns,
-                    OnUpdate = onUpdate,
-                    OnDelete = onDelete
-                };
+            {
+                Schema = Operation.Schema,
+                Table = Operation.Name,
+                Name = name,
+                Columns = Map(columns),
+                ReferencedSchema = referencedSchema,
+                ReferencedTable = referencedTable,
+                ReferencedColumns = referencedColumns,
+                OnUpdate = onUpdate,
+                OnDelete = onDelete
+            };
             Operation.ForeignKeys.Add(operation);
 
             return new OperationBuilder<AddForeignKeyOperation>(operation);
@@ -81,12 +81,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotNull(columns, nameof(columns));
 
             var operation = new AddPrimaryKeyOperation
-                {
-                    Schema = Operation.Schema,
-                    Table = Operation.Name,
-                    Name = name,
-                    Columns = Map(columns)
-                };
+            {
+                Schema = Operation.Schema,
+                Table = Operation.Name,
+                Name = name,
+                Columns = Map(columns)
+            };
             // TODO: Throw if already set?
             Operation.PrimaryKey = operation;
 
@@ -101,12 +101,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotNull(columns, nameof(columns));
 
             var operation = new AddUniqueConstraintOperation
-                {
-                    Schema = Operation.Schema,
-                    Table = Operation.Name,
-                    Name = name,
-                    Columns = Map(columns)
-                };
+            {
+                Schema = Operation.Schema,
+                Table = Operation.Name,
+                Name = name,
+                Columns = Map(columns)
+            };
             Operation.UniqueConstraints.Add(operation);
 
             return new OperationBuilder<AddUniqueConstraintOperation>(operation);

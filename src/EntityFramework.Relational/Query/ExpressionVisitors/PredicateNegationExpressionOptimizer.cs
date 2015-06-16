@@ -12,12 +12,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
     {
         private static readonly Dictionary<ExpressionType, ExpressionType> _nodeTypeMapping
             = new Dictionary<ExpressionType, ExpressionType>
-                {
-                    { ExpressionType.GreaterThan, ExpressionType.LessThanOrEqual },
-                    { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan },
-                    { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThan },
-                    { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual }
-                };
+            {
+                { ExpressionType.GreaterThan, ExpressionType.LessThanOrEqual },
+                { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan },
+                { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThan },
+                { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual }
+            };
 
         protected override Expression VisitBinary(
             [NotNull] BinaryExpression expression)

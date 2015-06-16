@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
             _connection = connection;
         }
 
-        public virtual new ISqlServerValueGeneratorCache Cache => (ISqlServerValueGeneratorCache)base.Cache;
+        public new virtual ISqlServerValueGeneratorCache Cache => (ISqlServerValueGeneratorCache)base.Cache;
 
         public override ValueGenerator Select(IProperty property, IEntityType entityType)
         {

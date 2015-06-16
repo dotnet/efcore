@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         // TODO: Perf: consider not needing to do a full scan here
         public static IEnumerable<INavigation> GetNavigations(
-            [NotNull] this IModel model, [NotNull] IForeignKey foreignKey) 
+            [NotNull] this IModel model, [NotNull] IForeignKey foreignKey)
             => model.EntityTypes.SelectMany(e => e.GetNavigations()).Where(n => n.ForeignKey == foreignKey);
     }
 }

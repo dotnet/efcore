@@ -42,21 +42,21 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     .ToList());
             _modelSnapshot = new LazyRef<ModelSnapshot>(
                 () => (
-                        from t in GetTypes(assembly)
-                        where t.IsSubclassOf(typeof(ModelSnapshot))
-                            && TryGetContextType(t) == contextType
-                        select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
+                    from t in GetTypes(assembly)
+                    where t.IsSubclassOf(typeof(ModelSnapshot))
+                          && TryGetContextType(t) == contextType
+                    select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
                     .FirstOrDefault());
             _lastModel = new LazyRef<IModel>(
                 () =>
-                {
-                    if (_modelSnapshot.Value == null)
                     {
-                        return null;
-                    }
+                        if (_modelSnapshot.Value == null)
+                        {
+                            return null;
+                        }
 
-                    return modelFactory.CreateModel(_modelSnapshot.Value.BuildModel);
-                });
+                        return modelFactory.CreateModel(_modelSnapshot.Value.BuildModel);
+                    });
         }
 
         public virtual IReadOnlyList<Migration> Migrations => _migrations.Value;

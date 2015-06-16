@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
     public class PropertyConfiguration
     {
         public PropertyConfiguration(
-            [NotNull]EntityConfiguration entityConfiguration, [NotNull]IProperty property)
+            [NotNull] EntityConfiguration entityConfiguration, [NotNull] IProperty property)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
             Check.NotNull(property, nameof(property));
@@ -20,11 +20,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             Property = property;
         }
 
-        public virtual EntityConfiguration EntityConfiguration { get;[param: NotNull]private set; }
-        public virtual IProperty Property { get;[param: NotNull]private set; }
+        public virtual EntityConfiguration EntityConfiguration { get; [param: NotNull] private set; }
+        public virtual IProperty Property { get; [param: NotNull] private set; }
         public virtual Dictionary<string, List<string>> FacetConfigurations { get; } = new Dictionary<string, List<string>>();
 
-        public virtual void AddFacetConfiguration([NotNull]FacetConfiguration facetConfiguration)
+        public virtual void AddFacetConfiguration([NotNull] FacetConfiguration facetConfiguration)
         {
             Check.NotNull(facetConfiguration, nameof(facetConfiguration));
 
@@ -38,5 +38,4 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             listOfFacetMethodBodies.Add(facetConfiguration.MethodBody);
         }
     }
-
 }

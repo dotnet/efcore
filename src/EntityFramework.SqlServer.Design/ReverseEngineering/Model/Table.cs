@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using System.Data.SqlClient;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
     public class Table
     {
         public const string Query =
-@"SELECT
+            @"SELECT
     quotename(TABLE_SCHEMA) + quotename(TABLE_NAME) [Id]
   , TABLE_SCHEMA [SchemaName]
   , TABLE_NAME   [Name]
@@ -41,9 +41,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
         public override string ToString()
         {
             return "T[Id=" + Id
-                + ", Schema=" + SchemaName
-                + ", Name=" + TableName
-                + "]";
+                   + ", Schema=" + SchemaName
+                   + ", Name=" + TableName
+                   + "]";
         }
     }
 }

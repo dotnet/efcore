@@ -528,9 +528,9 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 throw new InvalidOperationException(
                     Strings.ForeignKeyInUse(
-                        Property.Format(foreignKey.Properties), 
-                        Name, 
-                        navigation.Name, 
+                        Property.Format(foreignKey.Properties),
+                        Name,
+                        navigation.Name,
                         navigation.EntityType.Name));
             }
         }
@@ -812,14 +812,14 @@ namespace Microsoft.Data.Entity.Metadata
 
             return this.GetDerivedTypes()
                 .SelectMany(et => et.GetDeclaredProperties()
-                .Where(p => searchProperties.Contains(p.Name)))
+                    .Where(p => searchProperties.Contains(p.Name)))
                 .Cast<Property>();
         }
 
-        IEnumerable<Property> FindPropertyCollisions(string propertyName)
+        private IEnumerable<Property> FindPropertyCollisions(string propertyName)
             => FindPropertyCollisions(new[] { propertyName });
 
-        IEnumerable<Property> FindPropertyCollisions(string[] propertyNames)
+        private IEnumerable<Property> FindPropertyCollisions(string[] propertyNames)
             => FindProperties(propertyNames).Concat(FindDerivedProperties(propertyNames));
 
         public virtual Property GetProperty([NotNull] PropertyInfo propertyInfo)
@@ -899,7 +899,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual void PropertyMetadataChanged([CanBeNull] Property property)
         {
-            if (property != null && property.EntityType == this)
+            if (property != null
+                && property.EntityType == this)
             {
                 ValidateAgainstClrProperty(property);
             }
@@ -912,7 +913,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 indexedProperty.Index = index++;
 
-                if(indexedProperty.IsShadowProperty)
+                if (indexedProperty.IsShadowProperty)
                 {
                     indexedProperty.SetShadowIndex(shadowIndex++);
                 }
@@ -923,7 +924,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             _shadowPropertyCount = shadowIndex;
 
-            foreach(var derivedType in this.GetDerivedTypes().Where(et => et.BaseType == this).Cast<EntityType>())
+            foreach (var derivedType in this.GetDerivedTypes().Where(et => et.BaseType == this).Cast<EntityType>())
             {
                 derivedType.PropertyMetadataChanged(property);
             }

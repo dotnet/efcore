@@ -26,16 +26,16 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                 if (!simpleLeft
                     || !simpleRight)
                 {
-                    var leftOperand = simpleLeft 
-                        ? left 
+                    var leftOperand = simpleLeft
+                        ? left
                         : Expression.Condition(
-                            left, 
+                            left,
                             Expression.Constant(true),
                             Expression.Constant(false),
                             typeof(bool));
 
-                    var rightOperand = simpleRight 
-                        ? right 
+                    var rightOperand = simpleRight
+                        ? right
                         : Expression.Condition(
                             right,
                             Expression.Constant(true),

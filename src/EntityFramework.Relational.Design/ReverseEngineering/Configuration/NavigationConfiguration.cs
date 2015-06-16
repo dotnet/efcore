@@ -9,9 +9,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 {
     public class NavigationConfiguration
     {
-        public NavigationConfiguration([NotNull]EntityConfiguration entityConfiguration,
-            [NotNull]IForeignKey foreignKey, [NotNull]string dependentEndNavigationPropertyName,
-            [NotNull]string principalEndNavigationPropertyName)
+        public NavigationConfiguration([NotNull] EntityConfiguration entityConfiguration,
+            [NotNull] IForeignKey foreignKey, [NotNull] string dependentEndNavigationPropertyName,
+            [NotNull] string principalEndNavigationPropertyName)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -24,9 +24,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             PrincipalEndNavigationPropertyName = principalEndNavigationPropertyName;
         }
 
-        public virtual EntityConfiguration EntityConfiguration { get;[param: NotNull]private set; }
-        public virtual IForeignKey ForeignKey { get;[param: NotNull]private set; }
-        public virtual string DependentEndNavigationPropertyName { get;[param: NotNull]private set; }
-        public virtual string PrincipalEndNavigationPropertyName { get;[param: NotNull]private set; }
+        public virtual EntityConfiguration EntityConfiguration { get; [param: NotNull] private set; }
+        public virtual IForeignKey ForeignKey { get; [param: NotNull] private set; }
+        public virtual string DependentEndNavigationPropertyName { get; [param: NotNull] private set; }
+        public virtual string PrincipalEndNavigationPropertyName { get; [param: NotNull] private set; }
     }
 }

@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Sqlite.Query
         protected override string ConcatOperator => "||";
 
         public SqliteQuerySqlGenerator(
-            [NotNull] SelectExpression selectExpression, 
+            [NotNull] SelectExpression selectExpression,
             [NotNull] IRelationalTypeMapper typeMapper)
             : base(selectExpression, typeMapper)
         {
@@ -29,7 +29,8 @@ namespace Microsoft.Data.Entity.Sqlite.Query
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
-            if (selectExpression.Limit != null || selectExpression.Offset != null)
+            if (selectExpression.Limit != null
+                || selectExpression.Offset != null)
             {
                 Sql.AppendLine()
                     .Append("LIMIT ")

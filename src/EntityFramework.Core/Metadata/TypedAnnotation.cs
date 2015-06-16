@@ -11,27 +11,27 @@ namespace Microsoft.Data.Entity.Metadata
     public class TypedAnnotation
     {
         private static readonly HashSet<Type> _supportedTypes = new HashSet<Type>
-            {
-                typeof(string),
-                typeof(int),
-                typeof(long),
-                typeof(short),
-                typeof(byte),
-                typeof(decimal),
-                typeof(float),
-                typeof(double),
-                typeof(bool),
-                typeof(DateTime),
-                typeof(char),
-                typeof(sbyte),
-                typeof(ulong),
-                typeof(uint),
-                typeof(ushort),
-                typeof(Guid),
-                typeof(DateTimeOffset),
-                typeof(TimeSpan),
-                typeof(byte[])
-            };
+        {
+            typeof(string),
+            typeof(int),
+            typeof(long),
+            typeof(short),
+            typeof(byte),
+            typeof(decimal),
+            typeof(float),
+            typeof(double),
+            typeof(bool),
+            typeof(DateTime),
+            typeof(char),
+            typeof(sbyte),
+            typeof(ulong),
+            typeof(uint),
+            typeof(ushort),
+            typeof(Guid),
+            typeof(DateTimeOffset),
+            typeof(TimeSpan),
+            typeof(byte[])
+        };
 
         private readonly object _value;
 

@@ -32,26 +32,26 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalEntityTypeBuilder Entity([NotNull] string name, ConfigurationSource configurationSource)
         {
-            return !CanAdd(name, configurationSource) 
-                ? null 
+            return !CanAdd(name, configurationSource)
+                ? null
                 : _entityTypeBuilders.GetOrAdd(
-                () => Metadata.FindEntityType(name),
-                () => Metadata.AddEntityType(name),
-                entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
-                ConventionDispatcher.OnEntityTypeAdded,
-                configurationSource);
+                    () => Metadata.FindEntityType(name),
+                    () => Metadata.AddEntityType(name),
+                    entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
+                    ConventionDispatcher.OnEntityTypeAdded,
+                    configurationSource);
         }
 
         public virtual InternalEntityTypeBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
         {
-            return !CanAdd(type.FullName, configurationSource) 
-                ? null 
+            return !CanAdd(type.FullName, configurationSource)
+                ? null
                 : _entityTypeBuilders.GetOrAdd(
-                () => Metadata.FindEntityType(type),
-                () => Metadata.AddEntityType(type),
-                entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
-                ConventionDispatcher.OnEntityTypeAdded,
-                configurationSource);
+                    () => Metadata.FindEntityType(type),
+                    () => Metadata.AddEntityType(type),
+                    entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
+                    ConventionDispatcher.OnEntityTypeAdded,
+                    configurationSource);
         }
 
         private bool CanAdd(string name, ConfigurationSource configurationSource)
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
-        public virtual bool Ignore([NotNull] Type type, ConfigurationSource configurationSource) 
+        public virtual bool Ignore([NotNull] Type type, ConfigurationSource configurationSource)
             => Ignore(type.FullName, configurationSource);
 
         public virtual bool Ignore([NotNull] string name, ConfigurationSource configurationSource)
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return roots;
         }
 
-        public virtual InternalModelBuilder Initialize() 
+        public virtual InternalModelBuilder Initialize()
             => ConventionDispatcher.InitializingModel(this);
     }
 }

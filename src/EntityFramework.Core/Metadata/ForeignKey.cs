@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         bool IForeignKey.IsRequired => IsRequired ?? DefaultIsRequired;
 
-        public override string ToString() 
+        public override string ToString()
             => $"'{EntityType.DisplayName()}' {Property.Format(Properties)} -> '{PrincipalEntityType.DisplayName()}' {Property.Format(PrincipalKey.Properties)}";
     }
 }

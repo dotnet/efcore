@@ -8,10 +8,9 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class CommandParameter
     {
-
         public CommandParameter(
-            [NotNull] string name, 
-            [NotNull] object value, 
+            [NotNull] string name,
+            [NotNull] object value,
             [NotNull] RelationalTypeMapping typeMapping)
         {
             Check.NotNull(name, nameof(name));

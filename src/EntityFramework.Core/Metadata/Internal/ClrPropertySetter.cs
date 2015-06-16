@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _setter = setter;
         }
 
-        public virtual void SetClrValue(object instance, object value) 
+        public virtual void SetClrValue(object instance, object value)
             => _setter((TEntity)instance, (TValue)value);
     }
 }

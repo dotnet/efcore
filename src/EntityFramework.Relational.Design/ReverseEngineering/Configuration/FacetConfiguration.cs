@@ -8,14 +8,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 {
     public class FacetConfiguration
     {
-        public FacetConfiguration([NotNull]string methodBody)
+        public FacetConfiguration([NotNull] string methodBody)
         {
             Check.NotNull(methodBody, nameof(methodBody));
 
             MethodBody = methodBody;
         }
 
-        public FacetConfiguration([NotNull]string @for, [NotNull]string methodBody)
+        public FacetConfiguration([NotNull] string @for, [NotNull] string methodBody)
         {
             Check.NotNull(@for, nameof(@for));
             Check.NotNull(methodBody, nameof(methodBody));
@@ -24,8 +24,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             MethodBody = methodBody;
         }
 
-        public virtual string For { get;[param: NotNull]private set; }
-        public virtual string MethodBody { get;[param: NotNull]private set; }
+        public virtual string For { get; }
+        public virtual string MethodBody { get; }
 
         public override string ToString()
         {

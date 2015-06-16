@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            return specificVisitor != null 
-                ? specificVisitor.VisitSum(this) 
+            return specificVisitor != null
+                ? specificVisitor.VisitSum(this)
                 : base.Accept(visitor);
         }
     }

@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.Sqlite
 {
     public class SqliteCompositeMemberTranslator : RelationalCompositeMemberTranslator
     {
-        private readonly List<IMemberTranslator> _sqliteTranslators = new List<IMemberTranslator>()
+        private readonly List<IMemberTranslator> _sqliteTranslators = new List<IMemberTranslator>
         {
-            new StringLengthTranslator(),
+            new StringLengthTranslator()
         };
 
         protected override IReadOnlyList<IMemberTranslator> Translators

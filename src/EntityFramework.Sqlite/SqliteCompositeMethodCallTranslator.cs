@@ -3,21 +3,21 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Sqlite.Query.Methods;
 using Microsoft.Framework.Logging;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Sqlite
 {
     public class SqliteCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
     {
-        private readonly List<IMethodCallTranslator> _sqliteTranslators = new List<IMethodCallTranslator>()
+        private readonly List<IMethodCallTranslator> _sqliteTranslators = new List<IMethodCallTranslator>
         {
             new MathAbsTranslator(),
             new StringToLowerTranslator(),
-            new StringToUpperTranslator(),
+            new StringToUpperTranslator()
         };
 
         public SqliteCompositeMethodCallTranslator([NotNull] ILoggerFactory loggerFactory)

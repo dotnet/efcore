@@ -20,9 +20,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         private readonly List<CommandParameter> _commandParameters;
 
         public RawSqlQueryGenerator(
-            [NotNull] SelectExpression selectExpression, 
-            [NotNull] string sql, 
-            [NotNull] object[] parameters, 
+            [NotNull] SelectExpression selectExpression,
+            [NotNull] string sql,
+            [NotNull] object[] parameters,
             [NotNull] IRelationalTypeMapper typeMapper)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
@@ -74,10 +74,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 = Enumerable
                     .Range(0, dataReader.FieldCount)
                     .Select(i => new
-                        {
-                            Name = dataReader.GetName(i),
-                            Ordinal = i
-                        })
+                    {
+                        Name = dataReader.GetName(i),
+                        Ordinal = i
+                    })
                     .ToList();
 
             var types = new Type[_selectExpression.Projection.Count];

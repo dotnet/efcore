@@ -65,22 +65,22 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static readonly Dictionary<Type, Func<HandlerContext, Expression>>
             _resultHandlers = new Dictionary<Type, Func<HandlerContext, Expression>>
-                {
-                    { typeof(AllResultOperator), HandleAll },
-                    { typeof(AnyResultOperator), HandleAny },
-                    { typeof(CountResultOperator), HandleCount },
-                    { typeof(LongCountResultOperator), HandleLongCount },
-                    { typeof(DistinctResultOperator), HandleDistinct },
-                    { typeof(FirstResultOperator), HandleFirst },
-                    { typeof(LastResultOperator), HandleLast },
-                    { typeof(MaxResultOperator), HandleMax },
-                    { typeof(MinResultOperator), HandleMin },
-                    { typeof(OfTypeResultOperator), HandleOfType },
-                    { typeof(SingleResultOperator), HandleSingle },
-                    { typeof(SkipResultOperator), HandleSkip },
-                    { typeof(SumResultOperator), HandleSum },
-                    { typeof(TakeResultOperator), HandleTake }
-                };
+            {
+                { typeof(AllResultOperator), HandleAll },
+                { typeof(AnyResultOperator), HandleAny },
+                { typeof(CountResultOperator), HandleCount },
+                { typeof(LongCountResultOperator), HandleLongCount },
+                { typeof(DistinctResultOperator), HandleDistinct },
+                { typeof(FirstResultOperator), HandleFirst },
+                { typeof(LastResultOperator), HandleLast },
+                { typeof(MaxResultOperator), HandleMax },
+                { typeof(MinResultOperator), HandleMin },
+                { typeof(OfTypeResultOperator), HandleOfType },
+                { typeof(SingleResultOperator), HandleSingle },
+                { typeof(SkipResultOperator), HandleSkip },
+                { typeof(SumResultOperator), HandleSum },
+                { typeof(TakeResultOperator), HandleTake }
+            };
 
         private readonly IResultOperatorHandler _resultOperatorHandler = new ResultOperatorHandler();
 
@@ -138,7 +138,6 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 SetProjectionConditionalExpression(
                     handlerContext,
-
                     Expression.Condition(
                         Expression.Not(new ExistsExpression(innerSelectExpression)),
                         Expression.Constant(true),

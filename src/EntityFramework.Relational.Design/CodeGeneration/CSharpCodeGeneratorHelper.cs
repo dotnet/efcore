@@ -63,7 +63,8 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             }
             sb.Append("class ");
             sb.Append(className);
-            if (inheritsFrom != null && inheritsFrom.Count > 0)
+            if (inheritsFrom != null
+                && inheritsFrom.Count > 0)
             {
                 sb.Append(" : ");
                 sb.Append(string.Join(", ", inheritsFrom));
@@ -104,31 +105,31 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             AddProperty(accessModifier, virtualModifier, GetTypeName(propertyType), propertyName, sb);
         }
 
-        private static Dictionary<Type, string> _primitiveTypeNames = new Dictionary<Type, string>()
-            {
-                { typeof(bool), "bool" },
-                { typeof(byte), "byte" },
-                { typeof(byte[]), "byte[]" },
-                { typeof(sbyte), "sbyte" },
-                { typeof(short), "short" },
-                { typeof(ushort), "ushort" },
-                { typeof(int), "int" },
-                { typeof(uint), "uint" },
-                { typeof(long), "long" },
-                { typeof(ulong), "ulong" },
-                { typeof(char), "char" },
-                { typeof(float), "float" },
-                { typeof(double), "double" },
-                { typeof(string), "string" },
-                { typeof(decimal), "decimal" },
-            };
+        private static readonly Dictionary<Type, string> _primitiveTypeNames = new Dictionary<Type, string>
+        {
+            { typeof(bool), "bool" },
+            { typeof(byte), "byte" },
+            { typeof(byte[]), "byte[]" },
+            { typeof(sbyte), "sbyte" },
+            { typeof(short), "short" },
+            { typeof(ushort), "ushort" },
+            { typeof(int), "int" },
+            { typeof(uint), "uint" },
+            { typeof(long), "long" },
+            { typeof(ulong), "ulong" },
+            { typeof(char), "char" },
+            { typeof(float), "float" },
+            { typeof(double), "double" },
+            { typeof(string), "string" },
+            { typeof(decimal), "decimal" }
+        };
 
         public virtual string GetTypeName([NotNull] Type propertyType)
         {
             Check.NotNull(propertyType, nameof(propertyType));
 
             var isNullableType = propertyType.GetTypeInfo().IsGenericType
-                && typeof(Nullable<>) == propertyType.GetGenericTypeDefinition();
+                                 && typeof(Nullable<>) == propertyType.GetGenericTypeDefinition();
             var type = isNullableType
                 ? Nullable.GetUnderlyingType(propertyType)
                 : propertyType;
@@ -156,7 +157,8 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             AppendAccessModifier(accessModifier, sb);
             sb.Append(className);
             sb.Append("(");
-            if (parameters != null && parameters.Count > 0)
+            if (parameters != null
+                && parameters.Count > 0)
             {
                 sb.Append(string.Join(", ", parameters.Select(tuple => tuple.Item1 + " " + tuple.Item2)));
             }
@@ -187,7 +189,8 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.Append(" ");
             sb.Append(methodName);
             sb.Append("(");
-            if (parameters != null && parameters.Count > 0)
+            if (parameters != null
+                && parameters.Count > 0)
             {
                 sb.Append(string.Join(", ", parameters.Select(tuple => tuple.Item1 + " " + tuple.Item2)));
             }
@@ -249,7 +252,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
         }
     }
 
-    public enum AccessModifier : int
+    public enum AccessModifier
     {
         Public,
         Private,
@@ -258,7 +261,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
         ProtectedInternal
     }
 
-    public enum VirtualModifier : int
+    public enum VirtualModifier
     {
         Virtual,
         Override,

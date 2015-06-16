@@ -21,10 +21,10 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
     public class MetadataReferencesProvider
     {
         private bool _isInitialized;
-        private List<MetadataReference> _references = new List<MetadataReference>();
+        private readonly List<MetadataReference> _references = new List<MetadataReference>();
         private IServiceProvider _serviceProvider;
 
-        public MetadataReferencesProvider([NotNull]IServiceProvider serviceProvider)
+        public MetadataReferencesProvider([NotNull] IServiceProvider serviceProvider)
         {
             Check.NotNull(serviceProvider, nameof(serviceProvider));
 
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
             AddReferenceFromName("EntityFramework.Relational.Design");
         }
 
-        public virtual void AddReferenceFromName([NotNull]string name)
+        public virtual void AddReferenceFromName([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 

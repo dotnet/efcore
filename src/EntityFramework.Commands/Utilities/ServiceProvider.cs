@@ -10,15 +10,15 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 {
     public class ServiceProvider : IServiceProvider
     {
-        private IServiceProvider _backupServiceProvider;
-        private Dictionary<Type, object> _localServices = new Dictionary<Type, object>();
+        private readonly IServiceProvider _backupServiceProvider;
+        private readonly Dictionary<Type, object> _localServices = new Dictionary<Type, object>();
 
-        public ServiceProvider([CanBeNull]IServiceProvider backupServiceProvider)
+        public ServiceProvider([CanBeNull] IServiceProvider backupServiceProvider)
         {
             _backupServiceProvider = backupServiceProvider;
         }
 
-        public virtual void AddService([NotNull]Type type, [NotNull]object service)
+        public virtual void AddService([NotNull] Type type, [NotNull] object service)
         {
             Check.NotNull(type, nameof(type));
             Check.NotNull(service, nameof(service));
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             _localServices.Add(type, service);
         }
 
-        public virtual object GetService([NotNull]Type serviceType)
+        public virtual object GetService([NotNull] Type serviceType)
         {
             Check.NotNull(serviceType, nameof(serviceType));
 

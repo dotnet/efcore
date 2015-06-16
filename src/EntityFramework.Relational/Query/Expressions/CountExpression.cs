@@ -11,8 +11,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public class CountExpression : Expression
     {
-        private readonly Type _type;
-
         public CountExpression()
             : this(typeof(int))
         {
@@ -20,12 +18,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public CountExpression([NotNull] Type type)
         {
-            _type = type;
+            Type = type;
         }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
-        public override Type Type => _type;
+        public override Type Type { get; }
 
         protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {
@@ -33,8 +31,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            return specificVisitor != null 
-                ? specificVisitor.VisitCount(this) 
+            return specificVisitor != null
+                ? specificVisitor.VisitCount(this)
                 : base.Accept(visitor);
         }
 

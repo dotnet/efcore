@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer
             return new SqlServerConnection(optionsBuilder.Options, _loggerFactory);
         }
 
-        public override bool IsMultipleActiveResultSetsEnabled 
+        public override bool IsMultipleActiveResultSetsEnabled
             => new SqlConnectionStringBuilder(ConnectionString).MultipleActiveResultSets;
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
@@ -30,7 +29,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _createAndSetCollection = createAndSetCollection;
         }
 
-        public virtual void Add(object instance, object value) 
+        public virtual void Add(object instance, object value)
             => GetOrCreateCollection(instance).Add((TElement)value);
 
         public virtual void AddRange(object instance, IEnumerable<object> values)
@@ -75,7 +74,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return collection != null && collection.Contains((TElement)value);
         }
 
-        public virtual void Remove(object instance, object value) 
+        public virtual void Remove(object instance, object value)
             => _getCollection((TEntity)instance)?.Remove((TElement)value);
     }
 }

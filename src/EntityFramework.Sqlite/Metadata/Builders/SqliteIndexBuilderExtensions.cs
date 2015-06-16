@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity
 {
     public static class SqliteIndexBuilderExtensions

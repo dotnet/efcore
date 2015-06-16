@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
+using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             dbContextGeneratorModel.Helper = dbContextCodeGeneratorHelper;
 
             var dbContextClassName = configuration.ContextClassName
-                ?? dbContextCodeGeneratorHelper.ClassName(configuration.ConnectionString);
+                                     ?? dbContextCodeGeneratorHelper.ClassName(configuration.ConnectionString);
             CheckOutputFiles(configuration.OutputPath, dbContextClassName, metadataModel);
 
             var templating = _serviceProvider.GetRequiredService<ITemplating>();
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var entityTypeTemplate = provider.EntityTypeTemplate;
             foreach (var entityType in metadataModel.EntityTypes)
             {
-                var entityTypeGeneratorModel = new EntityTypeGeneratorModel()
+                var entityTypeGeneratorModel = new EntityTypeGeneratorModel
                 {
                     EntityType = entityType,
                     Namespace = configuration.Namespace,
@@ -170,10 +170,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 return;
             }
 
-            var filesToTest = new List<string>()
-                {
-                    dbContextClassName + FileExtension
-                };
+            var filesToTest = new List<string>
+            {
+                dbContextClassName + FileExtension
+            };
             filesToTest.AddRange(metadataModel.EntityTypes
                 .Select(entityType => entityType.DisplayName() + FileExtension));
 

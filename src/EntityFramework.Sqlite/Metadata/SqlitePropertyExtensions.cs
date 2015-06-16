@@ -13,27 +13,24 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         {
         }
 
-        public virtual new string Column
+        public new virtual string Column
         {
             get { return base.Column; }
-            [param: CanBeNull]
-            set { Property[SqliteNameAnnotation] = value; }
+            [param: CanBeNull] set { Property[SqliteNameAnnotation] = value; }
         }
 
-        public virtual new string ColumnType
+        public new virtual string ColumnType
         {
             get { return base.ColumnType; }
-            [param: CanBeNull]
-            set { Property[SqliteColumnTypeAnnotation] = value; }
+            [param: CanBeNull] set { Property[SqliteColumnTypeAnnotation] = value; }
         }
 
-        public virtual new string DefaultExpression
+        public new virtual string DefaultExpression
         {
             get { return base.DefaultExpression; }
-            [param: CanBeNull]
-            set { Property[SqliteDefaultExpressionAnnotation] = value; }
+            [param: CanBeNull] set { Property[SqliteDefaultExpressionAnnotation] = value; }
         }
 
-        protected virtual new Property Property => (Property)base.Property;
+        protected new virtual Property Property => (Property)base.Property;
     }
 }

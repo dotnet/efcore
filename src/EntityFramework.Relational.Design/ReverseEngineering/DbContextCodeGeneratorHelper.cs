@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.ModelConventions;
@@ -19,21 +18,20 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         private const string _defaultDbContextName = "ModelContext";
         private static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
 
-        public DbContextCodeGeneratorHelper([NotNull]DbContextGeneratorModel generatorModel)
+        public DbContextCodeGeneratorHelper([NotNull] DbContextGeneratorModel generatorModel)
         {
             Check.NotNull(generatorModel, nameof(generatorModel));
 
             GeneratorModel = generatorModel;
         }
 
-        public virtual DbContextGeneratorModel GeneratorModel { get; [param: NotNull]private set; }
+        public virtual DbContextGeneratorModel GeneratorModel { get; }
 
         public virtual IEnumerable<IEntityType> OrderedEntityTypes()
         {
             // default ordering is by Name, which is what we want here
             return GeneratorModel.MetadataModel.EntityTypes;
         }
-
 
         public virtual IEnumerable<IProperty> OrderedProperties([NotNull] IEntityType entityType)
         {
@@ -42,14 +40,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return GeneratorModel.Generator.ModelUtilities.OrderedProperties(entityType);
         }
 
-        public virtual string VerbatimStringLiteral([NotNull]string stringLiteral)
+        public virtual string VerbatimStringLiteral([NotNull] string stringLiteral)
         {
             Check.NotNull(stringLiteral, nameof(stringLiteral));
 
             return CSharpUtilities.Instance.GenerateVerbatimStringLiteral(stringLiteral);
         }
 
-        public virtual string ClassName([CanBeNull]string connectionString)
+        public virtual string ClassName([CanBeNull] string connectionString)
         {
             return _defaultDbContextName;
         }
@@ -80,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public virtual void AddEntityFacetsConfiguration([NotNull]EntityConfiguration entityConfiguration)
+        public virtual void AddEntityFacetsConfiguration([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
@@ -88,15 +86,16 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             AddTableNameFacetConfiguration(entityConfiguration);
         }
 
-        public abstract void AddNavigationsConfiguration([NotNull]EntityConfiguration entityConfiguration);
+        public abstract void AddNavigationsConfiguration([NotNull] EntityConfiguration entityConfiguration);
 
-        public virtual void AddEntityKeyConfiguration([NotNull]EntityConfiguration entityConfiguration)
+        public virtual void AddEntityKeyConfiguration([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
             var entityType = (EntityType)entityConfiguration.EntityType;
             var key = entityType.FindPrimaryKey();
-            if (key == null || key.Properties.Count == 0)
+            if (key == null
+                || key.Properties.Count == 0)
             {
                 return;
             }
@@ -104,9 +103,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var conventionKeyProperties =
                 _keyDiscoveryConvention.DiscoverKeyProperties(entityType);
             if (conventionKeyProperties != null
-                && Enumerable.SequenceEqual(
-                        key.Properties.OrderBy(p => p.Name),
-                        conventionKeyProperties.OrderBy(p => p.Name)))
+                && key.Properties.OrderBy(p => p.Name).SequenceEqual(conventionKeyProperties.OrderBy(p => p.Name)))
             {
                 return;
             }
@@ -118,7 +115,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     + ")"));
         }
 
-        public virtual void AddTableNameFacetConfiguration([NotNull]EntityConfiguration entityConfiguration)
+        public virtual void AddTableNameFacetConfiguration([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
@@ -142,7 +139,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public virtual void AddEntityPropertiesConfiguration([NotNull]EntityConfiguration entityConfiguration)
+        public virtual void AddEntityPropertiesConfiguration([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
@@ -159,7 +156,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public virtual void AddPropertyFacetsConfiguration([NotNull]PropertyConfiguration propertyConfiguration)
+        public virtual void AddPropertyFacetsConfiguration([NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
@@ -173,7 +170,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public virtual void AddRequiredFacetConfiguration(
-            [NotNull]PropertyConfiguration propertyConfiguration)
+            [NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
@@ -192,7 +189,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public virtual void AddMaxLengthFacetConfiguration(
-            [NotNull]PropertyConfiguration propertyConfiguration)
+            [NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
@@ -208,7 +205,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public virtual void AddStoreGeneratedPatternFacetConfiguration(
-            [NotNull]PropertyConfiguration propertyConfiguration)
+            [NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
@@ -224,7 +221,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public virtual void AddColumnNameFacetConfiguration(
-            [NotNull]PropertyConfiguration propertyConfiguration)
+            [NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
@@ -241,7 +238,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public virtual void AddColumnTypeFacetConfiguration(
-            [NotNull]PropertyConfiguration propertyConfiguration)
+            [NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
@@ -257,7 +254,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public virtual void AddDefaultValueFacetConfiguration(
-            [NotNull]PropertyConfiguration propertyConfiguration)
+            [NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
@@ -273,7 +270,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public virtual void AddDefaultExpressionFacetConfiguration(
-            [NotNull]PropertyConfiguration propertyConfiguration)
+            [NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
@@ -283,8 +280,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture,
                             "DefaultExpression({0})",
-                                CSharpUtilities.Instance.DelimitString(
-                                    propertyConfiguration.Property.Relational().DefaultExpression))));
+                            CSharpUtilities.Instance.DelimitString(
+                                propertyConfiguration.Property.Relational().DefaultExpression))));
             }
         }
     }

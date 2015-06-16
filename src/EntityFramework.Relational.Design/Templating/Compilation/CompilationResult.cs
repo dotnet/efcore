@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
     {
         private readonly Type _type;
 
-        private CompilationResult([NotNull]string generatedCode, [CanBeNull]Type type, [NotNull]IEnumerable<string> messages)
+        private CompilationResult([NotNull] string generatedCode, [CanBeNull] Type type, [NotNull] IEnumerable<string> messages)
         {
             Check.NotNull(generatedCode, nameof(generatedCode));
             Check.NotNull(messages, nameof(messages));
@@ -23,9 +23,9 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
             Messages = messages;
         }
 
-        public IEnumerable<string> Messages { get;[param: NotNull]private set; }
+        public IEnumerable<string> Messages { get; }
 
-        public string GeneratedCode { get;[param: NotNull]private set; }
+        public string GeneratedCode { get; }
 
         public Type CompiledType
         {
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
             }
         }
 
-        public static CompilationResult Failed([NotNull]string generatedCode, [NotNull]IEnumerable<string> messages)
+        public static CompilationResult Failed([NotNull] string generatedCode, [NotNull] IEnumerable<string> messages)
         {
             Check.NotNull(generatedCode, nameof(generatedCode));
             Check.NotNull(messages, nameof(messages));
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
             return new CompilationResult(generatedCode, type: null, messages: messages);
         }
 
-        public static CompilationResult Successful([NotNull]string generatedCode, [NotNull]Type type)
+        public static CompilationResult Successful([NotNull] string generatedCode, [NotNull] Type type)
         {
             Check.NotNull(generatedCode, nameof(generatedCode));
             Check.NotNull(type, nameof(type));

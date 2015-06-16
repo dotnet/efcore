@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             if (newExpression == null)
             {
-                newExpression 
+                newExpression
                     = (MethodCallExpression)base.VisitMethodCall(methodCallExpression);
             }
 

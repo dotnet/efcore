@@ -3,11 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.SqlServer.Query.Methods;
 using Microsoft.Framework.Logging;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer
             new MathTruncateTranslator(),
             new StringReplaceTranslator(),
             new StringToLowerTranslator(),
-            new StringToUpperTranslator(),
+            new StringToUpperTranslator()
         };
 
         public SqlServerCompositeMethodCallTranslator([NotNull] ILoggerFactory loggerFactory)
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
         }
 
-        protected override IReadOnlyList<IMethodCallTranslator> Translators 
+        protected override IReadOnlyList<IMethodCallTranslator> Translators
             => base.Translators.Concat(_sqlServerTranslators).ToList();
     }
 }

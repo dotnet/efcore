@@ -9,9 +9,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     public interface IForeignKeyListener
     {
         void ForeignKeyPropertyChanged(
-            [NotNull] InternalEntityEntry entry, 
-            [NotNull] IProperty property, 
-            [CanBeNull] object oldValue, 
+            [NotNull] InternalEntityEntry entry,
+            [NotNull] IProperty property,
+            [CanBeNull] object oldValue,
             [CanBeNull] object newValue);
     }
 }

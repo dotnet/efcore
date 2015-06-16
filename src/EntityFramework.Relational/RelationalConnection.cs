@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational
         private int? _commandTimeout;
         private readonly LazyRef<ILogger> _logger;
 #if NET45
-        private bool _throwOnAmbientTransaction;
+        private readonly bool _throwOnAmbientTransaction;
 #endif
 
         protected RelationalConnection([NotNull] IDbContextOptions options, [NotNull] ILoggerFactory loggerFactory)
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.Relational
         {
 #if NET45
             CheckForAmbientTransactions();
-            
+
 #endif
             if (_openedCount == 0)
             {
@@ -190,7 +190,7 @@ namespace Microsoft.Data.Entity.Relational
         private void CheckForAmbientTransactions()
         {
             if (_throwOnAmbientTransaction
-               && System.Transactions.Transaction.Current != null)
+                && System.Transactions.Transaction.Current != null)
             {
                 throw new InvalidOperationException(Strings.AmbientTransaction);
             }

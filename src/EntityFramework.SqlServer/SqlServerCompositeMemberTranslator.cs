@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer
         private readonly List<IMemberTranslator> _sqlServerTranslators = new List<IMemberTranslator>
         {
             new StringLengthTranslator(),
-            new DateTimeNowTranslator(),
+            new DateTimeNowTranslator()
         };
 
         protected override IReadOnlyList<IMemberTranslator> Translators

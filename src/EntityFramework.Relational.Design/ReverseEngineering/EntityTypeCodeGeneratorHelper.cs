@@ -10,14 +10,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class EntityTypeCodeGeneratorHelper
     {
-        public EntityTypeCodeGeneratorHelper([NotNull]EntityTypeGeneratorModel generatorModel)
+        public EntityTypeCodeGeneratorHelper([NotNull] EntityTypeGeneratorModel generatorModel)
         {
             Check.NotNull(generatorModel, nameof(generatorModel));
 
             GeneratorModel = generatorModel;
         }
 
-        public virtual EntityTypeGeneratorModel GeneratorModel { get;[param: NotNull]private set; }
+        public virtual EntityTypeGeneratorModel GeneratorModel { get; }
 
         public virtual IEnumerable<IProperty> OrderedEntityProperties
         {

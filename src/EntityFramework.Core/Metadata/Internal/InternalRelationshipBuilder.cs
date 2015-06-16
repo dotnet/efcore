@@ -262,14 +262,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             => ForeignInvertIfNeeded(ResolveType(specifiedDependentType), configurationSource)
                 .ForeignKey(propertyNames, configurationSource);
 
-
         public virtual InternalRelationshipBuilder ForeignKey(
             [NotNull] string specifiedDependentTypeName,
             [CanBeNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
             => ForeignInvertIfNeeded(ResolveType(specifiedDependentTypeName), configurationSource)
                 .ForeignKey(propertyNames, configurationSource);
-
 
         private InternalRelationshipBuilder ForeignInvertIfNeeded(EntityType entityType, ConfigurationSource configurationSource)
         {
@@ -370,7 +368,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             => ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalTypeName), configurationSource)
                 .PrincipalKey(propertyNames, configurationSource);
 
-
         private InternalRelationshipBuilder ReferenceInvertIfNeeded(EntityType entityType, ConfigurationSource configurationSource)
         {
             _principalEndConfigurationSource = configurationSource.Max(_principalEndConfigurationSource);
@@ -446,15 +443,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return !replacedConfigurationSource.HasValue
                 ? null
                 : AddRelationship(
-                    principalType, 
-                    dependentType, 
-                    navigationToPrincipalName, 
-                    navigationToDependentName, 
-                    foreignKeyProperties, 
-                    principalProperties, 
-                    isUnique, 
-                    isRequired, 
-                    configurationSource, 
+                    principalType,
+                    dependentType,
+                    navigationToPrincipalName,
+                    navigationToDependentName,
+                    foreignKeyProperties,
+                    principalProperties,
+                    isUnique,
+                    isRequired,
+                    configurationSource,
                     replacedConfigurationSource);
         }
 

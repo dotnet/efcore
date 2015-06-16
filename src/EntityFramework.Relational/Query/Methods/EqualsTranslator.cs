@@ -3,9 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Relational.Query.Methods
 {
@@ -17,7 +17,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
 
-            _logger = loggerFactory.CreateLogger(nameof(EqualsTranslator)); ;
+            _logger = loggerFactory.CreateLogger(nameof(EqualsTranslator));
+            ;
         }
 
         public virtual Expression Translate(MethodCallExpression methodCallExpression)

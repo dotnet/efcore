@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Storage;
@@ -44,6 +43,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         public virtual bool RequiresClientEval { get; set; }
         public virtual bool RequiresClientFilter => _requiresClientFilter || RequiresClientEval;
         public virtual bool RequiresClientProjection => _projectionVisitor.RequiresClientEval || RequiresClientEval;
+
         public virtual bool RequiresClientResultOperator
         {
             get { return _requiresClientResultOperator || RequiresClientEval; }

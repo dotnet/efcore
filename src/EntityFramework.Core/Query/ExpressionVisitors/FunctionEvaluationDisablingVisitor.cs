@@ -15,10 +15,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         public static readonly MethodInfo DbContextSetMethodInfo
             = typeof(DbContext).GetTypeInfo().GetDeclaredMethod("Set");
 
-        private static MethodInfo[] _nonDeterministicMethodInfos = new MethodInfo[]
+        private static readonly MethodInfo[] _nonDeterministicMethodInfos =
         {
-                typeof(Guid).GetTypeInfo().GetDeclaredMethod("NewGuid"),
-                typeof(DateTime).GetTypeInfo().GetDeclaredProperty("Now").GetMethod,
+            typeof(Guid).GetTypeInfo().GetDeclaredMethod("NewGuid"),
+            typeof(DateTime).GetTypeInfo().GetDeclaredProperty("Now").GetMethod
         };
 
         protected override Expression VisitMethodCall(MethodCallExpression expression)
@@ -33,7 +33,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
             }
 
-            if (IsQueryable(expression.Object) || IsQueryable(expression.Arguments.FirstOrDefault()))
+            if (IsQueryable(expression.Object)
+                || IsQueryable(expression.Arguments.FirstOrDefault()))
             {
                 return base.VisitMethodCall(expression);
             }

@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 
         protected override Expression VisitExtension(Expression expression)
         {
-            return expression is NotNullableExpression 
+            return expression is NotNullableExpression
                 ? expression
                 : base.VisitExtension(expression);
         }

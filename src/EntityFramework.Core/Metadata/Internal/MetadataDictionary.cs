@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] Func<TKey> getKey,
             [NotNull] Func<TKey> createKey,
             [NotNull] Func<TKey, TValue> createValue,
-            ConfigurationSource configurationSource) 
+            ConfigurationSource configurationSource)
             => GetOrAdd(getKey, createKey, createValue, null, configurationSource);
 
         public virtual TValue GetOrAdd(
@@ -61,10 +61,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return value;
         }
 
-        public virtual TValue TryGetValue([NotNull] TKey key, ConfigurationSource configurationSource) 
+        public virtual TValue TryGetValue([NotNull] TKey key, ConfigurationSource configurationSource)
             => GetTuple(key, configurationSource).Item1;
 
-        public virtual ConfigurationSource UpdateConfigurationSource([NotNull] TKey key, ConfigurationSource configurationSource) 
+        public virtual ConfigurationSource UpdateConfigurationSource([NotNull] TKey key, ConfigurationSource configurationSource)
             => GetTuple(key, configurationSource).Item2;
 
         private Tuple<TValue, ConfigurationSource> GetTuple([NotNull] TKey key, ConfigurationSource configurationSource)
@@ -89,12 +89,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual ConfigurationSource GetConfigurationSource([NotNull] TKey key)
         {
             Tuple<TValue, ConfigurationSource> tuple;
-            return _values.TryGetValue(key, out tuple) 
-                ? tuple.Item2 
+            return _values.TryGetValue(key, out tuple)
+                ? tuple.Item2
                 : DefaultConfigurationSource;
         }
 
-        public virtual void Add([NotNull] TKey key, [NotNull] TValue value, ConfigurationSource configurationSource) 
+        public virtual void Add([NotNull] TKey key, [NotNull] TValue value, ConfigurationSource configurationSource)
             => _values.Add(key, new Tuple<TValue, ConfigurationSource>(value, configurationSource));
 
         public virtual ConfigurationSource? Remove([NotNull] TKey key, ConfigurationSource configurationSource, bool canOverrideSameSource = true)

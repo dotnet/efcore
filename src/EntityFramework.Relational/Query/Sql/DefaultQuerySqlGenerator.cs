@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             _commandParameters = new List<CommandParameter>();
             _parameterValues = parameterValues;
 
-            Visit (_selectExpression);
+            Visit(_selectExpression);
 
             return _sql.ToString();
         }
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 .CreateValueBufferFactory(_selectExpression.GetProjectionTypes().ToArray(), indexMap: null);
         }
 
-    public virtual IReadOnlyList<CommandParameter> Parameters => _commandParameters;
+        public virtual IReadOnlyList<CommandParameter> Parameters => _commandParameters;
 
         protected virtual IndentedStringBuilder Sql => _sql;
 
@@ -539,7 +539,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 _sql.Append("THEN ");
 
                 var constantIfTrue = expression.IfTrue as ConstantExpression;
-                if (constantIfTrue != null && constantIfTrue.Type == typeof(bool))
+                if (constantIfTrue != null
+                    && constantIfTrue.Type == typeof(bool))
                 {
                     _sql.Append((bool)constantIfTrue.Value ? TypedTrueLiteral : TypedFalseLiteral);
                 }
@@ -551,7 +552,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 _sql.Append(" ELSE ");
 
                 var constantIfFalse = expression.IfFalse as ConstantExpression;
-                if (constantIfFalse != null && constantIfFalse.Type == typeof(bool))
+                if (constantIfFalse != null
+                    && constantIfFalse.Type == typeof(bool))
                 {
                     _sql.Append((bool)constantIfFalse.Value ? TypedTrueLiteral : TypedFalseLiteral);
                 }
@@ -850,7 +852,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         private const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         private const string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ss.fffzzz";
-        private const string FloatingPointFormat = "{0}E0"; 
+        private const string FloatingPointFormat = "{0}E0";
 
         protected virtual string GenerateLiteral([NotNull] object value)
             => string.Format(CultureInfo.InvariantCulture, "{0}", value);

@@ -21,12 +21,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            return specificVisitor != null 
-                ? specificVisitor.VisitOuterJoin(this) 
+            return specificVisitor != null
+                ? specificVisitor.VisitOuterJoin(this)
                 : base.Accept(visitor);
         }
 
-        public override string ToString() 
+        public override string ToString()
             => "OUTER JOIN (" + _tableExpression + ") ON " + Predicate;
     }
 }

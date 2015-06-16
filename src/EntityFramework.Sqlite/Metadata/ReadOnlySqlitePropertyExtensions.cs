@@ -11,8 +11,9 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
     {
         protected const string SqliteNameAnnotation = SqliteAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName;
         protected const string SqliteColumnTypeAnnotation = SqliteAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType;
+
         protected const string SqliteDefaultExpressionAnnotation = SqliteAnnotationNames.Prefix
-            + RelationalAnnotationNames.ColumnDefaultExpression;
+                                                                   + RelationalAnnotationNames.ColumnDefaultExpression;
 
         public ReadOnlySqlitePropertyExtensions([NotNull] IProperty property)
             : base(property)
@@ -21,7 +22,8 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
 
         public override string Column => Property[SqliteNameAnnotation] as string ?? base.Column;
         public override string ColumnType => Property[SqliteColumnTypeAnnotation] as string ?? base.ColumnType;
+
         public override string DefaultExpression => Property[SqliteDefaultExpressionAnnotation] as string
-            ?? base.DefaultExpression;
+                                                    ?? base.DefaultExpression;
     }
 }

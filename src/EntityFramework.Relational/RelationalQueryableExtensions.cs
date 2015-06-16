@@ -3,8 +3,8 @@
 
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.Query;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query;
 
 // ReSharper disable once CheckNamespace
 

@@ -59,8 +59,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 command.Parameters.Add(
                     commandParameter.TypeMapping.CreateParameter(
-                        command, 
-                        commandParameter.Name, 
+                        command,
+                        commandParameter.Name,
                         commandParameter.Value));
             }
 

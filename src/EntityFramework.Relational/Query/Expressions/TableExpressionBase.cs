@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
-        public override Type Type => typeof (object);
+        public override Type Type => typeof(object);
 
         public virtual IQuerySource QuerySource { get; }
 

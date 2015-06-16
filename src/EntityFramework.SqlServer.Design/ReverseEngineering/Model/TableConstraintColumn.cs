@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using System.Data.SqlClient;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
     public class TableConstraintColumn
     {
         public const string Query =
-@"SELECT
+            @"SELECT
     quotename(tc.CONSTRAINT_SCHEMA) + quotename(tc.CONSTRAINT_NAME) + quotename(kcu.COLUMN_NAME) [Id]
   , quotename(tc.TABLE_SCHEMA) + quotename(tc.TABLE_NAME) + quotename(kcu.COLUMN_NAME) [ColumnId]
   , quotename(tc.CONSTRAINT_SCHEMA) + quotename(tc.CONSTRAINT_NAME) [ConstraintId]
@@ -52,11 +52,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
         public override string ToString()
         {
             return "TCon[Id=" + Id
-                + ", ColumnId=" + ColumnId
-                + ", ConstraintId=" + ConstraintId
-                + ", ConstraintType=" + ConstraintType
-                + ", Ordinal=" + Ordinal
-                + "]";
+                   + ", ColumnId=" + ColumnId
+                   + ", ConstraintId=" + ConstraintId
+                   + ", ConstraintType=" + ConstraintType
+                   + ", Ordinal=" + Ordinal
+                   + "]";
         }
     }
 }

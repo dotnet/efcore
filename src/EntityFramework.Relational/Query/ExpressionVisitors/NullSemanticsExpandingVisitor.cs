@@ -122,8 +122,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
         {
             var notNullableExpression = expression as NotNullableExpression;
 
-            return notNullableExpression != null 
-                ? expression 
+            return notNullableExpression != null
+                ? expression
                 : base.VisitExtension(expression);
         }
 

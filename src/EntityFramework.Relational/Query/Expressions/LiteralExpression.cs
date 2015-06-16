@@ -24,8 +24,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            return specificVisitor != null 
-                ? specificVisitor.VisitLiteral(this) 
+            return specificVisitor != null
+                ? specificVisitor.VisitLiteral(this)
                 : base.Accept(visitor);
         }
 

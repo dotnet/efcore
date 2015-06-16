@@ -3,9 +3,9 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Utilities;
-using JetBrains.Annotations;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;

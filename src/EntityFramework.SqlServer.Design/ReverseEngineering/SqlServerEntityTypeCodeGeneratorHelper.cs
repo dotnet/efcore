@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
     public class SqlServerEntityTypeCodeGeneratorHelper : EntityTypeCodeGeneratorHelper
     {
         public SqlServerEntityTypeCodeGeneratorHelper(
-            [NotNull]EntityTypeGeneratorModel generatorModel)
+            [NotNull] EntityTypeGeneratorModel generatorModel)
             : base(generatorModel)
         {
         }

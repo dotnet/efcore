@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         private const string _dbContextSuffix = "Context";
 
         public SqlServerDbContextCodeGeneratorHelper(
-            [NotNull]DbContextGeneratorModel generatorModel)
+            [NotNull] DbContextGeneratorModel generatorModel)
             : base(generatorModel)
         {
         }
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) == null);
         }
 
-        public override string ClassName([NotNull]string connectionString)
+        public override string ClassName([NotNull] string connectionString)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         }
 
         public override void AddNavigationsConfiguration(
-            [NotNull]EntityConfiguration entityConfiguration)
+            [NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        public override void AddPropertyFacetsConfiguration([NotNull]PropertyConfiguration propertyConfiguration)
+        public override void AddPropertyFacetsConfiguration([NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
@@ -73,13 +73,13 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         }
 
         public virtual void AddUseIdentityFacetConfiguration(
-            [NotNull]PropertyConfiguration propertyConfiguration)
+            [NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
             if (propertyConfiguration.Property.SqlServer().ValueGenerationStrategy.HasValue
                 && SqlServerValueGenerationStrategy.Identity
-                   == propertyConfiguration.Property.SqlServer().ValueGenerationStrategy.Value)
+                == propertyConfiguration.Property.SqlServer().ValueGenerationStrategy.Value)
             {
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration(

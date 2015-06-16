@@ -81,9 +81,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                 {
                     var newArguments
                         = new List<Expression>(newExpression.Arguments)
-                            {
-                                [2] = _outerShaperExpression
-                            };
+                        {
+                            [2] = _outerShaperExpression
+                        };
 
                     if (newArguments.Count == RelationalQueryModelVisitor.CreateEntityMethodInfo.GetParameters().Length)
                     {

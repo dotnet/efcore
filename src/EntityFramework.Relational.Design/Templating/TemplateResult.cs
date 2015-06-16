@@ -7,8 +7,8 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
 {
     public class TemplateResult
     {
-        public virtual string GeneratedText { get;[param: NotNull]set; }
+        public virtual string GeneratedText { get; [param: NotNull] set; }
 
-        public virtual TemplateProcessingException ProcessingException { get;[param: NotNull]set; }
+        public virtual TemplateProcessingException ProcessingException { get; [param: NotNull] set; }
     }
 }

@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 {
     public abstract class CommandLogger : ILogger
     {
-        private static readonly string[] _includedNames = new[]
+        private static readonly string[] _includedNames =
         {
 #if DNX451 || DNXCORE50
             typeof(Program).FullName,
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             typeof(MigrationTool).FullName,
             typeof(Migrator).FullName,
             typeof(MigrationScaffolder).FullName,
-            typeof(DatabaseTool).FullName,
+            typeof(DatabaseTool).FullName
         };
 
         private readonly string _name;

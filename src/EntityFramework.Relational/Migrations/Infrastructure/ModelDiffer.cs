@@ -18,31 +18,31 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
     public class ModelDiffer : IModelDiffer
     {
         private static readonly Type[] _dropOperationTypes =
-            {
-                typeof(DropForeignKeyOperation),
-                typeof(DropIndexOperation),
-                typeof(DropPrimaryKeyOperation),
-                typeof(DropSequenceOperation),
-                typeof(DropUniqueConstraintOperation)
-            };
+        {
+            typeof(DropForeignKeyOperation),
+            typeof(DropIndexOperation),
+            typeof(DropPrimaryKeyOperation),
+            typeof(DropSequenceOperation),
+            typeof(DropUniqueConstraintOperation)
+        };
 
         private static readonly Type[] _alterOperationTypes =
-            {
-                typeof(AddColumnOperation),
-                typeof(AddForeignKeyOperation),
-                typeof(AddPrimaryKeyOperation),
-                typeof(AddUniqueConstraintOperation),
-                typeof(AlterColumnOperation),
-                typeof(AlterSequenceOperation),
-                typeof(CreateIndexOperation),
-                typeof(RestartSequenceOperation)
-            };
+        {
+            typeof(AddColumnOperation),
+            typeof(AddForeignKeyOperation),
+            typeof(AddPrimaryKeyOperation),
+            typeof(AddUniqueConstraintOperation),
+            typeof(AlterColumnOperation),
+            typeof(AlterSequenceOperation),
+            typeof(CreateIndexOperation),
+            typeof(RestartSequenceOperation)
+        };
 
         private static readonly Type[] _renameOperationTypes =
-            {
-                typeof(RenameColumnOperation),
-                typeof(RenameSequenceOperation)
-            };
+        {
+            typeof(RenameColumnOperation),
+            typeof(RenameSequenceOperation)
+        };
 
         public ModelDiffer(
             [NotNull] IRelationalTypeMapper typeMapper,
@@ -342,10 +342,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             }
 
             var sourceColumnType = sourceExtensions.ColumnType
-                ?? TypeMapper.MapPropertyType(source).DefaultTypeName;
+                                   ?? TypeMapper.MapPropertyType(source).DefaultTypeName;
 
             var targetColumnType = targetExtensions.ColumnType
-                ?? TypeMapper.MapPropertyType(target).DefaultTypeName;
+                                   ?? TypeMapper.MapPropertyType(target).DefaultTypeName;
 
             var isNullableChanged = source.IsNullable != target.IsNullable;
             var columnTypeChanged = sourceColumnType != targetColumnType;
@@ -357,9 +357,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 || sourceExtensions.DefaultExpression != targetExtensions.DefaultExpression
                 || sourceExtensions.DefaultValue != targetExtensions.DefaultValue)
             {
-                var isDestructiveChange = (isNullableChanged && source.IsNullable == true)
+                var isDestructiveChange = (isNullableChanged && source.IsNullable)
                     // TODO: Detect type narrowing
-                    || columnTypeChanged;
+                                          || columnTypeChanged;
 
                 yield return new AlterColumnOperation
                 {

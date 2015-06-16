@@ -439,18 +439,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] Type principalClrType, [NotNull] IReadOnlyList<PropertyInfo> clrProperties,
             ConfigurationSource configurationSource)
         {
-
             var principalType = ModelBuilder.Entity(principalClrType, configurationSource);
-            return principalType == null 
-                ? null 
+            return principalType == null
+                ? null
                 : ForeignKey(principalType.Metadata, GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
         }
 
-        private InternalRelationshipBuilder ForeignKey(EntityType principalType, IReadOnlyList<Property> dependentProperties, ConfigurationSource configurationSource) 
+        private InternalRelationshipBuilder ForeignKey(EntityType principalType, IReadOnlyList<Property> dependentProperties, ConfigurationSource configurationSource)
             => dependentProperties == null
-            ? null
-            : Relationship(principalType, Metadata, null, null, configurationSource, false)
-                ?.ForeignKey(dependentProperties, configurationSource);
+                ? null
+                : Relationship(principalType, Metadata, null, null, configurationSource, false)
+                    ?.ForeignKey(dependentProperties, configurationSource);
 
         private RelationshipSnapshot DetachRelationship([NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
         {
@@ -588,20 +587,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource) 
+        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
             => Index(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
 
-        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource) 
+        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
             => Index(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
-        private InternalIndexBuilder Index(IReadOnlyList<Property> properties, ConfigurationSource configurationSource) 
+        private InternalIndexBuilder Index(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
             => properties == null
-            ? null
-            : _indexBuilders.Value.GetOrAdd(
-                () => Metadata.FindIndex(properties),
-                () => Metadata.AddIndex(properties),
-                index => new InternalIndexBuilder(index, ModelBuilder),
-                configurationSource);
+                ? null
+                : _indexBuilders.Value.GetOrAdd(
+                    () => Metadata.FindIndex(properties),
+                    () => Metadata.AddIndex(properties),
+                    index => new InternalIndexBuilder(index, ModelBuilder),
+                    configurationSource);
 
         public virtual ConfigurationSource? RemoveIndex([NotNull] Index index, ConfigurationSource configurationSource)
         {
@@ -1055,8 +1054,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 inverseNavigationName = inverseNavigationName == "" ? null : inverseNavigationName;
 
-                relationship = navigation.PointsToPrincipal() 
-                    ? relationship.NavigationToDependent(inverseNavigationName, configurationSource) 
+                relationship = navigation.PointsToPrincipal()
+                    ? relationship.NavigationToDependent(inverseNavigationName, configurationSource)
                     : relationship.NavigationToPrincipal(inverseNavigationName, configurationSource);
             }
 

@@ -15,23 +15,23 @@ namespace Microsoft.Data.Entity.Commands.Utilities
     public class CSharpHelper
     {
         private static readonly IDictionary<Type, string> _builtInTypes = new Dictionary<Type, string>
-            {
-                { typeof(bool), "bool" },
-                { typeof(byte), "byte" },
-                { typeof(sbyte), "sbyte" },
-                { typeof(char), "char" },
-                { typeof(short), "short" },
-                { typeof(int), "int" },
-                { typeof(long), "long" },
-                { typeof(ushort), "ushort" },
-                { typeof(uint), "uint" },
-                { typeof(ulong), "ulong" },
-                { typeof(decimal), "decimal" },
-                { typeof(float), "float" },
-                { typeof(double), "double" },
-                { typeof(string), "string" },
-                { typeof(object), "object" }
-            };
+        {
+            { typeof(bool), "bool" },
+            { typeof(byte), "byte" },
+            { typeof(sbyte), "sbyte" },
+            { typeof(char), "char" },
+            { typeof(short), "short" },
+            { typeof(int), "int" },
+            { typeof(long), "long" },
+            { typeof(ushort), "ushort" },
+            { typeof(uint), "uint" },
+            { typeof(ulong), "ulong" },
+            { typeof(decimal), "decimal" },
+            { typeof(float), "float" },
+            { typeof(double), "double" },
+            { typeof(string), "string" },
+            { typeof(object), "object" }
+        };
 
         private static readonly IReadOnlyDictionary<Type, Func<CSharpHelper, object, string>> _literalFuncs =
             new Dictionary<Type, Func<CSharpHelper, object, string>>

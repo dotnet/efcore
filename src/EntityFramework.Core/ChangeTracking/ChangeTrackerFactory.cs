@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _context = context;
         }
 
-        public virtual ChangeTracker CreateChangeTracker() 
+        public virtual ChangeTracker CreateChangeTracker()
             => new ChangeTracker(_stateManager, _changeDetector, _graphIterator, _context);
     }
 }

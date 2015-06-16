@@ -8,14 +8,14 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuratio
 {
     public class SqlServerNavigationProperty
     {
-        public SqlServerNavigationProperty([NotNull]string errorAnnotation)
+        public SqlServerNavigationProperty([NotNull] string errorAnnotation)
         {
             Check.NotEmpty(errorAnnotation, nameof(errorAnnotation));
 
             ErrorAnnotation = errorAnnotation;
         }
 
-        public SqlServerNavigationProperty([NotNull]string type, [NotNull]string name)
+        public SqlServerNavigationProperty([NotNull] string type, [NotNull] string name)
         {
             Check.NotNull(type, nameof(type));
             Check.NotEmpty(name, nameof(name));
@@ -24,8 +24,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuratio
             Name = name;
         }
 
-        public virtual string ErrorAnnotation { get;[param: NotNull]private set; }
-        public virtual string Type { get;[param: NotNull]private set; }
-        public virtual string Name { get;[param: NotNull]private set; }
+        public virtual string ErrorAnnotation { get; [param: NotNull] private set; }
+        public virtual string Type { get; [param: NotNull] private set; }
+        public virtual string Name { get; [param: NotNull] private set; }
     }
 }

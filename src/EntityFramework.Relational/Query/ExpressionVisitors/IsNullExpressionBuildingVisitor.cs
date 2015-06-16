@@ -112,7 +112,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             // so we just wrap the whole expression into IsNullExpression instead.
             //
             // small optimization: expression can only be nullable if either (or both) of the possible results (ifTrue, ifFalse) can be nullable
-            if (ifTrue != null || ifFalse != null)
+            if (ifTrue != null
+                || ifFalse != null)
             {
                 AddToResult(new IsNullExpression(expression));
             }
@@ -139,7 +140,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             return left ?? right;
         }
 
-        private void AddToResult(Expression expression) 
+        private void AddToResult(Expression expression)
             => ResultExpression = CombineExpressions(ResultExpression, expression, ExpressionType.OrElse);
     }
 }

@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.Data.Entity.Relational.Query.Methods;
-using Microsoft.Data.Entity.Relational.Query.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational.Query.Expressions;
+using Microsoft.Data.Entity.Relational.Query.Methods;
 
 namespace Microsoft.Data.Entity.SqlServer.Query.Methods
 {
@@ -15,8 +15,8 @@ namespace Microsoft.Data.Entity.SqlServer.Query.Methods
     {
         public virtual Expression Translate([NotNull] MethodCallExpression methodCallExpression)
         {
-            var methodInfos = typeof(Math).GetTypeInfo().GetDeclaredMethods("Round").Where(m => 
-                m.GetParameters().Count() == 1 
+            var methodInfos = typeof(Math).GetTypeInfo().GetDeclaredMethods("Round").Where(m =>
+                m.GetParameters().Count() == 1
                 || (m.GetParameters().Count() == 2 && m.GetParameters()[1].ParameterType == typeof(int)));
 
             if (methodInfos.Contains(methodCallExpression.Method))

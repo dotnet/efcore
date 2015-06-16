@@ -11,13 +11,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     public abstract class EntityKeyFactory
     {
         public abstract EntityKey Create(
-            [NotNull] IEntityType entityType, 
+            [NotNull] IEntityType entityType,
             [NotNull] IReadOnlyList<IProperty> properties,
             ValueBuffer valueBuffer);
 
         public abstract EntityKey Create(
-            [NotNull] IEntityType entityType, 
-            [NotNull] IReadOnlyList<IProperty> properties, 
+            [NotNull] IEntityType entityType,
+            [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IPropertyAccessor propertyAccessor);
     }
 }

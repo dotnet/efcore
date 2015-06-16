@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Query
             => Check.NotNull(source, nameof(source))
                 .Provider.CreateQuery<T>(
                     ReplacingExpressionVisitor.Replace(
-                        Check.NotNull(expression,nameof(expression)).Parameters[0],
+                        Check.NotNull(expression, nameof(expression)).Parameters[0],
                         source.Expression,
                         expression.Body));
     }

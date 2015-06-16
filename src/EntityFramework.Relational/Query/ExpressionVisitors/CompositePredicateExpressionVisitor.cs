@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 {
     public class CompositePredicateExpressionVisitor : RelinqExpressionVisitor
     {
-        private bool _useRelationalNullSemantics;
+        private readonly bool _useRelationalNullSemantics;
 
         public CompositePredicateExpressionVisitor(bool useRelationalNullSemantics)
         {
@@ -46,7 +46,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             var parameterDectector = new ParameterExpressionDetectingVisitor();
             parameterDectector.Visit(currentExpression);
 
-            if (!parameterDectector.ContainsParameters && !_useRelationalNullSemantics)
+            if (!parameterDectector.ContainsParameters
+                && !_useRelationalNullSemantics)
             {
                 var optimizedNullExpansionVisitor = new NullSemanticsOptimizedExpandingVisitor();
                 var nullSemanticsExpandedOptimized = optimizedNullExpansionVisitor.Visit(currentExpression);

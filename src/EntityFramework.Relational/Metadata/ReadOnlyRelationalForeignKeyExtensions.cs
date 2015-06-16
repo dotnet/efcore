@@ -27,10 +27,10 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         protected virtual string GetDefaultName()
             => "FK_" +
-                _foreignKey.EntityType.DisplayName() +
-                "_" +
-                _foreignKey.PrincipalEntityType.DisplayName() +
-                "_" +
-                string.Join("_", _foreignKey.Properties.Select(p => p.Name));
+               _foreignKey.EntityType.DisplayName() +
+               "_" +
+               _foreignKey.PrincipalEntityType.DisplayName() +
+               "_" +
+               string.Join("_", _foreignKey.Properties.Select(p => p.Name));
     }
 }

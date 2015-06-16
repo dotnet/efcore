@@ -79,11 +79,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var blockExpressions
                 = new List<Expression>
-                    {
-                        Expression.Assign(
-                            instanceVariable,
-                            Expression.New(entityType.ClrType.GetDeclaredConstructor(null)))
-                    };
+                {
+                    Expression.Assign(
+                        instanceVariable,
+                        Expression.New(entityType.ClrType.GetDeclaredConstructor(null)))
+                };
 
             blockExpressions.AddRange(
                 from mapping in _memberMapper.MapPropertiesToMembers(entityType)

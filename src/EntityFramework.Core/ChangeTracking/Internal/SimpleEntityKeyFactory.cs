@@ -18,11 +18,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public override EntityKey Create(
-            IEntityType entityType, IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer) 
+            IEntityType entityType, IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
             => Create(entityType, valueBuffer[properties[0].Index]);
 
         public override EntityKey Create(
-            IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor) 
+            IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
             => Create(entityType, propertyAccessor[properties[0]]);
 
         private EntityKey Create(IEntityType entityType, object value)

@@ -20,10 +20,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            return ReferenceEquals(methodCallExpression.Method, _methodInfo) 
+            return ReferenceEquals(methodCallExpression.Method, _methodInfo)
                 ? new LikeExpression(
-                methodCallExpression.Object,
-                Expression.Add(new LiteralExpression("%"), methodCallExpression.Arguments[0], _concat)) 
+                    methodCallExpression.Object,
+                    Expression.Add(new LiteralExpression("%"), methodCallExpression.Arguments[0], _concat))
                 : null;
         }
     }

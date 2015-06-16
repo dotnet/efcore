@@ -24,10 +24,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
         public virtual ILogger Logger { get; }
 
         /// <summary>
-        /// Converts a string of the form 'There''s a double single quote in here'
-        /// or, for unicode strings, N'There''s a double single quote in here'
-        /// (including the optional N and the outer single quotes) to the string literal
-        /// "There's a double single quote in here" (not including the double quotes).
+        ///     Converts a string of the form 'There''s a double single quote in here'
+        ///     or, for unicode strings, N'There''s a double single quote in here'
+        ///     (including the optional N and the outer single quotes) to the string literal
+        ///     "There's a double single quote in here" (not including the double quotes).
         /// </summary>
         /// <param name="sqlServerStringLiteral"> the string to convert </param>
         /// <returns> the converted string, or null if it cannot convert </returns>
@@ -47,7 +47,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
                 return null;
             }
 
-            if (sqlServerStringLiteral[0] != '\'' ||
+            if (sqlServerStringLiteral[0] != '\''
+                ||
                 sqlServerStringLiteral[sqlServerStringLiteralLength - 1] != '\'')
             {
                 Logger.LogWarning(Strings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
@@ -59,13 +60,13 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
         }
 
         /// <summary>
-        /// SQL Server stores the values 0 or 1 in bit columns. Interpret these
-        /// as false and true respectively.
+        ///     SQL Server stores the values 0 or 1 in bit columns. Interpret these
+        ///     as false and true respectively.
         /// </summary>
         /// <param name="sqlServerStringLiteral"> the string to convert </param>
         /// <returns>
-        /// false if the string can be interpreted as 0, true if it can be
-        /// intrepreted as 1, otherwise null
+        ///     false if the string can be interpreted as 0, true if it can be
+        ///     intrepreted as 1, otherwise null
         /// </returns>
         public virtual bool? ConvertSqlServerBitLiteral([NotNull] string sqlServerStringLiteral)
         {
@@ -100,7 +101,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
             }
 
             while (sqlServerDefaultValue[0] == '('
-                && sqlServerDefaultValue[sqlServerDefaultValue.Length - 1] == ')')
+                   && sqlServerDefaultValue[sqlServerDefaultValue.Length - 1] == ')')
             {
                 sqlServerDefaultValue = sqlServerDefaultValue.Substring(1, sqlServerDefaultValue.Length - 2);
             }
@@ -112,7 +113,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
 
             if (_defaultValueIsExpression.IsMatch(sqlServerDefaultValue))
             {
-                return new DefaultExpressionOrValue()
+                return new DefaultExpressionOrValue
                 {
                     DefaultExpression = sqlServerDefaultValue
                 };
@@ -124,7 +125,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
 
             if (typeof(string) == propertyType)
             {
-                return new DefaultExpressionOrValue()
+                return new DefaultExpressionOrValue
                 {
                     DefaultValue = ConvertSqlServerStringLiteral(sqlServerDefaultValue)
                 };
@@ -132,7 +133,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
 
             if (typeof(bool) == propertyType)
             {
-                return new DefaultExpressionOrValue()
+                return new DefaultExpressionOrValue
                 {
                     DefaultValue = ConvertSqlServerBitLiteral(sqlServerDefaultValue)
                 };
@@ -140,7 +141,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
 
             if (typeof(Guid) == propertyType)
             {
-                return new DefaultExpressionOrValue()
+                return new DefaultExpressionOrValue
                 {
                     DefaultValue = new Guid(ConvertSqlServerStringLiteral(sqlServerDefaultValue))
                 };
@@ -150,7 +151,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
 
             try
             {
-                return new DefaultExpressionOrValue()
+                return new DefaultExpressionOrValue
                 {
                     DefaultValue = Convert.ChangeType(sqlServerDefaultValue, propertyType)
                 };
@@ -164,7 +165,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
 
     public class DefaultExpressionOrValue
     {
-        public virtual string DefaultExpression { get;[param: NotNull] set; }
-        public virtual object DefaultValue { get;[param: NotNull] set; }
+        public virtual string DefaultExpression { get; [param: NotNull] set; }
+        public virtual object DefaultValue { get; [param: NotNull] set; }
     }
 }

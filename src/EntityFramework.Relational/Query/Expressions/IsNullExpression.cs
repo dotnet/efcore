@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
-        public override Type Type => typeof (bool);
+        public override Type Type => typeof(bool);
 
         protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {
@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            return specificVisitor != null 
-                ? specificVisitor.VisitIsNull(this) 
+            return specificVisitor != null
+                ? specificVisitor.VisitIsNull(this)
                 : base.Accept(visitor);
         }
 

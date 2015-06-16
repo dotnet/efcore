@@ -3,19 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
-using JetBrains.Annotations;
-using System.Collections.ObjectModel;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public class SqlFunctionExpression : Expression
     {
         private readonly List<Expression> _arguments;
-        private readonly Type _returnType;
 
         public SqlFunctionExpression(
             [NotNull] string functionName,
@@ -24,7 +23,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         {
             FunctionName = functionName;
             _arguments = arguments.ToList();
-            _returnType = returnType;
+            Type = returnType;
         }
 
         public virtual string FunctionName { get; [param: NotNull] set; }
@@ -33,7 +32,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
-        public override Type Type => _returnType;
+        public override Type Type { get; }
 
         protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {

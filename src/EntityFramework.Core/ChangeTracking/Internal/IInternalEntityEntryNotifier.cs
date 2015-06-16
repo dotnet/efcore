@@ -14,27 +14,27 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         void StateChanged([NotNull] InternalEntityEntry entry, EntityState oldState);
 
         void ForeignKeyPropertyChanged(
-            [NotNull] InternalEntityEntry entry, 
-            [NotNull] IProperty property, 
-            [CanBeNull] object oldValue, 
+            [NotNull] InternalEntityEntry entry,
+            [NotNull] IProperty property,
+            [CanBeNull] object oldValue,
             [CanBeNull] object newValue);
 
         void NavigationReferenceChanged(
-            [NotNull] InternalEntityEntry entry, 
-            [NotNull] INavigation navigation, 
-            [CanBeNull] object oldValue, 
+            [NotNull] InternalEntityEntry entry,
+            [NotNull] INavigation navigation,
+            [CanBeNull] object oldValue,
             [CanBeNull] object newValue);
 
         void NavigationCollectionChanged(
-            [NotNull] InternalEntityEntry entry, 
-            [NotNull] INavigation navigation, 
-            [NotNull] ISet<object> added, 
+            [NotNull] InternalEntityEntry entry,
+            [NotNull] INavigation navigation,
+            [NotNull] ISet<object> added,
             [NotNull] ISet<object> removed);
 
         void PrincipalKeyPropertyChanged(
             [NotNull] InternalEntityEntry entry,
-            [NotNull] IProperty property, 
-            [CanBeNull] object oldValue, 
+            [NotNull] IProperty property,
+            [CanBeNull] object oldValue,
             [CanBeNull] object newValue);
 
         void PropertyChanged([NotNull] InternalEntityEntry entry, [NotNull] IPropertyBase property);

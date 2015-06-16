@@ -50,20 +50,20 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
             var blockExpressions
                 = new Expression[]
-                    {
-                        Expression.IfThen(
-                            Expression.Equal(
-                                entityTypeParameter,
-                                Expression.Constant(concreteEntityTypes[0])),
-                            Expression.Return(
-                                returnLabelTarget,
-                                _entityMaterializerSource
-                                    .CreateMaterializeExpression(
-                                        concreteEntityTypes[0], valueBufferParameter))),
-                        Expression.Label(
+                {
+                    Expression.IfThen(
+                        Expression.Equal(
+                            entityTypeParameter,
+                            Expression.Constant(concreteEntityTypes[0])),
+                        Expression.Return(
                             returnLabelTarget,
-                            Expression.Default(returnLabelTarget.Type))
-                    };
+                            _entityMaterializerSource
+                                .CreateMaterializeExpression(
+                                    concreteEntityTypes[0], valueBufferParameter))),
+                    Expression.Label(
+                        returnLabelTarget,
+                        Expression.Default(returnLabelTarget.Type))
+                };
 
             foreach (var concreteEntityType in concreteEntityTypes.Skip(1))
             {

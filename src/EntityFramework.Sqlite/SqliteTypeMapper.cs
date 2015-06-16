@@ -25,27 +25,27 @@ namespace Microsoft.Data.Entity.Sqlite
 
             _simpleMappings
                 = new Dictionary<Type, RelationalTypeMapping>
-                    {
-                        { typeof(string), _text },
-                        { typeof(byte[]), _blob },
-                        { typeof(bool), _integer },
-                        { typeof(byte), _integer },
-                        { typeof(char), _integer },
-                        { typeof(int), _integer },
-                        { typeof(long), _integer },
-                        { typeof(sbyte), _integer },
-                        { typeof(short), _integer },
-                        { typeof(uint), _integer },
-                        { typeof(ulong), _integer },
-                        { typeof(ushort), _integer },
-                        { typeof(DateTime), _text },
-                        { typeof(DateTimeOffset), _text },
-                        { typeof(TimeSpan), _text },
-                        { typeof(decimal), _text },
-                        { typeof(double), _real },
-                        { typeof(float), _real },
-                        { typeof(Guid), _blob }
-                    };
+                {
+                    { typeof(string), _text },
+                    { typeof(byte[]), _blob },
+                    { typeof(bool), _integer },
+                    { typeof(byte), _integer },
+                    { typeof(char), _integer },
+                    { typeof(int), _integer },
+                    { typeof(long), _integer },
+                    { typeof(sbyte), _integer },
+                    { typeof(short), _integer },
+                    { typeof(uint), _integer },
+                    { typeof(ulong), _integer },
+                    { typeof(ushort), _integer },
+                    { typeof(DateTime), _text },
+                    { typeof(DateTimeOffset), _text },
+                    { typeof(TimeSpan), _text },
+                    { typeof(decimal), _text },
+                    { typeof(double), _real },
+                    { typeof(float), _real },
+                    { typeof(Guid), _blob }
+                };
         }
 
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings

@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query
     public class SqlServerQuerySqlGenerator : DefaultQuerySqlGenerator
     {
         public SqlServerQuerySqlGenerator(
-            [NotNull] SelectExpression selectExpression, 
+            [NotNull] SelectExpression selectExpression,
             [NotNull] IRelationalTypeMapper typeMapper)
             : base(selectExpression, typeMapper)
         {

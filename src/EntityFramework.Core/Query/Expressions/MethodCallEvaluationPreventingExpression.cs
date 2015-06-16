@@ -3,8 +3,8 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Utilities;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query.Expressions
 {

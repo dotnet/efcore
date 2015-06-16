@@ -8,11 +8,11 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.Templating;
+using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
-using Microsoft.Data.Entity.Relational.Design.Templating;
-using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 
 namespace Microsoft.Data.Entity.Commands
 {
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Commands
                 throw new InvalidOperationException(Strings.CannotFindAssembly(providerAssemblyName));
             }
 
-            var configuration = new ReverseEngineeringConfiguration()
+            var configuration = new ReverseEngineeringConfiguration
             {
                 ProviderAssembly = assembly,
                 ConnectionString = connectionString,

@@ -11,16 +11,16 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
 {
     internal class RazorTemplatingHost : RazorEngineHost
     {
-        private static readonly string[] _defaultNamespaces = new[]
+        private static readonly string[] _defaultNamespaces =
         {
             "System",
             "System.Linq",
             "System.Collections.Generic",
             "System.Dynamic",
-            "Microsoft.Data.Entity.Relational.Design.Templating",
+            "Microsoft.Data.Entity.Relational.Design.Templating"
         };
 
-        public RazorTemplatingHost([NotNull]Type baseType)
+        public RazorTemplatingHost([NotNull] Type baseType)
             : base(new CSharpRazorCodeLanguage())
         {
             Check.NotNull(baseType, nameof(baseType));
@@ -35,9 +35,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
                 writeToMethodName: "WriteTo",
                 writeLiteralToMethodName: "WriteLiteralTo",
                 templateTypeName: "",
-                generatedTagHelperContext: new GeneratedTagHelperContext())
-            {
-            };
+                generatedTagHelperContext: new GeneratedTagHelperContext());
 
             foreach (var ns in _defaultNamespaces)
             {

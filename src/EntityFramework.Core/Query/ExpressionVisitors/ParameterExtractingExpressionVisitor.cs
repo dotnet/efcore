@@ -17,7 +17,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             [NotNull] Expression expressionTree,
             [NotNull] QueryContext queryContext)
         {
-
             var functionEvaluationDisabledExpression = new FunctionEvaluationDisablingVisitor().Visit(expressionTree);
             var partialEvaluationInfo = EvaluatableTreeFindingExpressionVisitor.Analyze(functionEvaluationDisabledExpression);
             var visitor = new ParameterExtractingExpressionVisitor(partialEvaluationInfo, queryContext);

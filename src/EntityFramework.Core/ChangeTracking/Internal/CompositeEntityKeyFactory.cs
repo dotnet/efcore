@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             => Create(entityType, properties, p => valueBuffer[p.Index]);
 
         public override EntityKey Create(
-            IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor) 
+            IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
             => Create(entityType, properties, p => propertyAccessor[p]);
 
         private EntityKey Create(

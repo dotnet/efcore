@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Utilities
     public static class TypeNameHelper
     {
         private static readonly Dictionary<Type, string> _builtInTypeNames = new Dictionary<Type, string>
-            {
+        {
             { typeof(bool), "bool" },
             { typeof(byte), "byte" },
             { typeof(char), "char" },
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Utilities
             { typeof(uint), "uint" },
             { typeof(ulong), "ulong" },
             { typeof(ushort), "ushort" }
-            };
+        };
 
         public static string GetTypeDisplayName([NotNull] Type type, bool fullName = true)
         {
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Utilities
             if (totalArgs >= startIndex + numberOfArgsToAppend)
             {
                 sb.Append("<");
-                for (int i = startIndex; i < startIndex + numberOfArgsToAppend; i++)
+                for (var i = startIndex; i < startIndex + numberOfArgsToAppend; i++)
                 {
                     ProcessTypeName(args[i], sb, fullName);
                     if (i + 1 < startIndex + numberOfArgsToAppend)
@@ -84,7 +84,10 @@ namespace Microsoft.Data.Entity.Utilities
             {
                 var part = parts[0];
                 var num = part.IndexOf('`');
-                if (num == -1) return;
+                if (num == -1)
+                {
+                    return;
+                }
 
                 var name = part.Substring(0, num);
                 var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1));

@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
         }
 
-        public override void ApplyServices(EntityFrameworkServicesBuilder builder) 
+        public override void ApplyServices(EntityFrameworkServicesBuilder builder)
             => Check.NotNull(builder, nameof(builder)).AddSqlServer();
     }
 }

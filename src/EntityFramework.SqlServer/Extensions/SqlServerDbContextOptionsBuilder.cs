@@ -17,9 +17,9 @@ namespace Microsoft.Data.Entity.SqlServer.Extensions
         public virtual SqlServerDbContextOptionsBuilder MaxBatchSize(int maxBatchSize)
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
-                {
-                    MaxBatchSize = maxBatchSize
-                };
+            {
+                MaxBatchSize = maxBatchSize
+            };
 
             ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
 
@@ -29,9 +29,9 @@ namespace Microsoft.Data.Entity.SqlServer.Extensions
         public virtual SqlServerDbContextOptionsBuilder CommandTimeout(int? commandTimeout)
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
-                {
-                    CommandTimeout = commandTimeout
-                };
+            {
+                CommandTimeout = commandTimeout
+            };
 
             ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
 
@@ -41,9 +41,9 @@ namespace Microsoft.Data.Entity.SqlServer.Extensions
         public virtual SqlServerDbContextOptionsBuilder MigrationsAssembly([NotNull] string assemblyName)
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
-                {
-                    MigrationsAssembly = assemblyName
-                };
+            {
+                MigrationsAssembly = assemblyName
+            };
 
             ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
 
@@ -53,9 +53,9 @@ namespace Microsoft.Data.Entity.SqlServer.Extensions
         public virtual SqlServerDbContextOptionsBuilder SuppressAmbientTransactionWarning()
         {
             var extension = new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>())
-                {
-                    ThrowOnAmbientTransaction = false
-                };
+            {
+                ThrowOnAmbientTransaction = false
+            };
 
             ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
 

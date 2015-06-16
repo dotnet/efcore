@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Framework.Logging;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 new ContainsTranslator(),
                 new EndsWithTranslator(),
                 new EqualsTranslator(loggerFactory),
-                new StartsWithTranslator(),
+                new StartsWithTranslator()
             };
         }
 

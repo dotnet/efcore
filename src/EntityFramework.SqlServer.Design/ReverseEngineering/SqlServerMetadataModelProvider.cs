@@ -15,9 +15,9 @@ using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
-using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model;
 using Microsoft.Data.Entity.SqlServer.Design.Utilities;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -26,10 +26,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
     public class SqlServerMetadataModelProvider : IDatabaseMetadataModelProvider
     {
-        private static readonly List<string> DataTypesForMax = new List<string>() { "varchar", "nvarchar", "varbinary" };
-        private static readonly List<string> DataTypesForMaxLengthNotAllowed = new List<string>() { "ntext", "text", "image" };
-        private static readonly List<string> DataTypesForNumericPrecisionAndScale = new List<string>() { "decimal", "numeric" };
-        private static readonly List<string> DataTypesForDateTimePrecisionAndScale = new List<string>() { "datetime2" };
+        private static readonly List<string> DataTypesForMax = new List<string> { "varchar", "nvarchar", "varbinary" };
+        private static readonly List<string> DataTypesForMaxLengthNotAllowed = new List<string> { "ntext", "text", "image" };
+        private static readonly List<string> DataTypesForNumericPrecisionAndScale = new List<string> { "decimal", "numeric" };
+        private static readonly List<string> DataTypesForDateTimePrecisionAndScale = new List<string> { "datetime2" };
 
         public const string AnnotationPrefix = "SqlServerMetadataModelProvider:";
         public const string AnnotationNameDependentEndNavPropName = AnnotationPrefix + "DependentEndNavPropName";
@@ -42,13 +42,14 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public static readonly string SqlServerDbContextTemplateResourceName =
             typeof(SqlServerMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
             + ".ReverseEngineering.Templates.SqlServerDbContextTemplate.cshtml";
+
         public static readonly string SqlServerEntityTypeTemplateResourceName =
             typeof(SqlServerMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
             + ".ReverseEngineering.Templates.SqlServerEntityTypeTemplate.cshtml";
 
-        private ILogger _logger;
-        private ModelUtilities _modelUtilities;
-        private SqlServerLiteralUtilities _sqlServerLiteralUtilities;
+        private readonly ILogger _logger;
+        private readonly ModelUtilities _modelUtilities;
+        private readonly SqlServerLiteralUtilities _sqlServerLiteralUtilities;
 
         // data loaded directly from database
         private Dictionary<string, Table> _tables;
@@ -56,17 +57,21 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         private Dictionary<string, ForeignKeyColumnMapping> _foreignKeyColumnMappings;
 
         // primary key, foreign key and unique columns information constructed from database data
-        private Dictionary<string, int> _primaryKeyOrdinals = new Dictionary<string, int>();
-        private Dictionary<string, Dictionary<string, int>> _foreignKeyOrdinals =
+        private readonly Dictionary<string, int> _primaryKeyOrdinals = new Dictionary<string, int>();
+
+        private readonly Dictionary<string, Dictionary<string, int>> _foreignKeyOrdinals =
             new Dictionary<string, Dictionary<string, int>>(); // 1st string is ColumnId, 2nd is ConstraintId
-        private HashSet<string> _uniqueConstraintColumns = new HashSet<string>();
+
+        private readonly HashSet<string> _uniqueConstraintColumns = new HashSet<string>();
 
         // utility data constructed as we iterate over the data
-        private Dictionary<EntityType, EntityType> _relationalEntityTypeToCodeGenEntityTypeMap =
+        private readonly Dictionary<EntityType, EntityType> _relationalEntityTypeToCodeGenEntityTypeMap =
             new Dictionary<EntityType, EntityType>();
-        private Dictionary<Property, Property> _relationalPropertyToCodeGenPropertyMap = new Dictionary<Property, Property>();
-        private Dictionary<string, Property> _relationalColumnIdToRelationalPropertyMap = new Dictionary<string, Property>();
-        private Dictionary<EntityType, Dictionary<string, List<Property>>> _relationalEntityTypeToForeignKeyConstraintsMap =
+
+        private readonly Dictionary<Property, Property> _relationalPropertyToCodeGenPropertyMap = new Dictionary<Property, Property>();
+        private readonly Dictionary<string, Property> _relationalColumnIdToRelationalPropertyMap = new Dictionary<string, Property>();
+
+        private readonly Dictionary<EntityType, Dictionary<string, List<Property>>> _relationalEntityTypeToForeignKeyConstraintsMap =
             new Dictionary<EntityType, Dictionary<string, List<Property>>>(); // string is ConstraintId
 
         public SqlServerMetadataModelProvider([NotNull] IServiceProvider serviceProvider)
@@ -88,18 +93,19 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 {
                     conn.Open();
 
-                    _tables = LoadData<Table>(conn, Table.Query, Table.CreateFromReader, t => t.Id);
-                    _tableColumns = LoadData<TableColumn>(conn, TableColumn.Query, TableColumn.CreateFromReader, tc => tc.Id);
-                    _foreignKeyColumnMappings = LoadData<ForeignKeyColumnMapping>(
+                    _tables = LoadData(conn, Table.Query, Table.CreateFromReader, t => t.Id);
+                    _tableColumns = LoadData(conn, TableColumn.Query, TableColumn.CreateFromReader, tc => tc.Id);
+                    _foreignKeyColumnMappings = LoadData(
                         conn, ForeignKeyColumnMapping.Query, ForeignKeyColumnMapping.CreateFromReader, fkcm => fkcm.Id);
 
-                    var tableConstraintColumns = LoadData<TableConstraintColumn>(
+                    var tableConstraintColumns = LoadData(
                         conn, TableConstraintColumn.Query, TableConstraintColumn.CreateFromReader, tcc => tcc.Id);
                     CreatePrimaryForeignKeyAndUniqueMaps(tableConstraintColumns);
                 }
                 finally
                 {
-                    if (conn != null && conn.State == ConnectionState.Open)
+                    if (conn != null
+                        && conn.State == ConnectionState.Open)
                     {
                         try
                         {
@@ -251,7 +257,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public virtual IModel ConstructRelationalModel()
         {
-            var relationalModel = new Microsoft.Data.Entity.Metadata.Model();
+            var relationalModel = new Entity.Metadata.Model();
             foreach (var table in _tables.Values)
             {
                 relationalModel.AddEntityType(table.Id);
@@ -296,7 +302,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             Check.NotNull(relationalModel, nameof(relationalModel));
             Check.NotNull(nameMapper, nameof(nameMapper));
 
-            var codeGenModel = new Microsoft.Data.Entity.Metadata.Model();
+            var codeGenModel = new Entity.Metadata.Model();
             foreach (var relationalEntityType in relationalModel.EntityTypes.Cast<EntityType>())
             {
                 var codeGenEntityType = codeGenModel
@@ -351,9 +357,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     // of the codeGen properties mapped to each relational property in that order
                     codeGenEntityType.SetPrimaryKey(
                         primaryKeyProperties
-                        .OrderBy(p => _primaryKeyOrdinals[p.Name]) // note: for relational property p.Name is its columnId
-                        .Select(p => _relationalPropertyToCodeGenPropertyMap[p])
-                        .ToList());
+                            .OrderBy(p => _primaryKeyOrdinals[p.Name]) // note: for relational property p.Name is its columnId
+                            .Select(p => _relationalPropertyToCodeGenPropertyMap[p])
+                            .ToList());
                 }
                 else
                 {
@@ -404,8 +410,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                                         Property codeGenProperty;
                                         return _relationalPropertyToCodeGenPropertyMap
                                             .TryGetValue(relationalProperty, out codeGenProperty)
-                                                ? codeGenProperty
-                                                : null; 
+                                            ? codeGenProperty
+                                            : null;
                                     })
                                 .ToList();
 
@@ -415,9 +421,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                             .GetOrAddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey);
 
                         if (_uniqueConstraintColumns.Contains(
-                                ConstructIdForCombinationOfColumns(
-                                    foreignKeyConstraintRelationalPropertyList
-                                        .Select(p => p.Name)))) // relational property's name is the columnId
+                            ConstructIdForCombinationOfColumns(
+                                foreignKeyConstraintRelationalPropertyList
+                                    .Select(p => p.Name)))) // relational property's name is the columnId
                         {
                             codeGenForeignKey.IsUnique = true;
                         }
@@ -524,9 +530,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return string.Join(string.Empty, listOfColumnIds.OrderBy(columnId => columnId));
         }
 
-
         public virtual string NavigationUniquifier(
-            [NotNull] string proposedIdentifier, [CanBeNull]ICollection<string> existingIdentifiers)
+            [NotNull] string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
         {
             if (existingIdentifiers == null
                 || !existingIdentifiers.Contains(proposedIdentifier))
@@ -534,12 +539,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 return proposedIdentifier;
             }
 
-            string finalIdentifier =
+            var finalIdentifier =
                 string.Format(CultureInfo.CurrentCulture, NavigationNameUniquifyingPattern, proposedIdentifier);
             var suffix = 1;
             while (existingIdentifiers.Contains(finalIdentifier))
             {
-                finalIdentifier = proposedIdentifier + suffix.ToString();
+                finalIdentifier = proposedIdentifier + suffix;
                 suffix++;
             }
 
@@ -640,7 +645,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        public virtual string ReadFromResource([NotNull]Assembly assembly, [NotNull]string resourceName)
+        public virtual string ReadFromResource([NotNull] Assembly assembly, [NotNull] string resourceName)
         {
             Check.NotNull(assembly, nameof(assembly));
             Check.NotEmpty(resourceName, nameof(resourceName));

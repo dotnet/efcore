@@ -15,13 +15,13 @@ namespace Microsoft.Data.Entity.Utilities
     {
         public static IOrderedEnumerable<TSource> OrderByOrdinal<TSource>(
             [NotNull] this IEnumerable<TSource> source,
-            [NotNull] Func<TSource, string> keySelector) 
+            [NotNull] Func<TSource, string> keySelector)
             => source.OrderBy(keySelector, StringComparer.Ordinal);
 
         public static IEnumerable<T> Distinct<T>(
             [NotNull] this IEnumerable<T> source,
             [NotNull] Func<T, T, bool> comparer)
-            where T : class 
+            where T : class
             => source.Distinct(new DynamicEqualityComparer<T>(comparer));
 
         private sealed class DynamicEqualityComparer<T> : IEqualityComparer<T>
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public static string Join(
             [NotNull] this IEnumerable<object> source,
-            [NotNull] string separator = ", ") 
+            [NotNull] string separator = ", ")
             => string.Join(separator, source);
 
         public static bool StructuralSequenceEqual<TSource>(

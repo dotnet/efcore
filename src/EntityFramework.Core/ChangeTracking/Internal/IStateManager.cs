@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         InternalEntityEntry StartTracking(
             [NotNull] IEntityType entityType,
-            [NotNull] EntityKey entityKey, 
-            [NotNull] object entity, 
+            [NotNull] EntityKey entityKey,
+            [NotNull] object entity,
             ValueBuffer valueBuffer);
 
         InternalEntityEntry TryGetEntry([NotNull] EntityKey keyValue);

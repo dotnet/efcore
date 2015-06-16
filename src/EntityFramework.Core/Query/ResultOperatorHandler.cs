@@ -21,27 +21,27 @@ namespace Microsoft.Data.Entity.Query
     {
         private static readonly Dictionary<Type, ResultHandler> _handlers
             = new Dictionary<Type, ResultHandler>
-                {
-                    { typeof(AllResultOperator), (v, r, q) => HandleAll(v, (AllResultOperator)r, q) },
-                    { typeof(AnyResultOperator), (v, _, __) => HandleAny(v) },
-                    { typeof(AverageResultOperator), (v, _, __) => HandleAverage(v) },
-                    { typeof(CastResultOperator), (v, r, __) => HandleCast(v, (CastResultOperator)r) },
-                    { typeof(CountResultOperator), (v, _, __) => HandleCount(v) },
-                    { typeof(ContainsResultOperator), (v, r, q) => HandleContains(v, (ContainsResultOperator)r, q) },
-                    { typeof(DefaultIfEmptyResultOperator), (v, r, q) => HandleDefaultIfEmpty(v, (DefaultIfEmptyResultOperator)r, q) },
-                    { typeof(DistinctResultOperator), (v, _, __) => HandleDistinct(v) },
-                    { typeof(FirstResultOperator), (v, r, __) => HandleFirst(v, (ChoiceResultOperatorBase)r) },
-                    { typeof(GroupResultOperator), (v, r, q) => HandleGroup(v, (GroupResultOperator)r, q) },
-                    { typeof(LastResultOperator), (v, r, __) => HandleLast(v, (ChoiceResultOperatorBase)r) },
-                    { typeof(LongCountResultOperator), (v, _, __) => HandleLongCount(v) },
-                    { typeof(MinResultOperator), (v, _, __) => HandleMin(v) },
-                    { typeof(MaxResultOperator), (v, _, __) => HandleMax(v) },
-                    { typeof(OfTypeResultOperator), (v, r, q) => HandleOfType(v, (OfTypeResultOperator)r) },
-                    { typeof(SingleResultOperator), (v, r, __) => HandleSingle(v, (ChoiceResultOperatorBase)r) },
-                    { typeof(SkipResultOperator), (v, r, __) => HandleSkip(v, (SkipResultOperator)r) },
-                    { typeof(SumResultOperator), (v, _, __) => HandleSum(v) },
-                    { typeof(TakeResultOperator), (v, r, __) => HandleTake(v, (TakeResultOperator)r) }
-                };
+            {
+                { typeof(AllResultOperator), (v, r, q) => HandleAll(v, (AllResultOperator)r, q) },
+                { typeof(AnyResultOperator), (v, _, __) => HandleAny(v) },
+                { typeof(AverageResultOperator), (v, _, __) => HandleAverage(v) },
+                { typeof(CastResultOperator), (v, r, __) => HandleCast(v, (CastResultOperator)r) },
+                { typeof(CountResultOperator), (v, _, __) => HandleCount(v) },
+                { typeof(ContainsResultOperator), (v, r, q) => HandleContains(v, (ContainsResultOperator)r, q) },
+                { typeof(DefaultIfEmptyResultOperator), (v, r, q) => HandleDefaultIfEmpty(v, (DefaultIfEmptyResultOperator)r, q) },
+                { typeof(DistinctResultOperator), (v, _, __) => HandleDistinct(v) },
+                { typeof(FirstResultOperator), (v, r, __) => HandleFirst(v, (ChoiceResultOperatorBase)r) },
+                { typeof(GroupResultOperator), (v, r, q) => HandleGroup(v, (GroupResultOperator)r, q) },
+                { typeof(LastResultOperator), (v, r, __) => HandleLast(v, (ChoiceResultOperatorBase)r) },
+                { typeof(LongCountResultOperator), (v, _, __) => HandleLongCount(v) },
+                { typeof(MinResultOperator), (v, _, __) => HandleMin(v) },
+                { typeof(MaxResultOperator), (v, _, __) => HandleMax(v) },
+                { typeof(OfTypeResultOperator), (v, r, q) => HandleOfType(v, (OfTypeResultOperator)r) },
+                { typeof(SingleResultOperator), (v, r, __) => HandleSingle(v, (ChoiceResultOperatorBase)r) },
+                { typeof(SkipResultOperator), (v, r, __) => HandleSkip(v, (SkipResultOperator)r) },
+                { typeof(SumResultOperator), (v, _, __) => HandleSum(v) },
+                { typeof(TakeResultOperator), (v, r, __) => HandleTake(v, (TakeResultOperator)r) }
+            };
 
         public virtual Expression HandleResultOperator(
             EntityQueryModelVisitor entityQueryModelVisitor,
@@ -283,11 +283,11 @@ namespace Microsoft.Data.Entity.Query
                     arguments
                         .AsEnumerable()
                         .Concat(new[]
-                            {
-                                Expression.Property(
-                                    EntityQueryModelVisitor.QueryContextParameter,
-                                    _cancellationTokenProperty)
-                            }));
+                        {
+                            Expression.Property(
+                                EntityQueryModelVisitor.QueryContextParameter,
+                                _cancellationTokenProperty)
+                        }));
             }
 
             return Expression.Call(methodInfo, arguments);

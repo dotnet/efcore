@@ -29,15 +29,15 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(type, nameof(type));
 
             var operation = new AddColumnOperation
-                {
-                    Schema = schema,
-                    Table = table,
-                    Name = name,
-                    Type = type,
-                    IsNullable = nullable,
-                    DefaultValue = defaultValue,
-                    DefaultExpression = defaultExpression
-                };
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                Type = type,
+                IsNullable = nullable,
+                DefaultValue = defaultValue,
+                DefaultExpression = defaultExpression
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<AddColumnOperation>(operation);
@@ -81,17 +81,17 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(referencedTable, nameof(referencedTable));
 
             var operation = new AddForeignKeyOperation
-                {
-                    Schema = schema,
-                    Table = table,
-                    Name = name,
-                    Columns = columns,
-                    ReferencedSchema = referencedSchema,
-                    ReferencedTable = referencedTable,
-                    ReferencedColumns = referencedColumns,
-                    OnUpdate = onUpdate,
-                    OnDelete = onDelete
-                };
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                Columns = columns,
+                ReferencedSchema = referencedSchema,
+                ReferencedTable = referencedTable,
+                ReferencedColumns = referencedColumns,
+                OnUpdate = onUpdate,
+                OnDelete = onDelete
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<AddForeignKeyOperation>(operation);
@@ -119,12 +119,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(columns, nameof(columns));
 
             var operation = new AddPrimaryKeyOperation
-                {
-                    Schema = schema,
-                    Table = table,
-                    Name = name,
-                    Columns = columns
-                };
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                Columns = columns
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<AddPrimaryKeyOperation>(operation);
@@ -152,12 +152,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(columns, nameof(columns));
 
             var operation = new AddUniqueConstraintOperation
-                {
-                    Schema = schema,
-                    Table = table,
-                    Name = name,
-                    Columns = columns
-                };
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                Columns = columns
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<AddUniqueConstraintOperation>(operation);
@@ -176,15 +176,15 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(table, nameof(table));
 
             var operation = new AlterColumnOperation
-                {
-                    Schema = schema,
-                    Table = table,
-                    Name = name,
-                    Type = type,
-                    IsNullable = nullable,
-                    DefaultValue = defaultValue,
-                    DefaultExpression = defaultExpression
-                };
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                Type = type,
+                IsNullable = nullable,
+                DefaultValue = defaultValue,
+                DefaultExpression = defaultExpression
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<AlterColumnOperation>(operation);
@@ -201,14 +201,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(name, nameof(name));
 
             var operation = new AlterSequenceOperation
-                {
-                    Schema = schema,
-                    Name = name,
-                    IncrementBy = incrementBy,
-                    MinValue = minValue,
-                    MaxValue = maxValue,
-                    Cycle = cycle
-                };
+            {
+                Schema = schema,
+                Name = name,
+                IncrementBy = incrementBy,
+                MinValue = minValue,
+                MaxValue = maxValue,
+                Cycle = cycle
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<AlterSequenceOperation>(operation);
@@ -239,13 +239,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(columns, nameof(columns));
 
             var operation = new CreateIndexOperation
-                {
-                    Schema = schema,
-                    Table = table,
-                    Name = name,
-                    Columns = columns,
-                    IsUnique = unique
-                };
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                Columns = columns,
+                IsUnique = unique
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<CreateIndexOperation>(operation);
@@ -257,9 +257,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(name, nameof(name));
 
             var operation = new CreateSchemaOperation
-                {
-                    Name = name
-                };
+            {
+                Name = name
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<CreateSchemaOperation>(operation);
@@ -278,16 +278,16 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(name, nameof(name));
 
             var operation = new CreateSequenceOperation
-                {
-                    Schema = schema,
-                    Name = name,
-                    Type = type,
-                    StartWith = startWith,
-                    IncrementBy = incrementBy,
-                    MinValue = minValue,
-                    MaxValue = maxValue,
-                    Cycle = cycle
-                };
+            {
+                Schema = schema,
+                Name = name,
+                Type = type,
+                StartWith = startWith,
+                IncrementBy = incrementBy,
+                MinValue = minValue,
+                MaxValue = maxValue,
+                Cycle = cycle
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<CreateSequenceOperation>(operation);
@@ -303,10 +303,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotNull(columns, nameof(columns));
 
             var createTableOperation = new CreateTableOperation
-                {
-                    Schema = schema,
-                    Name = name
-                };
+            {
+                Schema = schema,
+                Name = name
+            };
 
             var columnsBuilder = new ColumnsBuilder(createTableOperation);
             var columnsObject = columns(columnsBuilder);
@@ -341,11 +341,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(table, nameof(table));
 
             var operation = new DropColumnOperation
-                {
-                    Schema = schema,
-                    Table = table,
-                    Name = name
-                };
+            {
+                Schema = schema,
+                Table = table,
+                Name = name
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<DropColumnOperation>(operation);
@@ -360,11 +360,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(table, nameof(table));
 
             var operation = new DropForeignKeyOperation
-                {
-                    Schema = schema,
-                    Table = table,
-                    Name = name
-                };
+            {
+                Schema = schema,
+                Table = table,
+                Name = name
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<DropForeignKeyOperation>(operation);
@@ -378,11 +378,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(name, nameof(name));
 
             var operation = new DropIndexOperation
-                {
-                    Schema = schema,
-                    Table = table,
-                    Name = name
-                };
+            {
+                Schema = schema,
+                Table = table,
+                Name = name
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<DropIndexOperation>(operation);
@@ -397,11 +397,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(table, nameof(table));
 
             var operation = new DropPrimaryKeyOperation
-                {
-                    Schema = schema,
-                    Table = table,
-                    Name = name
-                };
+            {
+                Schema = schema,
+                Table = table,
+                Name = name
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<DropPrimaryKeyOperation>(operation);
@@ -413,9 +413,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(name, nameof(name));
 
             var operation = new DropSchemaOperation
-                {
-                    Name = name
-                };
+            {
+                Name = name
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<DropSchemaOperation>(operation);
@@ -428,10 +428,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(name, nameof(name));
 
             var operation = new DropSequenceOperation
-                {
-                    Schema = schema,
-                    Name = name
-                };
+            {
+                Schema = schema,
+                Name = name
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<DropSequenceOperation>(operation);
@@ -444,10 +444,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(name, nameof(name));
 
             var operation = new DropTableOperation
-                {
-                    Schema = schema,
-                    Name = name
-                };
+            {
+                Schema = schema,
+                Name = name
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<DropTableOperation>(operation);
@@ -462,11 +462,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(table, nameof(table));
 
             var operation = new DropUniqueConstraintOperation
-                {
-                    Schema = schema,
-                    Table = table,
-                    Name = name
-                };
+            {
+                Schema = schema,
+                Table = table,
+                Name = name
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<DropUniqueConstraintOperation>(operation);
@@ -483,12 +483,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(newName, nameof(newName));
 
             var operation = new RenameColumnOperation
-                {
-                    Name = name,
-                    Schema = schema,
-                    Table = table,
-                    NewName = newName
-                };
+            {
+                Name = name,
+                Schema = schema,
+                Table = table,
+                NewName = newName
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<RenameColumnOperation>(operation);
@@ -504,12 +504,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(newName, nameof(newName));
 
             var operation = new RenameIndexOperation
-                {
-                    Schema = schema,
-                    Table = table,
-                    Name = name,
-                    NewName = newName
-                };
+            {
+                Schema = schema,
+                Table = table,
+                Name = name,
+                NewName = newName
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<RenameIndexOperation>(operation);
@@ -524,12 +524,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(name, nameof(name));
 
             var operation = new RenameSequenceOperation
-                {
-                    Name = name,
-                    Schema = schema,
-                    NewName = newName,
-                    NewSchema = newSchema
-                };
+            {
+                Name = name,
+                Schema = schema,
+                NewName = newName,
+                NewSchema = newSchema
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<RenameSequenceOperation>(operation);
@@ -544,12 +544,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(name, nameof(name));
 
             var operation = new RenameTableOperation
-                {
-                    Schema = schema,
-                    Name = name,
-                    NewName = newName,
-                    NewSchema = newSchema
-                };
+            {
+                Schema = schema,
+                Name = name,
+                NewName = newName,
+                NewSchema = newSchema
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<RenameTableOperation>(operation);
@@ -563,11 +563,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(name, nameof(name));
 
             var operation = new RestartSequenceOperation
-                {
-                    Name = name,
-                    Schema = schema,
-                    RestartWith = with
-                };
+            {
+                Name = name,
+                Schema = schema,
+                RestartWith = with
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<RestartSequenceOperation>(operation);
@@ -580,10 +580,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(sql, nameof(sql));
 
             var operation = new SqlOperation
-                {
-                    Sql = sql,
-                    SuppressTransaction = suppressTransaction
-                };
+            {
+                Sql = sql,
+                SuppressTransaction = suppressTransaction
+            };
             Operations.Add(operation);
 
             return new OperationBuilder<SqlOperation>(operation);

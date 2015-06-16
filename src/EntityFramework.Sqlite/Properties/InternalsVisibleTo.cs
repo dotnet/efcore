@@ -6,4 +6,5 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("EntityFramework.Sqlite.Tests")]
 
 // for Moq
+
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

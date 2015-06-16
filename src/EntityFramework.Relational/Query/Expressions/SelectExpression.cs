@@ -49,14 +49,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var selectExpression
                 = new SelectExpression(alias)
-                    {
-                        _limit = _limit,
-                        _offset = _offset,
-                        _isDistinct = _isDistinct,
-                        _subqueryDepth = _subqueryDepth,
-                        _projectStar = _projectStar,
-                        Predicate = Predicate
-                    };
+                {
+                    _limit = _limit,
+                    _offset = _offset,
+                    _isDistinct = _isDistinct,
+                    _subqueryDepth = _subqueryDepth,
+                    _projectStar = _projectStar,
+                    Predicate = Predicate
+                };
 
             selectExpression._projection.AddRange(_projection);
 
@@ -70,10 +70,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual bool IsProjectStar => _projectStar;
 
-        public virtual void AddTable([NotNull] TableExpressionBase tableExpression) 
+        public virtual void AddTable([NotNull] TableExpressionBase tableExpression)
             => _tables.Add(Check.NotNull(tableExpression, nameof(tableExpression)));
 
-        public virtual void AddTables([NotNull] IEnumerable<TableExpressionBase> tableExpressions) 
+        public virtual void AddTables([NotNull] IEnumerable<TableExpressionBase> tableExpressions)
             => _tables.AddRange(Check.NotNull(tableExpressions, nameof(tableExpressions)));
 
         public virtual void ClearTables() => _tables.Clear();

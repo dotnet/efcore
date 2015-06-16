@@ -11,10 +11,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
 
         public static bool IsMono
         {
-            get
-            {
-                return _isMono.Value;
-            }
+            get { return _isMono.Value; }
         }
     }
 }

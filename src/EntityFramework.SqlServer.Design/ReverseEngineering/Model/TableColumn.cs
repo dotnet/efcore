@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using System.Data.SqlClient;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
     public class TableColumn
     {
         public const string Query =
-@"SELECT
+            @"SELECT
     quotename(c.TABLE_SCHEMA) + quotename(c.TABLE_NAME) + quotename(c.COLUMN_NAME) [Id]
   , quotename(c.TABLE_SCHEMA) + quotename(c.TABLE_NAME) [ParentId]
   , c.COLUMN_NAME [Name]
@@ -74,19 +74,19 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
         public override string ToString()
         {
             return "TC[Id=" + Id
-                + ", TableId=" + TableId
-                + ", ColumnName=" + ColumnName
-                + ", Ordinal=" + Ordinal
-                + ", IsNullable=" + IsNullable
-                + ", DataType=" + DataType
-                + ", MaxLength=" + MaxLength
-                + ", NumericPrecision=" + NumericPrecision
-                + ", DateTimePrecision=" + DateTimePrecision
-                + ", Scale=" + Scale
-                + ", IsIdentity=" + IsIdentity
-                + ", IsStoreGenerated=" + IsStoreGenerated
-                + ", DefaultValue=" + DefaultValue
-                + "]";
+                   + ", TableId=" + TableId
+                   + ", ColumnName=" + ColumnName
+                   + ", Ordinal=" + Ordinal
+                   + ", IsNullable=" + IsNullable
+                   + ", DataType=" + DataType
+                   + ", MaxLength=" + MaxLength
+                   + ", NumericPrecision=" + NumericPrecision
+                   + ", DateTimePrecision=" + DateTimePrecision
+                   + ", Scale=" + Scale
+                   + ", IsIdentity=" + IsIdentity
+                   + ", IsStoreGenerated=" + IsStoreGenerated
+                   + ", DefaultValue=" + DefaultValue
+                   + "]";
         }
     }
 }

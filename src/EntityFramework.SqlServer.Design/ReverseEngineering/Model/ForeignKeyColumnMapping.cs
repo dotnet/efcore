@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using System.Data.SqlClient;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
     public class ForeignKeyColumnMapping
     {
         public const string Query =
-@"SELECT
+            @"SELECT
     quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) + quotename(SCHEMA_NAME(fromSchema.schema_id)) + quotename(OBJECT_NAME(fk.parent_object_id)) + quotename(fromCol.name) [Id]
   , quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) [ConstraintId]
   , quotename(SCHEMA_NAME(fromSchema.schema_id)) + quotename(OBJECT_NAME(fk.parent_object_id)) + quotename(fromCol.name) [FromColumnId]
@@ -28,6 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
   INNER JOIN
   sys.objects fromSchema ON fromSchema.object_id = fk.parent_object_id
 ";
+
         public virtual string Id { get; [param: CanBeNull] set; }
         public virtual string ConstraintId { get; [param: CanBeNull] set; }
         public virtual string FromColumnId { get; [param: CanBeNull] set; }
@@ -49,10 +50,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
         public override string ToString()
         {
             return "FKCM[Id=" + Id
-                + ", ConstraintId=" + ConstraintId
-                + ", FromColumnId=" + FromColumnId
-                + ", ToColumnId=" + ToColumnId
-                + "]";
+                   + ", ConstraintId=" + ConstraintId
+                   + ", FromColumnId=" + FromColumnId
+                   + ", ToColumnId=" + ToColumnId
+                   + "]";
         }
     }
 }

@@ -10,14 +10,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 {
     public class EntityConfiguration
     {
-        public EntityConfiguration([NotNull]IEntityType entityType)
+        public EntityConfiguration([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
             EntityType = entityType;
         }
 
-        public virtual IEntityType EntityType { get;[param: NotNull]private set; }
+        public virtual IEntityType EntityType { get; [param: NotNull] private set; }
         public virtual List<FacetConfiguration> FacetConfigurations { get; } = new List<FacetConfiguration>();
         public virtual List<PropertyConfiguration> PropertyConfigurations { get; } = new List<PropertyConfiguration>();
         public virtual List<NavigationConfiguration> NavigationConfigurations { get; } = new List<NavigationConfiguration>();

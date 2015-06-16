@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var primaryKeyProperties = 
+            var primaryKeyProperties =
                 ((EntityType)entityType).FindPrimaryKey()?.Properties.ToList()
                 ?? Enumerable.Empty<Property>();
 
@@ -52,8 +52,8 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
 
             foreach (var property in
                 entityType.GetProperties()
-                .Except(primaryKeyProperties)
-                .OrderBy(p => p.Name))
+                    .Except(primaryKeyProperties)
+                    .OrderBy(p => p.Name))
             {
                 yield return property;
             }
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
             return foreignKey.EntityType.DisplayName();
         }
 
-        public virtual string ConstructNavigationConfiguration([NotNull]NavigationConfiguration navigationConfiguration)
+        public virtual string ConstructNavigationConfiguration([NotNull] NavigationConfiguration navigationConfiguration)
         {
             Check.NotNull(navigationConfiguration, nameof(navigationConfiguration));
 
@@ -137,11 +137,12 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
 
             var prefixLength = 0;
             var firstString = stringsEnumerable.First();
-            foreach (char c in firstString)
+            foreach (var c in firstString)
             {
-                foreach(var s in stringsEnumerable)
+                foreach (var s in stringsEnumerable)
                 {
-                    if (s.Length <= prefixLength || s[prefixLength] != c)
+                    if (s.Length <= prefixLength
+                        || s[prefixLength] != c)
                     {
                         return firstString.Substring(0, prefixLength);
                     }

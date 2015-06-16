@@ -57,10 +57,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     </para>
         ///     <para>
         ///         The default value is true. This ensures the context is aware of any changes to tracked entity instances
-        ///         before performing operations such as <see cref="DbContext.SaveChanges()" /> or returning change tracking 
+        ///         before performing operations such as <see cref="DbContext.SaveChanges()" /> or returning change tracking
         ///         information. If you disable automatic detect changes then you must ensure that
         ///         <see cref="DetectChanges" /> is called when entity instances have been modified.
-        ///         Failure to do so may result in some changes not being persisted during 
+        ///         Failure to do so may result in some changes not being persisted during
         ///         <see cref="DbContext.SaveChanges()" /> or out-of-date change tracking information being returned.
         ///     </para>
         /// </summary>
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// <summary>
         ///     <para>
         ///         Begins tracking an entity and any entities that are reachable by traversing it's navigation properties.
-        ///         Traversal is recursive so the navigation properties of any discovered entities will also be scanned. 
+        ///         Traversal is recursive so the navigation properties of any discovered entities will also be scanned.
         ///         The specified <paramref name="callback" /> is called for each discovered entity and must set the
         ///         <see cref="EntityEntry.State" /> that each entity should be tracked in. If no state is set, the entity
         ///         remains untracked.

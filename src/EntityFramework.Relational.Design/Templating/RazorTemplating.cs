@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNet.Razor;
-using Microsoft.CodeAnalysis;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 using Microsoft.Data.Entity.Utilities;
@@ -17,11 +16,11 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
 {
     public class RazorTemplating : ITemplating
     {
-        private ICompilationService _compilationService;
-        private MetadataReferencesProvider _metadataReferencesProvider;
+        private readonly ICompilationService _compilationService;
+        private readonly MetadataReferencesProvider _metadataReferencesProvider;
 
-        public RazorTemplating([NotNull]ICompilationService compilationService,
-            [NotNull]MetadataReferencesProvider metadataReferencesProvider)
+        public RazorTemplating([NotNull] ICompilationService compilationService,
+            [NotNull] MetadataReferencesProvider metadataReferencesProvider)
         {
             Check.NotNull(compilationService, nameof(compilationService));
             Check.NotNull(metadataReferencesProvider, nameof(metadataReferencesProvider));
@@ -34,8 +33,8 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
             dynamic templateModel, IDatabaseMetadataModelProvider provider,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            RazorTemplatingHost host = new RazorTemplatingHost(typeof(RazorReverseEngineeringBase));
-            RazorTemplateEngine engine = new RazorTemplateEngine(host);
+            var host = new RazorTemplatingHost(typeof(RazorReverseEngineeringBase));
+            var engine = new RazorTemplateEngine(host);
 
             using (var reader = new StringReader(content))
             {
@@ -44,7 +43,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
                 if (!generatorResults.Success)
                 {
                     var messages = generatorResults.ParserErrors.Select(e => e.Message);
-                    return new TemplateResult()
+                    return new TemplateResult
                     {
                         GeneratedText = string.Empty,
                         ProcessingException = new TemplateProcessingException(messages, generatorResults.GeneratedCode)
@@ -56,7 +55,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
                 var templateResult = _compilationService.Compile(generatorResults.GeneratedCode, references);
                 if (templateResult.Messages.Any())
                 {
-                    return new TemplateResult()
+                    return new TemplateResult
                     {
                         GeneratedText = string.Empty,
                         ProcessingException = new TemplateProcessingException(templateResult.Messages, generatorResults.GeneratedCode)
@@ -66,7 +65,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
                 var compiledObject = Activator.CreateInstance(templateResult.CompiledType);
                 var razorTemplate = compiledObject as RazorReverseEngineeringBase;
 
-                string result = String.Empty;
+                var result = String.Empty;
                 if (razorTemplate != null)
                 {
                     razorTemplate.Model = templateModel;
@@ -74,7 +73,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
                     result = await razorTemplate.ExecuteTemplateAsync();
                 }
 
-                return new TemplateResult()
+                return new TemplateResult
                 {
                     GeneratedText = result,
                     ProcessingException = null

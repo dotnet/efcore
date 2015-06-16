@@ -13,6 +13,6 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         {
         }
 
-        protected virtual new Model Model => (Model)base.Model;
+        protected new virtual Model Model => (Model)base.Model;
     }
 }

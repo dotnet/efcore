@@ -13,15 +13,15 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
     public class SqlServerNameMapper
     {
-        private IModel _sourceModel;
-        private Func<IEntityType, string> _defaultEntityNameFunc;
-        private Func<IProperty, string> _defaultPropertyNameFunc;
+        private readonly IModel _sourceModel;
+        private readonly Func<IEntityType, string> _defaultEntityNameFunc;
+        private readonly Func<IProperty, string> _defaultPropertyNameFunc;
         private Dictionary<IEntityType, string> _entityTypeToClassNameMap;
         private Dictionary<IProperty, string> _propertyToPropertyNameMap;
 
-        public SqlServerNameMapper([NotNull]IModel sourceModel,
-            [NotNull]Func<IEntityType, string> defaultEntityNameFunc,
-            [NotNull]Func<IProperty, string> defaultPropertyNameFunc)
+        public SqlServerNameMapper([NotNull] IModel sourceModel,
+            [NotNull] Func<IEntityType, string> defaultEntityNameFunc,
+            [NotNull] Func<IProperty, string> defaultPropertyNameFunc)
         {
             Check.NotNull(defaultEntityNameFunc, nameof(defaultEntityNameFunc));
             Check.NotNull(defaultPropertyNameFunc, nameof(defaultPropertyNameFunc));
@@ -75,12 +75,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             // use local propertyToPropertyNameMap to ensure no clashes in Property names
             // within an EntityType but to allow them for properties in different EntityTypes.
             // Also name of Property cannot be the same as the name of the enclosing EntityType.
-            var entityTypeName = new string[] { _entityTypeToClassNameMap[entityType] };
+            var entityTypeName = new[] { _entityTypeToClassNameMap[entityType] };
             var propertyToPropertyNameMap = new Dictionary<IProperty, string>();
             foreach (var property in entityType.GetProperties())
             {
                 var existingNames = propertyToPropertyNameMap.Values
-                                        .Concat(entityTypeName).ToList();
+                    .Concat(entityTypeName).ToList();
                 propertyToPropertyNameMap[property] =
                     CSharpUtilities.Instance.GenerateCSharpIdentifier(
                         _defaultPropertyNameFunc(property),

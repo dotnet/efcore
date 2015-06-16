@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
 {
     public class CSharpUtilities
     {
-        private static readonly HashSet<string> _cSharpKeywords = new HashSet<string>()
+        private static readonly HashSet<string> _cSharpKeywords = new HashSet<string>
         {
             "abstract",
             "as",
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             "virtual",
             "void",
             "volatile",
-            "while",
+            "while"
         };
 
         private static readonly Regex _invalidCharsRegex
@@ -99,15 +99,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
                 default(RegexOptions),
                 TimeSpan.FromMilliseconds(1000.0));
 
-        private static readonly CSharpUtilities _instance = new CSharpUtilities();
-
-        public static CSharpUtilities Instance
-        {
-            get
-            {
-                return _instance;
-            }
-        }
+        public static CSharpUtilities Instance { get; } = new CSharpUtilities();
 
         public virtual string DelimitString([NotNull] string value)
         {
@@ -216,13 +208,13 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
         }
 
         public virtual string GenerateCSharpIdentifier(
-            [NotNull] string identifier, [CanBeNull]ICollection<string> existingIdentifiers)
+            [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers)
         {
             return GenerateCSharpIdentifier(identifier, existingIdentifiers, Uniquifier);
         }
 
         public virtual string GenerateCSharpIdentifier(
-            [NotNull] string identifier, [CanBeNull]ICollection<string> existingIdentifiers,
+            [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers,
             [NotNull] Func<string, ICollection<string>, string> uniquifier)
         {
             Check.NotEmpty(identifier, nameof(identifier));
@@ -230,15 +222,17 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
 
             var proposedIdentifier =
                 (identifier.Length > 1 && identifier[0] == '@')
-                ? "@" + _invalidCharsRegex.Replace(identifier.Substring(1), "_")
-                : _invalidCharsRegex.Replace(identifier, "_");
+                    ? "@" + _invalidCharsRegex.Replace(identifier.Substring(1), "_")
+                    : _invalidCharsRegex.Replace(identifier, "_");
             if (string.IsNullOrEmpty(proposedIdentifier))
             {
                 proposedIdentifier = "_";
             }
 
             var firstChar = proposedIdentifier[0];
-            if (!char.IsLetter(firstChar) && firstChar != '_' && firstChar != '@')
+            if (!char.IsLetter(firstChar)
+                && firstChar != '_'
+                && firstChar != '@')
             {
                 proposedIdentifier = "_" + proposedIdentifier;
             }
@@ -251,7 +245,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
         }
 
         public virtual string Uniquifier(
-            [NotNull] string proposedIdentifier, [CanBeNull]ICollection<string> existingIdentifiers)
+            [NotNull] string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
         {
             Check.NotEmpty(proposedIdentifier, nameof(proposedIdentifier));
 
@@ -260,11 +254,11 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
                 return proposedIdentifier;
             }
 
-            string finalIdentifier = proposedIdentifier;
+            var finalIdentifier = proposedIdentifier;
             var suffix = 1;
             while (existingIdentifiers.Contains(finalIdentifier))
             {
-                finalIdentifier = proposedIdentifier + suffix.ToString();
+                finalIdentifier = proposedIdentifier + suffix;
                 suffix++;
             }
 

@@ -36,8 +36,8 @@ namespace Microsoft.Data.Entity.Storage
         {
             Debug.Assert(offset >= _offset);
 
-            return offset > _offset 
-                ? new ValueBuffer(_values, offset) 
+            return offset > _offset
+                ? new ValueBuffer(_values, offset)
                 : this;
         }
     }

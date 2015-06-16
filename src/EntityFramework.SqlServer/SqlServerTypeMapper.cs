@@ -43,54 +43,54 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             _simpleNameMappings
                 = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        { "datetime2", _datetime2 },
-                        { "char", _char },
-                        { "character", _char },
-                        { "varchar", _varchar },
-                        { "char varying", _varchar },
-                        { "character varying", _varchar },
-                        { "varchar(max)", _varcharmax },
-                        { "char varying(max)", _varcharmax },
-                        { "character varying(max)", _varcharmax },
-                        { "nchar", _nchar },
-                        { "national character", _nchar },
-                        { "nvarchar", _nvarchar },
-                        { "national char varying", _nvarchar },
-                        { "national character varying", _nvarchar },
-                        { "text", _varchar },
-                        { "ntext", _nvarchar },
-                        { "binary", _varbinary },
-                        { "varbinary", _varbinary },
-                        { "binary varying", _varbinary },
-                        { "rowversion", _rowversion },
-                        { "timestamp", _rowversion },
-                        { "decimal", _decimal },
-                        { "dec", _decimal },
-                        { "numeric", _decimal }
-                    };
+                {
+                    { "datetime2", _datetime2 },
+                    { "char", _char },
+                    { "character", _char },
+                    { "varchar", _varchar },
+                    { "char varying", _varchar },
+                    { "character varying", _varchar },
+                    { "varchar(max)", _varcharmax },
+                    { "char varying(max)", _varcharmax },
+                    { "character varying(max)", _varcharmax },
+                    { "nchar", _nchar },
+                    { "national character", _nchar },
+                    { "nvarchar", _nvarchar },
+                    { "national char varying", _nvarchar },
+                    { "national character varying", _nvarchar },
+                    { "text", _varchar },
+                    { "ntext", _nvarchar },
+                    { "binary", _varbinary },
+                    { "varbinary", _varbinary },
+                    { "binary varying", _varbinary },
+                    { "rowversion", _rowversion },
+                    { "timestamp", _rowversion },
+                    { "decimal", _decimal },
+                    { "dec", _decimal },
+                    { "numeric", _decimal }
+                };
 
             _simpleMappings
                 = new Dictionary<Type, RelationalTypeMapping>
-                    {
-                        { typeof(int), _int },
-                        { typeof(long), _bigint },
-                        { typeof(DateTime), _datetime2 },
-                        { typeof(Guid), _uniqueidentifier },
-                        { typeof(bool), _bit },
-                        { typeof(byte), _tinyint },
-                        { typeof(double), _double },
-                        { typeof(DateTimeOffset), _datetimeoffset },
-                        { typeof(char), _int },
-                        { typeof(sbyte), new RelationalTypeMapping("smallint") },
-                        { typeof(ushort), new RelationalTypeMapping("int") },
-                        { typeof(uint), new RelationalTypeMapping("bigint") },
-                        { typeof(ulong), new RelationalTypeMapping("numeric(20, 0)") },
-                        { typeof(short), _smallint },
-                        { typeof(float), _real },
-                        { typeof(decimal), _decimal },
-                        { typeof(TimeSpan), _time }
-                    };
+                {
+                    { typeof(int), _int },
+                    { typeof(long), _bigint },
+                    { typeof(DateTime), _datetime2 },
+                    { typeof(Guid), _uniqueidentifier },
+                    { typeof(bool), _bit },
+                    { typeof(byte), _tinyint },
+                    { typeof(double), _double },
+                    { typeof(DateTimeOffset), _datetimeoffset },
+                    { typeof(char), _int },
+                    { typeof(sbyte), new RelationalTypeMapping("smallint") },
+                    { typeof(ushort), new RelationalTypeMapping("int") },
+                    { typeof(uint), new RelationalTypeMapping("bigint") },
+                    { typeof(ulong), new RelationalTypeMapping("numeric(20, 0)") },
+                    { typeof(short), _smallint },
+                    { typeof(float), _real },
+                    { typeof(decimal), _decimal },
+                    { typeof(TimeSpan), _time }
+                };
         }
 
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings

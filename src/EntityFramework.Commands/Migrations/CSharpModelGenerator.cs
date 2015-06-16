@@ -17,10 +17,10 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         private readonly CSharpHelper _code;
 
         private static readonly List<string> _ignoredAnnotations = new List<string>
-            {
-                CoreAnnotationNames.OriginalValueIndexAnnotation,
-                CoreAnnotationNames.ShadowIndexAnnotation
-            };
+        {
+            CoreAnnotationNames.OriginalValueIndexAnnotation,
+            CoreAnnotationNames.ShadowIndexAnnotation
+        };
 
         public CSharpModelGenerator([NotNull] CSharpHelper code)
         {
@@ -268,7 +268,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
             stringBuilder.Append(";");
         }
-
 
         protected virtual void GenerateEntityTypeAnnotations([NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder stringBuilder)
         {

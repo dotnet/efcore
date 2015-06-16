@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            return specificVisitor != null 
-                ? specificVisitor.VisitMax(this) 
+            return specificVisitor != null
+                ? specificVisitor.VisitMax(this)
                 : base.Accept(visitor);
         }
     }

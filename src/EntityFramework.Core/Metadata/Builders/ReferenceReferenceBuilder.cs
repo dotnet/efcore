@@ -142,8 +142,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         }
 
         public virtual ReferenceReferenceBuilder PrincipalKey(
-                    [NotNull] string principalEntityTypeName,
-                    [NotNull] params string[] keyPropertyNames)
+            [NotNull] string principalEntityTypeName,
+            [NotNull] params string[] keyPropertyNames)
         {
             Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
             Check.NotNull(keyPropertyNames, nameof(keyPropertyNames));

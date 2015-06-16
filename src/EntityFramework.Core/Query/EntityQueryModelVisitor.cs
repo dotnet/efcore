@@ -361,10 +361,10 @@ namespace Microsoft.Data.Entity.Query
                                 .Invoke(
                                     null,
                                     new object[]
-                                        {
-                                            entityTrackingInfos,
-                                            queryModel.SelectClause.Selector
-                                        })));
+                                    {
+                                        entityTrackingInfos,
+                                        queryModel.SelectClause.Selector
+                                    })));
             }
         }
 

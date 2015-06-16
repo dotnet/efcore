@@ -28,15 +28,15 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             Check.NotEmpty(type, nameof(type));
 
             var operation = new AddColumnOperation
-                {
-                    Schema = _createTableOperation.Schema,
-                    Table = _createTableOperation.Name,
-                    Name = name,
-                    Type = type,
-                    IsNullable = nullable,
-                    DefaultValue = defaultValue,
-                    DefaultExpression = defaultExpression
-                };
+            {
+                Schema = _createTableOperation.Schema,
+                Table = _createTableOperation.Name,
+                Name = name,
+                Type = type,
+                IsNullable = nullable,
+                DefaultValue = defaultValue,
+                DefaultExpression = defaultExpression
+            };
             _createTableOperation.Columns.Add(operation);
 
             return new OperationBuilder<AddColumnOperation>(operation);

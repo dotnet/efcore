@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            return specificVisitor != null 
-                ? specificVisitor.VisitExists(this) 
+            return specificVisitor != null
+                ? specificVisitor.VisitExists(this)
                 : base.Accept(visitor);
         }
 

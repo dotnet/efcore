@@ -9,12 +9,13 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Caching.Memory;
-using JetBrains.Annotations;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.StreamedData;
@@ -22,7 +23,6 @@ using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 using Remotion.Linq.Parsing.Structure;
 using Remotion.Linq.Parsing.Structure.ExpressionTreeProcessors;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
-using Microsoft.Data.Entity.Query.Expressions;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -203,11 +203,11 @@ namespace Microsoft.Data.Entity.Query
                 new ExpressionTreeParser(
                     _cachedNodeTypeProvider.Value,
                     new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
-                        {
-                            new PartialEvaluatingExpressionTreeProcessor(),
-                            new FunctionEvaluationEnablingProcessor(),
-                            new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
-                        })));
+                    {
+                        new PartialEvaluatingExpressionTreeProcessor(),
+                        new FunctionEvaluationEnablingProcessor(),
+                        new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
+                    })));
 
         private class FunctionEvaluationEnablingProcessor : IExpressionTreeProcessor
         {
@@ -260,10 +260,10 @@ namespace Microsoft.Data.Entity.Query
 
             var innerProviders
                 = new INodeTypeProvider[]
-                    {
-                        methodInfoBasedNodeTypeRegistry,
-                        MethodNameBasedNodeTypeRegistry.CreateFromRemotionLinqAssembly()
-                    };
+                {
+                    methodInfoBasedNodeTypeRegistry,
+                    MethodNameBasedNodeTypeRegistry.CreateFromRemotionLinqAssembly()
+                };
 
             return new ReadonlyNodeTypeProvider(new CompoundNodeTypeProvider(innerProviders));
         }

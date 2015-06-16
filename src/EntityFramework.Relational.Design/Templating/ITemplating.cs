@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
     public interface ITemplating
     {
         Task<TemplateResult> RunTemplateAsync(
-            [NotNull]string content,
-            [NotNull]dynamic templateModel,
-            [NotNull]IDatabaseMetadataModelProvider provider,
+            [NotNull] string content,
+            [NotNull] dynamic templateModel,
+            [NotNull] IDatabaseMetadataModelProvider provider,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

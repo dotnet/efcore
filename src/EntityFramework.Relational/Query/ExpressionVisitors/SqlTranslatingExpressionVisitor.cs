@@ -119,7 +119,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             var ifTrue = Visit(expression.IfTrue);
             var ifFalse = Visit(expression.IfFalse);
 
-            if (test != null && ifTrue != null && ifFalse != null)
+            if (test != null
+                && ifTrue != null
+                && ifFalse != null)
             {
                 return expression.Update(test, ifTrue, ifFalse);
             }
@@ -208,7 +210,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 
             var operand = Visit(methodCallExpression.Object);
 
-            if (operand != null || methodCallExpression.Object == null)
+            if (operand != null
+                || methodCallExpression.Object == null)
             {
                 var arguments
                     = methodCallExpression.Arguments
@@ -222,7 +225,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                         ? Expression.Call(operand, methodCallExpression.Method, arguments)
                         : Expression.Call(methodCallExpression.Method, arguments);
 
-                    var translatedExpression = 
+                    var translatedExpression =
                         _queryModelVisitor.QueryCompilationContext.CompositeMethodCallTranslator.Translate(boundExpression);
 
                     if (translatedExpression != null)
@@ -233,14 +236,14 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             }
 
             return _queryModelVisitor
-                    .BindMethodCallExpression(
-                        methodCallExpression,
-                        (property, querySource, selectExpression)
-                            => new AliasExpression(
-                                new ColumnExpression(
-                                    _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
-                                    property,
-                                    selectExpression.FindTableForQuerySource(querySource))));
+                .BindMethodCallExpression(
+                    methodCallExpression,
+                    (property, querySource, selectExpression)
+                        => new AliasExpression(
+                            new ColumnExpression(
+                                _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                                property,
+                                selectExpression.FindTableForQuerySource(querySource))));
         }
 
         protected override Expression VisitMember([NotNull] MemberExpression memberExpression)
@@ -248,7 +251,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             Check.NotNull(memberExpression, nameof(memberExpression));
 
             var newExpression = Visit(memberExpression.Expression);
-            if (newExpression != null || memberExpression.Expression == null)
+            if (newExpression != null
+                || memberExpression.Expression == null)
             {
                 var newMemberExpression = newExpression != memberExpression.Expression
                     ? Expression.Property(newExpression, memberExpression.Member.Name)
@@ -346,26 +350,26 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
         }
 
         private static readonly Type[] _supportedConstantTypes =
-            {
-                typeof(bool),
-                typeof(byte),
-                typeof(byte[]),
-                typeof(char),
-                typeof(decimal),
-                typeof(DateTime),
-                typeof(DateTimeOffset),
-                typeof(double),
-                typeof(float),
-                typeof(Guid),
-                typeof(int),
-                typeof(long),
-                typeof(sbyte),
-                typeof(short),
-                typeof(string),
-                typeof(uint),
-                typeof(ulong),
-                typeof(ushort)
-            };
+        {
+            typeof(bool),
+            typeof(byte),
+            typeof(byte[]),
+            typeof(char),
+            typeof(decimal),
+            typeof(DateTime),
+            typeof(DateTimeOffset),
+            typeof(double),
+            typeof(float),
+            typeof(Guid),
+            typeof(int),
+            typeof(long),
+            typeof(sbyte),
+            typeof(short),
+            typeof(string),
+            typeof(uint),
+            typeof(ulong),
+            typeof(ushort)
+        };
 
         protected override Expression VisitConstant([NotNull] ConstantExpression constantExpression)
         {
@@ -395,10 +399,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
         }
 
         protected override TResult VisitUnhandledItem<TItem, TResult>(
-            TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior) 
+            TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
             => default(TResult);
 
-        protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod) 
+        protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
             => null; // Never called
     }
 }

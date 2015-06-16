@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
-        public override string ToString() 
+        public override string ToString()
             => Operand.Expression + " IN (" + string.Join(", ", Values) + ")";
     }
 }

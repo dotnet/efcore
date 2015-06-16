@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Relational
             return this;
         }
 
-        public virtual SqlBatchBuilder AppendLine(bool suppressTransaction = false) 
+        public virtual SqlBatchBuilder AppendLine(bool suppressTransaction = false)
             => AppendLine(string.Empty, suppressTransaction);
 
         public virtual SqlBatchBuilder AppendLine([NotNull] object o, bool suppressTransaction = false)

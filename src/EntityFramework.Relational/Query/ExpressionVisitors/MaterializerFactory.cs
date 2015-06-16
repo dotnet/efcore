@@ -92,25 +92,25 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 
             var blockExpressions
                 = new Expression[]
-                    {
-                        Expression.Assign(
-                            discriminatorValueVariable,
-                            _entityMaterializerSource
-                                .CreateReadValueExpression(
-                                    valueBufferParameter,
-                                    discriminatorProperty.ClrType,
-                                    discriminatorProperty.Index)),
-                        Expression.IfThenElse(
-                            Expression.Equal(discriminatorValueVariable, firstDiscriminatorValue),
-                            Expression.Return(returnLabelTarget, materializer),
-                            Expression.Throw(
-                                Expression.Call(
-                                    _createUnableToDiscriminateException,
-                                    Expression.Constant(concreteEntityTypes[0])))),
-                        Expression.Label(
-                            returnLabelTarget,
-                            Expression.Default(returnLabelTarget.Type))
-                    };
+                {
+                    Expression.Assign(
+                        discriminatorValueVariable,
+                        _entityMaterializerSource
+                            .CreateReadValueExpression(
+                                valueBufferParameter,
+                                discriminatorProperty.ClrType,
+                                discriminatorProperty.Index)),
+                    Expression.IfThenElse(
+                        Expression.Equal(discriminatorValueVariable, firstDiscriminatorValue),
+                        Expression.Return(returnLabelTarget, materializer),
+                        Expression.Throw(
+                            Expression.Call(
+                                _createUnableToDiscriminateException,
+                                Expression.Constant(concreteEntityTypes[0])))),
+                    Expression.Label(
+                        returnLabelTarget,
+                        Expression.Default(returnLabelTarget.Type))
+                };
 
             foreach (var concreteEntityType in concreteEntityTypes.Skip(1))
             {
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                 .GetDeclaredMethod(nameof(CreateUnableToDiscriminateException));
 
         [UsedImplicitly]
-        private static Exception CreateUnableToDiscriminateException(IEntityType entityType) 
+        private static Exception CreateUnableToDiscriminateException(IEntityType entityType)
             => new InvalidOperationException(Strings.UnableToDiscriminate(entityType.Name));
     }
 }

@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             else
             {
                 sqlString = (string)fromSqlAnnotation.Arguments[1];
-                sqlParameters =(object[])fromSqlAnnotation.Arguments[2];
+                sqlParameters = (object[])fromSqlAnnotation.Arguments[2];
 
                 selectExpression.AddTable(
                     new RawSqlDerivedTableExpression(
@@ -114,7 +114,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                         sqlParameters,
                         tableAlias,
                         _querySource));
-
 
                 var sqlStart = sqlString.Cast<char>().SkipWhile(char.IsWhiteSpace).Take(7).ToArray();
 
@@ -143,13 +142,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 
             var queryMethodArguments
                 = new List<Expression>
-                    {
-                        Expression.Constant(_querySource),
-                        EntityQueryModelVisitor.QueryContextParameter,
-                        EntityQueryModelVisitor.QuerySourceScopeParameter,
-                        _valueBufferParameter,
-                        Expression.Constant(0)
-                    };
+                {
+                    Expression.Constant(_querySource),
+                    EntityQueryModelVisitor.QueryContextParameter,
+                    EntityQueryModelVisitor.QuerySourceScopeParameter,
+                    _valueBufferParameter,
+                    Expression.Constant(0)
+                };
 
             if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource)
                 || QueryModelVisitor.RequiresClientEval)
@@ -181,13 +180,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
 
                 queryMethodArguments.AddRange(
                     new[]
-                        {
-                            Expression.Constant(entityType),
-                            Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
-                            Expression.Constant(keyFactory),
-                            Expression.Constant(keyProperties),
-                            materializer
-                        });
+                    {
+                        Expression.Constant(entityType),
+                        Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
+                        Expression.Constant(keyFactory),
+                        Expression.Constant(keyProperties),
+                        materializer
+                    });
             }
 
             Func<ISqlQueryGenerator> sqlQueryGeneratorFactory;
