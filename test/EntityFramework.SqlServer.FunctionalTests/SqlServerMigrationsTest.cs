@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations.Builders;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
@@ -22,9 +23,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = CreateContext(testDatabase))
                 {
-                    context.Database.AsRelational().ApplyMigrations();
+                    context.Database.ApplyMigrations();
 
-                    Assert.True(context.Database.AsRelational().Exists());
+                    Assert.True(context.GetService<IRelationalDataStoreCreator>().Exists());
                 }
             }
         }

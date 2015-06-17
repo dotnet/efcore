@@ -47,9 +47,6 @@
     </Compile>
     <Compile Include="IInMemoryDatabase.cs" />
     <Compile Include="IInMemoryDataStore.cs" />
-    <Compile Include="InMemoryDatabaseExtensions.cs" />
-    <Compile Include="InMemoryDatabaseFacade.cs" />
-    <Compile Include="InMemoryDatabaseFactory.cs" />
     <Compile Include="InMemoryDataStoreServices.cs" />
     <Compile Include="InMemoryIntegerValueGeneratorFactory.cs" />
     <Compile Include="InMemoryModelSource.cs" />

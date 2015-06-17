@@ -1,10 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -13,18 +14,14 @@ namespace Microsoft.Data.Entity
 {
     public static class RelationalDatabaseExtensions
     {
-        public static RelationalDatabase AsRelational([NotNull] this Database database)
-        {
-            Check.NotNull(database, nameof(database));
+        public static void ApplyMigrations([NotNull] this Database database)
+            => Check.NotNull(database, nameof(database)).GetService<IMigrator>().ApplyMigrations();
 
-            var relationalDatabase = database as RelationalDatabase;
+        public static DbConnection GetDbConnection([NotNull] this Database database)
+            => Check.NotNull(database, nameof(database)).GetService<IRelationalConnection>().DbConnection;
 
-            if (relationalDatabase == null)
-            {
-                throw new InvalidOperationException(Strings.RelationalNotInUse);
-            }
-
-            return relationalDatabase;
-        }
+        // TODO: Remove this following further refactoring
+        public static IRelationalConnection GetRelationalConnection([NotNull] this Database database)
+            => Check.NotNull(database, nameof(database)).GetService<IRelationalConnection>();
     }
 }

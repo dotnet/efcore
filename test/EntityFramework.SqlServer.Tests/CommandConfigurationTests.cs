@@ -17,13 +17,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             {
                 using (var context = new TimeoutContext())
                 {
-                    Assert.Null(context.Database.AsRelational().Connection.CommandTimeout);
+                    Assert.Null(context.Database.GetRelationalConnection().CommandTimeout);
 
-                    context.Database.AsRelational().Connection.CommandTimeout = 77;
-                    Assert.Equal(77, context.Database.AsRelational().Connection.CommandTimeout);
+                    context.Database.GetRelationalConnection().CommandTimeout = 77;
+                    Assert.Equal(77, context.Database.GetRelationalConnection().CommandTimeout);
 
-                    context.Database.AsRelational().Connection.CommandTimeout = null;
-                    Assert.Null(context.Database.AsRelational().Connection.CommandTimeout);
+                    context.Database.GetRelationalConnection().CommandTimeout = null;
+                    Assert.Null(context.Database.GetRelationalConnection().CommandTimeout);
                 }
             }
 
@@ -36,13 +36,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
                 using (var context = new TimeoutContext())
                 {
-                    Assert.Null(context.Database.AsRelational().Connection.CommandTimeout);
+                    Assert.Null(context.Database.GetRelationalConnection().CommandTimeout);
 
                     Assert.Throws<ArgumentException>(
-                        () => context.Database.AsRelational().Connection.CommandTimeout = -3);
+                        () => context.Database.GetRelationalConnection().CommandTimeout = -3);
 
                     Assert.Throws<ArgumentException>(
-                        () => context.Database.AsRelational().Connection.CommandTimeout = -99);
+                        () => context.Database.GetRelationalConnection().CommandTimeout = -99);
                 }
             }
 
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
                 public TimeoutContext(int? commandTimeout)
                 {
-                    Database.AsRelational().Connection.CommandTimeout = commandTimeout;
+                    Database.GetRelationalConnection().CommandTimeout = commandTimeout;
                 }
 
                 protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

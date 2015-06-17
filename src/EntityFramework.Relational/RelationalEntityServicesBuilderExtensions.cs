@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.ValueGeneration;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
@@ -39,7 +40,6 @@ namespace Microsoft.Data.Entity.Relational
                 .AddScoped<RelationalQueryContextFactory>()
                 .AddScoped<BatchExecutor>()
                 .AddScoped<ModelDiffer>()
-                .AddScoped<RelationalDatabaseFactory>()
                 .AddScoped<RelationalValueGeneratorSelector>()
                 .AddScoped<CommandBatchPreparer>()
                 .AddScoped(p => GetStoreServices(p).SqlStatementExecutor)
@@ -62,6 +62,16 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         private static IRelationalDataStoreServices GetStoreServices(IServiceProvider serviceProvider)
-            => (IRelationalDataStoreServices)serviceProvider.GetRequiredService<IDbContextServices>().DataStoreServices;
+        {
+            var storeServices = serviceProvider.GetRequiredService<IDbContextServices>().DataStoreServices 
+                as IRelationalDataStoreServices;
+
+            if (storeServices == null)
+            {
+                throw new InvalidOperationException(Strings.RelationalNotInUse);
+            }
+
+            return storeServices;
+        }
     }
 }

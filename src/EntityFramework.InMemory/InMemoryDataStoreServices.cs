@@ -23,7 +23,6 @@ namespace Microsoft.Data.Entity.InMemory
         public override IDataStoreCreator Creator => GetService<InMemoryDataStoreCreator>();
         public override IDataStoreConnection Connection => GetService<InMemoryConnection>();
         public override IValueGeneratorSelector ValueGeneratorSelector => GetService<InMemoryValueGeneratorSelector>();
-        public override IDatabaseFactory DatabaseFactory => GetService<InMemoryDatabaseFactory>();
         public override IModelSource ModelSource => GetService<InMemoryModelSource>();
         public override IValueGeneratorCache ValueGeneratorCache => GetService<InMemoryValueGeneratorCache>();
     }

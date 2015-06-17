@@ -146,7 +146,6 @@
     <Compile Include="Query\Methods\SingleOverloadStaticMethodCallTranslator.cs" />
     <Compile Include="Query\RelationalCompositeMethodCallTranslator.cs" />
     <Compile Include="Query\RelationalCompositeMemberTranslator.cs" />
-    <Compile Include="RelationalDatabaseFactory.cs" />
     <Compile Include="RelationalDataStoreServices.cs" />
     <Compile Include="RelationalModelValidator.cs" />
     <Compile Include="RelationalTypeMapperExtensions.cs" />
@@ -215,7 +214,6 @@
     <Compile Include="Query\Sql\ISqlQueryGenerator.cs" />
     <Compile Include="Query\Sql\DefaultQuerySqlGenerator.cs" />
     <Compile Include="Query\Sql\RawSqlQueryGenerator.cs" />
-    <Compile Include="RelationalDatabase.cs" />
     <Compile Include="RelationalDatabaseExtensions.cs" />
     <Compile Include="RelationalDataStoreCreator.cs" />
     <Compile Include="IRelationalDataStoreServices.cs" />

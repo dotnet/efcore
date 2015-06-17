@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             optionsBuilder.UseSqlServer(testStore.Connection);
 
             var context = new GearsOfWarContext(_serviceProvider, optionsBuilder.Options);
-            context.Database.AsRelational().Connection.UseTransaction(testStore.Transaction);
+            context.Database.GetRelationalConnection().UseTransaction(testStore.Transaction);
             return context;
         }
     }

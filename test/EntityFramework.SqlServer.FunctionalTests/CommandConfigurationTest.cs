@@ -70,12 +70,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var commandBuilder = setupCommandBuilder();
 
-                var relationalConnection = context.Database.AsRelational().Connection;
+                var relationalConnection = context.Database.GetRelationalConnection();
                 var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(30, command.CommandTimeout);
 
-                context.Database.AsRelational().Connection.CommandTimeout = 77;
+                context.Database.GetRelationalConnection().CommandTimeout = 77;
                 var command2 = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(77, command2.CommandTimeout);
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var commandBuilder = setupCommandBuilder();
 
-                var relationalConnection = context.Database.AsRelational().Connection;
+                var relationalConnection = context.Database.GetRelationalConnection();
                 var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(77, command.CommandTimeout);
@@ -103,14 +103,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var commandBuilder = setupCommandBuilder();
 
-                context.Database.AsRelational().Connection.CommandTimeout = 88;
-                var relationalConnection = context.Database.AsRelational().Connection;
+                context.Database.GetRelationalConnection().CommandTimeout = 88;
+                var relationalConnection = context.Database.GetRelationalConnection();
                 var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(88, command.CommandTimeout);
 
-                context.Database.AsRelational().Connection.CommandTimeout = 99;
-                relationalConnection = context.Database.AsRelational().Connection;
+                context.Database.GetRelationalConnection().CommandTimeout = 99;
+                relationalConnection = context.Database.GetRelationalConnection();
                 var command2 = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(99, command2.CommandTimeout);
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = new ConfiguredChipsContext(_fixture.ServiceProvider))
             {
-                Assert.Throws<ArgumentException>(() => context.Database.AsRelational().Connection.CommandTimeout = -5);
+                Assert.Throws<ArgumentException>(() => context.Database.GetRelationalConnection().CommandTimeout = -5);
             }
         }
 
@@ -133,8 +133,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var commandBuilder = setupCommandBuilder();
 
-                var relationalConnection = context.Database.AsRelational().Connection;
-                context.Database.AsRelational().Connection.CommandTimeout = null;
+                var relationalConnection = context.Database.GetRelationalConnection();
+                context.Database.GetRelationalConnection().CommandTimeout = null;
                 var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(30, command.CommandTimeout);
@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 context.Database.EnsureCreated();
 
-                context.Database.AsRelational().Connection.CommandTimeout = 88;
+                context.Database.GetRelationalConnection().CommandTimeout = 88;
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 context.SaveChanges();
                 Assert.Equal(88, GlobalCommandTimeout);
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 context.Database.EnsureCreated();
 
-                context.Database.AsRelational().Connection.CommandTimeout = 88;
+                context.Database.GetRelationalConnection().CommandTimeout = 88;
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 context.SaveChanges();
                 Assert.Equal(88, GlobalCommandTimeout);
@@ -249,7 +249,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 await context.SaveChangesAsync();
                 Assert.Null(GlobalCommandTimeout);
 
-                context.Database.AsRelational().Connection.CommandTimeout = 88;
+                context.Database.GetRelationalConnection().CommandTimeout = 88;
 
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 await context.SaveChangesAsync();
                 Assert.Equal(77, GlobalCommandTimeout);
 
-                context.Database.AsRelational().Connection.CommandTimeout = 88;
+                context.Database.GetRelationalConnection().CommandTimeout = 88;
 
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 context.Database.EnsureCreated();
 
-                context.Database.AsRelational().Connection.CommandTimeout = 88;
+                context.Database.GetRelationalConnection().CommandTimeout = 88;
 
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();

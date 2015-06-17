@@ -3,7 +3,6 @@
 
 using System.Linq;
 using EntityFramework.Microbenchmarks.Core.Models.Orders;
-using Microsoft.Data.Entity;
 using Xunit;
 
 namespace EntityFramework.Microbenchmarks.Models.Orders
@@ -19,9 +18,8 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
         {
             using (var context = new OrdersContext(connectionString))
             {
-                if (!context.Database.AsRelational().Exists())
+                if (context.Database.EnsureCreated())
                 {
-                    context.Database.EnsureCreated();
                     InsertSeedData(connectionString, productCount, customerCount, ordersPerCustomer, linesPerOrder);
                 }
 

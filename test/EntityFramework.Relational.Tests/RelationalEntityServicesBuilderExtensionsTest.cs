@@ -37,7 +37,6 @@ namespace Microsoft.Data.Entity.Relational.Tests
             VerifyScoped<RelationalQueryContextFactory>();
             VerifyScoped<BatchExecutor>();
             VerifyScoped<ModelDiffer>();
-            VerifyScoped<RelationalDatabaseFactory>();
             VerifyScoped<RelationalValueGeneratorSelector>();
             VerifyScoped<CommandBatchPreparer>();
 

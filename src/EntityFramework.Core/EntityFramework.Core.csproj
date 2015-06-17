@@ -59,6 +59,8 @@
     <Compile Include="Extensions\Internal\ExpressionExtensions.cs" />
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
     <Compile Include="Extensions\Internal\PropertyInfoExtensions.cs" />
+    <Compile Include="Infrastructure\AccessorExtensions.cs" />
+    <Compile Include="Infrastructure\DatabaseFactory.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="Internal\Graph.cs" />
     <Compile Include="Internal\IndentedStringBuilder.cs" />

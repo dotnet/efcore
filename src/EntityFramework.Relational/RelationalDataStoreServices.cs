@@ -26,7 +26,6 @@ namespace Microsoft.Data.Entity.Relational
         {
         }
 
-        public override IDatabaseFactory DatabaseFactory => GetService<RelationalDatabaseFactory>();
         public override IQueryContextFactory QueryContextFactory => GetService<RelationalQueryContextFactory>();
         public override IValueGeneratorSelector ValueGeneratorSelector => GetService<RelationalValueGeneratorSelector>();
         public virtual IRelationalTypeMapper TypeMapper => GetService<RelationalTypeMapper>();

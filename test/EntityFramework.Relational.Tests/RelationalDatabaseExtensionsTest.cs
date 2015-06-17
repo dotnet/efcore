@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational.Migrations;
-using Microsoft.Data.Entity.Tests;
-using Microsoft.Framework.Logging;
+using System.Data.Common;
+using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Xunit;
 
@@ -14,53 +12,27 @@ namespace Microsoft.Data.Entity.Relational.Tests
     public class RelationalDatabaseExtensionsTest
     {
         [Fact]
-        public void Returns_typed_database_object()
+        public void GetDbConnection_returns_the_current_connection()
         {
-            var database = new ConcreteRelationalDatabase(
-                TestHelpers.Instance.CreateContext(),
-                Mock.Of<IRelationalDataStoreCreator>(),
-                Mock.Of<IRelationalConnection>(),
-                Mock.Of<IMigrator>(),
-                new LoggerFactory());
+            var dbConnectionMock = new Mock<DbConnection>();
 
-            Assert.Same(database, database.AsRelational());
+            var connectionMock = new Mock<IRelationalConnection>();
+            connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
+
+            var context = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddInstance(connectionMock.Object));
+
+            Assert.Same(dbConnectionMock.Object, context.Database.GetDbConnection());
         }
 
         [Fact]
-        public void Throws_when_non_relational_provider_is_in_use()
+        public void Relational_specific_methods_throws_when_non_relational_provider_is_in_use()
         {
-            var database = new ConcreteDatabase(
-                TestHelpers.Instance.CreateContext(),
-                Mock.Of<IRelationalDataStoreCreator>(),
-                new LoggerFactory());
+            var context = RelationalTestHelpers.Instance.CreateContext();
 
             Assert.Equal(
                 Strings.RelationalNotInUse,
-                Assert.Throws<InvalidOperationException>(() => database.AsRelational()).Message);
-        }
-
-        private class ConcreteDatabase : Database
-        {
-            public ConcreteDatabase(
-                DbContext context,
-                IRelationalDataStoreCreator dataStoreCreator,
-                ILoggerFactory loggerFactory)
-                : base(context, dataStoreCreator, loggerFactory)
-            {
-            }
-        }
-
-        private class ConcreteRelationalDatabase : RelationalDatabase
-        {
-            public ConcreteRelationalDatabase(
-                DbContext context,
-                IRelationalDataStoreCreator dataStoreCreator,
-                IRelationalConnection connection,
-                IMigrator migrator,
-                ILoggerFactory loggerFactory)
-                : base(context, dataStoreCreator, connection, migrator, loggerFactory)
-            {
-            }
+                Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
         }
     }
 }

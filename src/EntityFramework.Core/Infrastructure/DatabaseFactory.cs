@@ -2,20 +2,19 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.InMemory
+namespace Microsoft.Data.Entity.Infrastructure
 {
-    public class InMemoryDatabaseFactory : IDatabaseFactory
+    public class DatabaseFactory : IDatabaseFactory
     {
         private readonly DbContext _context;
         private readonly IDataStoreCreator _dataStoreCreator;
         private readonly ILoggerFactory _loggerFactory;
 
-        public InMemoryDatabaseFactory(
+        public DatabaseFactory(
             [NotNull] DbContext context,
             [NotNull] IDataStoreCreator dataStoreCreator,
             [NotNull] ILoggerFactory loggerFactory)
@@ -29,6 +28,6 @@ namespace Microsoft.Data.Entity.InMemory
             _loggerFactory = loggerFactory;
         }
 
-        public virtual Database CreateDatabase() => new InMemoryDatabaseFacade(_context, _dataStoreCreator, _loggerFactory);
+        public virtual Database CreateDatabase() => new Database(_context, _dataStoreCreator, _loggerFactory);
     }
 }

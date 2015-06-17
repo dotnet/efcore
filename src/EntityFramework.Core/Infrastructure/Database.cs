@@ -13,13 +13,13 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public abstract class Database : IAccessor<IDataStoreCreator>, IAccessor<ILogger>, IAccessor<IModel>, IAccessor<IServiceProvider>
+    public class Database : IAccessor<IDataStoreCreator>, IAccessor<ILogger>, IAccessor<IModel>, IAccessor<IServiceProvider>
     {
         private readonly DbContext _context;
         private readonly IDataStoreCreator _dataStoreCreator;
         private readonly LazyRef<ILogger> _logger;
 
-        protected Database(
+        public Database(
             [NotNull] DbContext context,
             [NotNull] IDataStoreCreator dataStoreCreator,
             [NotNull] ILoggerFactory loggerFactory)

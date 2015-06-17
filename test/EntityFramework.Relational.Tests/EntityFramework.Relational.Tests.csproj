@@ -48,7 +48,6 @@
     <Compile Include="Metadata\RelationalBuilderExtensionsTest.cs" />
     <Compile Include="RelationalConnectionTest.cs" />
     <Compile Include="RelationalDatabaseExtensionsTest.cs" />
-    <Compile Include="RelationalDatabaseTest.cs" />
     <Compile Include="RelationalDataStoreTest.cs" />
     <Compile Include="RelationalEntityServicesBuilderExtensionsTest.cs" />
     <Compile Include="RelationalModelValidatorTest.cs" />

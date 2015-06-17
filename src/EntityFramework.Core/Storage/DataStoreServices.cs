@@ -30,7 +30,6 @@ namespace Microsoft.Data.Entity.Storage
         public virtual IValueGeneratorSelector ValueGeneratorSelector => GetService<ValueGeneratorSelector>();
         public virtual IModelValidator ModelValidator => GetService<LoggingModelValidator>();
 
-        public abstract IDatabaseFactory DatabaseFactory { get; }
         public abstract IDataStore Store { get; }
         public abstract IDataStoreCreator Creator { get; }
         public abstract IDataStoreConnection Connection { get; }

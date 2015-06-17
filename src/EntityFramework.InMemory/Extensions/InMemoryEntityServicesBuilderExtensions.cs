@@ -27,7 +27,6 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddScoped<InMemoryValueGeneratorSelector>()
                     .AddScoped<InMemoryQueryContextFactory>()
                     .AddScoped<InMemoryDataStoreServices>()
-                    .AddScoped<InMemoryDatabaseFactory>()
                     .AddScoped<IInMemoryDataStore, InMemoryDataStore>()
                     .AddScoped<InMemoryConnection>()
                     .AddScoped<InMemoryDataStoreCreator>());
