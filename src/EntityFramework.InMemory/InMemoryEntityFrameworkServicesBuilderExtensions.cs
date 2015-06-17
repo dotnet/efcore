@@ -5,21 +5,20 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.InMemory.Query;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
 
 namespace Microsoft.Framework.DependencyInjection
 {
-    public static class InMemoryEntityServicesBuilderExtensions
+    public static class InMemoryEntityFrameworkServicesBuilderExtensions
     {
         public static EntityFrameworkServicesBuilder AddInMemoryStore([NotNull] this EntityFrameworkServicesBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
 
             ((IAccessor<IServiceCollection>)builder).Service
-                .AddSingleton<IDataStoreSource, InMemoryDataStoreSource>()
+                .AddDataStoreSource<InMemoryDataStoreSource>(nameof(AddInMemoryStore))
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<InMemoryValueGeneratorCache>()
                     .AddSingleton<IInMemoryDatabase, InMemoryDatabase>()

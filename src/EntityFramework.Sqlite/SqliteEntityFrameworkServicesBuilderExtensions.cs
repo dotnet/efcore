@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Sqlite.Migrations;
 using Microsoft.Data.Entity.Sqlite.Update;
 using Microsoft.Data.Entity.Sqlite.ValueGeneration;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Framework.DependencyInjection
@@ -21,7 +20,7 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(services, nameof(services));
 
             ((IAccessor<IServiceCollection>)services.AddRelational()).Service
-                .AddSingleton<IDataStoreSource, SqliteDataStoreSource>()
+                .AddDataStoreSource<SqliteDataStoreSource>(nameof(AddSqlite))
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqliteValueGeneratorCache>()
                     .AddSingleton<SqliteSqlGenerator>()

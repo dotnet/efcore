@@ -59,6 +59,7 @@
     <Compile Include="Extensions\Internal\ExpressionExtensions.cs" />
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
     <Compile Include="Extensions\Internal\PropertyInfoExtensions.cs" />
+    <Compile Include="Infrastructure\EntityFrameworkServiceBuilderHelpers.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="Internal\Graph.cs" />
     <Compile Include="Internal\IndentedStringBuilder.cs" />
@@ -272,7 +273,7 @@
     <Compile Include="ChangeTracking\EntityEntry`.cs" />
     <Compile Include="ChangeTracking\PropertyEntry.cs" />
     <Compile Include="ChangeTracking\PropertyEntry`.cs" />
-    <Compile Include="Extensions\EntityFrameworkServiceCollectionExtensions.cs" />
+    <Compile Include="EntityFrameworkServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\EntityFrameworkQueryableExtensions.cs" />
     <Compile Include="Infrastructure\Database.cs" />
     <Compile Include="Infrastructure\IDbContextOptionsExtension.cs" />

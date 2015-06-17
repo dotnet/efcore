@@ -20,7 +20,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class EntityFrameworkServiceCollectionExtensionsTest : IDisposable
+    public abstract class EntityFrameworkServiceCollectionExtensionsTest : IDisposable
     {
         [Fact]
         public virtual void Services_wire_up_correctly()
@@ -75,7 +75,8 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<IPropertyListener>(isExistingReplaced: true);
         }
 
-        protected void VerifyCommonDataStoreServices()
+        [Fact]
+        protected void Common_data_store_services_wire_up_correctly()
         {
             VerifySingleton<IDataStoreSource>(isExistingReplaced: true);
             Assert.NotNull(VerifyCached<IModel>());
@@ -89,15 +90,33 @@ namespace Microsoft.Data.Entity.Tests
             Assert.NotNull(VerifySingleton<IModelBuilderFactory>());
         }
 
+        [Fact]
+        public virtual void Throws_on_multiple_calls_to_add_service()
+        {
+            var servicesBuilder = _testHelpers
+                .AddProviderServices(new ServiceCollection().AddEntityFramework());
+
+            Assert.Equal(
+                Strings.MultipleCallsToAddProvider(AddProviderMethodName),
+                Assert.Throws<InvalidOperationException>(() => _testHelpers.AddProviderServices(servicesBuilder)).Message);
+        }
+
+        private readonly TestHelpers _testHelpers;
         private readonly IServiceProvider _serviceProvider;
         private readonly DbContext _firstContext;
         private readonly DbContext _secondContext;
 
-        public EntityFrameworkServiceCollectionExtensionsTest()
+        protected abstract string AddProviderMethodName { get; }
+
+        protected EntityFrameworkServiceCollectionExtensionsTest(TestHelpers testHelpers)
         {
-            _serviceProvider = GetServices().BuildServiceProvider();
-            _firstContext = CreateContext(_serviceProvider);
-            _secondContext = CreateContext(_serviceProvider);
+            _testHelpers = testHelpers;
+
+            var serviceCollection = new ServiceCollection();
+            _testHelpers.AddProviderServices(serviceCollection.AddEntityFramework());
+            _serviceProvider = serviceCollection.BuildServiceProvider();
+            _firstContext = _testHelpers.CreateContext(_serviceProvider);
+            _secondContext = _testHelpers.CreateContext(_serviceProvider);
         }
 
         protected virtual IServiceCollection GetServices(IServiceCollection services = null)
@@ -106,16 +125,6 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework()
                 .AddInMemoryStore()
                 .ServiceCollection();
-        }
-
-        protected virtual DbContextOptions GetOptions()
-        {
-            return TestHelpers.Instance.CreateOptions();
-        }
-
-        protected virtual DbContext CreateContext(IServiceProvider serviceProvider)
-        {
-            return TestHelpers.Instance.CreateContext(serviceProvider);
         }
 
         public void Dispose()
@@ -172,7 +181,11 @@ namespace Microsoft.Data.Entity.Tests
                     ? new ServiceCollection().AddScoped(p => service)
                     : new ServiceCollection().AddSingleton(p => service);
 
-                var serviceProviderWithCustomService = ((IAccessor<IServiceProvider>)new DbContext(GetServices(customServices).BuildServiceProvider(), GetOptions())).Service;
+                var serviceProviderWithCustomService = ((IAccessor<IServiceProvider>)new DbContext(
+                    _testHelpers.AddProviderServices(customServices.AddEntityFramework())
+                        .ServiceCollection()
+                        .BuildServiceProvider(),
+                    _testHelpers.CreateOptions())).Service;
                 if (isExistingReplaced)
                 {
                     Assert.NotSame(service, serviceProviderWithCustomService.GetRequiredService<TService>());

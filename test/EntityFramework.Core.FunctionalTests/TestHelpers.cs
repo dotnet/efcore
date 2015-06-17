@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests
             return services.BuildServiceProvider();
         }
 
-        protected virtual EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
+        public virtual EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
         {
             return builder.AddInMemoryStore();
         }

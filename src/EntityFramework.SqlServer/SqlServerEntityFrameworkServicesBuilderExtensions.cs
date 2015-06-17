@@ -9,21 +9,20 @@ using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.ValueGeneration;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
 
 namespace Microsoft.Framework.DependencyInjection
 {
-    public static class SqlServerEntityServicesBuilderExtensions
+    public static class SqlServerEntityFrameworkServicesBuilderExtensions
     {
         public static EntityFrameworkServicesBuilder AddSqlServer([NotNull] this EntityFrameworkServicesBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
 
             ((IAccessor<IServiceCollection>)builder.AddRelational()).Service
-                .AddSingleton<IDataStoreSource, SqlServerDataStoreSource>()
+                .AddDataStoreSource<SqlServerDataStoreSource>(nameof(AddSqlServer))
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqlServerModelBuilderFactory>()
                     .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
