@@ -104,10 +104,12 @@ namespace Microsoft.Data.Entity.Relational.Query
         public override void VisitQueryModel(QueryModel queryModel)
         {
             base.VisitQueryModel(queryModel);
-            var compositePredicateVisitor = new CompositePredicateExpressionVisitor(
-                QueryCompilationContext
-                    .GetCustomQueryAnnotations(RelationalQueryableExtensions.UseRelationalNullSemanticsMethodInfo)
-                    .Any());
+
+            var compositePredicateVisitor
+                = new CompositePredicateExpressionVisitor(
+                    QueryCompilationContext
+                        .GetCustomQueryAnnotations(RelationalQueryableExtensions.UseRelationalNullSemanticsMethodInfo)
+                        .Any());
 
             foreach (var selectExpression in _queriesBySource.Values.Where(se => se.Predicate != null))
             {

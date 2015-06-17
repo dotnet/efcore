@@ -242,8 +242,30 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static Expression HandleDistinct(HandlerContext handlerContext)
         {
-            handlerContext.SelectExpression.IsDistinct = true;
-            handlerContext.SelectExpression.ClearOrderBy();
+            var selectExpression = handlerContext.SelectExpression;
+
+            selectExpression.IsDistinct = true;
+
+            if (selectExpression.OrderBy.Any(o =>
+                {
+                    var orderByColumnExpression = o.Expression.TryGetColumnExpression();
+
+                    if (orderByColumnExpression == null)
+                    {
+                        return true;
+                    }
+
+                    return !selectExpression.Projection.Any(e =>
+                        {
+                            var projectionColumnExpression = e.TryGetColumnExpression();
+
+                            return projectionColumnExpression != null
+                                   && projectionColumnExpression.Equals(orderByColumnExpression);
+                        });
+                }))
+            {
+                handlerContext.SelectExpression.ClearOrderBy();
+            }
 
             return handlerContext.EvalOnServer;
         }
