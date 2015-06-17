@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         public new static RelationalTestHelpers Instance { get; } = new RelationalTestHelpers();
 
-        protected override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder) 
+        public override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder) 
             => builder.AddInMemoryStore().AddRelational();
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)

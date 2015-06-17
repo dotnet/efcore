@@ -245,6 +245,14 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// {addProviderMethodName} has already been called on the service collection.
+        /// </summary>
+        public static string MultipleCallsToAddProvider([CanBeNull] object addProviderMethodName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleCallsToAddProvider", "addProviderMethodName"), addProviderMethodName);
+        }
+
+        /// <summary>
         /// The data stores {storeNames}are configured. A context can only be configured to use a single data store.
         /// </summary>
         public static string MultipleDataStoresConfigured([CanBeNull] object storeNames)

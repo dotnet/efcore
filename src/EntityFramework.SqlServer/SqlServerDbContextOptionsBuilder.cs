@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 
-namespace Microsoft.Data.Entity.SqlServer.Extensions
+namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerDbContextOptionsBuilder : RelationalDbContextOptionsBuilder
     {
