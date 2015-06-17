@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Data.Sqlite.Interop;
 using Microsoft.Data.Sqlite.Utilities;
+using static Microsoft.Data.Sqlite.Interop.Constants;
 #if NET45 || DNX451
 using System.Data;
 
@@ -96,7 +97,7 @@ namespace Microsoft.Data.Sqlite
             var rc = NativeMethods.sqlite3_step(_stmt);
             MarshalEx.ThrowExceptionForRC(rc, _db);
 
-            _done = rc == Constants.SQLITE_DONE;
+            _done = rc == SQLITE_DONE;
 
             return !_done;
         }
@@ -203,19 +204,19 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case Constants.SQLITE_INTEGER:
+                case SQLITE_INTEGER:
                     return "INTEGER";
 
-                case Constants.SQLITE_FLOAT:
+                case SQLITE_FLOAT:
                     return "REAL";
 
-                case Constants.SQLITE_TEXT:
+                case SQLITE_TEXT:
                     return "TEXT";
 
-                case Constants.SQLITE_BLOB:
+                case SQLITE_BLOB:
                     return "BLOB";
 
-                case Constants.SQLITE_NULL:
+                case SQLITE_NULL:
                     return "INTEGER";
 
                 default:
@@ -234,19 +235,19 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case Constants.SQLITE_INTEGER:
+                case SQLITE_INTEGER:
                     return typeof(long);
 
-                case Constants.SQLITE_FLOAT:
+                case SQLITE_FLOAT:
                     return typeof(double);
 
-                case Constants.SQLITE_TEXT:
+                case SQLITE_TEXT:
                     return typeof(string);
 
-                case Constants.SQLITE_BLOB:
+                case SQLITE_BLOB:
                     return typeof(byte[]);
 
-                case Constants.SQLITE_NULL:
+                case SQLITE_NULL:
                     return typeof(int);
 
                 default:
@@ -258,7 +259,7 @@ namespace Microsoft.Data.Sqlite
         private int GetSqliteType(int ordinal)
         {
             var type = NativeMethods.sqlite3_column_type(_stmt, ordinal);
-            if (type == Constants.SQLITE_NULL
+            if (type == SQLITE_NULL
                 && (ordinal < 0 || ordinal >= FieldCount))
             {
                 // NB: Message is provided by the framework
@@ -279,7 +280,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Strings.NoData);
             }
 
-            return GetSqliteType(ordinal) == Constants.SQLITE_NULL;
+            return GetSqliteType(ordinal) == SQLITE_NULL;
         }
 
         public override bool GetBoolean(int ordinal) => GetInt64(ordinal) != 0;
@@ -435,19 +436,19 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case Constants.SQLITE_INTEGER:
+                case SQLITE_INTEGER:
                     return GetInt64(ordinal);
 
-                case Constants.SQLITE_FLOAT:
+                case SQLITE_FLOAT:
                     return GetDouble(ordinal);
 
-                case Constants.SQLITE_TEXT:
+                case SQLITE_TEXT:
                     return GetString(ordinal);
 
-                case Constants.SQLITE_BLOB:
+                case SQLITE_BLOB:
                     return GetBlob(ordinal);
 
-                case Constants.SQLITE_NULL:
+                case SQLITE_NULL:
                     if (!_stepped || _done)
                     {
                         throw new InvalidOperationException(Strings.NoData);

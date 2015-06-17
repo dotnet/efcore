@@ -9,6 +9,8 @@
     },
     "frameworks": {
         "dnx451": { },
-        "dnxcore50": { }
+        "dnxcore50": { 
+            "System.IO.FileSystem": " 4.0.0-*"
+        }
     }
 }

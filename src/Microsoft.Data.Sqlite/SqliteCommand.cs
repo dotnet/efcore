@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Interop;
@@ -156,7 +155,15 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 rc = NativeMethods.sqlite3_step(stmt);
-                MarshalEx.ThrowExceptionForRC(rc, Connection.DbHandle);
+                try
+                {
+                    MarshalEx.ThrowExceptionForRC(rc, Connection.DbHandle);
+                }
+                catch
+                {
+                    stmt.Dispose();
+                    throw;
+                }
 
                 // NB: This is only a heuristic to separate SELECT statements from INSERT/UPDATE/DELETE statements. It will result
                 //     in unexpected corner cases, but it's the best we can do without re-parsing SQL

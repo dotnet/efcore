@@ -180,4 +180,7 @@
   <data name="UnknownDataType" xml:space="preserve">
     <value>No mapping exists from object type {typeName} to a known managed provider native type.</value>
   </data>
+  <data name="SqliteNativeError" xml:space="preserve">
+    <value>SQLite Error {errorCode}: '{message}'</value>
+  </data>
 </root>

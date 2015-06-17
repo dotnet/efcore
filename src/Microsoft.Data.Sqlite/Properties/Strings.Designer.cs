@@ -139,7 +139,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// The IsolationLevel '{isolationLevel}' is invalid when the connection is not using Shared Cache mode.
+        /// The IsolationLevel '{isolationLevel}' can only be used with a shared cache. Set 'Cached=Shared' in the connection string.
         /// </summary>
         internal static string InvalidIsolationLevelForUnsharedCache
         {
@@ -147,7 +147,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// The IsolationLevel '{isolationLevel}' is invalid when the connection is not using Shared Cache mode.
+        /// The IsolationLevel '{isolationLevel}' can only be used with a shared cache. Set 'Cached=Shared' in the connection string.
         /// </summary>
         internal static string FormatInvalidIsolationLevelForUnsharedCache(object isolationLevel)
         {
@@ -344,6 +344,22 @@ namespace Microsoft.Data.Sqlite
         internal static string FormatUnknownDataType(object typeName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnknownDataType", "typeName"), typeName);
+        }
+
+        /// <summary>
+        /// SQLite Error {errorCode}: '{message}'.
+        /// </summary>
+        internal static string SqliteNativeError
+        {
+            get { return GetString("SqliteNativeError"); }
+        }
+
+        /// <summary>
+        /// SQLite Error {errorCode}: '{message}'.
+        /// </summary>
+        internal static string FormatSqliteNativeError(object errorCode, object message)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("SqliteNativeError", "errorCode", "message"), errorCode, message);
         }
 
         private static string GetString(string name, params string[] formatterNames)

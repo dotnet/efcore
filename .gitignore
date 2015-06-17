@@ -11,6 +11,7 @@ bin/
 obj/
 project.lock.json
 .settings
+*.sublime-*
 
 # Ignore vagrant - used for cross-platform testing
 .vagrant/
