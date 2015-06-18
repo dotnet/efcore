@@ -2030,6 +2030,29 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
+        [Fact]
+        public void Context_with_parameters_can_be_created_By_dbcontextactivator_createinstance()
+        {
+            var services = new ServiceCollection();
+            var contextOptionsExtension = new FakeEntityOptionsExtension();
+
+            services
+                .AddSingleton<FakeService>()
+                .AddEntityFramework();
+
+            var serviceProvider = services.BuildServiceProvider();
+            var valueOfParamInt = 100;
+            var valueOfParamStr = "Hello DbContext";
+            using (var context = DbContextActivator.CreateInstance<ContextWithParameters>(serviceProvider, valueOfParamInt, valueOfParamStr))
+            {
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
+
+                Assert.NotNull(contextServices.GetRequiredService<FakeService>());
+                Assert.Equal(valueOfParamInt, context.ParamInt);
+                Assert.Equal(valueOfParamStr, context.ParamStr);
+            }
+        }
+
         private class FakeService
         {
         }
@@ -2061,6 +2084,20 @@ namespace Microsoft.Data.Entity.Tests
             public ContextWithOptions(DbContextOptions<ContextWithOptions> contextOptions)
                 : base(contextOptions)
             {
+            }
+
+            public DbSet<Product> Products { get; set; }
+        }
+
+        private class ContextWithParameters : DbContext
+        {
+            public int ParamInt { get; set; }
+            public string ParamStr { get; set; }
+
+            public ContextWithParameters(int paramInt, string paramStr)
+            {
+                ParamInt = paramInt;
+                ParamStr = paramStr;
             }
 
             public DbSet<Product> Products { get; set; }
