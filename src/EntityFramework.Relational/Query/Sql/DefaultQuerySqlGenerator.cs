@@ -173,10 +173,19 @@ namespace Microsoft.Data.Entity.Query.Sql
                 VisitJoin(selectExpression.OrderBy, t =>
                     {
                         var aliasExpression = t.Expression as AliasExpression;
+
                         if (aliasExpression != null)
                         {
                             if (aliasExpression.Alias != null)
                             {
+                                var columnExpression = aliasExpression.TryGetColumnExpression();
+
+                                if (columnExpression != null)
+                                {
+                                    _sql.Append(DelimitIdentifier(columnExpression.TableAlias))
+                                        .Append(".");
+                                }
+
                                 _sql.Append(DelimitIdentifier(aliasExpression.Alias));
                             }
                             else
@@ -590,7 +599,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             return existsExpression;
         }
 
-        protected override Expression VisitBinary([NotNull] BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
@@ -703,14 +712,17 @@ namespace Microsoft.Data.Entity.Query.Sql
         public virtual Expression VisitAlias(AliasExpression aliasExpression)
         {
             Check.NotNull(aliasExpression, nameof(aliasExpression));
+
             if (!aliasExpression.Projected)
             {
                 Visit(aliasExpression.Expression);
+
                 if (aliasExpression.Alias != null)
                 {
                     _sql.Append(" AS ");
                 }
             }
+
             if (aliasExpression.Alias != null)
             {
                 _sql.Append(DelimitIdentifier(aliasExpression.Alias));

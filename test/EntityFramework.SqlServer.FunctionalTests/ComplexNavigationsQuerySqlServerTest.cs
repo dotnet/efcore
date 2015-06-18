@@ -16,6 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public override void Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql()
         {
             base.Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql();
+
             Assert.Equal(
                 @"SELECT [e].[Id], [e].[Name], [e].[OneToMany_Optional_Self_InverseId], [e].[OneToMany_Required_Self_InverseId]
 FROM [Level1] AS [e]
@@ -45,6 +46,7 @@ ORDER BY [l0].[Id], [l0].[Id0]", Sql);
         public override void Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times()
         {
             base.Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times();
+
             Assert.Equal(
                 @"SELECT [e].[Id], [e].[Name], [e].[OneToMany_Optional_Self_InverseId], [e].[OneToMany_Required_Self_InverseId]
 FROM [Level1] AS [e]
@@ -86,12 +88,9 @@ INNER JOIN (
     ) AS [l0] ON [l].[OneToMany_Optional_InverseId] = [l0].[Id0]
     INNER JOIN [Level2] AS [l1] ON [l].[OneToMany_Required_InverseId] = [l1].[Id]
 ) AS [l1] ON [l].[OneToMany_Optional_InverseId] = [l1].[Id1]
-ORDER BY [l1].[Id], [l1].[Id0]", Sql);
+ORDER BY [l1].[Id], [l1].[Id0], [l1].[Id1]", Sql);
         }
 
-        private static string Sql
-        {
-            get { return TestSqlLoggerFactory.Sql; }
-        }
+        private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }

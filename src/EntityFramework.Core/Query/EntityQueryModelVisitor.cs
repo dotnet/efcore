@@ -39,8 +39,6 @@ namespace Microsoft.Data.Entity.Query
         private Expression _expression;
         private StreamedSequenceInfo _streamedSequenceInfo;
 
-        private ISet<IQuerySource> _querySourcesRequiringMaterialization;
-
         // TODO: Can these be non-blocking?
         private bool _blockTaskExpressions = true;
 
@@ -92,6 +90,8 @@ namespace Microsoft.Data.Entity.Query
 
                 OptimizeQueryModel(queryModel);
 
+                QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
+
                 VisitQueryModel(queryModel);
 
                 SingleResultToSequence(queryModel);
@@ -119,6 +119,8 @@ namespace Microsoft.Data.Entity.Query
                 ExtractQueryAnnotations(queryModel);
 
                 OptimizeQueryModel(queryModel);
+
+                QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
 
                 VisitQueryModel(queryModel);
 
@@ -152,15 +154,17 @@ namespace Microsoft.Data.Entity.Query
                 = new QueryAnnotationExtractor().ExtractQueryAnnotations(queryModel);
         }
 
-        protected virtual void OptimizeQueryModel(
-            [NotNull] QueryModel queryModel)
+        protected virtual void OptimizeQueryModel([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
+            var subQueryMemberPushDownExpressionVisitor = new SubQueryMemberPushDownExpressionVisitor();
+
+            queryModel.TransformExpressions(subQueryMemberPushDownExpressionVisitor.Visit);
+
             new QueryOptimizer(QueryCompilationContext.QueryAnnotations).VisitQueryModel(queryModel);
 
-            QueryCompilationContext.Logger
-                .LogInformation(queryModel, Strings.LogOptimizedQueryModel);
+            QueryCompilationContext.Logger.LogInformation(queryModel, Strings.LogOptimizedQueryModel);
         }
 
         protected virtual void SingleResultToSequence([NotNull] QueryModel queryModel)
@@ -202,6 +206,11 @@ namespace Microsoft.Data.Entity.Query
         protected virtual void IncludeNavigations([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
+
+            if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo)
+            {
+                return;
+            }
 
             var includeSpecifications
                 = QueryCompilationContext.QueryAnnotations
@@ -417,13 +426,6 @@ namespace Microsoft.Data.Entity.Query
             return qc => queryExecutor(qc, null);
         }
 
-        public virtual bool QuerySourceRequiresMaterialization([NotNull] IQuerySource querySource)
-        {
-            Check.NotNull(querySource, nameof(querySource));
-
-            return _querySourcesRequiringMaterialization.Contains(querySource);
-        }
-
         public virtual bool QuerySourceRequiresTracking([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -442,19 +444,6 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var requiresEntityMaterializationExpressionVisitor
-                = new RequiresMaterializationExpressionVisitor(this);
-
-            queryModel.TransformExpressions(requiresEntityMaterializationExpressionVisitor.Visit);
-
-            _querySourcesRequiringMaterialization
-                = requiresEntityMaterializationExpressionVisitor.QuerySourcesRequiringMaterialization;
-
-            foreach (var groupJoinClause in queryModel.BodyClauses.OfType<GroupJoinClause>())
-            {
-                _querySourcesRequiringMaterialization.Add(groupJoinClause.JoinClause);
-            }
-
             base.VisitQueryModel(queryModel);
 
             if (_blockTaskExpressions)
@@ -471,7 +460,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(fromClause, nameof(fromClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            _expression = CompileMainFromClauseExpression(fromClause);
+            _expression = CompileMainFromClauseExpression(fromClause, queryModel);
 
             var sequenceType = _expression.Type.GetSequenceType();
 
@@ -502,6 +491,7 @@ namespace Microsoft.Data.Entity.Query
                     Expression.Lambda(_expression, QueryResultScopeParameter));
 
             var querySourceMapping = _queryCompilationContext.QuerySourceMapping;
+
             if (!querySourceMapping.ContainsMapping(fromClause))
             {
                 querySourceMapping.AddMapping(
@@ -510,9 +500,11 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        protected virtual Expression CompileMainFromClauseExpression([NotNull] MainFromClause mainFromClause)
+        protected virtual Expression CompileMainFromClauseExpression(
+            [NotNull] MainFromClause mainFromClause, [NotNull] QueryModel queryModel)
         {
             Check.NotNull(mainFromClause, nameof(mainFromClause));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             return ReplaceClauseReferences(mainFromClause.FromExpression, mainFromClause);
         }
@@ -523,8 +515,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(fromClause, nameof(fromClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var innerExpression
-                = ReplaceClauseReferences(fromClause.FromExpression, fromClause);
+            var innerExpression = CompileAdditionalFromClauseExpression(fromClause, queryModel);
 
             var innerSequenceType = innerExpression.Type.GetSequenceType();
 
@@ -555,6 +546,15 @@ namespace Microsoft.Data.Entity.Query
             _queryCompilationContext.QuerySourceMapping.AddMapping(
                 fromClause,
                 QueryResultScope.GetResult(QueryResultScopeParameter, fromClause, innerElementType));
+        }
+
+        protected virtual Expression CompileAdditionalFromClauseExpression(
+            [NotNull] AdditionalFromClause additionalFromClause, [NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(additionalFromClause, nameof(additionalFromClause));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            return ReplaceClauseReferences(additionalFromClause.FromExpression, additionalFromClause);
         }
 
         public override void VisitJoinClause(

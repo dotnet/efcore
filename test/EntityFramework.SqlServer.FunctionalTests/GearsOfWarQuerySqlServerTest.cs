@@ -161,7 +161,7 @@ INNER JOIN (
     INNER JOIN [City] AS [c2] ON [g].[CityOrBirthName] = [c2].[Name]
 ) AS [c2] ON [g].[AssignedCityName] = [c2].[Name2]
 LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname] AND [c].[GearSquadId] = [g].[SquadId])
-ORDER BY [c2].[Nickname], [c2].[Name]
+ORDER BY [c2].[Nickname], [c2].[Name], [c2].[Name0], [c2].[Name1], [c2].[Name2]
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
 FROM [Gear] AS [g]
@@ -173,7 +173,7 @@ INNER JOIN (
     INNER JOIN [City] AS [c1] ON [g].[CityOrBirthName] = [c1].[Name]
 ) AS [c1] ON [g].[CityOrBirthName] = [c1].[Name1]
 LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname] AND [c].[GearSquadId] = [g].[SquadId])
-ORDER BY [c1].[Nickname], [c1].[Name]
+ORDER BY [c1].[Nickname], [c1].[Name], [c1].[Name0], [c1].[Name1]
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
 FROM [Gear] AS [g]
@@ -184,7 +184,7 @@ INNER JOIN (
     LEFT JOIN [City] AS [c0] ON [g].[AssignedCityName] = [c0].[Name]
 ) AS [c0] ON [g].[AssignedCityName] = [c0].[Name0]
 LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname] AND [c].[GearSquadId] = [g].[SquadId])
-ORDER BY [c0].[Nickname], [c0].[Name]
+ORDER BY [c0].[Nickname], [c0].[Name], [c0].[Name0]
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c0].[Id], [c0].[GearNickName], [c0].[GearSquadId], [c0].[Note]
 FROM [Gear] AS [g]
@@ -198,9 +198,6 @@ ORDER BY [c].[Nickname], [c].[Name]",
                 Sql);
         }
 
-        private static string Sql
-        {
-            get { return TestSqlLoggerFactory.Sql; }
-        }
+        private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }

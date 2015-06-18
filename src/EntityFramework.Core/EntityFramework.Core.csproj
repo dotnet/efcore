@@ -267,6 +267,7 @@
     <Compile Include="Query\ResultOperators\QueryAnnotationExpressionNode.cs" />
     <Compile Include="Query\ResultOperators\QueryAnnotationResultOperator.cs" />
     <Compile Include="Query\ResultOperators\ThenIncludeExpressionNode.cs" />
+    <Compile Include="Query\ExpressionVisitors\SubQueryMemberPushDownExpressionVisitor.cs" />
     <Compile Include="Storage\DatabaseErrorLogState.cs" />
     <Compile Include="Storage\DatabaseProviderServices.cs" />
     <Compile Include="Storage\IDatabase.cs" />

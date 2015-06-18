@@ -195,8 +195,8 @@ namespace Microsoft.Data.Entity.Query
                 entityQueryModelVisitor.LinqOperatorProvider.GroupBy
                     .MakeGenericMethod(
                         typeof(QueryResultScope),
-                        groupResultOperator.KeySelector.Type,
-                        groupResultOperator.ElementSelector.Type),
+                        keySelector.Type,
+                        elementSelector.Type),
                 entityQueryModelVisitor.CreateScope(
                     entityQueryModelVisitor.Expression,
                     entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType,

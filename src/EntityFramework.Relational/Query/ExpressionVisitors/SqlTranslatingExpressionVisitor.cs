@@ -20,15 +20,18 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     public class SqlTranslatingExpressionVisitor : ThrowingExpressionVisitor
     {
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
+        private readonly SelectExpression _targetSelectExpression;
         private readonly Expression _topLevelPredicate;
 
         public SqlTranslatingExpressionVisitor(
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
+            [CanBeNull] SelectExpression targetSelectExpression,
             [CanBeNull] Expression topLevelPredicate = null)
         {
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
             _queryModelVisitor = queryModelVisitor;
+            _targetSelectExpression = targetSelectExpression;
             _topLevelPredicate = topLevelPredicate;
         }
 
@@ -243,10 +246,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             }
 
             return _queryModelVisitor
-                .BindMethodCallExpression(
-                    methodCallExpression,
-                    (property, querySource, selectExpression)
-                        => CreateAliasedColumnExpression(property, querySource, selectExpression));
+                .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpression);
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
@@ -276,16 +276,47 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
             }
 
-            return _queryModelVisitor
-                .BindMemberExpression(
-                    memberExpression,
-                    (property, querySource, selectExpression)
-                        => CreateAliasedColumnExpression(property, querySource, selectExpression));
+            var aliasExpression
+                = _queryModelVisitor
+                    .BindMemberExpression(memberExpression, CreateAliasedColumnExpression);
+
+            if (aliasExpression == null)
+            {
+                var querySourceReferenceExpression
+                    = memberExpression.Expression as QuerySourceReferenceExpression;
+
+                if (querySourceReferenceExpression != null)
+                {
+                    var selectExpression
+                        = _queryModelVisitor.TryGetQuery(querySourceReferenceExpression.ReferencedQuerySource);
+
+                    if (selectExpression != null)
+                    {
+                        aliasExpression
+                            = selectExpression.Projection
+                                .OfType<AliasExpression>()
+                                .SingleOrDefault(ae => ae.SourceMember == memberExpression.Member);
+                    }
+                }
+            }
+
+            return aliasExpression;
         }
 
         private AliasExpression CreateAliasedColumnExpression(
             IProperty property, IQuerySource querySource, SelectExpression selectExpression)
         {
+            if (_targetSelectExpression != null
+                && selectExpression != _targetSelectExpression)
+            {
+                selectExpression?.AddToProjection(
+                   _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                   property,
+                   querySource);
+
+                return null;
+            }
+
             return new AliasExpression(
                 new ColumnExpression(
                     _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
@@ -311,8 +342,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     {
                         return Expression.Convert(operand, expression.Type);
                     }
-                }
+
                     break;
+                }
             }
 
             return null;

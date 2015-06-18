@@ -53,6 +53,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 QueryModelVisitor.AddSubquery(_querySource, queryModelVisitor.Queries.First());
             }
 
+            QueryModelVisitor.RegisterSubQueryVisitor(_querySource, queryModelVisitor);
+
             return queryModelVisitor.Expression;
         }
 
@@ -65,10 +67,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     memberExpression,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
-                            QueryModelVisitor.QueryCompilationContext
-                                .GetColumnName(property),
+                            QueryModelVisitor.QueryCompilationContext.GetColumnName(property),
                             property,
-                            querySource));
+                            querySource),
+                    bindSubQueries: true);
 
             return base.VisitMember(memberExpression);
         }
@@ -82,10 +84,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     methodCallExpression,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
-                            QueryModelVisitor.QueryCompilationContext
-                                .GetColumnName(property),
+                            QueryModelVisitor.QueryCompilationContext.GetColumnName(property),
                             property,
-                            querySource));
+                            querySource),
+                    bindSubQueries: true);
 
             return base.VisitMethodCall(methodCallExpression);
         }
@@ -171,7 +173,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     Expression.Constant(0)
                 };
 
-            if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource)
+            if (QueryModelVisitor.QueryCompilationContext
+                .QuerySourceRequiresMaterialization(_querySource)
                 || QueryModelVisitor.RequiresClientEval)
             {
                 var materializer

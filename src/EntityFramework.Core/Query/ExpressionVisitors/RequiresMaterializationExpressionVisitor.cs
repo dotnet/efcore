@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
@@ -16,6 +17,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private readonly EntityQueryModelVisitor _queryModelVisitor;
         private readonly Dictionary<IQuerySource, int> _querySources = new Dictionary<IQuerySource, int>();
 
+        private QueryModel _queryModel;
+
         public RequiresMaterializationExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
         {
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
@@ -23,14 +26,26 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             _queryModelVisitor = queryModelVisitor;
         }
 
-        public virtual ISet<IQuerySource> QuerySourcesRequiringMaterialization
+        public virtual ISet<IQuerySource> FindQuerySourcesRequiringMaterialization([NotNull] QueryModel queryModel)
         {
-            get { return new HashSet<IQuerySource>(_querySources.Where(kv => kv.Value > 0).Select(kv => kv.Key)); }
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            _queryModel = queryModel;
+
+            _queryModel.TransformExpressions(Visit);
+
+            var querySources
+                = new HashSet<IQuerySource>(
+                    _querySources.Where(kv => kv.Value > 0).Select(kv => kv.Key));
+
+            return querySources;
         }
 
         protected override Expression VisitQuerySourceReference(
             QuerySourceReferenceExpression querySourceReferenceExpression)
         {
+            Check.NotNull(querySourceReferenceExpression, nameof(querySourceReferenceExpression));
+
             if (!_querySources.ContainsKey(querySourceReferenceExpression.ReferencedQuerySource))
             {
                 _querySources.Add(querySourceReferenceExpression.ReferencedQuerySource, 0);
@@ -47,6 +62,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
             var newExpression = base.VisitMember(memberExpression);
 
             if (memberExpression.Expression != null)
@@ -68,6 +85,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             var newExpression = base.VisitMethodCall(methodCallExpression);
 
             _queryModelVisitor
@@ -82,6 +101,35 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         });
 
             return newExpression;
+        }
+
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            expression.QueryModel.TransformExpressions(Visit);
+
+            var querySourceReferenceExpression
+                = expression.QueryModel.SelectClause.Selector
+                    as QuerySourceReferenceExpression;
+
+            if (querySourceReferenceExpression != null)
+            {
+                var querySourceTracingExpressionVisitor = new QuerySourceTracingExpressionVisitor();
+
+                var resultQuerySource
+                    = querySourceTracingExpressionVisitor
+                        .FindResultQuerySourceReferenceExpression(
+                            _queryModel.SelectClause.Selector,
+                            querySourceReferenceExpression.ReferencedQuerySource);
+
+                if (resultQuerySource == null)
+                {
+                    _querySources[querySourceReferenceExpression.ReferencedQuerySource]--;
+                }
+            }
+
+            return expression;
         }
     }
 }

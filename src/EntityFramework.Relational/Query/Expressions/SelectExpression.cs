@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -15,6 +16,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 {
     public class SelectExpression : TableExpressionBase
     {
+        private const string SystemAliasPrefix = "t";
 #if DEBUG
         internal string DebugView => ToString();
 #endif
@@ -27,7 +29,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
         private int? _offset;
         private bool _projectStar;
 
-        private int? _subqueryDepth;
+        private int _subqueryDepth = -1;
 
         private bool _isDistinct;
 
@@ -91,9 +93,10 @@ namespace Microsoft.Data.Entity.Query.Expressions
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            return _tables.First(te
+            return _tables.FirstOrDefault(te
                 => te.QuerySource == querySource
-                   || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false));
+                   || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false))
+                   ?? _tables.Single();
         }
 
         public virtual bool IsDistinct
@@ -174,20 +177,16 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public virtual SelectExpression PushDownSubquery()
         {
-            _subqueryDepth
-                = _subqueryDepth != null
-                    ? _subqueryDepth + 1
-                    : 0;
+            _subqueryDepth++;
 
-            var subquery
-                = new SelectExpression("t" + _subqueryDepth);
+            var subquery = new SelectExpression(SystemAliasPrefix + _subqueryDepth);
 
             var columnAliasCounter = 0;
 
             // TODO: Only AliasExpressions? Don't unique-ify here.
             foreach (var aliasExpression in _projection.OfType<AliasExpression>())
             {
-                var columnExpression = ((Expression)aliasExpression).TryGetColumnExpression();
+                var columnExpression = aliasExpression.TryGetColumnExpression();
 
                 if (columnExpression != null
                     && subquery._projection.OfType<AliasExpression>().Any(ae =>
@@ -206,7 +205,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             subquery._offset = _offset;
             subquery._isDistinct = _isDistinct;
             subquery._subqueryDepth = _subqueryDepth;
-            subquery._projectStar = _projectStar;
+            subquery._projectStar = _projectStar || !subquery._projection.Any();
 
             _limit = null;
             _offset = null;
@@ -488,9 +487,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
         {
             Check.NotNull(ordering, nameof(ordering));
 
-            var columnExpression = ordering.Expression.TryGetColumnExpression();
-
-            if (_orderBy.FindIndex(o => o.Expression.TryGetColumnExpression()?.Equals(columnExpression) ?? false) == -1)
+            if (_orderBy.FindIndex(o => o.Expression.Equals(ordering.Expression)) == -1)
             {
                 _orderBy.Add(ordering);
             }
@@ -510,6 +507,27 @@ namespace Microsoft.Data.Entity.Query.Expressions
             _orderBy.Clear();
         }
 
+        public virtual void ExplodeStarProjection()
+        {
+            if (_projectStar)
+            {
+                var subquery = (SelectExpression)_tables.Single();
+
+                foreach (var aliasExpression in subquery._projection.Cast<AliasExpression>())
+                {
+                    var expression = UpdateColumnExpression(aliasExpression.Expression, subquery);
+
+                    _projection.Add(
+                        new AliasExpression(aliasExpression.Alias, expression)
+                        {
+                            SourceMember = aliasExpression.SourceMember
+                        });
+                }
+
+                _projectStar = false;
+            }
+        }
+
         public virtual void AddCrossJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
@@ -521,23 +539,6 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
             _tables.Add(new CrossJoinExpression(tableExpression));
             _projection.AddRange(projection);
-        }
-
-        public virtual void ExplodeStarProjection()
-        {
-            if (_projectStar)
-            {
-                var subquery = (SelectExpression)_tables.Single();
-
-                foreach (var aliasExpression in subquery._projection.Cast<AliasExpression>())
-                {
-                    var expression = UpdateColumnExpression(aliasExpression.Expression, subquery);
-
-                    _projection.Add(new AliasExpression(aliasExpression.Alias, expression));
-                }
-
-                _projectStar = false;
-            }
         }
 
         public virtual JoinExpressionBase AddInnerJoin([NotNull] TableExpressionBase tableExpression)
@@ -579,8 +580,17 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         private string CreateUniqueTableAlias(string currentAlias)
         {
+            Debug.Assert(currentAlias != null);
+
             var uniqueAlias = currentAlias;
             var counter = 0;
+
+            int _;
+            if (currentAlias.StartsWith(SystemAliasPrefix)
+                && int.TryParse(currentAlias.Substring(1), out _))
+            {
+                currentAlias = SystemAliasPrefix;
+            }
 
             while (_tables.Any(t => string.Equals(t.Alias, uniqueAlias, StringComparison.OrdinalIgnoreCase)))
             {
@@ -612,7 +622,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             _tables.Remove(tableExpression);
         }
 
-        protected override Expression Accept([NotNull] ExpressionVisitor visitor)
+        protected override Expression Accept(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
 
@@ -633,41 +643,14 @@ namespace Microsoft.Data.Entity.Query.Expressions
             return new DefaultQuerySqlGenerator(this, null).GenerateSql(new Dictionary<string, object>());
         }
 
-        public virtual void UpdateOrderByColumnBinding([NotNull] IEnumerable<Ordering> orderBy, [NotNull] JoinExpressionBase innerJoinExpression)
+        // TODO: Make polymorphic
+        public virtual Expression UpdateColumnExpression(
+            [NotNull] Expression expression,
+            [NotNull] TableExpressionBase tableExpression)
         {
-            foreach (var ordering in orderBy)
-            {
-                var aliasExpression = ordering.Expression as AliasExpression;
-                var columnExpression = ordering.Expression.TryGetColumnExpression();
+            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(tableExpression, nameof(tableExpression));
 
-                if (columnExpression != null)
-                {
-                    var matchingExpression = ((SelectExpression)innerJoinExpression.TableExpression).Projection.OfType<AliasExpression>()
-                        .SingleOrDefault(ae => ae.TryGetColumnExpression().Equals(columnExpression));
-
-                    AddToOrderBy(
-                        matchingExpression?.Alias ?? aliasExpression.Alias ?? columnExpression.Name,
-                        columnExpression.Property,
-                        innerJoinExpression,
-                        ordering.OrderingDirection);
-                }
-                else
-                {
-                    AddToOrderBy(UpdateColumnExpression(ordering, innerJoinExpression));
-                }
-            }
-        }
-
-        private static Ordering UpdateColumnExpression(Ordering ordering, TableExpressionBase tableExpression)
-        {
-            var newExpression = UpdateColumnExpression(ordering.Expression, tableExpression);
-            var newOrdering = new Ordering(newExpression, ordering.OrderingDirection);
-
-            return newOrdering;
-        }
-
-        private static Expression UpdateColumnExpression(Expression expression, TableExpressionBase tableExpression)
-        {
             var aliasExpression = expression as AliasExpression;
             var columnExpression = expression as ColumnExpression;
 
@@ -675,28 +658,39 @@ namespace Microsoft.Data.Entity.Query.Expressions
             {
                 return new ColumnExpression(columnExpression.Name, columnExpression.Property, tableExpression);
             }
+
             if (aliasExpression != null)
             {
-                return new AliasExpression(aliasExpression.Alias, UpdateColumnExpression(aliasExpression.Expression, tableExpression));
+                var newAliasExpression
+                    = new AliasExpression(
+                        aliasExpression.Alias,
+                        UpdateColumnExpression(aliasExpression.Expression, tableExpression))
+                    {
+                        SourceMember = aliasExpression.SourceMember
+                    };
+
+                return newAliasExpression;
             }
+
             switch (expression.NodeType)
             {
                 case ExpressionType.Coalesce:
                 {
-                    var binaryExpression = expression as BinaryExpression;
+                    var binaryExpression = (BinaryExpression)expression;
                     var left = UpdateColumnExpression(binaryExpression.Left, tableExpression);
                     var right = UpdateColumnExpression(binaryExpression.Right, tableExpression);
                     return binaryExpression.Update(left, binaryExpression.Conversion, right);
                 }
                 case ExpressionType.Conditional:
                 {
-                    var conditionalExpression = expression as ConditionalExpression;
+                    var conditionalExpression = (ConditionalExpression)expression;
                     var test = UpdateColumnExpression(conditionalExpression.Test, tableExpression);
                     var ifTrue = UpdateColumnExpression(conditionalExpression.IfTrue, tableExpression);
                     var ifFalse = UpdateColumnExpression(conditionalExpression.IfFalse, tableExpression);
                     return conditionalExpression.Update(test, ifTrue, ifFalse);
                 }
             }
+
             return expression;
         }
     }

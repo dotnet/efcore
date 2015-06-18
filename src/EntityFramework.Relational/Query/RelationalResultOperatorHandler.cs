@@ -123,7 +123,9 @@ namespace Microsoft.Data.Entity.Query
         private static Expression HandleAll(HandlerContext handlerContext)
         {
             var filteringVisitor
-                = new SqlTranslatingExpressionVisitor(handlerContext.QueryModelVisitor);
+                = new SqlTranslatingExpressionVisitor(
+                    handlerContext.QueryModelVisitor,
+                    handlerContext.SelectExpression);
 
             var predicate
                 = filteringVisitor.Visit(
