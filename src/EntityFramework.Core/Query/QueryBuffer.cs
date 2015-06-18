@@ -299,7 +299,8 @@ namespace Microsoft.Data.Entity.Query
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory), async (eli, ct) =>
+                await relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
+                    .Select(async (eli, ct) =>
                     {
                         var entityKey
                             = entityKeyFactory

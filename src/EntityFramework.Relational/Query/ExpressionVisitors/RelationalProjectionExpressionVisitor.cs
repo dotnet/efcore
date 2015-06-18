@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
@@ -13,9 +15,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class RelationalProjectionExpressionVisitor : ProjectionExpressionVisitor
     {
+        private readonly RelationalQueryModelVisitor _queryModelVisitor;
         private readonly IQuerySource _querySource;
-
-        private readonly SqlTranslatingExpressionVisitor _sqlTranslatingExpressionVisitor;
 
         private bool _requiresClientEval;
 
@@ -24,10 +25,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             [NotNull] IQuerySource querySource)
             : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
-            _querySource = querySource;
+            Check.NotNull(querySource, nameof(querySource));
 
-            _sqlTranslatingExpressionVisitor
-                = new SqlTranslatingExpressionVisitor(queryModelVisitor);
+            _queryModelVisitor = queryModelVisitor;
+            _querySource = querySource;
         }
 
         private new RelationalQueryModelVisitor QueryModelVisitor
@@ -37,6 +38,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.Method.IsGenericMethod)
             {
                 var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
@@ -60,13 +63,44 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return base.VisitMethodCall(methodCallExpression);
         }
 
+        protected override Expression VisitNew(NewExpression newExpression)
+        {
+            Check.NotNull(newExpression, nameof(newExpression));
+
+            var newNewExpression = base.VisitNew(newExpression);
+
+            var selectExpression = QueryModelVisitor.TryGetQuery(_querySource);
+
+            if (selectExpression != null)
+            {
+                for (var i = 0; i < newExpression.Arguments.Count; i++)
+                {
+                    var aliasExpression
+                        = selectExpression.Projection
+                            .OfType<AliasExpression>()
+                            .SingleOrDefault(ae => ae.SourceExpression == newExpression.Arguments[i]);
+
+                    if (aliasExpression != null)
+                    {
+                        aliasExpression.SourceMember = newExpression.Members[i];
+                    }
+                }
+            }
+
+            return newNewExpression;
+        }
+
         public override Expression Visit(Expression expression)
         {
+            var selectExpression = QueryModelVisitor.TryGetQuery(_querySource);
+
             if (expression != null
-                && !(expression is ConstantExpression))
+                && !(expression is ConstantExpression)
+                && selectExpression != null)
             {
                 var sqlExpression
-                    = _sqlTranslatingExpressionVisitor.Visit(expression);
+                    = new SqlTranslatingExpressionVisitor(_queryModelVisitor, selectExpression)
+                        .Visit(expression);
 
                 if (sqlExpression == null)
                 {
@@ -77,35 +111,51 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
                 else
                 {
-                    var selectExpression
-                        = QueryModelVisitor.TryGetQuery(_querySource);
-
-                    Debug.Assert(selectExpression != null);
-
                     if (!(expression is NewExpression))
                     {
+                        AliasExpression aliasExpression;
+
+                        int index;
+
                         if (!(expression is QuerySourceReferenceExpression))
                         {
                             var columnExpression = sqlExpression.TryGetColumnExpression();
 
                             if (columnExpression != null)
                             {
-                                selectExpression.AddToProjection(columnExpression);
+                                index = selectExpression.AddToProjection(sqlExpression);
+
+                                aliasExpression = selectExpression.Projection[index] as AliasExpression;
+
+                                if (aliasExpression != null)
+                                {
+                                    aliasExpression.SourceExpression = expression;
+                                }
 
                                 return expression;
                             }
                         }
 
-                        var index = selectExpression.AddToProjection(sqlExpression);
+                        if (!(sqlExpression is ConstantExpression))
+                        {
+                            index = selectExpression.AddToProjection(sqlExpression);
 
-                        return
-                            QueryModelVisitor.BindReadValueMethod(
-                                expression.Type,
-                                QueryResultScope.GetResult(
-                                    EntityQueryModelVisitor.QueryResultScopeParameter,
-                                    _querySource,
-                                    typeof(ValueBuffer)),
-                                index);
+                            aliasExpression = selectExpression.Projection[index] as AliasExpression;
+
+                            if (aliasExpression != null)
+                            {
+                                aliasExpression.SourceExpression = expression;
+                            }
+
+                            return
+                                QueryModelVisitor.BindReadValueMethod(
+                                    expression.Type,
+                                    QueryResultScope.GetResult(
+                                        EntityQueryModelVisitor.QueryResultScopeParameter,
+                                        _querySource,
+                                        typeof(ValueBuffer)),
+                                    index);
+                        }
                     }
                 }
             }

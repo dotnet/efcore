@@ -4,27 +4,50 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query.Expressions
 {
     public abstract class TableExpressionBase : Expression
     {
+        private string _alias;
+        private IQuerySource _querySource;
+
         protected TableExpressionBase(
-            [CanBeNull] IQuerySource querySource,
-            [CanBeNull] string alias)
+            [CanBeNull] IQuerySource querySource, [CanBeNull] string alias)
         {
-            QuerySource = querySource;
-            Alias = alias;
+            _querySource = querySource;
+            _alias = alias;
         }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
         public override Type Type => typeof(object);
 
-        public virtual IQuerySource QuerySource { get; [param: NotNull] set; }
+        public virtual IQuerySource QuerySource
+        {
+            get { return _querySource; }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, nameof(value));
 
-        public virtual string Alias { get; [param: NotNull] set; }
+                _querySource = value;
+            }
+        }
+
+        public virtual string Alias
+        {
+            get { return _alias; }
+            [param: NotNull]
+            set
+            {
+                Check.NotEmpty(value, nameof(value));
+
+                _alias = value;
+            }
+        }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
     }

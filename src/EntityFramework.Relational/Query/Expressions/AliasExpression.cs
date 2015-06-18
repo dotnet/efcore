@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
@@ -13,28 +14,61 @@ namespace Microsoft.Data.Entity.Query.Expressions
     {
         private readonly Expression _expression;
 
+        private string _alias;
+
+        private Expression _sourceExpression;
+
         public AliasExpression([NotNull] Expression expression)
         {
+            Check.NotNull(expression, nameof(expression));
+
             _expression = expression;
         }
 
+        // TODO: Revisit the design here, "alias" should really be required.
         public AliasExpression([CanBeNull] string alias, [NotNull] Expression expression)
         {
-            Alias = alias;
+            Check.NotNull(expression, nameof(expression));
+
+            _alias = alias;
             _expression = expression;
         }
 
-        public virtual string Alias { get; [param: NotNull] set; }
+        public virtual string Alias
+        {
+            get { return _alias; }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, nameof(value));
+
+                _alias = value;
+            }
+        }
 
         public virtual Expression Expression => _expression;
 
+        // TODO: Revisit why we need this. Try and remove
         public virtual bool Projected { get; set; } = false;
 
         public override ExpressionType NodeType => ExpressionType.Extension;
-
         public override Type Type => _expression.Type;
 
-        protected override Expression Accept([NotNull] ExpressionVisitor visitor)
+        public virtual Expression SourceExpression
+        {
+            get { return _sourceExpression; }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, nameof(value));
+
+                _sourceExpression = value;
+            }
+        }
+
+        public virtual MemberInfo SourceMember { get; [param: CanBeNull] set; }
+
+        protected override Expression Accept(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
 
@@ -49,7 +83,9 @@ namespace Microsoft.Data.Entity.Query.Expressions
         {
             var newInnerExpression = visitor.Visit(_expression);
 
-            return newInnerExpression != _expression ? new AliasExpression(Alias, newInnerExpression) : this;
+            return newInnerExpression != _expression 
+                ? new AliasExpression(Alias, newInnerExpression)
+                : this;
         }
 
         public override string ToString()

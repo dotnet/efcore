@@ -204,14 +204,15 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 Func<ValueBuffer, EntityKey> entityKeyFactory
                     = vr => keyFactory.Create(entityType.RootType(), keyProperties, vr);
 
-                var materializer
-                    = new MaterializerFactory(QueryModelVisitor
-                        .QueryCompilationContext
-                        .EntityMaterializerSource)
-                        .CreateMaterializer(entityType);
-
-                if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
+                if (QueryModelVisitor.QueryCompilationContext
+                    .QuerySourceRequiresMaterialization(_querySource))
                 {
+                    var materializer
+                       = new MaterializerFactory(QueryModelVisitor
+                           .QueryCompilationContext
+                           .EntityMaterializerSource)
+                           .CreateMaterializer(entityType);
+
                     return Expression.Call(
                         _entityQueryMethodInfo.MakeGenericMethod(elementType),
                         QueryContextParameter,

@@ -39,9 +39,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            if (parameterExpression.Name != null
-                && parameterExpression.Name
-                    .StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix))
+            if (parameterExpression.Name
+                .StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix))
             {
                 return Expression.Call(
                     _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),

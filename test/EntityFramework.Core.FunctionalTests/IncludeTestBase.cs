@@ -4,7 +4,6 @@
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -22,6 +21,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();
+        }
+
+        [Fact]
+        public virtual void Include_when_result_operator()
+        {
+            using (var context = CreateContext())
+            {
+                var any
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .Any();
+
+                Assert.True(any);
+            }
         }
 
         [Fact]
