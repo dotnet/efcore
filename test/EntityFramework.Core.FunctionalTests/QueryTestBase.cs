@@ -3407,6 +3407,42 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Select_Property_when_non_shadow()
+        {
+            AssertQuery<Order>(os =>
+                from o in os
+                select o.Property<int>("OrderID"));
+        }
+
+        [Fact]
+        public virtual void Where_Property_when_non_shadow()
+        {
+            AssertQuery<Order>(os =>
+                from o in os
+                where o.Property<int>("OrderID") == 10248
+                select o,
+                entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Select_Property_when_shadow()
+        {
+            AssertQuery<Employee>(es =>
+                from e in es
+                select e.Property<string>("Title"));
+        }
+
+        [Fact]
+        public virtual void Where_Property_when_shadow()
+        {
+            AssertQuery<Employee>(es =>
+                from e in es
+                where e.Property<string>("Title") == "Sales Representative"
+                select e,
+                entryCount: 6);
+        }
+
+        [Fact]
         public virtual void Selected_column_can_coalesce()
         {
             using (var context = CreateContext())
