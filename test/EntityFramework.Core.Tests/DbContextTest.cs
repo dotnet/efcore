@@ -2034,7 +2034,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Context_with_parameters_can_be_created_By_dbcontextactivator_createinstance()
         {
             var services = new ServiceCollection();
-            var contextOptionsExtension = new FakeEntityOptionsExtension();
+            var contextOptionsExtension = new FakeDbContextOptionsExtension();
 
             services
                 .AddSingleton<FakeService>()
