@@ -532,9 +532,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var orderNote2 = Add(new TOrderNote { Note = "And donuts!", OrderId = order1.AlternateId }).Entity;
             var orderNote3 = Add(new TOrderNote { Note = "But no coffee. :-(", OrderId = order1.AlternateId }).Entity;
 
-            var orderQualityCheck1 = Add(new TOrderQualityCheck { OrderId = order1.AlternateId, CheckedBy = "Eeky Bear" }).Entity;
-            var orderQualityCheck2 = Add(new TOrderQualityCheck { OrderId = order2.AlternateId, CheckedBy = "Eeky Bear" }).Entity;
-            var orderQualityCheck3 = Add(new TOrderQualityCheck { OrderId = order3.AlternateId, CheckedBy = "Eeky Bear" }).Entity;
+            var orderQualityCheck1 = Add(new TOrderQualityCheck { OrderId = order1.AlternateId, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
+            var orderQualityCheck2 = Add(new TOrderQualityCheck { OrderId = order2.AlternateId, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
+            var orderQualityCheck3 = Add(new TOrderQualityCheck { OrderId = order3.AlternateId, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
 
             var orderLine1 = Add(new TOrderLine { OrderId = order1.AnOrderId, ProductId = product1.ProductId, Quantity = 7 }).Entity;
             var orderLine2 = Add(new TOrderLine { OrderId = order1.AnOrderId, ProductId = product2.ProductId, Quantity = 1 }).Entity;
@@ -850,9 +850,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 order1.Notes.Add(orderNote3);
             }
 
-            var orderQualityCheck1 = Add(new TOrderQualityCheck { Order = order1, CheckedBy = "Eeky Bear" }).Entity;
-            var orderQualityCheck2 = Add(new TOrderQualityCheck { Order = order2, CheckedBy = "Eeky Bear" }).Entity;
-            var orderQualityCheck3 = Add(new TOrderQualityCheck { Order = order3, CheckedBy = "Eeky Bear" }).Entity;
+            var orderQualityCheck1 = Add(new TOrderQualityCheck { Order = order1, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
+            var orderQualityCheck2 = Add(new TOrderQualityCheck { Order = order2, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
+            var orderQualityCheck3 = Add(new TOrderQualityCheck { Order = order3, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
 
             var orderLine1 = Add(new TOrderLine { Order = order1, Product = product1, Quantity = 7 }).Entity;
             var orderLine2 = Add(new TOrderLine { Order = order1, Product = product2, Quantity = 1 }).Entity;
@@ -1195,9 +1195,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             order1.Notes.Add(orderNote2);
             order1.Notes.Add(orderNote3);
 
-            var orderQualityCheck1 = toAdd[2].AddEx(new TOrderQualityCheck { Order = order1, CheckedBy = "Eeky Bear" });
-            var orderQualityCheck2 = toAdd[2].AddEx(new TOrderQualityCheck { Order = order2, CheckedBy = "Eeky Bear" });
-            var orderQualityCheck3 = toAdd[2].AddEx(new TOrderQualityCheck { Order = order3, CheckedBy = "Eeky Bear" });
+            var orderQualityCheck1 = toAdd[2].AddEx(new TOrderQualityCheck { Order = order1, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now });
+            var orderQualityCheck2 = toAdd[2].AddEx(new TOrderQualityCheck { Order = order2, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now });
+            var orderQualityCheck3 = toAdd[2].AddEx(new TOrderQualityCheck { Order = order3, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now });
 
             var orderLine1 = toAdd[3].AddEx(new TOrderLine { Product = product1, Quantity = 7 });
             var orderLine2 = toAdd[3].AddEx(new TOrderLine { Product = product2, Quantity = 1 });
