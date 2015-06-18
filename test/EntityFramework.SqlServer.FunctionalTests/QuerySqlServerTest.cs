@@ -1823,7 +1823,7 @@ FROM [Customers] AS [c]",
 
             Assert.Equal(
                 @"SELECT DISTINCT [c].[City]
-FROM [Customers] AS [c]", // Ordering not preserved by distinct
+FROM [Customers] AS [c]", // Ordering not preserved by distinct when ordering columns not projected.
                 Sql);
         }
 
@@ -1852,6 +1852,17 @@ FROM (
     FROM [Customers] AS [c]
 ) AS [t0]
 ORDER BY [t0].[CustomerID]",
+                Sql);
+        }
+
+        public override void Take_Distinct()
+        {
+            base.Take_Distinct();
+
+            Assert.Equal(
+                @"SELECT DISTINCT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[OrderID]",
                 Sql);
         }
 
