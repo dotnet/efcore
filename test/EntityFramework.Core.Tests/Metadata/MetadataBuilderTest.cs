@@ -473,7 +473,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -483,7 +483,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -492,7 +492,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -501,7 +501,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -510,7 +510,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -519,7 +519,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -528,7 +528,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -537,7 +537,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -555,7 +555,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -565,7 +565,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -574,7 +574,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -583,7 +583,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -592,7 +592,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -601,7 +601,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -610,7 +610,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.Annotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            ((IAccessor<Model>)builder).Service["Model"] = value + ".Model";
+            builder.GetService<Model>()["Model"] = value + ".Model";
 
             return builder;
         }

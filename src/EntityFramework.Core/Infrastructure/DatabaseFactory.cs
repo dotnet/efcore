@@ -4,7 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
@@ -12,22 +11,18 @@ namespace Microsoft.Data.Entity.Infrastructure
     {
         private readonly DbContext _context;
         private readonly IDataStoreCreator _dataStoreCreator;
-        private readonly ILoggerFactory _loggerFactory;
 
         public DatabaseFactory(
             [NotNull] DbContext context,
-            [NotNull] IDataStoreCreator dataStoreCreator,
-            [NotNull] ILoggerFactory loggerFactory)
+            [NotNull] IDataStoreCreator dataStoreCreator)
         {
             Check.NotNull(context, nameof(context));
             Check.NotNull(dataStoreCreator, nameof(dataStoreCreator));
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
 
             _context = context;
             _dataStoreCreator = dataStoreCreator;
-            _loggerFactory = loggerFactory;
         }
 
-        public virtual Database CreateDatabase() => new Database(_context, _dataStoreCreator, _loggerFactory);
+        public virtual Database CreateDatabase() => new Database(_context, _dataStoreCreator);
     }
 }

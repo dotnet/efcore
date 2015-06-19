@@ -168,6 +168,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> Required(bool isRequired = true)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.Required(isRequired, ConfigurationSource.Explicit));
 
-        private InternalRelationshipBuilder Builder => ((IAccessor<InternalRelationshipBuilder>)this).Service;
+        private InternalRelationshipBuilder Builder => this.GetService<InternalRelationshipBuilder>();
     }
 }

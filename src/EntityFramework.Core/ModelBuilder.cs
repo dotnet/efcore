@@ -221,6 +221,6 @@ namespace Microsoft.Data.Entity
             return this;
         }
 
-        private InternalModelBuilder Builder => ((IAccessor<InternalModelBuilder>)this).Service;
+        private InternalModelBuilder Builder => this.GetService();
     }
 }

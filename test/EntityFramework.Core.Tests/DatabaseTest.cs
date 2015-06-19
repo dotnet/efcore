@@ -25,10 +25,9 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Setup(m => m.EnsureCreated()).Returns(true);
             creatorMock.Setup(m => m.EnsureDeleted()).Returns(true);
 
-            var database = new ConcreteDatabase(
+            var database = new Database(
                 context,
-                creatorMock.Object,
-                new LoggerFactory());
+                creatorMock.Object);
 
             Assert.True(database.EnsureCreated());
             creatorMock.Verify(m => m.EnsureCreated(), Times.Once);
@@ -47,10 +46,9 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Setup(m => m.EnsureCreatedAsync(cancellationToken)).Returns(Task.FromResult(true));
             creatorMock.Setup(m => m.EnsureDeletedAsync(cancellationToken)).Returns(Task.FromResult(true));
 
-            var database = new ConcreteDatabase(
+            var database = new Database(
                 context,
-                creatorMock.Object,
-                new LoggerFactory());
+                creatorMock.Object);
 
             Assert.True(await database.EnsureCreatedAsync(cancellationToken));
             creatorMock.Verify(m => m.EnsureCreatedAsync(cancellationToken), Times.Once);
@@ -76,8 +74,8 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = TestHelpers.Instance.CreateContext())
             {
                 Assert.Same(
-                    ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IDataStoreCreator>(),
-                    ((IAccessor<IDataStoreCreator>)context.Database).Service);
+                    context.GetService<IDataStoreCreator>(),
+                    context.Database.GetService<IDataStoreCreator>());
             }
         }
 
@@ -86,29 +84,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = TestHelpers.Instance.CreateContext())
             {
-                Assert.Same(
-                    ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IModel>(),
-                    ((IAccessor<IModel>)context.Database).Service);
-            }
-        }
-
-        [Fact]
-        public void Can_get_Logger()
-        {
-            using (var context = TestHelpers.Instance.CreateContext())
-            {
-                Assert.NotNull(((IAccessor<ILogger>)context.Database).Service);
-            }
-        }
-
-        private class ConcreteDatabase : Database
-        {
-            public ConcreteDatabase(
-                DbContext context,
-                IDataStoreCreator dataStoreCreator,
-                ILoggerFactory loggerFactory)
-                : base(context, dataStoreCreator, loggerFactory)
-            {
+                Assert.Same(context.GetService<IModel>(), context.Database.GetService<IModel>());
             }
         }
     }

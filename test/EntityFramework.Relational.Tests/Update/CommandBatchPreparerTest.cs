@@ -266,7 +266,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 .UseModel(model);
             optionsBuilder.UseInMemoryStore(persist: false);
 
-            return ((IAccessor<IServiceProvider>)new DbContext(optionsBuilder.Options)).Service;
+            return new DbContext(optionsBuilder.Options).GetService();
         }
 
         private static ICommandBatchPreparer CreateCommandBatchPreparer(IModificationCommandBatchFactory modificationCommandBatchFactory = null)

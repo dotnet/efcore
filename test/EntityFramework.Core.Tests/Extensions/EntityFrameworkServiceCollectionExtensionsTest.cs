@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Tests
             return (services ?? new ServiceCollection())
                 .AddEntityFramework()
                 .AddInMemoryStore()
-                .ServiceCollection();
+                .GetService();
         }
         
         protected virtual DbContext CreateContext(IServiceProvider serviceProvider)

@@ -2464,7 +2464,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public class KeyValueEntityTracker
             {
                 public virtual void TrackEntity(EntityEntry entry)
-                    => ((IAccessor<InternalEntityEntry>)entry).Service
+                    => entry.GetService()
                         .SetEntityState(DetermineState(entry), acceptChanges: true);
 
                 public virtual EntityState DetermineState(EntityEntry entry)

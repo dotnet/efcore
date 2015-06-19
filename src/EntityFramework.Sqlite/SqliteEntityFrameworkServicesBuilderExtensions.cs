@@ -20,7 +20,7 @@ namespace Microsoft.Framework.DependencyInjection
         {
             Check.NotNull(services, nameof(services));
 
-            ((IAccessor<IServiceCollection>)services.AddRelational()).Service
+            services.AddRelational().GetService()
                 .AddSingleton<IDataStoreSource, SqliteDataStoreSource>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqliteValueGeneratorCache>()

@@ -144,6 +144,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
-        private InternalPropertyBuilder Builder => ((IAccessor<InternalPropertyBuilder>)this).Service;
+        private InternalPropertyBuilder Builder => this.GetService<InternalPropertyBuilder>();
     }
 }

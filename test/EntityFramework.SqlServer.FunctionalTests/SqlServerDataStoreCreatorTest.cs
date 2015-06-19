@@ -231,9 +231,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (var context = new BloggingContext(serviceProvider, optionsBuilder.Options))
                 {
-                    var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-
-                    var creator = (RelationalDataStoreCreator)contextServices.GetRequiredService<IDataStoreCreator>();
+                    var creator = (RelationalDataStoreCreator)context.GetService<IDataStoreCreator>();
 
                     if (async)
                     {

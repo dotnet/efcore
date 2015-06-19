@@ -509,7 +509,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entity, nameof(entity));
 
             var entry = EntryWithoutDetectChanges(entity);
-            var internalEntry = ((IAccessor<InternalEntityEntry>)entry).Service;
+            var internalEntry = entry.GetService();
             internalEntry.SetEntityState(EntityState.Unchanged, acceptChanges: true);
 
             return new EntityEntry<TEntity>(entry.Context, internalEntry);

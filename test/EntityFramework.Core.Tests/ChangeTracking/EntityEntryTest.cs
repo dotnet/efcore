@@ -43,10 +43,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var entity = context.Add(new Chunky()).Entity;
-                var entry = ((IAccessor<IStateManager>)context.ChangeTracker).Service.GetOrCreateEntry(entity);
+                var entry = context.ChangeTracker.GetService().GetOrCreateEntry(entity);
 
-                Assert.Same(entry, ((IAccessor<InternalEntityEntry>)context.Entry(entity)).Service);
-                Assert.Same(entry, ((IAccessor<InternalEntityEntry>)context.Entry((object)entity)).Service);
+                Assert.Same(entry, context.Entry(entity).GetService());
+                Assert.Same(entry, context.Entry((object)entity).GetService());
             }
         }
 
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var entity = new Chunky();
-                var entry = ((IAccessor<InternalEntityEntry>)context.Add(entity)).Service;
+                var entry = context.Add(entity).GetService();
 
                 context.Entry(entity).State = EntityState.Modified;
                 Assert.Equal(EntityState.Modified, entry.EntityState);

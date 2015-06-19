@@ -228,7 +228,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.Database.EnsureCreated();
                 context.SeedUsingFKs(saveChanges: false);
 
-                var stateManager = ((IAccessor<IStateManager>)context.ChangeTracker).Service;
+                var stateManager = context.ChangeTracker.GetService();
 
                 var beforeSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.GetProperties().Select(p => e[p])).ToList();
 

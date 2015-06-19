@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new DbContext(serviceProvider, new DbContextOptionsBuilder().Options))
             {
-                var changeDetector = (FakeChangeDetector)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IChangeDetector>();
+                var changeDetector = (FakeChangeDetector)context.GetService<IChangeDetector>();
 
                 Assert.False(changeDetector.DetectChangesCalled);
 
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new DbContext(serviceProvider, new DbContextOptionsBuilder().Options))
             {
-                var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IStateManager>();
+                var stateManager = (FakeStateManager)context.GetService<IStateManager>();
 
                 var entryMock = CreateInternalEntryMock();
                 entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IStateManager>();
+                var stateManager = (FakeStateManager)context.GetService<IStateManager>();
 
                 var entryMock = CreateInternalEntryMock();
                 entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
@@ -205,8 +205,8 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new DbContext(serviceProvider))
             {
-                Assert.Same(entry, ((IAccessor<InternalEntityEntry>)context.Entry(entity)).Service);
-                Assert.Same(entry, ((IAccessor<InternalEntityEntry>)context.Entry((object)entity)).Service);
+                Assert.Same(entry, context.Entry(entity).GetService());
+                Assert.Same(entry, context.Entry((object)entity).GetService());
             }
         }
 
@@ -373,10 +373,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
                 Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(((IAccessor<InternalEntityEntry>)categoryEntry1).Service, ((IAccessor<InternalEntityEntry>)context.Entry(category1)).Service);
-                Assert.Same(((IAccessor<InternalEntityEntry>)categoryEntry2).Service, ((IAccessor<InternalEntityEntry>)context.Entry(category2)).Service);
-                Assert.Same(((IAccessor<InternalEntityEntry>)productEntry1).Service, ((IAccessor<InternalEntityEntry>)context.Entry(product1)).Service);
-                Assert.Same(((IAccessor<InternalEntityEntry>)productEntry2).Service, ((IAccessor<InternalEntityEntry>)context.Entry(product2)).Service);
+                Assert.Same(categoryEntry1.GetService(), context.Entry(category1).GetService());
+                Assert.Same(categoryEntry2.GetService(), context.Entry(category2).GetService());
+                Assert.Same(productEntry1.GetService(), context.Entry(product1).GetService());
+                Assert.Same(productEntry2.GetService(), context.Entry(product2).GetService());
             }
         }
 
@@ -524,10 +524,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
                 Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(((IAccessor<InternalEntityEntry>)categoryEntry1).Service, ((IAccessor<InternalEntityEntry>)context.Entry(category1)).Service);
-                Assert.Same(((IAccessor<InternalEntityEntry>)categoryEntry2).Service, ((IAccessor<InternalEntityEntry>)context.Entry(category2)).Service);
-                Assert.Same(((IAccessor<InternalEntityEntry>)productEntry1).Service, ((IAccessor<InternalEntityEntry>)context.Entry(product1)).Service);
-                Assert.Same(((IAccessor<InternalEntityEntry>)productEntry2).Service, ((IAccessor<InternalEntityEntry>)context.Entry(product2)).Service);
+                Assert.Same(categoryEntry1.GetService(), context.Entry(category1).GetService());
+                Assert.Same(categoryEntry2.GetService(), context.Entry(category2).GetService());
+                Assert.Same(productEntry1.GetService(), context.Entry(product1).GetService());
+                Assert.Same(productEntry2.GetService(), context.Entry(product2).GetService());
             }
         }
 
@@ -1620,9 +1620,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter())
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-
-                Assert.IsType<EntityKeyFactorySource>(contextServices.GetRequiredService<IEntityKeyFactorySource>());
+                Assert.IsType<EntityKeyFactorySource>(context.GetService<IEntityKeyFactorySource>());
             }
         }
 
@@ -1631,9 +1629,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter())
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-
-                Assert.IsType<InternalEntityEntryFactory>(contextServices.GetRequiredService<IInternalEntityEntryFactory>());
+                Assert.IsType<InternalEntityEntryFactory>(context.GetService<IInternalEntityEntryFactory>());
             }
         }
 
@@ -1642,9 +1638,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter())
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-
-                Assert.IsType<StateManager>(contextServices.GetRequiredService<IStateManager>());
+                Assert.IsType<StateManager>(context.GetService<IStateManager>());
             }
         }
 
@@ -1671,9 +1665,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-
-                Assert.Same(factory, contextServices.GetRequiredService<IOriginalValuesFactory>());
+                Assert.Same(factory, context.GetService<IOriginalValuesFactory>());
             }
         }
 
@@ -1734,9 +1726,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-
-                Assert.Same(factory, contextServices.GetRequiredService<IOriginalValuesFactory>());
+                Assert.Same(factory, context.GetService<IOriginalValuesFactory>());
             }
         }
 
@@ -1752,9 +1742,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-
-                Assert.Same(modelSource, contextServices.GetRequiredService<IModelSource>());
+                Assert.Same(modelSource, context.GetService<IModelSource>());
             }
         }
 
@@ -1768,9 +1756,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-
-                Assert.IsType<FakeModelSource>(contextServices.GetRequiredService<IModelSource>());
+                Assert.IsType<FakeModelSource>(context.GetService<IModelSource>());
             }
         }
 
@@ -1784,9 +1770,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-
-                Assert.IsType<FakeStateManager>(contextServices.GetRequiredService<IStateManager>());
+                Assert.IsType<FakeStateManager>(context.GetService<IStateManager>());
             }
         }
 
@@ -1796,36 +1780,33 @@ namespace Microsoft.Data.Entity.Tests
             var services = new ServiceCollection();
             services
                 .AddEntityFramework()
-                .ServiceCollection()
+                .GetService()
                 .AddSingleton<IModelSource, FakeModelSource>()
                 .AddScoped<IStateManager, FakeStateManager>();
 
             var provider = services.BuildServiceProvider();
 
             var context = new EarlyLearningCenter(provider);
-            var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-            var modelSource = contextServices.GetRequiredService<IModelSource>();
-
-            context.Dispose();
-
-            context = new EarlyLearningCenter(provider);
-            contextServices = ((IAccessor<IServiceProvider>)context).Service;
-
-            var stateManager = contextServices.GetRequiredService<IStateManager>();
-
-            Assert.Same(stateManager, contextServices.GetRequiredService<IStateManager>());
-
-            Assert.Same(modelSource, contextServices.GetRequiredService<IModelSource>());
+            var modelSource = context.GetService<IModelSource>();
 
             context.Dispose();
 
             context = new EarlyLearningCenter(provider);
-            contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-            Assert.NotSame(stateManager, contextServices.GetRequiredService<IStateManager>());
+            var stateManager = context.GetService<IStateManager>();
 
-            Assert.Same(modelSource, contextServices.GetRequiredService<IModelSource>());
+            Assert.Same(stateManager, context.GetService<IStateManager>());
+
+            Assert.Same(modelSource, context.GetService<IModelSource>());
+
+            context.Dispose();
+
+            context = new EarlyLearningCenter(provider);
+
+            Assert.NotSame(stateManager, context.GetService<IStateManager>());
+
+            Assert.Same(modelSource, context.GetService<IModelSource>());
 
             context.Dispose();
         }
@@ -1835,15 +1816,13 @@ namespace Microsoft.Data.Entity.Tests
         {
             var provider = new ServiceCollection()
                 .AddEntityFramework()
-                .ServiceCollection()
+                .GetService()
                 .AddSingleton<IEntityMaterializerSource, FakeEntityMaterializerSource>()
                 .BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-
-                Assert.IsType<FakeEntityMaterializerSource>(contextServices.GetRequiredService<IEntityMaterializerSource>());
+                Assert.IsType<FakeEntityMaterializerSource>(context.GetService<IEntityMaterializerSource>());
             }
         }
 
@@ -1951,7 +1930,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.NotNull(serviceProvider.GetRequiredService<FakeService>());
                 Assert.NotSame(serviceProvider, contextServices);
-                Assert.Equal(0, contextServices.GetRequiredService<IDbContextOptions>().Extensions.Count());
+                Assert.Equal(0, context.GetService<IDbContextOptions>().Extensions.Count());
             }
         }
 
@@ -1971,10 +1950,9 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var options = contextServices.GetRequiredService<IDbContextOptions>();
+                var options = context.GetService<IDbContextOptions>();
 
-                Assert.NotNull(contextServices.GetRequiredService<FakeService>());
+                Assert.NotNull(context.GetService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count());
                 Assert.Same(contextOptionsExtension, options.Extensions.Single());
             }
@@ -1996,10 +1974,9 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetRequiredService<ContextWithServiceProvider>())
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var options = contextServices.GetRequiredService<IDbContextOptions>();
+                var options = context.GetService<IDbContextOptions>();
 
-                Assert.NotNull(contextServices.GetRequiredService<FakeService>());
+                Assert.NotNull(context.GetService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count());
                 Assert.Same(contextOptionsExtension, options.Extensions.Single());
             }
@@ -2021,10 +1998,9 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetRequiredService<ContextWithOptions>())
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var options = contextServices.GetRequiredService<IDbContextOptions>();
+                var options = context.GetService<IDbContextOptions>();
 
-                Assert.NotNull(contextServices.GetRequiredService<FakeService>());
+                Assert.NotNull(context.GetService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count());
                 Assert.Same(contextOptionsExtension, options.Extensions.Single());
             }
@@ -2045,9 +2021,7 @@ namespace Microsoft.Data.Entity.Tests
             var valueOfParamStr = "Hello DbContext";
             using (var context = DbContextActivator.CreateInstance<ContextWithParameters>(serviceProvider, valueOfParamInt, valueOfParamStr))
             {
-                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-
-                Assert.NotNull(contextServices.GetRequiredService<FakeService>());
+                Assert.NotNull(context.GetService<FakeService>());
                 Assert.Equal(valueOfParamInt, context.ParamInt);
                 Assert.Equal(valueOfParamStr, context.ParamStr);
             }
@@ -2110,7 +2084,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework()
                 .AddInMemoryStore()
                 .AddDbContext<UseModelInOnModelCreatingContext>()
-                .ServiceCollection()
+                .GetService()
                 .BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<UseModelInOnModelCreatingContext>())
@@ -2143,7 +2117,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework()
                 .AddInMemoryStore()
                 .AddDbContext<UseInOnModelCreatingContext>()
-                .ServiceCollection()
+                .GetService()
                 .BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<UseInOnModelCreatingContext>())
@@ -2176,7 +2150,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework()
                 .AddInMemoryStore()
                 .AddDbContext<UseInOnConfiguringContext>()
-                .ServiceCollection()
+                .GetService()
                 .BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<UseInOnConfiguringContext>())
@@ -2342,8 +2316,7 @@ namespace Microsoft.Data.Entity.Tests
             var provider = TestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
             using (var context = new ButTheHedgehogContext(provider))
             {
-                var changeDetector = (ChangeDetectorProxy)((IAccessor<IServiceProvider>)context).Service
-                    .GetRequiredService<IChangeDetector>();
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 var entity = new Product { Id = 1, Name = "Little Hedgehogs" };
 

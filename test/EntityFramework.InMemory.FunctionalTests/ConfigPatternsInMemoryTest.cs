@@ -449,7 +449,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public void Test()
             {
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsBlogContext>>(
-                    ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<IDbContextOptions>());
+                    _context.GetService<IDbContextOptions>());
 
                 _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
@@ -475,7 +475,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public void Test()
             {
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsAccountContext>>(
-                    ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<IDbContextOptions>());
+                    _context.GetService<IDbContextOptions>());
 
                 _context.Accounts.Add(new Account { Name = "Eeky Bear" });
                 _context.SaveChanges();
@@ -577,7 +577,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public void Test()
             {
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorBlogContext>>(
-                    ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<IDbContextOptions>());
+                    _context.GetService<IDbContextOptions>());
 
                 _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
@@ -603,7 +603,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public void Test()
             {
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorAccountContext>>(
-                    ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<IDbContextOptions>());
+                    _context.GetService<IDbContextOptions>());
 
                 _context.Accounts.Add(new Account { Name = "Eeky Bear" });
                 _context.SaveChanges();

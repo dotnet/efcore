@@ -242,6 +242,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> Required(bool isRequired = true)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(Builder.Required(isRequired, ConfigurationSource.Explicit));
 
-        private InternalRelationshipBuilder Builder => ((IAccessor<InternalRelationshipBuilder>)this).Service;
+        private InternalRelationshipBuilder Builder => this.GetService<InternalRelationshipBuilder>();
     }
 }

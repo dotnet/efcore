@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var entry = context.Add(new Gumball { Identity = "Masami" });
-                ((IAccessor<InternalEntityEntry>)entry).Service.MarkAsTemporary(entry.Property(e => e.Identity).Metadata);
+                entry.GetService().MarkAsTemporary(entry.Property(e => e.Identity).Metadata);
 
                 context.SaveChanges();
                 id = entry.Entity.Id;
@@ -216,7 +216,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var entry = context.Add(new Gumball { Computed = "Masami" });
-                ((IAccessor<InternalEntityEntry>)entry).Service.MarkAsTemporary(entry.Property(e => e.Computed).Metadata);
+                entry.GetService().MarkAsTemporary(entry.Property(e => e.Computed).Metadata);
 
                 context.SaveChanges();
                 id = entry.Entity.Id;

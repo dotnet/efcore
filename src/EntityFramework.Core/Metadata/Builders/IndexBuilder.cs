@@ -83,6 +83,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
-        private InternalIndexBuilder Builder => ((IAccessor<InternalIndexBuilder>)this).Service;
+        private InternalIndexBuilder Builder => this.GetService<InternalIndexBuilder>();
     }
 }

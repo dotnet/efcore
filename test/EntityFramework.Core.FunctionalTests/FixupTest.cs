@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var productType = context.Model.GetEntityType(typeof(Product));
                 var offerType = context.Model.GetEntityType(typeof(SpecialOffer));
 
-                var stateManager = ((IAccessor<IStateManager>)context.ChangeTracker).Service;
+                var stateManager = context.ChangeTracker.GetService();
 
                 stateManager.StartTracking(categoryType, new SimpleEntityKey<int>(categoryType, 11), new Category { Id = 11 }, new ValueBuffer(new object[] { 11 }));
                 stateManager.StartTracking(categoryType, new SimpleEntityKey<int>(categoryType, 12), new Category { Id = 12 }, new ValueBuffer(new object[] { 12 }));

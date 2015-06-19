@@ -12,14 +12,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
 {
     public static class Extensions
     {
-        public static IServiceCollection ServiceCollection(this EntityFrameworkServicesBuilder builder)
-        {
-            return ((IAccessor<IServiceCollection>)builder).Service;
-        }
+        public static IServiceCollection ServiceCollection(this EntityFrameworkServicesBuilder builder) 
+            => builder.GetService();
 
-        public static IEnumerable<T> NullChecked<T>(this IEnumerable<T> enumerable)
-        {
-            return enumerable ?? Enumerable.Empty<T>();
-        }
+        public static IEnumerable<T> NullChecked<T>(this IEnumerable<T> enumerable) 
+            => enumerable ?? Enumerable.Empty<T>();
     }
 }

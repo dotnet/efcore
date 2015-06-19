@@ -71,6 +71,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
-        private InternalKeyBuilder Builder => ((IAccessor<InternalKeyBuilder>)this).Service;
+        private InternalKeyBuilder Builder => this.GetService<InternalKeyBuilder>();
     }
 }

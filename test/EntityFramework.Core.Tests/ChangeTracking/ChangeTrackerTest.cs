@@ -56,9 +56,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var stateManger = ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IStateManager>();
+                var stateManger = context.GetService<IStateManager>();
 
-                Assert.Same(stateManger, ((IAccessor<IStateManager>)context.ChangeTracker).Service);
+                Assert.Same(stateManger, context.ChangeTracker.GetService());
             }
         }
 
@@ -409,7 +409,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 if (!entry.IsKeySet)
                 {
-                    ((IAccessor<InternalEntityEntry>)entry).Service[entry.Metadata.GetPrimaryKey().Properties.Single()] = 777;
+                    entry.GetService()[entry.Metadata.GetPrimaryKey().Properties.Single()] = 777;
                     return EntityState.Added;
                 }
 
@@ -922,8 +922,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var provider = TestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<IChangeDetector, ChangeDetectorProxy>());
             using (var context = new EarlyLearningCenter(provider))
             {
-                var changeDetector = (ChangeDetectorProxy)((IAccessor<IServiceProvider>)context).Service
-                    .GetRequiredService<IChangeDetector>();
+                var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 changeDetector.DetectChangesCalled = false;
 
@@ -1074,8 +1073,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             }
 
             public virtual void TrackEntity(EntityEntry entry)
-                => ((IAccessor<InternalEntityEntry>)entry).Service
-                    .SetEntityState(DetermineState(entry), acceptChanges: true);
+                => entry.GetService().SetEntityState(DetermineState(entry), acceptChanges: true);
 
             public virtual EntityState DetermineState(EntityEntry entry)
                 => entry.IsKeySet

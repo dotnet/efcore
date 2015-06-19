@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Tests;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Migrations;
@@ -48,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             return (services ?? new ServiceCollection())
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection();
+                .GetService();
         }
 
         protected override DbContext CreateContext(IServiceProvider serviceProvider)

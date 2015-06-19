@@ -67,10 +67,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
                 Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(((IAccessor<InternalEntityEntry>)categoryEntry1).Service, ((IAccessor<InternalEntityEntry>)context.Entry(category1)).Service);
-                Assert.Same(((IAccessor<InternalEntityEntry>)categoryEntry2).Service, ((IAccessor<InternalEntityEntry>)context.Entry(category2)).Service);
-                Assert.Same(((IAccessor<InternalEntityEntry>)productEntry1).Service, ((IAccessor<InternalEntityEntry>)context.Entry(product1)).Service);
-                Assert.Same(((IAccessor<InternalEntityEntry>)productEntry2).Service, ((IAccessor<InternalEntityEntry>)context.Entry(product2)).Service);
+                Assert.Same(categoryEntry1.GetService(), context.Entry(category1).GetService());
+                Assert.Same(categoryEntry2.GetService(), context.Entry(category2).GetService());
+                Assert.Same(productEntry1.GetService(), context.Entry(product1).GetService());
+                Assert.Same(productEntry2.GetService(), context.Entry(product2).GetService());
             }
         }
 

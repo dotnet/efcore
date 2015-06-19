@@ -32,8 +32,7 @@ namespace Microsoft.Data.Entity.Internal
             // set is used and services will be obtained from the correctly scoped container when this happens.
             _entityQueryable
                 = new LazyRef<EntityQueryable<TEntity>>(
-                    () => new EntityQueryable<TEntity>(
-                        ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<IEntityQueryProvider>()));
+                    () => new EntityQueryable<TEntity>(_context.GetService<IEntityQueryProvider>()));
         }
 
         public InternalDbSet([NotNull] IQueryable<TEntity> source, [NotNull] DbSet<TEntity> dbSet)

@@ -85,12 +85,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public static void Reload(this EntityEntry entityEntry, DbContext context)
         {
-            ((IAccessor<InternalEntityEntry>)entityEntry).Service.Reload(context);
+            entityEntry.GetService().Reload(context);
         }
 
         public static Task ReloadAsync(this EntityEntry entityEntry, DbContext context)
         {
-            return ((IAccessor<InternalEntityEntry>)entityEntry).Service.ReloadAsync(context);
+            return entityEntry.GetService().ReloadAsync(context);
         }
 
         public static Dictionary<IProperty, object> GetDatabaseValues(this InternalEntityEntry internalEntry, DbContext context)

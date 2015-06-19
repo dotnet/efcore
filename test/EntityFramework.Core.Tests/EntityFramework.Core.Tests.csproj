@@ -125,7 +125,6 @@
     <Compile Include="Metadata\ModelConventions\PropertyDiscoveryConventionTest.cs" />
     <Compile Include="Query\TaskResultAsyncEnumerableTest.cs" />
     <Compile Include="Storage\DataStoreSelectorTest.cs" />
-    <Compile Include="TestExtensions.cs" />
     <Compile Include="TestUtilities\ListLogger.cs" />
     <Compile Include="TestUtilities\ListLoggerFactory.cs" />
     <Compile Include="Utilities\CheckTest.cs" />

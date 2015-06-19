@@ -198,6 +198,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         public virtual ReferenceReferenceBuilder Required(bool isRequired = true)
             => new ReferenceReferenceBuilder(Builder.Required(isRequired, ConfigurationSource.Explicit));
 
-        private InternalRelationshipBuilder Builder => ((IAccessor<InternalRelationshipBuilder>)this).Service;
+        private InternalRelationshipBuilder Builder => this.GetService<InternalRelationshipBuilder>();
     }
 }

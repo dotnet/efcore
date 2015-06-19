@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 .UseModel(model);
             optionsBuilder.UseInMemoryStore(persist: false);
 
-            var contextServices = ((IAccessor<IServiceProvider>)new DbContext(optionsBuilder.Options)).Service;
+            var contextServices = new DbContext(optionsBuilder.Options).GetService();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var key = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);

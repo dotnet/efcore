@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var propertyInfo = propertyExpression.GetPropertyAccess();
 
-            return new PropertyEntry<TEntity, TProperty>(((IAccessor<InternalEntityEntry>)this).Service, propertyInfo.Name);
+            return new PropertyEntry<TEntity, TProperty>(this.GetService(), propertyInfo.Name);
         }
 
         public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
@@ -65,14 +65,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(propertyName, nameof(propertyName));
 
-            var property = ((IAccessor<InternalEntityEntry>)this).Service.EntityType.GetProperty(propertyName);
+            var property = this.GetService().EntityType.GetProperty(propertyName);
 
             if (property.ClrType != typeof(TProperty))
             {
                 throw new ArgumentException(Strings.WrongGenericPropertyType(propertyName, property.EntityType.Name, property.ClrType.Name, typeof(TProperty).Name));
             }
 
-            return new PropertyEntry<TEntity, TProperty>(((IAccessor<InternalEntityEntry>)this).Service, propertyName);
+            return new PropertyEntry<TEntity, TProperty>(this.GetService(), propertyName);
         }
     }
 }

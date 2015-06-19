@@ -22,7 +22,7 @@ namespace Microsoft.Framework.DependencyInjection
         {
             Check.NotNull(builder, nameof(builder));
 
-            ((IAccessor<IServiceCollection>)builder.AddRelational()).Service
+            builder.AddRelational().GetService()
                 .AddSingleton<IDataStoreSource, SqlServerDataStoreSource>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqlServerConventionSetBuilder>()

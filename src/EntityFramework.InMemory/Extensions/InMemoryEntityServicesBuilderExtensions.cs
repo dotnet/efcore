@@ -18,7 +18,7 @@ namespace Microsoft.Framework.DependencyInjection
         {
             Check.NotNull(builder, nameof(builder));
 
-            ((IAccessor<IServiceCollection>)builder).Service
+            builder.GetService()
                 .AddSingleton<IDataStoreSource, InMemoryDataStoreSource>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<InMemoryValueGeneratorCache>()

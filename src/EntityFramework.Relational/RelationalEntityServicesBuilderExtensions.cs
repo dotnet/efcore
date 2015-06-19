@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.ValueGeneration;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
@@ -26,7 +25,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(builder, nameof(builder));
 
-            ((IAccessor<IServiceCollection>)builder).Service.TryAdd(new ServiceCollection()
+            builder.GetService().TryAdd(new ServiceCollection()
                 .AddSingleton<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>()
                 .AddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()
                 .AddSingleton<IMigrationIdGenerator, MigrationIdGenerator>()
