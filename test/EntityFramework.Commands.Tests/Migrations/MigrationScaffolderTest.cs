@@ -44,7 +44,10 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     context,
                     new DbContextOptions<TContext>().WithExtension(new MockRelationalOptionsExtension()),
                     modelFactory),
-                new ModelDiffer(new ConcreteTypeMapper(), new MockRelationalMetadataExtensionProvider()),
+                new ModelDiffer(
+                    new ConcreteTypeMapper(),
+                    new MockRelationalMetadataExtensionProvider(),
+                    new MigrationAnnotationProvider()),
                 new MigrationIdGenerator(),
                 new CSharpMigrationGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpModelGenerator(code)),
                 new MockHistoryRepository(),

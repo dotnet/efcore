@@ -98,7 +98,7 @@
     <Compile Include="SqlServerConventionSetBuilder.cs" />
     <Compile Include="SqlServerCompositeMethodCallTranslator.cs" />
     <Compile Include="SqlServerMetadataExtensions.cs" />
-    <Compile Include="Migrations\SqlServerModelDiffer.cs" />
+    <Compile Include="Migrations\SqlServerMigrationAnnotationProvider.cs" />
     <Compile Include="SqlServerModelSource.cs" />
     <Compile Include="SqlServerDatabaseProviderServices.cs" />
     <Compile Include="SqlServerMaxLengthMapping.cs" />

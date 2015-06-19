@@ -25,7 +25,10 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                     b.Key("3");
                 });
             var transformer = new SqliteOperationTransformer(
-                new ModelDiffer(new SqliteTypeMapper(), new SqliteMetadataExtensionProvider()));
+                new ModelDiffer(
+                    new SqliteTypeMapper(),
+                    new SqliteMetadataExtensionProvider(),
+                    new MigrationAnnotationProvider()));
             var actual = transformer.Transform(new[] { input }, model.Model);
 
             Assert.Collection(actual, op1 =>
@@ -39,7 +42,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                         var create = Assert.IsType<CreateTableOperation>(op2);
                         Assert.Equal("A", create.Name);
                         Assert.Equal(2, create.Columns.Count);
-                        Assert.Equal(new [] { "col3" }, create.PrimaryKey.Columns);
+                        Assert.Equal(new[] { "col3" }, create.PrimaryKey.Columns);
                     },
                 op3 =>
                     {

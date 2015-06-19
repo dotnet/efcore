@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational
 {
     public interface IRelationalDatabaseProviderServices : IDatabaseProviderServices
     {
-        IModelDiffer ModelDiffer { get; }
+        IMigrationAnnotationProvider MigrationAnnotationProvider { get; }
         IHistoryRepository HistoryRepository { get; }
         IMigrationSqlGenerator MigrationSqlGenerator { get; }
         IRelationalConnection RelationalConnection { get; }

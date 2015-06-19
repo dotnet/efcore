@@ -70,10 +70,12 @@
     <Compile Include="Migrations\Infrastructure\ContextTypeAttribute.cs" />
     <Compile Include="Migrations\History\IHistoryRepository.cs" />
     <Compile Include="Migrations\History\IHistoryRow.cs" />
+    <Compile Include="Migrations\Infrastructure\IMigrationAnnotationProvider.cs" />
     <Compile Include="Migrations\Infrastructure\IMigrationAssembly.cs" />
     <Compile Include="Migrations\Infrastructure\IMigrationIdGenerator.cs" />
     <Compile Include="Migrations\Infrastructure\IMigrationModelFactory.cs" />
     <Compile Include="Migrations\Infrastructure\IModelDiffer.cs" />
+    <Compile Include="Migrations\Infrastructure\MigrationAnnotationProvider.cs" />
     <Compile Include="Migrations\Infrastructure\MigrationAssembly.cs" />
     <Compile Include="Migrations\Infrastructure\MigrationIdGenerator.cs" />
     <Compile Include="Migrations\Infrastructure\MigrationModelFactory.cs" />

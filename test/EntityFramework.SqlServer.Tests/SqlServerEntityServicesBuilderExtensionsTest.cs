@@ -28,6 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifySingleton<SqlServerTypeMapper>();
             VerifySingleton<SqlServerModelSource>();
             VerifySingleton<SqlServerMetadataExtensionProvider>();
+            VerifySingleton<SqlServerMigrationAnnotationProvider>();
 
             // SQL Server scoped
             VerifyScoped<ISqlServerSequenceValueGeneratorFactory>();
@@ -36,7 +37,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifyScoped<SqlServerDatabaseProviderServices>();
             VerifyScoped<SqlServerDatabase>();
             VerifyScoped<ISqlServerConnection>();
-            VerifyScoped<SqlServerModelDiffer>();
             VerifyScoped<SqlServerMigrationSqlGenerator>();
             VerifyScoped<SqlServerDatabaseCreator>();
             VerifyScoped<SqlServerHistoryRepository>();

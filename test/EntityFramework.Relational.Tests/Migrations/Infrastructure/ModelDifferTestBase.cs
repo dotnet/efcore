@@ -31,7 +31,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         }
 
         protected virtual ModelBuilder CreateModelBuilder() => TestHelpers.Instance.CreateConventionBuilder();
-        protected virtual ModelDiffer CreateModelDiffer() => new ModelDiffer(new ConcreteTypeMapper(), new TestMetadataExtensionProvider());
+        protected virtual ModelDiffer CreateModelDiffer()
+            => new ModelDiffer(new ConcreteTypeMapper(), new TestMetadataExtensionProvider(), new MigrationAnnotationProvider());
 
         private class TestMetadataExtensionProvider : IRelationalMetadataExtensionProvider
         {

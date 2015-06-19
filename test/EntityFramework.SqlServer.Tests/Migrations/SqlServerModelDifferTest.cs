@@ -688,6 +688,9 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
 
         protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
         protected override ModelDiffer CreateModelDiffer()
-            => new SqlServerModelDiffer(new SqlServerTypeMapper(), new SqlServerMetadataExtensionProvider());
+            => new ModelDiffer(
+                new SqlServerTypeMapper(),
+                new SqlServerMetadataExtensionProvider(),
+                new SqlServerMigrationAnnotationProvider());
     }
 }
