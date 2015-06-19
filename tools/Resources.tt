@@ -25,8 +25,8 @@
     var templateNamespace = (string)templateProjectItem.Properties.Item("CustomToolNamespace").Value;
     var fileNamespace = !string.IsNullOrEmpty(templateNamespace) ? templateNamespace : projectNamespace;
     var projectName = Path.GetFileName(projectDirectory.TrimEnd('/'));
-    var namedParameterMatcher = new Regex(@"\{([a-z]\w+)\}", RegexOptions.IgnoreCase);
-    var numberParameterMatcher = new Regex(@"\{(\d+)\}");
+    var namedParameterMatcher = new Regex(@"\{([a-z]\w+)\}", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(1000.0));
+    var numberParameterMatcher = new Regex(@"\{(\d+)\}", default(RegexOptions), TimeSpan.FromMilliseconds(1000.0);
 
     foreach (var resxFile in Directory.EnumerateFiles(projectDirectory, "*.resx", SearchOption.AllDirectories))
     {

@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                             var script = File.ReadAllText(scriptPath);
 
                             foreach (var batch
-                                in new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline)
+                                in new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
                                     .Split(script))
                             {
                                 command.CommandText = batch;
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                             var script = File.ReadAllText(scriptPath);
 
                             foreach (var batch
-                                in new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline)
+                                in new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
                                     .Split(script))
                             {
                                 command.CommandText = batch;

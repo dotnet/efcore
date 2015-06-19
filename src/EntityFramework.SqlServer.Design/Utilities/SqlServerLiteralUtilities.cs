@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
     public class SqlServerLiteralUtilities
     {
         public static readonly Regex _defaultValueIsExpression =
-            new Regex(@"^[@\$\w]+\(.*\)$", RegexOptions.Compiled);
+            new Regex(@"^[@\$\w]+\(.*\)$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(1000.0));
 
         public SqlServerLiteralUtilities([NotNull] ILogger logger)
         {

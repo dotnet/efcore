@@ -17,7 +17,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         public virtual string CreateId(string name) => NextTimestamp() + "_" + name;
         public virtual string GetName(string id) => id.Substring(Format.Length + 1);
-        public virtual bool IsValidId(string value) => Regex.IsMatch(value, "[0-9]{" + Format.Length + "}_.+");
+        public virtual bool IsValidId(string value)
+            => Regex.IsMatch(value, $"[0-9]{{{Format.Length}}}_.+", default(RegexOptions), TimeSpan.FromMilliseconds(1000.0));
 
         public virtual string ResolveId(string nameOrId, IReadOnlyList<Migration> migrations)
         {
