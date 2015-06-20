@@ -33,6 +33,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <ProjectReference Include="..\EntityFramework.Core\EntityFramework.Core.csproj">
@@ -86,6 +87,8 @@
     <Compile Include="Metadata\SqlitePropertyExtensions.cs" />
     <Compile Include="Migrations\SqliteHistoryRepository.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGenerator.cs" />
+    <Compile Include="Migrations\SqliteOperationTransformer.cs" />
+    <Compile Include="Migrations\MoveDataOperation.cs" />
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>

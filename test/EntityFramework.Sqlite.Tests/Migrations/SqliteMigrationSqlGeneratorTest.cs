@@ -10,7 +10,21 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
 {
     public class SqliteMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        protected override IMigrationSqlGenerator SqlGenerator => new SqliteMigrationSqlGenerator(new SqliteSqlGenerator());
+        protected override IMigrationSqlGenerator SqlGenerator => new SqliteMigrationSqlGenerator(new SqliteSqlGenerator(), transformer: null);
+
+        [Fact]
+        public void Insert_into_select()
+        {
+            var operation = new MoveDataOperation
+            {
+                Columns = new[] { "col1", "col2" },
+                OldTable = "OldTable",
+                NewTable = "RebuiltTable"
+            };
+
+            Generate(operation);
+            Assert.Equal("INSERT INTO \"RebuiltTable\" (\"col1\", \"col2\")" + EOL + "SELECT \"col1\", \"col2\" FROM \"OldTable\";" + EOL, Sql);
+        }
 
         [Fact]
         public void CreateSchemaOperation_not_supported()
@@ -47,13 +61,13 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             // Override base test because CURRENT_TIMESTAMP is not valid for AddColumn
             Generate(
                 new AddColumnOperation
-                    {
-                        Table = "People",
-                        Name = "Age",
-                        Type = "int",
-                        IsNullable = true,
-                        DefaultExpression = "10"
-                    });
+                {
+                    Table = "People",
+                    Name = "Age",
+                    Type = "int",
+                    IsNullable = true,
+                    DefaultExpression = "10"
+                });
 
             Assert.Equal(
                 @"ALTER TABLE ""People"" ADD ""Age"" int DEFAULT (10);" + EOL,
