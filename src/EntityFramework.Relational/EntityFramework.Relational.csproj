@@ -54,6 +54,7 @@
     <Compile Include="IRelationalConnection.cs" />
     <Compile Include="IRelationalDataStore.cs" />
     <Compile Include="IRelationalDataStoreCreator.cs" />
+    <Compile Include="IRelationalTransaction.cs" />
     <Compile Include="IRelationalTypeMapper.cs" />
     <Compile Include="IRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="ISqlGenerator.cs" />

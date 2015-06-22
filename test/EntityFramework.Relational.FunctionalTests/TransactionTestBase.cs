@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Update;
 using Xunit;
 
@@ -57,7 +58,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
                 firstEntry.State = EntityState.Deleted;
 
-                using (context.Database.GetRelationalConnection().BeginTransaction())
+                using (context.Database.BeginTransaction())
                 {
                     context.SaveChanges();
                 }
@@ -76,7 +77,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
                 firstEntry.State = EntityState.Deleted;
 
-                using (context.Database.GetRelationalConnection().BeginTransaction())
+                using (context.Database.BeginTransaction())
                 {
                     context.SaveChanges(acceptAllChangesOnSuccess: false);
                 }
@@ -99,7 +100,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
                 firstEntry.State = EntityState.Deleted;
 
-                using (await context.Database.GetRelationalConnection().BeginTransactionAsync())
+                using (await context.Database.BeginTransactionAsync())
                 {
                     await context.SaveChangesAsync();
                 }
@@ -118,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
                 firstEntry.State = EntityState.Deleted;
 
-                using (await context.Database.GetRelationalConnection().BeginTransactionAsync())
+                using (await context.Database.BeginTransactionAsync())
                 {
                     await context.SaveChangesAsync(acceptAllChangesOnSuccess: false);
                 }
@@ -138,7 +139,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                using (var transaction = context.Database.GetRelationalConnection().BeginTransaction())
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
                     firstEntry.State = EntityState.Deleted;
@@ -165,7 +166,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                using (var transaction = await context.Database.GetRelationalConnection().BeginTransactionAsync())
+                using (var transaction = await context.Database.BeginTransactionAsync())
                 {
                     var firstEntry = context.Entry(context.Set<TransactionCustomer>().First());
                     firstEntry.State = EntityState.Deleted;
@@ -192,7 +193,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                using (var transaction = await context.Database.GetRelationalConnection().BeginTransactionAsync())
+                using (var transaction = await context.Database.BeginTransactionAsync())
                 {
                     context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     await context.SaveChangesAsync();
@@ -207,11 +208,30 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         [Fact]
+        public async Task RelationalTransaction_can_be_commited_from_context()
+        {
+            using (var context = CreateContext())
+            {
+                using (await context.Database.BeginTransactionAsync())
+                {
+                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    await context.SaveChangesAsync();
+                    context.Database.CommitTransaction();
+                }
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(Fixture.Customers.Count - 1, context.Set<TransactionCustomer>().Count());
+            }
+        }
+
+        [Fact]
         public async Task RelationalTransaction_can_be_rolled_back()
         {
             using (var context = CreateContext())
             {
-                using (var transaction = await context.Database.GetRelationalConnection().BeginTransactionAsync())
+                using (var transaction = await context.Database.BeginTransactionAsync())
                 {
                     context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     await context.SaveChangesAsync();
@@ -223,34 +243,50 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         [Fact]
+        public async Task RelationalTransaction_can_be_rolled_back_from_context()
+        {
+            using (var context = CreateContext())
+            {
+                using (await context.Database.BeginTransactionAsync())
+                {
+                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    await context.SaveChangesAsync();
+                    context.Database.RollbackTransaction();
+
+                    AssertStoreInitialState();
+                }
+            }
+        }
+
+        [Fact]
         public virtual void Query_uses_explicit_transaction()
         {
             using (var context = CreateContext())
             {
-                using (var transaction = context.Database.GetRelationalConnection().BeginTransaction())
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     context.SaveChanges();
 
                     using (var innerContext = CreateContext())
                     {
-                        using (innerContext.Database.GetRelationalConnection().BeginTransaction(IsolationLevel.ReadUncommitted))
+                        using (innerContext.Database.BeginTransaction(IsolationLevel.ReadUncommitted))
                         {
                             Assert.Equal(Fixture.Customers.Count - 1, innerContext.Set<TransactionCustomer>().Count());
                         }
 
                         if (SnapshotSupported)
                         {
-                            using (innerContext.Database.GetRelationalConnection().BeginTransaction(IsolationLevel.Snapshot))
+                            using (innerContext.Database.BeginTransaction(IsolationLevel.Snapshot))
                             {
                                 Assert.Equal(Fixture.Customers, innerContext.Set<TransactionCustomer>().OrderBy(c => c.Id).ToList());
                             }
                         }
                     }
 
-                    using (var innerContext = CreateContext(context.Database.GetRelationalConnection().DbConnection))
+                    using (var innerContext = CreateContext(context.Database.GetDbConnection()))
                     {
-                        innerContext.Database.GetRelationalConnection().UseTransaction(transaction.DbTransaction);
+                        innerContext.Database.UseTransaction(transaction.DbTransaction);
                         Assert.Equal(Fixture.Customers.Count - 1, innerContext.Set<TransactionCustomer>().Count());
                     }
                 }
@@ -262,30 +298,30 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                using (var transaction = await context.Database.GetRelationalConnection().BeginTransactionAsync())
+                using (var transaction = await context.Database.BeginTransactionAsync())
                 {
                     context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     await context.SaveChangesAsync();
 
                     using (var innerContext = CreateContext())
                     {
-                        using (await innerContext.Database.GetRelationalConnection().BeginTransactionAsync(IsolationLevel.ReadUncommitted))
+                        using (await innerContext.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
                         {
                             Assert.Equal(Fixture.Customers.Count - 1, await innerContext.Set<TransactionCustomer>().CountAsync());
                         }
 
                         if (SnapshotSupported)
                         {
-                            using (await innerContext.Database.GetRelationalConnection().BeginTransactionAsync(IsolationLevel.Snapshot))
+                            using (await innerContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot))
                             {
                                 Assert.Equal(Fixture.Customers, await innerContext.Set<TransactionCustomer>().OrderBy(c => c.Id).ToListAsync());
                             }
                         }
                     }
 
-                    using (var innerContext = CreateContext(context.Database.GetRelationalConnection().DbConnection))
+                    using (var innerContext = CreateContext(context.Database.GetDbConnection()))
                     {
-                        innerContext.Database.GetRelationalConnection().UseTransaction(transaction.DbTransaction);
+                        innerContext.Database.UseTransaction(transaction.DbTransaction);
                         Assert.Equal(Fixture.Customers.Count - 1, await innerContext.Set<TransactionCustomer>().CountAsync());
                     }
                 }
@@ -299,7 +335,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (var context = CreateContext(TestDatabase.Connection))
                 {
-                    context.Database.GetRelationalConnection().UseTransaction(transaction);
+                    context.Database.UseTransaction(transaction);
 
                     context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     await context.SaveChangesAsync();
@@ -317,7 +353,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 using (var context = CreateContext())
                 {
                     var ex = Assert.Throws<InvalidOperationException>(() =>
-                        context.Database.GetRelationalConnection().UseTransaction(transaction));
+                        context.Database.UseTransaction(transaction));
                     Assert.Equal(Strings.TransactionAssociatedWithDifferentConnection, ex.Message);
                 }
             }
@@ -330,10 +366,10 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    using (context.Database.GetRelationalConnection().BeginTransaction())
+                    using (context.Database.BeginTransaction())
                     {
                         var ex = Assert.Throws<InvalidOperationException>(() =>
-                            context.Database.GetRelationalConnection().UseTransaction(transaction));
+                            context.Database.UseTransaction(transaction));
                         Assert.Equal(Strings.TransactionAlreadyStarted, ex.Message);
                     }
                 }
@@ -347,9 +383,9 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (var context = CreateContext(TestDatabase.Connection))
                 {
-                    context.Database.GetRelationalConnection().UseTransaction(transaction);
+                    context.Database.UseTransaction(transaction);
 
-                    context.Database.GetRelationalConnection().Dispose();
+                    context.Database.GetService<IRelationalConnection>().Dispose();
 
                     Assert.NotNull(transaction.Connection);
                 }

@@ -17,21 +17,21 @@ namespace Microsoft.Data.Entity.Relational
 
         DbConnection DbConnection { get; }
 
-        RelationalTransaction Transaction { get; }
+        IRelationalTransaction Transaction { get; }
 
         int? CommandTimeout { get; set; }
 
         DbTransaction DbTransaction { get; }
 
-        RelationalTransaction BeginTransaction();
+        IRelationalTransaction BeginTransaction();
 
-        Task<RelationalTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<IRelationalTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        RelationalTransaction BeginTransaction(IsolationLevel isolationLevel);
+        IRelationalTransaction BeginTransaction(IsolationLevel isolationLevel);
 
-        Task<RelationalTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IRelationalTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default(CancellationToken));
 
-        RelationalTransaction UseTransaction([CanBeNull] DbTransaction transaction);
+        IRelationalTransaction UseTransaction([CanBeNull] DbTransaction transaction);
 
         void Open();
 

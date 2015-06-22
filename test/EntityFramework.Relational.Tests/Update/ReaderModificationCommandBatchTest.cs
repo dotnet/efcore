@@ -186,10 +186,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(mockReader.Object);
             batch.AddCommand(command);
 
-            var transactionMock = new Mock<RelationalTransaction>(
-                Mock.Of<IRelationalConnection>(), Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
+            var transaction = Mock.Of<IRelationalTransaction>();
 
-            await batch.ExecuteAsync(transactionMock.Object, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(transaction, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
             mockReader.Verify(r => r.ReadAsync(It.IsAny<CancellationToken>()), Times.Once);
             mockReader.Verify(r => r.GetInt32(0), Times.Once);
@@ -207,10 +206,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1" }, new List<object[]> { new object[] { 42 } }).Object);
             batch.AddCommand(command);
 
-            var transactionMock = new Mock<RelationalTransaction>(
-                Mock.Of<IRelationalConnection>(), Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
+            var transaction = Mock.Of<IRelationalTransaction>();
 
-            await batch.ExecuteAsync(transactionMock.Object, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(transaction, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
             Assert.Equal(42, entry[entry.EntityType.GetProperty("Id")]);
             Assert.Equal("Test", entry[entry.EntityType.GetProperty("Name")]);
@@ -229,10 +227,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1", "Col2" }, new List<object[]> { new object[] { 42, "FortyTwo" } }).Object);
             batch.AddCommand(command);
 
-            var transactionMock = new Mock<RelationalTransaction>(
-                Mock.Of<IRelationalConnection>(), Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
+            var transaction = Mock.Of<IRelationalTransaction>();
 
-            await batch.ExecuteAsync(transactionMock.Object, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(transaction, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
             Assert.Equal(42, entry[entry.EntityType.GetProperty("Id")]);
             Assert.Equal("FortyTwo", entry[entry.EntityType.GetProperty("Name")]);
@@ -250,10 +247,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } }).Object);
             batch.AddCommand(command);
 
-            var transactionMock = new Mock<RelationalTransaction>(
-                Mock.Of<IRelationalConnection>(), Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
+            var transaction = Mock.Of<IRelationalTransaction>();
 
-            await batch.ExecuteAsync(transactionMock.Object, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(transaction, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
             Assert.Equal(1, entry[entry.EntityType.GetProperty("Id")]);
             Assert.Equal("FortyTwo", entry[entry.EntityType.GetProperty("Name")]);
@@ -276,10 +272,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(mockReader.Object);
             batch.AddCommand(command);
 
-            var transactionMock = new Mock<RelationalTransaction>(
-                Mock.Of<IRelationalConnection>(), Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
+            var transaction = Mock.Of<IRelationalTransaction>();
 
-            await batch.ExecuteAsync(transactionMock.Object, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(transaction, new ConcreteTypeMapper(), new Mock<DbContext>().Object, new Mock<ILogger>().Object);
 
             Assert.Equal(42, entry[entry.EntityType.GetProperty("Id")]);
         }
@@ -295,13 +290,12 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1" }, new List<object[]> { new object[] { 42 } }).Object);
             batch.AddCommand(command);
 
-            var transactionMock = new Mock<RelationalTransaction>(
-                Mock.Of<IRelationalConnection>(), Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
+            var transaction = Mock.Of<IRelationalTransaction>();
 
             Assert.Equal(Strings.UpdateConcurrencyException(1, 42),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
                     async () => await batch.ExecuteAsync(
-                        transactionMock.Object,
+                        transaction,
                         new ConcreteTypeMapper(),
                         new Mock<DbContext>().Object,
                         new Mock<ILogger>().Object))).Message);
@@ -319,13 +313,12 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1" }, new List<object[]>()).Object);
             batch.AddCommand(command);
 
-            var transactionMock = new Mock<RelationalTransaction>(
-                Mock.Of<IRelationalConnection>(), Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
+            var transaction = Mock.Of<IRelationalTransaction>();
 
             Assert.Equal(Strings.UpdateConcurrencyException(1, 0),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
                     async () => await batch.ExecuteAsync(
-                        transactionMock.Object,
+                        transaction,
                         new ConcreteTypeMapper(),
                         new Mock<DbContext>().Object,
                         new Mock<ILogger>().Object))).Message);

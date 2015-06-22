@@ -5,13 +5,12 @@ using System;
 using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class RelationalTransaction : DataStoreTransaction
+    public class RelationalTransaction : IRelationalTransaction
     {
         private readonly bool _transactionOwned;
         private bool _disposed;
@@ -21,7 +20,6 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] DbTransaction dbTransaction,
             bool transactionOwned,
             [NotNull] ILogger logger)
-            : base(logger)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(dbTransaction, nameof(dbTransaction));
@@ -35,13 +33,16 @@ namespace Microsoft.Data.Entity.Relational
             Connection = connection;
             DbTransaction = dbTransaction;
             _transactionOwned = transactionOwned;
+            Logger = logger;
         }
+
+        protected virtual ILogger Logger { get; }
 
         public virtual DbTransaction DbTransaction { get; }
 
         public virtual IRelationalConnection Connection { get; }
 
-        public override void Commit()
+        public virtual void Commit()
         {
             Logger.CommittingTransaction();
 
@@ -49,7 +50,7 @@ namespace Microsoft.Data.Entity.Relational
             ClearTransaction();
         }
 
-        public override void Rollback()
+        public virtual void Rollback()
         {
             Logger.RollingbackTransaction();
 
@@ -57,7 +58,7 @@ namespace Microsoft.Data.Entity.Relational
             ClearTransaction();
         }
 
-        public override void Dispose()
+        public virtual void Dispose()
         {
             if (!_disposed)
             {

@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         public override int Execute(
-            RelationalTransaction transaction,
+            IRelationalTransaction transaction,
             IRelationalTypeMapper typeMapper,
             DbContext context,
             ILogger logger)
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         public override async Task<int> ExecuteAsync(
-            RelationalTransaction transaction,
+            IRelationalTransaction transaction,
             IRelationalTypeMapper typeMapper,
             DbContext context,
             ILogger logger,

@@ -337,7 +337,6 @@
     <Compile Include="Storage\IDataStoreServices.cs" />
     <Compile Include="Storage\IDataStoreSource.cs" />
     <Compile Include="Storage\DataStoreSource`.cs" />
-    <Compile Include="Storage\DataStoreTransaction.cs" />
     <Compile Include="Update\DbUpdateConcurrencyException.cs" />
     <Compile Include="Update\DbUpdateException.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs">

@@ -17,13 +17,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             {
                 using (var context = new TimeoutContext())
                 {
-                    Assert.Null(context.Database.GetRelationalConnection().CommandTimeout);
+                    Assert.Null(context.Database.GetCommandTimeout());
 
-                    context.Database.GetRelationalConnection().CommandTimeout = 77;
-                    Assert.Equal(77, context.Database.GetRelationalConnection().CommandTimeout);
+                    context.Database.SetCommandTimeout(77);
+                    Assert.Equal(77, context.Database.GetCommandTimeout());
 
-                    context.Database.GetRelationalConnection().CommandTimeout = null;
-                    Assert.Null(context.Database.GetRelationalConnection().CommandTimeout);
+                    context.Database.SetCommandTimeout(null);
+                    Assert.Null(context.Database.GetCommandTimeout());
                 }
             }
 
@@ -36,13 +36,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
                 using (var context = new TimeoutContext())
                 {
-                    Assert.Null(context.Database.GetRelationalConnection().CommandTimeout);
+                    Assert.Null(context.Database.GetCommandTimeout());
 
                     Assert.Throws<ArgumentException>(
-                        () => context.Database.GetRelationalConnection().CommandTimeout = -3);
+                        () => context.Database.SetCommandTimeout(-3));
 
                     Assert.Throws<ArgumentException>(
-                        () => context.Database.GetRelationalConnection().CommandTimeout = -99);
+                        () => context.Database.SetCommandTimeout(-99));
                 }
             }
 
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
                 public TimeoutContext(int? commandTimeout)
                 {
-                    Database.GetRelationalConnection().CommandTimeout = commandTimeout;
+                    Database.SetCommandTimeout(commandTimeout);
                 }
 
                 protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

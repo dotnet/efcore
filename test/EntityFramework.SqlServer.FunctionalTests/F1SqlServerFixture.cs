@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             optionsBuilder.UseSqlServer(testStore.Connection);
 
             var context = new F1Context(_serviceProvider, optionsBuilder.Options);
-            context.Database.GetRelationalConnection().UseTransaction(testStore.Transaction);
+            context.Database.UseTransaction(testStore.Transaction);
             return context;
         }
     }

@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
 
-                    Assert.Equal(ConnectionState.Closed, context.Database.GetRelationalConnection().DbConnection.State);
+                    Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
                 }
             }
         }
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
 
-                    Assert.Equal(ConnectionState.Closed, context.Database.GetRelationalConnection().DbConnection.State);
+                    Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
                 }
             }
         }
@@ -116,11 +116,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         Assert.True(context.Database.EnsureDeleted());
                     }
 
-                    Assert.Equal(ConnectionState.Closed, context.Database.GetRelationalConnection().DbConnection.State);
+                    Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
                     Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
 
-                    Assert.Equal(ConnectionState.Closed, context.Database.GetRelationalConnection().DbConnection.State);
+                    Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
                 }
             }
         }
@@ -156,11 +156,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         Assert.False(creator.EnsureDeleted());
                     }
 
-                    Assert.Equal(ConnectionState.Closed, context.Database.GetRelationalConnection().DbConnection.State);
+                    Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
                     Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
 
-                    Assert.Equal(ConnectionState.Closed, context.Database.GetRelationalConnection().DbConnection.State);
+                    Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
                 }
             }
         }
@@ -211,7 +211,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var creator = context.GetService<IRelationalDataStoreCreator>();
 
-                Assert.Equal(ConnectionState.Closed, context.Database.GetRelationalConnection().DbConnection.State);
+                Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
                 if (async)
                 {
@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.True(creator.EnsureCreated());
                 }
 
-                Assert.Equal(ConnectionState.Closed, context.Database.GetRelationalConnection().DbConnection.State);
+                Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
                 if (testStore.Connection.State != ConnectionState.Open)
                 {
@@ -293,7 +293,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         Assert.False(context.Database.EnsureCreated());
                     }
 
-                    Assert.Equal(ConnectionState.Closed, context.Database.GetRelationalConnection().DbConnection.State);
+                    Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
                 }
             }
         }

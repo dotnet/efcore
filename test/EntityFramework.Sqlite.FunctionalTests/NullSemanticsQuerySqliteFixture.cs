@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             optionsBuilder.UseSqlite(testStore.Connection);
 
             var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options);
-            context.Database.GetRelationalConnection().UseTransaction(testStore.Transaction);
+            context.Database.UseTransaction(testStore.Transaction);
             return context;
         }
     }

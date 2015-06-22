@@ -778,7 +778,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var connection = context.Database.GetRelationalConnection().DbConnection;
+                var connection = context.Database.GetDbConnection();
 
                 var command = connection.CreateCommand();
                 command.CommandText = query;

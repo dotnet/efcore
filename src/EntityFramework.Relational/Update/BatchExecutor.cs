@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             var rowsAffected = 0;
             connection.Open();
-            RelationalTransaction startedTransaction = null;
+            IRelationalTransaction startedTransaction = null;
             try
             {
                 if (connection.Transaction == null)
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             var rowsAffected = 0;
             await connection.OpenAsync(cancellationToken);
-            RelationalTransaction startedTransaction = null;
+            IRelationalTransaction startedTransaction = null;
             try
             {
                 if (connection.Transaction == null)

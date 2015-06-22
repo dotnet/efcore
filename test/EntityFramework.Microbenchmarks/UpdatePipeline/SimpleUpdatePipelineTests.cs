@@ -46,7 +46,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         {
             using (var context = new OrdersContext(_connectionString, disableBatching))
             {
-                using (context.Database.GetRelationalConnection().BeginTransaction())
+                using (context.Database.BeginTransaction())
                 {
                     for (var i = 0; i < 1000; i++)
                     {
@@ -92,7 +92,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         {
             using (var context = new OrdersContext(_connectionString, disableBatching))
             {
-                using (context.Database.GetRelationalConnection().BeginTransaction())
+                using (context.Database.BeginTransaction())
                 {
                     foreach (var customer in context.Customers)
                     {
@@ -138,7 +138,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         {
             using (var context = new OrdersContext(_connectionString, disableBatching))
             {
-                using (context.Database.GetRelationalConnection().BeginTransaction())
+                using (context.Database.BeginTransaction())
                 {
                     foreach (var customer in context.Customers)
                     {
@@ -184,7 +184,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         {
             using (var context = new OrdersContext(_connectionString, disableBatching))
             {
-                using (context.Database.GetRelationalConnection().BeginTransaction())
+                using (context.Database.BeginTransaction())
                 {
                     var customers = context.Customers.ToArray();
 

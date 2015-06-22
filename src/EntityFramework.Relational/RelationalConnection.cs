@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual DbConnection DbConnection => _connection.Value;
 
-        public virtual RelationalTransaction Transaction { get; protected set; }
+        public virtual IRelationalTransaction Transaction { get; protected set; }
 
         public virtual int? CommandTimeout
         {
@@ -90,14 +90,14 @@ namespace Microsoft.Data.Entity.Relational
         public virtual DbTransaction DbTransaction => Transaction?.DbTransaction;
 
         [NotNull]
-        public virtual RelationalTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
+        public virtual IRelationalTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
 
         [NotNull]
-        public virtual Task<RelationalTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<IRelationalTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
             => BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken);
 
         [NotNull]
-        public virtual RelationalTransaction BeginTransaction(IsolationLevel isolationLevel)
+        public virtual IRelationalTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             if (Transaction != null)
             {
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         [NotNull]
-        public virtual async Task<RelationalTransaction> BeginTransactionAsync(
+        public virtual async Task<IRelationalTransaction> BeginTransactionAsync(
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.Relational
             return BeginTransactionWithNoPreconditions(isolationLevel);
         }
 
-        private RelationalTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
+        private IRelationalTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
         {
             _logger.Value.BeginningTransaction(isolationLevel);
 
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Relational
             return Transaction;
         }
 
-        public virtual RelationalTransaction UseTransaction(DbTransaction transaction)
+        public virtual IRelationalTransaction UseTransaction(DbTransaction transaction)
         {
             if (transaction == null)
             {

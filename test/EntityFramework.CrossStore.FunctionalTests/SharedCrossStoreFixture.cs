@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var context = new CrossStoreContext(_serviceProvider, optionsBuilder.Options);
                 context.Database.EnsureCreated();
-                context.Database.GetRelationalConnection().UseTransaction(sqliteTestStore.Transaction);
+                context.Database.UseTransaction(sqliteTestStore.Transaction);
 
                 return context;
             }
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var context = new CrossStoreContext(_serviceProvider, optionsBuilder.Options);
                 context.Database.EnsureCreated();
-                context.Database.GetRelationalConnection().UseTransaction(sqlServerTestStore.Transaction);
+                context.Database.UseTransaction(sqlServerTestStore.Transaction);
 
                 return context;
             }

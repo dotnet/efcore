@@ -23,10 +23,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var mockModificationCommandBatch = new Mock<ModificationCommandBatch>(sqlGenerator);
 
             var mockRelationalConnection = new Mock<IRelationalConnection>();
-            var transactionMock = new Mock<RelationalTransaction>(
-                mockRelationalConnection.Object, Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
+            var transactionMock = new Mock<IRelationalTransaction>();
 
-            RelationalTransaction currentTransaction = null;
+            IRelationalTransaction currentTransaction = null;
             mockRelationalConnection.Setup(m => m.BeginTransaction()).Returns(() => currentTransaction = transactionMock.Object);
             mockRelationalConnection.Setup(m => m.Transaction).Returns(() => currentTransaction);
 
@@ -41,7 +40,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             mockRelationalConnection.Verify(rc => rc.Close());
             transactionMock.Verify(t => t.Commit());
             mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(
-                It.IsAny<RelationalTransaction>(),
+                It.IsAny<IRelationalTransaction>(),
                 relationalTypeMapper,
                 It.IsAny<DbContext>(),
                 null,
@@ -55,8 +54,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var mockModificationCommandBatch = new Mock<ModificationCommandBatch>(sqlGenerator);
 
             var mockRelationalConnection = new Mock<IRelationalConnection>();
-            var transactionMock = new Mock<RelationalTransaction>(
-                mockRelationalConnection.Object, Mock.Of<DbTransaction>(), false, Mock.Of<ILogger>());
+            var transactionMock = new Mock<IRelationalTransaction>();
             mockRelationalConnection.Setup(m => m.Transaction).Returns(transactionMock.Object);
 
             var cancellationToken = new CancellationTokenSource().Token;
@@ -71,7 +69,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             mockRelationalConnection.Verify(rc => rc.BeginTransaction(), Times.Never);
             transactionMock.Verify(t => t.Commit(), Times.Never);
             mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(
-                It.IsAny<RelationalTransaction>(),
+                It.IsAny<IRelationalTransaction>(),
                 relationalTypeMapper,
                 It.IsAny<DbContext>(),
                 null,
