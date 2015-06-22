@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         /// <summary>
         ///     Gets or sets a value indicating whether the value of this property has been modified
-        ///     and should be updated in the data store when <see cref="DbContext.SaveChanges()" />
+        ///     and should be updated in the database when <see cref="DbContext.SaveChanges()" />
         ///     is called.
         /// </summary>
         public virtual bool IsModified
@@ -65,8 +65,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         /// <summary>
-        ///     Gets or sets the value that was assigned to this property when it was retrieved from the data store.
-        ///     This property is populated when an entity is retrieved from the data store, but setting it may be
+        ///     Gets or sets the value that was assigned to this property when it was retrieved from the database.
+        ///     This property is populated when an entity is retrieved from the database, but setting it may be
         ///     useful in disconnected scenarios where entities are retrieved with one context instance and
         ///     saved with a different context instance.
         /// </summary>

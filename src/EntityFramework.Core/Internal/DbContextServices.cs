@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -18,7 +17,7 @@ namespace Microsoft.Data.Entity.Internal
         private IDbContextOptions _contextOptions;
         private DbContext _context;
         private LazyRef<IModel> _modelFromSource;
-        private LazyRef<IDataStoreServices> _dataStoreServices;
+        private LazyRef<IDatabaseProviderServices> _providerServices;
         private bool _inOnModelCreating;
 
         public virtual IDbContextServices Initialize(
@@ -36,8 +35,8 @@ namespace Microsoft.Data.Entity.Internal
             _contextOptions = contextOptions;
             _context = context;
 
-            _dataStoreServices = new LazyRef<IDataStoreServices>(() =>
-                _provider.GetRequiredService<IDataStoreSelector>().SelectDataStore(serviceProviderSource));
+            _providerServices = new LazyRef<IDatabaseProviderServices>(() =>
+                _provider.GetRequiredService<IDatabaseProviderSelector>().SelectServices(serviceProviderSource));
 
             _modelFromSource = new LazyRef<IModel>(CreateModel);
 
@@ -55,7 +54,10 @@ namespace Microsoft.Data.Entity.Internal
             {
                 _inOnModelCreating = true;
 
-                return _dataStoreServices.Value.ModelSource.GetModel(_context, _dataStoreServices.Value.ConventionSetBuilder, _dataStoreServices.Value.ModelValidator);
+                return _providerServices.Value.ModelSource.GetModel(
+                    _context, 
+                    _providerServices.Value.ConventionSetBuilder, 
+                    _providerServices.Value.ModelValidator);
             }
             finally
             {
@@ -69,15 +71,15 @@ namespace Microsoft.Data.Entity.Internal
 
         public virtual IDbContextOptions ContextOptions => _contextOptions;
 
-        public virtual IDataStoreServices DataStoreServices
+        public virtual IDatabaseProviderServices DatabaseProviderServices
         {
             get
             {
                 Debug.Assert(
-                    _dataStoreServices != null,
+                    _providerServices != null,
                     "DbContextServices not initialized. This may mean a service is registered as Singleton when it needs to be Scoped because it depends on other Scoped services.");
 
-                return _dataStoreServices.Value;
+                return _providerServices.Value;
             }
         }
 

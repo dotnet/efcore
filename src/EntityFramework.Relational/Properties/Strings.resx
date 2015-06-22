@@ -126,11 +126,11 @@
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Database operation expected to affect {expectedRows} row(s) but actually affected {actualRows} row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.</value>
   </data>
-  <data name="MultipleDataStoresConfigured" xml:space="preserve">
-    <value>Multiple relational data store configurations found. A context can only be configured to use a single data store.</value>
+  <data name="MultipleProvidersConfigured" xml:space="preserve">
+    <value>Multiple relational database provider configurations found. A context can only be configured to use a single database provider.</value>
   </data>
-  <data name="NoDataStoreConfigured" xml:space="preserve">
-    <value>No relational data stores are configured. Configure a data store using OnConfiguring or by creating an ImmutableDbContextOptions with a data store configured and passing it to the context.</value>
+  <data name="NoProviderConfigured" xml:space="preserve">
+    <value>No relational database providers are configured. Configure a database provider using OnConfiguring or by creating an ImmutableDbContextOptions with a database provider configured and passing it to the context.</value>
   </data>
   <data name="ConnectionAndConnectionString" xml:space="preserve">
     <value>Both an existing DbConnection and a connection string have been configured. When an existing DbConnection is used the connection string must be set on that connection.</value>
@@ -142,7 +142,7 @@
     <value>No mapping to a relational type can be found for the CLR type '{clrType}'</value>
   </data>
   <data name="RelationalNotInUse" xml:space="preserve">
-    <value>Relational-specific methods can only be used when the context is using a relational data store.</value>
+    <value>Relational-specific methods can only be used when the context is using a relational database provider.</value>
   </data>
   <data name="UpdateStoreException" xml:space="preserve">
     <value>An error occurred while updating the entries. See the inner exception for details.</value>
@@ -187,7 +187,7 @@
     <value>The history repository includes a migration with the identifier '{migrationId}' but the migration assembly does not contain the corresponding migration class.</value>
   </data>
   <data name="MigrationsNotInUse" xml:space="preserve">
-    <value>Migrations-specific methods can only be used when the context is using a migrations-enabled data store.</value>
+    <value>Migrations-specific methods can only be used when the context is using a migrations-enabled database provider.</value>
   </data>
   <data name="MigratorLoggerApplyingMigration" xml:space="preserve">
     <value>Applying migration '{migrationId}'.</value>

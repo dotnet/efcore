@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Tests
 
         protected virtual EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
         {
-            return builder.AddInMemoryStore();
+            return builder.AddInMemoryDatabase();
         }
 
         protected virtual void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var contextServices = CreateContextServices();
 
-            var conventionSetBuilder = contextServices.GetRequiredService<IDataStoreServices>().ConventionSetBuilder;
+            var conventionSetBuilder = contextServices.GetRequiredService<IDatabaseProviderServices>().ConventionSetBuilder;
             var conventionSet = contextServices.GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet();
             conventionSet = conventionSetBuilder == null
                 ? conventionSet

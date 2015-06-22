@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            optionsBuilder.UseInMemoryStore();
+            optionsBuilder.UseInMemoryDatabase();
 
             T entity;
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))

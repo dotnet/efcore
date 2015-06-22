@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
     {
         protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
         {
-            var serviceCollection = new ServiceCollection().AddEntityFramework().AddInMemoryStore().ServiceCollection();
+            var serviceCollection = new ServiceCollection().AddEntityFramework().AddInMemoryDatabase().ServiceCollection();
 
             if (throwingStateManager)
             {
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         protected override DbContextOptions CreateOptions(string databaseName)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryStore();
+            optionsBuilder.UseInMemoryDatabase();
 
             return optionsBuilder.Options;
         }

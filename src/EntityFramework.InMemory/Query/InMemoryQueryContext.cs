@@ -13,14 +13,14 @@ namespace Microsoft.Data.Entity.InMemory.Query
         public InMemoryQueryContext(
             [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer,
-            [NotNull] IInMemoryDatabase database)
+            [NotNull] IInMemoryStore store)
             : base(
                 Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(queryBuffer, nameof(queryBuffer)))
         {
-            Database = database;
+            Store = store;
         }
 
-        public virtual IInMemoryDatabase Database { get; }
+        public virtual IInMemoryStore Store { get; }
     }
 }

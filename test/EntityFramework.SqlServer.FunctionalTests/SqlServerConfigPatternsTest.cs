@@ -174,7 +174,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
-                        CoreStrings.NoDataStoreConfigured,
+                        CoreStrings.NoProviderConfigured,
                         Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext(serviceProvider))
@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (await SqlServerNorthwindContext.GetSharedStoreAsync())
                 {
                     Assert.Equal(
-                        CoreStrings.NoDataStoreConfigured,
+                        CoreStrings.NoProviderConfigured,
                         Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext())
@@ -245,7 +245,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
-                        CoreStrings.NoDataStoreService,
+                        CoreStrings.NoProviderServices,
                         Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext(serviceProvider))
@@ -596,7 +596,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     serviceCollection
                         .AddEntityFramework()
                         .AddSqlServer()
-                        .AddInMemoryStore();
+                        .AddInMemoryDatabase();
 
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -662,7 +662,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 {
-                    optionsBuilder.UseInMemoryStore();
+                    optionsBuilder.UseInMemoryDatabase();
                 }
             }
 

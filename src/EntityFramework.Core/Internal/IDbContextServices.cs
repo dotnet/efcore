@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Internal
         DbContext Context { get; }
         IModel Model { get; }
         IDbContextOptions ContextOptions { get; }
-        IDataStoreServices DataStoreServices { get; }
+        IDatabaseProviderServices DatabaseProviderServices { get; }
         IServiceProvider ServiceProvider { get; }
     }
 }

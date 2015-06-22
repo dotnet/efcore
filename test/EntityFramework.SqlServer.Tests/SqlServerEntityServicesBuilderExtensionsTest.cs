@@ -33,12 +33,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifyScoped<ISqlServerSequenceValueGeneratorFactory>();
             VerifyScoped<SqlServerModificationCommandBatchFactory>();
             VerifyScoped<SqlServerValueGeneratorSelector>();
-            VerifyScoped<SqlServerDataStoreServices>();
-            VerifyScoped<SqlServerDataStore>();
+            VerifyScoped<SqlServerDatabaseProviderServices>();
+            VerifyScoped<SqlServerDatabase>();
             VerifyScoped<ISqlServerConnection>();
             VerifyScoped<SqlServerModelDiffer>();
             VerifyScoped<SqlServerMigrationSqlGenerator>();
-            VerifyScoped<SqlServerDataStoreCreator>();
+            VerifyScoped<SqlServerDatabaseCreator>();
             VerifyScoped<SqlServerHistoryRepository>();
             VerifyScoped<SqlServerCompositeMethodCallTranslator>();
             VerifyScoped<SqlServerCompositeMemberTranslator>();

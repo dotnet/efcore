@@ -14,22 +14,22 @@ namespace Microsoft.Framework.DependencyInjection
 {
     public static class InMemoryEntityServicesBuilderExtensions
     {
-        public static EntityFrameworkServicesBuilder AddInMemoryStore([NotNull] this EntityFrameworkServicesBuilder builder)
+        public static EntityFrameworkServicesBuilder AddInMemoryDatabase([NotNull] this EntityFrameworkServicesBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
 
             builder.GetService()
-                .AddSingleton<IDataStoreSource, InMemoryDataStoreSource>()
+                .AddSingleton<IDatabaseProvider, InMemoryDatabaseProvider>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<InMemoryValueGeneratorCache>()
-                    .AddSingleton<IInMemoryDatabase, InMemoryDatabase>()
+                    .AddSingleton<IInMemoryStore, InMemoryStore>()
                     .AddSingleton<InMemoryModelSource>()
                     .AddScoped<InMemoryValueGeneratorSelector>()
                     .AddScoped<InMemoryQueryContextFactory>()
-                    .AddScoped<InMemoryDataStoreServices>()
-                    .AddScoped<IInMemoryDataStore, InMemoryDataStore>()
+                    .AddScoped<InMemoryDatabaseProviderServices>()
+                    .AddScoped<IInMemoryDatabase, InMemoryDatabase>()
                     .AddScoped<InMemoryConnection>()
-                    .AddScoped<InMemoryDataStoreCreator>());
+                    .AddScoped<InMemoryDatabaseCreator>());
 
             return builder;
         }

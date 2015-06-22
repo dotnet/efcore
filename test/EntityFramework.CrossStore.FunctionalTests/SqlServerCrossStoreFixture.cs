@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 new ServiceCollection()
                     .AddEntityFramework()
                     .AddSqlServer()
-                    .AddInMemoryStore()
+                    .AddInMemoryDatabase()
                     .ServiceCollection()
                     .BuildServiceProvider());
         }

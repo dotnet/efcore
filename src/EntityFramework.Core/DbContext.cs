@@ -21,7 +21,7 @@ using Microsoft.Framework.Logging;
 namespace Microsoft.Data.Entity
 {
     /// <summary>
-    ///     A DbContext instance represents a session with the data store and can be used to query and save
+    ///     A DbContext instance represents a session with the database and can be used to query and save
     ///     instances of your entities. DbContext is a combination of the Unit Of Work and Repository patterns.
     /// </summary>
     /// <remarks>
@@ -31,10 +31,8 @@ namespace Microsoft.Data.Entity
     ///         they are automatically initialized when the instance of the derived context is created.
     ///     </para>
     ///     <para>
-    ///         Override the <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method to configure the data store (and
-    ///         other
-    ///         options) to be
-    ///         used for the context.
+    ///         Override the <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method to configure the database (and
+    ///         other options) to be used for the context.
     ///     </para>
     ///     <para>
     ///         The model is discovered by running a set of conventions over the entity classes found in the
@@ -58,7 +56,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbContext" /> class. The
         ///     <see cref="OnConfiguring(DbContextOptionsBuilder)" />
-        ///     method will be called to configure the data store (and other options) to be used for this context.
+        ///     method will be called to configure the database (and other options) to be used for this context.
         /// </summary>
         protected DbContext()
         {
@@ -72,11 +70,11 @@ namespace Microsoft.Data.Entity
         ///         Initializes a new instance of the <see cref="DbContext" /> class using an <see cref="IServiceProvider" />.
         ///     </para>
         ///     <para>
-        ///         The service provider must contain all the services required by Entity Framework (and the data store being
+        ///         The service provider must contain all the services required by Entity Framework (and the database being
         ///         used).
         ///         The Entity Framework services can be registered using the
         ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework" /> method.
-        ///         Most data stores also provide an extension method on <see cref="IServiceCollection" /> to register the services
+        ///         Most databases also provide an extension method on <see cref="IServiceCollection" /> to register the services
         ///         required.
         ///     </para>
         ///     <para>
@@ -116,11 +114,11 @@ namespace Microsoft.Data.Entity
         ///         configuration of the options.
         ///     </para>
         ///     <para>
-        ///         The service provider must contain all the services required by Entity Framework (and the data store being
+        ///         The service provider must contain all the services required by Entity Framework (and the databases being
         ///         used).
         ///         The Entity Framework services can be registered using the
         ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework" /> method.
-        ///         Most data stores also provide an extension method on <see cref="IServiceCollection" /> to register the services
+        ///         Most databases also provide an extension method on <see cref="IServiceCollection" /> to register the services
         ///         required.
         ///     </para>
         ///     <para>
@@ -190,13 +188,13 @@ namespace Microsoft.Data.Entity
                 var optionsBuilder = new DbContextOptionsBuilder(options);
                 OnConfiguring(optionsBuilder);
 
-                var dataStores = serviceProvider?.GetService<IEnumerable<IDataStoreSource>>()?.ToList()
-                                 ?? new List<IDataStoreSource>();
+                var providers = serviceProvider?.GetService<IEnumerable<IDatabaseProvider>>()?.ToList()
+                                 ?? new List<IDatabaseProvider>();
 
-                if (dataStores.Count == 1
-                    && !dataStores[0].IsConfigured(optionsBuilder.Options))
+                if (providers.Count == 1
+                    && !providers[0].IsConfigured(optionsBuilder.Options))
                 {
-                    dataStores[0].AutoConfigure(optionsBuilder);
+                    providers[0].AutoConfigure(optionsBuilder);
                 }
 
                 var providerSource = serviceProvider != null ? ServiceProviderSource.Explicit : ServiceProviderSource.Implicit;
@@ -241,7 +239,7 @@ namespace Microsoft.Data.Entity
         IServiceProvider IAccessor<IServiceProvider>.Service => ServiceProvider;
 
         /// <summary>
-        ///     Override this method to configure the data store (and other options) to be used for this context.
+        ///     Override this method to configure the database (and other options) to be used for this context.
         ///     This method is called for each instance of the context that is created.
         /// </summary>
         /// <remarks>
@@ -252,7 +250,7 @@ namespace Microsoft.Data.Entity
         ///     instance.
         /// </remarks>
         /// <param name="optionsBuilder">
-        ///     A builder used to create or modify options for this context. Data stores (and other extensions)
+        ///     A builder used to create or modify options for this context. Databases (and other extensions)
         ///     typically define extension methods on this object that allow you to configure the context.
         /// </param>
         protected internal virtual void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -265,24 +263,24 @@ namespace Microsoft.Data.Entity
         ///     and re-used for subsequent instances of your derived context.
         /// </summary>
         /// <param name="modelBuilder">
-        ///     The builder being used to construct the model for this context. Data stores (and other extensions) typically
+        ///     The builder being used to construct the model for this context. Databases (and other extensions) typically
         ///     define extension methods on this object that allow you to configure aspects of the model that are specific
-        ///     to a given data store.
+        ///     to a given database.
         /// </param>
         protected internal virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
         }
 
         /// <summary>
-        ///     Saves all changes made in this context to the underlying data store.
+        ///     Saves all changes made in this context to the underlying database.
         /// </summary>
         /// <remarks>
         ///     This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any changes
-        ///     to entity instances before saving to the underlying data store. This can be disabled via
+        ///     to entity instances before saving to the underlying database. This can be disabled via
         ///     <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         /// </remarks>
         /// <returns>
-        ///     The number of state entries written to the underlying data store.
+        ///     The number of state entries written to the underlying database.
         /// </returns>
         [DebuggerStepThrough]
         public virtual int SaveChanges()
@@ -291,19 +289,19 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Saves all changes made in this context to the underlying data store.
+        ///     Saves all changes made in this context to the underlying database.
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess">
         ///     Indicates whether <see cref="ChangeTracker.AcceptAllChanges" /> is called after the changes have been
-        ///     sent succesfully to the data store.
+        ///     sent succesfully to the database.
         /// </param>
         /// <remarks>
         ///     This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any changes
-        ///     to entity instances before saving to the underlying data store. This can be disabled via
+        ///     to entity instances before saving to the underlying database. This can be disabled via
         ///     <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         /// </remarks>
         /// <returns>
-        ///     The number of state entries written to the underlying data store.
+        ///     The number of state entries written to the underlying database.
         /// </returns>
         [DebuggerStepThrough]
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
@@ -319,7 +317,7 @@ namespace Microsoft.Data.Entity
             catch (Exception ex)
             {
                 _logger.LogError(
-                    new DataStoreErrorLogState(GetType()),
+                    new DatabaseErrorLogState(GetType()),
                     ex,
                     (state, exception) =>
                         Strings.LogExceptionDuringSaveChanges(Environment.NewLine, exception));
@@ -337,12 +335,12 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Asynchronously saves all changes made in this context to the underlying data store.
+        ///     Asynchronously saves all changes made in this context to the underlying database.
         /// </summary>
         /// <remarks>
         ///     <para>
         ///         This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any changes
-        ///         to entity instances before saving to the underlying data store. This can be disabled via
+        ///         to entity instances before saving to the underlying database. This can be disabled via
         ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
         ///     <para>
@@ -353,7 +351,7 @@ namespace Microsoft.Data.Entity
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
-        ///     number of state entries written to the underlying data store.
+        ///     number of state entries written to the underlying database.
         /// </returns>
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -361,16 +359,16 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Asynchronously saves all changes made in this context to the underlying data store.
+        ///     Asynchronously saves all changes made in this context to the underlying database.
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess">
         ///     Indicates whether <see cref="ChangeTracker.AcceptAllChanges" /> is called after the changes have been
-        ///     sent succesfully to the data store.
+        ///     sent succesfully to the database.
         /// </param>
         /// <remarks>
         ///     <para>
         ///         This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any changes
-        ///         to entity instances before saving to the underlying data store. This can be disabled via
+        ///         to entity instances before saving to the underlying database. This can be disabled via
         ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
         ///     <para>
@@ -381,7 +379,7 @@ namespace Microsoft.Data.Entity
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
-        ///     number of state entries written to the underlying data store.
+        ///     number of state entries written to the underlying database.
         /// </returns>
         public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -400,7 +398,7 @@ namespace Microsoft.Data.Entity
             catch (Exception ex)
             {
                 _logger.LogError(
-                    new DataStoreErrorLogState(GetType()),
+                    new DatabaseErrorLogState(GetType()),
                     ex,
                     (state, exception) =>
                         Strings.LogExceptionDuringSaveChanges(Environment.NewLine, exception));
@@ -475,7 +473,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Added" /> state such that it will
-        ///     be inserted into the data store when <see cref="SaveChanges()" /> is called.
+        ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to add. </param>
@@ -516,7 +514,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     <para>
         ///         Begins tracking the given entity in the <see cref="EntityState.Modified" /> state such that it will
-        ///         be updated in the data store when <see cref="SaveChanges()" /> is called.
+        ///         be updated in the database when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
@@ -541,12 +539,12 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
-        ///     be removed from the data store when <see cref="SaveChanges()" /> is called.
+        ///     be removed from the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
         ///     If the entity is already tracked in the <see cref="EntityState.Added" /> state then the context will
         ///     stop tracking the entity (rather than marking it as <see cref="EntityState.Deleted" />) since the
-        ///     entity was previously added to the context and does not exist in the data store.
+        ///     entity was previously added to the context and does not exist in the database.
         /// </remarks>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to remove. </param>
@@ -578,7 +576,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Added" /> state such that it will
-        ///     be inserted into the data store when <see cref="SaveChanges()" /> is called.
+        ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
         /// <returns>
@@ -613,7 +611,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     <para>
         ///         Begins tracking the given entity in the <see cref="EntityState.Modified" /> state such that it will
-        ///         be updated in the data store when <see cref="SaveChanges()" /> is called.
+        ///         be updated in the database when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
@@ -636,12 +634,12 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
-        ///     be removed from the data store when <see cref="SaveChanges()" /> is called.
+        ///     be removed from the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
         ///     If the entity is already tracked in the <see cref="EntityState.Added" /> state then the context will
         ///     stop tracking the entity (rather than marking it as <see cref="EntityState.Deleted" />) since the
-        ///     entity was previously added to the context and does not exist in the data store.
+        ///     entity was previously added to the context and does not exist in the database.
         /// </remarks>
         /// <param name="entity"> The entity to remove. </param>
         /// <returns>
@@ -682,7 +680,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Added" /> state such that they will
-        ///     be inserted into the data store when <see cref="SaveChanges()" /> is called.
+        ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange([NotNull] params object[] entities)
@@ -707,7 +705,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     <para>
         ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
-        ///         be updated in the data store when <see cref="SaveChanges()" /> is called.
+        ///         be updated in the database when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
@@ -725,12 +723,12 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
-        ///     be removed from the data store when <see cref="SaveChanges()" /> is called.
+        ///     be removed from the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
         ///     If any of the entities are already tracked in the <see cref="EntityState.Added" /> state then the context will
         ///     stop tracking those entities (rather than marking them as <see cref="EntityState.Deleted" />) since those
-        ///     entities were previously added to the context and do not exist in the data store.
+        ///     entities were previously added to the context and do not exist in the database.
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
         public virtual void RemoveRange([NotNull] params object[] entities)
@@ -752,7 +750,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Added" /> state such that they will
-        ///     be inserted into the data store when <see cref="SaveChanges()" /> is called.
+        ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange([NotNull] IEnumerable<object> entities)
@@ -777,7 +775,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     <para>
         ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
-        ///         be updated in the data store when <see cref="SaveChanges()" /> is called.
+        ///         be updated in the database when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
@@ -795,12 +793,12 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
-        ///     be removed from the data store when <see cref="SaveChanges()" /> is called.
+        ///     be removed from the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
         ///     If any of the entities are already tracked in the <see cref="EntityState.Added" /> state then the context will
         ///     stop tracking those entities (rather than marking them as <see cref="EntityState.Deleted" />) since those
-        ///     entities were previously added to the context and do not exist in the data store.
+        ///     entities were previously added to the context and do not exist in the database.
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
         public virtual void RemoveRange([NotNull] IEnumerable<object> entities)
@@ -837,7 +835,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Creates a set to perform operations for a given entity type in the model. LINQ queries against
-        ///     <see cref="DbSet{TEntity}" /> will be translated into queries against the data store.
+        ///     <see cref="DbSet{TEntity}" /> will be translated into queries against the database.
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>

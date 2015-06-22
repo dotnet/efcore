@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
-                    var creator = context.GetService<IRelationalDataStoreCreator>();
+                    var creator = context.GetService<IRelationalDatabaseCreator>();
 
                     Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
 
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
-                    var creator = context.GetService<IRelationalDataStoreCreator>();
+                    var creator = context.GetService<IRelationalDatabaseCreator>();
 
                     Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
 
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (var context = new BloggingContext(testDatabase))
                 {
-                    var creator = context.GetService<IRelationalDataStoreCreator>();
+                    var creator = context.GetService<IRelationalDatabaseCreator>();
 
                     Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
 
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
-                    var creator = context.GetService<IRelationalDataStoreCreator>();
+                    var creator = context.GetService<IRelationalDatabaseCreator>();
 
                     Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
 
@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = new BloggingContext(testStore))
             {
-                var creator = context.GetService<IRelationalDataStoreCreator>();
+                var creator = context.GetService<IRelationalDatabaseCreator>();
 
                 Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 

@@ -39,7 +39,7 @@
     <Compile Include="ChangeTrackingTestBase.cs" />
     <Compile Include="ComplexNavigationsQueryFixtureBase.cs" />
     <Compile Include="ComplexNavigationsQueryTestBase.cs" />
-    <Compile Include="DataStoreErrorLogStateTest.cs" />
+    <Compile Include="DatabaseErrorLogStateTest.cs" />
     <Compile Include="BuiltInDataTypesFixtureBase.cs" />
     <Compile Include="BuiltInDataTypesTestBase.cs" />
     <Compile Include="FixupTest.cs" />

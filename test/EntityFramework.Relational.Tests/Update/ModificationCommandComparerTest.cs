@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            optionsBuilder.UseInMemoryStore(persist: false);
+            optionsBuilder.UseInMemoryDatabase(persist: false);
 
             var contextServices = new DbContext(optionsBuilder.Options).GetService();
             var stateManager = contextServices.GetRequiredService<IStateManager>();

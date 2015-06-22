@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             Func<ValueBuffer, EntityKey> relatedKeyFactory,
             Func<IEntityType, ValueBuffer, object> materializer)
         {
-            return ((InMemoryQueryContext)queryContext).Database
+            return ((InMemoryQueryContext)queryContext).Store
                 .GetTables(targetType)
                 .SelectMany(t =>
                     t.Select(vs => new EntityLoadInfo(
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             bool queryStateManager)
             where TEntity : class
         {
-            return ((InMemoryQueryContext)queryContext).Database
+            return ((InMemoryQueryContext)queryContext).Store
                 .GetTables(entityType)
                 .SelectMany(t =>
                     t.Select(vs =>
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             QueryContext queryContext,
             IEntityType entityType)
         {
-            return ((InMemoryQueryContext)queryContext).Database
+            return ((InMemoryQueryContext)queryContext).Store
                 .GetTables(entityType)
                 .SelectMany(t => t.Select(vs => new ValueBuffer(vs)));
         }

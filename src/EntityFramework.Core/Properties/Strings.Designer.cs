@@ -245,35 +245,35 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The data stores {storeNames}are configured. A context can only be configured to use a single data store.
+        /// The database providers {storeNames}are configured. A context can only be configured to use a single ddatabase.
         /// </summary>
-        public static string MultipleDataStoresConfigured([CanBeNull] object storeNames)
+        public static string MultipleProvidersConfigured([CanBeNull] object storeNames)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleDataStoresConfigured", "storeNames"), storeNames);
+            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleProvidersConfigured", "storeNames"), storeNames);
         }
 
         /// <summary>
-        /// No data stores are configured. Configure a data store by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.
+        /// No database providers are configured. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.
         /// </summary>
-        public static string NoDataStoreConfigured
+        public static string NoProviderConfigured
         {
-            get { return GetString("NoDataStoreConfigured"); }
+            get { return GetString("NoProviderConfigured"); }
         }
 
         /// <summary>
-        /// No data stores are available. Ensure that data store services are added inside the call to AddEntityFramework on your ServiceCollection.
+        /// No database providers are available. Ensure that database provider services are added inside the call to AddEntityFramework on your ServiceCollection.
         /// </summary>
-        public static string NoDataStoreService
+        public static string NoProviderServices
         {
-            get { return GetString("NoDataStoreService"); }
+            get { return GetString("NoProviderServices"); }
         }
 
         /// <summary>
-        /// The data stores {storeNames}are available. A context can only be configured to use a single data store. Configure a data store by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.
+        /// The database providers {storeNames}are available. A context can only be configured to use a single database provider. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.
         /// </summary>
-        public static string MultipleDataStoresAvailable([CanBeNull] object storeNames)
+        public static string MultipleProvidersAvailable([CanBeNull] object storeNames)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleDataStoresAvailable", "storeNames"), storeNames);
+            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleProvidersAvailable", "storeNames"), storeNames);
         }
 
         /// <summary>
@@ -293,7 +293,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the data store is configured to generate values for this property.
+        /// The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database provider is configured to generate values for this property.
         /// </summary>
         public static string TempValuePersists([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object state)
         {
@@ -317,15 +317,15 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// An error occured while running a data store operation. See InnerException for details.
+        /// An error occured while running a ddatabase operation. See InnerException for details.
         /// </summary>
-        public static string DataStoreException
+        public static string DatabaseException
         {
-            get { return GetString("DataStoreException"); }
+            get { return GetString("DatabaseException"); }
         }
 
         /// <summary>
-        /// An exception occurred in the data store while iterating the results of a query.{newline}{error}
+        /// An exception occurred in the ddatabase while iterating the results of a query.{newline}{error}
         /// </summary>
         public static string LogExceptionDuringQueryIteration([CanBeNull] object newline, [CanBeNull] object error)
         {
@@ -333,7 +333,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// An exception occurred in the data store while saving changes.{newline}{error}
+        /// An exception occurred in the ddatabase while saving changes.{newline}{error}
         /// </summary>
         public static string LogExceptionDuringSaveChanges([CanBeNull] object newline, [CanBeNull] object error)
         {
@@ -661,7 +661,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The Include operator is not implemented by the current data store provider.
+        /// The Include operator is not implemented by the current ddatabase provider.
         /// </summary>
         public static string IncludeNotImplemented
         {

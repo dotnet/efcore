@@ -627,7 +627,7 @@ FROM (
 
         public void Skip_when_no_order_by()
         {
-            Assert.Throws<DataStoreException>(() => AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
+            Assert.Throws<DatabaseException>(() => AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
         }
 
         public override void Take_Distinct_Count()

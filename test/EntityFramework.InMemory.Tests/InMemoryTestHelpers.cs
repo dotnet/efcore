@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests
 
         protected override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
         {
-            return builder.AddInMemoryStore();
+            return builder.AddInMemoryDatabase();
         }
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)

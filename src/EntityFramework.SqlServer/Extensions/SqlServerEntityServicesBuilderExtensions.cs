@@ -23,7 +23,7 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, nameof(builder));
 
             builder.AddRelational().GetService()
-                .AddSingleton<IDataStoreSource, SqlServerDataStoreSource>()
+                .AddSingleton<IDatabaseProvider, SqlServerDatabaseProvider>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqlServerConventionSetBuilder>()
                     .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
@@ -34,12 +34,12 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
                     .AddScoped<SqlServerModificationCommandBatchFactory>()
                     .AddScoped<SqlServerValueGeneratorSelector>()
-                    .AddScoped<SqlServerDataStoreServices>()
-                    .AddScoped<SqlServerDataStore>()
+                    .AddScoped<SqlServerDatabaseProviderServices>()
+                    .AddScoped<SqlServerDatabase>()
                     .AddScoped<ISqlServerConnection, SqlServerConnection>()
                     .AddScoped<SqlServerModelDiffer>()
                     .AddScoped<SqlServerMigrationSqlGenerator>()
-                    .AddScoped<SqlServerDataStoreCreator>()
+                    .AddScoped<SqlServerDatabaseCreator>()
                     .AddScoped<SqlServerHistoryRepository>()
                     .AddScoped<SqlServerCompositeMethodCallTranslator>()
                     .AddScoped<SqlServerCompositeMemberTranslator>());

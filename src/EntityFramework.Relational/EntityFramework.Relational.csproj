@@ -52,8 +52,8 @@
       <Link>LoggingExtensions.cs</Link>
     </Compile>
     <Compile Include="IRelationalConnection.cs" />
-    <Compile Include="IRelationalDataStore.cs" />
-    <Compile Include="IRelationalDataStoreCreator.cs" />
+    <Compile Include="IRelationalDatabase.cs" />
+    <Compile Include="IRelationalDatabaseCreator.cs" />
     <Compile Include="IRelationalTransaction.cs" />
     <Compile Include="IRelationalTypeMapper.cs" />
     <Compile Include="IRelationalValueBufferFactoryFactory.cs" />
@@ -147,7 +147,7 @@
     <Compile Include="Query\Methods\SingleOverloadStaticMethodCallTranslator.cs" />
     <Compile Include="Query\RelationalCompositeMethodCallTranslator.cs" />
     <Compile Include="Query\RelationalCompositeMemberTranslator.cs" />
-    <Compile Include="RelationalDataStoreServices.cs" />
+    <Compile Include="RelationalDatabaseProviderServices.cs" />
     <Compile Include="RelationalModelValidator.cs" />
     <Compile Include="RelationalTypeMapperExtensions.cs" />
     <Compile Include="RemappingUntypedValueBufferFactory.cs" />
@@ -216,14 +216,14 @@
     <Compile Include="Query\Sql\DefaultQuerySqlGenerator.cs" />
     <Compile Include="Query\Sql\RawSqlQueryGenerator.cs" />
     <Compile Include="RelationalDatabaseFacadeExtensions.cs" />
-    <Compile Include="RelationalDataStoreCreator.cs" />
-    <Compile Include="IRelationalDataStoreServices.cs" />
+    <Compile Include="RelationalDatabaseCreator.cs" />
+    <Compile Include="IRelationalDatabaseProviderServices.cs" />
     <Compile Include="RelationalDbContextOptionsBuilder.cs" />
     <Compile Include="RelationalQueryableExtensions.cs" />
     <Compile Include="RelationalMetadataExtensions.cs" />
     <Compile Include="RelationalOptionsExtension.cs" />
     <Compile Include="RelationalConnection.cs" />
-    <Compile Include="RelationalDataStore.cs" />
+    <Compile Include="RelationalDatabase.cs" />
     <Compile Include="RelationalEntityServicesBuilderExtensions.cs" />
     <Compile Include="RelationalLoggerExtensions.cs" />
     <Compile Include="RelationalLoggingEventIds.cs" />

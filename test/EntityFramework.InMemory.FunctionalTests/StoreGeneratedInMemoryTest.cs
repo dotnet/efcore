@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 _serviceProvider = new ServiceCollection()
                     .AddEntityFramework()
-                    .AddInMemoryStore()
+                    .AddInMemoryDatabase()
                     .ServiceCollection()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 return InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
                         var optionsBuilder = new DbContextOptionsBuilder();
-                        optionsBuilder.UseInMemoryStore();
+                        optionsBuilder.UseInMemoryDatabase();
 
                         using (var context = new StoreGeneratedContext(_serviceProvider, optionsBuilder.Options))
                         {
@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public override DbContext CreateContext(InMemoryTestStore testStore)
             {
                 var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseInMemoryStore();
+                optionsBuilder.UseInMemoryDatabase();
 
                 var context = new StoreGeneratedContext(_serviceProvider, optionsBuilder.Options);
 

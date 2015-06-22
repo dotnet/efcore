@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = serviceProvider.GetRequiredService<NoUseSqlServerContext>())
             {
                 Assert.Equal(
-                    CoreStrings.NoDataStoreConfigured,
+                    CoreStrings.NoProviderConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = serviceProvider.GetRequiredService<NoUseSqlServerContext>())
             {
                 Assert.Equal(
-                    CoreStrings.NoDataStoreConfigured,
+                    CoreStrings.NoProviderConfigured,
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddScoped<SomeService>()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .AddDbContext<MultipleProvidersContext>();
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 }
                 else
                 {
-                    optionsBuilder.UseInMemoryStore();
+                    optionsBuilder.UseInMemoryDatabase();
                 }
             }
         }
@@ -333,7 +333,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             serviceCollection
                 .AddEntityFramework()
                 .AddSqlServer()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .AddDbContext<MultipleContext1>()
                 .AddDbContext<MultipleContext2>();
 
@@ -404,7 +404,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseInMemoryStore();
+                optionsBuilder.UseInMemoryDatabase();
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }
@@ -417,7 +417,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             serviceCollection
                 .AddEntityFramework()
                 .AddSqlServer()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .AddDbContext<NonGenericOptionsContext>();
 
             var serviceProvider = serviceCollection.BuildServiceProvider();

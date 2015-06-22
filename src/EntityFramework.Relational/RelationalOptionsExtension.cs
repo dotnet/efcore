@@ -96,21 +96,21 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(options, nameof(options));
 
-            var storeConfigs = options.Extensions
+            var configs = options.Extensions
                 .OfType<RelationalOptionsExtension>()
                 .ToArray();
 
-            if (storeConfigs.Length == 0)
+            if (configs.Length == 0)
             {
-                throw new InvalidOperationException(Strings.NoDataStoreConfigured);
+                throw new InvalidOperationException(Strings.NoProviderConfigured);
             }
 
-            if (storeConfigs.Length > 1)
+            if (configs.Length > 1)
             {
-                throw new InvalidOperationException(Strings.MultipleDataStoresConfigured);
+                throw new InvalidOperationException(Strings.MultipleProvidersConfigured);
             }
 
-            return storeConfigs[0];
+            return configs[0];
         }
 
         public abstract void ApplyServices(EntityFrameworkServicesBuilder builder);

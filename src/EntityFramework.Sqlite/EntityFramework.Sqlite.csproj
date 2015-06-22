@@ -99,8 +99,8 @@
     <Compile Include="Query\SqliteQueryCompilationContext.cs" />
     <Compile Include="Query\SqliteQuerySqlGenerator.cs" />
     <Compile Include="SqliteCompositeMemberTranslator.cs" />
-    <Compile Include="SqliteDataStoreConnection.cs" />
-    <Compile Include="SqliteDataStoreCreator.cs" />
+    <Compile Include="SqliteDatabaseConnection.cs" />
+    <Compile Include="SqliteDatabaseCreator.cs" />
     <Compile Include="SqliteDbContextOptionsBuilderExtensions.cs" />
     <Compile Include="SqliteEntityFrameworkServicesBuilderExtensions.cs" />
     <Compile Include="SqliteCompositeMethodCallTranslator.cs" />
@@ -113,9 +113,9 @@
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>Utilities\CodeAnnotations.cs</Link>
     </Compile>
-    <Compile Include="SqliteDataStore.cs" />
-    <Compile Include="SqliteDataStoreServices.cs" />
-    <Compile Include="SqliteDataStoreSource.cs" />
+    <Compile Include="SqliteDatabase.cs" />
+    <Compile Include="SqliteDatabaseProviderServices.cs" />
+    <Compile Include="SqliteDatabaseProvider.cs" />
     <Compile Include="SqliteOptionsExtension.cs" />
     <Compile Include="ValueGeneration\SqliteValueGeneratorCache.cs" />
     <Content Include="..\..\tools\Resources.tt">

@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         /// <summary>
         ///     Accepts all changes made to entities in the context. It will be assumed that the tracked entities
-        ///     represent the current state of the store.
+        ///     represent the current state of the database.
         /// </summary>
         public virtual void AcceptAllChanges() => _stateManager.AcceptAllChanges();
 
@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     <para>
         ///         This method is designed for use in disconnected scenarios where entities are retrieved using one instance of
         ///         the contextand then changes are saved using a different instance of the context. An example of this is a
-        ///         web service where one servicecall retrieves entities from the data store and another service call persists
+        ///         web service where one servicecall retrieves entities from the database and another service call persists
         ///         any changes to the entities. Each service call uses a new instance of the context that is disposed when the
         ///         call is complete.
         ///     </para>

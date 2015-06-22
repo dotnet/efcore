@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
 
         private readonly IMigrationAssembly _migrationAssembly;
         private readonly IHistoryRepository _historyRepository;
-        private readonly IRelationalDataStoreCreator _dataStoreCreator;
+        private readonly IRelationalDatabaseCreator _databaseCreator;
         private readonly IMigrationSqlGenerator _migrationSqlGenerator;
         private readonly ISqlStatementExecutor _executor;
         private readonly IRelationalConnection _connection;
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         public Migrator(
             [NotNull] IMigrationAssembly migrationAssembly,
             [NotNull] IHistoryRepository historyRepository,
-            [NotNull] IDataStoreCreator dataStoreCreator,
+            [NotNull] IDatabaseCreator databaseCreator,
             [NotNull] IMigrationSqlGenerator migrationSqlGenerator,
             [NotNull] ISqlStatementExecutor executor,
             [NotNull] IRelationalConnection connection,
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         {
             Check.NotNull(migrationAssembly, nameof(migrationAssembly));
             Check.NotNull(historyRepository, nameof(historyRepository));
-            Check.NotNull(dataStoreCreator, nameof(dataStoreCreator));
+            Check.NotNull(databaseCreator, nameof(databaseCreator));
             Check.NotNull(migrationSqlGenerator, nameof(migrationSqlGenerator));
             Check.NotNull(executor, nameof(executor));
             Check.NotNull(connection, nameof(connection));
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
 
             _migrationAssembly = migrationAssembly;
             _historyRepository = historyRepository;
-            _dataStoreCreator = (IRelationalDataStoreCreator)dataStoreCreator;
+            _databaseCreator = (IRelationalDatabaseCreator)databaseCreator;
             _migrationSqlGenerator = migrationSqlGenerator;
             _executor = executor;
             _connection = connection;
@@ -317,9 +317,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         {
             Check.NotNull(sqlBatches, nameof(sqlBatches));
 
-            if (ensureDatabase && !_dataStoreCreator.Exists())
+            if (ensureDatabase && !_databaseCreator.Exists())
             {
-                _dataStoreCreator.Create();
+                _databaseCreator.Create();
             }
 
             using (var transaction = _connection.BeginTransaction())

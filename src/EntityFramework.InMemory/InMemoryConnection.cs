@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryConnection : IDataStoreConnection
+    public class InMemoryConnection : IDatabaseConnection
     {
     }
 }

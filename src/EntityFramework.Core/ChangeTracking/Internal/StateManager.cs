@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private readonly IInternalEntityEntryFactory _factory;
         private readonly IInternalEntityEntrySubscriber _subscriber;
         private readonly IModel _model;
-        private readonly IDataStore _dataStore;
+        private readonly IDatabase _database;
 
         public StateManager(
             [NotNull] IInternalEntityEntryFactory factory,
@@ -34,14 +34,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IInternalEntityEntryNotifier notifier,
             [NotNull] IValueGenerationManager valueGeneration,
             [NotNull] IModel model,
-            [NotNull] IDataStore dataStore)
+            [NotNull] IDatabase database)
         {
             _factory = factory;
             _subscriber = subscriber;
             Notify = notifier;
             ValueGeneration = valueGeneration;
             _model = model;
-            _dataStore = dataStore;
+            _database = database;
         }
 
         public virtual IInternalEntityEntryNotifier Notify { get; }
@@ -327,12 +327,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         protected virtual int SaveChanges(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave) => _dataStore.SaveChanges(entriesToSave);
+            [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave) => _database.SaveChanges(entriesToSave);
 
         protected virtual Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
             CancellationToken cancellationToken = default(CancellationToken))
-            => _dataStore.SaveChangesAsync(entriesToSave, cancellationToken);
+            => _database.SaveChangesAsync(entriesToSave, cancellationToken);
 
         public virtual void AcceptAllChanges()
         {

@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            optionsBuilder.UseInMemoryStore();
+            optionsBuilder.UseInMemoryDatabase();
 
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             }
 
             // TODO: Fix this when we can query shadow entities
-            // var customerFromStore = await inMemoryDataStore.Read(customerType).SingleAsync();
+            // var customerFromStore = await inMemoryDatabase.Read(customerType).SingleAsync();
             //
             // Assert.Equal(new object[] { 42, "Daenerys" }, customerFromStore);
 
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             }
 
             // TODO: Fix this when we can query shadow entities
-            // customerFromStore = await inMemoryDataStore.Read(customerType).SingleAsync();
+            // customerFromStore = await inMemoryDatabase.Read(customerType).SingleAsync();
             // 
             // Assert.Equal(new object[] { 42, "Daenerys Targaryen" }, customerFromStore);
 
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             }
 
             // TODO: Fix this when we can query shadow entities
-            // Assert.Equal(0, await inMemoryDataStore.Read(customerType).CountAsync());
+            // Assert.Equal(0, await inMemoryDatabase.Read(customerType).CountAsync());
         }
 
         [Fact]
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            optionsBuilder.UseInMemoryStore();
+            optionsBuilder.UseInMemoryDatabase();
 
             var customer = new Customer { Id = 42 };
 

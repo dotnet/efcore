@@ -1,171 +1,87 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.InMemory.Metadata;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.InMemory.Query;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
+using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryDatabase : IInMemoryDatabase
+    public class InMemoryDatabase : Database, IInMemoryDatabase
     {
-        private readonly ILogger _logger;
+        private readonly bool _persist;
+        private readonly ThreadSafeLazyRef<IInMemoryStore> _database;
 
-        private readonly ThreadSafeLazyRef<ImmutableDictionary<IEntityType, InMemoryTable>> _tables
-            = new ThreadSafeLazyRef<ImmutableDictionary<IEntityType, InMemoryTable>>(
-                () => ImmutableDictionary<IEntityType, InMemoryTable>.Empty.WithComparers(new EntityTypeNameEqualityComparer()));
-
-        public InMemoryDatabase([NotNull] ILoggerFactory loggerFactory)
+        public InMemoryDatabase(
+            [NotNull] IModel model,
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IEntityMaterializerSource entityMaterializerSource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
+            [NotNull] IInMemoryStore persistentStore,
+            [NotNull] IDbContextOptions options,
+            [NotNull] ILoggerFactory loggerFactory)
+            : base(model, entityKeyFactorySource, entityMaterializerSource, clrPropertyGetterSource, loggerFactory)
         {
+            Check.NotNull(persistentStore, nameof(persistentStore));
+            Check.NotNull(options, nameof(options));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
 
-            _logger = loggerFactory.CreateLogger<InMemoryDatabase>();
+            var storeConfig = options.Extensions
+                .OfType<InMemoryOptionsExtension>()
+                .FirstOrDefault();
+
+            _persist = storeConfig?.Persist ?? true;
+
+            _database = new ThreadSafeLazyRef<IInMemoryStore>(
+                () => _persist
+                    ? persistentStore
+                    : new InMemoryStore(loggerFactory));
         }
 
-        /// <summary>
-        ///     Returns true just after the database has been created, false thereafter
-        /// </summary>
-        /// <returns>
-        ///     true if the database has just been created, false otherwise
-        /// </returns>
-        public virtual bool EnsureCreated(IModel model)
+        public virtual IInMemoryStore Store => _database.Value;
+
+        public override int SaveChanges(IReadOnlyList<InternalEntityEntry> entries)
+            => _database.Value.ExecuteTransaction(Check.NotNull(entries, nameof(entries)));
+
+        public override Task<int> SaveChangesAsync(
+            IReadOnlyList<InternalEntityEntry> entries,
+            CancellationToken cancellationToken = default(CancellationToken))
+            => Task.FromResult(_database.Value.ExecuteTransaction(Check.NotNull(entries, nameof(entries))));
+
+        public override Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
+            => new InMemoryQueryCompilationContext(
+                Model,
+                Logger,
+                EntityMaterializerSource,
+                EntityKeyFactorySource,
+                ClrPropertyGetterSource)
+                .CreateQueryModelVisitor()
+                .CreateQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
+
+        public override Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
         {
-            Check.NotNull(model, nameof(model));
+            Check.NotNull(queryModel, nameof(queryModel));
 
-            var returnValue = !_tables.HasValue;
+            var syncQueryExecutor = CompileQuery<TResult>(queryModel);
 
-            // ReSharper disable once UnusedVariable
-            var _ = _tables.Value;
-
-            return returnValue;
+            return qc => syncQueryExecutor(qc).ToAsyncEnumerable();
         }
 
-        public virtual void Clear()
-            => _tables.ExchangeValue(ts => ImmutableDictionary<IEntityType, InMemoryTable>.Empty);
-
-        public virtual IEnumerable<InMemoryTable> GetTables(IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            if (!_tables.HasValue)
-            {
-                yield break;
-            }
-
-            foreach (var et in entityType.GetConcreteTypesInHierarchy())
-            {
-                InMemoryTable table;
-
-                if (_tables.Value.TryGetValue(et, out table))
-                {
-                    yield return table;
-                }
-            }
-        }
-
-        public virtual int ExecuteTransaction(IEnumerable<InternalEntityEntry> entries)
-        {
-            Check.NotNull(entries, nameof(entries));
-
-            var rowsAffected = 0;
-
-            _tables.ExchangeValue(ts =>
-                {
-                    rowsAffected = 0;
-
-                    foreach (var entry in entries)
-                    {
-                        var entityType = entry.EntityType;
-
-                        Debug.Assert(!entityType.IsAbstract);
-
-                        InMemoryTable table;
-                        if (!ts.TryGetValue(entityType, out table))
-                        {
-                            ts = ts.Add(entityType, table = new InMemoryTable(entityType));
-                        }
-
-                        switch (entry.EntityState)
-                        {
-                            case EntityState.Added:
-                                table.Create(entry);
-                                break;
-                            case EntityState.Deleted:
-                                table.Delete(entry);
-                                break;
-                            case EntityState.Modified:
-                                table.Update(entry);
-                                break;
-                        }
-
-                        rowsAffected++;
-                    }
-
-                    return ts;
-                });
-
-            _logger.LogInformation(rowsAffected, ra => Strings.LogSavedChanges(ra));
-
-            return rowsAffected;
-        }
-
-        public virtual IEnumerator<InMemoryTable> GetEnumerator()
-            => _tables.HasValue
-                ? _tables.Value.Values.GetEnumerator()
-                : Enumerable.Empty<InMemoryTable>().GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public class InMemoryTable : IEnumerable<object[]>
-        {
-            private readonly ThreadSafeLazyRef<ImmutableDictionary<EntityKey, object[]>> _rows
-                = new ThreadSafeLazyRef<ImmutableDictionary<EntityKey, object[]>>(
-                    () => ImmutableDictionary<EntityKey, object[]>.Empty);
-
-            public InMemoryTable([NotNull] IEntityType entityType)
-            {
-                Check.NotNull(entityType, nameof(entityType));
-
-                EntityType = entityType;
-            }
-
-            public virtual IEntityType EntityType { get; private set; }
-
-            internal void Create(InternalEntityEntry entry)
-            {
-                _rows.ExchangeValue(rs => rs.Add(entry.GetPrimaryKeyValue(), entry.GetValueBuffer()));
-            }
-
-            internal void Delete(InternalEntityEntry entry)
-            {
-                _rows.ExchangeValue(rs => rs.Remove(entry.GetPrimaryKeyValue()));
-            }
-
-            internal void Update(InternalEntityEntry entry)
-            {
-                _rows.ExchangeValue(rs => rs.SetItem(entry.GetPrimaryKeyValue(), entry.GetValueBuffer()));
-            }
-
-            public virtual IEnumerator<object[]> GetEnumerator()
-            {
-                return _rows.HasValue
-                    ? _rows.Value.Values.GetEnumerator()
-                    : Enumerable.Empty<object[]>().GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-        }
+        public virtual bool EnsureDatabaseCreated(IModel model)
+            => _database.Value.EnsureCreated(Check.NotNull(model, nameof(model)));
     }
 }

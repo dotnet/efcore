@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 _serviceProvider = new ServiceCollection()
                     .AddEntityFramework()
-                    .AddInMemoryStore()
+                    .AddInMemoryDatabase()
                     .ServiceCollection()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public InMemoryGraphUpdatesTestStore(IServiceProvider serviceProvider)
             {
                 var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseInMemoryStore(persist: true);
+                optionsBuilder.UseInMemoryDatabase(persist: true);
 
                 Context = new GraphUpdatesContext(serviceProvider, optionsBuilder.Options);
 

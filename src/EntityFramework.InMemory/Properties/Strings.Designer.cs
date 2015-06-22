@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.InMemory
         }
 
         /// <summary>
-        /// In-Memory-specific methods can only be used when the context is using an In-Memory data store.
+        /// In-Memory-specific methods can only be used when the context is using an In-Memory database.
         /// </summary>
         public static string InMemoryNotInUse
         {

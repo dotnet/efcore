@@ -21,23 +21,23 @@ namespace Microsoft.Data.Entity.Query
                 .Single(m => m.Name == "CreateQuery" && m.IsGenericMethod);
 
         private readonly DbContext _context;
-        private readonly IDataStore _dataStore;
+        private readonly IDatabase _database;
         private readonly ICompiledQueryCache _compiledQueryCache;
         private readonly IQueryContextFactory _queryContextFactory;
 
         public EntityQueryProvider(
             [NotNull] DbContext context,
-            [NotNull] IDataStore dataStore,
+            [NotNull] IDatabase database,
             [NotNull] ICompiledQueryCache compiledQueryCache,
             [NotNull] IQueryContextFactory queryContextFactory)
         {
             Check.NotNull(context, nameof(context));
-            Check.NotNull(dataStore, nameof(dataStore));
+            Check.NotNull(database, nameof(database));
             Check.NotNull(compiledQueryCache, nameof(compiledQueryCache));
             Check.NotNull(queryContextFactory, nameof(queryContextFactory));
 
             _context = context;
-            _dataStore = dataStore;
+            _database = database;
             _compiledQueryCache = compiledQueryCache;
             _queryContextFactory = queryContextFactory;
         }
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Query
 
             queryContext.ContextType = _context.GetType();
 
-            return _compiledQueryCache.Execute<TResult>(expression, _dataStore, queryContext);
+            return _compiledQueryCache.Execute<TResult>(expression, _database, queryContext);
         }
 
         public virtual object Execute([NotNull] Expression expression)
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Query
 
             queryContext.ContextType = _context.GetType();
 
-            return _compiledQueryCache.ExecuteAsync<TResult>(expression, _dataStore, queryContext);
+            return _compiledQueryCache.ExecuteAsync<TResult>(expression, _database, queryContext);
         }
 
         public virtual Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Query
             queryContext.ContextType = _context.GetType();
 
             return _compiledQueryCache
-                .ExecuteAsync<TResult>(expression, _dataStore, queryContext, cancellationToken);
+                .ExecuteAsync<TResult>(expression, _database, queryContext, cancellationToken);
         }
     }
 }

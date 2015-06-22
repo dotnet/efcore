@@ -45,17 +45,17 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>LoggingExtensions.cs</Link>
     </Compile>
+    <Compile Include="IInMemoryStore.cs" />
     <Compile Include="IInMemoryDatabase.cs" />
-    <Compile Include="IInMemoryDataStore.cs" />
-    <Compile Include="InMemoryDataStoreServices.cs" />
+    <Compile Include="InMemoryDatabaseProviderServices.cs" />
     <Compile Include="InMemoryIntegerValueGeneratorFactory.cs" />
     <Compile Include="InMemoryModelSource.cs" />
     <Compile Include="InMemoryOptionsExtension.cs" />
     <Compile Include="InMemoryConnection.cs" />
+    <Compile Include="InMemoryStore.cs" />
     <Compile Include="InMemoryDatabase.cs" />
-    <Compile Include="InMemoryDataStore.cs" />
-    <Compile Include="InMemoryDataStoreCreator.cs" />
-    <Compile Include="InMemoryDataStoreSource.cs" />
+    <Compile Include="InMemoryDatabaseCreator.cs" />
+    <Compile Include="InMemoryDatabaseProvider.cs" />
     <Compile Include="Metadata\EntityTypeNameEqualityComparer.cs" />
     <Compile Include="Query\InMemoryQueryCompilationContext.cs" />
     <Compile Include="Query\InMemoryQueryContext.cs" />

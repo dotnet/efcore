@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity
     /// <summary>
     ///     <para>
     ///         Provides a simple API surface for configuring a <see cref="Model" /> that defines the shape of your
-    ///         entities and how they map to the data store.
+    ///         entities and how they map to the database.
     ///     </para>
     ///     <para>
     ///         You can use <see cref="ModelBuilder" /> to construct a model for a context by overriding

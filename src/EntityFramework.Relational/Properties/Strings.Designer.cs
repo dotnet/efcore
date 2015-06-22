@@ -37,19 +37,19 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// Multiple relational data store configurations found. A context can only be configured to use a single data store.
+        /// Multiple relational database provider configurations found. A context can only be configured to use a single database provider.
         /// </summary>
-        public static string MultipleDataStoresConfigured
+        public static string MultipleProvidersConfigured
         {
-            get { return GetString("MultipleDataStoresConfigured"); }
+            get { return GetString("MultipleProvidersConfigured"); }
         }
 
         /// <summary>
-        /// No relational data stores are configured. Configure a data store using OnConfiguring or by creating an ImmutableDbContextOptions with a data store configured and passing it to the context.
+        /// No relational database providers are configured. Configure a database provider using OnConfiguring or by creating an ImmutableDbContextOptions with a database provider configured and passing it to the context.
         /// </summary>
-        public static string NoDataStoreConfigured
+        public static string NoProviderConfigured
         {
-            get { return GetString("NoDataStoreConfigured"); }
+            get { return GetString("NoProviderConfigured"); }
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// Relational-specific methods can only be used when the context is using a relational data store.
+        /// Relational-specific methods can only be used when the context is using a relational database provider.
         /// </summary>
         public static string RelationalNotInUse
         {
@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// Migrations-specific methods can only be used when the context is using a migrations-enabled data store.
+        /// Migrations-specific methods can only be used when the context is using a migrations-enabled database provider.
         /// </summary>
         public static string MigrationsNotInUse
         {

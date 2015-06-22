@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Query
                     catch (Exception e)
                     {
                         _exceptionInterceptor._queryContext.Logger.LogError(
-                            new DataStoreErrorLogState(_exceptionInterceptor._queryContext.ContextType),
+                            new DatabaseErrorLogState(_exceptionInterceptor._queryContext.ContextType),
                             e,
                             (state, exception) =>
                                 Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));

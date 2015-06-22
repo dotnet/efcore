@@ -8,8 +8,8 @@ namespace Microsoft.Data.Entity.ValueGeneration
 {
     /// <summary>
     ///     Acts as a <see cref="ValueGenerator" />  by requesting a block of values from the
-    ///     underlying data store and returning them one by one. Will ask the underlying
-    ///     data store for another block when the current block is exhausted.
+    ///     underlying database and returning them one by one. Will ask the underlying
+    ///     database for another block when the current block is exhausted.
     /// </summary>
     public abstract class HiLoValueGenerator<TValue> : ValueGenerator<TValue>
     {

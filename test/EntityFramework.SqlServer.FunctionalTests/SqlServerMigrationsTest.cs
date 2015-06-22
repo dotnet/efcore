@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     context.Database.ApplyMigrations();
 
-                    Assert.True(context.GetService<IRelationalDataStoreCreator>().Exists());
+                    Assert.True(context.GetService<IRelationalDatabaseCreator>().Exists());
                 }
             }
         }

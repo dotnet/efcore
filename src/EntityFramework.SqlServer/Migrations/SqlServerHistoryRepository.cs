@@ -20,13 +20,13 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public const string MigrationHistoryTableName = "__MigrationHistory";
 
         private readonly ISqlServerConnection _connection;
-        private readonly IRelationalDataStoreCreator _creator;
+        private readonly IRelationalDatabaseCreator _creator;
         private readonly Type _contextType;
         private readonly ISqlServerSqlGenerator _sql;
 
         public SqlServerHistoryRepository(
             [NotNull] ISqlServerConnection connection,
-            [NotNull] IRelationalDataStoreCreator creator,
+            [NotNull] IRelationalDatabaseCreator creator,
             [NotNull] DbContext context,
             [NotNull] ISqlServerSqlGenerator sqlGenerator)
         {

@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         public void Can_add_extension_with_connection_string()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryStore(persist: false);
+            optionsBuilder.UseInMemoryDatabase(persist: false);
 
             var extension = (InMemoryOptionsExtension)optionsBuilder.Options.Extensions.Single();
 
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         public void Can_add_extension_with_connection_string_using_generic_builder()
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
-            optionsBuilder.UseInMemoryStore(persist: false);
+            optionsBuilder.UseInMemoryDatabase(persist: false);
 
             var extension = (InMemoryOptionsExtension)optionsBuilder.Options.Extensions.Single();
 
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         public void Can_add_extension_using_persist_true()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryStore(persist: true);
+            optionsBuilder.UseInMemoryDatabase(persist: true);
 
             var extension = (InMemoryOptionsExtension)optionsBuilder.Options.Extensions.Single();
 

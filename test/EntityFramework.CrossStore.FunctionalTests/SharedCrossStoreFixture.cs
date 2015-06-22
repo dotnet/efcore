@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public SharedCrossStoreFixture()
             : this(new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .AddSqlite()
                 .AddSqlServer()
                 .ServiceCollection()
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             if (inMemoryTestStore != null)
             {
                 var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseInMemoryStore();
+                optionsBuilder.UseInMemoryDatabase();
 
                 return new CrossStoreContext(_serviceProvider, optionsBuilder.Options);
             }

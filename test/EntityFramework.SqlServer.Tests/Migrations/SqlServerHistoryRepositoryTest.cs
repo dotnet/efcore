@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         {
             return new SqlServerHistoryRepository(
                 Mock.Of<ISqlServerConnection>(),
-                Mock.Of<IRelationalDataStoreCreator>(),
+                Mock.Of<IRelationalDatabaseCreator>(),
                 new Context(),
                 new SqlServerSqlGenerator());
         }

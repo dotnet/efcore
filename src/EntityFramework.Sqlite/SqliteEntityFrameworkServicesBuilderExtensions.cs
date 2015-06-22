@@ -22,7 +22,7 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(services, nameof(services));
 
             services.AddRelational().GetService()
-                .AddSingleton<IDataStoreSource, SqliteDataStoreSource>()
+                .AddSingleton<IDatabaseProvider, SqliteDatabaseProvider>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqliteValueGeneratorCache>()
                     .AddSingleton<SqliteSqlGenerator>()
@@ -30,12 +30,12 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddSingleton<SqliteTypeMapper>()
                     .AddSingleton<SqliteModelSource>()
                     .AddScoped<SqliteModificationCommandBatchFactory>()
-                    .AddScoped<SqliteDataStoreServices>()
-                    .AddScoped<SqliteDataStore>()
-                    .AddScoped<SqliteDataStoreConnection>()
                     .AddScoped<SqliteOperationTransformer>()
+                    .AddScoped<SqliteDatabaseProviderServices>()
+                    .AddScoped<SqliteDatabase>()
+                    .AddScoped<SqliteDatabaseConnection>()
                     .AddScoped<SqliteMigrationSqlGenerator>()
-                    .AddScoped<SqliteDataStoreCreator>()
+                    .AddScoped<SqliteDatabaseCreator>()
                     .AddScoped<SqliteHistoryRepository>()
                     .AddScoped<SqliteCompositeMethodCallTranslator>()
                     .AddScoped<SqliteCompositeMemberTranslator>());

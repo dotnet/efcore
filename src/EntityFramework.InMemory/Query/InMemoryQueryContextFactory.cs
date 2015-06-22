@@ -12,22 +12,22 @@ namespace Microsoft.Data.Entity.InMemory.Query
 {
     public class InMemoryQueryContextFactory : QueryContextFactory
     {
-        private readonly IInMemoryDataStore _dataStore;
+        private readonly IInMemoryDatabase _database;
 
         public InMemoryQueryContextFactory(
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
-            [NotNull] IInMemoryDataStore dataStore,
+            [NotNull] IInMemoryDatabase database,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, loggerFactory)
         {
-            Check.NotNull(dataStore, nameof(dataStore));
+            Check.NotNull(database, nameof(database));
 
-            _dataStore = dataStore;
+            _database = database;
         }
 
-        public override QueryContext CreateQueryContext() => new InMemoryQueryContext(Logger, CreateQueryBuffer(), _dataStore.Database);
+        public override QueryContext CreateQueryContext() => new InMemoryQueryContext(Logger, CreateQueryBuffer(), _database.Store);
     }
 }

@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.InMemory
         {
             Check.NotNull(builder, nameof(builder));
 
-            builder.AddInMemoryStore();
+            builder.AddInMemoryDatabase();
         }
     }
 }

@@ -17,16 +17,16 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             // In memory dingletones
             VerifySingleton<InMemoryValueGeneratorCache>();
-            VerifySingleton<IInMemoryDatabase>();
+            VerifySingleton<IInMemoryStore>();
             VerifySingleton<InMemoryModelSource>();
 
             // In memory scoped
             VerifyScoped<InMemoryValueGeneratorSelector>();
             VerifyScoped<InMemoryQueryContextFactory>();
-            VerifyScoped<InMemoryDataStoreServices>();
-            VerifyScoped<IInMemoryDataStore>();
+            VerifyScoped<InMemoryDatabaseProviderServices>();
+            VerifyScoped<IInMemoryDatabase>();
             VerifyScoped<InMemoryConnection>();
-            VerifyScoped<InMemoryDataStoreCreator>();
+            VerifyScoped<InMemoryDatabaseCreator>();
         }
 
         protected override DbContext CreateContext(IServiceProvider serviceProvider)

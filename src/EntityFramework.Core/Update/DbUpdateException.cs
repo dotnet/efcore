@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Update
 {
-    public class DbUpdateException : DataStoreException
+    public class DbUpdateException : DatabaseException
     {
         public DbUpdateException()
         {

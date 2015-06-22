@@ -50,7 +50,7 @@
     <Compile Include="GuidValueGeneratorEndToEndTest.cs" />
     <Compile Include="IncludeInMemoryTest.cs" />
     <Compile Include="ConfigPatternsInMemoryTest.cs" />
-    <Compile Include="DataStoreInMemoryTest.cs" />
+    <Compile Include="DatabaseInMemoryTest.cs" />
     <Compile Include="IntegerGeneratorEndToEndInMemoryTest.cs" />
     <Compile Include="MonsterFixupInMemoryTest.cs" />
     <Compile Include="OneToOneQueryInMemoryFixture.cs" />

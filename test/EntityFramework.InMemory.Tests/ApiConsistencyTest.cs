@@ -7,6 +7,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        protected override Assembly TargetAssembly => typeof(InMemoryDataStore).Assembly;
+        protected override Assembly TargetAssembly => typeof(InMemoryDatabase).Assembly;
     }
 }

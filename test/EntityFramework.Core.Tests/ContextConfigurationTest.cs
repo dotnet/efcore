@@ -42,56 +42,56 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Scoped_data_store_services_can_be_obtained_from_configuration()
+        public void Scoped_provider_services_can_be_obtained_from_configuration()
         {
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider();
 
-            IDataStore store;
-            IDataStoreCreator creator;
-            IDataStoreConnection connection;
+            IDatabase database;
+            IDatabaseCreator creator;
+            IDatabaseConnection connection;
 
             using (var context = new DbContext(serviceProvider))
             {
-                store = context.GetService<IDataStore>();
-                creator = context.GetService<IDataStoreCreator>();
-                connection = context.GetService<IDataStoreConnection>();
+                database = context.GetService<IDatabase>();
+                creator = context.GetService<IDatabaseCreator>();
+                connection = context.GetService<IDatabaseConnection>();
 
-                Assert.Same(store, context.GetService<IDataStore>());
-                Assert.Same(creator, context.GetService<IDataStoreCreator>());
-                Assert.Same(connection, context.GetService<IDataStoreConnection>());
+                Assert.Same(database, context.GetService<IDatabase>());
+                Assert.Same(creator, context.GetService<IDatabaseCreator>());
+                Assert.Same(connection, context.GetService<IDatabaseConnection>());
             }
 
             using (var context = new DbContext(serviceProvider))
             {
-                Assert.NotSame(store, context.GetService<IDataStore>());
-                Assert.NotSame(creator, context.GetService<IDataStoreCreator>());
-                Assert.NotSame(connection, context.GetService<IDataStoreConnection>());
+                Assert.NotSame(database, context.GetService<IDatabase>());
+                Assert.NotSame(creator, context.GetService<IDatabaseCreator>());
+                Assert.NotSame(connection, context.GetService<IDatabaseConnection>());
             }
         }
 
         [Fact]
-        public void Scoped_data_store_services_can_be_obtained_from_configuration_with_implicit_service_provider()
+        public void Scoped_provider_services_can_be_obtained_from_configuration_with_implicit_service_provider()
         {
-            IDataStore store;
-            IDataStoreCreator creator;
-            IDataStoreConnection connection;
+            IDatabase database;
+            IDatabaseCreator creator;
+            IDatabaseConnection connection;
 
             using (var context = new GiddyupContext())
             {
-                store = context.GetService<IDataStore>();
-                creator = context.GetService<IDataStoreCreator>();
-                connection = context.GetService<IDataStoreConnection>();
+                database = context.GetService<IDatabase>();
+                creator = context.GetService<IDatabaseCreator>();
+                connection = context.GetService<IDatabaseConnection>();
 
-                Assert.Same(store, context.GetService<IDataStore>());
-                Assert.Same(creator, context.GetService<IDataStoreCreator>());
-                Assert.Same(connection, context.GetService<IDataStoreConnection>());
+                Assert.Same(database, context.GetService<IDatabase>());
+                Assert.Same(creator, context.GetService<IDatabaseCreator>());
+                Assert.Same(connection, context.GetService<IDatabaseConnection>());
             }
 
             using (var context = new GiddyupContext())
             {
-                Assert.NotSame(store, context.GetService<IDataStore>());
-                Assert.NotSame(creator, context.GetService<IDataStoreCreator>());
-                Assert.NotSame(connection, context.GetService<IDataStoreConnection>());
+                Assert.NotSame(database, context.GetService<IDatabase>());
+                Assert.NotSame(creator, context.GetService<IDatabaseCreator>());
+                Assert.NotSame(connection, context.GetService<IDatabaseConnection>());
             }
         }
 
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryStore();
+                optionsBuilder.UseInMemoryDatabase();
             }
         }
     }

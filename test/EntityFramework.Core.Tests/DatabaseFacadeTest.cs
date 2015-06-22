@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Methods_delegate_to_configured_store_creator()
         {
-            var creatorMock = new Mock<IDataStoreCreator>();
+            var creatorMock = new Mock<IDatabaseCreator>();
             creatorMock.Setup(m => m.EnsureCreated()).Returns(true);
             creatorMock.Setup(m => m.EnsureDeleted()).Returns(true);
 
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var creatorMock = new Mock<IDataStoreCreator>();
+            var creatorMock = new Mock<IDatabaseCreator>();
             creatorMock.Setup(m => m.EnsureCreatedAsync(cancellationToken)).Returns(Task.FromResult(true));
             creatorMock.Setup(m => m.EnsureDeletedAsync(cancellationToken)).Returns(Task.FromResult(true));
 
@@ -63,13 +63,13 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Can_get_DataStoreCreator()
+        public void Can_get_DatabaseCreator()
         {
             using (var context = TestHelpers.Instance.CreateContext())
             {
                 Assert.Same(
-                    context.GetService<IDataStoreCreator>(),
-                    context.Database.GetService<IDataStoreCreator>());
+                    context.GetService<IDatabaseCreator>(),
+                    context.Database.GetService<IDatabaseCreator>());
             }
         }
 

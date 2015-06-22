@@ -37,8 +37,8 @@ namespace Microsoft.Framework.DependencyInjection
         ///         <see cref="IServiceProvider" /> Entity Framework will take care of creating the services it requires.
         ///     </para>
         ///     <para>
-        ///         The data store you are using will also define extension methods that can be called on the returned
-        ///         <see cref="EntityFrameworkServicesBuilder" /> to register the services for the data store. For example,
+        ///         The database you are using will also define extension methods that can be called on the returned
+        ///         <see cref="EntityFrameworkServicesBuilder" /> to register the services for the database. For example,
         ///         when using EntityFramework.SqlServer you would call
         ///         <c>collection.AddEntityFramework().UseSqlServer(connectionString)</c>.
         ///     </para>
@@ -98,21 +98,21 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<IChangeDetector, ChangeDetector>()
                 .AddScoped<IEntityEntryGraphIterator, EntityEntryGraphIterator>()
                 .AddScoped<IDbContextServices, DbContextServices>()
-                .AddScoped<IDataStoreSelector, DataStoreSelector>()
+                .AddScoped<IDatabaseProviderSelector, DatabaseProviderSelector>()
                 .AddScoped<ValueGeneratorSelector>()
                 .AddScoped(p => GetContextServices(p).Model)
                 .AddScoped(p => GetContextServices(p).Context)
                 .AddScoped(p => GetContextServices(p).ContextOptions)
-                .AddScoped(p => GetContextServices(p).DataStoreServices)
-                .AddScoped(p => GetStoreServices(p).Store)
-                .AddScoped(p => GetStoreServices(p).QueryContextFactory)
-                .AddScoped(p => GetStoreServices(p).Connection)
-                .AddScoped(p => GetStoreServices(p).ValueGeneratorSelector)
-                .AddScoped(p => GetStoreServices(p).Creator)
-                .AddScoped(p => GetStoreServices(p).ConventionSetBuilder)
-                .AddScoped(p => GetStoreServices(p).ValueGeneratorCache)
-                .AddScoped(p => GetStoreServices(p).ModelSource)
-                .AddScoped(p => GetStoreServices(p).ModelValidator)
+                .AddScoped(p => GetContextServices(p).DatabaseProviderServices)
+                .AddScoped(p => GetProviderServices(p).Database)
+                .AddScoped(p => GetProviderServices(p).QueryContextFactory)
+                .AddScoped(p => GetProviderServices(p).Connection)
+                .AddScoped(p => GetProviderServices(p).ValueGeneratorSelector)
+                .AddScoped(p => GetProviderServices(p).Creator)
+                .AddScoped(p => GetProviderServices(p).ConventionSetBuilder)
+                .AddScoped(p => GetProviderServices(p).ValueGeneratorCache)
+                .AddScoped(p => GetProviderServices(p).ModelSource)
+                .AddScoped(p => GetProviderServices(p).ModelValidator)
                 .AddSingleton<IMemoryCache, MemoryCache>()
                 .AddOptions());
 
@@ -122,7 +122,7 @@ namespace Microsoft.Framework.DependencyInjection
         private static IDbContextServices GetContextServices(IServiceProvider serviceProvider)
             => serviceProvider.GetRequiredService<IDbContextServices>();
 
-        private static IDataStoreServices GetStoreServices(IServiceProvider serviceProvider)
-            => GetContextServices(serviceProvider).DataStoreServices;
+        private static IDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider)
+            => GetContextServices(serviceProvider).DatabaseProviderServices;
     }
 }

@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             _sharedCrossStoreFixture = new SharedCrossStoreFixture(
                 new ServiceCollection()
                     .AddEntityFramework()
-                    .AddInMemoryStore()
+                    .AddInMemoryDatabase()
                     .AddSqlServer()
                     .ServiceCollection()
                     .BuildServiceProvider());

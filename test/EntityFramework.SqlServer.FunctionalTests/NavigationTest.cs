@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .AddDbContext<GoTContext>()
                 .ServiceCollection()
                 .BuildServiceProvider();
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .AddDbContext<GoTContext>()
                 .ServiceCollection()
                 .BuildServiceProvider();

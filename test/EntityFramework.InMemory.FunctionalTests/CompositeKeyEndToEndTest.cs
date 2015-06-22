@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .GetService()
                 .BuildServiceProvider();
 
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .ServiceCollection()
                 .BuildServiceProvider();
 
@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .ServiceCollection()
                 .BuildServiceProvider();
 

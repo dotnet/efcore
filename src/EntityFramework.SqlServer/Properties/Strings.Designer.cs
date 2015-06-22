@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         /// <summary>
-        /// SQL Server-specific methods can only be used when the context is using a SQL Server data store.
+        /// SQL Server-specific methods can only be used when the context is using a SQL Server database provider.
         /// </summary>
         public static string SqlServerNotInUse
         {

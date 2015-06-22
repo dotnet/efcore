@@ -64,14 +64,14 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public virtual TResult Execute<TResult>(
-            Expression query, IDataStore dataStore, QueryContext queryContext)
+            Expression query, IDatabase database, QueryContext queryContext)
         {
             Check.NotNull(query, nameof(query));
-            Check.NotNull(dataStore, nameof(dataStore));
+            Check.NotNull(database, nameof(database));
             Check.NotNull(queryContext, nameof(queryContext));
 
             var compiledQuery
-                = GetOrAdd(query, queryContext, dataStore, isAsync: false, compiler: (q, ds) =>
+                = GetOrAdd(query, queryContext, database, isAsync: false, compiler: (q, ds) =>
                     {
                         var queryModel = CreateQueryParser().GetParsedQuery(q);
 
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Query
                             = streamedSequenceInfo?.ResultItemType ?? typeof(TResult);
 
                         var executor
-                            = CompileQuery(ds, DataStore.CompileQueryMethod, resultItemType, queryModel);
+                            = CompileQuery(ds, Database.CompileQueryMethod, resultItemType, queryModel);
 
                         return new CompiledQuery
                         {
@@ -98,19 +98,19 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>(
-            Expression query, IDataStore dataStore, QueryContext queryContext)
+            Expression query, IDatabase database, QueryContext queryContext)
         {
             Check.NotNull(query, nameof(query));
-            Check.NotNull(dataStore, nameof(dataStore));
+            Check.NotNull(database, nameof(database));
             Check.NotNull(queryContext, nameof(queryContext));
 
             var compiledQuery
-                = GetOrAdd(query, queryContext, dataStore, isAsync: true, compiler: (q, ds) =>
+                = GetOrAdd(query, queryContext, database, isAsync: true, compiler: (q, ds) =>
                     {
                         var queryModel = CreateQueryParser().GetParsedQuery(q);
 
                         var executor
-                            = CompileQuery(ds, DataStore.CompileAsyncQueryMethod, typeof(TResult), queryModel);
+                            = CompileQuery(ds, Database.CompileAsyncQueryMethod, typeof(TResult), queryModel);
 
                         return new CompiledQuery
                         {
@@ -123,19 +123,19 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public virtual Task<TResult> ExecuteAsync<TResult>(
-            Expression query, IDataStore dataStore, QueryContext queryContext, CancellationToken cancellationToken)
+            Expression query, IDatabase database, QueryContext queryContext, CancellationToken cancellationToken)
         {
             Check.NotNull(query, nameof(query));
-            Check.NotNull(dataStore, nameof(dataStore));
+            Check.NotNull(database, nameof(database));
             Check.NotNull(queryContext, nameof(queryContext));
 
             var compiledQuery
-                = GetOrAdd(query, queryContext, dataStore, isAsync: true, compiler: (q, ds) =>
+                = GetOrAdd(query, queryContext, database, isAsync: true, compiler: (q, ds) =>
                     {
                         var queryModel = CreateQueryParser().GetParsedQuery(q);
 
                         var executor
-                            = CompileQuery(ds, DataStore.CompileAsyncQueryMethod, typeof(TResult), queryModel);
+                            = CompileQuery(ds, Database.CompileAsyncQueryMethod, typeof(TResult), queryModel);
 
                         return new CompiledQuery
                         {
@@ -151,9 +151,9 @@ namespace Microsoft.Data.Entity.Query
         private CompiledQuery GetOrAdd(
             Expression query,
             QueryContext queryContext,
-            IDataStore dataStore,
+            IDatabase database,
             bool isAsync,
-            Func<Expression, IDataStore, CompiledQuery> compiler)
+            Func<Expression, IDatabase, CompiledQuery> compiler)
         {
             query = new QueryAnnotatingExpressionVisitor()
                 .Visit(query);
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Query
                     .ExtractParameters(query, queryContext);
 
             var cacheKey
-                = dataStore.Model.GetHashCode().ToString()
+                = database.Model.GetHashCode().ToString()
                   + isAsync
                   + new ExpressionStringBuilder()
                       .Build(query);
@@ -173,7 +173,7 @@ namespace Microsoft.Data.Entity.Query
             {
                 if (!_memoryCache.TryGetValue(cacheKey, out compiledQuery))
                 {
-                    compiledQuery = compiler(parameterizedQuery, dataStore);
+                    compiledQuery = compiler(parameterizedQuery, database);
                     _memoryCache.Set(cacheKey, compiledQuery);
                 }
             }
@@ -182,13 +182,13 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static Delegate CompileQuery(
-            IDataStore dataStore, MethodInfo compileMethodInfo, Type resultItemType, QueryModel queryModel)
+            IDatabase database, MethodInfo compileMethodInfo, Type resultItemType, QueryModel queryModel)
         {
             try
             {
                 return (Delegate)compileMethodInfo
                     .MakeGenericMethod(resultItemType)
-                    .Invoke(dataStore, new object[] { queryModel });
+                    .Invoke(database, new object[] { queryModel });
             }
             catch (TargetInvocationException e)
             {

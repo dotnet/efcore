@@ -204,17 +204,17 @@
   <data name="NoClrType" xml:space="preserve">
     <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow-state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
   </data>
-  <data name="MultipleDataStoresConfigured" xml:space="preserve">
-    <value>The data stores {storeNames}are configured. A context can only be configured to use a single data store.</value>
+  <data name="MultipleProvidersConfigured" xml:space="preserve">
+    <value>The database providers {storeNames}are configured. A context can only be configured to use a single database provider.</value>
   </data>
-  <data name="NoDataStoreConfigured" xml:space="preserve">
-    <value>No data stores are configured. Configure a data store by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
+  <data name="NoProviderConfigured" xml:space="preserve">
+    <value>No database providers are configured. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
   </data>
-  <data name="NoDataStoreService" xml:space="preserve">
-    <value>No data stores are available. Ensure that data store services are added inside the call to AddEntityFramework on your ServiceCollection.</value>
+  <data name="NoProviderServices" xml:space="preserve">
+    <value>No database providers are available. Ensure that database provider services are added inside the call to AddEntityFramework on your ServiceCollection.</value>
   </data>
-  <data name="MultipleDataStoresAvailable" xml:space="preserve">
-    <value>The data stores {storeNames}are available. A context can only be configured to use a single data store. Configure a data store by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
+  <data name="MultipleProvidersAvailable" xml:space="preserve">
+    <value>The database providers {storeNames}are available. A context can only be configured to use a single database provider. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
   </data>
   <data name="MultiplePropertiesMatchedAsKeys" xml:space="preserve">
     <value>Multiple potential primary key properties named '{property}' but differing only by case were found on entity type '{entityType}'. Configure the primary key explicitly using the SetKey fluent API.</value>
@@ -223,7 +223,7 @@
     <value>The '{propertyName}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.</value>
   </data>
   <data name="TempValuePersists" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the data store is configured to generate values for this property.</value>
+    <value>The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
   </data>
   <data name="PropertyWithStorageNameNotFound" xml:space="preserve">
     <value>A property with the storage name '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists, has been included in the model, and has been configured with storage name specified.</value>
@@ -231,14 +231,14 @@
   <data name="CurrentValuesAlwaysInSync" xml:space="preserve">
     <value>CurrentValues are always in sync with the entity state.</value>
   </data>
-  <data name="DataStoreException" xml:space="preserve">
-    <value>An error occured while running a data store operation. See InnerException for details.</value>
+  <data name="DatabaseException" xml:space="preserve">
+    <value>An error occured while running a database operation. See InnerException for details.</value>
   </data>
   <data name="LogExceptionDuringQueryIteration" xml:space="preserve">
-    <value>An exception occurred in the data store while iterating the results of a query.{newline}{error}</value>
+    <value>An exception occurred in the database while iterating the results of a query.{newline}{error}</value>
   </data>
   <data name="LogExceptionDuringSaveChanges" xml:space="preserve">
-    <value>An exception occurred in the data store while saving changes.{newline}{error}</value>
+    <value>An exception occurred in the database while saving changes.{newline}{error}</value>
   </data>
   <data name="PropertyExtensionInvoked" xml:space="preserve">
     <value>The Property&amp;lt;T&amp;gt; extension method may only be used within LINQ queries.</value>
@@ -361,7 +361,7 @@
     <value>The annotation '{annotation}' was not found. Ensure that the annotation has been added.</value>
   </data>
   <data name="IncludeNotImplemented" xml:space="preserve">
-    <value>The Include operator is not implemented by the current data store provider.</value>
+    <value>The Include operator is not implemented by the current database provider.</value>
   </data>
   <data name="IncludeNonBindableExpression" xml:space="preserve">
     <value>The expression '{expression}' passed to the Include operator could not be bound.</value>

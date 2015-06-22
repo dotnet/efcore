@@ -65,23 +65,23 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<IChangeDetector>();
             VerifyScoped<IEntityEntryGraphIterator>();
             VerifyScoped<IDbContextServices>();
-            VerifyScoped<IDataStoreSelector>();
+            VerifyScoped<IDatabaseProviderSelector>();
             VerifyScoped<ValueGeneratorSelector>();
 
             VerifyScoped<IModel>();
             VerifyScoped<DbContext>();
             VerifyScoped<IDbContextOptions>();
-            VerifyScoped<IDataStoreServices>();
-            VerifyScoped<IDataStore>();
+            VerifyScoped<IDatabaseProviderServices>();
+            VerifyScoped<IDatabase>();
             VerifyScoped<IQueryContextFactory>();
-            VerifyScoped<IDataStoreConnection>();
+            VerifyScoped<IDatabaseConnection>();
             VerifyScoped<IValueGeneratorSelector>();
-            VerifyScoped<IDataStoreCreator>();
+            VerifyScoped<IDatabaseCreator>();
             VerifyOptionalScoped<IConventionSetBuilder>();
             VerifyScoped<IValueGeneratorCache>();
             VerifyScoped<IModelSource>();
             VerifyScoped<IModelValidator>();
-            VerifySingleton<IDataStoreSource>(isExistingReplaced: true);
+            VerifySingleton<IDatabaseProvider>(isExistingReplaced: true);
         }
         
         private readonly DbContext _firstContext;
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             return (services ?? new ServiceCollection())
                 .AddEntityFramework()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .GetService();
         }
         

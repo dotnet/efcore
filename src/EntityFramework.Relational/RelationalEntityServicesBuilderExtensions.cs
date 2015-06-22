@@ -41,36 +41,36 @@ namespace Microsoft.Data.Entity.Relational
                 .AddScoped<ModelDiffer>()
                 .AddScoped<RelationalValueGeneratorSelector>()
                 .AddScoped<CommandBatchPreparer>()
-                .AddScoped(p => GetStoreServices(p).SqlStatementExecutor)
-                .AddScoped(p => GetStoreServices(p).CompositeMethodCallTranslator)
-                .AddScoped(p => GetStoreServices(p).CompositeMemberTranslator)
-                .AddScoped(p => GetStoreServices(p).ModelDiffer)
-                .AddScoped(p => GetStoreServices(p).HistoryRepository)
-                .AddScoped(p => GetStoreServices(p).MigrationSqlGenerator)
-                .AddScoped(p => GetStoreServices(p).RelationalConnection)
-                .AddScoped(p => GetStoreServices(p).TypeMapper)
-                .AddScoped(p => GetStoreServices(p).ModificationCommandBatchFactory)
-                .AddScoped(p => GetStoreServices(p).CommandBatchPreparer)
-                .AddScoped(p => GetStoreServices(p).BatchExecutor)
-                .AddScoped(p => GetStoreServices(p).ValueBufferFactoryFactory)
-                .AddScoped(p => GetStoreServices(p).RelationalDataStoreCreator)
-                .AddScoped(p => GetStoreServices(p).SqlGenerator)
-                .AddScoped(p => GetStoreServices(p).MetadataExtensionProvider));
+                .AddScoped(p => GetProviderServices(p).SqlStatementExecutor)
+                .AddScoped(p => GetProviderServices(p).CompositeMethodCallTranslator)
+                .AddScoped(p => GetProviderServices(p).CompositeMemberTranslator)
+                .AddScoped(p => GetProviderServices(p).ModelDiffer)
+                .AddScoped(p => GetProviderServices(p).HistoryRepository)
+                .AddScoped(p => GetProviderServices(p).MigrationSqlGenerator)
+                .AddScoped(p => GetProviderServices(p).RelationalConnection)
+                .AddScoped(p => GetProviderServices(p).TypeMapper)
+                .AddScoped(p => GetProviderServices(p).ModificationCommandBatchFactory)
+                .AddScoped(p => GetProviderServices(p).CommandBatchPreparer)
+                .AddScoped(p => GetProviderServices(p).BatchExecutor)
+                .AddScoped(p => GetProviderServices(p).ValueBufferFactoryFactory)
+                .AddScoped(p => GetProviderServices(p).RelationalDatabaseCreator)
+                .AddScoped(p => GetProviderServices(p).SqlGenerator)
+                .AddScoped(p => GetProviderServices(p).MetadataExtensionProvider));
 
             return builder;
         }
 
-        private static IRelationalDataStoreServices GetStoreServices(IServiceProvider serviceProvider)
+        private static IRelationalDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider)
         {
-            var storeServices = serviceProvider.GetRequiredService<IDbContextServices>().DataStoreServices 
-                as IRelationalDataStoreServices;
+            var providerServices = serviceProvider.GetRequiredService<IDbContextServices>().DatabaseProviderServices 
+                as IRelationalDatabaseProviderServices;
 
-            if (storeServices == null)
+            if (providerServices == null)
             {
                 throw new InvalidOperationException(Strings.RelationalNotInUse);
             }
 
-            return storeServices;
+            return providerServices;
         }
     }
 }

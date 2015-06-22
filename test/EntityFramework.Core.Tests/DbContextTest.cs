@@ -1490,19 +1490,19 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void SaveChanges_doesnt_call_DataStore_when_nothing_is_dirty()
+        public void SaveChanges_doesnt_call_Database_when_nothing_is_dirty()
         {
-            var store = new Mock<IDataStore>();
+            var database = new Mock<IDatabase>();
 
-            var servicesMock = new Mock<IDataStoreServices>();
-            servicesMock.Setup(m => m.Store).Returns(store.Object);
+            var servicesMock = new Mock<IDatabaseProviderServices>();
+            servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
                 { CallBase = true }.Object);
             servicesMock.Setup(m => m.ModelValidator).Returns(new LoggingModelValidator(new LoggerFactory()));
 
-            var sourceMock = new Mock<IDataStoreSource>();
+            var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
-            sourceMock.Setup(m => m.GetStoreServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
+            sourceMock.Setup(m => m.GetProviderServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
@@ -1518,33 +1518,33 @@ namespace Microsoft.Data.Entity.Tests
                 context.SaveChanges();
             }
 
-            store.Verify(
+            database.Verify(
                 s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<InternalEntityEntry>>(), It.IsAny<CancellationToken>()),
                 Times.Never);
         }
 
         [Fact]
-        public void SaveChanges_only_passes_dirty_entries_to_DataStore()
+        public void SaveChanges_only_passes_dirty_entries_to_Database()
         {
             var passedEntries = new List<InternalEntityEntry>();
-            var store = new Mock<IDataStore>();
-            store.Setup(s => s.SaveChanges(It.IsAny<IReadOnlyList<InternalEntityEntry>>()))
+            var database = new Mock<IDatabase>();
+            database.Setup(s => s.SaveChanges(It.IsAny<IReadOnlyList<InternalEntityEntry>>()))
                 .Callback<IEnumerable<InternalEntityEntry>>(passedEntries.AddRange)
                 .Returns(3);
 
             var valueGenMock = new Mock<IValueGeneratorSelector>();
             valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>(), It.IsAny<IEntityType>())).Returns(Mock.Of<ValueGenerator>());
 
-            var servicesMock = new Mock<IDataStoreServices>();
-            servicesMock.Setup(m => m.Store).Returns(store.Object);
+            var servicesMock = new Mock<IDatabaseProviderServices>();
+            servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
                 { CallBase = true }.Object);
             servicesMock.Setup(m => m.ModelValidator).Returns(new LoggingModelValidator(new LoggerFactory()));
 
-            var sourceMock = new Mock<IDataStoreSource>();
+            var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
-            sourceMock.Setup(m => m.GetStoreServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
+            sourceMock.Setup(m => m.GetProviderServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
@@ -1564,33 +1564,33 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Equal(3, passedEntries.Count);
 
-            store.Verify(
+            database.Verify(
                 s => s.SaveChanges(It.IsAny<IReadOnlyList<InternalEntityEntry>>()),
                 Times.Once);
         }
 
         [Fact]
-        public async Task SaveChangesAsync_only_passes_dirty_entries_to_DataStore()
+        public async Task SaveChangesAsync_only_passes_dirty_entries_to_Database()
         {
             var passedEntries = new List<InternalEntityEntry>();
-            var store = new Mock<IDataStore>();
-            store.Setup(s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<InternalEntityEntry>>(), It.IsAny<CancellationToken>()))
+            var database = new Mock<IDatabase>();
+            database.Setup(s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<InternalEntityEntry>>(), It.IsAny<CancellationToken>()))
                 .Callback<IEnumerable<InternalEntityEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
                 .Returns(Task.FromResult(3));
 
             var valueGenMock = new Mock<IValueGeneratorSelector>();
             valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>(), It.IsAny<IEntityType>())).Returns(Mock.Of<ValueGenerator>());
 
-            var servicesMock = new Mock<IDataStoreServices>();
-            servicesMock.Setup(m => m.Store).Returns(store.Object);
+            var servicesMock = new Mock<IDatabaseProviderServices>();
+            servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
                 { CallBase = true }.Object);
             servicesMock.Setup(m => m.ModelValidator).Returns(new LoggingModelValidator(new LoggerFactory()));
 
-            var sourceMock = new Mock<IDataStoreSource>();
+            var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
-            sourceMock.Setup(m => m.GetStoreServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
+            sourceMock.Setup(m => m.GetProviderServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
@@ -1610,7 +1610,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Equal(3, passedEntries.Count);
 
-            store.Verify(
+            database.Verify(
                 s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<InternalEntityEntry>>(), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
@@ -1655,7 +1655,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
                 .AddSingleton<IMemberMapper, MemberMapper>()
                 .AddSingleton<IFieldMatcher, FieldMatcher>()
-                .AddSingleton<DataStoreSelector>()
+                .AddSingleton<DatabaseProviderSelector>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
                 .AddScoped<IDbSetInitializer, DbSetInitializer>()
                 .AddScoped<IDbContextServices, DbContextServices>()
@@ -1872,7 +1872,7 @@ namespace Microsoft.Data.Entity.Tests
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryStore(persist: false);
+                optionsBuilder.UseInMemoryDatabase(persist: false);
             }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
@@ -2082,7 +2082,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .AddDbContext<UseModelInOnModelCreatingContext>()
                 .GetService()
                 .BuildServiceProvider();
@@ -2115,7 +2115,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .AddDbContext<UseInOnModelCreatingContext>()
                 .GetService()
                 .BuildServiceProvider();
@@ -2148,7 +2148,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .AddDbContext<UseInOnConfiguringContext>()
                 .GetService()
                 .BuildServiceProvider();
@@ -2252,7 +2252,7 @@ namespace Microsoft.Data.Entity.Tests
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryStore(persist: true);
+                optionsBuilder.UseInMemoryDatabase(persist: true);
             }
         }
 

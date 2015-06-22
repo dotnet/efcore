@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore()
+                .AddInMemoryDatabase()
                 .AddDbContext<JustSomeContext>()
                 .ServiceCollection()
                 .AddSingleton<InMemoryModelSource, MyModelSource>()
