@@ -10,35 +10,30 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public class Database : IAccessor<IServiceProvider>
+    public class DatabaseFacade : IAccessor<IServiceProvider>
     {
         private readonly DbContext _context;
-        private readonly IDataStoreCreator _dataStoreCreator;
 
-        public Database(
-            [NotNull] DbContext context,
-            [NotNull] IDataStoreCreator dataStoreCreator)
+        public DatabaseFacade([NotNull] DbContext context)
         {
             Check.NotNull(context, nameof(context));
-            Check.NotNull(dataStoreCreator, nameof(dataStoreCreator));
 
             _context = context;
-            _dataStoreCreator = dataStoreCreator;
         }
 
         // TODO: Make sure API docs say that return value indicates whether or not the database or tables were created
-        public virtual bool EnsureCreated() => _dataStoreCreator.EnsureCreated();
+        public virtual bool EnsureCreated() => this.GetService<IDataStoreCreator>().EnsureCreated();
 
         // TODO: Make sure API docs say that return value indicates whether or not the database or tables were created
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => _dataStoreCreator.EnsureCreatedAsync(cancellationToken);
+            => this.GetService<IDataStoreCreator>().EnsureCreatedAsync(cancellationToken);
 
         // TODO: Make sure API docs say that return value indicates whether or not the database was deleted
-        public virtual bool EnsureDeleted() => _dataStoreCreator.EnsureDeleted();
+        public virtual bool EnsureDeleted() => this.GetService<IDataStoreCreator>().EnsureDeleted();
 
         // TODO: Make sure API docs say that return value indicates whether or not the database was deleted
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => _dataStoreCreator.EnsureDeletedAsync(cancellationToken);
+            => this.GetService<IDataStoreCreator>().EnsureDeletedAsync(cancellationToken);
 
         IServiceProvider IAccessor<IServiceProvider>.Service => ((IAccessor<IServiceProvider>)_context).Service;
     }

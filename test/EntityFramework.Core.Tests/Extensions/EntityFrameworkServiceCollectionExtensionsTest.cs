@@ -75,7 +75,6 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<IDataStore>();
             VerifyScoped<IQueryContextFactory>();
             VerifyScoped<IDataStoreConnection>();
-            VerifyScoped<IDatabaseFactory>();
             VerifyScoped<IValueGeneratorSelector>();
             VerifyScoped<IDataStoreCreator>();
             VerifyOptionalScoped<IConventionSetBuilder>();

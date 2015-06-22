@@ -60,7 +60,6 @@
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
     <Compile Include="Extensions\Internal\PropertyInfoExtensions.cs" />
     <Compile Include="Infrastructure\AccessorExtensions.cs" />
-    <Compile Include="Infrastructure\DatabaseFactory.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="Internal\Graph.cs" />
     <Compile Include="Internal\IndentedStringBuilder.cs" />
@@ -153,7 +152,6 @@
     <Compile Include="Infrastructure\CoreOptionsExtension.cs" />
     <Compile Include="Infrastructure\DbContextOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptions`.cs" />
-    <Compile Include="Infrastructure\IDatabaseFactory.cs" />
     <Compile Include="Infrastructure\IDbContextOptions.cs" />
     <Compile Include="Infrastructure\IDbContextOptionsBuilderInfrastructure.cs" />
     <Compile Include="Infrastructure\EntityFrameworkServicesBuilder.cs" />
@@ -275,7 +273,7 @@
     <Compile Include="ChangeTracking\PropertyEntry`.cs" />
     <Compile Include="Extensions\EntityFrameworkServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\EntityFrameworkQueryableExtensions.cs" />
-    <Compile Include="Infrastructure\Database.cs" />
+    <Compile Include="Infrastructure\DatabaseFacade.cs" />
     <Compile Include="Infrastructure\IDbContextOptionsExtension.cs" />
     <Compile Include="Infrastructure\IModelSource.cs" />
     <Compile Include="Infrastructure\Annotation.cs" />

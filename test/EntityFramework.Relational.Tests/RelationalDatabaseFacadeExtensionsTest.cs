@@ -7,13 +7,12 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests
 {
-    public class RelationalDatabaseExtensionsTest
+    public class RelationalDatabaseFacadeExtensionsTest
     {
         [Fact]
         public void GetDbConnection_returns_the_current_connection()
