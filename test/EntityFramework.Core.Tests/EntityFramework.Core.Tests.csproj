@@ -59,7 +59,7 @@
     <Compile Include="ChangeTracking\Internal\StateManagerTest.cs" />
     <Compile Include="ChangeTracking\Internal\StoreGeneratedValuesTest.cs" />
     <Compile Include="ContextConfigurationTest.cs" />
-    <Compile Include="DatabaseTest.cs" />
+    <Compile Include="DatabaseFacadeTest.cs" />
     <Compile Include="DbContextTest.cs" />
     <Compile Include="DbSetInitializerTest.cs" />
     <Compile Include="DbSetTest.cs" />

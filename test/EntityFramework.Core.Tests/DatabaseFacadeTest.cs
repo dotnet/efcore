@@ -8,52 +8,46 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class DatabaseTest
+    public class DatabaseFacadeTest
     {
         [Fact]
         public void Methods_delegate_to_configured_store_creator()
         {
-            var context = TestHelpers.Instance.CreateContext();
-
             var creatorMock = new Mock<IDataStoreCreator>();
             creatorMock.Setup(m => m.EnsureCreated()).Returns(true);
             creatorMock.Setup(m => m.EnsureDeleted()).Returns(true);
 
-            var database = new Database(
-                context,
-                creatorMock.Object);
+            var context = TestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddInstance(creatorMock.Object));
 
-            Assert.True(database.EnsureCreated());
+            Assert.True(context.Database.EnsureCreated());
             creatorMock.Verify(m => m.EnsureCreated(), Times.Once);
 
-            Assert.True(database.EnsureDeleted());
+            Assert.True(context.Database.EnsureDeleted());
             creatorMock.Verify(m => m.EnsureDeleted(), Times.Once);
         }
 
         [Fact]
         public async void Async_methods_delegate_to_configured_store_creator()
         {
-            var context = TestHelpers.Instance.CreateContext();
             var cancellationToken = new CancellationTokenSource().Token;
 
             var creatorMock = new Mock<IDataStoreCreator>();
             creatorMock.Setup(m => m.EnsureCreatedAsync(cancellationToken)).Returns(Task.FromResult(true));
             creatorMock.Setup(m => m.EnsureDeletedAsync(cancellationToken)).Returns(Task.FromResult(true));
 
-            var database = new Database(
-                context,
-                creatorMock.Object);
+            var context = TestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddInstance(creatorMock.Object));
 
-            Assert.True(await database.EnsureCreatedAsync(cancellationToken));
+            Assert.True(await context.Database.EnsureCreatedAsync(cancellationToken));
             creatorMock.Verify(m => m.EnsureCreatedAsync(cancellationToken), Times.Once);
 
-            Assert.True(await database.EnsureDeletedAsync(cancellationToken));
+            Assert.True(await context.Database.EnsureDeletedAsync(cancellationToken));
             creatorMock.Verify(m => m.EnsureDeletedAsync(cancellationToken), Times.Once);
         }
 

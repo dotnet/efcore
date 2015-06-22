@@ -49,7 +49,6 @@ namespace Microsoft.Data.Entity
 
         private LazyRef<IDbContextServices> _contextServices;
         private LazyRef<IDbSetInitializer> _setInitializer;
-        private LazyRef<Database> _database;
         private LazyRef<ChangeTracker> _changeTracker;
         private ILogger _logger;
         private ILoggerFactory _loggerFactory;
@@ -147,7 +146,6 @@ namespace Microsoft.Data.Entity
             InitializeSets(serviceProvider, options);
             _contextServices = new LazyRef<IDbContextServices>(() => InitializeServices(serviceProvider, options));
             _setInitializer = new LazyRef<IDbSetInitializer>(() => ServiceProvider.GetRequiredService<IDbSetInitializer>());
-            _database = new LazyRef<Database>(() => ServiceProvider.GetRequiredService<IDatabaseFactory>().CreateDatabase());
             _changeTracker = new LazyRef<ChangeTracker>(() => ServiceProvider.GetRequiredService<IChangeTrackerFactory>().CreateChangeTracker());
         }
 
@@ -825,7 +823,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     Provides access to database related information and operations for this context.
         /// </summary>
-        public virtual Database Database => _database.Value;
+        public virtual DatabaseFacade Database => new DatabaseFacade(this);
 
         /// <summary>
         ///     Provides access to information and operations for entity instances this context is tracking.

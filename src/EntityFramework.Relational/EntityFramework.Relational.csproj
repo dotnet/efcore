@@ -215,7 +215,7 @@
     <Compile Include="Query\Sql\ISqlQueryGenerator.cs" />
     <Compile Include="Query\Sql\DefaultQuerySqlGenerator.cs" />
     <Compile Include="Query\Sql\RawSqlQueryGenerator.cs" />
-    <Compile Include="RelationalDatabaseExtensions.cs" />
+    <Compile Include="RelationalDatabaseFacadeExtensions.cs" />
     <Compile Include="RelationalDataStoreCreator.cs" />
     <Compile Include="IRelationalDataStoreServices.cs" />
     <Compile Include="RelationalDbContextOptionsBuilder.cs" />
