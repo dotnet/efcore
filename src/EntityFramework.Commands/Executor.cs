@@ -8,6 +8,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Utilities;
@@ -249,13 +251,18 @@ namespace Microsoft.Data.Entity.Commands
 
                 var providerAssemblyName = DatabaseTool._defaultReverseEngineeringProviderAssembly;
 
-                Execute(() => executor.ReverseEngineerImpl(providerAssemblyName, connectionString));
+                Execute(() => executor.ReverseEngineerImplAsync(providerAssemblyName, connectionString).GetAwaiter().GetResult());
             }
         }
 
-        public virtual IEnumerable<string> ReverseEngineerImpl(
-            [NotNull] string providerAssemblyName, [NotNull] string connectionString) =>
-                _databaseTool.ReverseEngineer(providerAssemblyName, connectionString, _rootNamespace, _projectDir);
+        public virtual Task<IReadOnlyList<string>> ReverseEngineerImplAsync(
+            [NotNull] string providerAssemblyName,
+            [NotNull] string connectionString,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _databaseTool.ReverseEngineerAsync(
+                providerAssemblyName, connectionString, _rootNamespace, _projectDir, cancellationToken);
+        }
 
         public abstract class OperationBase : MarshalByRefObject
         {

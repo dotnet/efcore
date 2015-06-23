@@ -44,11 +44,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual IFileService FileService { get; }
 
-        public virtual async Task<List<string>> GenerateAsync(
+        public virtual async Task<IReadOnlyList<string>> GenerateAsync(
             [NotNull] ReverseEngineeringConfiguration configuration,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(configuration, nameof(configuration));
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             CheckConfiguration(configuration);
 
@@ -75,7 +77,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             var templating = _serviceProvider.GetRequiredService<ITemplating>();
             var dbContextTemplate = provider.DbContextTemplate;
-            var templateResult = await templating.RunTemplateAsync(dbContextTemplate, dbContextGeneratorModel, provider);
+            var templateResult = await templating.RunTemplateAsync(
+                dbContextTemplate, dbContextGeneratorModel, provider, cancellationToken);
             if (templateResult.ProcessingException != null)
             {
                 throw new InvalidOperationException(
@@ -102,7 +105,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 var entityTypeCodeGeneratorHelper = provider.EntityTypeCodeGeneratorHelper(entityTypeGeneratorModel);
                 entityTypeGeneratorModel.Helper = entityTypeCodeGeneratorHelper;
 
-                templateResult = await templating.RunTemplateAsync(entityTypeTemplate, entityTypeGeneratorModel, provider);
+                templateResult = await templating.RunTemplateAsync(
+                    entityTypeTemplate, entityTypeGeneratorModel, provider, cancellationToken);
                 if (templateResult.ProcessingException != null)
                 {
                     throw new InvalidOperationException(

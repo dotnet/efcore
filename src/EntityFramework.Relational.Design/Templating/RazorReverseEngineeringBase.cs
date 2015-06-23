@@ -28,6 +28,8 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
         public virtual async Task<string> ExecuteTemplateAsync(
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var output = new StringBuilder();
             using (var writer = new StringWriter(output))
             {

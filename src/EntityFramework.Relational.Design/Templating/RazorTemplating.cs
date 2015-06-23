@@ -33,6 +33,8 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
             dynamic templateModel, IDatabaseMetadataModelProvider provider,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var host = new RazorTemplatingHost(typeof(RazorReverseEngineeringBase));
             var engine = new RazorTemplateEngine(host);
 
@@ -70,7 +72,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
                 {
                     razorTemplate.Model = templateModel;
                     //ToDo: If there are errors executing the code, they are missed here.
-                    result = await razorTemplate.ExecuteTemplateAsync();
+                    result = await razorTemplate.ExecuteTemplateAsync(cancellationToken);
                 }
 
                 return new TemplateResult
