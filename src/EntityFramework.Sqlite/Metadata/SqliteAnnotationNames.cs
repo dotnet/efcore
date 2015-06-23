@@ -6,5 +6,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
     public static class SqliteAnnotationNames
     {
         public const string Prefix = "Sqlite:";
+        public const string Autoincrement = "Autoincrement";
+        public const string InlinePrimaryKey = "InlinePrimaryKey";
     }
 }

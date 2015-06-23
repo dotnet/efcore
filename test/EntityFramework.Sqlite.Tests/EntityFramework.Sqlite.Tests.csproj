@@ -40,6 +40,7 @@
     <Compile Include="Metadata\Builders\SqliteBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\SqliteHistoryRepositoryTest.cs" />
     <Compile Include="Metadata\SqliteMetadataExtensionsTest.cs" />
+    <Compile Include="Migrations\SqliteMigrationAnnotationProviderTest.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGeneratorTest.cs" />
     <Compile Include="Migrations\SqliteOperationTransformTest.cs" />
     <Compile Include="SqliteSqlGeneratorTest.cs" />

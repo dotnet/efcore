@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
+using Microsoft.Data.Entity.Sqlite.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Sqlite.Migrations
@@ -26,25 +27,80 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             Assert.Equal("INSERT INTO \"RebuiltTable\" (\"col1\", \"col2\")" + EOL + "SELECT \"col1\", \"col2\" FROM \"OldTable\";" + EOL, Sql);
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CreateTableOperation_with_annotations(bool autoincrement)
+        {
+            var addIdColumn = new AddColumnOperation
+            {
+                Name = "Id",
+                Type = "INTEGER",
+                IsNullable = false,
+            };
+            if (autoincrement)
+            {
+                addIdColumn.AddAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement, true);
+            }
+
+            Generate(
+                 new CreateTableOperation
+                 {
+                     Name = "People",
+                     Columns =
+                     {
+                        addIdColumn,
+                        new AddColumnOperation
+                        {
+                            Name = "EmployerId",
+                            Type = "int",
+                            IsNullable = true
+                        },
+                         new AddColumnOperation
+                        {
+                            Name = "SSN",
+                            Type = "char(11)",
+                            IsNullable = true
+                        }
+                     },
+                     PrimaryKey = new AddPrimaryKeyOperation
+                     {
+                         Columns = new[] { "Id" }
+                     },
+                     UniqueConstraints =
+                     {
+                        new AddUniqueConstraintOperation
+                        {
+                            Columns = new[] { "SSN" }
+                        }
+                     },
+                     ForeignKeys =
+                     {
+                        new AddForeignKeyOperation
+                        {
+                            Columns = new[] { "EmployerId" },
+                            ReferencedTable = "Companies"
+                        }
+                     }
+                 });
+
+            Assert.Equal(
+                "CREATE TABLE \"People\" (" + EOL +
+                "    \"Id\" INTEGER NOT NULL PRIMARY KEY" +
+                (autoincrement ? " AUTOINCREMENT," : ",") + EOL +
+                "    \"EmployerId\" int," + EOL +
+                "    \"SSN\" char(11)," + EOL +
+                "    UNIQUE (\"SSN\")," + EOL +
+                "    FOREIGN KEY (\"EmployerId\") REFERENCES \"Companies\"" + EOL +
+                ");" + EOL,
+                Sql);
+        }
+
         [Fact]
         public void CreateSchemaOperation_not_supported()
         {
             var ex = Assert.Throws<NotSupportedException>(() => Generate(new CreateSchemaOperation()));
             Assert.Equal(Strings.SchemasNotSupported, ex.Message);
-        }
-
-        [Fact]
-        public void DropSchemaOperation_not_supported()
-        {
-            var ex = Assert.Throws<NotSupportedException>(() => Generate(new DropSchemaOperation()));
-            Assert.Equal(Strings.SchemasNotSupported, ex.Message);
-        }
-
-        [Fact]
-        public void RestartSequenceOperation_not_supported()
-        {
-            var ex = Assert.Throws<NotSupportedException>(() => Generate(new RestartSequenceOperation()));
-            Assert.Equal(Strings.SequencesNotSupported, ex.Message);
         }
 
         public override void AddColumnOperation_with_defaultValue()
@@ -72,6 +128,20 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             Assert.Equal(
                 @"ALTER TABLE ""People"" ADD ""Age"" int DEFAULT (10);" + EOL,
                 Sql);
+        }
+
+        [Fact]
+        public void DropSchemaOperation_not_supported()
+        {
+            var ex = Assert.Throws<NotSupportedException>(() => Generate(new DropSchemaOperation()));
+            Assert.Equal(Strings.SchemasNotSupported, ex.Message);
+        }
+
+        [Fact]
+        public void RestartSequenceOperation_not_supported()
+        {
+            var ex = Assert.Throws<NotSupportedException>(() => Generate(new RestartSequenceOperation()));
+            Assert.Equal(Strings.SequencesNotSupported, ex.Message);
         }
 
         public override void AddForeignKeyOperation_with_name()

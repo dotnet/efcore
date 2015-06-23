@@ -38,6 +38,7 @@
     <Compile Include="AsNoTrackingSqliteTest.cs" />
     <Compile Include="AsyncFromSqlQuerySqliteTest.cs" />
     <Compile Include="AsyncQuerySqliteTest.cs" />
+    <Compile Include="AutoincrementTest.cs" />
     <Compile Include="BuiltInDataTypesSqliteFixture.cs" />
     <Compile Include="BuiltInDataTypesSqliteTest.cs" />
     <Compile Include="ChangeTrackingSqliteTest.cs" />

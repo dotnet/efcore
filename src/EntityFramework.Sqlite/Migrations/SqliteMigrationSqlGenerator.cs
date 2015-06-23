@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
+using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Sqlite.Migrations
@@ -85,6 +87,43 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                 .Append(columnList)
                 .Append(" FROM ")
                 .Append(_sql.DelimitIdentifier(operation.OldTable));
+        }
+
+        public override void Generate(CreateTableOperation operation, IModel model, SqlBatchBuilder builder)
+        {
+            // Lifts a primary key definition into the typename.
+            // This handles the quirks of creating integer primary keys using autoincrement, not default rowid behavior.
+            if (operation.PrimaryKey?.Columns.Length == 1)
+            {
+                var columnOp = operation.Columns?.FirstOrDefault(o => o.Name == operation.PrimaryKey.Columns[0]);
+                if (columnOp != null)
+                {
+                    columnOp.AddAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.InlinePrimaryKey, true);
+                    operation.PrimaryKey = null;
+                }
+            }
+
+            base.Generate(operation, model, builder);
+        }
+
+        public override void ColumnDefinition(string schema, string table, string name, string type, bool nullable, object defaultValue, string defaultExpression, IAnnotatable annotatable, IModel model, SqlBatchBuilder builder)
+        {
+            base.ColumnDefinition(schema, table, name, type, nullable, defaultValue, defaultExpression, annotatable, model, builder);
+
+            var columnAnnotation = annotatable as Annotatable;
+            var inlinePk = columnAnnotation?.FindAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.InlinePrimaryKey);
+
+            if (inlinePk != null
+                && (bool)inlinePk.Value)
+            {
+                builder.Append(" PRIMARY KEY");
+                var autoincrement = columnAnnotation.FindAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement);
+                if (autoincrement != null
+                    && (bool)autoincrement.Value)
+                {
+                    builder.Append(" AUTOINCREMENT");
+                }
+            }
         }
 
         #region Invalid migration operations
