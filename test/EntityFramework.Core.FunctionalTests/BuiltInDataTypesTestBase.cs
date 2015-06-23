@@ -96,6 +96,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var entity = context.Set<BuiltInDataTypes>().Single(e => e.Id == 11);
+                var entityType = context.Model.GetEntityType(typeof(BuiltInDataTypes));
 
                 var param1 = (short)-1234;
                 Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestInt16 == param1));
@@ -115,11 +116,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var param6 = new DateTime();
                 Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestDateTime == param6));
 
-                var param7 = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0));
-                Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestDateTimeOffset == param7));
+                if (entityType.FindProperty("TestDateTimeOffset") != null) {
+                    var param7 = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0));
+                    Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestDateTimeOffset == param7));
+                }
 
-                var param8 = new TimeSpan(0, 10, 9, 8, 7);
-                Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestTimeSpan == param8));
+                if (entityType.FindProperty("TestTimeSpan") != null)
+                {
+                    var param8 = new TimeSpan(0, 10, 9, 8, 7);
+                    Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestTimeSpan == param8));
+                }
 
                 var param9 = -1.234F;
                 Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestSingle == param9));
@@ -127,8 +133,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var param10 = true;
                 Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestBoolean == param10));
 
-                var param11 = (byte)255;
-                Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestByte == param11));
+                if (entityType.FindProperty("TestByte") != null)
+                {
+                    var param11 = (byte) 255;
+                    Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestByte == param11));
+                }
 
                 var param12 = Enum64.SomeValue;
                 Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.Enum64 == param12));
@@ -139,10 +148,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var param14 = Enum16.SomeValue;
                 Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.Enum16 == param14));
 
-                var param15 = Enum8.SomeValue;
-                Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.Enum8 == param15));
+                if (entityType.FindProperty("TestEnum8") != null)
+                {
+                    var param15 = Enum8.SomeValue;
+                    Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.Enum8 == param15));
+                }
 
-                var entityType = context.Model.GetEntityType(typeof(BuiltInDataTypes));
                 if (entityType.FindProperty("TestUnsignedInt16") != null)
                 {
                     var param16 = (ushort)1234;
@@ -213,6 +224,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var entity = context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11);
+                var entityType = context.Model.GetEntityType(typeof(BuiltInNullableDataTypes));
 
                 short? param1 = -1234;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableInt16 == param1));
@@ -232,11 +244,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 DateTime? param6 = new DateTime();
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableDateTime == param6));
 
-                DateTimeOffset? param7 = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0));
-                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableDateTimeOffset == param7));
+                if (entityType.FindProperty("TestNullableDateTimeOffset") != null)
+                {
+                    DateTimeOffset? param7 = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0));
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableDateTimeOffset == param7));
+                }
 
-                TimeSpan? param8 = new TimeSpan(0, 10, 9, 8, 7);
-                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableTimeSpan == param8));
+                if (entityType.FindProperty("TestNullableTimeSpan") != null)
+                {
+                    TimeSpan? param8 = new TimeSpan(0, 10, 9, 8, 7);
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableTimeSpan == param8));
+                }
 
                 float? param9 = -1.234F;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableSingle == param9));
@@ -244,8 +262,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 bool? param10 = true;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableBoolean == param10));
 
-                byte? param11 = 255;
-                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableByte == param11));
+                if (entityType.FindProperty("TestNullableByte") != null) {
+                    byte? param11 = 255;
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableByte == param11));
+                }
 
                 Enum64? param12 = Enum64.SomeValue;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.Enum64 == param12));
@@ -256,10 +276,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Enum16? param14 = Enum16.SomeValue;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.Enum16 == param14));
 
-                Enum8? param15 = Enum8.SomeValue;
-                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.Enum8 == param15));
+                if (entityType.FindProperty("Enum8") != null)
+                {
+                    Enum8? param15 = Enum8.SomeValue;
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.Enum8 == param15));
+                }
 
-                var entityType = context.Model.GetEntityType(typeof(BuiltInNullableDataTypes));
                 if (entityType.FindProperty("TestUnsignedInt16") != null)
                 {
                     ushort? param16 = 1234;
