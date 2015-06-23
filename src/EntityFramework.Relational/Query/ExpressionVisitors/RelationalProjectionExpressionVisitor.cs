@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             {
                 var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
 
-                if (ReferenceEquals(methodInfo, QueryExtensions.PropertyMethodInfo)
+                if (ReferenceEquals(methodInfo, EntityQueryModelVisitor.PropertyMethodInfo)
                     || ReferenceEquals(methodInfo, QueryExtensions.ValueBufferPropertyMethodInfo))
                 {
                     var newArg0 = Visit(methodCallExpression.Arguments[0]);

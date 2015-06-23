@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             if (expression.Method.IsGenericMethod)
             {
                 var genericMethodDefinition = expression.Method.GetGenericMethodDefinition();
-                if (ReferenceEquals(genericMethodDefinition, QueryExtensions.PropertyMethodInfo)
+                if (ReferenceEquals(genericMethodDefinition, EntityQueryModelVisitor.PropertyMethodInfo)
                     || ReferenceEquals(genericMethodDefinition, DbContextSetMethodInfo))
                 {
                     return base.VisitMethodCall(expression);

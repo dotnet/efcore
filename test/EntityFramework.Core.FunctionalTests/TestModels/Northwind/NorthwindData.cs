@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
@@ -130,7 +129,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
                 {
                     var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
 
-                    if (ReferenceEquals(methodInfo, QueryExtensions.PropertyMethodInfo)
+                    if (ReferenceEquals(methodInfo, EntityQueryModelVisitor.PropertyMethodInfo)
                         || ReferenceEquals(methodInfo, QueryExtensions.ValueBufferPropertyMethodInfo))
                     {
                         return Expression.Property(

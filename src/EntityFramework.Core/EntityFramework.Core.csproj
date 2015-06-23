@@ -183,6 +183,7 @@
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="Query\Annotations\QueryAnnotation.cs" />
     <Compile Include="Query\Annotations\IncludeQueryAnnotation.cs" />
+    <Compile Include="Query\EF.cs" />
     <Compile Include="Query\EntityLoadInfo.cs" />
     <Compile Include="Query\EntityTrackingInfo.cs" />
     <Compile Include="Query\ExpressionEvaluationHelpers.cs" />

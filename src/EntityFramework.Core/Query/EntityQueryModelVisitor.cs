@@ -31,6 +31,9 @@ namespace Microsoft.Data.Entity.Query
         public static readonly ParameterExpression QueryResultScopeParameter
             = Expression.Parameter(typeof(QueryResultScope));
 
+        public static readonly MethodInfo PropertyMethodInfo
+            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
+
         private readonly QueryCompilationContext _queryCompilationContext;
 
         private Expression _expression;
@@ -1085,7 +1088,7 @@ namespace Microsoft.Data.Entity.Query
             {
                 var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
 
-                if (ReferenceEquals(methodInfo, QueryExtensions.PropertyMethodInfo)
+                if (ReferenceEquals(methodInfo, PropertyMethodInfo)
                     || ReferenceEquals(methodInfo, QueryExtensions.ValueBufferPropertyMethodInfo))
                 {
                     var targetExpression = methodCallExpression.Arguments[0];

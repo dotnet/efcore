@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true,
                 entryCount: 86);
         }
-        
+
         [Fact]
         public virtual void Skip_no_orderby()
         {
@@ -633,7 +633,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Where_simple_shadow()
         {
             AssertQuery<Employee>(
-                es => es.Where(e => e.Property<string>("Title") == "Sales Representative"),
+                es => es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"),
                 entryCount: 6);
         }
 
@@ -641,15 +641,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Where_simple_shadow_projection()
         {
             AssertQuery<Employee>(
-                es => es.Where(e => e.Property<string>("Title") == "Sales Representative")
-                    .Select(e => e.Property<string>("Title")));
+                es => es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative")
+                    .Select(e => EF.Property<string>(e, "Title")));
         }
 
         public virtual void Where_simple_shadow_projection_mixed()
         {
             AssertQuery<Employee>(
-                es => es.Where(e => e.Property<string>("Title") == "Sales Representative")
-                    .Select(e => new { e, Title = e.Property<string>("Title") }),
+                es => es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative")
+                    .Select(e => new { e, Title = EF.Property<string>(e, "Title") }),
                 entryCount: 6);
         }
 
@@ -658,7 +658,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Employee>(
                 es => from e in es.OrderBy(e => e.EmployeeID).Take(5)
-                      where e.Property<string>("Title") == "Sales Representative"
+                      where EF.Property<string>(e, "Title") == "Sales Representative"
                       select e,
                 entryCount: 3);
         }
@@ -668,8 +668,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Employee>(es =>
                 from e in es
-                where e.Property<string>("Title")
-                      == es.OrderBy(e2 => e2.Property<string>("Title")).First().Property<string>("Title")
+                where EF.Property<string>(e, "Title")
+                      == EF.Property<string>(es.OrderBy(e2 => EF.Property<string>(e2, "Title")).First(), "Title")
                 select e,
                 entryCount: 1);
         }
@@ -1100,13 +1100,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Where_bool_member_shadow()
         {
-            AssertQuery<Product>(ps => ps.Where(p => p.Property<bool>("Discontinued")), entryCount: 8);
+            AssertQuery<Product>(ps => ps.Where(p => EF.Property<bool>(p, "Discontinued")), entryCount: 8);
         }
 
         [Fact]
         public virtual void Where_bool_member_false_shadow()
         {
-            AssertQuery<Product>(ps => ps.Where(p => !p.Property<bool>("Discontinued")), entryCount: 69);
+            AssertQuery<Product>(ps => ps.Where(p => !EF.Property<bool>(p, "Discontinued")), entryCount: 69);
         }
 
         [Fact]
@@ -1880,8 +1880,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 from c in cs
                 join o1 in
                     (from o2 in os orderby o2.OrderID select new { o2 }) on c.CustomerID equals o1.o2.CustomerID
-                where o1.o2.Property<string>("CustomerID") == "ALFKI"
-                select new { o1, o1.o2, Shadow = o1.o2.Property<DateTime?>("OrderDate") });
+                where EF.Property<string>(o1.o2, "CustomerID") == "ALFKI"
+                select new { o1, o1.o2, Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate") });
         }
 
         [Fact]
@@ -2005,7 +2005,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Select(e =>
                         new
                         {
-                            Title = e.Property<string>("Title"),
+                            Title = EF.Property<string>(e, "Title"),
                             Id = e.EmployeeID
                         }));
         }
@@ -2021,7 +2021,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Select(e =>
                         new
                         {
-                            Title = e.Property<string>("Title"),
+                            Title = EF.Property<string>(e, "Title"),
                             Id = e.EmployeeID
                         }));
         }
@@ -2125,7 +2125,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void OrderBy_shadow()
         {
             AssertQuery<Employee>(
-                es => es.OrderBy(e => e.Property<string>("Title")).ThenBy(e => e.EmployeeID),
+                es => es.OrderBy(e => EF.Property<string>(e, "Title")).ThenBy(e => e.EmployeeID),
                 assertOrder: true,
                 entryCount: 9);
         }
@@ -2353,19 +2353,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void GroupBy_Shadow()
         {
             AssertQuery<Employee>(es =>
-                es.Where(e => e.Property<string>("Title") == "Sales Representative"
+                es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"
                               && e.EmployeeID == 1)
-                    .GroupBy(e => e.Property<string>("Title"))
-                    .Select(g => g.First().Property<string>("Title")));
+                    .GroupBy(e => EF.Property<string>(e, "Title"))
+                    .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
         [Fact]
         public virtual void GroupBy_Shadow2()
         {
             AssertQuery<Employee>(es =>
-                es.Where(e => e.Property<string>("Title") == "Sales Representative"
+                es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"
                               && e.EmployeeID == 1)
-                    .GroupBy(e => e.Property<string>("Title"))
+                    .GroupBy(e => EF.Property<string>(e, "Title"))
                     .Select(g => g.First()));
         }
 
@@ -2375,7 +2375,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Employee>(es =>
                 es.Where(e => e.EmployeeID == 1)
                     .GroupBy(e => e.EmployeeID)
-                    .Select(g => g.First().Property<string>("Title")));
+                    .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
         [Fact]
@@ -2465,7 +2465,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Employee>(es =>
                 es.GroupBy(e => e.EmployeeID)
                     .OrderBy(g => g.Key)
-                    .Select(g => g.Select(e => new { Title = e.Property<string>("Title"), e }).ToList()),
+                    .Select(g => g.Select(e => new { Title = EF.Property<string>(e, "Title"), e }).ToList()),
                 assertOrder: true);
         }
 
@@ -2519,7 +2519,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 es.OrderBy(e => e.EmployeeID)
                     .GroupBy(e => e.EmployeeID)
                     .SelectMany(g => g)
-                    .Select(g => g.Property<string>("Title")));
+                    .Select(g => EF.Property<string>(g, "Title")));
         }
 
         [Fact]
@@ -3411,7 +3411,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Order>(os =>
                 from o in os
-                select o.Property<int>("OrderID"));
+                select EF.Property<int>(o, "OrderID"));
         }
 
         [Fact]
@@ -3419,7 +3419,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Order>(os =>
                 from o in os
-                where o.Property<int>("OrderID") == 10248
+                where EF.Property<int>(o, "OrderID") == 10248
                 select o,
                 entryCount: 1);
         }
@@ -3429,7 +3429,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Employee>(es =>
                 from e in es
-                select e.Property<string>("Title"));
+                select EF.Property<string>(e, "Title"));
         }
 
         [Fact]
@@ -3437,7 +3437,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Employee>(es =>
                 from e in es
-                where e.Property<string>("Title") == "Sales Representative"
+                where EF.Property<string>(e, "Title") == "Sales Representative"
                 select e,
                 entryCount: 6);
         }

@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var secondEntity = context.SimpleEntities.Single(e => e.Id == 42);
                 Assert.Equal("Entity 2", secondEntity.StringProperty);
 
-                var thirdEntity = context.SimpleEntities.Single(e => e.Property<string>(SimpleEntity.ShadowPropertyName) == "shadow");
+                var thirdEntity = context.SimpleEntities.Single(e => EF.Property<string>(e, SimpleEntity.ShadowPropertyName) == "shadow");
                 Assert.Same(secondEntity, thirdEntity);
 
                 firstEntity.StringProperty = "first";

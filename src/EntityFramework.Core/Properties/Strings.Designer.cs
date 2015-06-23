@@ -341,11 +341,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The Property&lt;T&gt; extension method may only be used within LINQ queries.
+        /// The EF.Property&lt;T&gt; method may only be used within LINQ queries.
         /// </summary>
-        public static string PropertyExtensionInvoked
+        public static string PropertyMethodInvoked
         {
-            get { return GetString("PropertyExtensionInvoked"); }
+            get { return GetString("PropertyMethodInvoked"); }
         }
 
         /// <summary>

@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             if (methodCallExpression.Method.IsGenericMethod
                 && ReferenceEquals(
                     methodCallExpression.Method.GetGenericMethodDefinition(),
-                    QueryExtensions.PropertyMethodInfo))
+                    EntityQueryModelVisitor.PropertyMethodInfo))
             {
                 _inMember = true;
 
