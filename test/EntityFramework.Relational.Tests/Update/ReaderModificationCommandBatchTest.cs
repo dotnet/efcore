@@ -613,7 +613,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             return RelationalTestHelpers.Instance.CreateInternalEntry(model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null : "Test" });
         }
 
-        private class ModificationCommandBatchFake : ReaderModificationCommandBatch
+        private class ModificationCommandBatchFake : AffectedCountModificationCommandBatch
         {
             private readonly DbDataReader _reader;
 

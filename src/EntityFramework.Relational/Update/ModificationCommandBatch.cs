@@ -25,13 +25,13 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public abstract bool AddCommand([NotNull] ModificationCommand modificationCommand);
 
-        public abstract int Execute(
+        public abstract void Execute(
             [NotNull] IRelationalTransaction transaction,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] DbContext context,
             [NotNull] ILogger logger);
 
-        public abstract Task<int> ExecuteAsync(
+        public abstract Task ExecuteAsync(
             [NotNull] IRelationalTransaction transaction,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] DbContext context,

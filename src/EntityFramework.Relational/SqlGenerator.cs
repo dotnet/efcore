@@ -129,10 +129,12 @@ namespace Microsoft.Data.Entity.Relational
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
         }
 
-        public abstract void AppendSelectAffectedCountCommand(
+        public virtual void AppendSelectAffectedCountCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schemaName);
+            [CanBeNull] string schemaName)
+        {
+        }
 
         public virtual void AppendSelectAffectedCommand(
             [NotNull] StringBuilder commandStringBuilder,

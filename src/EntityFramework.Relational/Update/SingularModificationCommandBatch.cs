@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
-    public class SingularModificationCommandBatch : ReaderModificationCommandBatch
+    public class SingularModificationCommandBatch : AffectedCountModificationCommandBatch
     {
         public SingularModificationCommandBatch(
             [NotNull] ISqlGenerator sqlGenerator)

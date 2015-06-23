@@ -21,6 +21,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var sqlGenerator = new Mock<ISqlGenerator>().Object;
             var mockModificationCommandBatch = new Mock<ModificationCommandBatch>(sqlGenerator);
+            mockModificationCommandBatch.Setup(m => m.ModificationCommands.Count).Returns(1);
 
             var mockRelationalConnection = new Mock<IRelationalConnection>();
             var transactionMock = new Mock<IRelationalTransaction>();
@@ -52,6 +53,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var sqlGenerator = new Mock<ISqlGenerator>().Object;
             var mockModificationCommandBatch = new Mock<ModificationCommandBatch>(sqlGenerator);
+            mockModificationCommandBatch.Setup(m => m.ModificationCommands.Count).Returns(1);
 
             var mockRelationalConnection = new Mock<IRelationalConnection>();
             var transactionMock = new Mock<IRelationalTransaction>();

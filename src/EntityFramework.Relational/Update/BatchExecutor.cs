@@ -52,11 +52,12 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                 foreach (var commandbatch in commandBatches)
                 {
-                    rowsAffected += commandbatch.Execute(
+                    commandbatch.Execute(
                         connection.Transaction,
                         _typeMapper,
                         _context,
                         Logger);
+                    rowsAffected += commandbatch.ModificationCommands.Count;
                 }
 
                 startedTransaction?.Commit();
@@ -90,11 +91,12 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                 foreach (var commandbatch in commandBatches)
                 {
-                    rowsAffected += await commandbatch.ExecuteAsync(
+                    await commandbatch.ExecuteAsync(
                         connection.Transaction,
                         _typeMapper,
                         _context,
                         Logger, cancellationToken);
+                    rowsAffected += commandbatch.ModificationCommands.Count;
                 }
 
                 startedTransaction?.Commit();

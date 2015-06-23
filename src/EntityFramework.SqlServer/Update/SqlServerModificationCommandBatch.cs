@@ -11,7 +11,7 @@ using RelationalStrings = Microsoft.Data.Entity.Relational.Strings;
 
 namespace Microsoft.Data.Entity.SqlServer.Update
 {
-    public class SqlServerModificationCommandBatch : ReaderModificationCommandBatch
+    public class SqlServerModificationCommandBatch : AffectedCountModificationCommandBatch
     {
         private const int DefaultNetworkPacketSizeBytes = 4096;
         private const int MaxScriptLength = 65536 * DefaultNetworkPacketSizeBytes / 2;

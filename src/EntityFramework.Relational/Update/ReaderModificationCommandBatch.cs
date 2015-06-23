@@ -21,7 +21,6 @@ namespace Microsoft.Data.Entity.Relational.Update
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
-        private readonly List<bool> _resultSetEnd = new List<bool>();
         protected StringBuilder CachedCommandText { get; set; }
         protected int LastCachedCommandIndex;
 
@@ -32,10 +31,6 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         public override IReadOnlyList<ModificationCommand> ModificationCommands => _modificationCommands;
-
-        // contains true if the command at the corresponding index is the last command in its result set
-        // the last value will not be read
-        protected IList<bool> ResultSetEnds => _resultSetEnd;
 
         public override bool AddCommand(ModificationCommand modificationCommand)
         {
@@ -52,13 +47,11 @@ namespace Microsoft.Data.Entity.Relational.Update
             }
 
             _modificationCommands.Add(modificationCommand);
-            _resultSetEnd.Add(true);
 
             if (!IsCommandTextValid())
             {
                 ResetCommandText();
                 _modificationCommands.RemoveAt(_modificationCommands.Count - 1);
-                _resultSetEnd.RemoveAt(_resultSetEnd.Count - 1);
                 return false;
             }
 
@@ -130,267 +123,6 @@ namespace Microsoft.Data.Entity.Relational.Update
             return command;
         }
 
-        public override int Execute(
-            IRelationalTransaction transaction,
-            IRelationalTypeMapper typeMapper,
-            DbContext context,
-            ILogger logger)
-        {
-            Check.NotNull(transaction, nameof(transaction));
-            Check.NotNull(typeMapper, nameof(typeMapper));
-            Check.NotNull(context, nameof(context));
-            Check.NotNull(logger, nameof(logger));
-
-            var commandText = GetCommandText();
-
-            Debug.Assert(ResultSetEnds.Count == ModificationCommands.Count);
-
-            var commandIndex = 0;
-            using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper, transaction.Connection?.CommandTimeout))
-            {
-                if (logger.IsEnabled(LogLevel.Verbose))
-                {
-                    logger.LogCommand(storeCommand);
-                }
-
-                try
-                {
-                    using (var reader = storeCommand.ExecuteReader())
-                    {
-                        var actualResultSetCount = 0;
-                        do
-                        {
-                            commandIndex = ModificationCommands[commandIndex].RequiresResultPropagation
-                                ? ConsumeResultSetWithPropagation(commandIndex, reader, context)
-                                : ConsumeResultSetWithoutPropagation(commandIndex, reader, context);
-                            actualResultSetCount++;
-                        }
-                        while (commandIndex < ResultSetEnds.Count
-                               && reader.NextResult());
-
-                        Debug.Assert(commandIndex == ModificationCommands.Count, "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
-#if DEBUG
-                        var expectedResultSetCount = 1 + ResultSetEnds.Count(e => e);
-                        expectedResultSetCount += ResultSetEnds[ResultSetEnds.Count - 1] ? -1 : 0;
-
-                        Debug.Assert(actualResultSetCount == expectedResultSetCount, "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
-#endif
-                    }
-                }
-                catch (DbUpdateException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    throw new DbUpdateException(
-                        Strings.UpdateStoreException,
-                        ex,
-                        commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].Entries : new InternalEntityEntry[0]);
-                }
-            }
-
-            return commandIndex;
-        }
-
-        public override async Task<int> ExecuteAsync(
-            IRelationalTransaction transaction,
-            IRelationalTypeMapper typeMapper,
-            DbContext context,
-            ILogger logger,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(transaction, nameof(transaction));
-            Check.NotNull(typeMapper, nameof(typeMapper));
-            Check.NotNull(context, nameof(context));
-            Check.NotNull(logger, nameof(logger));
-
-            var commandText = GetCommandText();
-
-            Debug.Assert(ResultSetEnds.Count == ModificationCommands.Count);
-
-            var commandIndex = 0;
-            using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper, transaction.Connection?.CommandTimeout))
-            {
-                if (logger.IsEnabled(LogLevel.Verbose))
-                {
-                    logger.LogCommand(storeCommand);
-                }
-
-                try
-                {
-                    using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken))
-                    {
-                        var actualResultSetCount = 0;
-                        do
-                        {
-                            commandIndex = ModificationCommands[commandIndex].RequiresResultPropagation
-                                ? await ConsumeResultSetWithPropagationAsync(commandIndex, reader, context, cancellationToken)
-                                : await ConsumeResultSetWithoutPropagationAsync(commandIndex, reader, context, cancellationToken);
-                            actualResultSetCount++;
-                        }
-                        while (commandIndex < ResultSetEnds.Count
-                               && await reader.NextResultAsync(cancellationToken));
-
-                        Debug.Assert(commandIndex == ModificationCommands.Count, "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
-#if DEBUG
-                        var expectedResultSetCount = 1 + ResultSetEnds.Count(e => e);
-                        expectedResultSetCount += ResultSetEnds[ResultSetEnds.Count - 1] ? -1 : 0;
-
-                        Debug.Assert(actualResultSetCount == expectedResultSetCount, "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
-#endif
-                    }
-                }
-                catch (DbUpdateException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    throw new DbUpdateException(
-                        Strings.UpdateStoreException,
-                        ex,
-                        commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].Entries : new InternalEntityEntry[0]);
-                }
-            }
-
-            return commandIndex;
-        }
-
-        private int ConsumeResultSetWithPropagation(int commandIndex, DbDataReader reader, DbContext context)
-        {
-            var rowsAffected = 0;
-            do
-            {
-                var tableModification = ModificationCommands[commandIndex];
-                Debug.Assert(tableModification.RequiresResultPropagation);
-
-                if (!reader.Read())
-                {
-                    var expectedRowsAffected = rowsAffected + 1;
-                    while (++commandIndex < ResultSetEnds.Count
-                           && !ResultSetEnds[commandIndex - 1])
-                    {
-                        expectedRowsAffected++;
-                    }
-
-                    throw new DbUpdateConcurrencyException(
-                        Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
-                        AggregateEntries(commandIndex, expectedRowsAffected));
-                }
-
-                tableModification.PropagateResults(tableModification.ValueBufferFactory.Create(reader));
-                rowsAffected++;
-            }
-            while (++commandIndex < ResultSetEnds.Count
-                   && !ResultSetEnds[commandIndex - 1]);
-
-            return commandIndex;
-        }
-
-        private async Task<int> ConsumeResultSetWithPropagationAsync(int commandIndex, DbDataReader reader, DbContext context, CancellationToken cancellationToken)
-        {
-            var rowsAffected = 0;
-            do
-            {
-                var tableModification = ModificationCommands[commandIndex];
-                Debug.Assert(tableModification.RequiresResultPropagation);
-
-                if (!await reader.ReadAsync(cancellationToken))
-                {
-                    var expectedRowsAffected = rowsAffected + 1;
-                    while (++commandIndex < ResultSetEnds.Count
-                           && !ResultSetEnds[commandIndex - 1])
-                    {
-                        expectedRowsAffected++;
-                    }
-
-                    throw new DbUpdateConcurrencyException(
-                        Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
-                        AggregateEntries(commandIndex, expectedRowsAffected));
-                }
-
-                tableModification.PropagateResults(tableModification.ValueBufferFactory.Create(reader));
-                rowsAffected++;
-            }
-            while (++commandIndex < ResultSetEnds.Count
-                   && !ResultSetEnds[commandIndex - 1]);
-
-            return commandIndex;
-        }
-
-        private int ConsumeResultSetWithoutPropagation(int commandIndex, DbDataReader reader, DbContext context)
-        {
-            var expectedRowsAffected = 1;
-            while (++commandIndex < ResultSetEnds.Count
-                   && !ResultSetEnds[commandIndex - 1])
-            {
-                Debug.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
-
-                expectedRowsAffected++;
-            }
-
-            if (reader.Read())
-            {
-                var rowsAffected = reader.GetInt32(0);
-                if (rowsAffected != expectedRowsAffected)
-                {
-                    throw new DbUpdateConcurrencyException(
-                        Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
-                        AggregateEntries(commandIndex, expectedRowsAffected));
-                }
-            }
-            else
-            {
-                throw new DbUpdateConcurrencyException(
-                    Strings.UpdateConcurrencyException(1, 0),
-                    AggregateEntries(commandIndex, expectedRowsAffected));
-            }
-
-            return commandIndex;
-        }
-
-        private async Task<int> ConsumeResultSetWithoutPropagationAsync(int commandIndex, DbDataReader reader, DbContext context, CancellationToken cancellationToken)
-        {
-            var expectedRowsAffected = 1;
-            while (++commandIndex < ResultSetEnds.Count
-                   && !ResultSetEnds[commandIndex - 1])
-            {
-                Debug.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
-
-                expectedRowsAffected++;
-            }
-
-            if (await reader.ReadAsync(cancellationToken))
-            {
-                var rowsAffected = reader.GetInt32(0);
-                if (rowsAffected != expectedRowsAffected)
-                {
-                    throw new DbUpdateConcurrencyException(
-                        Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
-                        AggregateEntries(commandIndex, expectedRowsAffected));
-                }
-            }
-            else
-            {
-                throw new DbUpdateConcurrencyException(
-                    Strings.UpdateConcurrencyException(1, 0),
-                    AggregateEntries(commandIndex, expectedRowsAffected));
-            }
-
-            return commandIndex;
-        }
-
-        private IReadOnlyList<InternalEntityEntry> AggregateEntries(int endIndex, int commandCount)
-        {
-            var entries = new List<InternalEntityEntry>();
-            for (var i = endIndex - commandCount; i < endIndex; i++)
-            {
-                entries.AddRange(ModificationCommands[i].Entries);
-            }
-            return entries;
-        }
-
         protected virtual void PopulateParameters(DbCommand command, ColumnModification columnModification, IRelationalTypeMapper typeMapper)
         {
             var parameterName = columnModification.ParameterName;
@@ -416,5 +148,89 @@ namespace Microsoft.Data.Entity.Relational.Update
                 }
             }
         }
+
+        public override void Execute(
+            IRelationalTransaction transaction,
+            IRelationalTypeMapper typeMapper,
+            DbContext context,
+            ILogger logger)
+        {
+            Check.NotNull(transaction, nameof(transaction));
+            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(logger, nameof(logger));
+
+            var commandText = GetCommandText();
+
+            using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper, transaction.Connection?.CommandTimeout))
+            {
+                if (logger.IsEnabled(LogLevel.Verbose))
+                {
+                    logger.LogCommand(storeCommand);
+                }
+
+                try
+                {
+                    using (var reader = storeCommand.ExecuteReader())
+                    {
+                        Consume(reader, context);
+                    }
+                }
+                catch (DbUpdateException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new DbUpdateException(Strings.UpdateStoreException, ex);
+                }
+            }
+        }
+
+        public override async Task ExecuteAsync(
+            IRelationalTransaction transaction,
+            IRelationalTypeMapper typeMapper,
+            DbContext context,
+            ILogger logger,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(transaction, nameof(transaction));
+            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(logger, nameof(logger));
+
+            var commandText = GetCommandText();
+
+            using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper, transaction.Connection?.CommandTimeout))
+            {
+                if (logger.IsEnabled(LogLevel.Verbose))
+                {
+                    logger.LogCommand(storeCommand);
+                }
+
+                try
+                {
+                    using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken))
+                    {
+                        await ConsumeAsync(reader, context, cancellationToken);
+                    }
+                }
+                catch (DbUpdateException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new DbUpdateException(Strings.UpdateStoreException, ex);
+                }
+            }
+        }
+
+        protected abstract void Consume(DbDataReader reader, DbContext context);
+
+        protected abstract Task ConsumeAsync(
+            DbDataReader reader,
+            DbContext context,
+            CancellationToken cancellationToken = default(CancellationToken));
     }
 }
