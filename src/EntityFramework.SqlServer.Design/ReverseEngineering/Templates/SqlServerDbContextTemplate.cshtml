@@ -86,7 +86,8 @@ var firstEntity = true;
         }
         firstProperty = false;
         var propertyConfigurationLines = LayoutPropertyConfigurationLines(propertyConfig, "property", "    ");
-        @* dnxcore50 requires below be cast to explicit data type, not var. Similarly below. *@
+        @* dnxcore50 requires line below be cast to explicit data type, not var. Similarly
+           for other explicit casts farther down this template. *@
         int propertyConfigurationLineCount = propertyConfigurationLines.Count;
         @if (propertyConfigurationLineCount == 1)
         {
