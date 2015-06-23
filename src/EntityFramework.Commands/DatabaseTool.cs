@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Commands
             };
 
             var generator = new ReverseEngineeringGenerator(_serviceProvider);
-            return generator.GenerateAsync(configuration).Result;
+            return generator.GenerateAsync(configuration).GetAwaiter().GetResult();
         }
     }
 }
