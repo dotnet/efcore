@@ -67,6 +67,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             => Builder.DependentToPrincipal(
                 reference,
                 ConfigurationSource.Explicit,
-                strictPreferExisting: true);
+                strictPrincipal: true);
     }
 }

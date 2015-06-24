@@ -244,7 +244,7 @@
     <value>The EF.Property&lt;T&gt; method may only be used within LINQ queries.</value>
   </data>
   <data name="DuplicateProperty" xml:space="preserve">
-    <value>The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists.</value>
+    <value>The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="NoClrProperty" xml:space="preserve">
     <value>The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.</value>
@@ -268,7 +268,7 @@
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because according to the specified foreign key it should belong to entity type '{existingEntityType}'.</value>
   </data>
   <data name="DuplicateNavigation" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists.</value>
+    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="NavigationOnShadowEntity" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the entity type is defined in shadow state and navigations properties cannot be added to shadow state.</value>
@@ -292,7 +292,7 @@
     <value>The number of properties specified for the foreign key {foreignKey} on entity type '{dependentType}' does not match the number of properties in the principal key {principalKey} on entity type '{principalType}'.</value>
   </data>
   <data name="ForeignKeyTypeMismatch" xml:space="preserve">
-    <value>The types of the properties specified for the foreign key {foreignKey} on entity type '{dependentType}' do not match the types of the properties in the principal key on entity type '{principalType}'.</value>
+    <value>The types of the properties specified for the foreign key {foreignKey} on entity type '{dependentType}' do not match the types of the properties in the principal key {principalKey} on entity type '{principalType}'.</value>
   </data>
   <data name="NavigationBadType" xml:space="preserve">
     <value>The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.</value>
@@ -328,13 +328,13 @@
     <value>The property '{property}' on entity type '{entityType}' is marked as null, but this cannot be saved because the property is marked as required.</value>
   </data>
   <data name="DuplicateForeignKey" xml:space="preserve">
-    <value>The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists.</value>
+    <value>The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="DuplicateIndex" xml:space="preserve">
-    <value>The index {index} cannot be added to the entity type '{entityType}' because an index on the same properties already exists.</value>
+    <value>The index {index} cannot be added to the entity type '{entityType}' because an index on the same properties already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="DuplicateKey" xml:space="preserve">
-    <value>The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists.</value>
+    <value>The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="ForeignKeyNotFound" xml:space="preserve">
     <value>The foreign key {foreignKey} on entity type '{entityType}' could not be found. Ensure that the foreign key been added to the entity type.</value>
@@ -352,7 +352,7 @@
     <value>The collection argument '{argumentName}' must not contain any null references.</value>
   </data>
   <data name="EntityTypeNotInRelationship" xml:space="preserve">
-    <value>The specified entity type '{type}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.</value>
+    <value>The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.</value>
   </data>
   <data name="DuplicateEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because an entity with the same name already exists.</value>
@@ -388,7 +388,7 @@
     <value>Tracking query sources: [{querySources}]</value>
   </data>
   <data name="CannotBeNullable" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
+    <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
   </data>
   <data name="RecursiveOnModelCreating" xml:space="preserve">
     <value>An attempt was made to use the model while it was being created. A DbContext instance cannot be used inside OnModelCreating in any way that makes use of the model that is being created.</value>
@@ -433,7 +433,7 @@
     <value>The root principal property found by following to foreign key chain starting on entity type '{entityType}' with {firstForeignKey} is '{firstEntityType}'.'{firstRootProperty}', which is different from the root principal property found by following to foreign key chain starting with {secondForeignKey} - '{secondEntityType}'.'{secondRootProperty}'</value>
   </data>
   <data name="PrincipalKeyNoValueGenerationOnAdd" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' does not have value generation on add enabled and it is principal by at least one foreign key. Properties referenced by foreign keys should have value generation on add enabled.</value>
+    <value>The property '{property}' on entity type '{entityType}' does not have value generation on add enabled and it is referenced by at least one foreign key. Properties referenced by foreign keys should have value generation on add enabled.</value>
   </data>
   <data name="ExpressionParameterizationException" xml:space="preserve">
     <value>An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.</value>
@@ -481,7 +481,7 @@
     <value>The instance of entity type '{entityType}' cannot be loaded because it has an invalid (e.g. null or CLR default) primary key.</value>
   </data>
   <data name="CannotBeNullablePK" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the property is a part of the primary key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
+    <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the property is a part of the primary key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
   </data>
   <data name="ForeignKeyCannotBeOptional" xml:space="preserve">
     <value>The foreign key {foreignKey} on entity type '{entityType}' cannot be marked as optional because it does not contain any property of a nullable type. Any foreign key can be marked as required, but only foreign keys with at least one property of a nullable type and which is not part of primary key can be marked as optional.</value>
@@ -553,9 +553,9 @@
     <value>Invalid relationship has been specified using InverseProperty and ForeignKey. The navigation '{navigation}' in entity type '{entityType}' and the navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.</value>
   </data>
   <data name="ConflictingNavigation" xml:space="preserve">
-    <value>The property '{property}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists.</value>
+    <value>The property '{property}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="ConflictingProperty" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists.</value>
+    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
 </root>

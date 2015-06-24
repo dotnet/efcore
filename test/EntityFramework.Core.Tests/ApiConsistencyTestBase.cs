@@ -53,26 +53,29 @@ namespace Microsoft.Data.Entity
         {
             var parametersMissingAttribute
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                   where type.IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type)
-                   let interfaceMappings = type.GetInterfaces().Select(type.GetInterfaceMap)
-                   let events = type.GetEvents()
-                   from method in type.GetMethods(AnyInstance | BindingFlags.Static)
-                       .Concat<MethodBase>(type.GetConstructors())
-                   where method.DeclaringType == type
+                    where type.IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type)
+                    let interfaceMappings = type.GetInterfaces().Select(type.GetInterfaceMap)
+                    let events = type.GetEvents()
+                    from method in type.GetMethods(AnyInstance | BindingFlags.Static)
+                        .Concat<MethodBase>(type.GetConstructors())
+                    where method.DeclaringType == type
                           && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
                           && (method is ConstructorInfo
-                            || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType)
+                              || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType)
                           && method.Name != nameof(DbContext.OnConfiguring)
                           && method.Name != nameof(DbContext.OnModelCreating)
-                   where type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
-                   where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
-                   from parameter in method.GetParameters()
-                   where !parameter.ParameterType.IsValueType
-                         && !parameter.GetCustomAttributes()
-                             .Any(
-                                 a => a.GetType().Name == nameof(NotNullAttribute)
-                                      || a.GetType().Name == nameof(CanBeNullAttribute))
-                   select type.FullName + "." + method.Name + "[" + parameter.Name + "]")
+                    where type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
+                    where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
+                    from parameter in method.GetParameters()
+                    let parameterType = parameter.ParameterType.IsByRef
+                        ? parameter.ParameterType.GetElementType()
+                        : parameter.ParameterType
+                    where !parameterType.IsValueType
+                          && !parameter.GetCustomAttributes()
+                              .Any(
+                                  a => a.GetType().Name == nameof(NotNullAttribute)
+                                       || a.GetType().Name == nameof(CanBeNullAttribute))
+                    select type.FullName + "." + method.Name + "[" + parameter.Name + "]")
                     .ToList();
 
             Assert.False(

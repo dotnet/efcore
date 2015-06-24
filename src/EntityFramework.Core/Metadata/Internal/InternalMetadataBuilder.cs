@@ -21,6 +21,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual bool Annotation(
             [NotNull] string annotation, [CanBeNull] object value, ConfigurationSource configurationSource)
         {
+            return Annotation(annotation, value, configurationSource, canOverrideSameSource: true);
+        }
+
+        private bool Annotation(
+            string annotation, object value, ConfigurationSource configurationSource, bool canOverrideSameSource)
+        {
             var existingValue = Metadata[annotation];
             if (existingValue != null)
             {
@@ -30,8 +36,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     existingConfigurationSource = ConfigurationSource.Explicit;
                 }
 
-                if ((value == null || existingValue != value)
-                    && !configurationSource.Overrides(existingConfigurationSource))
+                if ((value == null || !existingValue.Equals(value))
+                    && (!configurationSource.Overrides(existingConfigurationSource)
+                    || configurationSource == existingConfigurationSource && !canOverrideSameSource))
                 {
                     return false;
                 }
@@ -56,5 +63,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual Annotatable Metadata { get; }
 
         public abstract InternalModelBuilder ModelBuilder { get; }
+
+        protected virtual void MergeAnnotationsFrom([NotNull] InternalMetadataBuilder annotatableBuilder)
+        {
+            foreach (var annotation in annotatableBuilder.Metadata.Annotations)
+            {
+                ConfigurationSource annotationSource;
+                if (!annotatableBuilder._annotationSources.Value.TryGetValue(annotation.Name, out annotationSource))
+                {
+                    annotationSource = ConfigurationSource.Explicit;
+                }
+
+                Annotation(
+                    annotation.Name,
+                    annotation.Value,
+                    annotationSource,
+                    canOverrideSameSource: false);
+            }
+        }
     }
 }

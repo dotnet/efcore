@@ -349,11 +349,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists.
+        /// The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.
         /// </summary>
-        public static string DuplicateProperty([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string DuplicateProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateProperty", "property", "entityType"), property, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateProperty", "property", "entityType", "duplicateEntityType"), property, entityType, duplicateEntityType);
         }
 
         /// <summary>
@@ -413,11 +413,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists.
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.
         /// </summary>
-        public static string DuplicateNavigation([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string DuplicateNavigation([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateNavigation", "navigation", "entityType"), navigation, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateNavigation", "navigation", "entityType", "duplicateEntityType"), navigation, entityType, duplicateEntityType);
         }
 
         /// <summary>
@@ -477,11 +477,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The types of the properties specified for the foreign key {foreignKey} on entity type '{dependentType}' do not match the types of the properties in the principal key on entity type '{principalType}'.
+        /// The types of the properties specified for the foreign key {foreignKey} on entity type '{dependentType}' do not match the types of the properties in the principal key {principalKey} on entity type '{principalType}'.
         /// </summary>
-        public static string ForeignKeyTypeMismatch([CanBeNull] object foreignKey, [CanBeNull] object dependentType, [CanBeNull] object principalType)
+        public static string ForeignKeyTypeMismatch([CanBeNull] object foreignKey, [CanBeNull] object dependentType, [CanBeNull] object principalKey, [CanBeNull] object principalType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyTypeMismatch", "foreignKey", "dependentType", "principalType"), foreignKey, dependentType, principalType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyTypeMismatch", "foreignKey", "dependentType", "principalKey", "principalType"), foreignKey, dependentType, principalKey, principalType);
         }
 
         /// <summary>
@@ -573,27 +573,27 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists.
+        /// The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}'.
         /// </summary>
-        public static string DuplicateForeignKey([CanBeNull] object foreignKey, [CanBeNull] object entityType)
+        public static string DuplicateForeignKey([CanBeNull] object foreignKey, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateForeignKey", "foreignKey", "entityType"), foreignKey, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateForeignKey", "foreignKey", "entityType", "duplicateEntityType"), foreignKey, entityType, duplicateEntityType);
         }
 
         /// <summary>
-        /// The index {index} cannot be added to the entity type '{entityType}' because an index on the same properties already exists.
+        /// The index {index} cannot be added to the entity type '{entityType}' because an index on the same properties already exists on entity type '{duplicateEntityType}'.
         /// </summary>
-        public static string DuplicateIndex([CanBeNull] object index, [CanBeNull] object entityType)
+        public static string DuplicateIndex([CanBeNull] object index, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateIndex", "index", "entityType"), index, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateIndex", "index", "entityType", "duplicateEntityType"), index, entityType, duplicateEntityType);
         }
 
         /// <summary>
-        /// The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists.
+        /// The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists on entity type '{duplicateEntityType}'.
         /// </summary>
-        public static string DuplicateKey([CanBeNull] object key, [CanBeNull] object entityType)
+        public static string DuplicateKey([CanBeNull] object key, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateKey", "key", "entityType"), key, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateKey", "key", "entityType", "duplicateEntityType"), key, entityType, duplicateEntityType);
         }
 
         /// <summary>
@@ -637,11 +637,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The specified entity type '{type}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.
+        /// The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.
         /// </summary>
-        public static string EntityTypeNotInRelationship([CanBeNull] object type, [CanBeNull] object dependentType, [CanBeNull] object principalType)
+        public static string EntityTypeNotInRelationship([CanBeNull] object entityType, [CanBeNull] object dependentType, [CanBeNull] object principalType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeNotInRelationship", "type", "dependentType", "principalType"), type, dependentType, principalType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeNotInRelationship", "entityType", "dependentType", "principalType"), entityType, dependentType, principalType);
         }
 
         /// <summary>
@@ -733,11 +733,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
+        /// The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
         /// </summary>
-        public static string CannotBeNullable([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object propertyType)
+        public static string CannotBeNullable([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CannotBeNullable", "property", "entity", "propertyType"), property, entity, propertyType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotBeNullable", "property", "entityType", "propertyType"), property, entityType, propertyType);
         }
 
         /// <summary>
@@ -853,7 +853,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entityType}' does not have value generation on add enabled and it is principal by at least one foreign key. Properties referenced by foreign keys should have value generation on add enabled.
+        /// The property '{property}' on entity type '{entityType}' does not have value generation on add enabled and it is referenced by at least one foreign key. Properties referenced by foreign keys should have value generation on add enabled.
         /// </summary>
         public static string PrincipalKeyNoValueGenerationOnAdd([CanBeNull] object property, [CanBeNull] object entityType)
         {
@@ -981,11 +981,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the property is a part of the primary key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
+        /// The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the property is a part of the primary key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
         /// </summary>
-        public static string CannotBeNullablePK([CanBeNull] object property, [CanBeNull] object entity)
+        public static string CannotBeNullablePK([CanBeNull] object property, [CanBeNull] object entityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CannotBeNullablePK", "property", "entity"), property, entity);
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotBeNullablePK", "property", "entityType"), property, entityType);
         }
 
         /// <summary>
@@ -1173,19 +1173,19 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists.
+        /// The property '{property}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.
         /// </summary>
-        public static string ConflictingNavigation([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string ConflictingNavigation([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingNavigation", "property", "entityType"), property, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingNavigation", "property", "entityType", "duplicateEntityType"), property, entityType, duplicateEntityType);
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists.
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.
         /// </summary>
-        public static string ConflictingProperty([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string ConflictingProperty([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingProperty", "navigation", "entityType"), navigation, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingProperty", "navigation", "entityType", "duplicateEntityType"), navigation, entityType, duplicateEntityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

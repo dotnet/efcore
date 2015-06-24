@@ -118,12 +118,27 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(property, nameof(property));
             Check.NotNull(property, nameof(entityType));
 
-            // TODO: Perf: Avoid doing Contains check everywhere we need to know if a property is part of a foreign key
+            // TODO: Also search for FKs on derived types
+            // Issue #2514
+
             return entityType.GetForeignKeys().Where(k => k.Properties.Contains(property));
+        }
+
+        public static IEnumerable<IForeignKey> FindContainingForeignKeysInHierarchy([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var entityType = property.DeclaringEntityType;
+            return new[] { entityType }.Concat(entityType.GetDerivedTypes())
+                .SelectMany(et => et.GetDeclaredForeignKeys())
+                .Where(k => k.Properties.Contains(property));
         }
 
         public static IEnumerable<ForeignKey> FindContainingForeignKeys([NotNull] this Property property, [NotNull] EntityType entityType)
             => ((IProperty)property).FindContainingForeignKeys(entityType).Cast<ForeignKey>();
+
+        public static IEnumerable<ForeignKey> FindContainingForeignKeysInHierarchy([NotNull] this Property property)
+            => ((IProperty)property).FindContainingForeignKeysInHierarchy().Cast<ForeignKey>();
 
         public static IKey FindContainingPrimaryKey([NotNull] this IProperty property)
         {

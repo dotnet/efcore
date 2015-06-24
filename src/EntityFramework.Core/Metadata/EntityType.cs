@@ -120,8 +120,8 @@ namespace Microsoft.Data.Entity.Metadata
                         throw new InvalidOperationException(Strings.DerivedEntityCannotHaveKeys(Name));
                     }
 
-                    var baseProperties = value.Properties.Select(p => p.Name).ToArray();
-                    var propertyCollisions = FindPropertiesInHierarchy(baseProperties);
+                    var propertyCollisions = value.Properties.Select(p => p.Name)
+                        .SelectMany(baseProperty => FindPropertiesInHierarchy(baseProperty));
                     if (propertyCollisions.Any())
                     {
                         throw new InvalidOperationException(
@@ -130,9 +130,9 @@ namespace Microsoft.Data.Entity.Metadata
                                 value.Name,
                                 string.Join(", ", propertyCollisions.Select(p => p.Name))));
                     }
-
-                    var baseNavigations = value.Navigations.Select(p => p.Name).ToArray();
-                    var navigationCollisions = FindNavigationsInHierarchy(baseNavigations);
+                    
+                    var navigationCollisions = value.Navigations.Select(p => p.Name)
+                        .SelectMany(baseNavigation => FindNavigationsInHierarchy(baseNavigation));
                     if (navigationCollisions.Any())
                     {
                         throw new InvalidOperationException(
@@ -357,7 +357,7 @@ namespace Microsoft.Data.Entity.Metadata
             var key = FindKey(properties);
             if (key != null)
             {
-                throw new InvalidOperationException(Strings.DuplicateKey(Property.Format(properties), Name));
+                throw new InvalidOperationException(Strings.DuplicateKey(Property.Format(properties), DisplayName(), key.DeclaringEntityType.DisplayName()));
             }
 
             key = new Key(properties);
@@ -452,15 +452,18 @@ namespace Microsoft.Data.Entity.Metadata
 
             foreach (var property in properties)
             {
-                if (FindProperty(property.Name) != property)
+                var actualProperty = FindProperty(property.Name);
+                if (actualProperty == null
+                    || actualProperty.DeclaringEntityType != property.DeclaringEntityType)
                 {
                     throw new ArgumentException(Strings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
                 }
             }
 
-            if (FindForeignKeyCollisions(new[] { properties }).Any())
+            var duplicateForeignKey = FindForeignKeysInHierarchy(properties).FirstOrDefault();
+            if (duplicateForeignKey != null)
             {
-                throw new InvalidOperationException(Strings.DuplicateForeignKey(Property.Format(properties), Name));
+                throw new InvalidOperationException(Strings.DuplicateForeignKey(Property.Format(properties), DisplayName(), duplicateForeignKey.DeclaringEntityType.DisplayName()));
             }
 
             var foreignKey = new ForeignKey(properties, principalKey, this, principalEntityType);
@@ -489,9 +492,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual ForeignKey GetForeignKey([NotNull] IReadOnlyList<Property> properties)
             => (ForeignKey)((IEntityType)this).GetForeignKey(properties);
-
-        public virtual ForeignKey FindForeignKey([NotNull] Property property) => FindForeignKey(new[] { property });
-
+        
         public virtual ForeignKey FindForeignKey([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -514,20 +515,12 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties)
             => FindForeignKey(properties.Cast<Property>().ToList());
 
-        private IEnumerable<ForeignKey> FindForeignKeys(IEnumerable<IReadOnlyList<Property>> properties)
-            => properties.Select(FindForeignKey).Where(p => p != null);
+        public virtual IEnumerable<ForeignKey> FindDerivedForeignKeys([NotNull] IReadOnlyList<Property> properties)
+            => GetDerivedTypes().SelectMany(et => et.GetDeclaredForeignKeys()
+                    .Where(foreignKey => PropertyListComparer.Instance.Equals(properties, foreignKey.Properties)));
 
-        private IEnumerable<ForeignKey> FindDerivedForeignKeys(IEnumerable<IReadOnlyList<Property>> properties)
-        {
-            var searchForeignKeys = new HashSet<IReadOnlyList<Property>>(properties, PropertyListComparer.Instance);
-
-            return this.GetDerivedTypes()
-                .SelectMany(et => et.GetDeclaredForeignKeys()
-                    .Where(foreignKey => searchForeignKeys.Contains(foreignKey.Properties)));
-        }
-
-        private IEnumerable<ForeignKey> FindForeignKeyCollisions(IReadOnlyList<Property>[] properties)
-            => FindForeignKeys(properties).Concat(FindDerivedForeignKeys(properties));
+        public virtual IEnumerable<ForeignKey> FindForeignKeysInHierarchy([NotNull] IReadOnlyList<Property> properties)
+            => ToEnumerable(FindForeignKey(properties)).Concat(FindDerivedForeignKeys(properties));
 
         public virtual ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
         {
@@ -574,14 +567,17 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            if (FindNavigationsInHierarchy(new[] { name }).Any())
+            var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
+            if (duplicateNavigation != null)
             {
-                throw new InvalidOperationException(Strings.DuplicateNavigation(name, Name));
+                throw new InvalidOperationException(Strings.DuplicateNavigation(name, DisplayName(), duplicateNavigation.DeclaringEntityType.DisplayName()));
             }
 
-            if (FindPropertiesInHierarchy(new[] { name }).Any())
+            var duplicateProperty = FindPropertiesInHierarchy(name).FirstOrDefault();
+            if (duplicateProperty != null)
             {
-                throw new InvalidOperationException(Strings.ConflictingProperty(name, Name));
+                throw new InvalidOperationException(Strings.ConflictingProperty(name, DisplayName(),
+                    duplicateProperty.DeclaringEntityType.DisplayName()));
             }
 
             var otherNavigation = Navigations.FirstOrDefault(
@@ -647,17 +643,13 @@ namespace Microsoft.Data.Entity.Metadata
                 : null;
         }
 
-        public virtual IEnumerable<Navigation> GetDeclaredNavigations()
-            => _navigations.Values;
+        public virtual IEnumerable<Navigation> GetDeclaredNavigations() => _navigations.Values;
+        
+        public virtual IEnumerable<Navigation> FindDerivedNavigations([NotNull] string navigationName)
+            => ((IEntityType)this).FindDerivedNavigations(navigationName).Cast<Navigation>();
 
-        public virtual IEnumerable<Navigation> FindNavigations([NotNull] IEnumerable<string> names)
-            => names.Select(FindNavigation).Where(p => p != null);
-
-        public virtual IEnumerable<Navigation> FindDerivedNavigations([NotNull] IEnumerable<string> navigationNames)
-            => ((IEntityType)this).FindDerivedNavigations(navigationNames).Cast<Navigation>();
-
-        public virtual IEnumerable<Navigation> FindNavigationsInHierarchy([NotNull] string[] propertyNames)
-            => FindNavigations(propertyNames).Concat(FindDerivedNavigations(propertyNames));
+        public virtual IEnumerable<Navigation> FindNavigationsInHierarchy([NotNull] string propertyName)
+            => ToEnumerable(FindNavigation(propertyName)).Concat(FindDerivedNavigations(propertyName));
 
         public virtual Navigation RemoveNavigation([NotNull] Navigation navigation)
         {
@@ -704,9 +696,10 @@ namespace Microsoft.Data.Entity.Metadata
                 }
             }
 
-            if (FindIndexCollisions(new[] { properties }).Any())
+            var duplicateIndex = FindIndexesInHierarchy(properties).FirstOrDefault();
+            if (duplicateIndex != null)
             {
-                throw new InvalidOperationException(Strings.DuplicateIndex(Property.Format(properties), Name));
+                throw new InvalidOperationException(Strings.DuplicateIndex(Property.Format(properties), DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
             }
 
             var index = new Index(properties);
@@ -749,20 +742,12 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual IIndex FindIndex(IReadOnlyList<IProperty> properties)
             => FindIndex(properties.Cast<Property>().ToList());
 
-        private IEnumerable<Index> FindIndexes(IEnumerable<IReadOnlyList<Property>> properties)
-            => properties.Select(FindIndex).Where(p => p != null);
+        public virtual IEnumerable<Index> FindIndexesInHierarchy([NotNull] IReadOnlyList<Property> properties)
+            => ToEnumerable(FindIndex(properties)).Concat(FindDerivedIndexes(properties));
 
-        private IEnumerable<Index> FindDerivedIndexes(IEnumerable<IReadOnlyList<Property>> properties)
-        {
-            var searchIndexes = new HashSet<IReadOnlyList<Property>>(properties, PropertyListComparer.Instance);
-
-            return this.GetDerivedTypes()
-                .SelectMany(et => et.GetDeclaredIndexes()
-                    .Where(index => searchIndexes.Contains(index.Properties)));
-        }
-
-        private IEnumerable<Index> FindIndexCollisions(IReadOnlyList<Property>[] properties)
-            => FindIndexes(properties).Concat(FindDerivedIndexes(properties));
+        public virtual IEnumerable<Index> FindDerivedIndexes([NotNull] IReadOnlyList<Property> properties)
+            => GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes()
+                    .Where(index => PropertyListComparer.Instance.Equals(properties, index.Properties)));
 
         public virtual Index RemoveIndex([NotNull] Index index)
         {
@@ -819,14 +804,18 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(name, nameof(name));
 
-            if (FindPropertiesInHierarchy(new[] { name }).Any())
+            var duplicateProperty = FindPropertiesInHierarchy(name).FirstOrDefault();
+            if (duplicateProperty != null)
             {
-                throw new InvalidOperationException(Strings.DuplicateProperty(name, Name));
+                throw new InvalidOperationException(Strings.DuplicateProperty(
+                    name, DisplayName(), duplicateProperty.DeclaringEntityType.DisplayName()));
             }
 
-            if (FindNavigationsInHierarchy(new[] { name }).Any())
+            var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
+            if (duplicateNavigation != null)
             {
-                throw new InvalidOperationException(Strings.ConflictingNavigation(name, Name));
+                throw new InvalidOperationException(Strings.ConflictingNavigation(name, DisplayName(),
+                    duplicateNavigation.DeclaringEntityType.DisplayName()));
             }
 
             var property = new Property(name, this);
@@ -893,16 +882,13 @@ namespace Microsoft.Data.Entity.Metadata
                 : null;
         }
 
-        public virtual IEnumerable<Property> GetDeclaredProperties() => _properties.Values;
+        public virtual IEnumerable<Property> GetDeclaredProperties() => _properties.Values;        
 
-        public virtual IEnumerable<Property> FindProperties([NotNull] IEnumerable<string> propertyNames)
-            => propertyNames.Select(FindProperty).Where(p => p != null);
+        public virtual IEnumerable<Property> FindDerivedProperties([NotNull] string propertyName)
+            => ((IEntityType)this).FindDerivedProperties(propertyName).Cast<Property>();
 
-        public virtual IEnumerable<Property> FindPropertiesInHierarchy([NotNull] string[] propertyNames)
-            => FindProperties(propertyNames).Concat(FindDerivedProperties(propertyNames));
-
-        public virtual IEnumerable<Property> FindDerivedProperties([NotNull] IEnumerable<string> propertyNames)
-            => ((IEntityType)this).FindDerivedProperties(propertyNames).Cast<Property>();
+        public virtual IEnumerable<Property> FindPropertiesInHierarchy([NotNull] string propertyName)
+            => ToEnumerable(FindProperty(propertyName)).Concat(FindDerivedProperties(propertyName));
 
         public virtual Property RemoveProperty([NotNull] Property property)
         {
@@ -986,6 +972,10 @@ namespace Microsoft.Data.Entity.Metadata
         IEnumerable<IKey> IEntityType.GetKeys() => GetKeys();
 
         #endregion
+
+        private IEnumerable<T> ToEnumerable<T>(T element)
+            where T : class
+            => element == null ? Enumerable.Empty<T>() : new[] { element };
 
         private class PropertyComparer : IComparer<string>
         {

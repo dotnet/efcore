@@ -10,7 +10,8 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class RelationshipDiscoveryConvention : IEntityTypeConvention, IEntityTypeMemberIgnoredConvention
+    public class RelationshipDiscoveryConvention :
+        IEntityTypeConvention, IEntityTypeMemberIgnoredConvention, INavigationRemovedConvention
     {
         public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
         {
@@ -102,5 +103,13 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         
         public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, string ignoredMemberName)
             => Apply(entityTypeBuilder) != null;
+
+        public virtual bool Apply(InternalRelationshipBuilder relationshipBuilder, string navigationName, bool pointsToPrincipal)
+        {
+            var owner = pointsToPrincipal
+                ? relationshipBuilder.Metadata.DeclaringEntityType
+                : relationshipBuilder.Metadata.PrincipalEntityType;
+            return Apply(relationshipBuilder.ModelBuilder.Entity(owner.Name, ConfigurationSource.Convention)) != null;
+        }
     }
 }

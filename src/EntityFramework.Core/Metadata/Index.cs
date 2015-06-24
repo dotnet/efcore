@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -9,6 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Index : Annotatable, IIndex
     {
         public Index([NotNull] IReadOnlyList<Property> properties)
@@ -33,5 +35,8 @@ namespace Microsoft.Data.Entity.Metadata
         IEntityType IIndex.DeclaringEntityType => DeclaringEntityType;
 
         bool IIndex.IsUnique => IsUnique ?? DefaultIsUnique;
+
+        [UsedImplicitly]
+        private string DebuggerDisplay => Property.Format(Properties);
     }
 }

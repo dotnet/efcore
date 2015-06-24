@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             conventionSet.EntityTypeAddedConventions.Add(new InversePropertyAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(relationshipDiscoveryConvention);
 
+            // An ambiguity might have been resolved
             conventionSet.EntityTypeMemberIgnoredConventions.Add(relationshipDiscoveryConvention);
 
             conventionSet.PropertyAddedConventions.Add(new ConcurrencyCheckAttributeConvention());
@@ -33,9 +34,10 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             conventionSet.KeyAddedConventions.Add(keyConvention);
 
             conventionSet.PrimaryKeySetConventions.Add(keyConvention);
-
+            
+            var foreignKeyPropertyDiscoveryConvention = new ForeignKeyPropertyDiscoveryConvention();
             conventionSet.ForeignKeyAddedConventions.Add(new ForeignKeyAttributeConvention());
-            conventionSet.ForeignKeyAddedConventions.Add(new ForeignKeyPropertyDiscoveryConvention());
+            conventionSet.ForeignKeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             conventionSet.ForeignKeyRemovedConventions.Add(keyConvention);
 
@@ -43,6 +45,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             conventionSet.ModelBuiltConventions.Add(keyAttributeConvention);
 
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention());
+            conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            
+            conventionSet.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
 
             return conventionSet;
         }

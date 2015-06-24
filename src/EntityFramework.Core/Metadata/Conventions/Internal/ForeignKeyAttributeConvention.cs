@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             }
 
             var dependentEntityTypebuilder = relationshipBuilder.ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention);
-            var removedConfigurationSource = dependentEntityTypebuilder.RemoveRelationship(foreignKey, ConfigurationSource.DataAnnotation);
+            var removedConfigurationSource = dependentEntityTypebuilder.RemoveForeignKey(foreignKey, ConfigurationSource.DataAnnotation);
 
             if (removedConfigurationSource == null)
             {

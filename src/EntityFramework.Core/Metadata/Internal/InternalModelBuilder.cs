@@ -123,13 +123,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             foreach (var foreignKey in entityType.GetForeignKeys().ToList())
             {
-                var removed = entityTypeBuilder.RemoveRelationship(foreignKey, configurationSource);
+                var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
                 Debug.Assert(removed.HasValue);
             }
 
             foreach (var foreignKey in Metadata.FindReferencingForeignKeys(entityType).ToList())
             {
-                var removed = entityTypeBuilder.RemoveRelationship(foreignKey, configurationSource);
+                var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
                 Debug.Assert(removed.HasValue);
             }
 

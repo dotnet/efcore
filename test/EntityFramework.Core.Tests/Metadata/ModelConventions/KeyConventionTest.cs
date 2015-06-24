@@ -207,7 +207,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.Null(keyProperties[0].RequiresValueGenerator);
 
-            referencedEntityBuilder.RemoveRelationship(relationshipBuilder.Metadata, ConfigurationSource.Convention);
+            referencedEntityBuilder.RemoveForeignKey(relationshipBuilder.Metadata, ConfigurationSource.Convention);
 
             Assert.True(keyProperties[0].RequiresValueGenerator);
         }
@@ -379,7 +379,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.Null(property.ValueGenerated);
 
-            referencedEntityBuilder.RemoveRelationship(relationshipBuilder.Metadata, ConfigurationSource.Convention);
+            referencedEntityBuilder.RemoveForeignKey(relationshipBuilder.Metadata, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 

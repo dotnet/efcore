@@ -5,10 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata.Internal;
+using System.Diagnostics;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class ForeignKeyPropertyDiscoveryConvention : IForeignKeyConvention
+    public class ForeignKeyPropertyDiscoveryConvention : IForeignKeyConvention, INavigationConvention
     {
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
@@ -25,24 +26,36 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(
                     relationshipBuilder.Metadata, onDependent: false);
-                if (ShouldFlip(relationshipBuilder.Metadata, foreignKeyProperties, candidatePropertiesOnPrincipal))
+
+                bool shouldInvert;
+                if (ShouldFlip(relationshipBuilder.Metadata, foreignKeyProperties, candidatePropertiesOnPrincipal)
+                    && relationshipBuilder.CanSet(relationshipBuilder.Metadata.DeclaringEntityType,
+                        relationshipBuilder.Metadata.PrincipalEntityType,
+                        null,
+                        null,
+                        /*dependentProperties:*/ candidatePropertiesOnPrincipal,
+                        null,
+                        null,
+                        null,
+                        null,
+                        true,
+                        ConfigurationSource.Convention,
+                        out shouldInvert))
                 {
+                    Debug.Assert(shouldInvert);
                     var invertedBuilder = relationshipBuilder.Invert(ConfigurationSource.Convention);
-                    if (invertedBuilder != null)
+                    Debug.Assert(invertedBuilder != null);
+
+                    if (candidatePropertiesOnPrincipal == null)
                     {
-                        if (candidatePropertiesOnPrincipal == null)
-                        {
-                            return invertedBuilder;
-                        }
-                        var newRelationshipBuilder = invertedBuilder.ForeignKey(
-                            candidatePropertiesOnPrincipal, ConfigurationSource.Convention);
-                        if (newRelationshipBuilder == null)
-                        {
-                            // TODO: Avoid inverting in the first place
-                            return invertedBuilder.Invert(ConfigurationSource.Convention, runConventions: false);
-                        }
-                        return newRelationshipBuilder;
+                        return invertedBuilder;
                     }
+
+                    // TODO: Remove, as this is redundant
+                    invertedBuilder = invertedBuilder.ForeignKey(
+                        candidatePropertiesOnPrincipal, ConfigurationSource.Convention);
+                    Debug.Assert(invertedBuilder != null);
+                    return invertedBuilder;
                 }
 
                 if (foreignKeyProperties == null)
@@ -253,5 +266,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             }
             return null;
         }
+
+        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
+            => Apply(relationshipBuilder);
     }
 }

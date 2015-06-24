@@ -205,13 +205,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsMod
                 l1s[5].OneToMany_Optional_Self = new List<Level1> { l1s[4] };
                 l1s[7].OneToMany_Optional_Self = new List<Level1> { l1s[6] };
                 l1s[9].OneToMany_Optional_Self = new List<Level1> { l1s[8] };
-
-                // issue #1417
-                //l1s[0].OneToOne_Optional_Self = l1s[9];
-                //l1s[1].OneToOne_Optional_Self = l1s[8];
-                //l1s[2].OneToOne_Optional_Self = l1s[7];
-                //l1s[3].OneToOne_Optional_Self = l1s[6];
-                //l1s[4].OneToOne_Optional_Self = l1s[5];
+                
+                l1s[0].OneToOne_Optional_Self = l1s[9];
+                l1s[1].OneToOne_Optional_Self = l1s[8];
+                l1s[2].OneToOne_Optional_Self = l1s[7];
+                l1s[3].OneToOne_Optional_Self = l1s[6];
+                l1s[4].OneToOne_Optional_Self = l1s[5];
 
                 l2s[0].OneToOne_Optional_PK = l3s[0];
                 l2s[2].OneToOne_Optional_PK = l3s[2];
@@ -233,13 +232,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsMod
                 l2s[5].OneToMany_Optional_Self = new List<Level2> { l2s[4] };
                 l2s[7].OneToMany_Optional_Self = new List<Level2> { l2s[6] };
                 l2s[9].OneToMany_Optional_Self = new List<Level2> { l2s[8] };
-
-                // issue #1417
-                //l2s[0].OneToOne_Optional_Self = l2s[9];
-                //l2s[1].OneToOne_Optional_Self = l2s[8];
-                //l2s[2].OneToOne_Optional_Self = l2s[7];
-                //l2s[3].OneToOne_Optional_Self = l2s[6];
-                //l2s[4].OneToOne_Optional_Self = l2s[5];
+                
+                l2s[0].OneToOne_Optional_Self = l2s[9];
+                l2s[1].OneToOne_Optional_Self = l2s[8];
+                l2s[2].OneToOne_Optional_Self = l2s[7];
+                l2s[3].OneToOne_Optional_Self = l2s[6];
+                l2s[4].OneToOne_Optional_Self = l2s[5];
 
                 l3s[0].OneToOne_Optional_PK = l4s[0];
                 l3s[2].OneToOne_Optional_PK = l4s[2];
@@ -260,13 +258,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsMod
                 l3s[5].OneToMany_Optional_Self = new List<Level3> { l3s[4] };
                 l3s[7].OneToMany_Optional_Self = new List<Level3> { l3s[6] };
                 l3s[9].OneToMany_Optional_Self = new List<Level3> { l3s[8] };
-
-                // issue #1417
-                //l3s[0].OneToOne_Optional_Self = l3s[9];
-                //l3s[1].OneToOne_Optional_Self = l3s[8];
-                //l3s[2].OneToOne_Optional_Self = l3s[7];
-                //l3s[3].OneToOne_Optional_Self = l3s[6];
-                //l3s[4].OneToOne_Optional_Self = l3s[5];
+                
+                l3s[0].OneToOne_Optional_Self = l3s[9];
+                l3s[1].OneToOne_Optional_Self = l3s[8];
+                l3s[2].OneToOne_Optional_Self = l3s[7];
+                l3s[3].OneToOne_Optional_Self = l3s[6];
+                l3s[4].OneToOne_Optional_Self = l3s[5];
 
                 l4s[1].OneToMany_Optional_Self = new List<Level4> { l4s[0] };
                 l4s[3].OneToMany_Optional_Self = new List<Level4> { l4s[2] };

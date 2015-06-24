@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             builder = builder.Unique(false, ConfigurationSource.Explicit);
 
-            return builder.PrincipalToDependent(collection, ConfigurationSource.Explicit, strictPreferExisting: true);
+            return builder.PrincipalToDependent(collection, ConfigurationSource.Explicit, strictPrincipal: true);
         }
 
         /// <summary>
@@ -130,16 +130,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string reference)
         {
-            var builder = Builder;
-            // TODO: Remove this when #1924 is fixed
-            if (!((IForeignKey)Builder.Metadata).IsUnique)
-            {
-                Debug.Assert(Builder.Metadata.DependentToPrincipal?.Name == ReferenceName);
-
-                builder = builder.PrincipalToDependent(null, ConfigurationSource.Explicit);
-            }
-
-            builder = builder.Unique(true, ConfigurationSource.Explicit);
+            var builder = Builder.Unique(true, ConfigurationSource.Explicit);
             var foreignKey = builder.Metadata;
 
             var isSelfReferencing = foreignKey.IsSelfReferencing();
@@ -157,8 +148,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                          || foreignKey.DependentToPrincipal?.Name == ReferenceName);
 
             return inverseToPrincipal
-                ? builder.DependentToPrincipal(reference, ConfigurationSource.Explicit, strictPreferExisting: isSelfReferencing)
-                : builder.PrincipalToDependent(reference, ConfigurationSource.Explicit, strictPreferExisting: isSelfReferencing);
+                ? builder.DependentToPrincipal(reference, ConfigurationSource.Explicit, strictPrincipal: isSelfReferencing)
+                : builder.PrincipalToDependent(reference, ConfigurationSource.Explicit, strictPrincipal: isSelfReferencing);
         }
     }
 }

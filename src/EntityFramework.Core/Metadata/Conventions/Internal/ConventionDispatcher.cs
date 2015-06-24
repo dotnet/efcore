@@ -176,6 +176,21 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return relationshipBuilder;
         }
 
+        public virtual void OnNavigationRemoved(
+            [NotNull] InternalRelationshipBuilder relationshipBuilder, [NotNull] string navigationName, bool pointsToPrincipal)
+        {
+            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
+            Check.NotNull(navigationName, nameof(navigationName));
+
+            foreach (var navigationConvention in _conventionSet.NavigationRemovedConventions)
+            {
+                if (!navigationConvention.Apply(relationshipBuilder, navigationName, pointsToPrincipal))
+                {
+                    break;
+                }
+            }
+        }
+
         public virtual InternalPropertyBuilder OnPropertyAdded([NotNull] InternalPropertyBuilder propertyBuilder)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));

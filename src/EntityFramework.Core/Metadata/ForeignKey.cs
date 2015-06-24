@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(principalEntityType, nameof(principalEntityType));
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
 
-            if (navigationToDependentName != null
+            if (!string.IsNullOrEmpty(navigationToDependentName)
                 && !Navigation.IsCompatible(
                     navigationToDependentName,
                     principalEntityType,
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.Metadata
                 return false;
             }
 
-            if (navigationToPrincipalName != null
+            if (!string.IsNullOrEmpty(navigationToPrincipalName)
                 && !Navigation.IsCompatible(
                     navigationToPrincipalName,
                     dependentEntityType,
@@ -294,9 +294,9 @@ namespace Microsoft.Data.Entity.Metadata
                     throw new InvalidOperationException(
                         Strings.ForeignKeyCountMismatch(
                             Property.Format(dependentProperties),
-                            dependentProperties[0].DeclaringEntityType.Name,
+                            dependentEntityType.Name,
                             Property.Format(principalProperties),
-                            principalProperties[0].DeclaringEntityType.Name));
+                            principalEntityType.Name));
                 }
                 return false;
             }
@@ -308,8 +308,9 @@ namespace Microsoft.Data.Entity.Metadata
                     throw new InvalidOperationException(
                         Strings.ForeignKeyTypeMismatch(
                             Property.Format(dependentProperties),
-                            dependentProperties[0].DeclaringEntityType.Name,
-                            principalProperties[0].DeclaringEntityType.Name));
+                            dependentEntityType.Name,
+                            Property.Format(principalProperties),
+                            principalEntityType.Name));
                 }
                 return false;
             }

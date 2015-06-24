@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(
                 Strings.ForeignKeyCountMismatch("{'P1', 'P2'}", "D", "{'Id'}", "P"),
                 Assert.Throws<InvalidOperationException>(
-                    () => new ForeignKey(new[] { dependentProperty1, dependentProperty2 }, principalType.GetPrimaryKey(), principalType, dependentType)).Message);
+                    () => new ForeignKey(new[] { dependentProperty1, dependentProperty2 }, principalType.GetPrimaryKey(), dependentType, principalType)).Message);
         }
 
         [Fact]
@@ -85,9 +85,9 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 });
 
             Assert.Equal(
-                Strings.ForeignKeyTypeMismatch("{'P1', 'P2'}", "D", "P"),
+                Strings.ForeignKeyTypeMismatch("{'P1', 'P2'}", "D", "{'Id1', 'Id2'}", "P"),
                 Assert.Throws<InvalidOperationException>(
-                    () => new ForeignKey(new[] { dependentProperty1, dependentProperty2 }, principalType.GetPrimaryKey(), principalType, dependentType)).Message);
+                    () => new ForeignKey(new[] { dependentProperty1, dependentProperty2 }, principalType.GetPrimaryKey(), dependentType, principalType)).Message);
         }
 
         [Fact]
@@ -268,132 +268,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.True(dependentProp1.IsNullable.Value);
             Assert.True(dependentProp2.IsNullable.Value);
         }
-
-        [Fact]
-        public void IsCompatible_returns_true_for_one_to_many_if_all_critaria_match()
-        {
-            var fk = CreateOneToManyFK();
-
-            Assert.True(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                "OneToManyPrincipal",
-                "OneToManyDependents",
-                fk.Properties,
-                fk.PrincipalKey.Properties,
-                false));
-        }
-
-        [Fact]
-        public void IsCompatible_returns_true_for_one_to_many_if_using_nulls()
-        {
-            var fk = CreateOneToManyFK();
-
-            Assert.True(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                "OneToManyPrincipal",
-                "OneToManyDependents",
-                null,
-                null,
-                null));
-
-            Assert.True(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                "OneToManyPrincipal",
-                "OneToManyDependents",
-                new Property[0],
-                new Property[0],
-                null));
-        }
-
-        [Fact]
-        public void IsCompatible_returns_true_for_one_to_many_if_no_navigations_exist()
-        {
-            var fk = CreateOneToManyFK();
-            fk.PrincipalEntityType.RemoveNavigation(fk.PrincipalToDependent);
-            fk.DeclaringEntityType.RemoveNavigation(fk.DependentToPrincipal);
-
-            Assert.True(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                "Nav",
-                "Nav",
-                fk.Properties,
-                fk.PrincipalKey.Properties,
-                false));
-        }
-
-        [Fact]
-        public void IsCompatible_returns_false_for_one_to_many_if_any_critaria_does_not_match()
-        {
-            var fk = CreateOneToManyFK();
-
-            Assert.False(fk.IsCompatible(
-                fk.DeclaringEntityType,
-                fk.DeclaringEntityType,
-                "OneToManyPrincipal",
-                "OneToManyDependents",
-                fk.Properties,
-                fk.PrincipalKey.Properties,
-                false));
-
-            Assert.False(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.PrincipalEntityType,
-                "OneToManyPrincipal",
-                "OneToManyDependents",
-                fk.Properties,
-                fk.PrincipalKey.Properties,
-                false));
-
-            Assert.False(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                null,
-                "OneToManyDependents",
-                fk.Properties,
-                fk.PrincipalKey.Properties,
-                false));
-
-            Assert.False(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                "OneToManyPrincipal",
-                null,
-                fk.Properties,
-                fk.PrincipalKey.Properties,
-                false));
-
-            Assert.False(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                "OneToManyPrincipal",
-                "OneToManyDependents",
-                fk.PrincipalKey.Properties,
-                fk.PrincipalKey.Properties,
-                false));
-
-            Assert.False(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                "OneToManyPrincipal",
-                "OneToManyDependents",
-                fk.Properties,
-                fk.Properties,
-                false));
-
-            Assert.False(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                "OneToManyPrincipal",
-                "OneToManyDependents",
-                fk.Properties,
-                fk.PrincipalKey.Properties,
-                true));
-        }
-
+        
         private ForeignKey CreateOneToManyFK()
         {
             var model = new Model();
@@ -473,63 +348,6 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
         public class DerivedOneToManyDependent : OneToManyDependent
         {
-        }
-
-        [Fact]
-        public void IsCompatible_returns_true_for_self_ref_one_to_one_if_all_critaria_match()
-        {
-            var fk = CreateSelfRefFK();
-
-            Assert.True(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                "SelfRefPrincipal",
-                "SelfRefDependent",
-                fk.Properties,
-                fk.PrincipalKey.Properties,
-                true));
-        }
-
-        [Fact]
-        public void IsCompatible_returns_false_for_self_ref_one_to_one_if_any_critaria_does_not_match()
-        {
-            var fk = CreateSelfRefFK();
-
-            Assert.False(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                "SelfRefDependent",
-                "SelfRefPrincipal",
-                fk.Properties,
-                fk.PrincipalKey.Properties,
-                true));
-
-            Assert.False(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                null,
-                null,
-                fk.Properties,
-                fk.PrincipalKey.Properties,
-                true));
-
-            Assert.False(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                "SelfRefPrincipal",
-                "SelfRefDependent",
-                fk.PrincipalKey.Properties,
-                fk.Properties,
-                true));
-
-            Assert.False(fk.IsCompatible(
-                fk.PrincipalEntityType,
-                fk.DeclaringEntityType,
-                "SelfRefPrincipal",
-                "SelfRefDependent",
-                fk.Properties,
-                fk.PrincipalKey.Properties,
-                false));
         }
 
         [Fact]

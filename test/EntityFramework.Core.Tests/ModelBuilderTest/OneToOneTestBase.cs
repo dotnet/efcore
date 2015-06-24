@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.Tests
                 var principalType = model.GetEntityType(typeof(Customer));
                 var fk = dependentType.GetForeignKeys().Single();
 
-                var navToPrincipal = dependentType.GetNavigation("Customer");
-                var navToDependent = principalType.GetNavigation("Details");
+                var navToPrincipal = dependentType.GetNavigation(nameof(CustomerDetails.Customer));
+                var navToDependent = principalType.GetNavigation(nameof(Customer.Details));
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
@@ -61,8 +61,6 @@ namespace Microsoft.Data.Entity.Tests
 
                 var dependentType = model.GetEntityType(typeof(CustomerDetails));
                 var principalType = model.GetEntityType(typeof(Customer));
-                var expectedPrincipalProperties = principalType.Properties.ToList();
-                var expectedDependentProperties = dependentType.Properties.ToList();
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
@@ -70,11 +68,9 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Customer>().HasOne(e => e.Details).WithOne(e => e.Customer);
 
                 var fk = dependentType.GetForeignKeys().Single();
+                Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(fk.DependentToPrincipal, dependentType.Navigations.Single());
                 Assert.Same(fk.PrincipalToDependent, principalType.Navigations.Single());
-                AssertEqual(expectedPrincipalProperties, principalType.Properties);
-                AssertEqual(expectedDependentProperties, dependentType.Properties);
-                Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -128,7 +124,6 @@ namespace Microsoft.Data.Entity.Tests
 
                 var dependentType = model.GetEntityType(typeof(CustomerDetails));
                 var principalType = model.GetEntityType(typeof(Customer));
-                var fk = dependentType.GetForeignKeys().Single();
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
@@ -137,9 +132,10 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<CustomerDetails>().HasOne(e => e.Customer).WithOne(e => e.Details)
                     .PrincipalKey<Customer>(e => e.Id);
+
+                var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.DependentToPrincipal == null);
                 var newFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != fk);
 
-                Assert.NotSame(fk.Properties.Single(), newFk.Properties.Single());
                 Assert.Same(newFk.DependentToPrincipal, dependentType.Navigations.Single());
                 Assert.Same(newFk.PrincipalToDependent, principalType.Navigations.Single());
                 AssertEqual(expectedPrincipalProperties, principalType.Properties);
@@ -202,7 +198,6 @@ namespace Microsoft.Data.Entity.Tests
 
                 var dependentType = model.GetEntityType(typeof(OrderDetails));
                 var principalType = model.GetEntityType(typeof(Order));
-                var existingFk = dependentType.GetForeignKeys().Single();
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
@@ -212,7 +207,6 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<OrderDetails>().HasOne(e => e.Order).WithOne(e => e.Details);
 
                 var fk = dependentType.GetForeignKeys().Single();
-                Assert.NotSame(existingFk, fk);
 
                 Assert.Same(fk.DependentToPrincipal, dependentType.Navigations.Single());
                 Assert.Same(fk.PrincipalToDependent, principalType.Navigations.Single());
@@ -309,7 +303,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var dependentType = model.GetEntityType(typeof(CustomerDetails));
                 var principalType = model.GetEntityType(typeof(Customer));
-                
+
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
                 var expectedPrincipalProperties = principalType.Properties.ToList();
@@ -556,7 +550,7 @@ namespace Microsoft.Data.Entity.Tests
                 var dependentType = model.GetEntityType(typeof(Bun));
                 var principalType = model.GetEntityType(typeof(BigMak));
 
-                var fkProperty = dependentType.GetProperty("BurgerId");
+                var fkProperty = dependentType.GetProperty(nameof(Bun.BurgerId));
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
@@ -568,12 +562,9 @@ namespace Microsoft.Data.Entity.Tests
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
 
-                Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
-                Assert.Empty(principalType.Navigations);
+                Assert.Equal(nameof(Bun.BigMak), dependentType.Navigations.Single().Name);
+                Assert.NotSame(fk, principalType.Navigations.Single().ForeignKey);
                 Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.Properties.Select(p => p.Name));
-                AssertEqual(new[] { fk.Properties.Single().Name, dependentKey.Properties.Single().Name }, dependentType.Properties.Select(p => p.Name));
-                Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -625,7 +616,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var dependentType = (IEntityType)model.GetEntityType(typeof(Bun));
                 var principalType = model.GetEntityType(typeof(BigMak));
-                var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.All(p => p.Name == "BurgerId"));
+                var fkProperty = dependentType.GetProperty(nameof(Bun.BurgerId));
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
@@ -634,18 +625,15 @@ namespace Microsoft.Data.Entity.Tests
                     .Entity<BigMak>().HasOne(e => e.Bun).WithOne(e => e.BigMak)
                     .ForeignKey<Bun>(e => e.BurgerId);
 
-                Assert.Equal(1, dependentType.GetForeignKeys().Count());
-                var newFk = dependentType.GetForeignKeys().Single(k => k != fk);
+                var newFk = dependentType.GetForeignKeys().Single();
 
-                Assert.False(fk.IsUnique);
+                Assert.Same(fkProperty, newFk.Properties.Single());
                 Assert.True(newFk.IsUnique);
-
-                Assert.Equal(fk.Properties.ToList(), newFk.Properties.ToList());
-                Assert.Equal("BigMak", dependentType.GetNavigations().Single().Name);
-                Assert.Equal("Bun", principalType.Navigations.Single().Name);
+                Assert.Equal(nameof(Bun.BigMak), dependentType.GetNavigations().Single().Name);
+                Assert.Equal(nameof(BigMak.Bun), principalType.Navigations.Single().Name);
                 Assert.Same(newFk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(newFk, principalType.Navigations.Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name }, principalType.Properties.Select(p => p.Name));
+                AssertEqual(new[] { nameof(BigMak.AlternateKey), principalKey.Properties.Single().Name }, principalType.Properties.Select(p => p.Name));
                 AssertEqual(new[] { newFk.Properties.Single().Name, dependentKey.Properties.Single().Name }, dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
@@ -787,21 +775,16 @@ namespace Microsoft.Data.Entity.Tests
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
-                var expectedPrincipalProperties = principalType.Properties.Where(p => !((IProperty)p).IsShadowProperty).ToList();
-                var expectedDependentProperties = dependentType.Properties.ToList();
 
                 modelBuilder
                     .Entity<CustomerDetails>().HasOne(e => e.Customer).WithOne()
                     .ForeignKey<Customer>(e => e.Id);
 
-                var fk = dependentType.GetForeignKeys().Single();
+                var fk = principalType.Navigations.Single().ForeignKey;
                 Assert.Same(fkProperty, fk.Properties.Single());
 
-                Assert.Empty(dependentType.Navigations);
+                Assert.NotSame(fk, dependentType.Navigations.Single().ForeignKey);
                 Assert.Same(fk.PrincipalToDependent, principalType.Navigations.Single());
-                Assert.Equal(expectedPrincipalProperties, principalType.Properties);
-                Assert.Equal(expectedDependentProperties, dependentType.Properties);
-                Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -824,8 +807,6 @@ namespace Microsoft.Data.Entity.Tests
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
-                var expectedPrincipalProperties = principalType.Properties.ToList();
-                var expectedDependentProperties = dependentType.Properties.Where(p => !((IProperty)p).IsShadowProperty).ToList();
 
                 modelBuilder
                     .Entity<CustomerDetails>().HasOne(e => e.Customer).WithOne()
@@ -835,10 +816,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(fkProperty, fk.Properties.Single());
 
                 Assert.Same(fk.DependentToPrincipal, dependentType.Navigations.Single());
-                Assert.Empty(principalType.Navigations);
-                Assert.Equal(expectedPrincipalProperties, principalType.Properties);
-                Assert.Equal(expectedDependentProperties, dependentType.Properties);
-                Assert.Empty(principalType.GetForeignKeys());
+                Assert.NotSame(fk, principalType.Navigations.Single().ForeignKey);
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -931,28 +909,20 @@ namespace Microsoft.Data.Entity.Tests
                 var dependentType = model.GetEntityType(typeof(CustomerDetails));
                 var principalType = model.GetEntityType(typeof(Customer));
 
-                var fkProperty = dependentType.GetProperty(Customer.IdProperty.Name);
-
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
-
-                var principalFk = principalType.GetForeignKeys().SingleOrDefault();
-                var existingFk = dependentType.GetForeignKeys().SingleOrDefault();
-                var expectedPrincipalProperties = principalType.Properties.ToList();
-                var expectedDependentProperties = dependentType.Properties.ToList();
 
                 modelBuilder
                     .Entity<CustomerDetails>().HasOne<Customer>().WithOne()
                     .ForeignKey<CustomerDetails>(e => e.Id);
 
+                var existingFk = dependentType.Navigations.Single().ForeignKey;
                 var newForeignKey = dependentType.GetForeignKeys().Single(fk => fk != existingFk);
-                Assert.Same(fkProperty, newForeignKey.Properties.Single());
+                Assert.Same(dependentType.GetProperty(nameof(Customer.Id)), newForeignKey.Properties.Single());
 
                 Assert.Empty(dependentType.Navigations.Where(nav => nav.ForeignKey == newForeignKey));
                 Assert.Empty(principalType.Navigations.Where(nav => nav.ForeignKey == newForeignKey));
-                Assert.Equal(expectedPrincipalProperties, principalType.Properties);
-                Assert.Equal(expectedDependentProperties, dependentType.Properties);
-                Assert.Same(principalFk, principalType.GetForeignKeys().SingleOrDefault());
+                Assert.Same(existingFk, principalType.Navigations.Single().ForeignKey);
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -1625,21 +1595,16 @@ namespace Microsoft.Data.Entity.Tests
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
-                var expectedPrincipalProperties = principalType.Properties.ToList();
-                var expectedDependentProperties = dependentType.Properties.ToList();
 
                 modelBuilder
                     .Entity<CustomerDetails>().HasOne(e => e.Customer).WithOne()
                     .PrincipalKey<Customer>(e => e.Id);
 
-                var fk = dependentType.GetForeignKeys().Single();
+                var fk = dependentType.Navigations.Single().ForeignKey;
                 Assert.Same(principalKey.Properties.Single(), fk.PrincipalKey.Properties.Single());
 
                 Assert.Same(fk.DependentToPrincipal, dependentType.Navigations.Single());
-                Assert.Empty(principalType.Navigations);
-                Assert.Equal(expectedPrincipalProperties, principalType.Properties);
-                Assert.Equal(expectedDependentProperties, dependentType.Properties);
-                Assert.Empty(principalType.GetForeignKeys());
+                Assert.NotSame(fk, principalType.Navigations.Single().ForeignKey);
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -1660,21 +1625,16 @@ namespace Microsoft.Data.Entity.Tests
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
-                var expectedPrincipalProperties = principalType.Properties.ToList();
-                var expectedDependentProperties = dependentType.Properties.ToList();
 
                 modelBuilder
                     .Entity<Customer>().HasOne<CustomerDetails>().WithOne(e => e.Customer)
                     .PrincipalKey<Customer>(e => e.Id);
 
-                var fk = dependentType.GetForeignKeys().Single();
+                var fk = dependentType.Navigations.Single().ForeignKey;
                 Assert.Same(principalKey.Properties.Single(), fk.PrincipalKey.Properties.Single());
 
                 Assert.Same(fk.DependentToPrincipal, dependentType.Navigations.Single());
-                Assert.Empty(principalType.Navigations);
-                Assert.Equal(expectedPrincipalProperties, principalType.Properties);
-                Assert.Equal(expectedDependentProperties, dependentType.Properties);
-                Assert.Empty(principalType.GetForeignKeys());
+                Assert.NotSame(fk, principalType.Navigations.Single().ForeignKey);
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -2102,8 +2062,8 @@ namespace Microsoft.Data.Entity.Tests
                 var dependentType = model.GetEntityType(typeof(ToastedBun));
                 var principalType = model.GetEntityType(typeof(Whoopper));
 
-                var fkProperty1 = dependentType.GetProperty("BurgerId1");
-                var fkProperty2 = dependentType.GetProperty("BurgerId2");
+                var fkProperty1 = dependentType.GetProperty(nameof(ToastedBun.BurgerId1));
+                var fkProperty2 = dependentType.GetProperty(nameof(ToastedBun.BurgerId2));
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
@@ -2112,16 +2072,13 @@ namespace Microsoft.Data.Entity.Tests
                     .Entity<Whoopper>().HasOne(e => e.ToastedBun).WithOne()
                     .ForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
 
-                var fk = dependentType.GetForeignKeys().Single();
+                var fk = principalType.Navigations.Single().ForeignKey;
                 Assert.Same(fkProperty1, fk.Properties[0]);
                 Assert.Same(fkProperty2, fk.Properties[1]);
 
-                Assert.Empty(dependentType.Navigations);
-                Assert.Equal("ToastedBun", principalType.Navigations.Single().Name);
-                Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
-                AssertEqual(new[] { "AlternateKey1", "AlternateKey2", principalKey.Properties[0].Name, principalKey.Properties[1].Name }, principalType.Properties.Select(p => p.Name));
-                AssertEqual(new[] { fkProperty1.Name, fkProperty2.Name, dependentKey.Properties.Single().Name }, dependentType.Properties.Select(p => p.Name));
-                Assert.Empty(principalType.GetForeignKeys());
+                Assert.NotSame(fk, dependentType.Navigations.Single().ForeignKey);
+                Assert.Equal(nameof(Whoopper.ToastedBun), fk.PrincipalToDependent.Name);
+                Assert.Null(fk.DependentToPrincipal);
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -2209,8 +2166,7 @@ namespace Microsoft.Data.Entity.Tests
             public virtual void Principal_and_dependent_can_be_flipped_when_self_referencing()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder
-                    .Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef2);
+                modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef2);
 
                 var entityType = modelBuilder.Model.GetEntityType(typeof(SelfRef));
                 var fk = entityType.GetForeignKeys().Single();
@@ -2220,15 +2176,16 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef2);
 
-                Assert.Same(fk, entityType.GetForeignKeys().Single());
-                Assert.Equal(navigationToDependent.Name, fk.PrincipalToDependent.Name);
-                Assert.Equal(navigationToPrincipal.Name, fk.DependentToPrincipal.Name);
-                Assert.True(((IForeignKey)fk).IsRequired);
+                var newFk = entityType.GetForeignKeys().Single();
+                Assert.Equal(fk.Properties, newFk.Properties);
+                Assert.Equal(fk.PrincipalKey, newFk.PrincipalKey);
+                Assert.Equal(navigationToDependent.Name, newFk.PrincipalToDependent.Name);
+                Assert.Equal(navigationToPrincipal.Name, newFk.DependentToPrincipal.Name);
+                Assert.True(((IForeignKey)newFk).IsRequired);
 
                 modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef2).WithOne(e => e.SelfRef1);
 
-                var newFk = entityType.GetForeignKeys().Single();
-
+                newFk = entityType.GetForeignKeys().Single();
                 Assert.Equal(fk.Properties, newFk.Properties);
                 Assert.Equal(fk.PrincipalKey, newFk.PrincipalKey);
                 Assert.Equal(navigationToPrincipal.Name, newFk.PrincipalToDependent.Name);
@@ -2247,20 +2204,18 @@ namespace Microsoft.Data.Entity.Tests
                     });
 
                 var entityType = modelBuilder.Model.GetEntityType(typeof(SelfRef));
-                var expectedProperties = entityType.Properties.ToList();
 
                 modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne();
 
-                var fk = entityType.GetForeignKeys().Single();
+                var fk = entityType.GetNavigation(nameof(SelfRef.SelfRef1)).ForeignKey;
                 var navigationToPrincipal = fk.DependentToPrincipal;
                 var navigationToDependent = fk.PrincipalToDependent;
 
                 Assert.NotEqual(fk.Properties, entityType.GetPrimaryKey().Properties);
                 Assert.Equal(fk.PrincipalKey, entityType.GetPrimaryKey());
                 Assert.Equal(null, navigationToDependent?.Name);
-                Assert.Equal("SelfRef1", navigationToPrincipal?.Name);
-                Assert.Same(navigationToPrincipal, entityType.Navigations.Single());
-                AssertEqual(expectedProperties, entityType.Properties);
+                Assert.Equal(nameof(SelfRef.SelfRef1), navigationToPrincipal?.Name);
+                Assert.Equal(2, entityType.Navigations.Count());
                 Assert.True(((IForeignKey)fk).IsRequired);
             }
 
@@ -2275,20 +2230,18 @@ namespace Microsoft.Data.Entity.Tests
                     });
 
                 var entityType = modelBuilder.Model.GetEntityType(typeof(SelfRef));
-                var expectedProperties = entityType.Properties.ToList();
 
                 modelBuilder.Entity<SelfRef>().HasOne<SelfRef>().WithOne(e => e.SelfRef1);
 
-                var fk = entityType.GetForeignKeys().Single();
+                var fk = entityType.GetNavigation(nameof(SelfRef.SelfRef1)).ForeignKey;
                 var navigationToPrincipal = fk.DependentToPrincipal;
                 var navigationToDependent = fk.PrincipalToDependent;
 
                 Assert.NotEqual(fk.Properties, entityType.GetPrimaryKey().Properties);
                 Assert.Equal(fk.PrincipalKey, entityType.GetPrimaryKey());
-                Assert.Equal("SelfRef1", navigationToDependent?.Name);
+                Assert.Equal(nameof(SelfRef.SelfRef1), navigationToDependent?.Name);
                 Assert.Equal(null, navigationToPrincipal?.Name);
-                Assert.Same(navigationToDependent, entityType.Navigations.Single());
-                AssertEqual(expectedProperties, entityType.Properties);
+                Assert.Equal(2, entityType.Navigations.Count());
                 Assert.True(((IForeignKey)fk).IsRequired);
             }
 
@@ -2296,7 +2249,9 @@ namespace Microsoft.Data.Entity.Tests
             public virtual void Principal_and_dependent_can_be_flipped_when_self_referencing_with_navigation_to_principal()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne();
+                var entityBuilder = modelBuilder.Entity<SelfRef>();
+                entityBuilder.Ignore(nameof(SelfRef.SelfRef2));
+                entityBuilder.HasOne(e => e.SelfRef1).WithOne();
 
                 var entityType = modelBuilder.Model.GetEntityType(typeof(SelfRef));
                 var fk = entityType.GetForeignKeys().Single();
@@ -2339,7 +2294,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(fk, entityType.GetForeignKeys().Single());
                 Assert.Equal(navigationToDependent.Name, fk.PrincipalToDependent.Name);
                 Assert.Equal(navigationToPrincipal?.Name, fk.DependentToPrincipal?.Name);
-                Assert.True(((IForeignKey)fk).IsRequired);
+                Assert.True(((IForeignKey)fk).IsUnique);
 
                 modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef2).WithOne();
 
@@ -2349,7 +2304,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(fk.PrincipalKey, newFk.PrincipalKey);
                 Assert.Equal(navigationToPrincipal?.Name, newFk.PrincipalToDependent?.Name);
                 Assert.Equal(navigationToDependent.Name, newFk.DependentToPrincipal.Name);
-                Assert.True(((IForeignKey)newFk).IsRequired);
+                Assert.True(((IForeignKey)newFk).IsUnique);
             }
 
             [Fact]
@@ -2357,30 +2312,33 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var modelBuilder = CreateModelBuilder();
 
-                Assert.Equal(Strings.DuplicateNavigation("SelfRef1", typeof(SelfRef).FullName),
+                Assert.Equal(Strings.DuplicateNavigation("SelfRef1", typeof(SelfRef).Name, typeof(SelfRef).Name),
                     Assert.Throws<InvalidOperationException>(() =>
                         modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef1)).Message);
             }
 
             [Fact]
-            public virtual void Throws_if_specified_FK_types_do_not_match()
+            public virtual void Overrides_PK_if_specified_FK_types_do_not_match()
             {
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<Customer>();
-                modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty");
+                var guidProperty = modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty").Metadata;
                 modelBuilder.Ignore<Order>();
 
-                Assert.Equal(Strings.ForeignKeyTypeMismatch("{'GuidProperty'}", typeof(CustomerDetails).FullName, typeof(Customer).FullName),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder
-                            .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                            .PrincipalKey(typeof(Customer), "Id")
-                            .ForeignKey(typeof(CustomerDetails), "GuidProperty")).Message);
+                modelBuilder
+                    .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
+                    .PrincipalKey(typeof(Customer), nameof(Customer.Id))
+                    .ForeignKey(typeof(CustomerDetails), "GuidProperty");
+
+                var dependentType = model.GetEntityType(typeof(CustomerDetails));
+                var fk = dependentType.GetForeignKeys().Single();
+                Assert.Same(guidProperty, fk.Properties.Single());
+                Assert.Equal(typeof(Guid), fk.PrincipalKey.Properties.Single().ClrType);
             }
 
             [Fact]
-            public virtual void Throws_if_specified_PK_types_do_not_match()
+            public virtual void Overrides_FK_if_specified_PK_types_do_not_match()
             {
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
@@ -2388,33 +2346,40 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty");
                 modelBuilder.Ignore<Order>();
 
-                Assert.Equal(Strings.ForeignKeyTypeMismatch("{'GuidProperty'}", typeof(CustomerDetails).FullName, typeof(Customer).FullName),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder
-                            .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                            .ForeignKey(typeof(CustomerDetails), "GuidProperty")
-                            .PrincipalKey(typeof(Customer), "Id")).Message);
+                modelBuilder
+                    .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
+                    .ForeignKey(typeof(CustomerDetails), "GuidProperty")
+                    .PrincipalKey(typeof(Customer), nameof(Customer.Id));
+
+                var dependentType = model.GetEntityType(typeof(CustomerDetails));
+                var principalType = model.GetEntityType(typeof(Customer));
+                var fk = dependentType.GetForeignKeys().Single();
+                Assert.Same(principalType.GetProperty(nameof(Customer.Id)), fk.PrincipalKey.Properties.Single());
+                Assert.Equal(typeof(int), fk.Properties.Single().ClrType);
             }
 
             [Fact]
-            public virtual void Throws_if_specified_FK_count_does_not_match()
+            public virtual void Overrides_PK_if_specified_FK_count_does_not_match()
             {
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<Customer>();
-                modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty");
+                var guidProperty = modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty").Metadata;
                 modelBuilder.Ignore<Order>();
 
-                Assert.Equal(Strings.ForeignKeyCountMismatch("{'Id', 'GuidProperty'}", typeof(CustomerDetails).FullName, "{'Id'}", typeof(Customer).FullName),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder
-                            .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                            .PrincipalKey(typeof(Customer), "Id")
-                            .ForeignKey(typeof(CustomerDetails), "Id", "GuidProperty")).Message);
+                modelBuilder
+                    .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
+                    .PrincipalKey(typeof(Customer), nameof(Customer.Id))
+                    .ForeignKey(typeof(CustomerDetails), nameof(CustomerDetails.Id), "GuidProperty");
+
+                var dependentType = model.GetEntityType(typeof(CustomerDetails));
+                var fk = dependentType.GetForeignKeys().Single();
+                AssertEqual(new[] { dependentType.GetProperty(nameof(CustomerDetails.Id)), guidProperty }, fk.Properties);
+                Assert.Equal(2, fk.PrincipalKey.Properties.Count());
             }
 
             [Fact]
-            public virtual void Throws_if_specified_PK_count_does_not_match()
+            public virtual void Overrides_FK_if_specified_PK_count_does_not_match()
             {
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
@@ -2422,12 +2387,16 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<CustomerDetails>().Property<Guid>("GuidProperty");
                 modelBuilder.Ignore<Order>();
 
-                Assert.Equal(Strings.ForeignKeyCountMismatch("{'Id', 'GuidProperty'}", typeof(CustomerDetails).FullName, "{'Id'}", typeof(Customer).FullName),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder
-                            .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
-                            .ForeignKey(typeof(CustomerDetails), "Id", "GuidProperty")
-                            .PrincipalKey(typeof(Customer), "Id")).Message);
+                var dependentType = model.GetEntityType(typeof(CustomerDetails));
+                var principalType = model.GetEntityType(typeof(Customer));
+
+                var fk = modelBuilder
+                    .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
+                    .ForeignKey(typeof(CustomerDetails), nameof(CustomerDetails.Id), "GuidProperty")
+                    .PrincipalKey(typeof(Customer), nameof(Customer.Id)).Metadata;
+
+                Assert.Same(principalType.GetProperty(nameof(Customer.Id)), fk.PrincipalKey.Properties.Single());
+                Assert.Equal(1, fk.Properties.Count());
             }
 
             [Fact]
@@ -2520,7 +2489,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.False(entityType.GetForeignKeys().Single().IsRequired);
                 Assert.True(entityType.GetProperty("HobId1").IsNullable
-                    || entityType.GetProperty("HobId1").IsNullable);
+                            || entityType.GetProperty("HobId1").IsNullable);
             }
 
             [Fact]
@@ -2562,41 +2531,46 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             [Fact]
-            public virtual void Non_nullable_FK_cannot_be_made_optional()
+            public virtual void Non_nullable_FK_can_be_made_optional()
             {
                 var modelBuilder = HobNobBuilder();
 
-                Assert.Equal(
-                    Strings.ForeignKeyCannotBeOptional("{'NobId1', 'NobId2'}", "Hob"),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder
-                        .Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)
-                        .ForeignKey<Hob>(e => new { e.NobId1, e.NobId2 })
-                        .Required(false)).Message);
+                modelBuilder
+                    .Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)
+                    .ForeignKey<Hob>(e => new { e.NobId1, e.NobId2 })
+                    .Required(false);
 
-                var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
+                var dependentType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
+                var fkProperty1 = dependentType.GetProperty(nameof(Hob.NobId1));
+                var fkProperty2 = dependentType.GetProperty(nameof(Hob.NobId2));
+                var fk = dependentType.GetForeignKeys().Single();
 
-                Assert.True(entityType.GetForeignKeys().Single().IsRequired);
-                Assert.False(entityType.GetProperty("NobId1").IsNullable);
-                Assert.False(entityType.GetProperty("NobId1").IsNullable);
+                Assert.False(fk.IsRequired);
+                Assert.False(fkProperty1.IsNullable);
+                Assert.False(fkProperty2.IsNullable);
+                Assert.DoesNotContain(fkProperty1, fk.Properties);
+                Assert.DoesNotContain(fkProperty2, fk.Properties);
             }
 
             [Fact]
-            public virtual void Optional_FK_cannot_be_made_non_nullable()
+            public virtual void Optional_FK_can_be_made_non_nullable()
             {
                 var modelBuilder = HobNobBuilder();
 
-                Assert.Equal(
-                    Strings.ForeignKeyCannotBeOptional("{'NobId1', 'NobId2'}", "Hob"),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder
-                        .Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)
-                        .Required(false)
-                        .ForeignKey<Hob>(e => new { e.NobId1, e.NobId2 })).Message);
+                modelBuilder
+                    .Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)
+                    .Required(false)
+                    .ForeignKey<Hob>(e => new { e.NobId1, e.NobId2 });
 
-                var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
+                var dependentType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
+                var fkProperty1 = dependentType.GetProperty(nameof(Hob.NobId1));
+                var fkProperty2 = dependentType.GetProperty(nameof(Hob.NobId2));
+                var fk = dependentType.GetForeignKeys().Single();
 
-                Assert.False(entityType.GetForeignKeys().Single().IsRequired);
-                Assert.False(entityType.GetProperty("NobId1").IsNullable);
-                Assert.False(entityType.GetProperty("NobId1").IsNullable);
+                Assert.True(fk.IsRequired);
+                Assert.False(fkProperty1.IsNullable);
+                Assert.False(fkProperty2.IsNullable);
+                AssertEqual(new[] { fkProperty1, fkProperty2 }, fk.Properties);
             }
 
             [Fact]

@@ -158,6 +158,7 @@
     <Compile Include="DbContextOptionsBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\Conventions\ConventionSet.cs" />
+    <Compile Include="Metadata\Conventions\Internal\INavigationRemovedConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\ModelCleanupConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IBaseTypeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\ForeignKeyAttributeConvention.cs" />

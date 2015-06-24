@@ -18,6 +18,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         public virtual IList<IModelConvention> ModelBuiltConventions { get; } = new List<IModelConvention>();
         public virtual IList<IModelConvention> ModelInitializedConventions { get; } = new List<IModelConvention>();
         public virtual IList<INavigationConvention> NavigationAddedConventions { get; } = new List<INavigationConvention>();
+        public virtual IList<INavigationRemovedConvention> NavigationRemovedConventions { get; } = new List<INavigationRemovedConvention>();
         public virtual IList<IPropertyConvention> PropertyAddedConventions { get; } = new List<IPropertyConvention>();
     }
 }

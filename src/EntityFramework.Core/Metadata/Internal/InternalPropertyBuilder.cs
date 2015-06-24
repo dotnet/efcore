@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using System.Diagnostics;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -14,7 +15,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ConfigurationSource? _isRequiredConfigurationSource;
         private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
         private ConfigurationSource? _isShadowPropertyConfigurationSource;
-        private ConfigurationSource? _maxLengthConfigurationSource;
         private ConfigurationSource? _requiresValueGeneratorConfigurationSource;
         private ConfigurationSource? _valueGeneratedConfigurationSource;
 
@@ -26,10 +26,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 if (Metadata.IsNullable != null)
                 {
                     _isRequiredConfigurationSource = ConfigurationSource.Explicit;
-                }
-                if (Metadata.GetMaxLength() != null)
-                {
-                    _maxLengthConfigurationSource = ConfigurationSource.Explicit;
                 }
                 if (Metadata.IsConcurrencyToken != null)
                 {
@@ -80,18 +76,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                || ((IProperty)Metadata).IsNullable == !isRequired;
 
         public virtual bool HasMaxLength(int? maxLength, ConfigurationSource configurationSource)
-        {
-            if (configurationSource.CanSet(_maxLengthConfigurationSource, Metadata.GetMaxLength().HasValue)
-                || Metadata.GetMaxLength().Value == maxLength)
-            {
-                _maxLengthConfigurationSource = configurationSource.Max(_maxLengthConfigurationSource);
-
-                Metadata.SetMaxLength(maxLength);
-                return true;
-            }
-
-            return false;
-        }
+            => Annotation(CoreAnnotationNames.MaxLengthAnnotation, maxLength, configurationSource);
 
         public virtual bool IsConcurrencyToken(bool? isConcurrencyToken, ConfigurationSource configurationSource)
         {
@@ -190,5 +175,55 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return false;
         }
+
+        public virtual InternalPropertyBuilder Attach(
+            [NotNull] InternalEntityTypeBuilder entityTypeBuilder, ConfigurationSource configurationSource)
+        {
+            var newProperty = Metadata.DeclaringEntityType.FindProperty(Metadata.Name);
+            Debug.Assert(newProperty != null);
+            var newPropertyBuilder = entityTypeBuilder.Property(Metadata.Name, configurationSource);
+            if (newProperty == Metadata)
+            {
+                return newPropertyBuilder;
+            }
+
+            newPropertyBuilder.MergeAnnotationsFrom(this);
+
+            if (_clrTypeConfigurationSource.HasValue)
+            {
+                newPropertyBuilder.ClrType(Metadata.ClrType, _clrTypeConfigurationSource.Value);
+            }
+            if (_isReadOnlyAfterSaveConfigurationSource.HasValue)
+            {
+                newPropertyBuilder.ReadOnlyAfterSave(Metadata.IsReadOnlyAfterSave, _isReadOnlyAfterSaveConfigurationSource.Value);
+            }
+            if (_isReadOnlyBeforeSaveConfigurationSource.HasValue)
+            {
+                newPropertyBuilder.ReadOnlyBeforeSave(Metadata.IsReadOnlyBeforeSave, _isReadOnlyBeforeSaveConfigurationSource.Value);
+            }
+            if (_isRequiredConfigurationSource.HasValue)
+            {
+                newPropertyBuilder.IsRequired(Metadata.IsConcurrencyToken, _isRequiredConfigurationSource.Value);
+            }
+            if (_isConcurrencyTokenConfigurationSource.HasValue)
+            {
+                newPropertyBuilder.IsConcurrencyToken(Metadata.IsConcurrencyToken, _isConcurrencyTokenConfigurationSource.Value);
+            }
+            if (_isShadowPropertyConfigurationSource.HasValue)
+            {
+                newPropertyBuilder.Shadow(Metadata.IsShadowProperty, _isShadowPropertyConfigurationSource.Value);
+            }
+            if (_requiresValueGeneratorConfigurationSource.HasValue)
+            {
+                newPropertyBuilder.UseValueGenerator(Metadata.RequiresValueGenerator, _requiresValueGeneratorConfigurationSource.Value);
+            }
+            if (_valueGeneratedConfigurationSource.HasValue)
+            {
+                newPropertyBuilder.ValueGenerated(Metadata.ValueGenerated, _valueGeneratedConfigurationSource.Value);
+            }
+
+            return newPropertyBuilder;
+        }
+
     }
 }

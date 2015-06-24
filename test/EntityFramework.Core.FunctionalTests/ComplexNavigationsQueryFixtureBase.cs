@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<Level3>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<Level4>().Property(e => e.Id).ValueGeneratedNever();
 
+            modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Optional_Self).WithOne();
             modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Required_PK).WithOne(e => e.OneToOne_Required_PK_Inverse).PrincipalKey<Level1>(e => e.Id).Required(true);
             modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Optional_PK).WithOne(e => e.OneToOne_Optional_PK_Inverse).PrincipalKey<Level1>(e => e.Id).Required(false);
             modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Required_FK).WithOne(e => e.OneToOne_Required_FK_Inverse).ForeignKey<Level2>(e => e.Level1_Required_Id).Required(true);
@@ -28,9 +29,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<Level1>().HasMany(e => e.OneToMany_Required_Self).WithOne(e => e.OneToMany_Required_Self_Inverse).Required(true);
             modelBuilder.Entity<Level1>().HasMany(e => e.OneToMany_Optional_Self).WithOne(e => e.OneToMany_Optional_Self_Inverse).Required(false);
 
-            // issue #1417
-            //modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Optional_Self).WithOne(); 
-
+            modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Optional_Self).WithOne();
             modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Required_PK).WithOne(e => e.OneToOne_Required_PK_Inverse).PrincipalKey<Level2>(e => e.Id).Required(true);
             modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Optional_PK).WithOne(e => e.OneToOne_Optional_PK_Inverse).PrincipalKey<Level2>(e => e.Id).Required(false);
             modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Required_FK).WithOne(e => e.OneToOne_Required_FK_Inverse).ForeignKey<Level3>(e => e.Level2_Required_Id).Required(true);
@@ -42,9 +41,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<Level2>().HasMany(e => e.OneToMany_Required_Self).WithOne(e => e.OneToMany_Required_Self_Inverse).Required(true);
             modelBuilder.Entity<Level2>().HasMany(e => e.OneToMany_Optional_Self).WithOne(e => e.OneToMany_Optional_Self_Inverse).Required(false);
 
-            // issue #1417
-            //modelBuilder.Entity<Level2>().HasOne(e => e.OneToOne_Optional_Self).WithOne(); 
-
+            modelBuilder.Entity<Level3>().HasOne(e => e.OneToOne_Optional_Self).WithOne();
             modelBuilder.Entity<Level3>().HasOne(e => e.OneToOne_Required_PK).WithOne(e => e.OneToOne_Required_PK_Inverse).PrincipalKey<Level3>(e => e.Id).Required(true);
             modelBuilder.Entity<Level3>().HasOne(e => e.OneToOne_Optional_PK).WithOne(e => e.OneToOne_Optional_PK_Inverse).PrincipalKey<Level3>(e => e.Id).Required(false);
             modelBuilder.Entity<Level3>().HasOne(e => e.OneToOne_Required_FK).WithOne(e => e.OneToOne_Required_FK_Inverse).ForeignKey<Level4>(e => e.Level3_Required_Id).Required(true);
@@ -54,9 +51,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<Level3>().HasMany(e => e.OneToMany_Required_Self).WithOne(e => e.OneToMany_Required_Self_Inverse).Required(true);
             modelBuilder.Entity<Level3>().HasMany(e => e.OneToMany_Optional_Self).WithOne(e => e.OneToMany_Optional_Self_Inverse).Required(false);
 
-            // issue #1417
-            //modelBuilder.Entity<Level3>().HasOne(e => e.OneToOne_Optional_Self).WithOne();
-
+            modelBuilder.Entity<Level4>().HasOne(e => e.OneToOne_Optional_Self).WithOne();
             modelBuilder.Entity<Level4>().HasMany(e => e.OneToMany_Required_Self).WithOne(e => e.OneToMany_Required_Self_Inverse).Required(true);
             modelBuilder.Entity<Level4>().HasMany(e => e.OneToMany_Optional_Self).WithOne(e => e.OneToMany_Optional_Self_Inverse).Required(false);
 
