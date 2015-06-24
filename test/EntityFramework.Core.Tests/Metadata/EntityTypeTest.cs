@@ -312,6 +312,125 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Keys_on_base_type_should_be_inherited()
+        {
+            var model = new Model();
+
+            var a = model.AddEntityType(typeof(A));
+            var pk = a.SetPrimaryKey(a.AddProperty("G", typeof(string)));
+            a.AddKey(a.AddProperty("E", typeof(string)));
+
+            var b = model.AddEntityType(typeof(B));
+            b.AddProperty("F", typeof(string));
+
+            Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
+                a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
+            Assert.Equal(new string[0][],
+                b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
+            Assert.Equal(new[] { "G", "E" }, a.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "F" }, b.Properties.Select(p => p.Name).ToArray());
+
+            b.BaseType = a;
+
+            Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
+                a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
+            Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
+                b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
+            Assert.Equal(new[] { "G", "E" }, a.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "G", "E", "F" }, b.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { 0, 1, 2}, b.Properties.Select(p => p.Index));
+            Assert.Same(pk, b.FindPrimaryKey(new[] { b.GetOrAddProperty("G", typeof(string)) }));
+            Assert.Same(b.GetOrAddKey(b.GetOrAddProperty("G", typeof(string))),
+                a.GetOrAddKey(a.GetOrAddProperty("G", typeof(string))));
+        }
+
+        [Fact]
+        public void Keys_added_to_base_type_should_be_inherited()
+        {
+            var model = new Model();
+
+            var a = model.AddEntityType(typeof(A));
+            a.AddProperty("G", typeof(string));
+            a.AddProperty("E", typeof(string));
+
+            var b = model.AddEntityType(typeof(B));
+            b.AddProperty("F", typeof(string));
+            
+            b.BaseType = a;
+
+            a.SetPrimaryKey(a.GetProperty("G"));
+            a.AddKey(a.GetProperty("E"));
+
+            Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
+                a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
+            Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
+                b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
+            Assert.Equal(new[] { "G", "E" }, a.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "G", "E", "F" }, b.Properties.Select(p => p.Name).ToArray());
+        }
+
+        [Fact]
+        public void Keys_should_be_updated_when_base_type_changes()
+        {
+            var model = new Model();
+
+            var a = model.AddEntityType(typeof(A));
+            a.SetPrimaryKey(a.AddProperty("G", typeof(string)));
+            a.AddKey(a.AddProperty("E", typeof(string)));
+
+            var b = model.AddEntityType(typeof(B));
+            b.AddProperty("F", typeof(string));
+            b.BaseType = a;
+            
+            b.BaseType = null;
+
+            Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
+                a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
+            Assert.Equal(new string[0][],
+                b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
+            Assert.Equal(new[] { "G", "E" }, a.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "F" }, b.Properties.Select(p => p.Name).ToArray());
+        }
+
+        [Fact]
+        public void Adding_keys_throws_when_there_is_a_parent_type()
+        {
+            var model = new Model();
+
+            var a = model.AddEntityType(typeof(A));
+            var b = model.AddEntityType(typeof(B));
+            b.BaseType = a;
+            
+            Assert.Equal(
+                Strings.DerivedEntityTypeKey(typeof(B).FullName),
+                Assert.Throws<InvalidOperationException>(() => b.SetPrimaryKey(b.AddProperty("G", typeof(string)))).Message);
+            Assert.Equal(
+                Strings.DerivedEntityTypeKey(typeof(B).FullName),
+                Assert.Throws<InvalidOperationException>(() => b.AddKey(b.AddProperty("E", typeof(string)))).Message);
+        }
+        
+        [Fact]
+        public void Setting_base_type_throws_when_child_contains_key()
+        {
+            var model = new Model();
+
+            var a = model.AddEntityType(typeof(A));
+            var b = model.AddEntityType(typeof(B));
+            var key = b.AddKey(b.AddProperty("H", typeof(string)));
+
+            Assert.Equal(
+                Strings.DerivedEntityCannotHaveKeys(typeof(B).FullName),
+                Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
+
+            b.RemoveKey(key);
+            b.SetPrimaryKey(b.AddProperty("F", typeof(string)));
+
+            Assert.Equal(
+                Strings.DerivedEntityCannotHaveKeys(typeof(B).FullName),
+                Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
+        }
+        
+        [Fact]
         public void Navigations_on_base_type_should_be_inherited()
         {
             var model = new Model();
@@ -1339,11 +1458,25 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType1 = model.AddEntityType(typeof(Customer));
             var entityType2 = model.AddEntityType(typeof(Order));
-            var idProperty = entityType2.GetOrAddProperty(Customer.IdProperty);
+            var idProperty = entityType2.GetOrAddProperty(Order.IdProperty);
+            var fkProperty = entityType2.GetOrAddProperty(Order.CustomerIdProperty);
 
             Assert.Equal(
-                Strings.ForeignKeyPropertiesWrongEntity("{'" + Customer.IdProperty.Name + "'}", typeof(Customer).FullName),
-                Assert.Throws<ArgumentException>(() => entityType1.AddForeignKey(new[] { idProperty }, entityType2.GetOrAddKey(idProperty), entityType2)).Message);
+                Strings.ForeignKeyPropertiesWrongEntity("{'" + Order.CustomerIdProperty.Name + "'}", typeof(Customer).FullName),
+                Assert.Throws<ArgumentException>(() => entityType1.AddForeignKey(new[] { fkProperty }, entityType2.GetOrAddKey(idProperty), entityType2)).Message);
+        }
+
+        [Fact]
+        public void Adding_a_foreign_key_throws_if_related_entity_is_from_different_model()
+        {
+            var dependentEntityType = new Model().AddEntityType(typeof(Customer));
+            var fkProperty = dependentEntityType.GetOrAddProperty(Customer.IdProperty);
+            var principalEntityType = new Model().AddEntityType(typeof(Order));
+            var idProperty = principalEntityType.GetOrAddProperty(Order.IdProperty);
+
+            Assert.Equal(
+                Strings.EntityTypeModelMismatch(typeof(Customer).FullName, typeof(Order).FullName),
+                Assert.Throws<ArgumentException>(() => dependentEntityType.AddForeignKey(new[] { fkProperty }, principalEntityType.GetOrAddKey(idProperty), principalEntityType)).Message);
         }
 
         [Fact]
@@ -1991,6 +2124,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(fk.PrincipalToDependent, navigationToDependent);
             Assert.Same(fk.DependentToPrincipal, navigationToPrincipal);
         }
+        
+        [Fact]
+        public void Throws_when_adding_same_self_referencing_navigation_twice()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(SelfRef));
+            var fkProperty = entityType.AddProperty("ForeignKey", typeof(int));
+            var principalEntityType = entityType;
+            var principalKeyProperty = principalEntityType.AddProperty("Id", typeof(int));
+            var referencedKey = principalEntityType.SetPrimaryKey(principalKeyProperty);
+            var fk = entityType.AddForeignKey(fkProperty, referencedKey, principalEntityType);
+            fk.IsUnique = true;
+
+            principalEntityType.AddNavigation("SelfRef1", fk, pointsToPrincipal: false);
+            Assert.Equal(Strings.DuplicateNavigation("SelfRef1", typeof(SelfRef).FullName),
+                Assert.Throws<InvalidOperationException>(() => principalEntityType.AddNavigation("SelfRef1", fk, pointsToPrincipal: true)).Message);
+        }
 
         [Fact]
         public void Navigations_are_ordered_by_name()
@@ -2597,13 +2747,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(FullNotificationEntity));
-            entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int)));
+            var key = entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int)));
+            var fkProperty = entityType.GetOrAddProperty("Fk", typeof(int), shadowProperty: true);
 
-            Assert.Equal(-1, entityType.GetProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(-1, fkProperty.GetOriginalValueIndex());
 
-            entityType.GetOrAddForeignKey(new[] { entityType.GetOrAddProperty("Id", typeof(int)) }, entityType.GetPrimaryKey(), entityType);
+            entityType.GetOrAddForeignKey(new[] { fkProperty }, key, entityType);
 
-            Assert.Equal(0, entityType.GetProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(0, fkProperty.GetOriginalValueIndex());
         }
 
         private class BaseType

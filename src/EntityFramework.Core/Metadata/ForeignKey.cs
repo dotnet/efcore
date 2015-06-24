@@ -14,7 +14,6 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class ForeignKey : Annotatable, IForeignKey
     {
-        private readonly Key _principalKey;
         private bool _isRequiredSet;
         private Navigation _dependentToPrincipal;
         private Navigation _principalToDependent;
@@ -32,7 +31,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             Properties = dependentProperties;
 
-            _principalKey = principalKey;
+            PrincipalKey = principalKey;
 
             PrincipalEntityType = principalEntityType;
 
@@ -53,13 +52,14 @@ namespace Microsoft.Data.Entity.Metadata
             [param: CanBeNull]
             set
             {
-                CheckNavigation(value, _principalToDependent, DeclaringEntityType);
+                CheckNavigation(value, DeclaringEntityType);
 
                 if (value == null
-                    && _dependentToPrincipal !=null
+                    && _dependentToPrincipal != null
                     && DeclaringEntityType.Navigations.Contains(_dependentToPrincipal))
                 {
-                    Strings.NavigationStillOnEntityType(_dependentToPrincipal.Name, DeclaringEntityType.Name);
+                    throw new InvalidOperationException(
+                        Strings.NavigationStillOnEntityType(_dependentToPrincipal.Name, DeclaringEntityType.Name));
                 }
 
                 _dependentToPrincipal = value;
@@ -72,34 +72,30 @@ namespace Microsoft.Data.Entity.Metadata
             [param: CanBeNull]
             set
             {
-                CheckNavigation(value, _dependentToPrincipal, PrincipalEntityType);
+                CheckNavigation(value, PrincipalEntityType);
 
                 if (value == null
-                    && _dependentToPrincipal != null
-                    && PrincipalEntityType.Navigations.Contains(_dependentToPrincipal))
+                    && _principalToDependent != null
+                    && PrincipalEntityType.Navigations.Contains(_principalToDependent))
                 {
-                    Strings.NavigationStillOnEntityType(_dependentToPrincipal.Name, PrincipalEntityType.Name);
+                    throw new InvalidOperationException(
+                        Strings.NavigationStillOnEntityType(_principalToDependent.Name, PrincipalEntityType.Name));
                 }
 
                 _principalToDependent = value;
             }
         }
 
-        private void CheckNavigation(Navigation value, Navigation otherNavigation, EntityType entityType)
+        private void CheckNavigation(Navigation value, EntityType entityType)
         {
             if (value != null)
             {
                 if (value.ForeignKey != this)
                 {
                     throw new InvalidOperationException(
-                        Strings.NavigationForWrongForeignKey(value.Name, value.DeclaringEntityType.DisplayName(), this, value.ForeignKey));
+                        Strings.NavigationForWrongForeignKey(value.Name, value.DeclaringEntityType.DisplayName(), Property.Format(Properties), Property.Format(value.ForeignKey.Properties)));
                 }
-
-                if (value == otherNavigation)
-                {
-                    throw new InvalidOperationException(Strings.NavigationToSelfDuplicate(value.Name));
-                }
-
+                
                 if (!entityType.Navigations.Contains(value))
                 {
                     throw new InvalidOperationException(Strings.NavigationNotFound(value.Name, entityType.Name));
@@ -111,7 +107,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual EntityType DeclaringEntityType => Properties[0].DeclaringEntityType;
 
-        public virtual Key PrincipalKey => _principalKey;
+        public virtual Key PrincipalKey { get; }
 
         public virtual EntityType PrincipalEntityType { get; }
 
@@ -134,6 +130,11 @@ namespace Microsoft.Data.Entity.Metadata
             }
             set
             {
+                if (value == IsRequired)
+                {
+                    return;
+                }
+
                 _isRequiredSet = value.HasValue;
                 var properties = Properties;
                 if (value.HasValue
@@ -144,11 +145,11 @@ namespace Microsoft.Data.Entity.Metadata
                     {
                         properties = nullableTypeProperties;
                     }
+                    // If no properties can be made nullable, let it fail
                 }
 
                 foreach (var property in properties)
                 {
-                    // TODO: Depending on resolution of #723 this may change
                     property.IsNullable = !value;
                 }
             }

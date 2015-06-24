@@ -20,8 +20,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     /// </summary>
     public class ReferenceCollectionBuilder : IAccessor<Model>, IAccessor<InternalRelationshipBuilder>
     {
-        private readonly InternalRelationshipBuilder _builder;
-
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="ReferenceCollectionBuilder" /> class.
@@ -36,8 +34,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotNull(builder, nameof(builder));
 
-            _builder = builder;
+            Builder = builder;
         }
+
+        private InternalRelationshipBuilder Builder { get; }
 
         /// <summary>
         ///     The foreign key that represents this relationship.
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure this relationship.
         /// </summary>
-        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => _builder;
+        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => Builder;
 
         /// <summary>
         ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in
@@ -124,7 +124,5 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder Required(bool isRequired = true)
             => new ReferenceCollectionBuilder(Builder.Required(isRequired, ConfigurationSource.Explicit));
-
-        private InternalRelationshipBuilder Builder => this.GetService<InternalRelationshipBuilder>();
     }
 }

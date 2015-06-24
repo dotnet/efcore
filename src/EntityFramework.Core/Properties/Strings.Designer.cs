@@ -621,7 +621,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The specified type '{type}' is invalid. It should be either the dependent type '{dependentType}' or the principal type '{principalType}'.
+        /// The specified entity type '{type}' is invalid. It should be either the dependent entity  type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.
         /// </summary>
         public static string EntityTypeNotInRelationship([CanBeNull] object type, [CanBeNull] object dependentType, [CanBeNull] object principalType)
         {
@@ -909,11 +909,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The entity type method '{method}' is not valid for derived type '{derivedType}'.
+        /// The derived type '{derivedType}' cannot have keys other than those declared on the root type.
         /// </summary>
-        public static string InvalidForDerivedEntity([CanBeNull] object method, [CanBeNull] object derivedType)
+        public static string DerivedEntityTypeKey([CanBeNull] object derivedType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidForDerivedEntity", "method", "derivedType"), method, derivedType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DerivedEntityTypeKey", "derivedType"), derivedType);
         }
 
         /// <summary>
@@ -954,14 +954,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string ForeignKeyReferencedEntityKeyMismatch([CanBeNull] object principalKey, [CanBeNull] object principalEntityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyReferencedEntityKeyMismatch", "principalKey", "principalEntityType"), principalKey, principalEntityType);
-        }
-
-        /// <summary>
-        /// The navigation property '{navigation}' cannot be used for both ends of the relationship. Either specify it on the principal side or the dependent side.
-        /// </summary>
-        public static string NavigationToSelfDuplicate([CanBeNull] object navigation)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationToSelfDuplicate", "navigation"), navigation);
         }
 
         /// <summary>
@@ -1053,11 +1045,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The navigation property declared on '{entityType}' cannot be determined because the associated  foreign key {foreignKey} references the same entity type that it is declared on.
+        /// The navigation property corresponding to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references an entity type that it is in the same hierarchy as the entity type that it is declared on.
         /// </summary>
-        public static string SelfRefAmbiguousNavigation([CanBeNull] object entityType, [CanBeNull] object foreignKey)
+        public static string IntraHierarchicalAmbiguousNavigation([CanBeNull] object entityType, [CanBeNull] object foreignKey)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("SelfRefAmbiguousNavigation", "entityType", "foreignKey"), entityType, foreignKey);
+            return string.Format(CultureInfo.CurrentCulture, GetString("IntraHierarchicalAmbiguousNavigation", "entityType", "foreignKey"), entityType, foreignKey);
         }
 
         /// <summary>
@@ -1082,6 +1074,14 @@ namespace Microsoft.Data.Entity.Internal
         public static string TimestampAttributeOnNonBinary([CanBeNull] object property)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("TimestampAttributeOnNonBinary", "property"), property);
+        }
+
+        /// <summary>
+        /// The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references an entity type that it is in the same hierarchy as the entity type that it is declared on.
+        /// </summary>
+        public static string IntraHierarchicalAmbiguousTargetEntityType([CanBeNull] object entityType, [CanBeNull] object foreignKey)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IntraHierarchicalAmbiguousTargetEntityType", "entityType", "foreignKey"), entityType, foreignKey);
         }
 
         private static string GetString(string name, params string[] formatterNames)

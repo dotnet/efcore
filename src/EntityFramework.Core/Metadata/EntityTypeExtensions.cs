@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             return new[] { entityType }
                 .Concat(entityType.GetDerivedTypes())
-                .Where(et => !et.IsAbstract);
+                .Where(et => !et.IsAbstract());
         }
 
         private static IEnumerable<IEntityType> GetDerivedTypes(IModel model, IEntityType entityType)
@@ -124,6 +124,13 @@ namespace Microsoft.Data.Entity.Metadata
                 baseType = baseType.BaseType;
             }
             return false;
+        }
+
+        public static bool IsAbstract([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return entityType.ClrType?.GetTypeInfo().IsAbstract ?? false;
         }
 
         public static IEnumerable<IProperty> GetDeclaredProperties([NotNull] this IEntityType entityType)

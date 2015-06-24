@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool CanSetRequired(bool? isRequired, ConfigurationSource configurationSource)
             => configurationSource.CanSet(_isRequiredConfigurationSource, Metadata.IsNullable.HasValue)
-               || Metadata.IsNullable.Value == !isRequired;
+               || ((IProperty)Metadata).IsNullable == !isRequired;
 
         public virtual bool MaxLength(int? maxLength, ConfigurationSource configurationSource)
         {

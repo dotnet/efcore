@@ -21,8 +21,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     /// </summary>
     public class ReferenceNavigationBuilder : IAccessor<InternalRelationshipBuilder>
     {
-        private readonly InternalRelationshipBuilder _builder;
-
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="ReferenceNavigationBuilder" /> class.
@@ -48,8 +46,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             RelatedEntityType = relatedEntityType;
             ReferenceName = navigationName;
-            _builder = builder;
+            Builder = builder;
         }
+
+        private InternalRelationshipBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the name of the reference navigation property on the end of the relationship that
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure the relationship.
         /// </summary>
-        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => _builder;
+        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => Builder;
 
         /// <summary>
         ///     Configures this as a one-to-many relationship.
@@ -88,17 +88,18 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder InverseCollectionBuilder([CanBeNull] string collection)
         {
-            var needToInvert = _builder.Metadata.PrincipalEntityType != RelatedEntityType;
-            Debug.Assert((needToInvert && _builder.Metadata.DeclaringEntityType == RelatedEntityType)
-                         || _builder.Metadata.PrincipalEntityType == RelatedEntityType);
+            var needToInvert = Builder.Metadata.PrincipalEntityType != RelatedEntityType;
 
+            Debug.Assert(!needToInvert
+                         || Builder.Metadata.DeclaringEntityType == RelatedEntityType);
+                         
             var builder = Builder;
             if (needToInvert)
             {
                 builder = builder.Invert(ConfigurationSource.Explicit);
             }
 
-            if (((IForeignKey)_builder.Metadata).IsUnique)
+            if (((IForeignKey)Builder.Metadata).IsUnique)
             {
                 builder = builder.NavigationToDependent(null, ConfigurationSource.Explicit);
             }
@@ -130,9 +131,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         protected virtual InternalRelationshipBuilder InverseReferenceBuilder([CanBeNull] string reference)
         {
             var builder = Builder;
-            if (!((IForeignKey)_builder.Metadata).IsUnique)
+            if (!((IForeignKey)Builder.Metadata).IsUnique)
             {
-                Debug.Assert(_builder.Metadata.DependentToPrincipal?.Name == ReferenceName);
+                Debug.Assert(Builder.Metadata.DependentToPrincipal?.Name == ReferenceName);
 
                 builder = builder.NavigationToDependent(null, ConfigurationSource.Explicit);
             }
@@ -140,20 +141,23 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             builder = builder.Unique(true, ConfigurationSource.Explicit);
             var foreignKey = builder.Metadata;
 
-            var inverseToPrincipal = !foreignKey.IsSelfReferencing()
-                                     && foreignKey.DeclaringEntityType == RelatedEntityType
+            var isSelfReferencing = foreignKey.IsSelfReferencing();
+            var inverseToPrincipal = (isSelfReferencing
+                                      || foreignKey.DeclaringEntityType == RelatedEntityType)
+                                     && (!isSelfReferencing
+                                         || ReferenceName != null)
                                      && foreignKey.PrincipalToDependent?.Name == ReferenceName;
 
             Debug.Assert(inverseToPrincipal
-                         || (foreignKey.PrincipalEntityType == RelatedEntityType
-                             && foreignKey.DependentToPrincipal?.Name == ReferenceName));
-            builder = inverseToPrincipal
-                ? builder.NavigationToPrincipal(reference, ConfigurationSource.Explicit, strictPreferExisting: false)
-                : builder.NavigationToDependent(reference, ConfigurationSource.Explicit, strictPreferExisting: false);
+                         || (!isSelfReferencing
+                             && foreignKey.PrincipalEntityType == RelatedEntityType)
+                         || (isSelfReferencing
+                             && ReferenceName == null)
+                         || foreignKey.DependentToPrincipal?.Name == ReferenceName);
 
-            return builder;
+            return inverseToPrincipal
+                ? builder.NavigationToPrincipal(reference, ConfigurationSource.Explicit, strictPreferExisting: isSelfReferencing)
+                : builder.NavigationToDependent(reference, ConfigurationSource.Explicit, strictPreferExisting: isSelfReferencing);
         }
-
-        private InternalRelationshipBuilder Builder => this.GetService();
     }
 }

@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 throw new InvalidOperationException(Strings.NoClrType(entityType.Name));
             }
 
-            if (entityType.IsAbstract)
+            if (entityType.IsAbstract())
             {
                 throw new InvalidOperationException(Strings.CannotMaterializeAbstractType(entityType));
             }

@@ -854,8 +854,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void Can_ignore_property_that_is_part_of_lower_source_index()
         {
             var modelBuilder = CreateModelBuilder();
-            var entityType = modelBuilder.Metadata.AddEntityType(typeof(Order));
-            var entityBuilder = new InternalEntityTypeBuilder(entityType, modelBuilder);
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             Assert.NotNull(entityBuilder.Index(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
 

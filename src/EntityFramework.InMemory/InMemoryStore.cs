@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.InMemory
                     {
                         var entityType = entry.EntityType;
 
-                        Debug.Assert(!entityType.IsAbstract);
+                        Debug.Assert(!entityType.IsAbstract());
 
                         InMemoryTable table;
                         if (!ts.TryGetValue(entityType, out table))

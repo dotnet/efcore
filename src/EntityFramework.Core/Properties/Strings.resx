@@ -346,7 +346,7 @@
     <value>The collection argument '{argumentName}' must not contain any null references.</value>
   </data>
   <data name="EntityTypeNotInRelationship" xml:space="preserve">
-    <value>The specified type '{type}' is invalid. It should be either the dependent type '{dependentType}' or the principal type '{principalType}'.</value>
+    <value>The specified entity type '{type}' is invalid. It should be either the dependent entity  type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.</value>
   </data>
   <data name="DuplicateEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because an entity with the same name already exists.</value>
@@ -453,8 +453,8 @@
   <data name="InvalidValueGeneratorFactoryProperty" xml:space="preserve">
     <value>The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.</value>
   </data>
-  <data name="InvalidForDerivedEntity" xml:space="preserve">
-    <value>The entity type method '{method}' is not valid for derived type '{derivedType}'.</value>
+  <data name="DerivedEntityTypeKey" xml:space="preserve">
+    <value>The derived type '{derivedType}' cannot have keys other than those declared on the root type.</value>
   </data>
   <data name="CircularInheritance" xml:space="preserve">
     <value>The entity type '{entityType}' cannot inherit '{baseEntityType}' because '{baseEntityType}' is a descendent of '{entityType}'.</value>
@@ -470,9 +470,6 @@
   </data>
   <data name="ForeignKeyReferencedEntityKeyMismatch" xml:space="preserve">
     <value>The provided principal entity key '{principalKey}' is not a key on the entity type '{principalEntityType}'.</value>
-  </data>
-  <data name="NavigationToSelfDuplicate" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be used for both ends of the relationship. Either specify it on the principal side or the dependent side.</value>
   </data>
   <data name="NavigationForWrongForeignKey" xml:space="preserve">
     <value>The navigation for property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.</value>
@@ -507,8 +504,8 @@
   <data name="NavigationStillOnEntityType" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be removed because it is still referenced from entity type '{entityType}'.</value>
   </data>
-  <data name="SelfRefAmbiguousNavigation" xml:space="preserve">
-    <value>The navigation property declared on '{entityType}' cannot be determined because the associated  foreign key {foreignKey} references the same entity type that it is declared on.</value>
+  <data name="IntraHierarchicalAmbiguousNavigation" xml:space="preserve">
+    <value>The navigation property corresponding to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references an entity type that it is in the same hierarchy as the entity type that it is declared on.</value>
   </data>
   <data name="DuplicateNavigationsOnBase" xml:space="preserve">
     <value>The type '{entityType}' cannot have base type '{baseType}' because both types include the navigations: {navigations}.</value>
@@ -518,5 +515,8 @@
   </data>
   <data name="TimestampAttributeOnNonBinary" xml:space="preserve">
     <value>The property '{property}' is not a Byte array. TimestampAttribute can only be applied for Byte array properties.</value>
+  </data>
+  <data name="IntraHierarchicalAmbiguousTargetEntityType" xml:space="preserve">
+    <value>The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references an entity type that it is in the same hierarchy as the entity type that it is declared on.</value>
   </data>
 </root>

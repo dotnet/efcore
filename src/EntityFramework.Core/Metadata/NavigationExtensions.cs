@@ -58,7 +58,8 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(principalType, nameof(principalType));
             Check.NotNull(dependentType, nameof(dependentType));
 
-            if ((!shouldPointToPrincipal.HasValue || navigation.PointsToPrincipal() == shouldPointToPrincipal.Value)
+            if ((!shouldPointToPrincipal.HasValue
+                 || navigation.PointsToPrincipal() == shouldPointToPrincipal.Value)
                 && navigation.ForeignKey.IsCompatible(principalType, dependentType, oneToOne))
             {
                 return true;

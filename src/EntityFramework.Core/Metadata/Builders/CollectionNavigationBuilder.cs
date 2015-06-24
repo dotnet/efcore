@@ -20,8 +20,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     /// </summary>
     public class CollectionNavigationBuilder : IAccessor<InternalRelationshipBuilder>
     {
-        private readonly InternalRelationshipBuilder _builder;
-
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="CollectionNavigationBuilder" /> class.
@@ -36,13 +34,15 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotNull(builder, nameof(builder));
 
-            _builder = builder;
+            Builder = builder;
         }
+
+        private InternalRelationshipBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the internal builder being used to configure the relationship.
         /// </summary>
-        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => _builder;
+        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => Builder;
 
         /// <summary>
         ///     Configures this as a one-to-many relationship.
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder InverseReferenceBuilder(string reference)
-            => this.GetService().NavigationToPrincipal(
+            => Builder.NavigationToPrincipal(
                 reference,
                 ConfigurationSource.Explicit,
                 strictPreferExisting: true);

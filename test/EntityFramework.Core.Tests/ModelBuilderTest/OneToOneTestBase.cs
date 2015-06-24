@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity.Tests
 {
     public abstract partial class ModelBuilderTest
@@ -623,7 +624,7 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             [Fact]
-            public virtual void Creates_both_navigationss_and_overrides_existing_FK_when_uniqueness_does_not_match()
+            public virtual void Creates_both_navigations_and_overrides_existing_FK_when_uniqueness_does_not_match()
             {
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
@@ -2227,16 +2228,14 @@ namespace Microsoft.Data.Entity.Tests
                 var navigationToPrincipal = fk.DependentToPrincipal;
                 var navigationToDependent = fk.PrincipalToDependent;
 
-                modelBuilder
-                    .Entity<SelfRef>().Reference(e => e.SelfRef1).InverseReference(e => e.SelfRef2);
+                modelBuilder.Entity<SelfRef>().Reference(e => e.SelfRef1).InverseReference(e => e.SelfRef2);
 
                 Assert.Same(fk, entityType.GetForeignKeys().Single());
                 Assert.Equal(navigationToDependent.Name, fk.PrincipalToDependent.Name);
                 Assert.Equal(navigationToPrincipal.Name, fk.DependentToPrincipal.Name);
                 Assert.True(((IForeignKey)fk).IsRequired);
 
-                modelBuilder
-                    .Entity<SelfRef>().Reference(e => e.SelfRef2).InverseReference(e => e.SelfRef1);
+                modelBuilder.Entity<SelfRef>().Reference(e => e.SelfRef2).InverseReference(e => e.SelfRef1);
 
                 var newFk = entityType.GetForeignKeys().Single();
 
@@ -2304,11 +2303,71 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             [Fact]
+            public virtual void Principal_and_dependent_can_be_flipped_when_self_referencing_with_navigation_to_principal()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<SelfRef>().Reference(e => e.SelfRef1).InverseReference();
+
+                var entityType = modelBuilder.Model.GetEntityType(typeof(SelfRef));
+                var fk = entityType.GetForeignKeys().Single();
+
+                var navigationToPrincipal = fk.DependentToPrincipal;
+                var navigationToDependent = fk.PrincipalToDependent;
+
+                modelBuilder.Entity<SelfRef>().Reference(e => e.SelfRef1).InverseReference();
+
+                Assert.Same(fk, entityType.GetForeignKeys().Single());
+                Assert.Equal(navigationToDependent?.Name, fk.PrincipalToDependent?.Name);
+                Assert.Equal(navigationToPrincipal.Name, fk.DependentToPrincipal.Name);
+                Assert.True(((IForeignKey)fk).IsRequired);
+
+                modelBuilder.Entity<SelfRef>().Reference<SelfRef>().InverseReference(e => e.SelfRef1);
+
+                var newFk = entityType.GetForeignKeys().Single();
+
+                Assert.Equal(fk.Properties, newFk.Properties);
+                Assert.Equal(fk.PrincipalKey, newFk.PrincipalKey);
+                Assert.Equal(navigationToPrincipal.Name, newFk.PrincipalToDependent.Name);
+                Assert.Equal(navigationToDependent?.Name, newFk.DependentToPrincipal?.Name);
+                Assert.True(((IForeignKey)newFk).IsRequired);
+            }
+
+            [Fact]
+            public virtual void Principal_and_dependent_can_be_flipped_when_self_referencing_with_navigation_to_dependent()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<SelfRef>().Reference<SelfRef>().InverseReference(e => e.SelfRef2);
+
+                var entityType = modelBuilder.Model.GetEntityType(typeof(SelfRef));
+                var fk = entityType.GetForeignKeys().Single();
+
+                var navigationToPrincipal = fk.DependentToPrincipal;
+                var navigationToDependent = fk.PrincipalToDependent;
+
+                modelBuilder.Entity<SelfRef>().Reference<SelfRef>().InverseReference(e => e.SelfRef2);
+
+                Assert.Same(fk, entityType.GetForeignKeys().Single());
+                Assert.Equal(navigationToDependent.Name, fk.PrincipalToDependent.Name);
+                Assert.Equal(navigationToPrincipal?.Name, fk.DependentToPrincipal?.Name);
+                Assert.True(((IForeignKey)fk).IsRequired);
+
+                modelBuilder.Entity<SelfRef>().Reference(e => e.SelfRef2).InverseReference();
+
+                var newFk = entityType.GetForeignKeys().Single();
+
+                Assert.Equal(fk.Properties, newFk.Properties);
+                Assert.Equal(fk.PrincipalKey, newFk.PrincipalKey);
+                Assert.Equal(navigationToPrincipal?.Name, newFk.PrincipalToDependent?.Name);
+                Assert.Equal(navigationToDependent.Name, newFk.DependentToPrincipal.Name);
+                Assert.True(((IForeignKey)newFk).IsRequired);
+            }
+
+            [Fact]
             public virtual void Throws_on_duplicate_navigation_when_self_referencing()
             {
                 var modelBuilder = CreateModelBuilder();
 
-                Assert.Equal(Strings.NavigationToSelfDuplicate("SelfRef1"),
+                Assert.Equal(Strings.DuplicateNavigation("SelfRef1", typeof(SelfRef).FullName),
                     Assert.Throws<InvalidOperationException>(() =>
                         modelBuilder.Entity<SelfRef>().Reference(e => e.SelfRef1).InverseReference(e => e.SelfRef1)).Message);
             }
@@ -2504,8 +2563,8 @@ namespace Microsoft.Data.Entity.Tests
                     .Required()
                     .ForeignKey<Nob>(e => new { e.HobId1, e.HobId2 });
 
-                Assert.False(dependentType.GetProperty("HobId1").IsNullable);
-                Assert.False(dependentType.GetProperty("HobId2").IsNullable);
+                Assert.False(dependentType.GetProperty("HobId1").IsNullable
+                             && dependentType.GetProperty("HobId2").IsNullable);
                 Assert.True(dependentType.GetForeignKeys().Single().IsRequired);
 
                 AssertEqual(expectedPrincipalProperties, principalType.GetProperties());

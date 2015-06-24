@@ -21,8 +21,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     /// </summary>
     public class EntityTypeBuilder : IAccessor<Model>, IAccessor<InternalEntityTypeBuilder>
     {
-        private readonly InternalEntityTypeBuilder _builder;
-
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="EntityTypeBuilder" /> class to configure a given entity
@@ -38,13 +36,15 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotNull(builder, nameof(builder));
 
-            _builder = builder;
+            Builder = builder;
         }
+
+        private InternalEntityTypeBuilder Builder { get; }
 
         /// <summary>
         ///     The internal builder being used to configure the entity type.
         /// </summary>
-        InternalEntityTypeBuilder IAccessor<InternalEntityTypeBuilder>.Service => _builder;
+        InternalEntityTypeBuilder IAccessor<InternalEntityTypeBuilder>.Service => Builder;
 
         /// <summary>
         ///     The entity type being configured.
@@ -320,7 +320,5 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 configurationSource: ConfigurationSource.Explicit,
                 isUnique: false);
         }
-
-        private InternalEntityTypeBuilder Builder => this.GetService<InternalEntityTypeBuilder>();
     }
 }

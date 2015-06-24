@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
@@ -149,7 +148,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
             Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
 
             Assert.Null(relationshipBuilder.Required(false, ConfigurationSource.Convention));
-            Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
+            var fk = (IForeignKey)orderEntityBuilder.Metadata.GetForeignKeys().Single();
+            Assert.True(fk.IsRequired);
             Assert.Null(customerIdProperty.IsNullable);
             Assert.False(customerUniqueProperty.IsNullable.Value);
 
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
 
             relationshipBuilder = relationshipBuilder.Required(false, ConfigurationSource.Explicit);
             Assert.NotNull(relationshipBuilder);
-            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            fk = relationshipBuilder.Metadata;
             Assert.False(fk.IsRequired);
             Assert.False(customerIdProperty.IsNullable.Value);
             Assert.False(customerUniqueProperty.IsNullable.Value);
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
             Assert.Same(customerEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);
 
             relationshipBuilder = relationshipBuilder.PrincipalKey(
-                orderEntityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.Convention).Metadata.Properties,
+                orderEntityBuilder.Metadata.GetKeys().Single().Properties,
                 ConfigurationSource.Convention);
 
             Assert.Null(relationshipBuilder.Invert(ConfigurationSource.Convention));

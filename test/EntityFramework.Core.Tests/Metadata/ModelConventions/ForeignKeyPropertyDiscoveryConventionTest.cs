@@ -922,8 +922,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             dependentType.PrimaryKey(new[] { "KayPee" }, ConfigurationSource.Explicit);
 
             var principalTypeWithCompositeKey = modelBuilder.Entity(typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Explicit);
-            principalTypeWithCompositeKey.PrimaryKey(new[] { "Id", "Name" }, ConfigurationSource.Explicit);
-            principalTypeWithCompositeKey.Property(DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Explicit).Required(true, ConfigurationSource.Explicit);
+            principalTypeWithCompositeKey.PrimaryKey(new[] { PrincipalEntityWithCompositeKey.IdProperty, PrincipalEntityWithCompositeKey.NameProperty }, ConfigurationSource.Explicit);
+            principalTypeWithCompositeKey.Property(PrincipalEntityWithCompositeKey.NameProperty, ConfigurationSource.Explicit).Required(true, ConfigurationSource.Explicit);
 
             var dependentTypeWithCompositeKey = modelBuilder.Entity(typeof(DependentEntityWithCompositeKey), ConfigurationSource.Explicit);
             dependentTypeWithCompositeKey.PrimaryKey(new[] { "NotId", "NotName" }, ConfigurationSource.Explicit);
@@ -983,6 +983,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
         private class PrincipalEntityWithCompositeKey
         {
+            public static readonly PropertyInfo IdProperty = typeof(PrincipalEntityWithCompositeKey).GetProperty("Id");
+            public static readonly PropertyInfo NameProperty = typeof(PrincipalEntityWithCompositeKey).GetProperty("Name");
+
             public int Id { get; set; }
             public string Name { get; set; }
             public IEnumerable<DependentEntityWithCompositeKey> InverseNav { get; set; }

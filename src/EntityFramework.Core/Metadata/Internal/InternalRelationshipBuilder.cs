@@ -110,13 +110,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var hasChanged = navigationToDependentName != null &&
                              Metadata.PrincipalToDependent?.Name != navigationToDependentName;
 
-            if (Metadata.IsSelfReferencing()
-                && navigationToDependentName != null
-                && navigationToDependentName == Metadata.DependentToPrincipal?.Name)
-            {
-                throw new InvalidOperationException(Strings.NavigationToSelfDuplicate(navigationToDependentName));
-            }
-
             return principalEntityType
                 .Navigation(navigationToDependentName, Metadata, pointsToPrincipal: false, configurationSource: configurationSource)
                 ? hasChanged ? ReplaceForeignKey(configurationSource) : this
@@ -134,6 +127,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             if (_isRequiredConfigurationSource != null
                 && !configurationSource.Overrides(_isRequiredConfigurationSource.Value))
+            {
+                return null;
+            }
+
+            if (isRequired.HasValue
+                && _foreignKeyPropertiesConfigurationSource.HasValue
+                && _foreignKeyPropertiesConfigurationSource.Value.Overrides(configurationSource)
+                && !ModelBuilder.Entity(Metadata.DeclaringEntityType.Name, configurationSource)
+                    .CanSetRequired(Metadata, isRequired.Value, configurationSource))
             {
                 return null;
             }
@@ -234,6 +236,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
+            var originalForeignKeyPropertiesConfigurationSource = _foreignKeyPropertiesConfigurationSource;
             if (properties == null
                 || properties.Count == 0)
             {
@@ -245,7 +248,44 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 _foreignKeyPropertiesConfigurationSource = configurationSource.Max(_foreignKeyPropertiesConfigurationSource);
             }
 
-            return ReplaceForeignKey(configurationSource, dependentProperties: properties);
+            var newForeignKey = ReplaceForeignKey(configurationSource, dependentProperties: properties);
+            if (newForeignKey == null)
+            {
+                _foreignKeyPropertiesConfigurationSource = originalForeignKeyPropertiesConfigurationSource;
+            }
+
+            return newForeignKey;
+        }
+
+        public virtual bool CanSetForeignKey([NotNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+        {
+            if (_foreignKeyPropertiesConfigurationSource.HasValue
+                && !configurationSource.Overrides(_foreignKeyPropertiesConfigurationSource.Value))
+            {
+                return false;
+            }
+
+            if (!_isRequiredConfigurationSource.HasValue
+                || configurationSource.Overrides(_isRequiredConfigurationSource.Value)
+                || properties.Count == 0)
+            {
+                return true;
+            }
+
+            var isRequired = ((IForeignKey)Metadata).IsRequired;
+            if (!isRequired
+                && !properties.Any(p => p.ClrType.IsNullableType()))
+            {
+                return false;
+            }
+            
+            return CanSetRequired(properties, isRequired, configurationSource);
+        }
+
+        private bool CanSetRequired([NotNull] IReadOnlyList<Property> properties, bool isRequired, ConfigurationSource configurationSource)
+        {
+            var entityBuilder = ModelBuilder.Entity(properties[0].DeclaringEntityType.Name, ConfigurationSource.Convention);
+            return entityBuilder.CanSetRequired(properties, isRequired, configurationSource);
         }
 
         public virtual InternalRelationshipBuilder ForeignKey(
@@ -404,14 +444,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             isUnique = isUnique ??
                        (_isUniqueConfigurationSource.HasValue
                         && _isUniqueConfigurationSource.Value.Overrides(configurationSource)
-                           ? Metadata.IsUnique
-                           : null);
+                           ? ((IForeignKey)Metadata).IsUnique
+                           : (bool?)null);
 
             isRequired = isRequired ??
                          (_isRequiredConfigurationSource.HasValue
                           && _isRequiredConfigurationSource.Value.Overrides(configurationSource)
-                             ? Metadata.IsRequired
-                             : null);
+                             ? ((IForeignKey)Metadata).IsRequired
+                             : (bool?)null);
+
+            if (dependentProperties != null
+                && isRequired.HasValue
+                && !CanSetRequired(dependentProperties, isRequired.Value, configurationSource))
+            {
+                return null;
+            }
 
             return ReplaceForeignKey(
                 Metadata.PrincipalEntityType,

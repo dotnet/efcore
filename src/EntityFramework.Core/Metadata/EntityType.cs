@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -36,8 +35,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         private Key _primaryKey;
         private EntityType _baseType;
-
-        private int _shadowPropertyCount;
 
         private bool _useEagerSnapshots;
 
@@ -102,7 +99,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                     if (_keys.Any())
                     {
-                        throw new InvalidOperationException(Strings.DerivedEntityCannotHaveKeys(this));
+                        throw new InvalidOperationException(Strings.DerivedEntityCannotHaveKeys(Name));
                     }
 
                     var baseProperties = value.Properties.Select(p => p.Name).ToArray();
@@ -152,8 +149,6 @@ namespace Microsoft.Data.Entity.Metadata
             return false;
         }
 
-        public virtual bool IsAbstract => ClrType?.GetTypeInfo().IsAbstract ?? false;
-
         public virtual string Name
         {
             get
@@ -185,8 +180,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         public override string ToString() => Name;
 
-        public virtual int ShadowPropertyCount => _shadowPropertyCount;
-
         public virtual int PropertyCount => (BaseType?.PropertyCount ?? 0) + _properties.Count;
 
         public virtual bool HasClrType => ClrType != null;
@@ -217,7 +210,10 @@ namespace Microsoft.Data.Entity.Metadata
         [ContractAnnotation("null => null; notnull => notnull")]
         public virtual Key SetPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
         {
-            ThrowIfDerivedEntity();
+            if (BaseType != null)
+            {
+                throw new InvalidOperationException(Strings.DerivedEntityTypeKey(Name));
+            }
 
             if (_primaryKey != null)
             {
@@ -305,7 +301,10 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual Key AddKey([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
-            ThrowIfDerivedEntity();
+            if (BaseType != null)
+            {
+                throw new InvalidOperationException(Strings.DerivedEntityTypeKey(Name));
+            }
 
             var key = FindKey(properties);
             if (key != null)
@@ -338,7 +337,9 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(properties, nameof(properties));
 
             Key key;
-            return _keys.TryGetValue(properties, out key) ? key : null;
+            return _keys.TryGetValue(properties, out key)
+                ? key
+                : BaseType?.FindKey(properties);
         }
 
         public virtual IKey FindKey(IReadOnlyList<IProperty> properties)
@@ -347,7 +348,6 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual Key RemoveKey([NotNull] Key key)
         {
             Check.NotNull(key, nameof(key));
-            ThrowIfDerivedEntity();
 
             Key removedKey;
             if (_keys.TryGetValue(key.Properties, out removedKey))
@@ -375,17 +375,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual IEnumerable<Key> GetKeys()
-            => BaseType != null
-                ? BaseType.GetKeys().Concat(_keys.Values)
-                : _keys.Values;
-
-        private void ThrowIfDerivedEntity([CallerMemberName] string caller = null)
-        {
-            if (BaseType != null)
-            {
-                throw new InvalidOperationException(Strings.InvalidForDerivedEntity(caller, Name));
-            }
-        }
+            => BaseType?.GetKeys().Concat(_keys.Values) ?? _keys.Values;
 
         #endregion
 
@@ -730,6 +720,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         #region Properties
 
+        [NotNull]
         public virtual Property AddProperty([NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
@@ -737,6 +728,7 @@ namespace Microsoft.Data.Entity.Metadata
             return AddProperty(propertyInfo.Name, propertyInfo.PropertyType);
         }
 
+        [NotNull]
         public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
         {
             Check.NotNull(name, nameof(name));
@@ -768,6 +760,7 @@ namespace Microsoft.Data.Entity.Metadata
         // Note: If the property already exists, then whether or not it is a shadow property is not changed.
         // It is useful in many places to get an existing property if it exists, but then create it either in
         // or out of shadow state if it doesn't.
+        [NotNull]
         public virtual Property GetOrAddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
             => FindProperty(name) ?? AddProperty(name, propertyType, shadowProperty);
 
@@ -880,8 +873,6 @@ namespace Microsoft.Data.Entity.Metadata
                 indexedProperty.SetOriginalValueIndex(
                     RequiresOriginalValue(indexedProperty) ? originalValueIndex++ : -1);
             }
-
-            _shadowPropertyCount = shadowIndex;
 
             foreach (var derivedType in this.GetDirectlyDerivedTypes())
             {

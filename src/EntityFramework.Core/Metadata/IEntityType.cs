@@ -13,9 +13,7 @@ namespace Microsoft.Data.Entity.Metadata
         IModel Model { get; }
 
         string Name { get; }
-
-        bool IsAbstract { get; }
-
+        
         IEntityType BaseType { get; }
 
         Type ClrType { get; }

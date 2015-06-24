@@ -24,9 +24,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var entityType = model.AddEntityType("E");
-            var property = entityType.AddProperty("p", typeof(int), shadowProperty: true);
-            var key = entityType.SetPrimaryKey(property);
-            return new ForeignKey(new[] { property }, key, entityType);
+            var idProperty = entityType.AddProperty("id", typeof(int), shadowProperty: true);
+            var key = entityType.SetPrimaryKey(idProperty);
+            var fkProperty = entityType.AddProperty("p", typeof(int), shadowProperty: true);
+            return new ForeignKey(new[] { fkProperty }, key, entityType);
         }
     }
 }
