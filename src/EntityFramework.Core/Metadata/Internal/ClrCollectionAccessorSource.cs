@@ -38,13 +38,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             return _cache.GetOrAdd(
-                Tuple.Create(navigation.EntityType.ClrType, navigation.Name),
+                Tuple.Create(navigation.DeclaringEntityType.ClrType, navigation.Name),
                 k => Create(navigation));
         }
 
         private IClrCollectionAccessor Create(INavigation navigation)
         {
-            var property = navigation.EntityType.ClrType.GetAnyProperty(navigation.Name);
+            var property = navigation.DeclaringEntityType.ClrType.GetAnyProperty(navigation.Name);
             var elementType = property.PropertyType.TryGetElementType(typeof(ICollection<>));
 
             // TODO: Only ICollections supported; add support for enumerables with add/remove methods
@@ -53,18 +53,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 throw new NotSupportedException(
                     Strings.NavigationBadType(
-                        navigation.Name, navigation.EntityType.Name, property.PropertyType.FullName, navigation.GetTargetType().Name));
+                        navigation.Name, navigation.DeclaringEntityType.Name, property.PropertyType.FullName, navigation.GetTargetType().Name));
             }
 
             if (property.PropertyType.IsArray)
             {
                 throw new NotSupportedException(
-                    Strings.NavigationArray(navigation.Name, navigation.EntityType.Name, property.PropertyType.FullName));
+                    Strings.NavigationArray(navigation.Name, navigation.DeclaringEntityType.Name, property.PropertyType.FullName));
             }
 
             if (property.GetMethod == null)
             {
-                throw new NotSupportedException(Strings.NavigationNoGetter(navigation.Name, navigation.EntityType.Name));
+                throw new NotSupportedException(Strings.NavigationNoGetter(navigation.Name, navigation.DeclaringEntityType.Name));
             }
 
             var boundMethod = _genericCreate.MakeGenericMethod(

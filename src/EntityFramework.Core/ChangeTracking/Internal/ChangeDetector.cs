@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 var navigation = propertyBase as INavigation;
                 if ((navigation != null && !navigation.IsCollection())
-                    || (property != null && (property.IsKey() || property.IsForeignKey())))
+                    || (property != null && (property.IsKey() || property.IsForeignKey(entry.EntityType))))
                 {
                     // TODO: Consider making snapshot temporary here since it is no longer required after PropertyChanged is called
                     // See issue #730
@@ -148,11 +148,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 return;
             }
-
-            // TODO: Perf: make it fast to check if a property is part of any key
+            
             var isPrimaryKey = property.IsPrimaryKey();
             var isPrincipalKey = _model.GetReferencingForeignKeys(property).Any();
-            var isForeignKey = property.IsForeignKey();
+            var isForeignKey = property.IsForeignKey(entry.EntityType);
 
             if (isPrimaryKey
                 || isPrincipalKey

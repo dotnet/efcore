@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IForeignKey : IAnnotatable
     {
-        IEntityType EntityType { get; }
+        IEntityType DeclaringEntityType { get; }
         IReadOnlyList<IProperty> Properties { get; }
         IEntityType PrincipalEntityType { get; }
         IKey PrincipalKey { get; }

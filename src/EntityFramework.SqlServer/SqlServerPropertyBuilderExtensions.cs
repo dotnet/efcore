@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity
             Check.NullButNotEmpty(schema, nameof(schema));
 
             var property = propertyBuilder.Metadata;
-            var sequence = property.EntityType.Model.SqlServer().GetOrAddSequence(name, schema);
+            var sequence = property.DeclaringEntityType.Model.SqlServer().GetOrAddSequence(name, schema);
 
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             property.ValueGenerated = ValueGenerated.OnAdd;

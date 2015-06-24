@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         protected virtual InternalRelationshipBuilder InverseCollectionBuilder([CanBeNull] string collection)
         {
             var needToInvert = _builder.Metadata.PrincipalEntityType != RelatedEntityType;
-            Debug.Assert((needToInvert && _builder.Metadata.EntityType == RelatedEntityType)
+            Debug.Assert((needToInvert && _builder.Metadata.DeclaringEntityType == RelatedEntityType)
                          || _builder.Metadata.PrincipalEntityType == RelatedEntityType);
 
             var builder = Builder;
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             var foreignKey = builder.Metadata;
 
             var inverseToPrincipal = !foreignKey.IsSelfReferencing()
-                                     && foreignKey.EntityType == RelatedEntityType
+                                     && foreignKey.DeclaringEntityType == RelatedEntityType
                                      && foreignKey.PrincipalToDependent?.Name == ReferenceName;
 
             Debug.Assert(inverseToPrincipal

@@ -300,7 +300,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var fkProperty = entityType.GetOrAddProperty("Fk", typeof(int));
 
             entityType.GetOrSetPrimaryKey(pkProperty);
-            var fk = entityType.GetOrAddForeignKey(fkProperty, entityType.GetPrimaryKey());
+            var fk = entityType.GetOrAddForeignKey(fkProperty, entityType.GetPrimaryKey(), entityType);
 
             entityType.GetOrAddProperty("Name", typeof(string));
 

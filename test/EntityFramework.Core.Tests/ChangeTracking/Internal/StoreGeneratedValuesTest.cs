@@ -3,6 +3,7 @@
 
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal

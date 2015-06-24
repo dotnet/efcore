@@ -394,21 +394,21 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
             idProperty.IsConcurrencyToken = true;
             idProperty.RequiresValueGenerator = true;
-            entityType.GetOrSetPrimaryKey(idProperty);
+            var key = entityType.GetOrSetPrimaryKey(idProperty);
 
             entityType.GetOrAddProperty("Name", typeof(string));
             entityType.GetOrAddProperty("State", typeof(string)).IsConcurrencyToken = true;
 
             var fkProperty = entityType.GetOrAddProperty("Fk", typeof(int?));
             fkProperty.IsConcurrencyToken = true;
-            entityType.GetOrAddForeignKey(fkProperty, new Key(new[] { idProperty }));
+            entityType.GetOrAddForeignKey(fkProperty, key, entityType);
 
             var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
             var key2A = entityType2.GetOrAddProperty("Id1", typeof(int));
             var key2B = entityType2.GetOrAddProperty("Id2", typeof(string));
             entityType2.GetOrSetPrimaryKey(new[] { key2A, key2B });
             var fk = entityType2.GetOrAddProperty("SomeEntityId", typeof(int));
-            entityType2.GetOrAddForeignKey(new[] { fk }, entityType.GetPrimaryKey());
+            entityType2.GetOrAddForeignKey(new[] { fk }, key, entityType);
             var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
             justAProperty.RequiresValueGenerator = true;
 
@@ -417,7 +417,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entityType5.GetOrSetPrimaryKey(key5);
             var fk5A = entityType5.GetOrAddProperty("Fk1", typeof(int));
             var fk5B = entityType5.GetOrAddProperty("Fk2", typeof(string));
-            entityType5.GetOrAddForeignKey(new[] { fk5A, fk5B }, entityType2.GetPrimaryKey());
+            entityType5.GetOrAddForeignKey(new[] { fk5A, fk5B }, entityType2.GetPrimaryKey(), entityType2);
 
             return model;
         }

@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             foreach (var foreignKey in ModelBuilder.Metadata.GetReferencingForeignKeys(key))
             {
-                var removed = ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention)
+                var removed = ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
                     .RemoveRelationship(foreignKey, configurationSource);
                 Debug.Assert(removed.HasValue);
             }
@@ -221,9 +221,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private bool CanRemove(ForeignKey foreignKey, ConfigurationSource configurationSource, bool canOverrideSameSource)
         {
-            if (foreignKey.EntityType != Metadata)
+            if (foreignKey.DeclaringEntityType != Metadata)
             {
-                return ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention)
+                return ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
                     .CanRemove(foreignKey, configurationSource, canOverrideSameSource);
             }
 
@@ -257,9 +257,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 ? foreignKey.DependentToPrincipal
                 : foreignKey.PrincipalToDependent;
 
-            var fkOwner = foreignKey.EntityType == Metadata
+            var fkOwner = foreignKey.DeclaringEntityType == Metadata
                 ? this
-                : ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention);
+                : ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention);
 
             if (navigationName == navigation?.Name)
             {
@@ -272,7 +272,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return false;
             }
 
-            navigation?.EntityType.RemoveNavigation(navigation);
+            navigation?.DeclaringEntityType.RemoveNavigation(navigation);
 
             var conflictingNavigation = navigationName == null
                 ? null
@@ -472,7 +472,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (foreignKey != null)
                 {
-                    var relationshipConfigurationSource = ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention)
+                    var relationshipConfigurationSource = ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
                         ._relationshipBuilders.Value.GetConfigurationSource(foreignKey);
 
                     if (!configurationSource.Overrides(relationshipConfigurationSource))
@@ -496,9 +496,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual ConfigurationSource? RemoveRelationship([NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
         {
-            if (foreignKey.EntityType != Metadata)
+            if (foreignKey.DeclaringEntityType != Metadata)
             {
-                return ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention)
+                return ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
                     .RemoveRelationship(foreignKey, configurationSource);
             }
 
@@ -511,10 +511,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var principalEntityTypeBuilder = ModelBuilder.Entity(foreignKey.PrincipalEntityType.Name, ConfigurationSource.Convention);
 
             var navigationToDependent = foreignKey.PrincipalToDependent;
-            navigationToDependent?.EntityType.RemoveNavigation(navigationToDependent);
+            navigationToDependent?.DeclaringEntityType.RemoveNavigation(navigationToDependent);
 
             var navigationToPrincipal = foreignKey.DependentToPrincipal;
-            navigationToPrincipal?.EntityType.RemoveNavigation(navigationToPrincipal);
+            navigationToPrincipal?.DeclaringEntityType.RemoveNavigation(navigationToPrincipal);
 
             Metadata.RemoveForeignKey(foreignKey);
             ModelBuilder.ConventionDispatcher.OnForeignKeyRemoved(this, foreignKey);
@@ -620,9 +620,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] ForeignKey foreignKey, bool existingForeignKey, ConfigurationSource configurationSource)
         {
-            if (foreignKey.EntityType != Metadata)
+            if (foreignKey.DeclaringEntityType != Metadata)
             {
-                return ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention)
+                return ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
                     .Relationship(foreignKey, existingForeignKey, configurationSource);
             }
 
@@ -937,7 +937,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (foreignKeyProperties != null
                 && principalProperties != null)
             {
-                Entity.Metadata.Property.EnsureCompatible(principalProperties, foreignKeyProperties);
+                Entity.Metadata.Property.EnsureCompatible(principalProperties, foreignKeyProperties, principalType, dependentType);
             }
 
             Key principalKey;
@@ -1005,7 +1005,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 foreignKeyProperties = fkProperties;
             }
 
-            var newForeignKey = dependentType.AddForeignKey(foreignKeyProperties, principalKey);
+            var newForeignKey = dependentType.AddForeignKey(foreignKeyProperties, principalKey, principalType);
             newForeignKey.IsUnique = isUnique;
 
             foreach (var foreignKeyProperty in foreignKeyProperties)
@@ -1145,15 +1145,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             public InternalRelationshipBuilder Attach()
             {
                 var newRelationship = Relationship.Attach(RelationshipConfigurationSource);
-                var inverted = Relationship.Metadata.EntityType != newRelationship.Metadata.EntityType;
+                var inverted = Relationship.Metadata.DeclaringEntityType != newRelationship.Metadata.DeclaringEntityType;
                 if (NavigationToPrincipalName != null)
                 {
                     newRelationship = inverted
                         ? newRelationship.NavigationToDependent(NavigationToPrincipalName, RelationshipConfigurationSource)
                         : newRelationship.NavigationToPrincipal(NavigationToPrincipalName, RelationshipConfigurationSource);
                 }
-
-                inverted = Relationship.Metadata.EntityType != newRelationship.Metadata.EntityType;
+                
                 if (NavigationToDependentName != null)
                 {
                     newRelationship = inverted

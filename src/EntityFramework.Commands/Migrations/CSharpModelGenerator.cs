@@ -328,7 +328,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     stringBuilder
                         .AppendLine(".InverseReference()")
                         .Append(".ForeignKey(")
-                        .Append(_code.Literal(foreignKey.EntityType.Name))
+                        .Append(_code.Literal(foreignKey.DeclaringEntityType.Name))
                         .Append(", ")
                         .Append(string.Join(", ", foreignKey.Properties.Select(p => _code.Literal(p.Name))))
                         .Append(")");

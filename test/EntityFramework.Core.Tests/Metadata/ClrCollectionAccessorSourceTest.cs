@@ -131,9 +131,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Delegate_getter_is_cached_by_type_and_property_name()
         {
-            var entityType = new Model().AddEntityType(typeof(MyEntity));
-            var otherType = new Model().AddEntityType(typeof(MyOtherEntity));
-            var foreignKey = otherType.GetOrAddForeignKey(otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true), entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)));
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(MyEntity));
+            var otherType = model.AddEntityType(typeof(MyOtherEntity));
+            var foreignKey = otherType.GetOrAddForeignKey(otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true),
+                entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)),
+                entityType);
 
             var navigation = entityType.AddNavigation("AsICollection", foreignKey, pointsToPrincipal: false);
 
@@ -215,9 +218,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private static Navigation CreateNavigation(string navigationName)
         {
-            var entityType = new Model().AddEntityType(typeof(MyEntity));
-            var otherType = new Model().AddEntityType(typeof(MyOtherEntity));
-            var foreignKey = otherType.GetOrAddForeignKey(otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true), entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)));
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(MyEntity));
+            var otherType = model.AddEntityType(typeof(MyOtherEntity));
+            var foreignKey = otherType.GetOrAddForeignKey(otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true),
+                entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)),
+                entityType);
 
             return entityType.AddNavigation(navigationName, foreignKey, pointsToPrincipal: false);
         }

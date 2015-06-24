@@ -395,7 +395,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         foreignKeyConstraintRelationalPropertyList[0].Name);
                     if (targetRelationalProperty != null)
                     {
-                        var targetRelationalEntityType = targetRelationalProperty.EntityType;
+                        var targetRelationalEntityType = targetRelationalProperty.DeclaringEntityType;
                         var targetCodeGenEntityType = _relationalEntityTypeToCodeGenEntityTypeMap[targetRelationalEntityType];
                         var targetPrimaryKey = targetCodeGenEntityType.GetPrimaryKey();
 
@@ -418,7 +418,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         // Note: SQL Server allows more than 1 foreign key on the exact same
                         // set of properties. Here we just conflate into one foreign key.
                         var codeGenForeignKey = codeGenEntityType
-                            .GetOrAddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey);
+                            .GetOrAddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey, targetCodeGenEntityType);
 
                         if (_uniqueConstraintColumns.Contains(
                             ConstructIdForCombinationOfColumns(
@@ -640,7 +640,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     _logger.LogWarning(
                         Strings.UnableToConvertDefaultValue(
                             tableColumn.Id, tableColumn.DefaultValue,
-                            property.ClrType, property.Name, property.EntityType.Name));
+                            property.ClrType, property.Name, property.DeclaringEntityType.Name));
                 }
             }
         }

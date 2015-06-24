@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             stringProperty.IsNullable = true;
             Assert.True(stringProperty.IsNullable.Value);
 
-            stringProperty.EntityType.SetPrimaryKey(stringProperty);
+            stringProperty.DeclaringEntityType.SetPrimaryKey(stringProperty);
 
             Assert.Null(stringProperty.IsNullable);
             Assert.False(((IProperty)stringProperty).IsNullable);
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Properties_which_are_part_of_primary_key_cannot_be_made_nullable()
         {
             var stringProperty = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
-            stringProperty.EntityType.SetPrimaryKey(stringProperty);
+            stringProperty.DeclaringEntityType.SetPrimaryKey(stringProperty);
 
             Assert.Equal(
                 Strings.CannotBeNullablePK("Name", "object"),

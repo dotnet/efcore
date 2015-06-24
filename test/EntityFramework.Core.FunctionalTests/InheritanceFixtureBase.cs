@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             animalSpeciesProperty.RequiresValueGenerator = true;
             var animalKey = animal.SetPrimaryKey(animalSpeciesProperty);
             animal.AddProperty("Name", typeof(string));
-            var countryFk = animal.AddForeignKey(animal.AddProperty("CountryId", typeof(int)), countryKey);
+            var countryFk = animal.AddForeignKey(animal.AddProperty("CountryId", typeof(int)), countryKey, country);
 
             var bird = model.AddEntityType(typeof(Bird));
             bird.BaseType = animal;

@@ -250,7 +250,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
         private ForeignKey CreateForeignKey(Key dependentKey, Key principalKey)
         {
-            var foreignKey = dependentKey.EntityType.AddForeignKey(dependentKey.Properties, principalKey);
+            var foreignKey = dependentKey.DeclaringEntityType.AddForeignKey(dependentKey.Properties, principalKey, principalKey.DeclaringEntityType);
             foreignKey.IsUnique = true;
             foreignKey.IsRequired = false;
             foreach (var property in dependentKey.Properties)

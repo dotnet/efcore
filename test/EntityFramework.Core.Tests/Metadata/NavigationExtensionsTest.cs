@@ -103,8 +103,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var categoryType = model.GetEntityType(typeof(Category));
             var productType = model.GetEntityType(typeof(Product));
 
-            var categoryFk = productType.GetOrAddForeignKey(productType.GetProperty("CategoryId"), categoryType.GetPrimaryKey());
-            var featuredProductFk = categoryType.GetOrAddForeignKey(categoryType.GetProperty("FeaturedProductId"), productType.GetPrimaryKey());
+            var categoryFk = productType.GetOrAddForeignKey(productType.GetProperty("CategoryId"), categoryType.GetPrimaryKey(), categoryType);
+            var featuredProductFk = categoryType.GetOrAddForeignKey(categoryType.GetProperty("FeaturedProductId"), productType.GetPrimaryKey(), productType);
             featuredProductFk.IsUnique = true;
 
             if (createProducts)

@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             foreach (var property in entry.EntityType.GetProperties())
             {
-                var isForeignKey = property.IsForeignKey();
+                var isForeignKey = property.IsForeignKey(entry.EntityType);
 
                 if ((property.RequiresValueGenerator || isForeignKey)
                     && property.IsSentinelValue(entry[property]))

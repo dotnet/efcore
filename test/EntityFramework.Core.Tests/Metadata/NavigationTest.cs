@@ -9,48 +9,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
     public class NavigationTest
     {
         [Fact]
-        public void Can_create_navigation_to_principal()
+        public void Can_create_navigation()
         {
             var foreignKey = CreateForeignKey();
-            foreignKey.IsUnique = false;
 
-            var navigation = new Navigation("Deception", foreignKey, pointsToPrincipal: true);
+            var navigation = new Navigation("Deception", foreignKey);
 
             Assert.Same(foreignKey, navigation.ForeignKey);
             Assert.Equal("Deception", navigation.Name);
-            Assert.NotNull(navigation.EntityType);
-            Assert.True(navigation.PointsToPrincipal());
-            Assert.False(navigation.IsCollection());
-        }
-
-        [Fact]
-        public void Can_create_navigation_to_unique_dependent()
-        {
-            var foreignKey = CreateForeignKey();
-            foreignKey.IsUnique = true;
-
-            var navigation = new Navigation("Deception", foreignKey, pointsToPrincipal: false);
-
-            Assert.Same(foreignKey, navigation.ForeignKey);
-            Assert.Equal("Deception", navigation.Name);
-            Assert.NotNull(navigation.EntityType);
-            Assert.False(navigation.PointsToPrincipal());
-            Assert.False(navigation.IsCollection());
-        }
-
-        [Fact]
-        public void Can_create_navigation_to_collection_of_dependents()
-        {
-            var foreignKey = CreateForeignKey();
-            foreignKey.IsUnique = false;
-
-            var navigation = new Navigation("Deception", foreignKey, pointsToPrincipal: false);
-
-            Assert.Same(foreignKey, navigation.ForeignKey);
-            Assert.Equal("Deception", navigation.Name);
-            Assert.NotNull(navigation.EntityType);
-            Assert.False(navigation.PointsToPrincipal());
-            Assert.True(navigation.IsCollection());
+            Assert.Same(foreignKey.DeclaringEntityType, navigation.DeclaringEntityType);
         }
 
         private ForeignKey CreateForeignKey()
@@ -59,7 +26,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = model.AddEntityType("E");
             var property = entityType.AddProperty("p", typeof(int), shadowProperty: true);
             var key = entityType.SetPrimaryKey(property);
-            return new ForeignKey(new[] { property }, key);
+            return new ForeignKey(new[] { property }, key, entityType);
         }
     }
 }

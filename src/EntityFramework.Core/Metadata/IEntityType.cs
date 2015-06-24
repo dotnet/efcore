@@ -20,15 +20,17 @@ namespace Microsoft.Data.Entity.Metadata
 
         Type ClrType { get; }
 
-        IKey GetPrimaryKey();
+        IKey FindPrimaryKey();
 
         IProperty FindProperty([NotNull] string name);
 
-        IProperty GetProperty([NotNull] string name);
+        IForeignKey FindForeignKey([NotNull] IReadOnlyList<IProperty> properties);
 
         INavigation FindNavigation([NotNull] string name);
 
-        INavigation GetNavigation([NotNull] string name);
+        IIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
+
+        IKey FindKey([NotNull] IReadOnlyList<IProperty> properties);
 
         IEnumerable<IProperty> GetProperties();
 

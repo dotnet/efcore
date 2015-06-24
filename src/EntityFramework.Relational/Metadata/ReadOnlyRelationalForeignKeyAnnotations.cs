@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         protected virtual string GetDefaultName()
             => "FK_" +
-               _foreignKey.EntityType.DisplayName() +
+               _foreignKey.DeclaringEntityType.DisplayName() +
                "_" +
                _foreignKey.PrincipalEntityType.DisplayName() +
                "_" +

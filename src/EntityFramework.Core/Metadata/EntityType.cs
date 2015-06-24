@@ -47,8 +47,7 @@ namespace Microsoft.Data.Entity.Metadata
         /// <param name="type">The .NET entity type that this metadata object represents.</param>
         /// <param name="model">The model associated with this entity type.</param>
         public EntityType([NotNull] Type type, [NotNull] Model model)
-            : this(
-                (object)Check.NotNull(type, nameof(type)),
+            : this((object)Check.NotNull(type, nameof(type)),
                 Check.NotNull(model, nameof(model)))
         {
             Check.ValidEntityType(type, nameof(type));
@@ -63,8 +62,7 @@ namespace Microsoft.Data.Entity.Metadata
         /// <param name="name">The name of the shadow-state entity type.</param>
         /// <param name="model">The model associated with this entity type.</param>
         public EntityType([NotNull] string name, [NotNull] Model model)
-            : this(
-                (object)Check.NotEmpty(name, nameof(name)),
+            : this((object)Check.NotEmpty(name, nameof(name)),
                 Check.NotNull(model, nameof(model)))
         {
         }
@@ -102,22 +100,33 @@ namespace Microsoft.Data.Entity.Metadata
                         throw new InvalidOperationException(Strings.CircularInheritance(this, value));
                     }
 
-                    if (_primaryKey != null
-                        || _keys.Any())
+                    if (_keys.Any())
                     {
                         throw new InvalidOperationException(Strings.DerivedEntityCannotHaveKeys(this));
                     }
 
                     var baseProperties = value.Properties.Select(p => p.Name).ToArray();
-                    var collisions = FindPropertyCollisions(baseProperties).ToList();
-
-                    if (collisions.Count > 0)
+                    var propertyCollisions = FindPropertyCollisions(baseProperties);
+                    // ReSharper disable once PossibleMultipleEnumeration
+                    if (propertyCollisions.Any())
                     {
                         throw new InvalidOperationException(
                             Strings.DuplicatePropertiesOnBase(
                                 Name,
                                 value.Name,
-                                string.Join(", ", collisions.Select(p => p.Name))));
+                                string.Join(", ", propertyCollisions.Select(p => p.Name))));
+                    }
+
+                    var baseNavigations = value.Navigations.Select(p => p.Name).ToArray();
+                    var navigationCollisions = FindNavigationCollisions(baseNavigations);
+                    // ReSharper disable once PossibleMultipleEnumeration
+                    if (navigationCollisions.Any())
+                    {
+                        throw new InvalidOperationException(
+                            Strings.DuplicateNavigationsOnBase(
+                                Name,
+                                value.Name,
+                                string.Join(", ", navigationCollisions.Select(p => p.Name))));
                     }
 
                     _baseType = value;
@@ -267,20 +276,7 @@ namespace Microsoft.Data.Entity.Metadata
             return SetPrimaryKey(properties);
         }
 
-        public virtual Key GetPrimaryKey()
-        {
-            if (BaseType != null)
-            {
-                return BaseType.GetPrimaryKey();
-            }
-
-            if (_primaryKey == null)
-            {
-                throw new ModelItemNotFoundException(Strings.EntityRequiresKey(Name));
-            }
-
-            return _primaryKey;
-        }
+        public virtual Key GetPrimaryKey() => (Key)((IEntityType)this).GetPrimaryKey();
 
         public virtual Key FindPrimaryKey()
             => BaseType?.FindPrimaryKey() ?? _primaryKey;
@@ -318,7 +314,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             key = new Key(properties);
-            if (key.EntityType != this)
+            if (key.DeclaringEntityType != this)
             {
                 throw new ArgumentException(Strings.KeyPropertiesWrongEntity(Property.Format(properties), Name));
             }
@@ -341,27 +337,12 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(properties, nameof(properties));
 
-            var key = FindPrimaryKey(properties);
-            if (key != null)
-            {
-                return key;
-            }
-
+            Key key;
             return _keys.TryGetValue(properties, out key) ? key : null;
         }
 
-        public virtual Key GetKey([NotNull] Property property) => GetKey(new[] { property });
-
-        public virtual Key GetKey([NotNull] IReadOnlyList<Property> properties)
-        {
-            var key = FindKey(properties);
-            if (key == null)
-            {
-                throw new ModelItemNotFoundException(Strings.KeyNotFound(Property.Format(properties), Name));
-            }
-
-            return key;
-        }
+        public virtual IKey FindKey(IReadOnlyList<IProperty> properties)
+            => FindKey((IReadOnlyList<Property>)properties);
 
         public virtual Key RemoveKey([NotNull] Key key)
         {
@@ -386,11 +367,10 @@ namespace Microsoft.Data.Entity.Metadata
 
         private void CheckKeyNotInUse(Key key)
         {
-            var foreignKey = Model?.EntityTypes.SelectMany(e => e.GetForeignKeys()).FirstOrDefault(k => k.PrincipalKey == key);
-
+            var foreignKey = Model?.GetReferencingForeignKeys(key).FirstOrDefault();
             if (foreignKey != null)
             {
-                throw new InvalidOperationException(Strings.KeyInUse(Property.Format(key.Properties), Name, foreignKey.EntityType.Name));
+                throw new InvalidOperationException(Strings.KeyInUse(Property.Format(key.Properties), Name, foreignKey.DeclaringEntityType.Name));
             }
         }
 
@@ -414,27 +394,32 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual ForeignKey AddForeignKey(
             [NotNull] Property property,
             [NotNull] Key principalKey,
-            [CanBeNull] EntityType principalEntityType = null)
+            [NotNull] EntityType principalEntityType)
             => AddForeignKey(new[] { property }, principalKey, principalEntityType);
 
         public virtual ForeignKey AddForeignKey(
             [NotNull] IReadOnlyList<Property> properties,
             [NotNull] Key principalKey,
-            [CanBeNull] EntityType principalEntityType = null)
+            [NotNull] EntityType principalEntityType)
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.NotNull(principalKey, nameof(principalKey));
+            Check.NotNull(principalEntityType, nameof(principalEntityType));
 
-            if (_foreignKeys.ContainsKey(properties))
+            if (FindForeignKeyCollisions(new[] { properties }).Any())
             {
                 throw new InvalidOperationException(Strings.DuplicateForeignKey(Property.Format(properties), Name));
             }
 
             var foreignKey = new ForeignKey(properties, principalKey, principalEntityType);
-
-            if (foreignKey.EntityType != this)
+            if (foreignKey.DeclaringEntityType != this)
             {
                 throw new ArgumentException(Strings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
+            }
+
+            if (principalEntityType.Model != Model)
+            {
+                throw new ArgumentException(Strings.EntityTypeModelMismatch(this, principalEntityType));
             }
 
             _foreignKeys.Add(properties, foreignKey);
@@ -445,14 +430,14 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual ForeignKey GetOrAddForeignKey(
-            [NotNull] Property property, [NotNull] Key principalKey)
-            => GetOrAddForeignKey(new[] { property }, principalKey);
+            [NotNull] Property property, [NotNull] Key principalKey, [NotNull] EntityType principalEntityType)
+            => GetOrAddForeignKey(new[] { property }, principalKey, principalEntityType);
 
         // Note: this will return an existing foreign key even if it doesn't have the same referenced key
         public virtual ForeignKey GetOrAddForeignKey(
-            [NotNull] IReadOnlyList<Property> properties, [NotNull] Key principalKey)
+            [NotNull] IReadOnlyList<Property> properties, [NotNull] Key principalKey, [NotNull] EntityType principalEntityType)
             => FindForeignKey(properties)
-               ?? AddForeignKey(properties, principalKey);
+               ?? AddForeignKey(properties, principalKey, principalEntityType);
 
         public virtual ForeignKey FindForeignKey([NotNull] Property property) => FindForeignKey(new[] { property });
 
@@ -461,48 +446,29 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(properties, nameof(properties));
 
             ForeignKey foreignKey;
-            if (_foreignKeys.TryGetValue(properties, out foreignKey))
-            {
-                return foreignKey;
-            }
-
-            return null;
+            return _foreignKeys.TryGetValue(properties, out foreignKey)
+                ? foreignKey
+                : BaseType?.FindForeignKey(properties);
         }
 
-        public virtual ForeignKey FindForeignKey(
-            [NotNull] EntityType principalType,
-            [CanBeNull] string navigationToPrincipal,
-            [CanBeNull] string navigationToDependent,
-            [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
-            [CanBeNull] IReadOnlyList<Property> principalProperties,
-            bool? isUnique)
+        public virtual IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties)
+            => FindForeignKey((IReadOnlyList<Property>)properties);
+
+        private IEnumerable<ForeignKey> FindForeignKeys(IEnumerable<IReadOnlyList<Property>> properties)
+            => properties.Select(FindForeignKey).Where(p => p != null);
+
+        private IEnumerable<ForeignKey> FindDerivedForeignKeys(IEnumerable<IReadOnlyList<Property>> properties)
         {
-            Check.NotNull(principalType, nameof(principalType));
+            var searchForeignKeys = new HashSet<IReadOnlyList<Property>>(properties, PropertyListComparer.Instance);
 
-            return GetForeignKeys().FirstOrDefault(fk =>
-                fk.IsCompatible(
-                    principalType,
-                    this,
-                    navigationToPrincipal,
-                    navigationToDependent,
-                    foreignKeyProperties,
-                    principalProperties,
-                    isUnique));
+            return this.GetDerivedTypes()
+                .SelectMany(et => et.GetDeclaredForeignKeys()
+                    .Where(foreignKey => searchForeignKeys.Contains(foreignKey.Properties)))
+                .Cast<ForeignKey>();
         }
 
-        public virtual ForeignKey GetForeignKey([NotNull] Property property)
-            => GetForeignKey(new[] { property });
-
-        public virtual ForeignKey GetForeignKey([NotNull] IReadOnlyList<Property> properties)
-        {
-            var foreignKey = FindForeignKey(properties);
-            if (foreignKey == null)
-            {
-                throw new ModelItemNotFoundException(Strings.ForeignKeyNotFound(Property.Format(properties), Name));
-            }
-
-            return foreignKey;
-        }
+        private IEnumerable<ForeignKey> FindForeignKeyCollisions(IReadOnlyList<Property>[] properties)
+            => FindForeignKeys(properties).Concat(FindDerivedForeignKeys(properties));
 
         public virtual ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
         {
@@ -520,6 +486,9 @@ namespace Microsoft.Data.Entity.Metadata
             return null;
         }
 
+        public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
+            => Model.GetReferencingForeignKeys(this);
+
         private void CheckForeignKeyNotInUse(ForeignKey foreignKey)
         {
             var navigation = foreignKey.PrincipalToDependent ?? foreignKey.DependentToPrincipal;
@@ -531,14 +500,12 @@ namespace Microsoft.Data.Entity.Metadata
                         Property.Format(foreignKey.Properties),
                         Name,
                         navigation.Name,
-                        navigation.EntityType.Name));
+                        navigation.DeclaringEntityType.Name));
             }
         }
 
         public virtual IEnumerable<ForeignKey> GetForeignKeys()
-            => BaseType != null
-                ? BaseType.GetForeignKeys().Concat(_foreignKeys.Values)
-                : _foreignKeys.Values;
+            => BaseType?.GetForeignKeys().Concat(_foreignKeys.Values) ?? _foreignKeys.Values;
 
         #endregion
 
@@ -549,17 +516,38 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            if (_navigations.ContainsKey(name))
+            if (FindNavigationCollisions(new[] { name }).Any())
             {
                 throw new InvalidOperationException(Strings.DuplicateNavigation(name, Name));
             }
 
-            var navigation = new Navigation(name, foreignKey, pointsToPrincipal);
+            var otherNavigation = Navigations.FirstOrDefault(
+                n => n.ForeignKey == foreignKey
+                     && n.PointsToPrincipal() == pointsToPrincipal);
 
-            if (navigation.EntityType != null
-                && navigation.EntityType != this)
+            if (otherNavigation != null)
             {
-                throw new InvalidOperationException(Strings.NavigationAlreadyOwned(navigation.Name, Name, navigation.EntityType.Name));
+                throw new InvalidOperationException(Strings.MultipleNavigations(name, otherNavigation.Name, Name));
+            }
+
+            var declaringTypeFromFk = pointsToPrincipal
+                ? foreignKey.DeclaringEntityType
+                : foreignKey.PrincipalEntityType;
+
+            if (declaringTypeFromFk != this)
+            {
+                throw new InvalidOperationException(Strings.NavigationOnWrongEntityType(name, Name, declaringTypeFromFk.Name));
+            }
+
+            var navigation = new Navigation(name, foreignKey);
+            _navigations.Add(name, navigation);
+            if (pointsToPrincipal)
+            {
+                foreignKey.DependentToPrincipal = navigation;
+            }
+            else
+            {
+                foreignKey.PrincipalToDependent = navigation;
             }
 
             if (!HasClrType)
@@ -598,17 +586,6 @@ namespace Microsoft.Data.Entity.Metadata
                     navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
             }
 
-            var otherNavigation = _navigations.Values.FirstOrDefault(
-                n => n.ForeignKey == navigation.ForeignKey
-                     && n.PointsToPrincipal() == navigation.PointsToPrincipal());
-
-            if (otherNavigation != null)
-            {
-                throw new InvalidOperationException(Strings.MultipleNavigations(navigation.Name, otherNavigation.Name, Name));
-            }
-
-            _navigations.Add(name, navigation);
-
             return navigation;
         }
 
@@ -620,22 +597,26 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(name, nameof(name));
 
             Navigation navigation;
-            if (_navigations.TryGetValue(name, out navigation))
-            {
-                return navigation;
-            }
-            return null;
+            return _navigations.TryGetValue(name, out navigation)
+                ? navigation
+                : BaseType?.FindNavigation(name);
         }
 
-        public virtual Navigation GetNavigation([NotNull] string name)
+        private IEnumerable<Navigation> FindNavigations(IEnumerable<string> names)
+            => names.Select(FindNavigation).Where(p => p != null);
+
+        private IEnumerable<Navigation> FindDerivedNavigations(IEnumerable<string> names)
         {
-            var navigation = FindNavigation(name);
-            if (navigation == null)
-            {
-                throw new ModelItemNotFoundException(Strings.NavigationNotFound(name, Name));
-            }
-            return navigation;
+            var searchNavigations = new HashSet<string>(names);
+
+            return this.GetDerivedTypes()
+                .SelectMany(et => et.GetDeclaredNavigations()
+                    .Where(navigation => searchNavigations.Contains(navigation.Name)))
+                .Cast<Navigation>();
         }
+
+        private IEnumerable<Navigation> FindNavigationCollisions(string[] propertyNames)
+            => FindNavigations(propertyNames).Concat(FindDerivedNavigations(propertyNames));
 
         public virtual Navigation RemoveNavigation([NotNull] Navigation navigation)
         {
@@ -644,16 +625,16 @@ namespace Microsoft.Data.Entity.Metadata
             Navigation removedNavigation;
             if (_navigations.TryGetValue(navigation.Name, out removedNavigation))
             {
-                if (navigation.PointsToPrincipal())
+                _navigations.Remove(navigation.Name);
+
+                if (removedNavigation.PointsToPrincipal())
                 {
-                    navigation.ForeignKey.DependentToPrincipal = null;
+                    removedNavigation.ForeignKey.DependentToPrincipal = null;
                 }
                 else
                 {
-                    navigation.ForeignKey.PrincipalToDependent = null;
+                    removedNavigation.ForeignKey.PrincipalToDependent = null;
                 }
-
-                _navigations.Remove(navigation.Name);
 
                 return removedNavigation;
             }
@@ -661,7 +642,8 @@ namespace Microsoft.Data.Entity.Metadata
             return null;
         }
 
-        public virtual IReadOnlyList<Navigation> Navigations => _navigations.Values.ToList();
+        public virtual IEnumerable<Navigation> Navigations
+            => BaseType?.Navigations.Concat(_navigations.Values) ?? _navigations.Values;
 
         #endregion
 
@@ -673,14 +655,14 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(properties, nameof(properties));
 
-            if (_indexes.ContainsKey(properties))
+            if (FindIndexCollisions(new[] { properties }).Any())
             {
                 throw new InvalidOperationException(Strings.DuplicateIndex(Property.Format(properties), Name));
             }
 
             var index = new Index(properties);
 
-            if (index.EntityType != this)
+            if (index.DeclaringEntityType != this)
             {
                 throw new ArgumentException(Strings.IndexPropertiesWrongEntity(Property.Format(properties), Name));
             }
@@ -704,25 +686,29 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(properties, nameof(properties));
 
             Index index;
-            if (_indexes.TryGetValue(properties, out index))
-            {
-                return index;
-            }
-            return null;
+            return _indexes.TryGetValue(properties, out index)
+                ? index
+                : BaseType?.FindIndex(properties);
         }
 
-        public virtual Index GetIndex([NotNull] Property property)
-            => GetIndex(new[] { property });
+        public virtual IIndex FindIndex(IReadOnlyList<IProperty> properties)
+            => FindIndex((IReadOnlyList<Property>)properties);
 
-        public virtual Index GetIndex([NotNull] IReadOnlyList<Property> properties)
+        private IEnumerable<Index> FindIndexes(IEnumerable<IReadOnlyList<Property>> properties)
+            => properties.Select(FindIndex).Where(p => p != null);
+
+        private IEnumerable<Index> FindDerivedIndexes(IEnumerable<IReadOnlyList<Property>> properties)
         {
-            var index = FindIndex(properties);
-            if (index == null)
-            {
-                throw new ModelItemNotFoundException(Strings.IndexNotFound(Property.Format(properties), Name));
-            }
-            return index;
+            var searchIndexes = new HashSet<IReadOnlyList<Property>>(properties, PropertyListComparer.Instance);
+
+            return this.GetDerivedTypes()
+                .SelectMany(et => et.GetDeclaredIndexes()
+                    .Where(index => searchIndexes.Contains(index.Properties)))
+                .Cast<Index>();
         }
+
+        private IEnumerable<Index> FindIndexCollisions(IReadOnlyList<Property>[] properties)
+            => FindIndexes(properties).Concat(FindDerivedIndexes(properties));
 
         public virtual Index RemoveIndex([NotNull] Index index)
         {
@@ -738,7 +724,7 @@ namespace Microsoft.Data.Entity.Metadata
             return null;
         }
 
-        public virtual IReadOnlyList<Index> Indexes => _indexes.Values.ToList();
+        public virtual IEnumerable<Index> Indexes => BaseType?.Indexes.Concat(_indexes.Values) ?? _indexes.Values;
 
         #endregion
 
@@ -756,7 +742,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(name, nameof(name));
             Check.NotNull(propertyType, nameof(propertyType));
 
-            if (FindPropertyCollisions(name).Any())
+            if (FindPropertyCollisions(new[] { name }).Any())
             {
                 throw new InvalidOperationException(Strings.DuplicateProperty(name, Name));
             }
@@ -812,36 +798,12 @@ namespace Microsoft.Data.Entity.Metadata
 
             return this.GetDerivedTypes()
                 .SelectMany(et => et.GetDeclaredProperties()
-                    .Where(p => searchProperties.Contains(p.Name)))
+                    .Where(property => searchProperties.Contains(property.Name)))
                 .Cast<Property>();
         }
 
-        private IEnumerable<Property> FindPropertyCollisions(string propertyName)
-            => FindPropertyCollisions(new[] { propertyName });
-
         private IEnumerable<Property> FindPropertyCollisions(string[] propertyNames)
             => FindProperties(propertyNames).Concat(FindDerivedProperties(propertyNames));
-
-        public virtual Property GetProperty([NotNull] PropertyInfo propertyInfo)
-        {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
-
-            return GetProperty(propertyInfo.Name);
-        }
-
-        public virtual Property GetProperty([NotNull] string propertyName)
-        {
-            Check.NotEmpty(propertyName, nameof(propertyName));
-
-            var property = FindProperty(propertyName);
-
-            if (property == null)
-            {
-                throw new ModelItemNotFoundException(Strings.PropertyNotFound(propertyName, Name));
-            }
-
-            return property;
-        }
 
         public virtual Property RemoveProperty([NotNull] Property property)
         {
@@ -868,9 +830,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual IEnumerable<Property> Properties
-            => BaseType != null
-                ? BaseType.Properties.Concat(_properties.Values)
-                : _properties.Values;
+            => BaseType?.Properties.Concat(_properties.Values) ?? _properties.Values;
 
         private void ValidateAgainstClrProperty(IProperty property)
         {
@@ -879,7 +839,6 @@ namespace Microsoft.Data.Entity.Metadata
                 if (HasClrType)
                 {
                     var clrProperty = ClrType.GetPropertiesInHierarchy(property.Name).FirstOrDefault();
-
                     if (clrProperty == null)
                     {
                         throw new InvalidOperationException(Strings.NoClrProperty(property.Name, Name));
@@ -900,7 +859,7 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual void PropertyMetadataChanged([CanBeNull] Property property)
         {
             if (property != null
-                && property.EntityType == this)
+                && property.DeclaringEntityType == this)
             {
                 ValidateAgainstClrProperty(property);
             }
@@ -924,7 +883,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             _shadowPropertyCount = shadowIndex;
 
-            foreach (var derivedType in this.GetDerivedTypes().Where(et => et.BaseType == this).Cast<EntityType>())
+            foreach (var derivedType in this.GetDirectlyDerivedTypes())
             {
                 derivedType.PropertyMetadataChanged(property);
             }
@@ -945,15 +904,11 @@ namespace Microsoft.Data.Entity.Metadata
 
         IModel IEntityType.Model => Model;
 
-        IKey IEntityType.GetPrimaryKey() => GetPrimaryKey();
+        IKey IEntityType.FindPrimaryKey() => FindPrimaryKey();
 
         IProperty IEntityType.FindProperty(string propertyName) => FindProperty(propertyName);
 
-        IProperty IEntityType.GetProperty(string propertyName) => GetProperty(propertyName);
-
         INavigation IEntityType.FindNavigation(string name) => FindNavigation(name);
-
-        INavigation IEntityType.GetNavigation(string name) => GetNavigation(name);
 
         IEnumerable<IProperty> IEntityType.GetProperties() => Properties;
 
@@ -967,7 +922,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         #endregion
 
-        private class PropertyListComparer : IComparer<IReadOnlyList<Property>>
+        private class PropertyListComparer : IComparer<IReadOnlyList<Property>>, IEqualityComparer<IReadOnlyList<Property>>
         {
             public static readonly PropertyListComparer Instance = new PropertyListComparer();
 
@@ -993,6 +948,12 @@ namespace Microsoft.Data.Entity.Metadata
                 }
                 return result;
             }
+
+            public bool Equals(IReadOnlyList<Property> x, IReadOnlyList<Property> y)
+                => Compare(x, y) == 0;
+
+            public int GetHashCode(IReadOnlyList<Property> obj)
+                => obj.Aggregate(0, (hash, p) => hash ^ p.GetHashCode());
         }
 
         private class PropertyComparer : IComparer<string>

@@ -268,14 +268,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var property2 = entityType.GetOrAddProperty("P2", typeof(int?));
 
             entityType.GetOrSetPrimaryKey(property1);
-            entityType.GetOrAddForeignKey(property2, entityType.GetPrimaryKey());
+            entityType.GetOrAddForeignKey(property2, entityType.GetPrimaryKey(), entityType);
 
             entityType = model.AddEntityType(typeof(Kiwi));
             property1 = entityType.GetOrAddProperty("P1", typeof(string));
             property2 = entityType.GetOrAddProperty("P2", typeof(string));
 
             entityType.GetOrSetPrimaryKey(property1);
-            entityType.GetOrAddForeignKey(property2, entityType.GetPrimaryKey());
+            entityType.GetOrAddForeignKey(property2, entityType.GetPrimaryKey(), entityType);
 
             return model;
         }

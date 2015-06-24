@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         protected virtual string GetDefaultName()
             => "IX_" +
-               _index.EntityType.DisplayName() +
+               _index.DeclaringEntityType.DisplayName() +
                "_" +
                string.Join("_", _index.Properties.Select(p => p.Name));
     }

@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IPropertyBase : IAnnotatable
     {
         string Name { get; }
-        IEntityType EntityType { get; }
+        IEntityType DeclaringEntityType { get; }
     }
 }

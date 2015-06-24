@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    [DebuggerDisplay("{EntityType.Name,nq}.{Name,nq} ({ClrType.Name,nq})")]
+    [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType.Name,nq})")]
     public class Property : PropertyBase, IProperty
     {
         private PropertyFlags _flags;
@@ -21,20 +21,20 @@ namespace Microsoft.Data.Entity.Metadata
 
         private int _index;
 
-        public Property([NotNull] string name, [NotNull] Type clrType, [NotNull] EntityType entityType, bool shadowProperty = false)
+        public Property([NotNull] string name, [NotNull] Type clrType, [NotNull] EntityType declaringEntityType, bool shadowProperty = false)
             : base(name)
         {
             Check.NotNull(clrType, nameof(clrType));
-            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
             ClrType = clrType;
-            EntityType = entityType;
+            DeclaringEntityType = declaringEntityType;
             IsShadowProperty = shadowProperty;
         }
 
         public virtual Type ClrType { get; }
 
-        public override EntityType EntityType { get; }
+        public override EntityType DeclaringEntityType { get; }
 
         public virtual bool? IsNullable
         {
@@ -46,11 +46,12 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     if (!ClrType.IsNullableType())
                     {
-                        throw new InvalidOperationException(Strings.CannotBeNullable(Name, EntityType.DisplayName(), ClrType.Name));
+                        throw new InvalidOperationException(Strings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ClrType.Name));
                     }
-                    if (EntityType.FindPrimaryKey()?.Properties.Contains(this) == true)
+
+                    if (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this) ?? false)
                     {
-                        throw new InvalidOperationException(Strings.CannotBeNullablePK(Name, EntityType.DisplayName()));
+                        throw new InvalidOperationException(Strings.CannotBeNullablePK(Name, DeclaringEntityType.DisplayName()));
                     }
                 }
 
@@ -58,7 +59,8 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        protected virtual bool DefaultIsNullable => (EntityType.FindPrimaryKey()?.Properties.Contains(this)) != true && ClrType.IsNullableType();
+        protected virtual bool DefaultIsNullable => (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this)) != true
+                                                    && ClrType.IsNullableType();
 
         public virtual ValueGenerated? ValueGenerated
         {
@@ -111,7 +113,7 @@ namespace Microsoft.Data.Entity.Metadata
                     && !value.Value
                     && this.IsKey())
                 {
-                    throw new NotSupportedException(Strings.KeyPropertyMustBeReadOnly(Name, EntityType.Name));
+                    throw new NotSupportedException(Strings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.Name));
                 }
                 SetFlag(value, PropertyFlags.IsReadOnlyAfterSave);
             }
@@ -138,7 +140,7 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     SetRequiredFlag(value, PropertyFlags.IsShadowProperty);
 
-                    EntityType.PropertyMetadataChanged(this);
+                    DeclaringEntityType.PropertyMetadataChanged(this);
                 }
 
                 SetRequiredFlag(value, PropertyFlags.IsShadowProperty);
@@ -154,7 +156,7 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     SetFlag(value, PropertyFlags.IsConcurrencyToken);
 
-                    EntityType.PropertyMetadataChanged(this);
+                    DeclaringEntityType.PropertyMetadataChanged(this);
                 }
             }
         }
@@ -199,17 +201,16 @@ namespace Microsoft.Data.Entity.Metadata
             => ArePropertyCountsEqual(principalProperties, dependentProperties)
                && ArePropertyTypesCompatible(principalProperties, dependentProperties);
 
-        public static void EnsureCompatible([NotNull] IReadOnlyList<Property> principalProperties,
-            [NotNull] IReadOnlyList<Property> dependentProperties)
+        public static void EnsureCompatible([NotNull] IReadOnlyList<Property> principalProperties, [NotNull] IReadOnlyList<Property> dependentProperties, [NotNull] EntityType principalEntityType, [NotNull] EntityType dependentEntityType)
         {
             if (!ArePropertyCountsEqual(principalProperties, dependentProperties))
             {
                 throw new InvalidOperationException(
                     Strings.ForeignKeyCountMismatch(
                         Format(dependentProperties),
-                        dependentProperties[0].EntityType.Name,
+                        dependentProperties[0].DeclaringEntityType.Name,
                         Format(principalProperties),
-                        principalProperties[0].EntityType.Name));
+                        principalProperties[0].DeclaringEntityType.Name));
             }
 
             if (!ArePropertyTypesCompatible(principalProperties, dependentProperties))
@@ -217,8 +218,8 @@ namespace Microsoft.Data.Entity.Metadata
                 throw new InvalidOperationException(
                     Strings.ForeignKeyTypeMismatch(
                         Format(dependentProperties),
-                        dependentProperties[0].EntityType.Name,
-                        principalProperties[0].EntityType.Name));
+                        dependentProperties[0].DeclaringEntityType.Name,
+                        principalProperties[0].DeclaringEntityType.Name));
             }
         }
 

@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Internal
                                 entityType.Name,
                                 Property.Format(key.Properties.Where(p => p.IsShadowProperty)),
                                 Property.Format(referencingFk.Properties),
-                                referencingFk.EntityType.Name);
+                                referencingFk.DeclaringEntityType.Name);
                         }
                         else
                         {
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Internal
             }
 
             var rootPrincipals = new Dictionary<IProperty, IForeignKey>();
-            foreach (var foreignKey in principalProperty.EntityType.GetForeignKeys())
+            foreach (var foreignKey in principalProperty.DeclaringEntityType.GetForeignKeys())
             {
                 for (var index = 0; index < foreignKey.Properties.Count; index++)
                 {
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Internal
                         {
                             ShowError(Strings.ForeignKeyValueGenerationOnAdd(
                                 principalProperty.Name,
-                                principalProperty.EntityType.DisplayName(),
+                                principalProperty.DeclaringEntityType.DisplayName(),
                                 Property.Format(foreignKey.Properties)));
                             return principalProperty;
                         }
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.Internal
 
                 if (!principalProperty.RequiresValueGenerator)
                 {
-                    ShowError(Strings.PrincipalKeyNoValueGenerationOnAdd(principalProperty.Name, principalProperty.EntityType.DisplayName()));
+                    ShowError(Strings.PrincipalKeyNoValueGenerationOnAdd(principalProperty.Name, principalProperty.DeclaringEntityType.DisplayName()));
                     return null;
                 }
 
@@ -153,12 +153,12 @@ namespace Microsoft.Data.Entity.Internal
                 var firstRoot = rootPrincipals.Keys.ElementAt(0);
                 var secondRoot = rootPrincipals.Keys.ElementAt(1);
                 ShowWarning(Strings.MultipleRootPrincipals(
-                    rootPrincipals[firstRoot].EntityType.DisplayName(),
+                    rootPrincipals[firstRoot].DeclaringEntityType.DisplayName(),
                     Property.Format(rootPrincipals[firstRoot].Properties),
-                    firstRoot.EntityType.DisplayName(),
+                    firstRoot.DeclaringEntityType.DisplayName(),
                     firstRoot.Name,
                     Property.Format(rootPrincipals[secondRoot].Properties),
-                    secondRoot.EntityType.DisplayName(),
+                    secondRoot.DeclaringEntityType.DisplayName(),
                     secondRoot.Name));
 
                 return firstRoot;

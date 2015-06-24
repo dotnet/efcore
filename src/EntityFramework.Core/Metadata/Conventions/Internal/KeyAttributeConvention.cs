@@ -18,7 +18,14 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(attribute, nameof(attribute));
 
-            var entityTypeBuilder = propertyBuilder.ModelBuilder.Entity(propertyBuilder.Metadata.EntityType.Name, ConfigurationSource.DataAnnotation);
+            var entityType = propertyBuilder.Metadata.DeclaringEntityType;
+            if (entityType.BaseType != null)
+            {
+                // TODO: Log warning
+                return propertyBuilder;
+            }
+
+            var entityTypeBuilder = propertyBuilder.ModelBuilder.Entity(entityType.Name, ConfigurationSource.DataAnnotation);
             var currentKey = entityTypeBuilder.Metadata.FindPrimaryKey();
             var properties = new List<string> { propertyBuilder.Metadata.Name };
 

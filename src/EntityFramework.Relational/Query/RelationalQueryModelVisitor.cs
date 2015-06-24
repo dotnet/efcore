@@ -599,7 +599,7 @@ namespace Microsoft.Data.Entity.Query
             valueBuffer = valueBuffer.WithOffset(valueBufferOffset);
 
             var entityKey
-                = entityKeyFactory.Create(entityType, keyProperties, valueBuffer);
+                = entityKeyFactory.Create(entityType.RootType(), keyProperties, valueBuffer);
 
             return new QueryResultScope<TEntity>(
                 querySource,

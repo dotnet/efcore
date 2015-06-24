@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.Query
                         {
                             var entityKey
                                 = entityKeyFactory
-                                    .Create(targetEntityType, keyProperties, eli.ValueBuffer);
+                                    .Create(targetEntityType.RootType(), keyProperties, eli.ValueBuffer);
 
                             object targetEntity = null;
 
@@ -303,7 +303,7 @@ namespace Microsoft.Data.Entity.Query
                     {
                         var entityKey
                             = entityKeyFactory
-                                .Create(targetEntityType, keyProperties, eli.ValueBuffer);
+                                .Create(targetEntityType.RootType(), keyProperties, eli.ValueBuffer);
 
                         object targetEntity = null;
 
@@ -365,12 +365,12 @@ namespace Microsoft.Data.Entity.Query
                     = navigation.PointsToPrincipal()
                         ? foreignKeyFactory
                             .Create(
-                                targetEntityType,
+                                targetEntityType.RootType(),
                                 navigation.ForeignKey.Properties,
                                 (ValueBuffer)boxedValueBuffer)
                         : primaryKeyFactory
                             .Create(
-                                navigation.EntityType,
+                                navigation.DeclaringEntityType.RootType(),
                                 navigation.ForeignKey.PrincipalKey.Properties,
                                 (ValueBuffer)boxedValueBuffer);
             }
@@ -381,7 +381,7 @@ namespace Microsoft.Data.Entity.Query
                     = valueBuffer =>
                         primaryKeyFactory
                             .Create(
-                                targetEntityType,
+                                targetEntityType.RootType(),
                                 navigation.ForeignKey.PrincipalKey.Properties,
                                 valueBuffer);
             }
@@ -391,7 +391,7 @@ namespace Microsoft.Data.Entity.Query
                     = valueBuffer =>
                         foreignKeyFactory
                             .Create(
-                                navigation.EntityType,
+                                navigation.DeclaringEntityType.RootType(),
                                 navigation.ForeignKey.Properties,
                                 valueBuffer);
             }

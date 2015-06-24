@@ -19,15 +19,6 @@ namespace Microsoft.Data.Entity.Metadata
             return !navigation.PointsToPrincipal() && !navigation.ForeignKey.IsUnique;
         }
 
-        public static Navigation FindInverse([NotNull] this Navigation navigation)
-        {
-            Check.NotNull(navigation, nameof(navigation));
-
-            return navigation.PointsToPrincipal()
-                ? navigation.ForeignKey.PrincipalToDependent
-                : navigation.ForeignKey.DependentToPrincipal;
-        }
-
         public static INavigation FindInverse([NotNull] this INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
@@ -37,13 +28,9 @@ namespace Microsoft.Data.Entity.Metadata
                 : navigation.ForeignKey.DependentToPrincipal;
         }
 
-        public static EntityType GetTargetType([NotNull] this Navigation navigation)
+        public static Navigation FindInverse([NotNull] this Navigation navigation)
         {
-            Check.NotNull(navigation, nameof(navigation));
-
-            return navigation.PointsToPrincipal()
-                ? navigation.ForeignKey.PrincipalEntityType
-                : navigation.ForeignKey.EntityType;
+            return (Navigation)((INavigation)navigation).FindInverse();
         }
 
         public static IEntityType GetTargetType([NotNull] this INavigation navigation)
@@ -52,7 +39,12 @@ namespace Microsoft.Data.Entity.Metadata
 
             return navigation.PointsToPrincipal()
                 ? navigation.ForeignKey.PrincipalEntityType
-                : navigation.ForeignKey.EntityType;
+                : navigation.ForeignKey.DeclaringEntityType;
+        }
+
+        public static EntityType GetTargetType([NotNull] this Navigation navigation)
+        {
+            return (EntityType)((INavigation)navigation).GetTargetType();
         }
 
         public static bool IsCompatible(

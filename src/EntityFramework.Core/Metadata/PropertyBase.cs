@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    [DebuggerDisplay("{EntityType.Name,nq}.{Name,nq}")]
+    [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq}")]
     public abstract class PropertyBase : Annotatable, IPropertyBase
     {
         protected PropertyBase([NotNull] string name)
@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         // TODO: Consider properties that are part of some complex/value type
         // Issue #246
-        public abstract EntityType EntityType { get; }
+        public abstract EntityType DeclaringEntityType { get; }
 
-        IEntityType IPropertyBase.EntityType => EntityType;
+        IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
     }
 }

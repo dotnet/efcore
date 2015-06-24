@@ -22,10 +22,10 @@ namespace Microsoft.Data.Entity.ValueGeneration
 
             var propertyType = property.ClrType.UnwrapNullableType();
 
-            if (property.EntityType.BaseType == null)
+            if (property.DeclaringEntityType.BaseType == null)
             {
                 var discriminatorPropertyName
-                    = property.EntityType[ReadOnlyRelationalEntityTypeAnnotations.DiscriminatorPropertyAnnotation]
+                    = property.DeclaringEntityType[ReadOnlyRelationalEntityTypeAnnotations.DiscriminatorPropertyAnnotation]
                         as string;
 
                 if (discriminatorPropertyName != null

@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                     ? null
                     : (SqlServerIdentityStrategy?)Enum.Parse(typeof(SqlServerIdentityStrategy), value);
 
-                return strategy ?? Property.EntityType.Model.SqlServer().IdentityStrategy;
+                return strategy ?? Property.DeclaringEntityType.Model.SqlServer().IdentityStrategy;
             }
         }
 
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public virtual Sequence TryGetSequence()
         {
-            var modelExtensions = Property.EntityType.Model.SqlServer();
+            var modelExtensions = Property.DeclaringEntityType.Model.SqlServer();
 
             if (IdentityStrategy != SqlServerIdentityStrategy.SequenceHiLo)
             {

@@ -32,12 +32,65 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_referencing_foreign_keys()
         {
-            var modelMock = new Mock<Model>();
-            var entityType = new EntityType("Customer", modelMock.Object);
+            var model = new Model();
+            var entityType = model.AddEntityType("Customer");
+            var idProperty = entityType.AddProperty("id", typeof(int), shadowProperty: true);
+            var fkProperty = entityType.AddProperty("fk", typeof(int), shadowProperty: true);
+            var fk = entityType.AddForeignKey(fkProperty, entityType.SetPrimaryKey(idProperty), entityType);
 
-            entityType.GetReferencingForeignKeys();
+            Assert.Same(fk, entityType.GetReferencingForeignKeys().Single());
+        }
 
-            modelMock.Verify(m => m.GetReferencingForeignKeys(entityType), Times.Once());
+        [Fact]
+        public void Can_get_root_type()
+        {
+            var model = new Model();
+            var a = model.AddEntityType("A");
+            var b = model.AddEntityType("B");
+            var c = model.AddEntityType("C");
+            b.BaseType = a;
+            c.BaseType = b;
+
+            Assert.Same(a, a.RootType());
+            Assert.Same(a, b.RootType());
+            Assert.Same(a, c.RootType());
+        }
+
+        [Fact]
+        public void Can_get_derived_types()
+        {
+            var model = new Model();
+            var a = model.AddEntityType("A");
+            var b = model.AddEntityType("B");
+            var c = model.AddEntityType("C");
+            var d = model.AddEntityType("D");
+            b.BaseType = a;
+            c.BaseType = b;
+            d.BaseType = a;
+
+            Assert.Equal(new[] { b, c, d }, a.GetDerivedTypes().ToArray());
+            Assert.Equal(new[] { c }, b.GetDerivedTypes().ToArray());
+            Assert.Equal(new[] { b, d }, a.GetDirectlyDerivedTypes().ToArray());
+        }
+
+        [Fact]
+        public void Can_determine_whether_IsAssignableFrom()
+        {
+            var model = new Model();
+            var a = model.AddEntityType("A");
+            var b = model.AddEntityType("B");
+            var c = model.AddEntityType("C");
+            var d = model.AddEntityType("D");
+            b.BaseType = a;
+            c.BaseType = b;
+            d.BaseType = a;
+
+            Assert.True(a.IsAssignableFrom(a));
+            Assert.True(a.IsAssignableFrom(b));
+            Assert.True(a.IsAssignableFrom(c));
+            Assert.False(b.IsAssignableFrom(a));
+            Assert.False(c.IsAssignableFrom(a));
+            Assert.False(b.IsAssignableFrom(d));
         }
 
         [Fact]

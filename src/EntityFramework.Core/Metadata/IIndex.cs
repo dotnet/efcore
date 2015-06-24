@@ -10,6 +10,6 @@ namespace Microsoft.Data.Entity.Metadata
     {
         IReadOnlyList<IProperty> Properties { get; }
         bool IsUnique { get; }
-        IEntityType EntityType { get; }
+        IEntityType DeclaringEntityType { get; }
     }
 }

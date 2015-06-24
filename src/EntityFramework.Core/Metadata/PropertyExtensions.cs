@@ -82,28 +82,19 @@ namespace Microsoft.Data.Entity.Metadata
             property[CoreAnnotationNames.MaxLengthAnnotation] = maxLength;
         }
 
-        public static bool IsForeignKey([NotNull] this IProperty property)
+        public static bool IsForeignKey([NotNull] this IProperty property, [NotNull] IEntityType entityType)
         {
-            Check.NotNull(property, nameof(property));
-
-            // TODO: Perf: Avoid doing Contains check everywhere we need to know if a property is part of a foreign key
-            return property.EntityType.GetForeignKeys().SelectMany(k => k.Properties).Contains(property);
+            return FindContainingForeignKeys(property, entityType).Any();
         }
 
         public static bool IsPrimaryKey([NotNull] this IProperty property)
         {
-            Check.NotNull(property, nameof(property));
-
-            // TODO: Perf: make it fast to check if a property is part of the primary key
-            return property.EntityType.GetPrimaryKey().Properties.Contains(property);
+            return FindContainingPrimaryKey(property) != null;
         }
 
         public static bool IsKey([NotNull] this IProperty property)
         {
-            Check.NotNull(property, nameof(property));
-
-            // TODO: Perf: make it fast to check if a property is part of a key
-            return property.EntityType.GetKeys().SelectMany(e => e.Properties).Contains(property);
+            return FindContainingKeys(property).Any();
         }
 
         public static bool IsSentinelValue([NotNull] this IProperty property, [CanBeNull] object value)
@@ -111,6 +102,68 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(property, nameof(property));
 
             return value == null || value.Equals(property.SentinelValue);
+        }
+
+        public static IEnumerable<IEntityType> FindContainingEntityTypes([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            // TODO: Perf: Avoid doing Contains check each time
+            return property.DeclaringEntityType.Model.EntityTypes.Where(e => e.GetProperties().Contains(property));
+        }
+
+        public static IEnumerable<EntityType> FindContainingEntityTypes([NotNull] this Property property)
+        {
+            Check.NotNull(property, nameof(property));
+            
+            return ((IProperty)property).FindContainingEntityTypes().Cast<EntityType>();
+        }
+
+        public static IEnumerable<IForeignKey> FindContainingForeignKeys([NotNull] this IProperty property, [NotNull] IEntityType entityType)
+        {
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(property, nameof(entityType));
+
+            // TODO: Perf: Avoid doing Contains check everywhere we need to know if a property is part of a foreign key
+            return entityType.GetForeignKeys().Where(k => k.Properties.Contains(property));
+        }
+
+        public static IEnumerable<ForeignKey> FindContainingForeignKeys([NotNull] this Property property, [NotNull] EntityType entityType)
+        {
+            return ((IProperty)property).FindContainingForeignKeys(entityType).Cast<ForeignKey>();
+        }
+
+        public static IKey FindContainingPrimaryKey([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            // TODO: Perf: make it fast to check if a property is part of the primary key
+            var pk = property.DeclaringEntityType.GetPrimaryKey();
+            if (pk != null
+                && pk.Properties.Contains(property))
+            {
+                return pk;
+            }
+
+            return null;
+        }
+
+        public static Key FindContainingPrimaryKey([NotNull] this Property property)
+        {
+            return (Key)((IProperty)property).FindContainingPrimaryKey();
+        }
+
+        public static IEnumerable<IKey> FindContainingKeys([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            // TODO: Perf: make it fast to check if a property is part of a key
+            return property.DeclaringEntityType.GetKeys().Where(e => e.Properties.Contains(property));
+        }
+
+        public static IEnumerable<Key> FindContainingKeys([NotNull] this Property property)
+        {
+            return ((IProperty)property).FindContainingKeys().Cast<Key>();
         }
 
         public static IProperty GetGenerationProperty([NotNull] this IProperty property)
@@ -129,7 +182,7 @@ namespace Microsoft.Data.Entity.Metadata
                     return currentProperty;
                 }
 
-                foreach (var foreignKey in currentProperty.EntityType.GetForeignKeys())
+                foreach (var foreignKey in currentProperty.DeclaringEntityType.GetForeignKeys())
                 {
                     for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
                     {

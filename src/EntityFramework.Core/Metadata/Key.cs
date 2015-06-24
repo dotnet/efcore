@@ -22,10 +22,10 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IReadOnlyList<Property> Properties { get; }
 
-        public virtual EntityType EntityType => Properties[0].EntityType;
+        public virtual EntityType DeclaringEntityType => Properties[0].DeclaringEntityType;
 
         IReadOnlyList<IProperty> IKey.Properties => Properties;
 
-        IEntityType IKey.EntityType => EntityType;
+        IEntityType IKey.EntityType => DeclaringEntityType;
     }
 }

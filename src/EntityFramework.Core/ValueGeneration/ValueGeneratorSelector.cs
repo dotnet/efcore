@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
             }
 
             throw new NotSupportedException(
-                Strings.NoValueGenerator(property.Name, property.EntityType.DisplayName(), propertyType.Name));
+                Strings.NoValueGenerator(property.Name, property.DeclaringEntityType.DisplayName(), propertyType.Name));
         }
     }
 }

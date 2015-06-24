@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Moq;
@@ -603,22 +604,20 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         private static Model BuildModel()
         {
-            var model = new Model();
-            var builder = TestHelpers.Instance.CreateConventionBuilder(model);
+            var builder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var model = builder.Model;
 
-            builder.Entity<Product>();
+            builder.Entity<Product>().Reference<Category>().InverseReference()
+                .ForeignKey<Product>(e => e.DependentId)
+                .PrincipalKey<Category>(e => e.PrincipalId);
             builder.Entity<Category>();
             builder.Entity<Dogegory>();
-
-            var productType = model.GetEntityType(typeof(Product));
-            var categoryType = model.GetEntityType(typeof(Category));
-
-            productType.GetOrAddForeignKey(productType.GetProperty("DependentId"), new Key(new[] { categoryType.GetProperty("PrincipalId") }));
-
-            var locationType = model.AddEntityType("Location");
-            var idProperty = locationType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            locationType.GetOrAddProperty("Planet", typeof(string), shadowProperty: true);
-            locationType.GetOrSetPrimaryKey(idProperty);
+            builder.Entity("Location", eb =>
+                {
+                    eb.Property<int>("Id");
+                    eb.Property<string>("Planet");
+                    eb.Key("Id");
+                });
 
             return model;
         }

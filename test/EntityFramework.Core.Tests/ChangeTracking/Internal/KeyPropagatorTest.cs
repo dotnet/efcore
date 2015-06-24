@@ -173,18 +173,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             keyPropagator.PropagateValue(dependentEntry, property);
         }
 
-        private class Category
+        private class BaseType
         {
             public int Id { get; set; }
+            public int CategoryId { get; set; }
+        }
 
+        private class Category : BaseType
+        {
             public ICollection<Product> Products { get; } = new List<Product>();
         }
 
-        private class Product
+        private class Product : BaseType
         {
-            public int Id { get; set; }
-
-            public int CategoryId { get; set; }
             public Category Category { get; set; }
 
             public ProductDetail Detail { get; set; }
@@ -192,17 +193,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             public ICollection<OrderLine> OrderLines { get; } = new List<OrderLine>();
         }
 
-        private class ProductDetail
+        private class ProductDetail : BaseType
         {
-            public int Id { get; set; }
-
             public Product Product { get; set; }
         }
 
-        private class Order
+        private class Order : BaseType
         {
-            public int Id { get; set; }
-
             public ICollection<OrderLine> OrderLines { get; } = new List<OrderLine>();
         }
 

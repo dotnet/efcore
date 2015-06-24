@@ -815,9 +815,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Empty(dependentEntityBuilder.Metadata.Properties.Where(p => p.Name == Order.CustomerIdProperty.Name));
             var newFk = dependentEntityBuilder.Metadata.GetForeignKeys().Single();
-            Assert.Same(fk.EntityType, newFk.EntityType);
+            Assert.Same(fk.DeclaringEntityType, newFk.DeclaringEntityType);
             Assert.Same(fk.PrincipalEntityType, newFk.PrincipalEntityType);
-            Assert.NotEqual(fk.Properties, newFk.EntityType.Properties);
+            Assert.NotEqual(fk.Properties, newFk.DeclaringEntityType.Properties);
             Assert.Same(fk.PrincipalKey, newFk.PrincipalKey);
             Assert.Equal(Order.CustomerProperty.Name, newFk.DependentToPrincipal.Name);
             Assert.Equal(Customer.OrdersProperty.Name, newFk.PrincipalToDependent.Name);
@@ -918,9 +918,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Empty(principalEntityBuilder.Metadata.Properties.Where(p => p.Name == Customer.UniqueProperty.Name));
             var newFk = dependentEntityBuilder.Metadata.GetForeignKeys().Single();
-            Assert.Same(fk.EntityType, newFk.EntityType);
+            Assert.Same(fk.DeclaringEntityType, newFk.DeclaringEntityType);
             Assert.Same(fk.PrincipalEntityType, newFk.PrincipalEntityType);
-            Assert.Equal(fk.Properties, newFk.EntityType.Properties);
+            Assert.Equal(fk.Properties, newFk.DeclaringEntityType.Properties);
             Assert.NotSame(fk.PrincipalKey, newFk.PrincipalKey);
             Assert.Equal(Order.CustomerProperty.Name, newFk.DependentToPrincipal.Name);
             Assert.Equal(Customer.OrdersProperty.Name, newFk.PrincipalToDependent.Name);
@@ -1067,7 +1067,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         dependentEntityBuilder.Metadata.GetOrAddProperty(Order.CustomerIdProperty.Name, typeof(int)),
                         dependentEntityBuilder.Metadata.GetOrAddProperty(Order.CustomerUniqueProperty.Name, typeof(Guid))
                     },
-                principalEntityBuilder.Metadata.GetPrimaryKey());
+                principalEntityBuilder.Metadata.GetPrimaryKey(),
+                principalEntityBuilder.Metadata);
             var navigationToPrincipal = dependentEntityBuilder.Metadata.AddNavigation(Order.CustomerProperty.Name, foreignKey, pointsToPrincipal: true);
             var navigationToDependent = principalEntityBuilder.Metadata.AddNavigation(Customer.OrdersProperty.Name, foreignKey, pointsToPrincipal: false);
             Assert.True(dependentEntityBuilder.Navigation(Order.CustomerProperty.Name, foreignKey, pointsToPrincipal: true, configurationSource: ConfigurationSource.Convention));

@@ -128,14 +128,14 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                             || propertyType == typeof(byte?)))
                     {
                         throw new ArgumentException(Strings.IdentityBadType(
-                            Property.Name, Property.EntityType.Name, propertyType.Name));
+                            Property.Name, Property.DeclaringEntityType.Name, propertyType.Name));
                     }
 
                     if (value == SqlServerIdentityStrategy.SequenceHiLo
                         && !propertyType.IsInteger())
                     {
                         throw new ArgumentException(Strings.SequenceBadType(
-                            Property.Name, Property.EntityType.Name, propertyType.Name));
+                            Property.Name, Property.DeclaringEntityType.Name, propertyType.Name));
                     }
 
                     // TODO: Issue #777: Non-string annotations

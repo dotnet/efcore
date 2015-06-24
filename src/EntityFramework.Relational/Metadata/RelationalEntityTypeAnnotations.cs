@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Metadata
                             Strings.DiscriminatorPropertyMustBeOnRoot(EntityType));
                     }
 
-                    if (value.EntityType != EntityType)
+                    if (value.DeclaringEntityType != EntityType)
                     {
                         throw new InvalidOperationException(
                             Strings.DiscriminatorPropertyNotFound(value, EntityType));

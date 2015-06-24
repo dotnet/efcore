@@ -10,22 +10,12 @@ namespace Microsoft.Data.Entity.Metadata
     {
         private ForeignKey _foreignKey;
 
-        public Navigation(
-            [NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
+        public Navigation([NotNull] string name, [NotNull] ForeignKey foreignKey)
             : base(Check.NotEmpty(name, nameof(name)))
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             _foreignKey = foreignKey;
-
-            if (pointsToPrincipal)
-            {
-                foreignKey.DependentToPrincipal = this;
-            }
-            else
-            {
-                foreignKey.PrincipalToDependent = this;
-            }
         }
 
         public virtual ForeignKey ForeignKey
@@ -40,13 +30,13 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public override EntityType EntityType
+        public override EntityType DeclaringEntityType
             => this.PointsToPrincipal()
-                ? ForeignKey.EntityType
+                ? ForeignKey.DeclaringEntityType
                 : ForeignKey.PrincipalEntityType;
 
         IForeignKey INavigation.ForeignKey => ForeignKey;
 
-        public override string ToString() => EntityType + "." + Name;
+        public override string ToString() => DeclaringEntityType + "." + Name;
     }
 }

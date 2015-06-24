@@ -127,7 +127,9 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
-            return EntityTypes.SelectMany(et => et.GetForeignKeys()).Where(fk => fk.PrincipalEntityType == entityType).ToList();
+            return EntityTypes.SelectMany(et => et.GetForeignKeys())
+                .Where(fk => fk.PrincipalEntityType.IsAssignableFrom(entityType))
+                .ToList();
         }
 
         public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IKey key)

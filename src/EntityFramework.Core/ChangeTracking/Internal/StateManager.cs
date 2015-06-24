@@ -15,7 +15,6 @@ using Microsoft.Data.Entity.Storage;
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     // This is lower-level change tracking services used by the ChangeTracker and other parts of the system
-
     public class StateManager : IStateManager
     {
         private readonly Dictionary<object, InternalEntityEntry> _entityReferenceMap
@@ -81,7 +80,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
 
             var existingEntry = TryGetEntry(entityKey);
-
             if (existingEntry != null)
             {
                 if (existingEntry.Entity != entity)
@@ -179,20 +177,16 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual InternalEntityEntry GetPrincipal(IPropertyAccessor dependentEntry, IForeignKey foreignKey)
         {
             var dependentKeyValue = dependentEntry.GetDependentKeyValue(foreignKey);
-
             if (dependentKeyValue == EntityKey.InvalidEntityKey)
             {
                 return null;
             }
 
-            var principalEntityType = foreignKey.PrincipalEntityType;
-            var principalProperties = foreignKey.PrincipalKey.Properties;
-
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             var principals = Entries.Where(
-                e => e.EntityType == principalEntityType
+                e => foreignKey.PrincipalEntityType.IsAssignableFrom(e.EntityType)
                      && dependentKeyValue.Equals(
-                         e.GetPrincipalKey(foreignKey, principalEntityType, principalProperties))).ToList();
+                         e.GetPrincipalKeyValue(foreignKey))).ToList();
 
             if (principals.Count > 1)
             {
@@ -250,7 +244,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return principalKeyValue == EntityKey.InvalidEntityKey
                 ? Enumerable.Empty<InternalEntityEntry>()
                 : Entries.Where(
-                    e => e.EntityType == foreignKey.EntityType
+                    e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType)
                          && principalKeyValue.Equals(e.GetDependentKeyValue(foreignKey)));
         }
 

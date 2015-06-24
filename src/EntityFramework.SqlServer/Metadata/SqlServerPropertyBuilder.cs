@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public virtual SqlServerPropertyBuilder UseSequence()
         {
-            var sequence = _property.EntityType.Model.SqlServer().GetOrAddSequence();
+            var sequence = _property.DeclaringEntityType.Model.SqlServer().GetOrAddSequence();
 
             _property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             _property.ValueGenerated = ValueGenerated.OnAdd;
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            var sequence = _property.EntityType.Model.SqlServer().GetOrAddSequence(name, schema);
+            var sequence = _property.DeclaringEntityType.Model.SqlServer().GetOrAddSequence(name, schema);
 
             _property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             _property.ValueGenerated = ValueGenerated.OnAdd;

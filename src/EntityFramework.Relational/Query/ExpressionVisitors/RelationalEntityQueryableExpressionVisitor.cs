@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.Sql;

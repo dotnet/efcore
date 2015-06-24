@@ -102,8 +102,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     if (((ForeignKey)foreignKey).IsSelfReferencing())
                     {
                         var referencedType = foreignKey.IsUnique
-                            ? foreignKey.EntityType.Name
-                            : "ICollection<" + foreignKey.EntityType.Name + ">";
+                            ? foreignKey.DeclaringEntityType.Name
+                            : "ICollection<" + foreignKey.DeclaringEntityType.Name + ">";
                         navProps.Add(new SqlServerNavigationProperty(
                             referencedType,
                             (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]));

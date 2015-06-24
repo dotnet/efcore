@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            var clrType = propertyBuilder.Metadata.EntityType.ClrType;
+            var clrType = propertyBuilder.Metadata.DeclaringEntityType.ClrType;
             var propertyName = propertyBuilder.Metadata.Name;
 
             var attributes = clrType?.GetProperty(propertyName)?.GetCustomAttributes<TAttribute>(true);

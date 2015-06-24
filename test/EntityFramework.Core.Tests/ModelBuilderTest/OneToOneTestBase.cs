@@ -279,7 +279,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Customer>().Reference(e => e.Details).InverseReference();
 
                 var fk = dependentType.Navigations.Single().ForeignKey;
-                if (fk.EntityType == dependentType)
+                if (fk.DeclaringEntityType == dependentType)
                 {
                     Assert.Empty(principalType.GetForeignKeys());
                 }
@@ -312,11 +312,11 @@ namespace Microsoft.Data.Entity.Tests
                 foreach (var navigation in principalType.Navigations.ToList())
                 {
                     var inverse = navigation.FindInverse();
-                    inverse?.EntityType.RemoveNavigation(inverse);
+                    inverse?.DeclaringEntityType.RemoveNavigation(inverse);
                     principalType.RemoveNavigation(navigation);
 
                     var foreignKey = navigation.ForeignKey;
-                    foreignKey.EntityType.RemoveForeignKey(foreignKey);
+                    foreignKey.DeclaringEntityType.RemoveForeignKey(foreignKey);
                 }
 
                 var principalKey = principalType.GetKeys().Single();
@@ -450,9 +450,8 @@ namespace Microsoft.Data.Entity.Tests
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<BigMak>();
-                modelBuilder.Entity<Bun>().Metadata.AddForeignKey(
-                    model.GetEntityType(typeof(Bun)).GetProperty("BurgerId"),
-                    model.GetEntityType(typeof(BigMak)).GetPrimaryKey());
+                modelBuilder.Entity<Bun>().Reference<BigMak>().InverseReference()
+                    .ForeignKey<Bun>(e => e.BurgerId);
                 modelBuilder.Ignore<Pickle>();
 
                 var dependentType = model.GetEntityType(typeof(Bun));
@@ -629,9 +628,8 @@ namespace Microsoft.Data.Entity.Tests
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<BigMak>();
-                modelBuilder.Entity<Bun>().Metadata.AddForeignKey(
-                    model.GetEntityType(typeof(Bun)).GetProperty("BurgerId"),
-                    model.GetEntityType(typeof(BigMak)).GetPrimaryKey());
+                modelBuilder.Entity<Bun>().Reference<BigMak>().InverseCollection()
+                    .ForeignKey(e => e.BurgerId);
                 modelBuilder.Ignore<Pickle>();
 
                 var dependentType = (IEntityType)model.GetEntityType(typeof(Bun));
@@ -1808,9 +1806,8 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
                 var dependentType = model.GetEntityType(typeof(ToastedBun));
-                modelBuilder.Entity<ToastedBun>().Metadata.AddForeignKey(
-                    new[] { dependentType.GetProperty("BurgerId1"), dependentType.GetProperty("BurgerId2") },
-                    model.GetEntityType(typeof(Whoopper)).GetPrimaryKey());
+                modelBuilder.Entity<ToastedBun>().Reference<Whoopper>().InverseReference()
+                    .ForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
                 modelBuilder.Ignore<Tomato>();
                 modelBuilder.Ignore<Moostard>();
 
@@ -2402,8 +2399,8 @@ namespace Microsoft.Data.Entity.Tests
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.True(fk.IsUnique);
-                Assert.Equal(1, dependentType.Navigations.Count);
-                Assert.Equal(1, principalType.Navigations.Count);
+                Assert.Equal(1, dependentType.Navigations.Count());
+                Assert.Equal(1, principalType.Navigations.Count());
                 AssertEqual(expectedPrincipalProperties, principalType.Properties);
                 AssertEqual(expectedDependentProperties, dependentType.Properties);
                 Assert.Empty(principalType.GetForeignKeys());
@@ -2431,8 +2428,8 @@ namespace Microsoft.Data.Entity.Tests
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.True(fk.IsUnique);
-                Assert.Equal(1, dependentType.Navigations.Count);
-                Assert.Equal(1, principalType.Navigations.Count);
+                Assert.Equal(1, dependentType.Navigations.Count());
+                Assert.Equal(1, principalType.Navigations.Count());
                 AssertEqual(expectedPrincipalProperties, principalType.Properties);
                 AssertEqual(expectedDependentProperties, dependentType.Properties);
                 Assert.Empty(principalType.GetForeignKeys());

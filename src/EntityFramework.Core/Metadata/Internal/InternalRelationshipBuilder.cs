@@ -37,18 +37,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource,
             bool? strictPreferExisting = null)
         {
-            var dependentEntityType = ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource);
+            var dependentEntityType = ModelBuilder.Entity(Metadata.DeclaringEntityType.Name, configurationSource);
 
             if (strictPreferExisting.HasValue)
             {
                 var navigationToPrincipal = string.IsNullOrEmpty(navigationToPrincipalName)
                     ? null
-                    : Metadata.EntityType.FindNavigation(navigationToPrincipalName);
+                    : Metadata.DeclaringEntityType.FindNavigation(navigationToPrincipalName);
 
                 if (navigationToPrincipal != null
                     && navigationToPrincipal.IsCompatible(
                         Metadata.PrincipalEntityType,
-                        Metadata.EntityType,
+                        Metadata.DeclaringEntityType,
                         strictPreferExisting.Value ? (bool?)true : null,
                         Metadata.IsUnique))
                 {
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 if (navigationToDependent != null
                     && navigationToDependent.IsCompatible(
                         Metadata.PrincipalEntityType,
-                        Metadata.EntityType,
+                        Metadata.DeclaringEntityType,
                         strictPreferExisting.Value ? (bool?)false : null,
                         Metadata.IsUnique))
                 {
@@ -190,7 +190,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _principalKeyConfigurationSource = null;
 
             return ReplaceForeignKey(
-                Metadata.EntityType,
+                Metadata.DeclaringEntityType,
                 Metadata.PrincipalEntityType,
                 Metadata.PrincipalToDependent?.Name,
                 Metadata.DependentToPrincipal?.Name,
@@ -204,14 +204,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder ForeignKey([CanBeNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
             => ForeignKey(
-                ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
+                ModelBuilder.Entity(Metadata.DeclaringEntityType.Name, configurationSource)
                     .GetOrCreateProperties(properties, configurationSource),
                 configurationSource);
 
         public virtual InternalRelationshipBuilder ForeignKey([CanBeNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
             => ForeignKey(
-                ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
+                ModelBuilder.Entity(Metadata.DeclaringEntityType.Name, configurationSource)
                     .GetOrCreateProperties(propertyNames, configurationSource),
                 configurationSource);
 
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 _foreignKeyPropertiesConfigurationSource = configurationSource.Max(_foreignKeyPropertiesConfigurationSource);
 
-                ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
+                ModelBuilder.Entity(Metadata.DeclaringEntityType.Name, configurationSource)
                     .GetOrCreateProperties(properties.Select(p => p.Name), configurationSource);
                 return this;
             }
@@ -272,7 +272,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private InternalRelationshipBuilder ForeignInvertIfNeeded(EntityType entityType, ConfigurationSource configurationSource)
         {
             _principalEndConfigurationSource = configurationSource.Max(_principalEndConfigurationSource);
-            return entityType == Metadata.EntityType
+            return entityType == Metadata.DeclaringEntityType
                 ? this
                 : Invert(configurationSource);
         }
@@ -415,7 +415,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return ReplaceForeignKey(
                 Metadata.PrincipalEntityType,
-                Metadata.EntityType,
+                Metadata.DeclaringEntityType,
                 Metadata.DependentToPrincipal?.Name,
                 navigationToDependentName,
                 dependentProperties,
@@ -437,7 +437,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource)
         {
             var replacedConfigurationSource = ModelBuilder
-                .Entity(Metadata.EntityType.Name, configurationSource)
+                .Entity(Metadata.DeclaringEntityType.Name, configurationSource)
                 .RemoveRelationship(Metadata, ConfigurationSource.Explicit);
 
             return !replacedConfigurationSource.HasValue
@@ -487,16 +487,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalRelationshipBuilder Attach(ConfigurationSource configurationSource)
         {
-            if (Metadata.EntityType.GetForeignKeys().Contains(Metadata))
+            if (Metadata.DeclaringEntityType.GetForeignKeys().Contains(Metadata))
             {
-                return ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
+                return ModelBuilder.Entity(Metadata.DeclaringEntityType.Name, configurationSource)
                     .Relationship(Metadata, existingForeignKey: true, configurationSource: configurationSource);
             }
 
             var dependentPropertiesExist = true;
             foreach (var dependentProperty in Metadata.Properties)
             {
-                dependentPropertiesExist &= Metadata.EntityType.FindProperty(dependentProperty.Name) != null;
+                dependentPropertiesExist &= Metadata.DeclaringEntityType.FindProperty(dependentProperty.Name) != null;
             }
 
             var principalPropertiesExist = true;
@@ -507,7 +507,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return AddRelationship(
                 Metadata.PrincipalEntityType,
-                Metadata.EntityType,
+                Metadata.DeclaringEntityType,
                 null,
                 null,
                 dependentPropertiesExist && _foreignKeyPropertiesConfigurationSource.HasValue ? Metadata.Properties : null,
@@ -520,13 +520,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalRelationshipBuilder MergeConfigurationSourceWith(InternalRelationshipBuilder builder)
         {
-            var inverted = builder.Metadata.EntityType != Metadata.EntityType;
+            var inverted = builder.Metadata.DeclaringEntityType != Metadata.DeclaringEntityType;
             Debug.Assert(inverted
-                         || (builder.Metadata.EntityType == Metadata.EntityType
+                         || (builder.Metadata.DeclaringEntityType == Metadata.DeclaringEntityType
                              && builder.Metadata.PrincipalEntityType == Metadata.PrincipalEntityType));
             Debug.Assert(!inverted
-                         || (builder.Metadata.EntityType == Metadata.PrincipalEntityType
-                             && builder.Metadata.PrincipalEntityType == Metadata.EntityType));
+                         || (builder.Metadata.DeclaringEntityType == Metadata.PrincipalEntityType
+                             && builder.Metadata.PrincipalEntityType == Metadata.DeclaringEntityType));
 
             var targetForeignKeyPropertiesConfigurationSource = inverted
                 ? builder._principalKeyConfigurationSource
@@ -550,9 +550,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private EntityType ResolveType(Type type)
         {
-            if (type == Metadata.EntityType.ClrType)
+            if (type == Metadata.DeclaringEntityType.ClrType)
             {
-                return Metadata.EntityType;
+                return Metadata.DeclaringEntityType;
             }
 
             if (type == Metadata.PrincipalEntityType.ClrType)
@@ -560,14 +560,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return Metadata.PrincipalEntityType;
             }
 
-            throw new ArgumentException(Strings.EntityTypeNotInRelationship(type.FullName, Metadata.EntityType.Name, Metadata.PrincipalEntityType.Name));
+            throw new ArgumentException(Strings.EntityTypeNotInRelationship(type.FullName, Metadata.DeclaringEntityType.Name, Metadata.PrincipalEntityType.Name));
         }
 
         private EntityType ResolveType(string name)
         {
-            if (name == Metadata.EntityType.Name)
+            if (name == Metadata.DeclaringEntityType.Name)
             {
-                return Metadata.EntityType;
+                return Metadata.DeclaringEntityType;
             }
 
             if (name == Metadata.PrincipalEntityType.Name)
@@ -575,7 +575,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return Metadata.PrincipalEntityType;
             }
 
-            throw new ArgumentException(Strings.EntityTypeNotInRelationship(name, Metadata.EntityType.Name, Metadata.PrincipalEntityType.Name));
+            throw new ArgumentException(Strings.EntityTypeNotInRelationship(name, Metadata.DeclaringEntityType.Name, Metadata.PrincipalEntityType.Name));
         }
     }
 }

@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -69,7 +70,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (property.ClrType != typeof(TProperty))
             {
-                throw new ArgumentException(Strings.WrongGenericPropertyType(propertyName, property.EntityType.Name, property.ClrType.Name, typeof(TProperty).Name));
+                throw new ArgumentException(Strings.WrongGenericPropertyType(propertyName, property.DeclaringEntityType.Name, property.ClrType.Name, typeof(TProperty).Name));
             }
 
             return new PropertyEntry<TEntity, TProperty>(this.GetService(), propertyName);

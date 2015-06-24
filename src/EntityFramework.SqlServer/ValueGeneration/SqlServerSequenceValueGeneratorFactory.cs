@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
             }
 
             throw new ArgumentException(Internal.Strings.InvalidValueGeneratorFactoryProperty(
-                nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.EntityType.DisplayName()));
+                nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
         }
     }
 }

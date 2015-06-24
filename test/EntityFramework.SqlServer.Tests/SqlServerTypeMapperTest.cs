@@ -210,7 +210,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_key_SQL_Server_string_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string), shadowProperty: true);
-            property.EntityType.SetPrimaryKey(property);
+            property.DeclaringEntityType.SetPrimaryKey(property);
             property.IsNullable = false;
 
             var typeMapping = new SqlServerTypeMapper().MapPropertyType(property);
@@ -224,9 +224,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_foreign_key_SQL_Server_string_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string), shadowProperty: true);
-            var fkProperty = property.EntityType.AddProperty("FK", typeof(string), shadowProperty: true);
-            var pk = property.EntityType.SetPrimaryKey(property);
-            property.EntityType.AddForeignKey(fkProperty, pk);
+            var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string), shadowProperty: true);
+            var pk = property.DeclaringEntityType.SetPrimaryKey(property);
+            property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
 
             var typeMapping = new SqlServerTypeMapper().MapPropertyType(fkProperty);
 
@@ -239,9 +239,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_required_foreign_key_SQL_Server_string_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string), shadowProperty: true);
-            var fkProperty = property.EntityType.AddProperty("FK", typeof(string), shadowProperty: true);
-            var pk = property.EntityType.SetPrimaryKey(property);
-            property.EntityType.AddForeignKey(fkProperty, pk);
+            var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string), shadowProperty: true);
+            var pk = property.DeclaringEntityType.SetPrimaryKey(property);
+            property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
             fkProperty.IsNullable = false;
 
             var typeMapping = new SqlServerTypeMapper().MapPropertyType(fkProperty);
@@ -305,7 +305,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_key_SQL_Server_binary_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]), shadowProperty: true);
-            property.EntityType.SetPrimaryKey(property);
+            property.DeclaringEntityType.SetPrimaryKey(property);
             property.IsNullable = false;
 
             var typeMapping = new SqlServerTypeMapper().MapPropertyType(property);
@@ -319,9 +319,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_foreign_key_SQL_Server_binary_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]), shadowProperty: true);
-            var fkProperty = property.EntityType.AddProperty("FK", typeof(byte[]), shadowProperty: true);
-            var pk = property.EntityType.SetPrimaryKey(property);
-            property.EntityType.AddForeignKey(fkProperty, pk);
+            var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(byte[]), shadowProperty: true);
+            var pk = property.DeclaringEntityType.SetPrimaryKey(property);
+            property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
 
             var typeMapping = new SqlServerTypeMapper().MapPropertyType(fkProperty);
 
@@ -334,9 +334,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_required_foreign_key_SQL_Server_binary_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]), shadowProperty: true);
-            var fkProperty = property.EntityType.AddProperty("FK", typeof(byte[]), shadowProperty: true);
-            var pk = property.EntityType.SetPrimaryKey(property);
-            property.EntityType.AddForeignKey(fkProperty, pk);
+            var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(byte[]), shadowProperty: true);
+            var pk = property.DeclaringEntityType.SetPrimaryKey(property);
+            property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
             fkProperty.IsNullable = false;
 
             var typeMapping = new SqlServerTypeMapper().MapPropertyType(fkProperty);

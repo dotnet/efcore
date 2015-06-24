@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void KeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
         {
-            // We don't prevent recursive entry here because changed of principal key can have cascading effects
+            // We don't prevent recursive entry here because changes of principal key can have cascading effects
             // when principal key is also foreign key.
 
             if (entry.EntityState == EntityState.Detached)
@@ -162,12 +162,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 e => e.GetForeignKeys().Where(f => f.PrincipalKey.Properties.Contains(property))))
             {
                 var newKeyValues = foreignKey.PrincipalKey.Properties.Select(p => entry[p]).ToList();
-                var oldKey = entry.RelationshipsSnapshot.GetPrincipalKeyValue(foreignKey);
 
+                var oldKey = entry.RelationshipsSnapshot.GetPrincipalKeyValue(foreignKey);
                 if (oldKey != EntityKey.InvalidEntityKey)
                 {
                     foreach (var dependent in entry.StateManager.Entries.Where(
-                        e => e.EntityType == foreignKey.EntityType
+                        e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType)
                              && oldKey.Equals(e.GetDependentKeyValue(foreignKey))).ToList())
                     {
                         SetForeignKeyValue(foreignKey, dependent, newKeyValues);
@@ -193,11 +193,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private void InitialFixup(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
-
             foreach (var navigation in entityType.GetNavigations())
             {
                 var navigationValue = entry[navigation];
-
                 if (navigationValue != null)
                 {
                     if (navigation.IsCollection())
@@ -224,7 +222,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             // TODO: Perf on this state manager query
             foreach (var navigation in _model.EntityTypes
                 .SelectMany(e => e.GetNavigations())
-                .Where(n => n.GetTargetType() == entityType))
+                .Where(n => n.GetTargetType().IsAssignableFrom(entityType)))
             {
                 IClrCollectionAccessor collectionAccessor = null;
                 if (navigation.IsCollection())
@@ -232,11 +230,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     collectionAccessor = _collectionAccessorSource.GetAccessor(navigation);
                 }
 
-                var navigationEntityType = navigation.EntityType;
+                var navigationEntityType = navigation.DeclaringEntityType;
 
                 foreach (var relatedEntry in entries)
                 {
-                    if (relatedEntry.EntityType != navigationEntityType
+                    if (!navigationEntityType.IsAssignableFrom(relatedEntry.EntityType)
                         || relatedEntry == entry)
                     {
                         continue;
@@ -256,7 +254,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     else
                     {
                         var navigationValue = relatedEntry[navigation];
-
                         if (navigationValue != null)
                         {
                             if (ReferenceEquals(navigationValue, entry.Entity))
@@ -284,7 +281,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             foreach (var foreignKey in _model.GetReferencingForeignKeys(entityType))
             {
                 var dependents = entry.StateManager.GetDependents(entry, foreignKey).ToArray();
-
                 if (dependents.Length > 0)
                 {
                     DoFixup(foreignKey, entry, dependents);

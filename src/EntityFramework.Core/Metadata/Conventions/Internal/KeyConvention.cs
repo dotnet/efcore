@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
 
-            var entityTypeBuilder = keyBuilder.ModelBuilder.Entity(keyBuilder.Metadata.EntityType.Name, ConfigurationSource.Convention);
+            var entityTypeBuilder = keyBuilder.ModelBuilder.Entity(keyBuilder.Metadata.DeclaringEntityType.Name, ConfigurationSource.Convention);
             var properties = keyBuilder.Metadata.Properties;
 
             SetValueGeneration(entityTypeBuilder, properties);
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     if ((propertyType.IsInteger()
                         || propertyType == typeof(Guid))
                         && entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null
-                        && !property.IsForeignKey())
+                        && !property.IsForeignKey(entityTypeBuilder.Metadata))
                     {
                         entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
                             ?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);

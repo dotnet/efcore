@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 {
@@ -320,7 +321,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
                     var entityType = b.Metadata;
                     var activityEntityType = entityType.Model.GetEntityType(typeof(TSuspiciousActivity));
-                    activityEntityType.AddForeignKey(activityEntityType.GetProperty("Username"), key.Metadata);
+                    activityEntityType.AddForeignKey(activityEntityType.GetProperty("Username"), key.Metadata, entityType);
 
                     b.Reference(e => (TLastLogin)e.LastLogin).InverseReference(e => (TLogin)e.Login)
                         .ForeignKey<TLastLogin>(e => e.Username);

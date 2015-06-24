@@ -670,7 +670,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
-            Assert.Same(DependentType.Metadata, newRelationshipBuilder.Metadata.EntityType);
+            Assert.Same(DependentType.Metadata, newRelationshipBuilder.Metadata.DeclaringEntityType);
 
             newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
 
@@ -699,7 +699,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
-            Assert.Same(DependentType.Metadata, newRelationshipBuilder.Metadata.EntityType);
+            Assert.Same(DependentType.Metadata, newRelationshipBuilder.Metadata.DeclaringEntityType);
 
             newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
 
@@ -729,7 +729,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
-            Assert.Same(PrincipalType.Metadata, newRelationshipBuilder.Metadata.EntityType);
+            Assert.Same(PrincipalType.Metadata, newRelationshipBuilder.Metadata.DeclaringEntityType);
 
             newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
 
@@ -758,7 +758,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
-            Assert.Same(PrincipalType.Metadata, newRelationshipBuilder.Metadata.EntityType);
+            Assert.Same(PrincipalType.Metadata, newRelationshipBuilder.Metadata.DeclaringEntityType);
 
             newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
 
@@ -786,7 +786,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
-            Assert.Same(DependentType.Metadata, newRelationshipBuilder.Metadata.EntityType);
+            Assert.Same(DependentType.Metadata, newRelationshipBuilder.Metadata.DeclaringEntityType);
 
             newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
 
@@ -813,7 +813,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
-            Assert.Same(DependentType.Metadata, newRelationshipBuilder.Metadata.EntityType);
+            Assert.Same(DependentType.Metadata, newRelationshipBuilder.Metadata.DeclaringEntityType);
 
             newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
 
@@ -840,7 +840,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
-            Assert.Same(PrincipalType.Metadata, newRelationshipBuilder.Metadata.EntityType);
+            Assert.Same(PrincipalType.Metadata, newRelationshipBuilder.Metadata.DeclaringEntityType);
 
             newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
 
@@ -870,7 +870,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
-            Assert.Same(DependentType.Metadata, newRelationshipBuilder.Metadata.EntityType);
+            Assert.Same(DependentType.Metadata, newRelationshipBuilder.Metadata.DeclaringEntityType);
 
             newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
 
@@ -901,7 +901,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
-            Assert.Same(PrincipalType.Metadata, newRelationshipBuilder.Metadata.EntityType);
+            Assert.Same(PrincipalType.Metadata, newRelationshipBuilder.Metadata.DeclaringEntityType);
 
             newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
 

@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var orderType = model.GetOrAddEntityType(typeof(Order));
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
 
-            orderType.AddForeignKey(customerFk, customerKey);
+            orderType.AddForeignKey(customerFk, customerKey, customerType);
 
             Assert.Equal(
                 Strings.EntityTypeInUse(typeof(Customer).FullName),
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType2 = model.AddEntityType(typeof(Order));
             var keyProperty = new Property("Id", typeof(int), entityType1);
             var fkProperty = new Property("CustomerId", typeof(int?), entityType2);
-            var foreignKey = entityType2.GetOrAddForeignKey(fkProperty, new Key(new[] { keyProperty }));
+            var foreignKey = entityType2.GetOrAddForeignKey(fkProperty, entityType1.AddKey(keyProperty), entityType1);
 
             var referencingForeignKeys = model.GetReferencingForeignKeys(entityType1);
 

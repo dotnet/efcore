@@ -13,11 +13,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             if (properties.Count > 1)
             {
-                var entityType = properties[0].EntityType;
+                var entityType = properties[0].DeclaringEntityType;
 
                 for (var i = 1; i < properties.Count; i++)
                 {
-                    if (properties[i].EntityType != entityType)
+                    if (properties[i].DeclaringEntityType != entityType)
                     {
                         throw new ArgumentException(
                             Strings.InconsistentEntityType(argumentName));

@@ -401,7 +401,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Diff(IProperty source, IProperty target)
         {
             var sourceExtensions = MetadataExtensions.Extensions(source);
-            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.EntityType);
+            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.DeclaringEntityType);
             var targetExtensions = MetadataExtensions.Extensions(target);
 
             if (sourceExtensions.Column != targetExtensions.Column)
@@ -455,7 +455,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Add(IProperty target, bool inline = false)
         {
             var targetExtensions = MetadataExtensions.Extensions(target);
-            var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.EntityType);
+            var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.DeclaringEntityType);
 
             var operation = new AddColumnOperation
             {
@@ -478,7 +478,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Remove(IProperty source)
         {
             var sourceExtensions = MetadataExtensions.Extensions(source);
-            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.EntityType);
+            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.DeclaringEntityType);
 
             yield return new DropColumnOperation
             {
@@ -594,7 +594,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Add(IForeignKey target, ModelDifferContext diffContext)
         {
             var targetExtensions = MetadataExtensions.Extensions(target);
-            var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.EntityType);
+            var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.DeclaringEntityType);
             var targetPrincipalEntityTypeExtensions = MetadataExtensions.Extensions(target.PrincipalEntityType);
 
             // TODO: Set OnDelete (See #1084)
@@ -610,7 +610,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             };
             CopyAnnotations(Annotations.For(target), operation);
 
-            var createTableOperation = diffContext.FindCreate(target.EntityType);
+            var createTableOperation = diffContext.FindCreate(target.DeclaringEntityType);
             if (createTableOperation != null)
             {
                 createTableOperation.ForeignKeys.Add(operation);
@@ -624,9 +624,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Remove(IForeignKey source, ModelDifferContext diffContext)
         {
             var sourceExtensions = MetadataExtensions.Extensions(source);
-            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.EntityType);
+            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.DeclaringEntityType);
 
-            var dropTableOperation = diffContext.FindDrop(source.EntityType);
+            var dropTableOperation = diffContext.FindDrop(source.DeclaringEntityType);
             if (dropTableOperation == null)
             {
                 yield return new DropForeignKeyOperation
@@ -658,7 +658,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Diff(IIndex source, IIndex target)
         {
-            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.EntityType);
+            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.DeclaringEntityType);
             var sourceName = MetadataExtensions.Extensions(source).Name;
             var targetName = MetadataExtensions.Extensions(target).Name;
 
@@ -687,7 +687,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Add(IIndex target)
         {
             var targetExtensions = MetadataExtensions.Extensions(target);
-            var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.EntityType);
+            var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.DeclaringEntityType);
 
             var operation = new CreateIndexOperation
             {
@@ -705,7 +705,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Remove(IIndex source)
         {
             var sourceExtensions = MetadataExtensions.Extensions(source);
-            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.EntityType);
+            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.DeclaringEntityType);
 
             yield return new DropIndexOperation
             {

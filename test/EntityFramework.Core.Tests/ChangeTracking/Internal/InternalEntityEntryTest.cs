@@ -473,6 +473,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyValue = entry.GetPrimaryKeyValue();
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
+            Assert.Same(entityType.BaseType, keyValue.EntityType);
         }
 
         [Fact]
@@ -490,6 +491,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyValue = (CompositeEntityKey)entry.GetPrimaryKeyValue();
             Assert.Equal(77, keyValue.Value[0]);
             Assert.Equal("SmokeyBacon", keyValue.Value[1]);
+            Assert.Same(entityType.BaseType, keyValue.EntityType);
         }
 
         [Fact]
@@ -497,16 +499,18 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
-            var fkProperty = entityType.GetProperty("SomeEntityId");
+            var fk = entityType.GetForeignKeys().Single();
+            var fkProperty = fk.Properties.Single();
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
             entry.RelationshipsSnapshot[fkProperty] = 78;
 
-            var keyValue = entry.GetDependentKeyValue(entityType.GetForeignKeys().Single());
+            var keyValue = entry.GetDependentKeyValue(fk);
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
+            Assert.Same(fk.PrincipalEntityType.BaseType, keyValue.EntityType);
         }
 
         [Fact]
@@ -514,16 +518,18 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
-            var fkProperty = entityType.GetProperty("SomeEntityId");
+            var fk = entityType.GetForeignKeys().Single();
+            var fkProperty = fk.Properties.Single();
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
             entry.RelationshipsSnapshot[fkProperty] = 78;
 
-            var keyValue = entry.GetDependentKeySnapshot(entityType.GetForeignKeys().Single());
+            var keyValue = entry.GetDependentKeySnapshot(fk);
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(78, keyValue.Value);
+            Assert.Same(fk.PrincipalEntityType.BaseType, keyValue.EntityType);
         }
 
         [Fact]
@@ -531,15 +537,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
-            var fkProperty = entityType.GetProperty("SomeEntityId");
+            var fk = entityType.GetForeignKeys().Single();
+            var fkProperty = fk.Properties.Single();
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
 
-            var keyValue = entry.GetDependentKeySnapshot(entityType.GetForeignKeys().Single());
+            var keyValue = entry.GetDependentKeySnapshot(fk);
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
+            Assert.Same(fk.PrincipalEntityType.BaseType, keyValue.EntityType);
         }
 
         [Fact]
@@ -592,9 +600,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateInternalEntry(configuration, principalType, new SomeEntity());
             entry[key] = 77;
 
-            var keyValue = entry.GetPrincipalKeyValue(dependentType.GetForeignKeys().Single());
+            var fk = dependentType.GetForeignKeys().Single();
+            var keyValue = entry.GetPrincipalKeyValue(fk);
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
+            Assert.Same(fk.PrincipalEntityType.BaseType, keyValue.EntityType);
         }
 
         [Fact]
@@ -602,16 +612,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
-            var fkProperties = new[] { entityType.GetProperty("Fk1"), entityType.GetProperty("Fk2") };
+            var fk = entityType.GetForeignKeys().Single();
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeMoreDependentEntity());
-            entry[fkProperties[0]] = 77;
-            entry[fkProperties[1]] = "CheeseAndOnion";
+            entry[fk.Properties[0]] = 77;
+            entry[fk.Properties[1]] = "CheeseAndOnion";
 
-            var keyValue = (CompositeEntityKey)entry.GetDependentKeyValue(entityType.GetForeignKeys().Single());
+            var keyValue = (CompositeEntityKey)entry.GetDependentKeyValue(fk);
             Assert.Equal(77, keyValue.Value[0]);
             Assert.Equal("CheeseAndOnion", keyValue.Value[1]);
+            Assert.Same(fk.PrincipalEntityType.BaseType, keyValue.EntityType);
         }
 
         [Fact]
@@ -630,6 +641,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyValue = (CompositeEntityKey)entry.GetPrincipalKeyValue(dependentType.GetForeignKeys().Single());
             Assert.Equal(77, keyValue.Value[0]);
             Assert.Equal("PrawnCocktail", keyValue.Value[1]);
+            Assert.Same(principalType.BaseType, keyValue.EntityType);
         }
 
         [Fact]
@@ -645,7 +657,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[keyProperties[0]] = 77;
             entry[keyProperties[1]] = null;
 
-            Assert.Same(EntityKey.InvalidEntityKey, entry.GetPrincipalKeyValue(dependentType.GetForeignKeys().Single()));
+            var fk = dependentType.GetForeignKeys().Single();
+            var keyValue = entry.GetPrincipalKeyValue(fk);
+            Assert.Same(EntityKey.InvalidEntityKey, keyValue);
+            Assert.Null(keyValue.EntityType);
         }
 
         [Fact]
@@ -1502,18 +1517,24 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = new Model();
 
+            var someSimpleEntityType = model.AddEntityType(typeof(SomeSimpleEntityBase));
+            var simpleKeyProperty = someSimpleEntityType.GetOrAddProperty("Id", typeof(int));
+            simpleKeyProperty.RequiresValueGenerator = true;
+            someSimpleEntityType.GetOrSetPrimaryKey(simpleKeyProperty);
+
+            var someCompositeEntityType = model.AddEntityType(typeof(SomeCompositeEntityBase));
+            var compositeKeyProperty1 = someCompositeEntityType.GetOrAddProperty("Id1", typeof(int));
+            var compositeKeyProperty2 = someCompositeEntityType.GetOrAddProperty("Id2", typeof(string));
+            someCompositeEntityType.GetOrSetPrimaryKey(new[] { compositeKeyProperty1, compositeKeyProperty2 });
+
             var entityType1 = model.AddEntityType(typeof(SomeEntity));
-            var key1 = entityType1.GetOrAddProperty("Id", typeof(int));
-            key1.RequiresValueGenerator = true;
-            entityType1.GetOrSetPrimaryKey(key1);
+            entityType1.BaseType = someSimpleEntityType;
             entityType1.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
 
             var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
-            var key2a = entityType2.GetOrAddProperty("Id1", typeof(int));
-            var key2b = entityType2.GetOrAddProperty("Id2", typeof(string));
-            entityType2.GetOrSetPrimaryKey(new[] { key2a, key2b });
+            entityType2.BaseType = someCompositeEntityType;
             var fk = entityType2.GetOrAddProperty("SomeEntityId", typeof(int));
-            entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.GetPrimaryKey());
+            entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.GetPrimaryKey(), entityType1);
             var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
             justAProperty.RequiresValueGenerator = true;
 
@@ -1526,11 +1547,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType4.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
 
             var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity));
-            var key5 = entityType5.GetOrAddProperty("Id", typeof(int));
-            entityType5.GetOrSetPrimaryKey(key5);
+            entityType5.BaseType = someSimpleEntityType;
             var fk5a = entityType5.GetOrAddProperty("Fk1", typeof(int));
             var fk5b = entityType5.GetOrAddProperty("Fk2", typeof(string));
-            entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.GetPrimaryKey());
+            entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.GetPrimaryKey(), entityType2);
 
             return model;
         }
@@ -1541,23 +1561,30 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             string Name { get; set; }
         }
 
-        protected class SomeEntity : ISomeEntity
+        protected class SomeSimpleEntityBase
         {
             public int Id { get; set; }
+        }
+
+        protected class SomeEntity : SomeSimpleEntityBase, ISomeEntity
+        {
             public string Name { get; set; }
         }
 
-        protected class SomeDependentEntity
+        protected class SomeCompositeEntityBase
         {
             public int Id1 { get; set; }
             public string Id2 { get; set; }
+        }
+
+        protected class SomeDependentEntity: SomeCompositeEntityBase
+        {
             public int SomeEntityId { get; set; }
             public int JustAProperty { get; set; }
         }
 
-        protected class SomeMoreDependentEntity
+        protected class SomeMoreDependentEntity: SomeSimpleEntityBase
         {
-            public int Id { get; set; }
             public int Fk1 { get; set; }
             public string Fk2 { get; set; }
         }

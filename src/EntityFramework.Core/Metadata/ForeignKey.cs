@@ -15,7 +15,6 @@ namespace Microsoft.Data.Entity.Metadata
     public class ForeignKey : Annotatable, IForeignKey
     {
         private readonly Key _principalKey;
-
         private bool _isRequiredSet;
         private Navigation _dependentToPrincipal;
         private Navigation _principalToDependent;
@@ -23,30 +22,29 @@ namespace Microsoft.Data.Entity.Metadata
         public ForeignKey(
             [NotNull] IReadOnlyList<Property> dependentProperties,
             [NotNull] Key principalKey,
-            [CanBeNull] EntityType principalEntityType = null)
+            [NotNull] EntityType principalEntityType)
         {
             Check.NotEmpty(dependentProperties, nameof(dependentProperties));
             Check.HasNoNulls(dependentProperties, nameof(dependentProperties));
             MetadataHelper.CheckSameEntityType(dependentProperties, nameof(dependentProperties));
             Check.NotNull(principalKey, nameof(principalKey));
+            Check.NotNull(principalEntityType, nameof(principalEntityType));
 
             Properties = dependentProperties;
 
-            var principalProperties = principalKey.Properties;
+            _principalKey = principalKey;
 
-            Property.EnsureCompatible(principalProperties, dependentProperties);
+            PrincipalEntityType = principalEntityType;
 
-            if (principalEntityType?.GetKeys().Contains(principalKey) == false)
+            Property.EnsureCompatible(principalKey.Properties, dependentProperties, PrincipalEntityType, DeclaringEntityType);
+
+            if (principalEntityType.GetKeys().Contains(principalKey) == false)
             {
                 throw new ArgumentException(
                     Strings.ForeignKeyReferencedEntityKeyMismatch(
                         principalKey,
                         principalEntityType));
             }
-
-            _principalKey = principalKey;
-
-            PrincipalEntityType = principalEntityType ?? _principalKey.EntityType;
         }
 
         public virtual Navigation DependentToPrincipal
@@ -55,7 +53,14 @@ namespace Microsoft.Data.Entity.Metadata
             [param: CanBeNull]
             set
             {
-                CheckNavigation(value, _principalToDependent);
+                CheckNavigation(value, _principalToDependent, DeclaringEntityType);
+
+                if (value == null
+                    && _dependentToPrincipal !=null
+                    && DeclaringEntityType.Navigations.Contains(_dependentToPrincipal))
+                {
+                    Strings.NavigationStillOnEntityType(_dependentToPrincipal.Name, DeclaringEntityType.Name);
+                }
 
                 _dependentToPrincipal = value;
             }
@@ -67,32 +72,44 @@ namespace Microsoft.Data.Entity.Metadata
             [param: CanBeNull]
             set
             {
-                CheckNavigation(value, _dependentToPrincipal);
+                CheckNavigation(value, _dependentToPrincipal, PrincipalEntityType);
+
+                if (value == null
+                    && _dependentToPrincipal != null
+                    && PrincipalEntityType.Navigations.Contains(_dependentToPrincipal))
+                {
+                    Strings.NavigationStillOnEntityType(_dependentToPrincipal.Name, PrincipalEntityType.Name);
+                }
 
                 _principalToDependent = value;
             }
         }
 
-        private void CheckNavigation(Navigation value, Navigation otherNavigation)
+        private void CheckNavigation(Navigation value, Navigation otherNavigation, EntityType entityType)
         {
             if (value != null)
             {
                 if (value.ForeignKey != this)
                 {
                     throw new InvalidOperationException(
-                        Strings.NavigationForWrongForeignKey(value.Name, value.EntityType.DisplayName(), this, value.ForeignKey));
+                        Strings.NavigationForWrongForeignKey(value.Name, value.DeclaringEntityType.DisplayName(), this, value.ForeignKey));
                 }
 
                 if (value == otherNavigation)
                 {
                     throw new InvalidOperationException(Strings.NavigationToSelfDuplicate(value.Name));
                 }
+
+                if (!entityType.Navigations.Contains(value))
+                {
+                    throw new InvalidOperationException(Strings.NavigationNotFound(value.Name, entityType.Name));
+                }
             }
         }
 
         public virtual IReadOnlyList<Property> Properties { get; }
 
-        public virtual EntityType EntityType => Properties[0].EntityType;
+        public virtual EntityType DeclaringEntityType => Properties[0].DeclaringEntityType;
 
         public virtual Key PrincipalKey => _principalKey;
 
@@ -141,7 +158,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         IReadOnlyList<IProperty> IForeignKey.Properties => Properties;
 
-        IEntityType IForeignKey.EntityType => EntityType;
+        IEntityType IForeignKey.DeclaringEntityType => DeclaringEntityType;
 
         IEntityType IForeignKey.PrincipalEntityType => PrincipalEntityType;
 
@@ -156,6 +173,6 @@ namespace Microsoft.Data.Entity.Metadata
         bool IForeignKey.IsRequired => IsRequired ?? DefaultIsRequired;
 
         public override string ToString()
-            => $"'{EntityType.DisplayName()}' {Property.Format(Properties)} -> '{PrincipalEntityType.DisplayName()}' {Property.Format(PrincipalKey.Properties)}";
+            => $"'{DeclaringEntityType.DisplayName()}' {Property.Format(Properties)} -> '{PrincipalEntityType.DisplayName()}' {Property.Format(PrincipalKey.Properties)}";
     }
 }

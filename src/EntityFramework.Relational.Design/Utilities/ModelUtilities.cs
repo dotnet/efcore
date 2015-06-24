@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            return foreignKey.EntityType.DisplayName();
+            return foreignKey.DeclaringEntityType.DisplayName();
         }
 
         public virtual string ConstructNavigationConfiguration([NotNull] NavigationConfiguration navigationConfiguration)

@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             navigation,
                             (navigation.PointsToPrincipal()
                                 ? targetEntityType
-                                : navigation.EntityType)
+                                : navigation.DeclaringEntityType)
                                 .GetPrimaryKey().Properties,
                             navigation.PointsToPrincipal() ? targetTableExpression : joinExpression,
                             navigation.PointsToPrincipal() ? joinExpression : targetTableExpression);
@@ -169,7 +169,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     var principalTable
                         = selectExpression.Tables.Last(t => t.QuerySource == querySource);
 
-                    foreach (var property in navigation.EntityType.GetPrimaryKey().Properties)
+                    foreach (var property in navigation.DeclaringEntityType.GetPrimaryKey().Properties)
                     {
                         selectExpression
                             .AddToOrderBy(
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                     innerJoinSelectExpression.ClearOrderBy();
 
-                    var primaryKeyProperties = navigation.EntityType.GetPrimaryKey().Properties;
+                    var primaryKeyProperties = navigation.DeclaringEntityType.GetPrimaryKey().Properties;
 
                     var innerJoinExpression
                         = targetSelectExpression.AddInnerJoin(innerJoinSelectExpression);

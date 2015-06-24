@@ -121,37 +121,16 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         protected override Model BuildModel()
         {
-            var model = new Model();
+            var model = base.BuildModel();
 
-            var entityType1 = model.AddEntityType(typeof(SomeEntity));
-            var key1 = entityType1.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            key1.RequiresValueGenerator = true;
-            entityType1.GetOrSetPrimaryKey(key1);
-            entityType1.GetOrAddProperty("Name", typeof(string));
+            var someSimpleEntityType = model.GetEntityType(typeof(SomeSimpleEntityBase));
+            someSimpleEntityType.GetProperty("Id").IsShadowProperty = true;
 
-            var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
-            var key2a = entityType2.GetOrAddProperty("Id1", typeof(int));
-            var key2b = entityType2.GetOrAddProperty("Id2", typeof(string));
-            entityType2.GetOrSetPrimaryKey(new[] { key2a, key2b });
-            var fk = entityType2.GetOrAddProperty("SomeEntityId", typeof(int), shadowProperty: true);
-            entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.GetPrimaryKey());
-            var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
-            justAProperty.RequiresValueGenerator = true;
+            var entityType1 = model.GetEntityType(typeof(SomeEntity));
+            entityType1.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = false;
 
-            var entityType3 = model.AddEntityType(typeof(FullNotificationEntity));
-            entityType3.GetOrSetPrimaryKey(entityType3.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
-            entityType3.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
-
-            var entityType4 = model.AddEntityType(typeof(ChangedOnlyEntity));
-            entityType4.GetOrSetPrimaryKey(entityType4.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
-            entityType4.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
-
-            var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity));
-            var key5 = entityType5.GetOrAddProperty("Id", typeof(int));
-            entityType5.GetOrSetPrimaryKey(key5);
-            var fk5a = entityType5.GetOrAddProperty("Fk1", typeof(int));
-            var fk5b = entityType5.GetOrAddProperty("Fk2", typeof(string));
-            entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.GetPrimaryKey());
+            var entityType2 = model.GetEntityType(typeof(SomeDependentEntity));
+            entityType2.GetProperty("SomeEntityId").IsShadowProperty = true;
 
             return model;
         }

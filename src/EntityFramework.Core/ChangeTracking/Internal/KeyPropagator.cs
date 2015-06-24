@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void PropagateValue(InternalEntityEntry entry, IProperty property)
         {
-            Debug.Assert(property.IsForeignKey());
+            Debug.Assert(property.IsForeignKey(entry.EntityType));
 
             if (!TryPropagateValue(entry, property)
                 && property.IsKey())
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private bool TryPropagateValue(InternalEntityEntry entry, IProperty property)
         {
-            var entityType = property.EntityType;
+            var entityType = entry.EntityType;
             var stateManager = entry.StateManager;
 
             foreach (var foreignKey in entityType.GetForeignKeys())
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (generationProperty != null)
             {
-                return _valueGeneratorSelector.Select(generationProperty, generationProperty.EntityType);
+                return _valueGeneratorSelector.Select(generationProperty, generationProperty.DeclaringEntityType);
             }
 
             return null;
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             // TODO: Perf
             foreach (var principalEntry in stateManager.Entries
-                .Where(e => e.EntityType == navigation.ForeignKey.PrincipalEntityType))
+                .Where(e => navigation.ForeignKey.PrincipalEntityType.IsAssignableFrom(e.EntityType)))
             {
                 if (navigation.IsCollection())
                 {

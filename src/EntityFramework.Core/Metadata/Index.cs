@@ -26,11 +26,11 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IReadOnlyList<Property> Properties { get; }
 
-        public virtual EntityType EntityType => Properties[0].EntityType;
+        public virtual EntityType DeclaringEntityType => Properties[0].DeclaringEntityType;
 
         IReadOnlyList<IProperty> IIndex.Properties => Properties;
 
-        IEntityType IIndex.EntityType => EntityType;
+        IEntityType IIndex.DeclaringEntityType => DeclaringEntityType;
 
         bool IIndex.IsUnique => IsUnique ?? DefaultIsUnique;
     }

@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Query
 
             stateManager.StartTracking(
                 _entityType,
-                _entityKeyFactory.Create(_entityType, _entityKeyProperties, valueBuffer),
+                _entityKeyFactory.Create(_entityType.RootType(), _entityKeyProperties, valueBuffer),
                 entity,
                 valueBuffer);
         }
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Query
 
             public virtual EntityKey CreateEntityKey(ValueBuffer valueBuffer)
             {
-                return EntityKeyFactory.Create(EntityType, EntityKeyProperties, valueBuffer);
+                return EntityKeyFactory.Create(EntityType.RootType(), EntityKeyProperties, valueBuffer);
             }
         }
 

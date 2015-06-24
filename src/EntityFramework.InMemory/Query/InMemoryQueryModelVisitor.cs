@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         .EntityKeyFactorySource.GetKeyFactory(keyProperties);
 
                 Func<ValueBuffer, EntityKey> entityKeyFactory
-                    = vr => keyFactory.Create(entityType, keyProperties, vr);
+                    = vr => keyFactory.Create(entityType.RootType(), keyProperties, vr);
 
                 var materializer
                     = new MaterializerFactory(QueryModelVisitor

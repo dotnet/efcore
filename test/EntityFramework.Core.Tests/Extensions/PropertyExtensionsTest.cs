@@ -46,11 +46,11 @@ namespace Microsoft.Data.Entity.Tests
             var secondType = new EntityType("Second", model);
             var secondProperty = secondType.AddProperty("ID", typeof(int), true);
             var secondKey = secondType.AddKey(secondProperty);
-            var secondForeignKey = secondType.AddForeignKey(secondProperty, firstKey);
+            var secondForeignKey = secondType.AddForeignKey(secondProperty, firstKey, firstType);
 
             var thirdType = new EntityType("Third", model);
             var thirdProperty = thirdType.AddProperty("ID", typeof(int), true);
-            var thirdForeignKey = thirdType.AddForeignKey(thirdProperty, secondKey);
+            var thirdForeignKey = thirdType.AddForeignKey(thirdProperty, secondKey, secondType);
 
             firstProperty.RequiresValueGenerator = true;
 
@@ -75,13 +75,13 @@ namespace Microsoft.Data.Entity.Tests
             var middleProperty1 = middleType.AddProperty("FK1", typeof(int), true);
             var middleProperty2 = middleType.AddProperty("FK2", typeof(int), true);
             var middleKey1 = middleType.AddKey(middleProperty1);
-            var middleFK1 = middleType.AddForeignKey(middleProperty1, leftKey);
-            var middleFK2 = middleType.AddForeignKey(new[] { middleProperty2, middleProperty1 }, rightKey);
+            var middleFK1 = middleType.AddForeignKey(middleProperty1, leftKey, leftType);
+            var middleFK2 = middleType.AddForeignKey(new[] { middleProperty2, middleProperty1 }, rightKey, rightType);
 
             var endType = new EntityType("End", model);
             var endProperty = endType.AddProperty("FK", typeof(int), true);
 
-            var endFK = endType.AddForeignKey(endProperty, middleKey1);
+            var endFK = endType.AddForeignKey(endProperty, middleKey1, middleType);
 
             rightId2.RequiresValueGenerator = true;
 
@@ -101,17 +101,15 @@ namespace Microsoft.Data.Entity.Tests
             var firstType = new EntityType("First", model);
             var firstId = firstType.AddProperty("Id", typeof(int), true);
             var firstKey = firstType.AddKey(firstId);
-
-
-
+            
             var secondType = new EntityType("Second", model);
             var secondId1 = secondType.AddProperty("Id1", typeof(int), true);
             var secondId2 = secondType.AddProperty("Id2", typeof(int), true);
             var secondKey = secondType.AddKey(secondId1);
 
-            var firstForeignKey = firstType.AddForeignKey(firstId, secondKey);
-            var secondForeignKey1 = secondType.AddForeignKey(secondId1, firstKey);
-            var secondForeignKey2 = secondType.AddForeignKey(new[] { secondId1, secondId2 }, leafKey);
+            var firstForeignKey = firstType.AddForeignKey(firstId, secondKey, secondType);
+            var secondForeignKey1 = secondType.AddForeignKey(secondId1, firstKey, firstType);
+            var secondForeignKey2 = secondType.AddForeignKey(new[] { secondId1, secondId2 }, leafKey, leafType);
 
             leafId1.RequiresValueGenerator = true;
 

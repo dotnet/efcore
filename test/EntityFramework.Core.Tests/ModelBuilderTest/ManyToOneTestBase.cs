@@ -93,9 +93,9 @@ namespace Microsoft.Data.Entity.Tests
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<Customer>();
-                modelBuilder.Entity<Order>().Metadata.GetOrAddForeignKey(
-                    model.GetEntityType(typeof(Order)).GetProperty("CustomerId"),
-                    model.GetEntityType(typeof(Customer)).GetPrimaryKey());
+                modelBuilder.Entity<Order>()
+                    .Reference<Customer>().InverseCollection(e => e.Orders)
+                    .ForeignKey(e => e.CustomerId);
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
 
@@ -109,11 +109,12 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders);
 
-                Assert.Same(fk, dependentType.GetForeignKeys().Single());
+                var newFk = dependentType.GetForeignKeys().Single();
+                AssertEqual(fk.Properties, newFk.Properties);
                 Assert.Equal("Customer", dependentType.Navigations.Single().Name);
-                Assert.Same(navigation, principalType.Navigations.Single());
-                Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
-                Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
+                Assert.Equal(navigation.Name, principalType.Navigations.Single().Name);
+                Assert.Same(newFk, dependentType.Navigations.Single().ForeignKey);
+                Assert.Same(newFk, principalType.Navigations.Single().ForeignKey);
                 AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.Properties.Select(p => p.Name));
                 AssertEqual(new[] { "AnotherCustomerId", fk.Properties.Single().Name, dependentKey.Properties.Single().Name }, dependentType.Properties.Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
@@ -352,7 +353,7 @@ namespace Microsoft.Data.Entity.Tests
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
 
-                var fk = dependentType.AddForeignKey(dependentType.GetOrAddProperty("BurgerId", typeof(int)), principalKey);
+                var fk = dependentType.AddForeignKey(dependentType.GetOrAddProperty("BurgerId", typeof(int)), principalKey, principalType);
                 fk.IsUnique = false;
 
                 modelBuilder
@@ -541,7 +542,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal("BigMakId", fkProperty.Name);
                 Assert.True(fkProperty.IsShadowProperty);
                 Assert.Same(typeof(int?), fkProperty.ClrType);
-                Assert.Same(dependentType, fkProperty.EntityType);
+                Assert.Same(dependentType, fkProperty.DeclaringEntityType);
 
                 Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
                 Assert.Equal("Pickles", principalType.Navigations.Single().Name);
@@ -579,7 +580,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal("BigMakId", fkProperty.Name);
                 Assert.True(fkProperty.IsShadowProperty);
                 Assert.Same(typeof(int?), fkProperty.ClrType);
-                Assert.Same(dependentType, fkProperty.EntityType);
+                Assert.Same(dependentType, fkProperty.DeclaringEntityType);
 
                 Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
                 Assert.Empty(principalType.Navigations);
@@ -616,7 +617,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal("BigMakId", fkProperty.Name);
                 Assert.True(fkProperty.IsShadowProperty);
                 Assert.Same(typeof(int?), fkProperty.ClrType);
-                Assert.Same(dependentType, fkProperty.EntityType);
+                Assert.Same(dependentType, fkProperty.DeclaringEntityType);
 
                 Assert.Empty(dependentType.Navigations);
                 Assert.Equal("Pickles", principalType.Navigations.Single().Name);
@@ -654,7 +655,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.True(fkProperty.IsShadowProperty);
                 Assert.Same(typeof(int?), fkProperty.ClrType);
-                Assert.Same(dependentType, fkProperty.EntityType);
+                Assert.Same(dependentType, fkProperty.DeclaringEntityType);
 
                 Assert.Empty(dependentType.Navigations.Where(nav => nav.ForeignKey != fk));
                 Assert.Empty(principalType.Navigations.Where(nav => nav.ForeignKey != fk));
@@ -1416,8 +1417,8 @@ namespace Microsoft.Data.Entity.Tests
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.False(fk.IsUnique);
-                Assert.Equal(1, dependentType.Navigations.Count);
-                Assert.Equal(1, principalType.Navigations.Count);
+                Assert.Equal(1, dependentType.Navigations.Count());
+                Assert.Equal(1, principalType.Navigations.Count());
                 AssertEqual(expectedPrincipalProperties, principalType.Properties);
                 AssertEqual(expectedDependentProperties, dependentType.Properties);
                 Assert.Empty(principalType.GetForeignKeys());

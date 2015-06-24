@@ -405,11 +405,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because it already belongs to entity type '{existingEntityType}'.
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because according to the specified foreign key it should belong to entity type '{existingEntityType}'.
         /// </summary>
-        public static string NavigationAlreadyOwned([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object existingEntityType)
+        public static string NavigationOnWrongEntityType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object existingEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationAlreadyOwned", "navigation", "entityType", "existingEntityType"), navigation, entityType, existingEntityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationOnWrongEntityType", "navigation", "entityType", "existingEntityType"), navigation, entityType, existingEntityType);
         }
 
         /// <summary>
@@ -1042,6 +1042,38 @@ namespace Microsoft.Data.Entity.Internal
         public static string CompositePKWithDataAnnotation([CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CompositePKWithDataAnnotation", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be removed because it is still referenced from entity type '{entityType}'.
+        /// </summary>
+        public static string NavigationStillOnEntityType([CanBeNull] object navigation, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationStillOnEntityType", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
+        /// The navigation property declared on '{entityType}' cannot be determined because the associated  foreign key {foreignKey} references the same entity type that it is declared on.
+        /// </summary>
+        public static string SelfRefAmbiguousNavigation([CanBeNull] object entityType, [CanBeNull] object foreignKey)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("SelfRefAmbiguousNavigation", "entityType", "foreignKey"), entityType, foreignKey);
+        }
+
+        /// <summary>
+        /// The type '{entityType}' cannot have base type '{baseType}' because both types include the navigations: {navigations}.
+        /// </summary>
+        public static string DuplicateNavigationsOnBase([CanBeNull] object entityType, [CanBeNull] object baseType, [CanBeNull] object navigations)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateNavigationsOnBase", "entityType", "baseType", "navigations"), entityType, baseType, navigations);
+        }
+
+        /// <summary>
+        /// The entity types '{firstEntityType}' and '{secondEntityType}' do not belong to the same model.
+        /// </summary>
+        public static string EntityTypeModelMismatch([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeModelMismatch", "firstEntityType", "secondEntityType"), firstEntityType, secondEntityType);
         }
 
         /// <summary>
