@@ -104,31 +104,31 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var convention = new Mock<IEntityTypeMemberIgnoredConvention>();
             convention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>()))
                 .Returns<InternalEntityTypeBuilder, string>((b, t) =>
-                {
-                    Assert.NotNull(b);
-                    Assert.Equal("A", t);
-                    entityTypeBuilder = b;
-                    return true;
-                });
+                    {
+                        Assert.NotNull(b);
+                        Assert.Equal("A", t);
+                        entityTypeBuilder = b;
+                        return true;
+                    });
             conventions.EntityTypeMemberIgnoredConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IEntityTypeMemberIgnoredConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>()))
                 .Returns<InternalEntityTypeBuilder, string>((b, t) =>
-                {
-                    Assert.Equal("A", t);
-                    Assert.Same(entityTypeBuilder, b);
-                    return false;
-                });
+                    {
+                        Assert.Equal("A", t);
+                        Assert.Same(entityTypeBuilder, b);
+                        return false;
+                    });
             conventions.EntityTypeMemberIgnoredConventions.Add(nullConvention.Object);
 
             var extraConvention = new Mock<IEntityTypeMemberIgnoredConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>()))
                 .Returns<InternalEntityTypeBuilder, string>((b, t) =>
-                {
-                    Assert.False(true);
-                    return false;
-                });
+                    {
+                        Assert.False(true);
+                        return false;
+                    });
             conventions.EntityTypeMemberIgnoredConventions.Add(extraConvention.Object);
 
             var builder = new InternalModelBuilder(new Model(), conventions).Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
@@ -258,10 +258,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
             entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
-            Assert.NotNull(entityBuilder.Relationship(entityBuilder, ConfigurationSource.Convention));
-
-            Assert.Null(entityBuilder.Relationship(entityBuilder, ConfigurationSource.Convention)
-                .HasForeignKey(new[] { nameof(Order.OrderId) }, ConfigurationSource.Convention ));
+            Assert.Null(entityBuilder.Relationship(entityBuilder, ConfigurationSource.Convention));
 
             Assert.NotNull(relationshipBuilder);
         }
@@ -435,19 +432,20 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         {
             var conventions = new ConventionSet();
 
-            InternalRelationshipBuilder relationshipBuilderFromConvention = null;
+            InternalEntityTypeBuilder dependentEntityTypeBuilderFromConvention = null;
+            InternalEntityTypeBuilder principalEntityBuilderFromConvention = null;
             var convention = new Mock<INavigationRemovedConvention>();
-            convention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>(), It.IsAny<string>(), It.IsAny<bool>())).Returns((InternalRelationshipBuilder b, string n, bool p) =>
+            convention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>())).Returns((InternalEntityTypeBuilder s, InternalEntityTypeBuilder t, string n) =>
                 {
-                    relationshipBuilderFromConvention = b;
+                    dependentEntityTypeBuilderFromConvention = s;
+                    principalEntityBuilderFromConvention = t;
                     Assert.Equal(nameof(OrderDetails.Order), n);
-                    Assert.True(p);
                     return false;
                 });
             conventions.NavigationRemovedConventions.Add(convention.Object);
 
             var extraConvention = new Mock<INavigationRemovedConvention>();
-            extraConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>(), It.IsAny<string>(), It.IsAny<bool>())).Returns((InternalRelationshipBuilder b, string n, bool p) =>
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>())).Returns((InternalEntityTypeBuilder s, InternalEntityTypeBuilder t, string n) =>
                 {
                     Assert.False(true);
                     return false;
@@ -455,15 +453,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             conventions.NavigationRemovedConventions.Add(extraConvention.Object);
 
             var builder = new InternalModelBuilder(new Model(), conventions);
-            
+
             var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
-            
+
             var relationshipBuilder = dependentEntityBuilder.Relationship(principalEntityBuilder, nameof(OrderDetails.Order), nameof(Order.OrderDetails), ConfigurationSource.Convention);
             relationshipBuilder.DependentToPrincipal(null, ConfigurationSource.Convention);
 
             Assert.NotNull(relationshipBuilder);
-            Assert.Same(relationshipBuilderFromConvention, relationshipBuilder);
+            Assert.Same(dependentEntityTypeBuilderFromConvention, dependentEntityBuilder);
+            Assert.Same(principalEntityBuilderFromConvention, principalEntityBuilder);
         }
 
         [Fact]

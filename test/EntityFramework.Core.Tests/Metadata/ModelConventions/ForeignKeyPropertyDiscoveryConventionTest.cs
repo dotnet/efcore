@@ -769,7 +769,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         [Fact]
         public void Inverts_and_sets_foreign_key_if_matching_non_shadow_property_added_on_principal_type()
         {
-            var relationshipBuilder = PrincipalType.Relationship(DependentType, "InverseReferenceNav", "SomeNav", ConfigurationSource.Convention)
+            var relationshipBuilder = PrincipalType
+                .Relationship(DependentType, "InverseReferenceNav", "SomeNav", ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.Convention);
 
             var fk = (IForeignKey)relationshipBuilder.Metadata;

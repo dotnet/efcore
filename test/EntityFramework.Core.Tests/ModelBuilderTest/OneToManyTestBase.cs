@@ -1189,10 +1189,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(principalProperty, primaryPrincipalKey.Properties.Single());
                 Assert.Equal(2, principalType.GetKeys().Count());
                 Assert.True(principalType.GetKeys().Contains(nonPrimaryPrincipalKey));
-                var oldKeyProperty = principalType.GetProperty(nameof(BigMak.Id));
-                var newKeyProperty = principalType.GetProperty(nameof(BigMak.AlternateKey));
-                Assert.Null(oldKeyProperty.RequiresValueGenerator);
-                Assert.Null(oldKeyProperty.ValueGenerated);
+                var oldKeyProperty = (IProperty)principalType.GetProperty(nameof(BigMak.Id));
+                var newKeyProperty = (IProperty)principalType.GetProperty(nameof(BigMak.AlternateKey));
+                Assert.False(oldKeyProperty.RequiresValueGenerator);
+                Assert.Equal(ValueGenerated.Never, oldKeyProperty.ValueGenerated);
                 Assert.True(newKeyProperty.RequiresValueGenerator);
                 Assert.Equal(ValueGenerated.OnAdd, newKeyProperty.ValueGenerated);
                 Assert.Same(dependentKey, dependentType.GetKeys().SingleOrDefault());

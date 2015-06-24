@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Update
 {
     public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     {
-        public UpdateSqlGenerator([NotNull] ISqlGenerator sqlGenerator)
+        protected UpdateSqlGenerator([NotNull] ISqlGenerator sqlGenerator)
         {
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 

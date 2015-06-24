@@ -77,21 +77,19 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
         {
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
-            Assert.Equal(@"@p0: Book1
+            Assert.Equal(@"@p0: 0
+@p1: Book1
 
-INSERT INTO ""BookDetail"" (""BookId"")
-VALUES (@p0);
-SELECT ""Id""
-FROM ""BookDetail""
-WHERE changes() = 1 AND ""Id"" = last_insert_rowid();
+INSERT INTO ""BookDetail"" (""Id"", ""BookId"")
+VALUES (@p0, @p1);
+SELECT changes();
 
-@p0: 
+@p0: 0
+@p1: 
 
-INSERT INTO ""BookDetail"" (""BookId"")
-VALUES (@p0);
-SELECT ""Id""
-FROM ""BookDetail""
-WHERE changes() = 1 AND ""Id"" = last_insert_rowid();",
+INSERT INTO ""BookDetail"" (""Id"", ""BookId"")
+VALUES (@p0, @p1);
+SELECT changes();",
                 Sql);
         }
 

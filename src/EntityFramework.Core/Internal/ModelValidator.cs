@@ -16,7 +16,6 @@ namespace Microsoft.Data.Entity.Internal
             EnsureNoShadowEntities(model);
             EnsureNoShadowKeys(model);
             EnsureNonNullPrimaryKeys(model);
-            EnsureClrPropertyTypesMatch(model);
         }
 
         protected virtual void EnsureNoShadowEntities([NotNull] IModel model)
@@ -69,33 +68,6 @@ namespace Microsoft.Data.Entity.Internal
             if (entityTypeWithNullPk != null)
             {
                 ShowError(CoreStrings.EntityRequiresKey(entityTypeWithNullPk.Name));
-            }
-        }
-
-        protected virtual void EnsureClrPropertyTypesMatch([NotNull] IModel model)
-        {
-            foreach (var entityType in model.EntityTypes)
-            {
-                foreach (var property in entityType.GetDeclaredProperties())
-                {
-                    if (property.IsShadowProperty
-                        || !entityType.HasClrType())
-                    {
-                        continue;
-                    }
-
-                    var clrProperty = entityType.ClrType.GetPropertiesInHierarchy(property.Name).FirstOrDefault();
-                    if (clrProperty == null)
-                    {
-                        ShowError(CoreStrings.NoClrProperty(property.Name, entityType.Name));
-                        continue;
-                    }
-
-                    if (property.ClrType != clrProperty.PropertyType)
-                    {
-                        ShowError(CoreStrings.PropertyWrongClrType(property.Name, entityType.Name));
-                    }
-                }
             }
         }
 

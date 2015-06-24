@@ -38,7 +38,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     }
                     else
                     {
-                        var valueGenerator = _valueGeneratorSelector.Select(property, entry.EntityType);
+                        var valueGenerator = _valueGeneratorSelector.Select(property, property.IsKey()
+                            ? property.DeclaringEntityType
+                            : entry.EntityType);
 
                         Debug.Assert(valueGenerator != null);
 

@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private class Ingredient
         {
-            public readonly static PropertyInfo BurgerIdProperty = typeof(Ingredient).GetProperty("BurgerId");
+            public static readonly PropertyInfo BurgerIdProperty = typeof(Ingredient).GetProperty("BurgerId");
 
             public int Id { get; set; }
             public int BurgerId { get; set; }
@@ -194,23 +194,30 @@ namespace Microsoft.Data.Entity.Tests
             public BookDetails Details { get; set; }
         }
 
-        private class BookDetails
+        private abstract class BookDetailsBase
         {
             public int Id { get; set; }
+            public Book AnotherBook { get; set; }
+        }
 
+        private class BookDetails : BookDetailsBase
+        {
             [NotMapped]
             public Book Book { get; set; }
-
-            public Book AnotherBook { get; set; }
         }
 
         private class BookLabel
         {
             public int Id { get; set; }
-            public int BookId { get; set; }
 
             [InverseProperty("Label")]
             public Book Book { get; set; }
+
+            public int BookId { get; set; }
+        }
+
+        private class SpecialBookLabel : BookLabel
+        {
         }
 
         private class Post
@@ -236,7 +243,6 @@ namespace Microsoft.Data.Entity.Tests
             public Post Post { get; set; }
         }
 
-
         private class Author
         {
             public int Id { get; set; }
@@ -257,7 +263,6 @@ namespace Microsoft.Data.Entity.Tests
 
             public Author Author { get; set; }
         }
-
 
         private class A
         {
@@ -296,7 +301,6 @@ namespace Microsoft.Data.Entity.Tests
             [ForeignKey("CId")]
             public C C { get; set; }
         }
-
         private class EntityWithoutId
         {
             public string Name { get; set; }

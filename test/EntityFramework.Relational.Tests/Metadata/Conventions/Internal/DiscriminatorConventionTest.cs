@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
             Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorProperty);
             Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
 
-            var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Convention);
-            entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.Convention);
+            var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Explicit);
+            Assert.Same(entityTypeBuilder, entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation));
 
             Assert.True(new DiscriminatorConvention().Apply(entityTypeBuilder, oldBaseType: null));
 
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
             Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.Relational().DiscriminatorValue);
             Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
             
-            entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.Convention);
+            Assert.NotNull(entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation));
             Assert.True(new DiscriminatorConvention().Apply(entityTypeBuilder, oldBaseType: baseTypeBuilder.Metadata));
             Assert.Null(baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
             Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorProperty);
@@ -50,12 +50,12 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
             Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
 
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Explicit);
-            Assert.Same(entityTypeBuilder, entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.Convention));
+            Assert.Same(entityTypeBuilder, entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation));
 
             Assert.True(new DiscriminatorConvention().Apply(entityTypeBuilder, oldBaseType: null));
 
             var derivedTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(DerivedEntity), ConfigurationSource.Explicit);
-            Assert.Same(derivedTypeBuilder, derivedTypeBuilder.HasBaseType(entityTypeBuilder.Metadata, ConfigurationSource.Convention));
+            Assert.Same(derivedTypeBuilder, derivedTypeBuilder.HasBaseType(entityTypeBuilder.Metadata, ConfigurationSource.DataAnnotation));
             Assert.Same(derivedTypeBuilder.Metadata, entityTypeBuilder.ModelBuilder.Entity(typeof(DerivedEntity).FullName, ConfigurationSource.Convention).Metadata);
 
             Assert.True(new DiscriminatorConvention().Apply(derivedTypeBuilder, oldBaseType: null));
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
             Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
             Assert.Equal(typeof(DerivedEntity).Name, derivedTypeBuilder.Metadata.Relational().DiscriminatorValue);
 
-            entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.Convention);
+            entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation);
             Assert.True(new DiscriminatorConvention().Apply(entityTypeBuilder, oldBaseType: baseTypeBuilder.Metadata));
 
             Assert.Null(baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
@@ -104,8 +104,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
             
-            var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Convention);
-            entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.Convention);
+            var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.DataAnnotation);
+            entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation);
             baseTypeBuilder.Relational(ConfigurationSource.Explicit).HasDiscriminator("T", typeof(int));
 
             Assert.True(new DiscriminatorConvention().Apply(entityTypeBuilder, oldBaseType: null));
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
             Assert.Null(baseTypeBuilder.Metadata.Relational().DiscriminatorValue);
             Assert.Null(entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
 
-            entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.Convention);
+            entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation);
             Assert.True(new DiscriminatorConvention().Apply(entityTypeBuilder, oldBaseType: baseTypeBuilder.Metadata));
 
             Assert.Null(baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);

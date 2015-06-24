@@ -121,6 +121,15 @@ namespace Microsoft.Data.Entity.Metadata
             return false;
         }
 
+        public static bool IsSameHierarchy([NotNull] this IEntityType firstEntityType, [NotNull] IEntityType secondEntityType)
+        {
+            Check.NotNull(firstEntityType, nameof(firstEntityType));
+            Check.NotNull(secondEntityType, nameof(secondEntityType));
+
+            return firstEntityType.IsAssignableFrom(secondEntityType)
+                   || secondEntityType.IsAssignableFrom(firstEntityType);
+        }
+
         public static bool IsAbstract([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

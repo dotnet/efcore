@@ -1,13 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Xunit;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
+using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal.Test
 {
@@ -156,6 +154,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
         }
 
         [Fact]
+        public void Can_ignore_entity_type_with_base_and_derived_types()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var baseEntityTypeBuilder = modelBuilder.Entity(typeof(Base), ConfigurationSource.Explicit);
+            var customerEntityTypeBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
+            var specialCustomerEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialCustomer), ConfigurationSource.Explicit);
+
+            Assert.NotNull(customerEntityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, ConfigurationSource.Convention));
+            Assert.NotNull(specialCustomerEntityTypeBuilder.HasBaseType(customerEntityTypeBuilder.Metadata, ConfigurationSource.Convention));
+
+            Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(2, modelBuilder.Metadata.EntityTypes.Count);
+            Assert.Same(baseEntityTypeBuilder.Metadata, specialCustomerEntityTypeBuilder.Metadata.BaseType);
+        }
+
+        [Fact]
         public void Cannot_ignore_entity_type_referenced_from_higher_source_foreign_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -240,12 +255,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
         protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)
             => new InternalModelBuilder(model ?? new Model(), new ConventionSet());
 
-        private class Customer
+        private class Base
+        {
+            public int Id { get; set; }
+        }
+
+        private class Customer : Base
         {
             public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
 
-            public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        private class SpecialCustomer : Customer
+        {
         }
 
         private class Order

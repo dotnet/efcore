@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
@@ -26,10 +27,10 @@ namespace Microsoft.Data.Entity.Metadata
             : base(name)
         {
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
-            
+
             DeclaringEntityType = declaringEntityType;
         }
-        
+
         public virtual Type ClrType
         {
             get { return _clrType; }
@@ -159,6 +160,29 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (IsShadowProperty != value)
                 {
+                    if (value == false)
+                    {
+                        if (DeclaringEntityType.ClrType == null)
+                        {
+                            throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(Name, DeclaringEntityType.DisplayName()));
+                        }
+
+                        var clrProperty = DeclaringEntityType.ClrType.GetPropertiesInHierarchy(Name).FirstOrDefault();
+                        if (clrProperty == null)
+                        {
+                            throw new InvalidOperationException(CoreStrings.NoClrProperty(Name, DeclaringEntityType.DisplayName()));
+                        }
+
+                        if (ClrType == null)
+                        {
+                            ClrType = clrProperty.PropertyType;
+                        }
+                        else if (ClrType != clrProperty.PropertyType)
+                        {
+                            throw new InvalidOperationException(CoreStrings.PropertyWrongClrType(Name, DeclaringEntityType.DisplayName()));
+                        }
+                    }
+
                     SetFlag(value, PropertyFlags.IsShadowProperty);
 
                     DeclaringEntityType.PropertyMetadataChanged(this);
@@ -241,7 +265,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         internal static string Format(IEnumerable<IProperty> properties)
-            => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
+            => "{" + String.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
 
         Type IProperty.ClrType => ClrType ?? DefaultClrType;
         bool IProperty.IsConcurrencyToken => IsConcurrencyToken ?? DefaultIsConcurrencyToken;
@@ -266,6 +290,17 @@ namespace Microsoft.Data.Entity.Metadata
             RequiresValueGenerator = 64,
             IsShadowProperty = 128,
             StoreGeneratedAlways = 256
+        }
+
+        public static bool AreCompatible([NotNull] IReadOnlyList<Property> properties, [NotNull] EntityType entityType)
+        {
+            Check.NotNull(properties, nameof(properties));
+            Check.NotNull(entityType, nameof(entityType));
+
+            return properties.All(property =>
+                ((IProperty)property).IsShadowProperty
+                || (entityType.HasClrType
+                && entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null));
         }
     }
 }

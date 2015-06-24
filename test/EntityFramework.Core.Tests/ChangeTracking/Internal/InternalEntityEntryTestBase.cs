@@ -19,10 +19,10 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
 {
-    public class InternalEntityEntryTest
+    public abstract class InternalEntityEntryTestBase
     {
         [Fact]
-        public void Changing_state_from_Unknown_causes_entity_to_start_tracking()
+        public virtual void Changing_state_from_Unknown_causes_entity_to_start_tracking()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Changing_state_to_Unknown_causes_entity_to_stop_tracking()
+        public virtual void Changing_state_to_Unknown_causes_entity_to_stop_tracking()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact] // GitHub #251, #1247
-        public void Changing_state_from_Added_to_Deleted_does_what_you_ask()
+        public virtual void Changing_state_from_Added_to_Deleted_does_what_you_ask()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Changing_state_to_Modified_or_Unchanged_causes_all_properties_to_be_marked_accordingly()
+        public virtual void Changing_state_to_Modified_or_Unchanged_causes_all_properties_to_be_marked_accordingly()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Read_only_before_save_properties_throw_if_not_null_or_temp()
+        public virtual void Read_only_before_save_properties_throw_if_not_null_or_temp()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Read_only_after_save_properties_throw_if_modified()
+        public virtual void Read_only_after_save_properties_throw_if_modified()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Key_properties_throw_immediately_if_modified()
+        public virtual void Key_properties_throw_immediately_if_modified()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -218,7 +218,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Added_entities_can_have_temporary_values()
+        public virtual void Added_entities_can_have_temporary_values()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -285,7 +285,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Deleted)]
-        public void Changing_state_with_temp_value_throws(EntityState targetState)
+        public virtual void Changing_state_with_temp_value_throws(EntityState targetState)
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -303,7 +303,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Detaching_with_temp_values_does_not_throw()
+        public virtual void Detaching_with_temp_values_does_not_throw()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -327,7 +327,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Setting_an_explicit_value_marks_property_as_not_temporary()
+        public virtual void Setting_an_explicit_value_marks_property_as_not_temporary()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -349,11 +349,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Changing_state_to_Added_triggers_key_generation()
+        public virtual void Key_properties_share_value_generation_space_with_base()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = (IProperty)entityType.GetProperty("Id");
+            var baseEntityType = model.GetEntityType(typeof(SomeSimpleEntityBase).FullName);
+            var nonKeyProperty = baseEntityType.AddProperty("NonId", typeof(int));
+            nonKeyProperty.RequiresValueGenerator = true;
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
@@ -366,15 +369,27 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 Assert.Equal(0, entry[keyProperty]);
             }
+            
+            Assert.Null(entry[nonKeyProperty]);
 
             entry.SetEntityState(EntityState.Added);
 
             Assert.NotNull(entry[keyProperty]);
             Assert.NotEqual(0, entry[keyProperty]);
+            Assert.Equal(entry[keyProperty], entry[nonKeyProperty]);
+
+            var baseEntry = CreateInternalEntry(configuration, baseEntityType, new SomeSimpleEntityBase());
+
+            baseEntry.SetEntityState(EntityState.Added);
+
+            Assert.NotNull(baseEntry[keyProperty]);
+            Assert.NotEqual(0, baseEntry[keyProperty]);
+            Assert.NotEqual(entry[keyProperty], baseEntry[keyProperty]);
+            Assert.Equal(entry[nonKeyProperty], baseEntry[nonKeyProperty]);
         }
 
         [Fact]
-        public void Value_generation_does_not_happen_if_property_has_non_default_value()
+        public virtual void Value_generation_does_not_happen_if_property_has_non_default_value()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -391,7 +406,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Temporary_values_are_reset_when_entity_is_detached()
+        public virtual void Temporary_values_are_reset_when_entity_is_detached()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -412,7 +427,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Modified_values_are_reset_when_entity_is_changed_to_Added()
+        public virtual void Modified_values_are_reset_when_entity_is_changed_to_Added()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -431,7 +446,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Changing_state_to_Added_triggers_value_generation_for_any_property()
+        public virtual void Changing_state_to_Added_triggers_value_generation_for_any_property()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
@@ -461,7 +476,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_primary_key()
+        public virtual void Can_create_primary_key()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -478,7 +493,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_composite_primary_key()
+        public virtual void Can_create_composite_primary_key()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
@@ -496,7 +511,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_foreign_key_value_based_on_dependent_values()
+        public virtual void Can_create_foreign_key_value_based_on_dependent_values()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
@@ -515,7 +530,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_foreign_key_value_based_on_snapshot_dependent_values()
+        public virtual void Can_create_foreign_key_value_based_on_snapshot_dependent_values()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
@@ -534,7 +549,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_foreign_key_value_based_on_snapshot_dependent_values_if_value_not_yet_snapshotted()
+        public virtual void Can_create_foreign_key_value_based_on_snapshot_dependent_values_if_value_not_yet_snapshotted()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
@@ -552,7 +567,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Notification_that_an_FK_property_has_changed_updates_the_snapshot()
+        public virtual void Notification_that_an_FK_property_has_changed_updates_the_snapshot()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
@@ -571,7 +586,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Setting_property_to_the_same_value_does_not_update_the_snapshot()
+        public virtual void Setting_property_to_the_same_value_does_not_update_the_snapshot()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
@@ -590,7 +605,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_foreign_key_value_based_on_principal_end_values()
+        public virtual void Can_create_foreign_key_value_based_on_principal_end_values()
         {
             var model = BuildModel();
             var principalType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -609,7 +624,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_composite_foreign_key_value_based_on_dependent_values()
+        public virtual void Can_create_composite_foreign_key_value_based_on_dependent_values()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
@@ -627,7 +642,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_composite_foreign_key_value_based_on_principal_end_values()
+        public virtual void Can_create_composite_foreign_key_value_based_on_principal_end_values()
         {
             var model = BuildModel();
             var principalType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
@@ -646,7 +661,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_composite_foreign_key_value_based_on_principal_end_values_with_nulls()
+        public virtual void Can_create_composite_foreign_key_value_based_on_principal_end_values_with_nulls()
         {
             var model = BuildModel();
             var principalType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
@@ -665,7 +680,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_get_property_value_after_creation_from_value_buffer()
+        public virtual void Can_get_property_value_after_creation_from_value_buffer()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -682,7 +697,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_set_property_value_after_creation_from_value_buffer()
+        public virtual void Can_set_property_value_after_creation_from_value_buffer()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -700,7 +715,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(77, entry[keyProperty]);
         }
         [Fact]
-        public void Can_set_and_get_property_values()
+        public virtual void Can_set_and_get_property_values()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -718,7 +733,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_get_value_buffer_from_properties()
+        public virtual void Can_get_value_buffer_from_properties()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -738,7 +753,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             => entry.EntityType.GetProperties().Select(p => entry[p]).ToArray();
 
         [Fact]
-        public void All_original_values_can_be_accessed_for_entity_that_does_full_change_tracking_if_eager_values_on()
+        public virtual void All_original_values_can_be_accessed_for_entity_that_does_full_change_tracking_if_eager_values_on()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(FullNotificationEntity).FullName);
@@ -783,21 +798,21 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Required_original_values_can_be_accessed_for_entity_that_does_full_change_tracking()
+        public virtual void Required_original_values_can_be_accessed_for_entity_that_does_full_change_tracking()
         {
             var model = BuildModel();
             OriginalValuesTest(model, model.GetEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity { Id = 1, Name = "Kool" });
         }
 
         [Fact]
-        public void Required_original_values_can_be_accessed_for_entity_that_does_changed_only_notification()
+        public virtual void Required_original_values_can_be_accessed_for_entity_that_does_changed_only_notification()
         {
             var model = BuildModel();
             OriginalValuesTest(model, model.GetEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity { Id = 1, Name = "Kool" });
         }
 
         [Fact]
-        public void Required_original_values_can_be_accessed_for_entity_that_does_no_notification()
+        public virtual void Required_original_values_can_be_accessed_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
             OriginalValuesTest(model, model.GetEntityType(typeof(SomeEntity).FullName), new SomeEntity { Id = 1, Name = "Kool" });
@@ -826,21 +841,21 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Null_original_values_are_handled_for_entity_that_does_full_change_tracking()
+        public virtual void Null_original_values_are_handled_for_entity_that_does_full_change_tracking()
         {
             var model = BuildModel();
             NullOriginalValuesTest(model, model.GetEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity { Id = 1 });
         }
 
         [Fact]
-        public void Null_original_values_are_handled_for_entity_that_does_changed_only_notification()
+        public virtual void Null_original_values_are_handled_for_entity_that_does_changed_only_notification()
         {
             var model = BuildModel();
             NullOriginalValuesTest(model, model.GetEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity { Id = 1 });
         }
 
         [Fact]
-        public void Null_original_values_are_handled_for_entity_that_does_no_notification()
+        public virtual void Null_original_values_are_handled_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
             NullOriginalValuesTest(model, model.GetEntityType(typeof(SomeEntity).FullName), new SomeEntity { Id = 1 });
@@ -874,7 +889,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Setting_property_using_state_entry_always_marks_as_modified()
+        public virtual void Setting_property_using_state_entry_always_marks_as_modified()
         {
             var model = BuildModel();
 
@@ -944,16 +959,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void AcceptChanges_does_nothing_for_unchanged_entities()
-        {
-            AcceptChangesNoop(EntityState.Unchanged);
-        }
+        public virtual void AcceptChanges_does_nothing_for_unchanged_entities()
+            => AcceptChangesNoop(EntityState.Unchanged);
 
         [Fact]
-        public void AcceptChanges_does_nothing_for_unknown_entities()
-        {
-            AcceptChangesNoop(EntityState.Detached);
-        }
+        public virtual void AcceptChanges_does_nothing_for_unknown_entities()
+            => AcceptChangesNoop(EntityState.Detached);
 
         private void AcceptChangesNoop(EntityState entityState)
         {
@@ -975,13 +986,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void AcceptChanges_makes_Modified_entities_Unchanged_and_resets_used_original_values()
+        public virtual void AcceptChanges_makes_Modified_entities_Unchanged_and_resets_used_original_values()
         {
             AcceptChangesKeep(EntityState.Modified);
         }
 
         [Fact]
-        public void AcceptChanges_makes_Added_entities_Unchanged()
+        public virtual void AcceptChanges_makes_Added_entities_Unchanged()
         {
             AcceptChangesKeep(EntityState.Added);
         }
@@ -1012,7 +1023,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void AcceptChanges_makes_Modified_entities_Unchanged_and_effectively_resets_unused_original_values()
+        public virtual void AcceptChanges_makes_Modified_entities_Unchanged_and_effectively_resets_unused_original_values()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -1037,7 +1048,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void AcceptChanges_detaches_Deleted_entities()
+        public virtual void AcceptChanges_detaches_Deleted_entities()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -1057,7 +1068,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_add_and_remove_sidecars()
+        public virtual void Can_add_and_remove_sidecars()
         {
             var model = BuildModel();
             var entry = CreateInternalEntry(
@@ -1121,7 +1132,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Non_transparent_sidecar_does_not_intercept_normal_property_read_and_write()
+        public virtual void Non_transparent_sidecar_does_not_intercept_normal_property_read_and_write()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -1151,7 +1162,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_read_values_from_sidecar_transparently()
+        public virtual void Can_read_values_from_sidecar_transparently()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -1189,7 +1200,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_write_values_to_sidecar_transparently()
+        public virtual void Can_write_values_to_sidecar_transparently()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -1226,7 +1237,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_auto_commit_sidecars()
+        public virtual void Can_auto_commit_sidecars()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -1255,7 +1266,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_auto_rollback_sidecars()
+        public virtual void Can_auto_rollback_sidecars()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -1308,7 +1319,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Sidecars_are_added_for_store_generated_values_when_preparing_to_save()
+        public virtual void Sidecars_are_added_for_store_generated_values_when_preparing_to_save()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -1332,7 +1343,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Sidecars_are_not_added_for_when_no_store_generated_values_will_be_used()
+        public virtual void Sidecars_are_not_added_for_when_no_store_generated_values_will_be_used()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -1350,7 +1361,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Sidecars_are_added_for_computed_properties_when_preparing_to_save()
+        public virtual void Sidecars_are_added_for_computed_properties_when_preparing_to_save()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -1372,7 +1383,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Sidecars_are_added_for_store_default_properties_when_preparing_to_save()
+        public virtual void Sidecars_are_added_for_store_default_properties_when_preparing_to_save()
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
@@ -1395,7 +1406,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Sidecars_are_added_for_foreign_key_properties_with_root_principals_that_may_get_store_generated_values()
+        public virtual void Sidecars_are_added_for_foreign_key_properties_with_root_principals_that_may_get_store_generated_values()
         {
             var model = BuildOneToOneModel();
             var entityType = model.GetEntityType(typeof(SecondDependent));
@@ -1419,7 +1430,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Sidecars_are_not_added_for_foreign_key_properties_with_root_principals_that_will_not_get_store_generated_values()
+        public virtual void Sidecars_are_not_added_for_foreign_key_properties_with_root_principals_that_will_not_get_store_generated_values()
         {
             var model = BuildOneToOneModel();
             var entityType = model.GetEntityType(typeof(SecondDependent));
@@ -1552,11 +1563,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             }
 
             public override ValueGenerator Create(IProperty property, IEntityType entityType)
-            {
-                return property.ClrType == typeof(int)
+                => property.ClrType == typeof(int)
                     ? _inMemoryFactory.Create(property)
                     : base.Create(property, entityType);
-            }
         }
 
         private class Root

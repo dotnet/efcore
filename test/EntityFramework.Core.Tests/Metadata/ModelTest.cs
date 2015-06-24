@@ -70,7 +70,24 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             orderType.AddForeignKey(customerFk, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.EntityTypeInUse(typeof(Customer).FullName),
+                CoreStrings.EntityTypeInUseByForeignKey(
+                    typeof(Customer).Name,
+                    "{'" + Order.CustomerIdProperty.Name + "'}",
+                    typeof(Order).Name),
+                Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType)).Message);
+        }
+
+        [Fact]
+        public void Cannot_remove_entity_type_when_it_has_derived_types()
+        {
+            var model = new Model();
+            var customerType = model.GetOrAddEntityType(typeof(Customer));
+            var specialCustomerType = model.GetOrAddEntityType(typeof(SpecialCustomer));
+
+            specialCustomerType.BaseType = customerType;
+
+            Assert.Equal(
+                CoreStrings.EntityTypeInUseByDerived(typeof(Customer).Name, typeof(SpecialCustomer).Name),
                 Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType)).Message);
         }
 
@@ -162,6 +179,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        private class SpecialCustomer : Customer
+        {
         }
 
         private class Order

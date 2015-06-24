@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Update
 {
     /// <summary>
     ///     A <see cref="ReaderModificationCommandBatch" /> for providers which append an SQL query to find out
-    ///     how many rows were affected (see <see cref="SqlGenerator.AppendSelectAffectedCountCommand" />).
+    ///     how many rows were affected (see <see cref="UpdateSqlGenerator.AppendSelectAffectedCountCommand" />).
     /// </summary>
     public abstract class AffectedCountModificationCommandBatch : ReaderModificationCommandBatch
     {

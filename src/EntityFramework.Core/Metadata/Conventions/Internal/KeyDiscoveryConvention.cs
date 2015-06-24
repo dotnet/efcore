@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class KeyDiscoveryConvention : IEntityTypeConvention, IPropertyConvention
+    public class KeyDiscoveryConvention : IEntityTypeConvention, IPropertyConvention, IBaseTypeConvention
     {
         private const string KeySuffix = "Id";
 
@@ -54,6 +54,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             return keyProperties;
         }
+
+        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
+            => Apply(entityTypeBuilder) != null;
 
         public virtual InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder)
         {

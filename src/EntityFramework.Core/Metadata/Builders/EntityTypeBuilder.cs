@@ -77,19 +77,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
-        public virtual EntityTypeBuilder HasBaseType([NotNull] string name)
-        {
-            Check.NotEmpty(name, nameof(name));
+        public virtual EntityTypeBuilder HasBaseType([CanBeNull] string name)
+            => New(Builder.HasBaseType(name, ConfigurationSource.Explicit));
 
-            return New(Builder.HasBaseType(name, ConfigurationSource.Explicit));
-        }
-
-        public virtual EntityTypeBuilder HasBaseType([NotNull] Type entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return New(Builder.HasBaseType(entityType, ConfigurationSource.Explicit));
-        }
+        public virtual EntityTypeBuilder HasBaseType([CanBeNull] Type entityType)
+            => New(Builder.HasBaseType(entityType, ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Sets the properties that make up the primary key for this entity type.
@@ -311,9 +303,17 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
         protected virtual InternalRelationshipBuilder ReferenceBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
-            => Builder.ModelBuilder.Entity(Metadata.Name, ConfigurationSource.Explicit)
-                .Relationship(relatedEntityType, ConfigurationSource.Explicit)
-                .DependentToPrincipal(navigationName, ConfigurationSource.Explicit);
+        {
+            var relationship = Builder.ModelBuilder.Entity(Metadata.Name, ConfigurationSource.Explicit)
+                .Relationship(relatedEntityType, ConfigurationSource.Explicit);
+
+            if (relationship.Metadata.IsSelfReferencing())
+            {
+                relationship = relationship.PrincipalEntityType(relatedEntityType, ConfigurationSource.Explicit);
+            }
+
+            return relationship.DependentToPrincipal(navigationName, ConfigurationSource.Explicit);
+        }
 
         protected virtual InternalRelationshipBuilder CollectionBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)

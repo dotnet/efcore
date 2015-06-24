@@ -164,6 +164,8 @@
     <Compile Include="DbContextOptionsBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\Conventions\ConventionSet.cs" />
+    <Compile Include="Metadata\Conventions\Internal\BaseTypeDiscoveryConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\DerivedTypeDiscoveryConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\CascadeDeleteConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\INavigationRemovedConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IPropertyNullableConvention.cs" />
@@ -172,6 +174,7 @@
     <Compile Include="Metadata\Conventions\Internal\ForeignKeyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IEntityTypeMemberIgnoredConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\INavigationConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\InheritanceDiscoveryConventionBase.cs" />
     <Compile Include="Metadata\Conventions\Internal\InversePropertyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IPrimaryKeyConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\NavigationAttributeNavigationConvention.cs" />

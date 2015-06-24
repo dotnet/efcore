@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private readonly LazyRef<Dictionary<string, ConfigurationSource>> _ignoredEntityTypeNames =
             new LazyRef<Dictionary<string, ConfigurationSource>>(() => new Dictionary<string, ConfigurationSource>());
-        
+
         public InternalModelBuilder([NotNull] Model metadata, [NotNull] ConventionSet conventions)
             : base(metadata)
         {
@@ -101,9 +101,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return true;
             }
 
-            _ignoredEntityTypeNames.Value[name] = configurationSource;
-
             var entityType = Metadata.FindEntityType(name);
+
+            return Ignore(entityType, name, configurationSource);
+        }
+
+        private bool Ignore(EntityType entityType, string name, ConfigurationSource configurationSource)
+        {
+            _ignoredEntityTypeNames.Value[name] = configurationSource;
             if (entityType != null)
             {
                 if (!Remove(entityType, configurationSource))
@@ -124,28 +129,37 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return false;
             }
 
-            foreach (var foreignKey in entityType.GetForeignKeys().ToList())
+            foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
+            {
+                var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource, runConventions: false);
+                Debug.Assert(removed.HasValue);
+            }
+
+            foreach (var foreignKey in Metadata.FindDeclaredReferencingForeignKeys(entityType).ToList())
             {
                 var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
                 Debug.Assert(removed.HasValue);
             }
 
-            foreach (var foreignKey in Metadata.FindReferencingForeignKeys(entityType).ToList())
+            foreach (var directlyDerivedType in entityType.GetDirectlyDerivedTypes().ToList())
             {
-                var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
-                Debug.Assert(removed.HasValue);
+                var removed = Entity(directlyDerivedType.Name, ConfigurationSource.Convention)
+                    .HasBaseType(entityType.BaseType, configurationSource);
+                Debug.Assert(removed != null);
             }
 
             Metadata.RemoveEntityType(entityType);
 
             return true;
         }
-        
+
         public virtual void RemoveEntityTypesUnreachableByNavigations(ConfigurationSource configurationSource)
         {
-            foreach (var orphan in new ModelNavigationsGraphAdapter(Metadata).GetUnreachableVertices(GetRoots(configurationSource)))
+            var rootEntityTypes = GetRoots(configurationSource);
+            foreach (var orphan in new ModelNavigationsGraphAdapter(Metadata).GetUnreachableVertices(rootEntityTypes))
             {
-                Remove(orphan, configurationSource);
+                // Ignoring the type prevents it from being rediscovered by conventions that run as part of the removal
+                Ignore(orphan, orphan.Name, configurationSource);
             }
         }
 

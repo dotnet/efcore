@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class KeyConvention : IKeyConvention, IForeignKeyRemovedConvention, IPrimaryKeyConvention, IModelConvention
+    public class KeyConvention : IKeyConvention, IPrimaryKeyConvention, IForeignKeyConvention, IForeignKeyRemovedConvention, IModelConvention
     {
         public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
         {
@@ -23,10 +23,25 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return keyBuilder;
         }
 
+        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
+        {
+            foreach (var property in relationshipBuilder.Metadata.Properties)
+            {
+                var propertyBuilder = relationshipBuilder.ModelBuilder
+                    .Entity(property.DeclaringEntityType.Name, ConfigurationSource.Convention)
+                    .Property(property.Name, ConfigurationSource.Convention);
+
+                propertyBuilder.UseValueGenerator(false, ConfigurationSource.Convention);
+                propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
+            }
+
+            return relationshipBuilder;
+        }
+
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
         {
             var properties = foreignKey.Properties;
-            SetValueGeneration(entityTypeBuilder, properties);
+            SetValueGeneration(entityTypeBuilder, properties.Where(property => property.IsKey()));
 
             var valueGeneratedOnAddProperty = FindValueGeneratedOnAddProperty(properties);
             if (valueGeneratedOnAddProperty != null
@@ -48,7 +63,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     if (entityTypeBuilder.Metadata.FindProperty(property.Name) != null)
                     {
                         entityTypeBuilder.Property(property.Name, ConfigurationSource.Convention)
-                            ?.ValueGenerated(null, ConfigurationSource.Convention);
+                            ?.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
                     }
                 }
             }
@@ -63,13 +78,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return true;
         }
 
-        protected virtual void SetValueGeneration(
-            [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
-            [NotNull] IReadOnlyList<Property> properties)
+        private void SetValueGeneration(InternalEntityTypeBuilder entityTypeBuilder, IEnumerable<Property> properties)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NotNull(properties, nameof(properties));
-
             var propertyBuilders = InternalEntityTypeBuilder.GetPropertyBuilders(
                 entityTypeBuilder.ModelBuilder,
                 properties.Where(property =>

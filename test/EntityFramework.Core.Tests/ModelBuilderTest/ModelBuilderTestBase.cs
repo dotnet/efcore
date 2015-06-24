@@ -125,10 +125,7 @@ namespace Microsoft.Data.Entity.Tests
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
 
-            public virtual TestModelBuilder Validate()
-            {                
-                return ModelBuilder.Validate() == null ? null : this;
-            }
+            public virtual TestModelBuilder Validate() => ModelBuilder.Validate() == null ? null : this;
         }
 
         public abstract class TestEntityTypeBuilder<TEntity>
@@ -137,10 +134,10 @@ namespace Microsoft.Data.Entity.Tests
             public abstract EntityType Metadata { get; }
             public abstract TestEntityTypeBuilder<TEntity> HasAnnotation(string annotation, object value);
 
-            public abstract TestEntityTypeBuilder<TEntity> BaseType<TBaseEntity>()
+            public abstract TestEntityTypeBuilder<TEntity> HasBaseType<TBaseEntity>()
                 where TBaseEntity : class;
 
-            public abstract TestEntityTypeBuilder<TEntity> BaseType(string baseEntityTypeName);
+            public abstract TestEntityTypeBuilder<TEntity> HasBaseType(string baseEntityTypeName);
             public abstract TestKeyBuilder HasKey(Expression<Func<TEntity, object>> keyExpression);
             public abstract TestKeyBuilder HasKey(params string[] propertyNames);
             public abstract TestKeyBuilder HasAlternateKey(Expression<Func<TEntity, object>> keyExpression);

@@ -27,22 +27,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(
                     relationshipBuilder.Metadata, onDependent: false);
 
-                bool shouldInvert;
                 if (ShouldInvert(relationshipBuilder.Metadata, foreignKeyProperties, candidatePropertiesOnPrincipal)
-                    && relationshipBuilder.CanSet(relationshipBuilder.Metadata.DeclaringEntityType,
-                        relationshipBuilder.Metadata.PrincipalEntityType,
-                        null,
-                        null,
-                        /*dependentProperties:*/ candidatePropertiesOnPrincipal,
-                        null,
-                        null,
-                        null,
-                        null,
-                        /*strictPrincipal:*/ true,
-                        ConfigurationSource.Convention,
-                        out shouldInvert))
+                    && relationshipBuilder.CanInvert(candidatePropertiesOnPrincipal, ConfigurationSource.Convention))
                 {
-                    Debug.Assert(shouldInvert);
                     relationshipBuilder = relationshipBuilder.DependentEntityType(relationshipBuilder.Metadata.PrincipalEntityType, ConfigurationSource.Convention);
 
                     if (candidatePropertiesOnPrincipal != null)

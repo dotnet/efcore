@@ -102,9 +102,23 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            if (FindReferencingForeignKeys(entityType).Any())
+            var referencingForeignKey = FindDeclaredReferencingForeignKeys(entityType).FirstOrDefault();
+            if (referencingForeignKey != null)
             {
-                throw new InvalidOperationException(CoreStrings.EntityTypeInUse(entityType.Name));
+                throw new InvalidOperationException(
+                    CoreStrings.EntityTypeInUseByForeignKey(
+                        entityType.DisplayName(),
+                        Property.Format(referencingForeignKey.Properties),
+                        referencingForeignKey.DeclaringEntityType.DisplayName()));
+            }
+
+            var derivedEntityType = entityType.GetDirectlyDerivedTypes().FirstOrDefault();
+            if (derivedEntityType != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.EntityTypeInUseByDerived(
+                        entityType.DisplayName(),
+                        derivedEntityType.DisplayName()));
             }
 
             var previousEntities = _entities;
@@ -120,6 +134,9 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual IReadOnlyList<EntityType> EntityTypes => _entities;
+        
+        public virtual IEnumerable<ForeignKey> FindDeclaredReferencingForeignKeys([NotNull] EntityType entityType)
+            => ((IModel)this).FindDeclaredReferencingForeignKeys(entityType).Cast<ForeignKey>();
 
         public virtual IEnumerable<ForeignKey> FindReferencingForeignKeys([NotNull] EntityType entityType)
             => ((IModel)this).FindReferencingForeignKeys(entityType).Cast<ForeignKey>();

@@ -242,8 +242,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_add_multiple_properties()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder(new Model());
+                modelBuilder.Ignore<CustomerDetails>();
 
                 modelBuilder.Entity<Customer>(b =>
                     {
@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property(e => e.AlternateKey);
                     });
 
-                Assert.Equal(3, model.GetEntityType(typeof(Customer)).PropertyCount);
+                Assert.Equal(3, modelBuilder.Model.GetEntityType(typeof(Customer)).PropertyCount);
             }
 
             [Fact]

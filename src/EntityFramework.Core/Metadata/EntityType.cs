@@ -70,7 +70,14 @@ namespace Microsoft.Data.Entity.Metadata
             Model = model;
 
             _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
+#if DEBUG
+            DebugName = DisplayName();
+#endif
         }
+
+#if DEBUG
+        private string DebugName { get; set; }
+#endif
 
         public virtual Type ClrType => _typeOrName as Type;
 

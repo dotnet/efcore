@@ -132,10 +132,10 @@ namespace Microsoft.Data.Entity.Tests
             public override TestEntityTypeBuilder<TEntity> HasAnnotation(string annotation, object value)
                 => Wrap(EntityTypeBuilder.HasAnnotation(annotation, value));
 
-            public override TestEntityTypeBuilder<TEntity> BaseType<TBaseEntity>()
+            public override TestEntityTypeBuilder<TEntity> HasBaseType<TBaseEntity>()
                 => Wrap(EntityTypeBuilder.HasBaseType<TBaseEntity>());
 
-            public override TestEntityTypeBuilder<TEntity> BaseType(string baseEntityTypeName)
+            public override TestEntityTypeBuilder<TEntity> HasBaseType(string baseEntityTypeName)
                 => Wrap(EntityTypeBuilder.HasBaseType(baseEntityTypeName));
 
             public override TestKeyBuilder HasKey(Expression<Func<TEntity, object>> keyExpression)

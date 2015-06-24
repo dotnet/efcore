@@ -84,8 +84,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 });
 
             modelBuilder.Entity<TestDriver>();
-
             modelBuilder.Entity<TitleSponsor>();
+
             // TODO: Complex type
             // .Property(t => t.Details);
 

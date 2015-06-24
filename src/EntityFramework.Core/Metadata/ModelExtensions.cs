@@ -34,6 +34,17 @@ namespace Microsoft.Data.Entity.Metadata
             model[CoreAnnotationNames.ProductVersionAnnotation] = value;
         }
         
+        public static IEnumerable<IForeignKey> FindDeclaredReferencingForeignKeys([NotNull] this IModel model, [NotNull] IEntityType entityType)
+        {
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(entityType, nameof(entityType));
+
+            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
+            // Issue #1179
+            return model.EntityTypes.SelectMany(et => et.GetDeclaredForeignKeys())
+                .Where(fk => fk.PrincipalEntityType == entityType);
+        }
+
         public static IEnumerable<IForeignKey> FindReferencingForeignKeys([NotNull] this IModel model, [NotNull] IEntityType entityType)
         {
             Check.NotNull(model, nameof(model));

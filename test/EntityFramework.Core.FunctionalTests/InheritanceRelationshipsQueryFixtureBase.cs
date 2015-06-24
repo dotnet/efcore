@@ -17,12 +17,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>().HasBaseType<BaseInheritanceRelationshipEntity>();
             modelBuilder.Entity<BaseInheritanceRelationshipEntity>().HasKey(e => e.Id);
 
-            modelBuilder.Entity<NestedReferenceDerived>().HasBaseType<NestedReferenceBase>();
-            modelBuilder.Entity<NestedCollectionDerived>().HasBaseType<NestedCollectionBase>();
-            modelBuilder.Entity<DerivedReferenceOnBase>().HasBaseType<BaseReferenceOnBase>();
-            modelBuilder.Entity<DerivedCollectionOnBase>().HasBaseType<BaseCollectionOnBase>();
-            modelBuilder.Entity<DerivedReferenceOnDerived>().HasBaseType<BaseReferenceOnDerived>();
-            modelBuilder.Entity<DerivedCollectionOnDerived>().HasBaseType<BaseCollectionOnDerived>();
+            modelBuilder.Entity<NestedReferenceDerived>();
+            modelBuilder.Entity<NestedCollectionDerived>();
+            modelBuilder.Entity<DerivedReferenceOnBase>();
+            modelBuilder.Entity<DerivedCollectionOnBase>();
+            modelBuilder.Entity<DerivedReferenceOnDerived>();
+            modelBuilder.Entity<DerivedCollectionOnDerived>();
             modelBuilder.Entity<BaseReferenceOnBase>().HasKey(e => e.Id);
             modelBuilder.Entity<BaseReferenceOnDerived>().HasKey(e => e.Id);
             modelBuilder.Entity<BaseCollectionOnBase>().HasKey(e => e.Id);
@@ -62,12 +62,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .HasForeignKey(e => e.ParentId)
                 .IsRequired(false);
 
-            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
-                .HasOne(e => e.BaseReferenceOnDerived)
-                .WithOne(e => e.BaseParent)
-                .HasForeignKey<BaseReferenceOnDerived>(e => e.BaseParentId)
-                .IsRequired(false);
-
             //TODO: See issue #3289
             modelBuilder.Entity<DerivedReferenceOnDerived>().Property(typeof(int?), "DerivedInheritanceRelationshipEntityId");
 
@@ -99,6 +93,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .HasMany(e => e.CollectionOnDerived)
                 .WithOne(e => e.Parent)
                 .HasForeignKey(e => e.ParentId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
+                .HasMany(e => e.DerivedCollectionOnDerived)
+                .WithOne()
+                .HasForeignKey("DerivedInheritanceRelationshipEntityId")
+                .IsRequired(false);
+
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
+                .HasOne(e => e.BaseReferenceOnDerived)
+                .WithOne(e => e.BaseParent)
+                .HasForeignKey<BaseReferenceOnDerived>(e => e.BaseParentId)
                 .IsRequired(false);
 
             modelBuilder.Entity<BaseReferenceOnBase>()

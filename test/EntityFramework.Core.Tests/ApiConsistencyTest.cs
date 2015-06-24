@@ -12,10 +12,8 @@ namespace Microsoft.Data.Entity.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-
         public class SampleEntity
         {
-
         }
 
         [Fact]
@@ -51,9 +49,6 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal("", string.Join(Environment.NewLine, voidMethods));
         }
 
-        protected override Assembly TargetAssembly
-        {
-            get { return typeof(EntityType).Assembly; }
-        }
+        protected override Assembly TargetAssembly => typeof(EntityType).Assembly;
     }
 }

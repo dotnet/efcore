@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class PropertyDiscoveryConvention : IEntityTypeConvention
+    public class PropertyDiscoveryConvention : IEntityTypeConvention, IBaseTypeConvention
     {
         public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
         {
@@ -35,5 +35,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             return propertyInfo.IsCandidateProperty() && propertyInfo.PropertyType.IsPrimitive();
         }
+
+        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
+            => Apply(entityTypeBuilder) != null;
     }
 }

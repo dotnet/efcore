@@ -40,7 +40,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var inverseNavigationPropertyInfo = targetType.GetRuntimeProperties().FirstOrDefault(p => string.Equals(p.Name, attribute.Property, StringComparison.OrdinalIgnoreCase));
 
             if (inverseNavigationPropertyInfo == null
-                || FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo) != entityTypeBuilder.Metadata.ClrType)
+                || !FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo).GetTypeInfo()
+                    .IsAssignableFrom(entityTypeBuilder.Metadata.ClrType.GetTypeInfo()))
             {
                 throw new InvalidOperationException(
                     CoreStrings.InvalidNavigationWithInverseProperty(navigationPropertyInfo.Name, entityTypeBuilder.Metadata.Name, attribute.Property, targetType.FullName));
@@ -67,6 +68,15 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                         entityTypeBuilder.Metadata.Name,
                         inverseNavigationPropertyInfo.Name,
                         targetEntityTypeBuilder.Metadata.Name));
+            }
+
+            var existingNavigation = entityTypeBuilder.Metadata.FindNavigation(navigationPropertyInfo.Name);
+            var existingInverse = existingNavigation?.FindInverse();
+            if (existingInverse != null
+                && existingInverse.Name == inverseNavigationPropertyInfo.Name
+                && existingNavigation.DeclaringEntityType != entityTypeBuilder.Metadata)
+            {
+                return entityTypeBuilder;
             }
 
             targetEntityTypeBuilder.Relationship(

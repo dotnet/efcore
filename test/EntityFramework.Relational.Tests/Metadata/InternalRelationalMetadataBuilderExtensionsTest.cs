@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             var typeBuilder = CreateBuilder().Entity("Splot", ConfigurationSource.Convention);
             var derivedTypeBuilder = typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention);
-            derivedTypeBuilder.HasBaseType(typeBuilder.Metadata, ConfigurationSource.Convention);
+            derivedTypeBuilder.HasBaseType(typeBuilder.Metadata, ConfigurationSource.DataAnnotation);
 
             Assert.NotNull(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator());
             Assert.Equal(1, typeBuilder.Metadata.GetDeclaredProperties().Count());

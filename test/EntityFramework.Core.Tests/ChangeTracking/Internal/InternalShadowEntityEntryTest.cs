@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 {
-    public class InternalShadowEntityEntryTest : InternalEntityEntryTest
+    public class InternalShadowEntityEntryTest : InternalEntityEntryTestBase
     {
         [Fact]
         public void Entity_is_null()

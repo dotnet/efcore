@@ -101,7 +101,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new Model().AddEntityType(typeof(object));
             var intProperty = entityType.AddProperty("Name", typeof(int));
-            intProperty.IsShadowProperty = false;
 
             Assert.Equal(
                 CoreStrings.CannotBeNullable("Name", "object", "Int32"),
@@ -123,25 +122,22 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void UnderlyingType_returns_correct_underlying_type()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
-            var property1 = entityType.AddProperty("Name", typeof(int?));
+            var entityType = new Model().AddEntityType(typeof(Entity));
+            var property1 = entityType.AddProperty("Id", typeof(int?));
             property1.IsShadowProperty = false;
             Assert.Equal(typeof(int), property1.ClrType.UnwrapNullableType());
-            var property = entityType.AddProperty("Name2", typeof(int));
-            property.IsShadowProperty = false;
-            Assert.Equal(typeof(int), property.ClrType.UnwrapNullableType());
         }
 
         [Fact]
         public void IsShadowProperty_is_set_appropriately()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
-            var property = entityType.AddProperty("Kake");
+            var entityType = new Model().AddEntityType(typeof(Entity));
+            var property = entityType.AddProperty(nameof(Entity.Name));
 
             Assert.Null(property.IsShadowProperty);
             Assert.True(((IProperty)property).IsShadowProperty);
 
-            property.ClrType = typeof(int);
+            property.ClrType = typeof(string);
             property.IsShadowProperty = false;
             Assert.False(property.IsShadowProperty);
 
@@ -150,9 +146,42 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void IsShadowProperty_throws_if_shadow_entity_type()
+        {
+            var entityType = new Model().AddEntityType("Entity");
+            var property = entityType.AddProperty(nameof(Entity.Name));
+
+            property.ClrType = typeof(int);
+            Assert.Equal(CoreStrings.ClrPropertyOnShadowEntity(nameof(Entity.Name), "Entity"),
+            Assert.Throws<InvalidOperationException>(() => property.IsShadowProperty = false).Message);
+        }
+
+        [Fact]
+        public void IsShadowProperty_throws_if_no_clr_property()
+        {
+            var entityType = new Model().AddEntityType(typeof(Entity));
+            var property = entityType.AddProperty("Random");
+
+            property.ClrType = typeof(int);
+            Assert.Equal(CoreStrings.NoClrProperty("Random", nameof(Entity)),
+            Assert.Throws<InvalidOperationException>(() => property.IsShadowProperty = false).Message);
+        }
+
+        [Fact]
+        public void IsShadowProperty_throws_if_clr_type_does_not_match()
+        {
+            var entityType = new Model().AddEntityType(typeof(Entity));
+            var property = entityType.AddProperty(nameof(Entity.Name));
+
+            property.ClrType = typeof(int);
+            Assert.Equal(CoreStrings.PropertyWrongClrType(nameof(Entity.Name), nameof(Entity)),
+            Assert.Throws<InvalidOperationException>(() => property.IsShadowProperty = false).Message);
+        }
+
+        [Fact]
         public void Property_does_not_use_ValueGenerated_by_default()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
+            var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
 
@@ -163,7 +192,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_mark_property_as_using_ValueGenerated()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
+            var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
 
@@ -180,7 +209,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_is_not_concurrency_token_by_default()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
+            var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
 
@@ -191,7 +220,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_mark_property_as_concurrency_token()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
+            var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name");
             property.ClrType = typeof(string);
             property.IsShadowProperty = false;
@@ -209,7 +238,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_mark_property_to_always_use_store_generated_values()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
+            var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
 
@@ -232,7 +261,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Store_generated_concurrency_tokens_always_use_store_values_by_default()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
+            var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
 
@@ -257,7 +286,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_is_read_write_by_default()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
+            var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
 
@@ -270,7 +299,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_can_be_marked_as_read_only_before_save()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
+            var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
             property.IsReadOnlyBeforeSave = true;
@@ -287,7 +316,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_can_be_marked_as_read_only_after_save()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
+            var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
             property.IsReadOnlyAfterSave = true;
@@ -304,7 +333,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_can_be_marked_as_read_only_always()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
+            var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
             property.IsReadOnlyBeforeSave = true;
@@ -317,8 +346,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_and_set_property_index_for_normal_property()
         {
-            var entityType = new Model().AddEntityType(typeof(object));
-            var property = entityType.AddProperty("Kake", typeof(int));
+            var entityType = new Model().AddEntityType(typeof(Entity));
+            var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
 
             Assert.Equal(0, property.Index);
@@ -365,6 +394,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 "index",
                 Assert.Throws<ArgumentOutOfRangeException>(() => property.SetShadowIndex(-1)).ParamName);
+        }
+
+        private class Entity
+        {
+            public string Name { get; set; }
+            public int? Id { get; set; }
         }
     }
 }
