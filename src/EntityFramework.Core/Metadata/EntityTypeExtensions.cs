@@ -190,6 +190,19 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType.GetNavigations().Where(p => p.DeclaringEntityType == entityType);
         }
 
+        public static IEnumerable<INavigation> FindDerivedNavigations(
+            [NotNull] this IEntityType entityType,
+            [NotNull] IEnumerable<string> navigationNames)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(navigationNames, nameof(navigationNames));
+
+            var searchNavigations = new HashSet<string>(navigationNames);
+
+            return entityType.GetDerivedTypes().SelectMany(et =>
+                et.GetDeclaredNavigations().Where(navigation => searchNavigations.Contains(navigation.Name)));
+        }
+
         public static IEnumerable<IPropertyBase> GetPropertiesAndNavigations(
             [NotNull] this IEntityType entityType)
         {

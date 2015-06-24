@@ -96,6 +96,49 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         }
 
         [Fact]
+        public void OnEntityTypeMemberIgnored_calls_apply_on_conventions_in_order()
+        {
+            var conventions = new ConventionSet();
+
+            InternalEntityTypeBuilder entityTypeBuilder = null;
+            var convention = new Mock<IEntityTypeMemberIgnoredConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>()))
+                .Returns<InternalEntityTypeBuilder, string>((b, t) =>
+                {
+                    Assert.NotNull(b);
+                    Assert.Equal("A", t);
+                    entityTypeBuilder = b;
+                    return true;
+                });
+            conventions.EntityTypeMemberIgnoredConventions.Add(convention.Object);
+
+            var nullConvention = new Mock<IEntityTypeMemberIgnoredConvention>();
+            nullConvention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>()))
+                .Returns<InternalEntityTypeBuilder, string>((b, t) =>
+                {
+                    Assert.Equal("A", t);
+                    Assert.Same(entityTypeBuilder, b);
+                    return false;
+                });
+            conventions.EntityTypeMemberIgnoredConventions.Add(nullConvention.Object);
+
+            var extraConvention = new Mock<IEntityTypeMemberIgnoredConvention>();
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>()))
+                .Returns<InternalEntityTypeBuilder, string>((b, t) =>
+                {
+                    Assert.False(true);
+                    return false;
+                });
+            conventions.EntityTypeMemberIgnoredConventions.Add(extraConvention.Object);
+
+            var builder = new InternalModelBuilder(new Model(), conventions).Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+
+            Assert.NotNull(builder.Ignore("A", ConfigurationSource.Convention));
+
+            Assert.NotNull(entityTypeBuilder);
+        }
+
+        [Fact]
         public void OnPropertyAdded_calls_apply_on_conventions_in_order()
         {
             var conventions = new ConventionSet();

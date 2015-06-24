@@ -161,13 +161,13 @@
     <Compile Include="Metadata\Conventions\Internal\ModelCleanupConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IBaseTypeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\ForeignKeyAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IEntityTypeMemberIgnoredConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\INavigationConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\InversePropertyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IPrimaryKeyConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\NavigationAttributeNavigationConvention.cs" />
-    <Compile Include="Metadata\Conventions\Internal\NotMappedPropertyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\NavigationAttributeEntityTypeConvention.cs" />
-    <Compile Include="Metadata\Conventions\Internal\NotMappedNavigationAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\NotMappedMemberAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RequiredNavigationAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\TimestampAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\StringLengthAttributeConvention.cs" />

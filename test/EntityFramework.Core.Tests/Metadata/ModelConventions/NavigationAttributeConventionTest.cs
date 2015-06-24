@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
             Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Blog");
 
-            new NotMappedNavigationAttributeConvention().Apply(principalEntityTypeBuilder);
+            new NotMappedMemberAttributeConvention().Apply(principalEntityTypeBuilder);
 
             Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
             Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Blog");
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
             Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Blog");
 
-            new NotMappedNavigationAttributeConvention().Apply(principalEntityTypeBuilder);
+            new NotMappedMemberAttributeConvention().Apply(principalEntityTypeBuilder);
 
             Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
             Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Blog");

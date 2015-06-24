@@ -242,10 +242,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         public void NotMappedAttribute_overrides_configuration_from_convention_source()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+            entityTypeBuilder.Property("IgnoredProperty", typeof(string), ConfigurationSource.Convention);
 
-            var propertyBuilder = entityTypeBuilder.Property("IgnoredProperty", typeof(string), ConfigurationSource.Convention);
-
-            new NotMappedPropertyAttributeConvention().Apply(propertyBuilder);
+            entityTypeBuilder = new NotMappedMemberAttributeConvention().Apply(entityTypeBuilder);
 
             Assert.False(entityTypeBuilder.Metadata.Properties.Any(p => p.Name == "IgnoredProperty"));
         }
@@ -254,10 +253,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         public void NotMappedAttribute_does_not_override_configuration_from_explicit_source()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+            entityTypeBuilder.Property("IgnoredProperty", typeof(string), ConfigurationSource.Explicit);
 
-            var propertyBuilder = entityTypeBuilder.Property("IgnoredProperty", typeof(string), ConfigurationSource.Explicit);
-
-            new NotMappedPropertyAttributeConvention().Apply(propertyBuilder);
+            entityTypeBuilder = new NotMappedMemberAttributeConvention().Apply(entityTypeBuilder);
 
             Assert.True(entityTypeBuilder.Metadata.Properties.Any(p => p.Name == "IgnoredProperty"));
         }
@@ -469,7 +467,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             [Key]
             public int Number { get; set; }
         }
-
 
         private class MyContext : DbContext
         {

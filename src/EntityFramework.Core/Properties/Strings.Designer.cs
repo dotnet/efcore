@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Internal
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
-	using JetBrains.Annotations;
+    using JetBrains.Annotations;
 
     public static class Strings
     {
@@ -741,22 +741,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot be added to entity type '{entityType}' because it has been explicitly ignored.
-        /// </summary>
-        public static string PropertyIgnoredExplicitly([CanBeNull] object property, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyIgnoredExplicitly", "property", "entityType"), property, entityType);
-        }
-
-        /// <summary>
-        /// The entity type '{entityType}' could not be added because it has been explicitly ignored.
-        /// </summary>
-        public static string EntityIgnoredExplicitly([CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("EntityIgnoredExplicitly", "entityType"), entityType);
-        }
-
-        /// <summary>
         /// The entity type '{entityType}' cannot be removed because it is being referenced from a foreign key. All referencing foreign keys must be removed or redefined before the entity type can be removed.
         /// </summary>
         public static string EntityTypeInUse([CanBeNull] object entityType)
@@ -770,14 +754,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string ArgumentPropertyNull([CanBeNull] object property, [CanBeNull] object argument)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentPropertyNull", "property", "argument"), property, argument);
-        }
-
-        /// <summary>
-        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because it has been explicitly ignored.
-        /// </summary>
-        public static string NavigationIgnoredExplicitly([CanBeNull] object navigation, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationIgnoredExplicitly", "navigation", "entityType"), navigation, entityType);
         }
 
         /// <summary>
@@ -1186,6 +1162,22 @@ namespace Microsoft.Data.Entity.Internal
         public static string InvalidRelationshipUsingDataAnnotations([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object referencedNavigation, [CanBeNull] object referencedEntityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidRelationshipUsingDataAnnotations", "navigation", "entityType", "referencedNavigation", "referencedEntityType"), navigation, entityType, referencedNavigation, referencedEntityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists.
+        /// </summary>
+        public static string ConflictingNavigation([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingNavigation", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists.
+        /// </summary>
+        public static string ConflictingProperty([CanBeNull] object navigation, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingProperty", "navigation", "entityType"), navigation, entityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

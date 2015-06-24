@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class RelationshipDiscoveryConvention : IEntityTypeConvention
+    public class RelationshipDiscoveryConvention : IEntityTypeConvention, IEntityTypeMemberIgnoredConvention
     {
         public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
         {
@@ -99,5 +99,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             return entityTypeBuilder;
         }
+        
+        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, string ignoredMemberName)
+            => Apply(entityTypeBuilder) != null;
     }
 }

@@ -27,18 +27,6 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             [Fact]
-            public virtual void Cannot_get_entity_builder_for_ignored_clr_type()
-            {
-                var modelBuilder = CreateModelBuilder();
-
-                modelBuilder.Ignore<Customer>();
-
-                Assert.Equal(Strings.EntityIgnoredExplicitly(typeof(Customer).FullName),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder.Entity<Customer>()).Message);
-            }
-
-            [Fact]
             public virtual void Can_set_entity_key_from_clr_property()
             {
                 var model = new Model();
@@ -73,17 +61,20 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             [Fact]
-            public virtual void Setting_entity_key_from_clr_property_when_property_ignored_throws()
+            public virtual void Can_set_entity_key_from_clr_property_when_property_ignored()
             {
                 var modelBuilder = CreateModelBuilder();
 
-                Assert.Equal(Strings.PropertyIgnoredExplicitly(Customer.IdProperty.Name, typeof(Customer).FullName),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder.Entity<Customer>(b =>
-                            {
-                                b.Ignore(Customer.IdProperty.Name);
-                                b.Key(e => e.Id);
-                            })).Message);
+                modelBuilder.Entity<Customer>(b =>
+                    {
+                        b.Ignore(Customer.IdProperty.Name);
+                        b.Key(e => e.Id);
+                    });
+
+                var entity = modelBuilder.Model.GetEntityType(typeof(Customer));
+
+                Assert.Equal(1, entity.GetPrimaryKey().Properties.Count);
+                Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
             }
 
             [Fact]
@@ -197,17 +188,19 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             [Fact]
-            public virtual void Setting_alternate_key_from_clr_property_when_property_ignored_throws()
+            public virtual void Can_set_alternate_key_from_clr_property_when_property_ignored()
             {
                 var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Customer>(b =>
+                    {
+                        b.Ignore(Customer.AlternateKeyProperty.Name);
+                        b.AlternateKey(e => e.AlternateKey);
+                    });
 
-                Assert.Equal(Strings.PropertyIgnoredExplicitly(Customer.AlternateKeyProperty.Name, typeof(Customer).FullName),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder.Entity<Customer>(b =>
-                            {
-                                b.Ignore(Customer.AlternateKeyProperty.Name);
-                                b.AlternateKey(e => e.AlternateKey);
-                            })).Message);
+                var entity = modelBuilder.Model.GetEntityType(typeof(Customer));
+
+                Assert.Equal(1, entity.GetKeys().Count(key => key != entity.GetPrimaryKey()));
+                Assert.Equal(Customer.AlternateKeyProperty.Name, entity.GetKeys().First(key => key != entity.GetPrimaryKey()).Properties.First().Name);
             }
 
             [Fact]
@@ -314,44 +307,43 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             [Fact]
-            public virtual void Can_ignore_a_property_that_is_part_of_explicit_entity_key()
+            public virtual void Can_ignore_a_property_that_is_part_of_explicit_entity_key_throws()
             {
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
 
-                Assert.NotNull(modelBuilder.Entity<Customer>(b =>
-                    {
-                        b.Key(e => e.Id);
-                        b.Ignore(e => e.Id);
-                    }));
+                var entityBuilder = modelBuilder.Entity<Customer>();
+                entityBuilder.Key(e => e.Id);
+                entityBuilder.Ignore(e => e.Id);
+
+                Assert.Null(entityBuilder.Metadata.FindProperty(Customer.IdProperty.Name));
             }
 
             [Fact]
-            public virtual void Can_ignore_shadow_properties_when_they_have_been_added_explicitly()
+            public virtual void Ignoring_shadow_properties_when_they_have_been_added_explicitly_throws()
             {
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
 
-                Assert.NotNull(modelBuilder.Entity<Customer>(b =>
+                var entityBuilder = modelBuilder.Entity<Customer>();
+                entityBuilder.Property<string>("Shadow");
+                entityBuilder.Ignore("Shadow");
+
+                Assert.Null(entityBuilder.Metadata.FindProperty("Shadow"));
+            }
+
+            [Fact]
+            public virtual void Can_add_shadow_properties_when_they_have_been_ignored()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Customer>(b =>
                     {
-                        b.Property<string>("Shadow");
                         b.Ignore("Shadow");
-                    }));
-            }
+                        b.Property<string>("Shadow");
+                    });
 
-            [Fact]
-            public virtual void Adding_shadow_properties_when_they_have_been_ignored_throws()
-            {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
-
-                Assert.Equal(Strings.PropertyIgnoredExplicitly("Shadow", typeof(Customer).FullName),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder.Entity<Customer>(b =>
-                            {
-                                b.Ignore("Shadow");
-                                b.Property<string>("Shadow");
-                            })).Message);
+                Assert.NotNull(modelBuilder.Model.GetEntityType(typeof(Customer)).FindProperty("Shadow"));
             }
 
             [Fact]

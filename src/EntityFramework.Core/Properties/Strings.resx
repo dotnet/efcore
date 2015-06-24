@@ -390,20 +390,11 @@
   <data name="RecursiveOnConfiguring" xml:space="preserve">
     <value>An attempt was made to use the context while it is being configured. A DbContext instance cannot be used inside OnConfiguring since it is still being configured at this point.</value>
   </data>
-  <data name="PropertyIgnoredExplicitly" xml:space="preserve">
-    <value>The property '{property}' cannot be added to entity type '{entityType}' because it has been explicitly ignored.</value>
-  </data>
-  <data name="EntityIgnoredExplicitly" xml:space="preserve">
-    <value>The entity type '{entityType}' could not be added because it has been explicitly ignored.</value>
-  </data>
   <data name="EntityTypeInUse" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be removed because it is being referenced from a foreign key. All referencing foreign keys must be removed or redefined before the entity type can be removed.</value>
   </data>
   <data name="ArgumentPropertyNull" xml:space="preserve">
     <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
-  </data>
-  <data name="NavigationIgnoredExplicitly" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because it has been explicitly ignored.</value>
   </data>
   <data name="RelationshipCannotBeInverted" xml:space="preserve">
     <value>The principal and dependent ends of the relationship cannot be flipped once foreign key or principal key properties have been specified.</value>
@@ -485,7 +476,7 @@
   </data>
   <data name="CannotBeNullablePK" xml:space="preserve">
     <value>The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the property is a part of the primary key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
-  </data>  
+  </data>
   <data name="ForeignKeyCannotBeOptional" xml:space="preserve">
     <value>The foreign key {foreignKey} on entity type '{entityType}' cannot be marked as optional because it does not contain any property of a nullable type. Any foreign key can be marked as required, but only foreign keys with at least one property of a nullable type and which is not part of primary key can be marked as optional.</value>
   </data>
@@ -557,5 +548,11 @@
   </data>
   <data name="InvalidRelationshipUsingDataAnnotations" xml:space="preserve">
     <value>Invalid relationship has been specified using InverseProperty and ForeignKey. The navigation '{navigation}' in entity type '{entityType}' and the navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.</value>
+  </data>
+  <data name="ConflictingNavigation" xml:space="preserve">
+    <value>The property '{property}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists.</value>
+  </data>
+  <data name="ConflictingProperty" xml:space="preserve">
+    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists.</value>
   </data>
 </root>

@@ -1686,10 +1686,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var fk = DependentType.GetOrAddForeignKey(new[] { fkProperty1, fkProperty2 }, PrincipalType.GetOrAddKey(
                 new[]
-                    {
-                        PrincipalType.AddProperty("Id1", typeof(int)),
-                        PrincipalType.AddProperty("Id2", typeof(int))
-                    }),
+                {
+                    PrincipalType.AddProperty("Id1", typeof(int)),
+                    PrincipalType.AddProperty("Id2", typeof(int))
+                }),
                 PrincipalType);
 
             Assert.Same(
@@ -2036,6 +2036,25 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(
                 Strings.DuplicateNavigation("Customer", typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(
+                    () => orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true)).Message);
+        }
+
+        [Fact]
+        public void Adding_a_new_navigation_with_a_name_that_conflicts_with_a_property_throws()
+        {
+            var model = new Model();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = model.AddEntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
+
+            orderType.AddProperty("Customer");
+
+            Assert.Equal(
+                Strings.ConflictingProperty("Customer", typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true)).Message);
         }
@@ -2622,6 +2641,24 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 Strings.DuplicateProperty("Id", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id")).Message);
+        }
+
+        [Fact]
+        public void Adding_a_new_property_with_a_name_that_conflicts_with_a_navigation_throws()
+        {
+            var model = new Model();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = model.AddEntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
+
+            orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true);
+
+            Assert.Equal(
+                Strings.ConflictingNavigation("Customer", typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(() => orderType.AddProperty("Customer")).Message);
         }
 
         [Fact]

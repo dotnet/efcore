@@ -34,6 +34,24 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return entityTypeBuilder;
         }
 
+        public virtual InternalEntityTypeBuilder OnEntityTypeMemberIgnored(
+            [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
+            [NotNull] string ignoredMemberName)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotEmpty(ignoredMemberName, nameof(ignoredMemberName));
+
+            foreach (var entityTypeMemberIgnoredConvention in _conventionSet.EntityTypeMemberIgnoredConventions)
+            {
+                if (!entityTypeMemberIgnoredConvention.Apply(entityTypeBuilder, ignoredMemberName))
+                {
+                    break;
+                }
+            }
+
+            return entityTypeBuilder;
+        }
+
         public virtual InternalEntityTypeBuilder OnBaseEntityTypeSet(
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
             [CanBeNull] EntityType previousBaseType)

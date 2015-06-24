@@ -58,7 +58,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
         private static Model BuildModel(bool generateValues = true)
         {
-            var model = InMemoryTestHelpers.Instance.BuildModelFor<AnEntity>();
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            builder.Ignore<Random>();
+            builder.Entity<AnEntity>();
+            var model = builder.Model;
             var entityType = model.GetEntityType(typeof(AnEntity));
             entityType.AddProperty("Random", typeof(Random)).IsShadowProperty = false;
 

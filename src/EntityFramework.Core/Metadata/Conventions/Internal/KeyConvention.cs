@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 ConfigurationSource.Convention);
             foreach (var propertyBuilder in propertyBuilders)
             {
-                propertyBuilder.UseValueGenerator(true, ConfigurationSource.Convention);
+                propertyBuilder?.UseValueGenerator(true, ConfigurationSource.Convention);
             }
         }
 

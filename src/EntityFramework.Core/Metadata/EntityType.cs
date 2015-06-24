@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Metadata
                     }
 
                     var baseProperties = value.Properties.Select(p => p.Name).ToArray();
-                    var propertyCollisions = FindPropertyCollisions(baseProperties);
+                    var propertyCollisions = FindPropertiesInHierarchy(baseProperties);
                     if (propertyCollisions.Any())
                     {
                         throw new InvalidOperationException(
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Metadata
                     }
 
                     var baseNavigations = value.Navigations.Select(p => p.Name).ToArray();
-                    var navigationCollisions = FindNavigationCollisions(baseNavigations);
+                    var navigationCollisions = FindNavigationsInHierarchy(baseNavigations);
                     if (navigationCollisions.Any())
                     {
                         throw new InvalidOperationException(
@@ -574,9 +574,14 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            if (FindNavigationCollisions(new[] { name }).Any())
+            if (FindNavigationsInHierarchy(new[] { name }).Any())
             {
                 throw new InvalidOperationException(Strings.DuplicateNavigation(name, Name));
+            }
+
+            if (FindPropertiesInHierarchy(new[] { name }).Any())
+            {
+                throw new InvalidOperationException(Strings.ConflictingProperty(name, Name));
             }
 
             var otherNavigation = Navigations.FirstOrDefault(
@@ -645,20 +650,14 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual IEnumerable<Navigation> GetDeclaredNavigations()
             => _navigations.Values;
 
-        private IEnumerable<Navigation> FindNavigations(IEnumerable<string> names)
+        public virtual IEnumerable<Navigation> FindNavigations([NotNull] IEnumerable<string> names)
             => names.Select(FindNavigation).Where(p => p != null);
 
-        private IEnumerable<Navigation> FindDerivedNavigations(IEnumerable<string> names)
-        {
-            var searchNavigations = new HashSet<string>(names);
+        public virtual IEnumerable<Navigation> FindDerivedNavigations([NotNull] IEnumerable<string> navigationNames)
+            => ((IEntityType)this).FindDerivedNavigations(navigationNames).Cast<Navigation>();
 
-            return this.GetDerivedTypes()
-                .SelectMany(et => et.GetDeclaredNavigations()
-                    .Where(navigation => searchNavigations.Contains(navigation.Name)));
-        }
-
-        private IReadOnlyList<Navigation> FindNavigationCollisions(string[] propertyNames)
-            => FindNavigations(propertyNames).Concat(FindDerivedNavigations(propertyNames)).ToList();
+        public virtual IEnumerable<Navigation> FindNavigationsInHierarchy([NotNull] string[] propertyNames)
+            => FindNavigations(propertyNames).Concat(FindDerivedNavigations(propertyNames));
 
         public virtual Navigation RemoveNavigation([NotNull] Navigation navigation)
         {
@@ -820,9 +819,14 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(name, nameof(name));
 
-            if (FindPropertyCollisions(new[] { name }).Any())
+            if (FindPropertiesInHierarchy(new[] { name }).Any())
             {
                 throw new InvalidOperationException(Strings.DuplicateProperty(name, Name));
+            }
+
+            if (FindNavigationsInHierarchy(new[] { name }).Any())
+            {
+                throw new InvalidOperationException(Strings.ConflictingNavigation(name, Name));
             }
 
             var property = new Property(name, this);
@@ -891,11 +895,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IEnumerable<Property> GetDeclaredProperties() => _properties.Values;
 
-        private IEnumerable<Property> FindProperties(IEnumerable<string> propertyNames)
+        public virtual IEnumerable<Property> FindProperties([NotNull] IEnumerable<string> propertyNames)
             => propertyNames.Select(FindProperty).Where(p => p != null);
 
-        private IReadOnlyList<IProperty> FindPropertyCollisions(string[] propertyNames)
-            => FindProperties(propertyNames).Concat(this.FindDerivedProperties(propertyNames)).ToList();
+        public virtual IEnumerable<Property> FindPropertiesInHierarchy([NotNull] string[] propertyNames)
+            => FindProperties(propertyNames).Concat(FindDerivedProperties(propertyNames));
+
+        public virtual IEnumerable<Property> FindDerivedProperties([NotNull] IEnumerable<string> propertyNames)
+            => ((IEntityType)this).FindDerivedProperties(propertyNames).Cast<Property>();
 
         public virtual Property RemoveProperty([NotNull] Property property)
         {

@@ -128,7 +128,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private static Model BuildModel(bool generateValues = true)
         {
-            var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
+            var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+            builder.Ignore<Random>();
+            builder.Entity<AnEntity>();
+            var model = builder.Model;
             model.SqlServer().GetOrAddSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName);
             var entityType = model.GetEntityType(typeof(AnEntity));
             var property1 = entityType.AddProperty("Random", typeof(Random));

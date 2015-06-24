@@ -82,7 +82,10 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
 
         private static Model BuildModel(bool generateValues = true)
         {
-            var model = TestHelpers.Instance.BuildModelFor<AnEntity>();
+            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            builder.Ignore<Random>();
+            builder.Entity<AnEntity>();
+            var model = builder.Model;
             var entityType = model.GetEntityType(typeof(AnEntity));
             entityType.AddProperty("Random", typeof(Random)).IsShadowProperty = false;
 
