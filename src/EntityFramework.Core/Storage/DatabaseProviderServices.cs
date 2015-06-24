@@ -22,6 +22,8 @@ namespace Microsoft.Data.Entity.Storage
             Services = services;
         }
 
+        public abstract string InvariantName { get; }
+
         protected virtual IServiceProvider Services { get; }
 
         protected virtual TService GetService<TService>() => Services.GetRequiredService<TService>();
@@ -32,7 +34,6 @@ namespace Microsoft.Data.Entity.Storage
 
         public abstract IDatabase Database { get; }
         public abstract IDatabaseCreator Creator { get; }
-        public abstract IDatabaseConnection Connection { get; }
         public abstract IModelSource ModelSource { get; }
         public abstract IQueryContextFactory QueryContextFactory { get; }
         public abstract IValueGeneratorCache ValueGeneratorCache { get; }

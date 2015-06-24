@@ -77,11 +77,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         }
 
         /// <summary>
-        /// Attempt to generate EntityType {entityTypeName} failed. Unable to identify any primary key columns in the underlying SQL Server table {schemaName}.{tableName}.
+        /// Attempt to generate EntityType {entityTypeName} failed. Unable to identify any primary key columns in the underlying SQL Server table {schemaName}.{name}.
         /// </summary>
-        public static string NoPrimaryKeyColumns([CanBeNull] object entityTypeName, [CanBeNull] object schemaName, [CanBeNull] object tableName)
+        public static string NoPrimaryKeyColumns([CanBeNull] object entityTypeName, [CanBeNull] object schemaName, [CanBeNull] object name)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoPrimaryKeyColumns", "entityTypeName", "schemaName", "tableName"), entityTypeName, schemaName, tableName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoPrimaryKeyColumns", "entityTypeName", "schemaName", "name"), entityTypeName, schemaName, name);
         }
 
         /// <summary>

@@ -5,51 +5,41 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Update
 {
-    public class DbUpdateException : DatabaseException
+    public class DbUpdateException : Exception
     {
         public DbUpdateException()
         {
             Entries = new List<InternalEntityEntry>();
         }
 
-        public DbUpdateException([NotNull] string message, [NotNull] DbContext context)
-            : base(message, context)
+        public DbUpdateException([NotNull] string message)
+            : this(message, (Exception)null)
         {
-            Check.NotEmpty(message, nameof(message));
-            Check.NotNull(context, nameof(context));
+        }
 
+        public DbUpdateException([NotNull] string message, [CanBeNull] Exception innerException)
+            : base(message, innerException)
+        {
             Entries = new List<InternalEntityEntry>();
         }
 
-        public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException)
-            : base(message, context, innerException)
+        public DbUpdateException(
+            [NotNull] string message,
+            [NotNull] IReadOnlyList<InternalEntityEntry> entries)
+            : this(message, null, entries)
         {
-            Check.NotEmpty(message, nameof(message));
-            Check.NotNull(context, nameof(context));
-
-            Entries = new List<InternalEntityEntry>();
         }
 
-        public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [NotNull] IReadOnlyList<InternalEntityEntry> entries)
-            : base(message, context)
+        public DbUpdateException(
+            [NotNull] string message,
+            [CanBeNull] Exception innerException,
+            [NotNull] IReadOnlyList<InternalEntityEntry> entries)
+            : base(message, innerException)
         {
-            Check.NotEmpty(message, nameof(message));
-            Check.NotNull(context, nameof(context));
-            Check.NotEmpty(entries, nameof(entries));
-
-            Entries = entries;
-        }
-
-        public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException, [NotNull] IReadOnlyList<InternalEntityEntry> entries)
-            : base(message, context, innerException)
-        {
-            Check.NotEmpty(message, nameof(message));
-            Check.NotNull(context, nameof(context));
             Check.NotEmpty(entries, nameof(entries));
 
             Entries = entries;

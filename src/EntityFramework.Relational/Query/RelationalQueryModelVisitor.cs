@@ -536,7 +536,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             return new QueryResultScope<ValueBuffer>(
                 querySource,
-                valueBuffer.UpdateOffset(valueBufferOffset),
+                valueBuffer.WithOffset(valueBufferOffset),
                 parentQueryResultScope);
         }
 
@@ -558,7 +558,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             Func<ValueBuffer, object> materializer)
             where TEntity : class
         {
-            valueBuffer = valueBuffer.UpdateOffset(valueBufferOffset);
+            valueBuffer = valueBuffer.WithOffset(valueBufferOffset);
 
             var entityKey
                 = entityKeyFactory.Create(entityType, keyProperties, valueBuffer);

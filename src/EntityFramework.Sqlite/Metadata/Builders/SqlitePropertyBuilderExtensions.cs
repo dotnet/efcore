@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlitePropertyBuilderExtensions
     {
-        public static PropertyBuilder SqliteColumn([NotNull] this PropertyBuilder builder, [CanBeNull] string name)
+        public static PropertyBuilder HasSqliteColumnName([NotNull] this PropertyBuilder builder, [CanBeNull] string name)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NullButNotEmpty(name, nameof(name));
@@ -21,13 +21,13 @@ namespace Microsoft.Data.Entity
             return builder;
         }
 
-        public static PropertyBuilder<TEntity> SqliteColumn<TEntity>(
+        public static PropertyBuilder<TEntity> HasSqliteColumnName<TEntity>(
             [NotNull] this PropertyBuilder<TEntity> builder,
             [CanBeNull] string name)
             where TEntity : class
-            => (PropertyBuilder<TEntity>)((PropertyBuilder)builder).SqliteColumn(name);
+            => (PropertyBuilder<TEntity>)((PropertyBuilder)builder).HasSqliteColumnName(name);
 
-        public static PropertyBuilder SqliteColumnType([NotNull] this PropertyBuilder builder, [CanBeNull] string type)
+        public static PropertyBuilder HasSqliteColumnType([NotNull] this PropertyBuilder builder, [CanBeNull] string type)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NullButNotEmpty(type, nameof(type));
@@ -37,28 +37,28 @@ namespace Microsoft.Data.Entity
             return builder;
         }
 
-        public static PropertyBuilder<TEntity> SqliteColumnType<TEntity>(
+        public static PropertyBuilder<TEntity> HasSqliteColumnType<TEntity>(
             [NotNull] this PropertyBuilder<TEntity> builder,
             [CanBeNull] string type)
             where TEntity : class
-            => (PropertyBuilder<TEntity>)((PropertyBuilder)builder).SqliteColumnType(type);
+            => (PropertyBuilder<TEntity>)((PropertyBuilder)builder).HasSqliteColumnType(type);
 
-        public static PropertyBuilder SqliteDefaultExpression(
+        public static PropertyBuilder SqliteDefaultValueSql(
             [NotNull] this PropertyBuilder builder,
-            [CanBeNull] string expression)
+            [CanBeNull] string sql)
         {
             Check.NotNull(builder, nameof(builder));
-            Check.NullButNotEmpty(expression, nameof(expression));
+            Check.NullButNotEmpty(sql, nameof(sql));
 
-            builder.Metadata.Sqlite().DefaultExpression = expression;
+            builder.Metadata.Sqlite().DefaultValueSql = sql;
 
             return builder;
         }
 
-        public static PropertyBuilder<TEntity> SqliteDefaultExpression<TEntity>(
+        public static PropertyBuilder<TEntity> SqliteDefaultValueSql<TEntity>(
             [NotNull] this PropertyBuilder<TEntity> builder,
-            [CanBeNull] string expression)
+            [CanBeNull] string sql)
             where TEntity : class
-            => (PropertyBuilder<TEntity>)((PropertyBuilder)builder).SqliteDefaultExpression(expression);
+            => (PropertyBuilder<TEntity>)((PropertyBuilder)builder).SqliteDefaultValueSql(sql);
     }
 }

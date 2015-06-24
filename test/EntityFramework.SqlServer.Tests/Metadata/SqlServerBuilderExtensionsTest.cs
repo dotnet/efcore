@@ -23,13 +23,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .Column("Eman");
+                .HasColumnName("Eman");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
                 .ForSqlServer()
-                .Column("MyNameIs");
+                .HasColumnName("MyNameIs");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -46,8 +46,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .Column("Eman")
-                .ForSqlServer(b => { b.Column("MyNameIs"); });
+                .HasColumnName("Eman")
+                .ForSqlServer(b => { b.HasColumnName("MyNameIs"); });
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -64,13 +64,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ColumnType("nvarchar(42)");
+                .HasColumnType("nvarchar(42)");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
                 .ForSqlServer()
-                .ColumnType("nvarchar(DA)");
+                .HasColumnType("nvarchar(DA)");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -86,8 +86,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ColumnType("nvarchar(42)")
-                .ForSqlServer(b => { b.ColumnType("nvarchar(DA)"); });
+                .HasColumnType("nvarchar(42)")
+                .ForSqlServer(b => { b.HasColumnType("nvarchar(DA)"); });
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -103,18 +103,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .DefaultExpression("CherryCoke");
+                .DefaultValueSql("CherryCoke");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
                 .ForSqlServer()
-                .DefaultExpression("VanillaCoke");
+                .DefaultValueSql("VanillaCoke");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
-            Assert.Equal("CherryCoke", property.Relational().DefaultExpression);
-            Assert.Equal("VanillaCoke", property.SqlServer().DefaultExpression);
+            Assert.Equal("CherryCoke", property.Relational().DefaultValueSql);
+            Assert.Equal("VanillaCoke", property.SqlServer().DefaultValueSql);
         }
 
         [Fact]
@@ -125,13 +125,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .DefaultExpression("CherryCoke")
-                .ForSqlServer(b => { b.DefaultExpression("VanillaCoke"); });
+                .DefaultValueSql("CherryCoke")
+                .ForSqlServer(b => { b.DefaultValueSql("VanillaCoke"); });
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
-            Assert.Equal("CherryCoke", property.Relational().DefaultExpression);
-            Assert.Equal("VanillaCoke", property.SqlServer().DefaultExpression);
+            Assert.Equal("CherryCoke", property.Relational().DefaultValueSql);
+            Assert.Equal("VanillaCoke", property.SqlServer().DefaultValueSql);
         }
 
         [Fact]
@@ -181,13 +181,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Key(e => e.Id)
-                .Name("KeyLimePie");
+                .KeyName("KeyLimePie");
 
             modelBuilder
                 .Entity<Customer>()
                 .Key(e => e.Id)
                 .ForSqlServer()
-                .Name("LemonSupreme");
+                .KeyName("LemonSupreme");
 
             var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
 
@@ -203,8 +203,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Key(e => e.Id)
-                .Name("KeyLimePie")
-                .ForSqlServer(b => { b.Name("LemonSupreme"); });
+                .KeyName("KeyLimePie")
+                .ForSqlServer(b => { b.KeyName("LemonSupreme"); });
 
             var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
 
@@ -219,12 +219,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForSqlServer()
-                .Name("ChocolateLimes");
+                .ConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForSqlServer()
-                .Name(null);
+                .ConstraintName(null);
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("LemonSupreme", foreignKey.SqlServer().Name);
@@ -248,13 +248,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
                 .ForSqlServer()
-                .Name("ChocolateLimes");
+                .ConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -269,8 +269,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .Name("LemonSupreme")
-                .ForSqlServer(b => { b.Name("ChocolateLimes"); });
+                .ConstraintName("LemonSupreme")
+                .ForSqlServer(b => { b.ConstraintName("ChocolateLimes"); });
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -286,8 +286,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
-                .Name("LemonSupreme")
-                .ForSqlServer(b => { b.Name("ChocolateLimes"); });
+                .ConstraintName("LemonSupreme")
+                .ForSqlServer(b => { b.ConstraintName("ChocolateLimes"); });
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -302,12 +302,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForSqlServer()
-                .Name("ChocolateLimes");
+                .ConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForSqlServer()
-                .Name(null);
+                .ConstraintName(null);
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("LemonSupreme", foreignKey.SqlServer().Name);
@@ -331,13 +331,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
                 .ForSqlServer()
-                .Name("ChocolateLimes");
+                .ConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -352,8 +352,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .Name("LemonSupreme")
-                .ForSqlServer(b => { b.Name("ChocolateLimes"); });
+                .ConstraintName("LemonSupreme")
+                .ForSqlServer(b => { b.ConstraintName("ChocolateLimes"); });
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -369,8 +369,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
-                .Name("LemonSupreme")
-                .ForSqlServer(b => { b.Name("ChocolateLimes"); });
+                .ConstraintName("LemonSupreme")
+                .ForSqlServer(b => { b.ConstraintName("ChocolateLimes"); });
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -386,12 +386,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .PrincipalKey<Order>(e => e.OrderId)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .ForSqlServer()
-                .Name("ChocolateLimes");
+                .ConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -401,7 +401,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .ForSqlServer()
-                .Name(null);
+                .ConstraintName(null);
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("LemonSupreme", foreignKey.SqlServer().Name);
@@ -415,13 +415,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
                 .ForSqlServer()
-                .Name("ChocolateLimes");
+                .ConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -437,8 +437,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .PrincipalKey<Order>(e => e.OrderId)
-                .Name("LemonSupreme")
-                .ForSqlServer(b => { b.Name("ChocolateLimes"); });
+                .ConstraintName("LemonSupreme")
+                .ForSqlServer(b => { b.ConstraintName("ChocolateLimes"); });
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -454,8 +454,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
-                .Name("LemonSupreme")
-                .ForSqlServer(b => { b.Name("ChocolateLimes"); });
+                .ConstraintName("LemonSupreme")
+                .ForSqlServer(b => { b.ConstraintName("ChocolateLimes"); });
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -471,13 +471,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Index(e => e.Id)
-                .Name("Eeeendeeex");
+                .IndexName("Eeeendeeex");
 
             modelBuilder
                 .Entity<Customer>()
                 .Index(e => e.Id)
                 .ForSqlServer()
-                .Name("Dexter");
+                .IndexName("Dexter");
 
             var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
 
@@ -493,8 +493,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Index(e => e.Id)
-                .Name("Eeeendeeex")
-                .ForSqlServer(b => { b.Name("Dexter"); });
+                .IndexName("Eeeendeeex")
+                .ForSqlServer(b => { b.IndexName("Dexter"); });
 
             var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
 
@@ -509,12 +509,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Table("Customizer");
+                .ToTable("Customizer");
 
             modelBuilder
                 .Entity<Customer>()
                 .ForSqlServer()
-                .Table("Custardizer");
+                .ToTable("Custardizer");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -530,8 +530,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Table("Customizer")
-                .ForSqlServer(b => { b.Table("Custardizer"); });
+                .ToTable("Customizer")
+                .ForSqlServer(b => { b.ToTable("Custardizer"); });
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -547,12 +547,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .Table("Customizer");
+                .ToTable("Customizer");
 
             modelBuilder
                 .Entity(typeof(Customer))
                 .ForSqlServer()
-                .Table("Custardizer");
+                .ToTable("Custardizer");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -568,8 +568,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .Table("Customizer")
-                .ForSqlServer(b => { b.Table("Custardizer"); });
+                .ToTable("Customizer")
+                .ForSqlServer(b => { b.ToTable("Custardizer"); });
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -585,12 +585,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Table("Customizer", "db0");
+                .ToTable("Customizer", "db0");
 
             modelBuilder
                 .Entity<Customer>()
                 .ForSqlServer()
-                .Table("Custardizer", "dbOh");
+                .ToTable("Custardizer", "dbOh");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -608,8 +608,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Table("Customizer", "db0")
-                .ForSqlServer(b => { b.Table("Custardizer", "dbOh"); });
+                .ToTable("Customizer", "db0")
+                .ForSqlServer(b => { b.ToTable("Custardizer", "dbOh"); });
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -627,12 +627,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .Table("Customizer", "db0");
+                .ToTable("Customizer", "db0");
 
             modelBuilder
                 .Entity<Customer>()
                 .ForSqlServer()
-                .Table("Custardizer", "dbOh");
+                .ToTable("Custardizer", "dbOh");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -650,8 +650,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .Table("Customizer", "db0")
-                .ForSqlServer(b => { b.Table("Custardizer", "dbOh"); });
+                .ToTable("Customizer", "db0")
+                .ForSqlServer(b => { b.ToTable("Custardizer", "dbOh"); });
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 

@@ -74,7 +74,6 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<IDatabaseProviderServices>();
             VerifyScoped<IDatabase>();
             VerifyScoped<IQueryContextFactory>();
-            VerifyScoped<IDatabaseConnection>();
             VerifyScoped<IValueGeneratorSelector>();
             VerifyScoped<IDatabaseCreator>();
             VerifyOptionalScoped<IConventionSetBuilder>();
@@ -83,7 +82,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<IModelValidator>();
             VerifySingleton<IDatabaseProvider>(isExistingReplaced: true);
         }
-        
+
         private readonly DbContext _firstContext;
         private readonly DbContext _secondContext;
 

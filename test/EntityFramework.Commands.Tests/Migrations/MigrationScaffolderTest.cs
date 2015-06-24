@@ -88,12 +88,12 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         private class MockRelationalMetadataExtensionProvider : IRelationalMetadataExtensionProvider
         {
-            public IRelationalIndexExtensions Extensions(IIndex index) => index.Relational();
-            public IRelationalModelExtensions Extensions(IModel model) => model.Relational();
-            public IRelationalPropertyExtensions Extensions(IProperty property) => property.Relational();
-            public IRelationalKeyExtensions Extensions(IKey key) => key.Relational();
-            public IRelationalForeignKeyExtensions Extensions(IForeignKey foreignKey) => foreignKey.Relational();
-            public IRelationalEntityTypeExtensions Extensions(IEntityType entityType) => entityType.Relational();
+            public IRelationalIndexAnnotations Extensions(IIndex index) => index.Relational();
+            public IRelationalModelAnnotations Extensions(IModel model) => model.Relational();
+            public IRelationalPropertyAnnotations Extensions(IProperty property) => property.Relational();
+            public IRelationalKeyAnnotations Extensions(IKey key) => key.Relational();
+            public IRelationalForeignKeyAnnotations Extensions(IForeignKey foreignKey) => foreignKey.Relational();
+            public IRelationalEntityTypeAnnotations Extensions(IEntityType entityType) => entityType.Relational();
         }
 
         private class ConcreteTypeMapper : RelationalTypeMapper

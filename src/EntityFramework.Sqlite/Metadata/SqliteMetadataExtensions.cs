@@ -11,17 +11,17 @@ namespace Microsoft.Data.Entity
 {
     public static class SqliteMetadataExtensions
     {
-        public static ISqliteEntityTypeExtensions Sqlite([NotNull] this IEntityType entityType) => new ReadOnlySqliteEntityTypeExtensions(entityType);
-        public static SqliteEntityTypeExtensions Sqlite([NotNull] this EntityType entityType) => new SqliteEntityTypeExtensions(entityType);
-        public static ISqliteForeignKeyExtensions Sqlite([NotNull] this IForeignKey foreignKey) => new ReadOnlySqliteForeignKeyExtensions(foreignKey);
-        public static SqliteForeignKeyExtensions Sqlite([NotNull] this ForeignKey foreignKey) => new SqliteForeignKeyExtensions(foreignKey);
-        public static ISqliteIndexExtensions Sqlite([NotNull] this IIndex index) => new ReadOnlySqliteIndexExtensions(index);
-        public static SqliteIndexExtensions Sqlite([NotNull] this Index index) => new SqliteIndexExtensions(index);
-        public static ISqliteKeyExtensions Sqlite([NotNull] this IKey key) => new ReadOnlySqliteKeyExtensions(key);
-        public static SqliteKeyExtensions Sqlite([NotNull] this Key key) => new SqliteKeyExtensions(key);
-        public static ISqliteModelExtensions Sqlite([NotNull] this IModel model) => new ReadOnlySqliteModelExtensions(model);
-        public static SqliteModelExtensions Sqlite([NotNull] this Model model) => new SqliteModelExtensions(model);
-        public static ISqlitePropertyExtensions Sqlite([NotNull] this IProperty property) => new ReadOnlySqlitePropertyExtensions(property);
-        public static SqlitePropertyExtensions Sqlite([NotNull] this Property property) => new SqlitePropertyExtensions(property);
+        public static ISqliteEntityTypeAnnotations Sqlite([NotNull] this IEntityType entityType) => new ReadOnlySqliteEntityTypeAnnotations(entityType);
+        public static SqliteEntityTypeAnnotations Sqlite([NotNull] this EntityType entityType) => new SqliteEntityTypeAnnotations(entityType);
+        public static ISqliteForeignKeyAnnotations Sqlite([NotNull] this IForeignKey foreignKey) => new ReadOnlySqliteForeignKeyAnnotations(foreignKey);
+        public static SqliteForeignKeyAnnotations Sqlite([NotNull] this ForeignKey foreignKey) => new SqliteForeignKeyAnnotations(foreignKey);
+        public static ISqliteIndexAnnotations Sqlite([NotNull] this IIndex index) => new ReadOnlySqliteIndexAnnotations(index);
+        public static SqliteIndexAnnotations Sqlite([NotNull] this Index index) => new SqliteIndexAnnotations(index);
+        public static ISqliteKeyAnnotations Sqlite([NotNull] this IKey key) => new ReadOnlySqliteKeyAnnotations(key);
+        public static SqliteKeyAnnotations Sqlite([NotNull] this Key key) => new SqliteKeyAnnotations(key);
+        public static ISqliteModelAnnotations Sqlite([NotNull] this IModel model) => new ReadOnlySqliteModelAnnotations(model);
+        public static SqliteModelAnnotations Sqlite([NotNull] this Model model) => new SqliteModelAnnotations(model);
+        public static ISqlitePropertyAnnotations Sqlite([NotNull] this IProperty property) => new ReadOnlySqlitePropertyAnnotations(property);
+        public static SqlitePropertyAnnotations Sqlite([NotNull] this Property property) => new SqlitePropertyAnnotations(property);
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
@@ -26,7 +27,7 @@ namespace Microsoft.Data.Entity.Sqlite
         {
         }
 
-        public override IDatabaseConnection Connection => GetService<SqliteDatabaseConnection>();
+        public override string InvariantName => GetType().GetTypeInfo().Assembly.GetName().Name;
         public override IDatabaseCreator Creator => GetService<SqliteDatabaseCreator>();
         public override IHistoryRepository HistoryRepository => GetService<SqliteHistoryRepository>();
         public override IMigrationSqlGenerator MigrationSqlGenerator => GetService<SqliteMigrationSqlGenerator>();

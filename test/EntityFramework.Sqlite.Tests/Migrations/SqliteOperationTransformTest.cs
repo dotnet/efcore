@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             model.Entity("a", b =>
                 {
                     b.SqliteTable("A");
-                    b.Property<string>("2").SqliteColumn("col2");
-                    b.Property<string>("3").Column("col3");
+                    b.Property<string>("2").HasSqliteColumnName("col2");
+                    b.Property<string>("3").HasColumnName("col3");
                     b.Key("3");
                 });
             var transformer = new SqliteOperationTransformer(

@@ -68,6 +68,7 @@ namespace Microsoft.Data.Entity.Tests
 
         protected virtual void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
         {
+            optionsBuilder.UseInMemoryDatabase();
         }
 
         public DbContext CreateContext(IServiceProvider serviceProvider, IModel model)

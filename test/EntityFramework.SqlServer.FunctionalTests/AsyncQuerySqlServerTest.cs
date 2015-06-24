@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public async Task Skip_when_no_order_by()
         {
-            await Assert.ThrowsAsync<DatabaseException>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
+            await Assert.ThrowsAsync<Exception>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
         }
 
         [Fact]

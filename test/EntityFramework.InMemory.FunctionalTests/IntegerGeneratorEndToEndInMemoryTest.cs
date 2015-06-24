@@ -135,6 +135,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
             }
 
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase();
+
             public DbSet<Pegasus> Pegasuses { get; set; }
         }
 

@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             await relationalDatabase.SaveChangesAsync(entries, cancellationToken);
 
-            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries, relationalDatabase.DbContextOptions));
+            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries, contextServices.GetService<IDbContextOptions>()));
             batchExecutorMock.Verify(be => be.ExecuteAsync(It.IsAny<IEnumerable<ModificationCommandBatch>>(), relationalConnectionMock.Object, cancellationToken));
         }
 
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             relationalDatabase.SaveChanges(entries);
 
-            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries, relationalDatabase.DbContextOptions));
+            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries, contextServices.GetService<IDbContextOptions>()));
             batchExecutorMock.Verify(be => be.Execute(It.IsAny<IEnumerable<ModificationCommandBatch>>(), relationalConnectionMock.Object));
         }
 

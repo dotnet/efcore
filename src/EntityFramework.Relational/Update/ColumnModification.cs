@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         public ColumnModification(
             [NotNull] InternalEntityEntry entry,
             [NotNull] IProperty property,
-            [NotNull] IRelationalPropertyExtensions propertyExtensions,
+            [NotNull] IRelationalPropertyAnnotations propertyAnnotations,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
             bool isRead,
             bool isWrite,
@@ -28,12 +28,12 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             Check.NotNull(entry, nameof(entry));
             Check.NotNull(property, nameof(property));
-            Check.NotNull(propertyExtensions, nameof(propertyExtensions));
+            Check.NotNull(propertyAnnotations, nameof(propertyAnnotations));
             Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
 
             Entry = entry;
             Property = property;
-            ColumnName = propertyExtensions.Column;
+            ColumnName = propertyAnnotations.Column;
 
             _parameterName = isWrite
                 ? new LazyRef<string>(parameterNameGenerator.GenerateNext)

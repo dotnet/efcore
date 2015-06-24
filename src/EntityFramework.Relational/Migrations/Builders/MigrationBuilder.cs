@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
                 Type = type,
                 IsNullable = nullable,
                 DefaultValue = defaultValue,
-                DefaultExpression = defaultExpression
+                DefaultValueSql = defaultExpression
             };
             Operations.Add(operation);
 
@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
                 Type = type,
                 IsNullable = nullable,
                 DefaultValue = defaultValue,
-                DefaultExpression = defaultExpression
+                DefaultValueSql = defaultExpression
             };
             Operations.Add(operation);
 

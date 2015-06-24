@@ -69,6 +69,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 modelBuilder.Entity<Base>().Annotation("AllYourBaseAreBelongTo", "Us!");
             }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase();
         }
 
         private class Base

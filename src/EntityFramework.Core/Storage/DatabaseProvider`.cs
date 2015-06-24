@@ -9,26 +9,14 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public abstract class DatabaseProvider<TProviderServices, TOptionsExtension> : IDatabaseProvider
+    public class DatabaseProvider<TProviderServices, TOptionsExtension> : IDatabaseProvider
         where TProviderServices : class, IDatabaseProviderServices
         where TOptionsExtension : class, IDbContextOptionsExtension
     {
-        public virtual IDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider)
-        {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
+        public virtual IDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider) 
+            => Check.NotNull(serviceProvider, nameof(serviceProvider)).GetRequiredService<TProviderServices>();
 
-            return serviceProvider.GetRequiredService<TProviderServices>();
-        }
-
-        public virtual bool IsConfigured(IDbContextOptions options)
-        {
-            Check.NotNull(options, nameof(options));
-
-            return options.Extensions.OfType<TOptionsExtension>().Any();
-        }
-
-        public abstract string Name { get; }
-
-        public abstract void AutoConfigure(DbContextOptionsBuilder optionsBuilder);
+        public virtual bool IsConfigured(IDbContextOptions options) 
+            => Check.NotNull(options, nameof(options)).Extensions.OfType<TOptionsExtension>().Any();
     }
 }

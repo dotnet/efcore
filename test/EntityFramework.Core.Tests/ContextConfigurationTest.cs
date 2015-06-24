@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -48,24 +50,20 @@ namespace Microsoft.Data.Entity.Tests
 
             IDatabase database;
             IDatabaseCreator creator;
-            IDatabaseConnection connection;
 
-            using (var context = new DbContext(serviceProvider))
+            using (var context = new GiddyupContext(serviceProvider))
             {
                 database = context.GetService<IDatabase>();
                 creator = context.GetService<IDatabaseCreator>();
-                connection = context.GetService<IDatabaseConnection>();
 
                 Assert.Same(database, context.GetService<IDatabase>());
                 Assert.Same(creator, context.GetService<IDatabaseCreator>());
-                Assert.Same(connection, context.GetService<IDatabaseConnection>());
             }
 
-            using (var context = new DbContext(serviceProvider))
+            using (var context = new GiddyupContext(serviceProvider))
             {
                 Assert.NotSame(database, context.GetService<IDatabase>());
                 Assert.NotSame(creator, context.GetService<IDatabaseCreator>());
-                Assert.NotSame(connection, context.GetService<IDatabaseConnection>());
             }
         }
 
@@ -74,29 +72,34 @@ namespace Microsoft.Data.Entity.Tests
         {
             IDatabase database;
             IDatabaseCreator creator;
-            IDatabaseConnection connection;
 
             using (var context = new GiddyupContext())
             {
                 database = context.GetService<IDatabase>();
                 creator = context.GetService<IDatabaseCreator>();
-                connection = context.GetService<IDatabaseConnection>();
 
                 Assert.Same(database, context.GetService<IDatabase>());
                 Assert.Same(creator, context.GetService<IDatabaseCreator>());
-                Assert.Same(connection, context.GetService<IDatabaseConnection>());
             }
 
             using (var context = new GiddyupContext())
             {
                 Assert.NotSame(database, context.GetService<IDatabase>());
                 Assert.NotSame(creator, context.GetService<IDatabaseCreator>());
-                Assert.NotSame(connection, context.GetService<IDatabaseConnection>());
             }
         }
 
         private class GiddyupContext : DbContext
         {
+            public GiddyupContext()
+            {
+            }
+
+            public GiddyupContext([NotNull] IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+            }
+
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseInMemoryDatabase();

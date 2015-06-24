@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         // TODO: Move to metadata API?
         private static SqlServerValueGenerationStrategy? GetValueGenerationStrategy(IProperty property)
             => property.StoreGeneratedPattern == StoreGeneratedPattern.Identity
-                    && property.SqlServer().DefaultExpression == null
+                    && property.SqlServer().DefaultValueSql == null
                     && property.SqlServer().DefaultValue == null
                     && property.SqlServer().ComputedExpression == null
                 ? property.SqlServer().ValueGenerationStrategy

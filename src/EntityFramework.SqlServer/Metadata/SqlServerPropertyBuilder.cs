@@ -18,29 +18,29 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             _property = property;
         }
 
-        public virtual SqlServerPropertyBuilder Column([CanBeNull] string columnName)
+        public virtual SqlServerPropertyBuilder HasColumnName([CanBeNull] string name)
         {
-            Check.NullButNotEmpty(columnName, nameof(columnName));
+            Check.NullButNotEmpty(name, nameof(name));
 
-            _property.SqlServer().Column = columnName;
+            _property.SqlServer().Column = name;
 
             return this;
         }
 
-        public virtual SqlServerPropertyBuilder ColumnType([CanBeNull] string columnType)
+        public virtual SqlServerPropertyBuilder HasColumnType([CanBeNull] string typeName)
         {
-            Check.NullButNotEmpty(columnType, nameof(columnType));
+            Check.NullButNotEmpty(typeName, nameof(typeName));
 
-            _property.SqlServer().ColumnType = columnType;
+            _property.SqlServer().ColumnType = typeName;
 
             return this;
         }
 
-        public virtual SqlServerPropertyBuilder DefaultExpression([CanBeNull] string expression)
+        public virtual SqlServerPropertyBuilder DefaultValueSql([CanBeNull] string expression)
         {
             Check.NullButNotEmpty(expression, nameof(expression));
 
-            _property.SqlServer().DefaultExpression = expression;
+            _property.SqlServer().DefaultValueSql = expression;
 
             return this;
         }
@@ -52,11 +52,11 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             return this;
         }
 
-        public virtual SqlServerPropertyBuilder ComputedExpression([CanBeNull] string expression)
+        public virtual SqlServerPropertyBuilder ComputedExpression([CanBeNull] string sql)
         {
-            Check.NullButNotEmpty(expression, nameof(expression));
+            Check.NullButNotEmpty(sql, nameof(sql));
 
-            _property.SqlServer().ComputedExpression = expression;
+            _property.SqlServer().ComputedExpression = sql;
 
             return this;
         }

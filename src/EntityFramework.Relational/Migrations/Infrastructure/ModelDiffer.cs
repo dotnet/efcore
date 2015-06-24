@@ -343,7 +343,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             var columnTypeChanged = sourceColumnType != targetColumnType;
             if (isNullableChanged
                 || columnTypeChanged
-                || sourceExtensions.DefaultExpression != targetExtensions.DefaultExpression
+                || sourceExtensions.DefaultValueSql != targetExtensions.DefaultValueSql
                 || sourceExtensions.DefaultValue != targetExtensions.DefaultValue
                 || HasDifferences(Annotations.For(source), targetAnnotations))
             {
@@ -359,7 +359,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     Type = targetColumnType,
                     IsNullable = target.IsNullable,
                     DefaultValue = targetExtensions.DefaultValue,
-                    DefaultExpression = targetExtensions.DefaultExpression,
+                    DefaultValueSql = targetExtensions.DefaultValueSql,
                     IsDestructiveChange = isDestructiveChange
                 };
                 CopyAnnotations(targetAnnotations, alterColumnOperation);
@@ -381,7 +381,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 Type = targetExtensions.ColumnType ?? TypeMapper.MapPropertyType(target).DefaultTypeName,
                 IsNullable = target.IsNullable,
                 DefaultValue = targetExtensions.DefaultValue,
-                DefaultExpression = targetExtensions.DefaultExpression
+                DefaultValueSql = targetExtensions.DefaultValueSql
             };
             CopyAnnotations(Annotations.For(target), operation);
 

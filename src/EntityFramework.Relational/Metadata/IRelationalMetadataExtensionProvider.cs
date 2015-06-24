@@ -8,11 +8,11 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 {
     public interface IRelationalMetadataExtensionProvider
     {
-        IRelationalEntityTypeExtensions Extensions([NotNull] IEntityType entityType);
-        IRelationalForeignKeyExtensions Extensions([NotNull] IForeignKey foreignKey);
-        IRelationalIndexExtensions Extensions([NotNull] IIndex index);
-        IRelationalKeyExtensions Extensions([NotNull] IKey key);
-        IRelationalModelExtensions Extensions([NotNull] IModel model);
-        IRelationalPropertyExtensions Extensions([NotNull] IProperty property);
+        IRelationalEntityTypeAnnotations Extensions([NotNull] IEntityType entityType);
+        IRelationalForeignKeyAnnotations Extensions([NotNull] IForeignKey foreignKey);
+        IRelationalIndexAnnotations Extensions([NotNull] IIndex index);
+        IRelationalKeyAnnotations Extensions([NotNull] IKey key);
+        IRelationalModelAnnotations Extensions([NotNull] IModel model);
+        IRelationalPropertyAnnotations Extensions([NotNull] IProperty property);
     }
 }

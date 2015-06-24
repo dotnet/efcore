@@ -25,7 +25,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             VerifyScoped<InMemoryQueryContextFactory>();
             VerifyScoped<InMemoryDatabaseProviderServices>();
             VerifyScoped<IInMemoryDatabase>();
-            VerifyScoped<InMemoryConnection>();
             VerifyScoped<InMemoryDatabaseCreator>();
         }
 

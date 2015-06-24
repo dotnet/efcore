@@ -21,7 +21,7 @@ using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract class RelationalDatabase : Database, IRelationalDatabase
+    public abstract class RelationalDatabase : Database
     {
         private readonly ICommandBatchPreparer _batchPreparer;
         private readonly IBatchExecutor _batchExecutor;
@@ -44,34 +44,45 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
             [NotNull] IMemberTranslator compositeMemberTranslator,
             [NotNull] IRelationalTypeMapper typeMapper)
-            : base(model, entityKeyFactorySource, entityMaterializerSource, clrPropertyGetterSource, loggerFactory)
+            : base(model, loggerFactory)
         {
+            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
+            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
+            Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource));
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(batchPreparer, nameof(batchPreparer));
             Check.NotNull(batchExecutor, nameof(batchExecutor));
-            Check.NotNull(options, nameof(options));
             Check.NotNull(options, nameof(options));
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
             Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator));
             Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator));
             Check.NotNull(typeMapper, nameof(typeMapper));
 
+            EntityKeyFactorySource = entityKeyFactorySource;
+            EntityMaterializerSource = entityMaterializerSource;
+            ClrPropertyGetterSource = clrPropertyGetterSource;
             _batchPreparer = batchPreparer;
             _batchExecutor = batchExecutor;
             _connection = connection;
             _options = options;
             _compositeMethodCallTranslator = compositeMethodCallTranslator;
             _compositeMemberTranslator = compositeMemberTranslator;
-            TypeMapper = typeMapper;
 
+            TypeMapper = typeMapper;
             ValueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
-        public virtual IRelationalTypeMapper TypeMapper { get; }
+        protected virtual IEntityKeyFactorySource EntityKeyFactorySource { get; }
 
-        public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
+        protected virtual IEntityMaterializerSource EntityMaterializerSource { get; }
 
-        public virtual IDbContextOptions DbContextOptions => _options;
+        protected virtual IClrAccessorSource<IClrPropertyGetter> ClrPropertyGetterSource { get; }
+
+        protected virtual IRelationalTypeMapper TypeMapper { get; }
+
+        protected virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
+
+        protected virtual IDbContextOptions DbContextOptions => _options;
 
         public override int SaveChanges(
             IReadOnlyList<InternalEntityEntry> entries)

@@ -14,13 +14,10 @@ namespace Microsoft.Data.Entity.Tests
 
         public new static InMemoryTestHelpers Instance { get; } = new InMemoryTestHelpers();
 
-        protected override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
-        {
-            return builder.AddInMemoryDatabase();
-        }
+        protected override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder) 
+            => builder.AddInMemoryDatabase();
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-        {
-        }
+            => optionsBuilder.UseInMemoryDatabase();
     }
 }

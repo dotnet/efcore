@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
                     Name = "Birthday",
                     Type = "date",
                     IsNullable = true,
-                    DefaultExpression = "CURRENT_TIMESTAMP"
+                    DefaultValueSql = "CURRENT_TIMESTAMP"
                 });
         }
 

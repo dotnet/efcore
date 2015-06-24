@@ -164,43 +164,6 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         }
 
         [Fact]
-        public void Can_save_and_query_with_explicit_services_and_no_config()
-        {
-            var services = new ServiceCollection();
-            services.AddEntityFramework().AddInMemoryDatabase();
-            var serviceProvider = services.BuildServiceProvider();
-
-            using (var context = new ExplicitServicesAndNoConfigBlogContext(serviceProvider))
-            {
-                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                context.SaveChanges();
-            }
-
-            using (var context = new ExplicitServicesAndNoConfigBlogContext(serviceProvider))
-            {
-                var blog = context.Blogs.SingleOrDefault();
-
-                Assert.NotEqual(0, blog.Id);
-                Assert.Equal("The Waffle Cart", blog.Name);
-
-                context.Blogs.RemoveRange(context.Blogs);
-                context.SaveChanges();
-
-                Assert.Empty(context.Blogs);
-            }
-        }
-
-        private class ExplicitServicesAndNoConfigBlogContext : DbContext
-        {
-            public ExplicitServicesAndNoConfigBlogContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
-            {
-            }
-
-            public DbSet<Blog> Blogs { get; set; }
-        }
-
-        [Fact]
         public void Throws_on_attempt_to_use_context_with_no_store()
         {
             Assert.Equal(
@@ -298,6 +261,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 Assert.NotNull(serviceProvider);
             }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase();
 
             public DbSet<Blog> Blogs { get; set; }
         }

@@ -363,12 +363,12 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class TestMetadataExtensionProvider : IRelationalMetadataExtensionProvider
         {
-            public IRelationalEntityTypeExtensions Extensions(IEntityType entityType) => entityType.Relational();
-            public IRelationalForeignKeyExtensions Extensions(IForeignKey foreignKey) => foreignKey.Relational();
-            public IRelationalIndexExtensions Extensions(IIndex index) => index.Relational();
-            public IRelationalKeyExtensions Extensions(IKey key) => key.Relational();
-            public IRelationalModelExtensions Extensions(IModel model) => model.Relational();
-            public IRelationalPropertyExtensions Extensions(IProperty property) => property.Relational();
+            public IRelationalEntityTypeAnnotations Extensions(IEntityType entityType) => entityType.Relational();
+            public IRelationalForeignKeyAnnotations Extensions(IForeignKey foreignKey) => foreignKey.Relational();
+            public IRelationalIndexAnnotations Extensions(IIndex index) => index.Relational();
+            public IRelationalKeyAnnotations Extensions(IKey key) => key.Relational();
+            public IRelationalModelAnnotations Extensions(IModel model) => model.Relational();
+            public IRelationalPropertyAnnotations Extensions(IProperty property) => property.Relational();
         }
 
         private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory

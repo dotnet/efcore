@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public int Count => _values.Count - _offset;
 
-        public ValueBuffer UpdateOffset(int offset)
+        public ValueBuffer WithOffset(int offset)
         {
             Debug.Assert(offset >= _offset);
 

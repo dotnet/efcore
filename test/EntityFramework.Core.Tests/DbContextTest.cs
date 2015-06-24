@@ -30,13 +30,13 @@ namespace Microsoft.Data.Entity.Tests
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider();
 
             IServiceProvider contextServices;
-            using (var context = new DbContext(serviceProvider))
+            using (var context = new EarlyLearningCenter(serviceProvider))
             {
                 contextServices = ((IAccessor<IServiceProvider>)context).Service;
                 Assert.Same(contextServices, ((IAccessor<IServiceProvider>)context).Service);
             }
 
-            using (var context = new DbContext(serviceProvider))
+            using (var context = new EarlyLearningCenter(serviceProvider))
             {
                 Assert.NotSame(contextServices, ((IAccessor<IServiceProvider>)context).Service);
             }
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new DbContext(serviceProvider))
+            using (var context = new EarlyLearningCenter(serviceProvider))
             {
                 Assert.Equal(
                     "entity",
@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new DbContext(serviceProvider))
+            using (var context = new EarlyLearningCenter(serviceProvider))
             {
                 Assert.Same(entry, context.Entry(entity).GetService());
                 Assert.Same(entry, context.Entry((object)entity).GetService());
@@ -2108,6 +2108,9 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var _ = Model;
             }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase();
         }
 
         [Fact]
@@ -2137,10 +2140,11 @@ namespace Microsoft.Data.Entity.Tests
 
             public DbSet<Product> Products { get; set; }
 
-            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                Products.ToList();
-            }
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder) 
+                => Products.ToList();
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+                => optionsBuilder.UseInMemoryDatabase();
         }
 
         [Fact]

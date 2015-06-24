@@ -118,18 +118,18 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Null(property.Relational().DefaultExpression);
-            Assert.Null(((IProperty)property).Relational().DefaultExpression);
+            Assert.Null(property.Relational().DefaultValueSql);
+            Assert.Null(((IProperty)property).Relational().DefaultValueSql);
 
-            property.Relational().DefaultExpression = "newsequentialid()";
+            property.Relational().DefaultValueSql = "newsequentialid()";
 
-            Assert.Equal("newsequentialid()", property.Relational().DefaultExpression);
-            Assert.Equal("newsequentialid()", ((IProperty)property).Relational().DefaultExpression);
+            Assert.Equal("newsequentialid()", property.Relational().DefaultValueSql);
+            Assert.Equal("newsequentialid()", ((IProperty)property).Relational().DefaultValueSql);
 
-            property.Relational().DefaultExpression = null;
+            property.Relational().DefaultValueSql = null;
 
-            Assert.Null(property.Relational().DefaultExpression);
-            Assert.Null(((IProperty)property).Relational().DefaultExpression);
+            Assert.Null(property.Relational().DefaultValueSql);
+            Assert.Null(((IProperty)property).Relational().DefaultValueSql);
         }
 
         [Fact]

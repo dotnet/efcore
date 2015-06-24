@@ -23,7 +23,7 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, nameof(builder));
 
             builder.AddRelational().GetService()
-                .AddSingleton<IDatabaseProvider, SqlServerDatabaseProvider>()
+                .AddSingleton<IDatabaseProvider, DatabaseProvider<SqlServerDatabaseProviderServices, SqlServerOptionsExtension>>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqlServerConventionSetBuilder>()
                     .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()

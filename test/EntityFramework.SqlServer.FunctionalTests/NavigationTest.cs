@@ -1,11 +1,10 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.InMemory;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -18,16 +17,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddSqlServer()
                 .AddDbContext<GoTContext>()
                 .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<GoTContext>())
             {
-                context.ConfigAction = (modelBuilder) =>
+                context.ConfigAction = modelBuilder =>
                     {
-
                         modelBuilder.Entity<Person>().Collection(p => p.Siblings).InverseReference(p => p.SiblingReverse).Required(false);
                         modelBuilder.Entity<Person>().Reference(p => p.Lover).InverseReference(p => p.LoverReverse).Required(false);
                         return 0;
@@ -46,16 +44,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddSqlServer()
                 .AddDbContext<GoTContext>()
                 .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<GoTContext>())
             {
-                context.ConfigAction = (modelBuilder) =>
+                context.ConfigAction = modelBuilder =>
                     {
-
                         modelBuilder.Entity<Person>().Reference(p => p.SiblingReverse).InverseCollection(p => p.Siblings).Required(false);
                         modelBuilder.Entity<Person>().Reference(p => p.Lover).InverseReference(p => p.LoverReverse).Required(false);
                         return 0;
@@ -97,4 +94,3 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
     }
 }
-

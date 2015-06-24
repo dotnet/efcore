@@ -185,7 +185,6 @@ namespace Microsoft.Data.Entity.Relational.Update
                 {
                     throw new DbUpdateException(
                         Strings.UpdateStoreException,
-                        context,
                         ex,
                         commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].Entries : new InternalEntityEntry[0]);
                 }
@@ -250,7 +249,6 @@ namespace Microsoft.Data.Entity.Relational.Update
                 {
                     throw new DbUpdateException(
                         Strings.UpdateStoreException,
-                        context,
                         ex,
                         commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].Entries : new InternalEntityEntry[0]);
                 }
@@ -278,7 +276,6 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                     throw new DbUpdateConcurrencyException(
                         Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
-                        context,
                         AggregateEntries(commandIndex, expectedRowsAffected));
                 }
 
@@ -310,7 +307,6 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                     throw new DbUpdateConcurrencyException(
                         Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
-                        context,
                         AggregateEntries(commandIndex, expectedRowsAffected));
                 }
 
@@ -341,7 +337,6 @@ namespace Microsoft.Data.Entity.Relational.Update
                 {
                     throw new DbUpdateConcurrencyException(
                         Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
-                        context,
                         AggregateEntries(commandIndex, expectedRowsAffected));
                 }
             }
@@ -349,7 +344,6 @@ namespace Microsoft.Data.Entity.Relational.Update
             {
                 throw new DbUpdateConcurrencyException(
                     Strings.UpdateConcurrencyException(1, 0),
-                    context,
                     AggregateEntries(commandIndex, expectedRowsAffected));
             }
 
@@ -374,7 +368,6 @@ namespace Microsoft.Data.Entity.Relational.Update
                 {
                     throw new DbUpdateConcurrencyException(
                         Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
-                        context,
                         AggregateEntries(commandIndex, expectedRowsAffected));
                 }
             }
@@ -382,7 +375,6 @@ namespace Microsoft.Data.Entity.Relational.Update
             {
                 throw new DbUpdateConcurrencyException(
                     Strings.UpdateConcurrencyException(1, 0),
-                    context,
                     AggregateEntries(commandIndex, expectedRowsAffected));
             }
 

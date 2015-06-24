@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -187,15 +186,6 @@ namespace Microsoft.Data.Entity
 
                 var optionsBuilder = new DbContextOptionsBuilder(options);
                 OnConfiguring(optionsBuilder);
-
-                var providers = serviceProvider?.GetService<IEnumerable<IDatabaseProvider>>()?.ToList()
-                                 ?? new List<IDatabaseProvider>();
-
-                if (providers.Count == 1
-                    && !providers[0].IsConfigured(optionsBuilder.Options))
-                {
-                    providers[0].AutoConfigure(optionsBuilder);
-                }
 
                 var providerSource = serviceProvider != null ? ServiceProviderSource.Explicit : ServiceProviderSource.Implicit;
 

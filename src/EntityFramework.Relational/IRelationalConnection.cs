@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public interface IRelationalConnection : IDatabaseConnection, IDisposable
+    public interface IRelationalConnection : IDisposable
     {
         string ConnectionString { get; }
 

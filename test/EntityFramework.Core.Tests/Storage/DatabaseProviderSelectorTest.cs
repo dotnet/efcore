@@ -13,36 +13,39 @@ namespace Microsoft.Data.Entity.Tests.Storage
     public class DatabaseProviderSelectorTest
     {
         [Fact]
-        public void Selects_single_configured_store()
+        public void Selects_single_configured_provider()
         {
-            var services = Mock.Of<IDatabaseProviderServices>();
-            var source = CreateSource("DataStore1", configured: true, available: false, services: services);
+            var provider = CreateSource("Database1", configured: true, available: false);
+            var serviceProvider = Mock.Of<IServiceProvider>();
 
-            var selector = new DatabaseProviderSelector(Mock.Of<IServiceProvider>(), Mock.Of<IDbContextOptions>(), new[] { source });
+            var selector = new DatabaseProviderSelector(
+                serviceProvider, 
+                Mock.Of<IDbContextOptions>(), 
+                new[] { provider });
 
-            Assert.Same(services, selector.SelectServices(ServiceProviderSource.Explicit));
+            Assert.Same(provider.GetProviderServices(serviceProvider), selector.SelectServices(ServiceProviderSource.Explicit));
         }
 
         [Fact]
-        public void Throws_if_multiple_stores_configured()
+        public void Throws_if_multiple_providers_configured()
         {
-            var source1 = CreateSource("DataStore1", configured: true, available: false);
-            var source2 = CreateSource("DataStore2", configured: true, available: false);
-            var source3 = CreateSource("DataStore3", configured: false, available: true);
-            var source4 = CreateSource("DataStore4", configured: true, available: false);
+            var provider1 = CreateSource("Database1", configured: true, available: false);
+            var provider2 = CreateSource("Database2", configured: true, available: false);
+            var provider3 = CreateSource("Database3", configured: false, available: true);
+            var provider4 = CreateSource("Database4", configured: true, available: false);
 
             var selector = new DatabaseProviderSelector(
-                Mock.Of<IServiceProvider>(), 
-                Mock.Of<IDbContextOptions>(), 
-                new[] { source1, source2, source3, source4 });
+                Mock.Of<IServiceProvider>(),
+                Mock.Of<IDbContextOptions>(),
+                new[] { provider1, provider2, provider3, provider4 });
 
-            Assert.Equal(Strings.MultipleProvidersConfigured("'DataStore1' 'DataStore2' 'DataStore4' "),
+            Assert.Equal(Strings.MultipleProvidersConfigured("'Database1' 'Database2' 'Database4' "),
                 Assert.Throws<InvalidOperationException>(
                     () => selector.SelectServices(ServiceProviderSource.Explicit)).Message);
         }
 
         [Fact]
-        public void Throws_if_no_store_services_have_been_registered_using_external_service_provider()
+        public void Throws_if_no_provider_services_have_been_registered_using_external_service_provider()
         {
             var selector = new DatabaseProviderSelector(
                 Mock.Of<IServiceProvider>(),
@@ -55,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
         }
 
         [Fact]
-        public void Throws_if_no_store_services_have_been_registered_using_implicit_service_provider()
+        public void Throws_if_no_provider_services_have_been_registered_using_implicit_service_provider()
         {
             var selector = new DatabaseProviderSelector(
                 Mock.Of<IServiceProvider>(),
@@ -68,45 +71,47 @@ namespace Microsoft.Data.Entity.Tests.Storage
         }
 
         [Fact]
-        public void Throws_if_multiple_store_services_are_registered_but_none_are_configured()
+        public void Throws_if_multiple_provider_services_are_registered_but_none_are_configured()
         {
-            var source1 = CreateSource("DataStore1", configured: false, available: true);
-            var source2 = CreateSource("DataStore2", configured: false, available: false);
-            var source3 = CreateSource("DataStore3", configured: false, available: false);
+            var provider1 = CreateSource("Database1", configured: false, available: true);
+            var provider2 = CreateSource("Database2", configured: false, available: false);
+            var provider3 = CreateSource("Database3", configured: false, available: false);
 
             var selector = new DatabaseProviderSelector(
                 Mock.Of<IServiceProvider>(),
                 Mock.Of<IDbContextOptions>(),
-                new[] { source1, source2, source3 });
+                new[] { provider1, provider2, provider3 });
 
-            Assert.Equal(Strings.MultipleProvidersAvailable("'DataStore1' 'DataStore2' 'DataStore3' "),
+            Assert.Equal(Strings.MultipleProvidersAvailable("'Database1' 'Database2' 'Database3' "),
                 Assert.Throws<InvalidOperationException>(
                     () => selector.SelectServices(ServiceProviderSource.Explicit)).Message);
         }
 
         [Fact]
-        public void Throws_if_one_store_service_is_registered_but_not_configured_and_cannot_be_used_without_configuration()
+        public void Throws_if_one_provider_service_is_registered_but_not_configured_and_cannot_be_used_without_configuration()
         {
-            var source = CreateSource("DataStore1", configured: false, available: false);
+            var provider = CreateSource("Database1", configured: false, available: false);
 
             var selector = new DatabaseProviderSelector(
                 Mock.Of<IServiceProvider>(),
                 Mock.Of<IDbContextOptions>(),
-                new[] { source });
+                new[] { provider });
 
             Assert.Equal(Strings.NoProviderConfigured,
                 Assert.Throws<InvalidOperationException>(
                     () => selector.SelectServices(ServiceProviderSource.Explicit)).Message);
         }
 
-        private static IDatabaseProvider CreateSource(string name, bool configured, bool available, IDatabaseProviderServices services = null)
+        private static IDatabaseProvider CreateSource(string name, bool configured, bool available)
         {
-            var sourceMock = new Mock<IDatabaseProvider>();
-            sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(configured);
-            sourceMock.Setup(m => m.GetProviderServices(It.IsAny<IServiceProvider>())).Returns(services);
-            sourceMock.Setup(m => m.Name).Returns(name);
+            var servicesMock = new Mock<IDatabaseProviderServices>();
+            servicesMock.Setup(m => m.InvariantName).Returns(name);
 
-            return sourceMock.Object;
+            var providerMock = new Mock<IDatabaseProvider>();
+            providerMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(configured);
+            providerMock.Setup(m => m.GetProviderServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
+
+            return providerMock.Object;
         }
     }
 }

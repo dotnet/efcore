@@ -564,18 +564,18 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 property.Relational().Column = tableColumn.ColumnName;
             }
 
-            string columnType = null;
+            string typeName = null;
             if (DataTypesForNumericPrecisionAndScale.Contains(tableColumn.DataType))
             {
                 if (tableColumn.NumericPrecision.HasValue)
                 {
                     if (tableColumn.Scale.HasValue)
                     {
-                        columnType = tableColumn.DataType + "(" + tableColumn.NumericPrecision.Value + ", " + tableColumn.Scale.Value + ")";
+                        typeName = tableColumn.DataType + "(" + tableColumn.NumericPrecision.Value + ", " + tableColumn.Scale.Value + ")";
                     }
                     else
                     {
-                        columnType = tableColumn.DataType + "(" + tableColumn.NumericPrecision.Value + ")";
+                        typeName = tableColumn.DataType + "(" + tableColumn.NumericPrecision.Value + ")";
                     }
                 }
             }
@@ -585,18 +585,18 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 {
                     if (tableColumn.Scale.HasValue)
                     {
-                        columnType = tableColumn.DataType + "(" + tableColumn.DateTimePrecision.Value + ", " + tableColumn.Scale.Value + ")";
+                        typeName = tableColumn.DataType + "(" + tableColumn.DateTimePrecision.Value + ", " + tableColumn.Scale.Value + ")";
                     }
                     else
                     {
-                        columnType = tableColumn.DataType + "(" + tableColumn.DateTimePrecision.Value + ")";
+                        typeName = tableColumn.DataType + "(" + tableColumn.DateTimePrecision.Value + ")";
                     }
                 }
             }
 
-            if (columnType != null)
+            if (typeName != null)
             {
-                property.Relational().ColumnType = columnType;
+                property.Relational().ColumnType = typeName;
             }
 
             if (tableColumn.IsIdentity)
@@ -628,7 +628,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 if (defaultExpressionOrValue != null
                     && defaultExpressionOrValue.DefaultExpression != null)
                 {
-                    property.Relational().DefaultExpression = defaultExpressionOrValue.DefaultExpression;
+                    property.Relational().DefaultValueSql = defaultExpressionOrValue.DefaultExpression;
                 }
                 else if (defaultExpressionOrValue != null
                          && defaultExpressionOrValue.DefaultValue != null)

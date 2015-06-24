@@ -72,10 +72,10 @@ INSERT INTO Table1 (Col1, Col2) Values('dropped value','preserved entry');");
             _options.UseSqlite(_testStore.Connection);
         }
 
-        private void AssertColumns(string tableName, List<string> columnNames)
+        private void AssertColumns(string name, List<string> columnNames)
         {
             var command = _testStore.Connection.CreateCommand();
-            command.CommandText = $"PRAGMA table_info({tableName});";
+            command.CommandText = $"PRAGMA table_info({name});";
             var columns = new List<string>();
             using (var reader = command.ExecuteReader())
             {

@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                     Name = "Age",
                     Type = "int",
                     IsNullable = true,
-                    DefaultExpression = "10"
+                    DefaultValueSql = "10"
                 });
 
             Assert.Equal(

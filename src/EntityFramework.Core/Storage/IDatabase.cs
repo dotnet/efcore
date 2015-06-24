@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Framework.Logging;
 using Remotion.Linq;
@@ -17,10 +16,8 @@ namespace Microsoft.Data.Entity.Storage
 {
     public interface IDatabase
     {
-        ILogger Logger { get; }
         IModel Model { get; }
-        IEntityKeyFactorySource EntityKeyFactorySource { get; }
-        IEntityMaterializerSource EntityMaterializerSource { get; }
+        ILogger Logger { get; }
 
         int SaveChanges([NotNull] IReadOnlyList<InternalEntityEntry> entries);
 

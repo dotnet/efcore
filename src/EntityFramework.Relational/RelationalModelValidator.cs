@@ -28,8 +28,8 @@ namespace Microsoft.Data.Entity.Relational
             var tables = new HashSet<string>();
             foreach (var entityType in model.EntityTypes.Where(et => et.BaseType == null))
             {
-                var tableName = entityType.Relational().Schema + "." + entityType.Relational().Table;
-                if (!tables.Add(tableName))
+                var name = entityType.Relational().Schema + "." + entityType.Relational().Table;
+                if (!tables.Add(name))
                 {
                     ShowError(Strings.DuplicateTableName(entityType.Relational().Table, entityType.Relational().Schema, entityType.DisplayName()));
                 }

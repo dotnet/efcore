@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Relational.ValueGeneration
             if (property.EntityType.BaseType == null)
             {
                 var discriminatorPropertyName
-                    = property.EntityType[ReadOnlyRelationalEntityTypeExtensions.DiscriminatorPropertyAnnotation]
+                    = property.EntityType[ReadOnlyRelationalEntityTypeAnnotations.DiscriminatorPropertyAnnotation]
                         as string;
 
                 if (discriminatorPropertyName != null

@@ -60,8 +60,10 @@
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
     <Compile Include="Extensions\Internal\PropertyInfoExtensions.cs" />
     <Compile Include="Infrastructure\AccessorExtensions.cs" />
+    <Compile Include="Internal\DatabaseProviderSelector.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="Internal\Graph.cs" />
+    <Compile Include="Internal\IDatabaseProviderSelector.cs" />
     <Compile Include="Internal\IndentedStringBuilder.cs" />
     <Compile Include="Internal\LazyRef.cs" />
     <Compile Include="Internal\ModelForeignKeyUndirectedGraphAdapter.cs" />
@@ -249,11 +251,8 @@
     <Compile Include="Query\ResultOperators\QueryAnnotationResultOperator.cs" />
     <Compile Include="Query\ResultOperators\ThenIncludeExpressionNode.cs" />
     <Compile Include="Storage\DatabaseErrorLogState.cs" />
-    <Compile Include="Storage\DatabaseException.cs" />
     <Compile Include="Storage\DatabaseProviderServices.cs" />
     <Compile Include="Storage\IDatabase.cs" />
-    <Compile Include="Storage\IDatabaseConnection.cs" />
-    <Compile Include="Storage\IDatabaseProviderSelector.cs" />
     <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />
     <Compile Include="Metadata\Index.cs" />
@@ -331,7 +330,6 @@
     <Compile Include="Query\TaskResultAsyncEnumerable.cs" />
     <Compile Include="Storage\Database.cs" />
     <Compile Include="Storage\IDatabaseCreator.cs" />
-    <Compile Include="Storage\DatabaseProviderSelector.cs" />
     <Compile Include="Storage\IDatabaseProviderServices.cs" />
     <Compile Include="Storage\IDatabaseProvider.cs" />
     <Compile Include="Storage\DatabaseProvider`.cs" />

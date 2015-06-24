@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             modelBuilder.Entity<TransactionCustomer>(ps =>
                 {
                     ps.Property(c => c.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
-                    ps.Table("Customers");
+                    ps.ToTable("Customers");
                 });
         }
 

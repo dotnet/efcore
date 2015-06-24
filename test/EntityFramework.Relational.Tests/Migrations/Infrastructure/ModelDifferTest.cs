@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Node",
                     x =>
                     {
-                        x.Table("Node", "dbo");
+                        x.ToTable("Node", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("AltId");
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         public void Drop_table()
         {
             Execute(
-                modelBuilder => modelBuilder.Entity("Fox").Table("Fox", "dbo"),
+                modelBuilder => modelBuilder.Entity("Fox").ToTable("Fox", "dbo"),
                 _ => { },
                 operations =>
                 {
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Cat",
                     x =>
                     {
-                        x.Table("Cat", "dbo");
+                        x.ToTable("Cat", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                     }),
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Cat",
                     x =>
                     {
-                        x.Table("Cats", "dbo");
+                        x.ToTable("Cats", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                     }),
@@ -145,14 +145,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Person",
                     x =>
                     {
-                        x.Table("People", "dbo");
+                        x.ToTable("People", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                     }),
                 target => target.Entity("Person",
                     x =>
                     {
-                        x.Table("People", "public");
+                        x.ToTable("People", "public");
                         x.Property<int>("Id");
                         x.Key("Id");
                     }),
@@ -177,15 +177,15 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.Key("Id").Name("PK_Dog");
+                        x.Key("Id").KeyName("PK_Dog");
                     }),
                 target => target.Entity(
                     "Doge",
                     x =>
                     {
-                        x.Table("Dog");
+                        x.ToTable("Dog");
                         x.Property<int>("Id");
-                        x.Key("Id").Name("PK_Dog");
+                        x.Key("Id").KeyName("PK_Dog");
                     }),
                 operations => Assert.Empty(operations));
         }
@@ -198,7 +198,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Dragon",
                     x =>
                     {
-                        x.Table("Dragon", "dbo");
+                        x.ToTable("Dragon", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                     }),
@@ -206,14 +206,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Dragon",
                     x =>
                     {
-                        x.Table("Dragon", "dbo");
+                        x.ToTable("Dragon", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<string>("Name")
-                            .ColumnType("nvarchar(30)")
+                            .HasColumnType("nvarchar(30)")
                             .Required()
                             .DefaultValue("Draco")
-                            .DefaultExpression("CreateDragonName()");
+                            .DefaultValueSql("CreateDragonName()");
                     }),
                 operations =>
                 {
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     Assert.Equal("nvarchar(30)", operation.Type);
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Draco", operation.DefaultValue);
-                    Assert.Equal("CreateDragonName()", operation.DefaultExpression);
+                    Assert.Equal("CreateDragonName()", operation.DefaultValueSql);
                 });
         }
 
@@ -238,16 +238,16 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Firefly",
                     x =>
                     {
-                        x.Table("Firefly", "dbo");
+                        x.ToTable("Firefly", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
-                        x.Property<string>("Name").ColumnType("nvarchar(30)");
+                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
                     }),
                 target => target.Entity(
                     "Firefly",
                     x =>
                     {
-                        x.Table("Firefly", "dbo");
+                        x.ToTable("Firefly", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                     }),
@@ -270,19 +270,19 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Zebra",
                     x =>
                     {
-                        x.Table("Zebra", "dbo");
+                        x.ToTable("Zebra", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
-                        x.Property<string>("Name").ColumnType("nvarchar(30)");
+                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
                     }),
                 target => target.Entity(
                     "Zebra",
                     x =>
                     {
-                        x.Table("Zebra", "dbo");
+                        x.ToTable("Zebra", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
-                        x.Property<string>("Name").Column("ZebraName").ColumnType("nvarchar(30)");
+                        x.Property<string>("Name").HasColumnName("ZebraName").HasColumnType("nvarchar(30)");
                     }),
                 operations =>
                 {
@@ -304,19 +304,19 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Buffalo",
                     x =>
                     {
-                        x.Table("Buffalo", "dbo");
+                        x.ToTable("Buffalo", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
-                        x.Property<string>("BuffaloName").ColumnType("nvarchar(30)");
+                        x.Property<string>("BuffaloName").HasColumnType("nvarchar(30)");
                     }),
                 target => target.Entity(
                     "Buffalo",
                     x =>
                     {
-                        x.Table("Buffalo", "dbo");
+                        x.ToTable("Buffalo", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
-                        x.Property<string>("Name").Column("BuffaloName").ColumnType("nvarchar(30)");
+                        x.Property<string>("Name").HasColumnName("BuffaloName").HasColumnType("nvarchar(30)");
                     }),
                 operations => Assert.Empty(operations));
         }
@@ -329,27 +329,27 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Bison",
                     x =>
                     {
-                        x.Table("Bison", "dbo");
+                        x.ToTable("Bison", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<string>("Name")
-                            .ColumnType("nvarchar(30)")
+                            .HasColumnType("nvarchar(30)")
                             .Required(true)
                             .DefaultValue("Buffy")
-                            .DefaultExpression("CreateBisonName()");
+                            .DefaultValueSql("CreateBisonName()");
                     }),
                 target => target.Entity(
                     "Bison",
                     x =>
                     {
-                        x.Table("Bison", "dbo");
+                        x.ToTable("Bison", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<string>("Name")
-                            .ColumnType("nvarchar(30)")
+                            .HasColumnType("nvarchar(30)")
                             .Required(false)
                             .DefaultValue("Buffy")
-                            .DefaultExpression("CreateBisonName()");
+                            .DefaultValueSql("CreateBisonName()");
                     }),
                 operations =>
                 {
@@ -362,7 +362,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     Assert.Equal("nvarchar(30)", operation.Type);
                     Assert.True(operation.IsNullable);
                     Assert.Equal("Buffy", operation.DefaultValue);
-                    Assert.Equal("CreateBisonName()", operation.DefaultExpression);
+                    Assert.Equal("CreateBisonName()", operation.DefaultValueSql);
                 });
         }
 
@@ -374,27 +374,27 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Puma",
                     x =>
                     {
-                        x.Table("Puma", "dbo");
+                        x.ToTable("Puma", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<string>("Name")
-                            .ColumnType("nvarchar(30)")
+                            .HasColumnType("nvarchar(30)")
                             .Required()
                             .DefaultValue("Puff")
-                            .DefaultExpression("CreatePumaName()");
+                            .DefaultValueSql("CreatePumaName()");
                     }),
                 target => target.Entity(
                     "Puma",
                     x =>
                     {
-                        x.Table("Puma", "dbo");
+                        x.ToTable("Puma", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<string>("Name")
-                            .ColumnType("nvarchar(450)")
+                            .HasColumnType("nvarchar(450)")
                             .Required()
                             .DefaultValue("Puff")
-                            .DefaultExpression("CreatePumaName()");
+                            .DefaultValueSql("CreatePumaName()");
                     }),
                 operations =>
                 {
@@ -407,7 +407,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     Assert.Equal("nvarchar(450)", operation.Type);
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Puff", operation.DefaultValue);
-                    Assert.Equal("CreatePumaName()", operation.DefaultExpression);
+                    Assert.Equal("CreatePumaName()", operation.DefaultValueSql);
                 });
         }
 
@@ -419,27 +419,27 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Cougar",
                     x =>
                     {
-                        x.Table("Cougar", "dbo");
+                        x.ToTable("Cougar", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<string>("Name")
-                            .ColumnType("nvarchar(30)")
+                            .HasColumnType("nvarchar(30)")
                             .Required()
                             .DefaultValue("Butch")
-                            .DefaultExpression("CreateCougarName()");
+                            .DefaultValueSql("CreateCougarName()");
                     }),
                 target => target.Entity(
                     "Cougar",
                     x =>
                     {
-                        x.Table("Cougar", "dbo");
+                        x.ToTable("Cougar", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<string>("Name")
-                            .ColumnType("nvarchar(30)")
+                            .HasColumnType("nvarchar(30)")
                             .Required()
                             .DefaultValue("Cosmo")
-                            .DefaultExpression("CreateCougarName()");
+                            .DefaultValueSql("CreateCougarName()");
                     }),
                 operations =>
                 {
@@ -452,7 +452,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     Assert.Equal("nvarchar(30)", operation.Type);
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Cosmo", operation.DefaultValue);
-                    Assert.Equal("CreateCougarName()", operation.DefaultExpression);
+                    Assert.Equal("CreateCougarName()", operation.DefaultValueSql);
                 });
         }
 
@@ -464,27 +464,27 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "MountainLion",
                     x =>
                     {
-                        x.Table("MountainLion", "dbo");
+                        x.ToTable("MountainLion", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<string>("Name")
-                            .ColumnType("nvarchar(30)")
+                            .HasColumnType("nvarchar(30)")
                             .Required()
                             .DefaultValue("Liam")
-                            .DefaultExpression("CreateMountainLionName()");
+                            .DefaultValueSql("CreateMountainLionName()");
                     }),
                 target => target.Entity(
                     "MountainLion",
                     x =>
                     {
-                        x.Table("MountainLion", "dbo");
+                        x.ToTable("MountainLion", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<string>("Name")
-                            .ColumnType("nvarchar(30)")
+                            .HasColumnType("nvarchar(30)")
                             .Required()
                             .DefaultValue("Liam")
-                            .DefaultExpression("CreateCatamountName()");
+                            .DefaultValueSql("CreateCatamountName()");
                     }),
                 operations =>
                 {
@@ -497,7 +497,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     Assert.Equal("nvarchar(30)", operation.Type);
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Liam", operation.DefaultValue);
-                    Assert.Equal("CreateCatamountName()", operation.DefaultExpression);
+                    Assert.Equal("CreateCatamountName()", operation.DefaultValueSql);
                 });
         }
 
@@ -509,7 +509,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Flamingo",
                     x =>
                     {
-                        x.Table("Flamingo", "dbo");
+                        x.ToTable("Flamingo", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("AlternateId");
@@ -518,7 +518,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Flamingo",
                     x =>
                     {
-                        x.Table("Flamingo", "dbo");
+                        x.ToTable("Flamingo", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("AlternateId");
@@ -544,7 +544,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Penguin",
                     x =>
                     {
-                        x.Table("Penguin", "dbo");
+                        x.ToTable("Penguin", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("AlternateId");
@@ -554,7 +554,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Penguin",
                     x =>
                     {
-                        x.Table("Penguin", "dbo");
+                        x.ToTable("Penguin", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("AlternateId");
@@ -578,7 +578,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Pelican",
                     x =>
                     {
-                        x.Table("Pelican", "dbo");
+                        x.ToTable("Pelican", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("AlternateId");
@@ -588,11 +588,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Pelican",
                     x =>
                     {
-                        x.Table("Pelican", "dbo");
+                        x.ToTable("Pelican", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("AlternateId");
-                        x.AlternateKey("AlternateId").Name("AK_dbo.Pelican_AlternateId");
+                        x.AlternateKey("AlternateId").KeyName("AK_dbo.Pelican_AlternateId");
                     }),
                 operations =>
                 {
@@ -619,7 +619,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Rook",
                     x =>
                     {
-                        x.Table("Rook", "dbo");
+                        x.ToTable("Rook", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("AlternateId");
@@ -630,12 +630,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Rook",
                     x =>
                     {
-                        x.Table("Rook", "dbo");
+                        x.ToTable("Rook", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("AlternateId");
                         x.Property<int>("AlternateRookId");
-                        x.AlternateKey("AlternateRookId").Name("AK_Rook_AlternateId");
+                        x.AlternateKey("AlternateRookId").KeyName("AK_Rook_AlternateId");
                     }),
                 operations =>
                 {
@@ -662,7 +662,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Puffin",
                     x =>
                     {
-                        x.Table("Puffin", "dbo");
+                        x.ToTable("Puffin", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                     }),
@@ -670,9 +670,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Puffin",
                     x =>
                     {
-                        x.Table("Puffin", "dbo");
+                        x.ToTable("Puffin", "dbo");
                         x.Property<int>("Id");
-                        x.Key("Id").Name("PK_dbo.Puffin");
+                        x.Key("Id").KeyName("PK_dbo.Puffin");
                     }),
                 operations =>
                 {
@@ -699,7 +699,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Raven",
                     x =>
                     {
-                        x.Table("Raven", "dbo");
+                        x.ToTable("Raven", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("RavenId");
@@ -708,7 +708,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Raven",
                     x =>
                     {
-                        x.Table("Raven", "dbo");
+                        x.ToTable("Raven", "dbo");
                         x.Property<int>("Id");
                         x.Property<int>("RavenId");
                         x.Key("RavenId");
@@ -738,7 +738,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Amoeba",
                     x =>
                     {
-                        x.Table("Amoeba", "dbo");
+                        x.ToTable("Amoeba", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("ParentId");
@@ -747,7 +747,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Amoeba",
                     x =>
                     {
-                        x.Table("Amoeba", "dbo");
+                        x.ToTable("Amoeba", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("ParentId");
@@ -776,7 +776,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Anemone",
                     x =>
                     {
-                        x.Table("Anemone", "dbo");
+                        x.ToTable("Anemone", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("ParentId");
@@ -786,7 +786,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Anemone",
                     x =>
                     {
-                        x.Table("Anemone", "dbo");
+                        x.ToTable("Anemone", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("ParentId");
@@ -810,7 +810,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Nematode",
                     x =>
                     {
-                        x.Table("Nematode", "dbo");
+                        x.ToTable("Nematode", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("ParentId");
@@ -820,11 +820,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Nematode",
                     x =>
                     {
-                        x.Table("Nematode", "dbo");
+                        x.ToTable("Nematode", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("ParentId");
-                        x.Reference("Nematode").InverseCollection().ForeignKey("ParentId").Name("FK_Nematode_NematodeParent");
+                        x.Reference("Nematode").InverseCollection().ForeignKey("ParentId").ConstraintName("FK_Nematode_NematodeParent");
                     }),
                 operations =>
                 {
@@ -854,7 +854,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Mushroom",
                     x =>
                     {
-                        x.Table("Mushroom", "dbo");
+                        x.ToTable("Mushroom", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("ParentId1");
@@ -865,12 +865,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Mushroom",
                     x =>
                     {
-                        x.Table("Mushroom", "dbo");
+                        x.ToTable("Mushroom", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("ParentId1");
                         x.Property<int>("ParentId2");
-                        x.Reference("Mushroom").InverseCollection().ForeignKey("ParentId2").Name("FK_Mushroom_Mushroom_ParentId1");
+                        x.Reference("Mushroom").InverseCollection().ForeignKey("ParentId2").ConstraintName("FK_Mushroom_Mushroom_ParentId1");
                     }),
                 operations =>
                 {
@@ -902,7 +902,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                         "Lion",
                         x =>
                         {
-                            x.Table("Lion", "odb");
+                            x.ToTable("Lion", "odb");
                             x.Property<int>("LionId");
                             x.Key("LionId");
                         });
@@ -910,7 +910,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                         "Tiger",
                         x =>
                         {
-                            x.Table("Tiger", "bod");
+                            x.ToTable("Tiger", "bod");
                             x.Property<int>("TigerId");
                             x.Key("TigerId");
                         });
@@ -918,7 +918,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                         "Liger",
                         x =>
                         {
-                            x.Table("Liger", "dbo");
+                            x.ToTable("Liger", "dbo");
                             x.Property<int>("Id");
                             x.Key("Id");
                             x.Property<int>("ParentId");
@@ -931,7 +931,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                         "Lion",
                         x =>
                         {
-                            x.Table("Lion", "odb");
+                            x.ToTable("Lion", "odb");
                             x.Property<int>("LionId");
                             x.Key("LionId");
                         });
@@ -939,7 +939,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                         "Tiger",
                         x =>
                         {
-                            x.Table("Tiger", "bod");
+                            x.ToTable("Tiger", "bod");
                             x.Property<int>("TigerId");
                             x.Key("TigerId");
                         });
@@ -947,11 +947,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                         "Liger",
                         x =>
                         {
-                            x.Table("Liger", "dbo");
+                            x.ToTable("Liger", "dbo");
                             x.Property<int>("Id");
                             x.Key("Id");
                             x.Property<int>("ParentId");
-                            x.Reference("Tiger").InverseCollection().ForeignKey("ParentId").Name("FK_Liger_Lion_ParentId");
+                            x.Reference("Tiger").InverseCollection().ForeignKey("ParentId").ConstraintName("FK_Liger_Lion_ParentId");
                         });
                 },
                 operations =>
@@ -982,7 +982,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Hippo",
                     x =>
                     {
-                        x.Table("Hippo", "dbo");
+                        x.ToTable("Hippo", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("Value");
@@ -991,7 +991,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Hippo",
                     x =>
                     {
-                        x.Table("Hippo", "dbo");
+                        x.ToTable("Hippo", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("Value");
@@ -1018,7 +1018,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Horse",
                     x =>
                     {
-                        x.Table("Horse", "dbo");
+                        x.ToTable("Horse", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("Value");
@@ -1028,7 +1028,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Horse",
                     x =>
                     {
-                        x.Table("Horse", "dbo");
+                        x.ToTable("Horse", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("Value");
@@ -1052,7 +1052,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Donkey",
                     x =>
                     {
-                        x.Table("Donkey", "dbo");
+                        x.ToTable("Donkey", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("Value");
@@ -1062,11 +1062,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Donkey",
                     x =>
                     {
-                        x.Table("Donkey", "dbo");
+                        x.ToTable("Donkey", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("Value");
-                        x.Index("Value").Name("IX_dbo.Donkey_Value");
+                        x.Index("Value").IndexName("IX_dbo.Donkey_Value");
                     }),
                 operations =>
                 {
@@ -1088,7 +1088,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Muel",
                     x =>
                     {
-                        x.Table("Muel", "dbo");
+                        x.ToTable("Muel", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("Value");
@@ -1099,12 +1099,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Muel",
                     x =>
                     {
-                        x.Table("Muel", "dbo");
+                        x.ToTable("Muel", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("Value");
                         x.Property<int>("MuleValue");
-                        x.Index("MuleValue").Name("IX_Muel_Value");
+                        x.Index("MuleValue").IndexName("IX_Muel_Value");
                     }),
                 operations =>
                 {
@@ -1131,7 +1131,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Pony",
                     x =>
                     {
-                        x.Table("Pony", "dbo");
+                        x.ToTable("Pony", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("Value");
@@ -1141,7 +1141,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     "Pony",
                     x =>
                     {
-                        x.Table("Pony", "dbo");
+                        x.ToTable("Pony", "dbo");
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("Value");
@@ -1507,7 +1507,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     {
                         x.Property<int>("Id");
                         x.Key("Id");
-                        x.Property<int>("Value").ColumnType("integer");
+                        x.Property<int>("Value").HasColumnType("integer");
                     }),
                 operations =>
                 {

@@ -81,12 +81,12 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     .Append("nullable: ")
                     .Append(_code.Literal(operation.IsNullable));
 
-                if (operation.DefaultExpression != null)
+                if (operation.DefaultValueSql != null)
                 {
                     builder
                         .AppendLine(",")
                         .Append("defaultExpression: ")
-                        .Append(_code.Literal(operation.DefaultExpression));
+                        .Append(_code.Literal(operation.DefaultValueSql));
                 }
                 else if (operation.DefaultValue != null)
                 {
@@ -286,12 +286,12 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     .Append("nullable: ")
                     .Append(_code.Literal(operation.IsNullable));
 
-                if (operation.DefaultExpression != null)
+                if (operation.DefaultValueSql != null)
                 {
                     builder
                         .AppendLine(",")
                         .Append("defaultExpression: ")
-                        .Append(_code.Literal(operation.DefaultExpression));
+                        .Append(_code.Literal(operation.DefaultValueSql));
                 }
                 else if (operation.DefaultValue != null)
                 {
@@ -554,11 +554,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                             .Append(", nullable: ")
                             .Append(_code.Literal(column.IsNullable));
 
-                        if (column.DefaultExpression != null)
+                        if (column.DefaultValueSql != null)
                         {
                             builder
                                 .Append(", defaultExpression: ")
-                                .Append(_code.Literal(column.DefaultExpression));
+                                .Append(_code.Literal(column.DefaultValueSql));
                         }
                         else if (column.DefaultValue != null)
                         {

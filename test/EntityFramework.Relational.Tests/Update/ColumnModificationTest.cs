@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var columnModification = new ColumnModification(
                 CreateInternalEntryMock(Mock.Of<IProperty>()).Object,
                 new Mock<IProperty>().Object,
-                new Mock<IRelationalPropertyExtensions>().Object,
+                new Mock<IRelationalPropertyAnnotations>().Object,
                 new ParameterNameGenerator(),
                 isRead: true,
                 isWrite: true,
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var columnModification = new ColumnModification(
                 internalEntryMock.Object,
                 new Mock<IProperty>().Object,
-                new Mock<IRelationalPropertyExtensions>().Object,
+                new Mock<IRelationalPropertyAnnotations>().Object,
                 new ParameterNameGenerator(),
                 isRead: false,
                 isWrite: false,
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var columnModification = new ColumnModification(
                 internalEntryMock.Object,
                 new Mock<IProperty>().Object,
-                new Mock<IRelationalPropertyExtensions>().Object,
+                new Mock<IRelationalPropertyAnnotations>().Object,
                 new ParameterNameGenerator(),
                 isRead: false,
                 isWrite: false,
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var columnModification = new ColumnModification(
                 internalEntryMock.Object,
                 new Mock<IProperty>().Object,
-                new Mock<IRelationalPropertyExtensions>().Object,
+                new Mock<IRelationalPropertyAnnotations>().Object,
                 new ParameterNameGenerator(),
                 isRead: false,
                 isWrite: false,

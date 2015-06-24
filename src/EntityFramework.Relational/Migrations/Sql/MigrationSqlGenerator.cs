@@ -481,7 +481,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
                     operation.Type,
                     operation.IsNullable,
                     operation.DefaultValue,
-                    operation.DefaultExpression,
+                    operation.DefaultValueSql,
                     operation,
                     model,
                     builder);

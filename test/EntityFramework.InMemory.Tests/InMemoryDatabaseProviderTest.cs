@@ -1,6 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Reflection;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
@@ -10,7 +13,9 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Returns_appropriate_name()
         {
-            Assert.Equal("In-Memory Database", new InMemoryDatabaseProvider().Name);
+            Assert.Equal(
+                typeof(InMemoryDatabase).GetTypeInfo().Assembly.GetName().Name,
+                new InMemoryDatabaseProviderServices(InMemoryTestHelpers.Instance.CreateServiceProvider()).InvariantName);
         }
 
         [Fact]
@@ -19,18 +24,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryDatabase();
 
-            Assert.True(new InMemoryDatabaseProvider().IsConfigured(optionsBuilder.Options));
-        }
-
-        [Fact]
-        public void Can_be_auto_configured()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-
-            var provider = new InMemoryDatabaseProvider();
-            provider.AutoConfigure(optionsBuilder);
-
-            Assert.True(provider.IsConfigured(optionsBuilder.Options));
+            Assert.True(new DatabaseProvider<InMemoryDatabaseProviderServices, InMemoryOptionsExtension>().IsConfigured(optionsBuilder.Options));
         }
 
         [Fact]
@@ -38,7 +32,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            Assert.False(new InMemoryDatabaseProvider().IsConfigured(optionsBuilder.Options));
+            Assert.False(new DatabaseProvider<InMemoryDatabaseProviderServices, InMemoryOptionsExtension>().IsConfigured(optionsBuilder.Options));
         }
     }
 }

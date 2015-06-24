@@ -142,7 +142,7 @@
     <value>For columnId {columnId}. The SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow ValueGenerationStrategy Identity. Generating a matching Property but ignoring the Identity setting.</value>
   </data>
   <data name="NoPrimaryKeyColumns" xml:space="preserve">
-    <value>Attempt to generate EntityType {entityTypeName} failed. Unable to identify any primary key columns in the underlying SQL Server table {schemaName}.{tableName}.</value>
+    <value>Attempt to generate EntityType {entityTypeName} failed. Unable to identify any primary key columns in the underlying SQL Server table {schemaName}.{name}.</value>
   </data>
   <data name="UnableToAddNavigationProperty" xml:space="preserve">
     <value>Unable to add a Navigation Property referencing type {referencedEntityTypeName} because of errors generating that EntityType.</value>

@@ -1,6 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Reflection;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -10,7 +13,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Returns_appropriate_name()
         {
-            Assert.Equal("SQL Server Database", new SqlServerDatabaseProvider().Name);
+            Assert.Equal(
+                typeof(SqlServerDatabase).GetTypeInfo().Assembly.GetName().Name,
+                new SqlServerDatabaseProviderServices(SqlServerTestHelpers.Instance.CreateServiceProvider()).InvariantName);
         }
 
         [Fact]
@@ -19,18 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie");
 
-            Assert.True(new SqlServerDatabaseProvider().IsConfigured(optionsBuilder.Options));
-        }
-
-        [Fact]
-        public void Can_not_be_auto_configured()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-
-            var provider = new SqlServerDatabaseProvider();
-            provider.AutoConfigure(optionsBuilder);
-
-            Assert.False(provider.IsConfigured(optionsBuilder.Options));
+            Assert.True(new DatabaseProvider<SqlServerDatabaseProviderServices, SqlServerOptionsExtension>().IsConfigured(optionsBuilder.Options));
         }
 
         [Fact]
@@ -38,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            Assert.False(new SqlServerDatabaseProvider().IsConfigured(optionsBuilder.Options));
+            Assert.False(new DatabaseProvider<SqlServerDatabaseProviderServices, SqlServerOptionsExtension>().IsConfigured(optionsBuilder.Options));
         }
     }
 }

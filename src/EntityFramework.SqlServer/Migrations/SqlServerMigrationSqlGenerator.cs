@@ -316,7 +316,7 @@ namespace Microsoft.Data.Entity.SqlServer
                     operation.Type,
                     operation.IsNullable,
                     operation.DefaultValue,
-                    operation.DefaultExpression,
+                    operation.DefaultValueSql,
                     operation,
                     model,
                     builder);

@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Relational
         string BatchSeparator { get; }
 
         string DelimitIdentifier([NotNull] string identifier);
-        string DelimitIdentifier([NotNull] string tableName, [CanBeNull] string schemaName);
+        string DelimitIdentifier([NotNull] string name, [CanBeNull] string schemaName);
         string EscapeLiteral([NotNull] string literal);
         string GenerateLiteral([CanBeNull] object literal);
         string GenerateLiteral([NotNull] byte[] literal);

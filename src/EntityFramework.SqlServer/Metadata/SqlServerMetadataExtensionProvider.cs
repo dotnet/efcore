@@ -8,11 +8,11 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
     public class SqlServerMetadataExtensionProvider : IRelationalMetadataExtensionProvider
     {
-        public virtual IRelationalEntityTypeExtensions Extensions(IEntityType entityType) => entityType.SqlServer();
-        public virtual IRelationalForeignKeyExtensions Extensions(IForeignKey foreignKey) => foreignKey.SqlServer();
-        public virtual IRelationalIndexExtensions Extensions(IIndex index) => index.SqlServer();
-        public virtual IRelationalKeyExtensions Extensions(IKey key) => key.SqlServer();
-        public virtual IRelationalPropertyExtensions Extensions(IProperty property) => property.SqlServer();
-        public virtual IRelationalModelExtensions Extensions(IModel model) => model.SqlServer();
+        public virtual IRelationalEntityTypeAnnotations Extensions(IEntityType entityType) => entityType.SqlServer();
+        public virtual IRelationalForeignKeyAnnotations Extensions(IForeignKey foreignKey) => foreignKey.SqlServer();
+        public virtual IRelationalIndexAnnotations Extensions(IIndex index) => index.SqlServer();
+        public virtual IRelationalKeyAnnotations Extensions(IKey key) => key.SqlServer();
+        public virtual IRelationalPropertyAnnotations Extensions(IProperty property) => property.SqlServer();
+        public virtual IRelationalModelAnnotations Extensions(IModel model) => model.SqlServer();
     }
 }

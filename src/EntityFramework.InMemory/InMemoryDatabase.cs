@@ -23,6 +23,9 @@ namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryDatabase : Database, IInMemoryDatabase
     {
+        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
+        private readonly IEntityMaterializerSource _entityMaterializerSource;
+        private readonly IClrAccessorSource<IClrPropertyGetter> _clrPropertyGetterSource;
         private readonly bool _persist;
         private readonly ThreadSafeLazyRef<IInMemoryStore> _database;
 
@@ -34,11 +37,18 @@ namespace Microsoft.Data.Entity.InMemory
             [NotNull] IInMemoryStore persistentStore,
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory)
-            : base(model, entityKeyFactorySource, entityMaterializerSource, clrPropertyGetterSource, loggerFactory)
+            : base(model, loggerFactory)
         {
+            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
+            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
+            Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource));
             Check.NotNull(persistentStore, nameof(persistentStore));
             Check.NotNull(options, nameof(options));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
+
+            _entityKeyFactorySource = entityKeyFactorySource;
+            _entityMaterializerSource = entityMaterializerSource;
+            _clrPropertyGetterSource = clrPropertyGetterSource;
 
             var storeConfig = options.Extensions
                 .OfType<InMemoryOptionsExtension>()
@@ -66,9 +76,9 @@ namespace Microsoft.Data.Entity.InMemory
             => new InMemoryQueryCompilationContext(
                 Model,
                 Logger,
-                EntityMaterializerSource,
-                EntityKeyFactorySource,
-                ClrPropertyGetterSource)
+                _entityMaterializerSource,
+                _entityKeyFactorySource,
+                _clrPropertyGetterSource)
                 .CreateQueryModelVisitor()
                 .CreateQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
 

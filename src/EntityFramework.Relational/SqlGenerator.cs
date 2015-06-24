@@ -19,24 +19,24 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
 
-            var tableName = command.TableName;
+            var name = command.TableName;
             var schemaName = command.SchemaName;
             var operations = command.ColumnModifications;
 
             var writeOperations = operations.Where(o => o.IsWrite).ToArray();
             var readOperations = operations.Where(o => o.IsRead).ToArray();
 
-            AppendInsertCommand(commandStringBuilder, tableName, schemaName, writeOperations);
+            AppendInsertCommand(commandStringBuilder, name, schemaName, writeOperations);
 
             if (readOperations.Length > 0)
             {
                 var keyOperations = operations.Where(o => o.IsKey).ToArray();
 
-                AppendSelectAffectedCommand(commandStringBuilder, tableName, schemaName, readOperations, keyOperations);
+                AppendSelectAffectedCommand(commandStringBuilder, name, schemaName, readOperations, keyOperations);
             }
             else
             {
-                AppendSelectAffectedCountCommand(commandStringBuilder, tableName, schemaName);
+                AppendSelectAffectedCountCommand(commandStringBuilder, name, schemaName);
             }
         }
 
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
 
-            var tableName = command.TableName;
+            var name = command.TableName;
             var schemaName = command.SchemaName;
             var operations = command.ColumnModifications;
 
@@ -53,17 +53,17 @@ namespace Microsoft.Data.Entity.Relational
             var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
             var readOperations = operations.Where(o => o.IsRead).ToArray();
 
-            AppendUpdateCommand(commandStringBuilder, tableName, schemaName, writeOperations, conditionOperations);
+            AppendUpdateCommand(commandStringBuilder, name, schemaName, writeOperations, conditionOperations);
 
             if (readOperations.Length > 0)
             {
                 var keyOperations = operations.Where(o => o.IsKey).ToArray();
 
-                AppendSelectAffectedCommand(commandStringBuilder, tableName, schemaName, readOperations, keyOperations);
+                AppendSelectAffectedCommand(commandStringBuilder, name, schemaName, readOperations, keyOperations);
             }
             else
             {
-                AppendSelectAffectedCountCommand(commandStringBuilder, tableName, schemaName);
+                AppendSelectAffectedCountCommand(commandStringBuilder, name, schemaName);
             }
         }
 
@@ -72,26 +72,26 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
 
-            var tableName = command.TableName;
+            var name = command.TableName;
             var schemaName = command.SchemaName;
             var conditionOperations = command.ColumnModifications.Where(o => o.IsCondition).ToArray();
 
-            AppendDeleteCommand(commandStringBuilder, tableName, schemaName, conditionOperations);
+            AppendDeleteCommand(commandStringBuilder, name, schemaName, conditionOperations);
 
-            AppendSelectAffectedCountCommand(commandStringBuilder, tableName, schemaName);
+            AppendSelectAffectedCountCommand(commandStringBuilder, name, schemaName);
         }
 
         public virtual void AppendInsertCommand(
             [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string tableName,
+            [NotNull] string name,
             [CanBeNull] string schemaName,
             [NotNull] IReadOnlyList<ColumnModification> writeOperations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotEmpty(name, nameof(name));
             Check.NotNull(writeOperations, nameof(writeOperations));
 
-            AppendInsertCommandHeader(commandStringBuilder, tableName, schemaName, writeOperations);
+            AppendInsertCommandHeader(commandStringBuilder, name, schemaName, writeOperations);
             AppendValuesHeader(commandStringBuilder, writeOperations);
             AppendValues(commandStringBuilder, writeOperations);
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
@@ -99,55 +99,55 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual void AppendUpdateCommand(
             [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string tableName,
+            [NotNull] string name,
             [CanBeNull] string schemaName,
             [NotNull] IReadOnlyList<ColumnModification> writeOperations,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotEmpty(name, nameof(name));
             Check.NotNull(writeOperations, nameof(writeOperations));
             Check.NotNull(conditionOperations, nameof(conditionOperations));
 
-            AppendUpdateCommandHeader(commandStringBuilder, tableName, schemaName, writeOperations);
+            AppendUpdateCommandHeader(commandStringBuilder, name, schemaName, writeOperations);
             AppendWhereClause(commandStringBuilder, conditionOperations);
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
         }
 
         public virtual void AppendDeleteCommand(
             [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string tableName,
+            [NotNull] string name,
             [CanBeNull] string schemaName,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotEmpty(name, nameof(name));
             Check.NotNull(conditionOperations, nameof(conditionOperations));
 
-            AppendDeleteCommandHeader(commandStringBuilder, tableName, schemaName);
+            AppendDeleteCommandHeader(commandStringBuilder, name, schemaName);
             AppendWhereClause(commandStringBuilder, conditionOperations);
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
         }
 
         public abstract void AppendSelectAffectedCountCommand(
             [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string tableName,
+            [NotNull] string name,
             [CanBeNull] string schemaName);
 
         public virtual void AppendSelectAffectedCommand(
             [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string tableName,
+            [NotNull] string name,
             [CanBeNull] string schemaName,
             [NotNull] IReadOnlyList<ColumnModification> readOperations,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotEmpty(name, nameof(name));
             Check.NotNull(readOperations, nameof(readOperations));
             Check.NotNull(conditionOperations, nameof(conditionOperations));
 
             AppendSelectCommandHeader(commandStringBuilder, readOperations);
-            AppendFromClause(commandStringBuilder, tableName, schemaName);
+            AppendFromClause(commandStringBuilder, name, schemaName);
             // TODO: there is no notion of operator - currently all the where conditions check equality
             AppendWhereAffectedClause(commandStringBuilder, conditionOperations);
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
@@ -155,17 +155,17 @@ namespace Microsoft.Data.Entity.Relational
 
         protected virtual void AppendInsertCommandHeader(
             [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string tableName,
+            [NotNull] string name,
             [CanBeNull] string schemaName,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotEmpty(name, nameof(name));
             Check.NotNull(operations, nameof(operations));
 
             commandStringBuilder
                 .Append("INSERT INTO ")
-                .Append(DelimitIdentifier(tableName, schemaName));
+                .Append(DelimitIdentifier(name, schemaName));
 
             if (operations.Count > 0)
             {
@@ -178,30 +178,30 @@ namespace Microsoft.Data.Entity.Relational
 
         protected virtual void AppendDeleteCommandHeader(
             [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string tableName,
+            [NotNull] string name,
             [CanBeNull] string schemaName)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotEmpty(name, nameof(name));
 
             commandStringBuilder
                 .Append("DELETE FROM ")
-                .Append(DelimitIdentifier(tableName, schemaName));
+                .Append(DelimitIdentifier(name, schemaName));
         }
 
         protected virtual void AppendUpdateCommandHeader(
             [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string tableName,
+            [NotNull] string name,
             [CanBeNull] string schemaName,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotEmpty(name, nameof(name));
             Check.NotNull(operations, nameof(operations));
 
             commandStringBuilder
                 .Append("UPDATE ")
-                .Append(DelimitIdentifier(tableName, schemaName))
+                .Append(DelimitIdentifier(name, schemaName))
                 .Append(" SET ")
                 .AppendJoin(
                     operations,
@@ -222,16 +222,16 @@ namespace Microsoft.Data.Entity.Relational
 
         protected virtual void AppendFromClause(
             [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string tableName,
+            [NotNull] string name,
             [CanBeNull] string schemaName)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotEmpty(name, nameof(name));
 
             commandStringBuilder
                 .AppendLine()
                 .Append("FROM ")
-                .Append(DelimitIdentifier(tableName, schemaName));
+                .Append(DelimitIdentifier(name, schemaName));
         }
 
         protected virtual void AppendValuesHeader(
@@ -344,11 +344,11 @@ namespace Microsoft.Data.Entity.Relational
         // TODO: Consider adding a base class for all SQL generators (DDL, DML),
         // to avoid duplicating the five methods below.
 
-        public virtual string DelimitIdentifier(string tableName, string schemaName)
+        public virtual string DelimitIdentifier(string name, string schemaName)
             => (!string.IsNullOrEmpty(schemaName)
                 ? DelimitIdentifier(schemaName) + "."
                 : string.Empty)
-               + DelimitIdentifier(Check.NotEmpty(tableName, nameof(tableName)));
+               + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
 
         public virtual string DelimitIdentifier(string identifier)
             => "\"" + EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier))) + "\"";

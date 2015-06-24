@@ -18,21 +18,21 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             _entityType = entityType;
         }
 
-        public virtual SqlServerEntityTypeBuilder Table([CanBeNull] string tableName)
+        public virtual SqlServerEntityTypeBuilder ToTable([CanBeNull] string name)
         {
-            Check.NullButNotEmpty(tableName, nameof(tableName));
+            Check.NullButNotEmpty(name, nameof(name));
 
-            _entityType.SqlServer().Table = tableName;
+            _entityType.SqlServer().Table = name;
 
             return this;
         }
 
-        public virtual SqlServerEntityTypeBuilder Table([CanBeNull] string tableName, [CanBeNull] string schemaName)
+        public virtual SqlServerEntityTypeBuilder ToTable([CanBeNull] string name, [CanBeNull] string schemaName)
         {
-            Check.NullButNotEmpty(tableName, nameof(tableName));
+            Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schemaName, nameof(schemaName));
 
-            _entityType.SqlServer().Table = tableName;
+            _entityType.SqlServer().Table = name;
             _entityType.SqlServer().Schema = schemaName;
 
             return this;

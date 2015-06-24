@@ -55,8 +55,8 @@ namespace Microsoft.Data.Entity.Internal
                 _inOnModelCreating = true;
 
                 return _providerServices.Value.ModelSource.GetModel(
-                    _context, 
-                    _providerServices.Value.ConventionSetBuilder, 
+                    _context,
+                    _providerServices.Value.ConventionSetBuilder,
                     _providerServices.Value.ModelValidator);
             }
             finally

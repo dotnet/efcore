@@ -15,34 +15,30 @@ namespace Microsoft.Data.Entity.Update
         }
 
         public DbUpdateConcurrencyException(
-            [NotNull] string message,
-            [NotNull] DbContext context)
-            : base(message, context)
+            [NotNull] string message)
+            : base(message)
         {
         }
 
         public DbUpdateConcurrencyException(
             [NotNull] string message,
-            [NotNull] DbContext context,
             [CanBeNull] Exception innerException)
-            : base(message, context, innerException)
+            : base(message, innerException)
         {
         }
 
         public DbUpdateConcurrencyException(
             [NotNull] string message,
-            [NotNull] DbContext context,
             [NotNull] IReadOnlyList<InternalEntityEntry> entries)
-            : base(message, context, entries)
+            : base(message, entries)
         {
         }
 
         public DbUpdateConcurrencyException(
             [NotNull] string message,
-            [NotNull] DbContext context,
             [CanBeNull] Exception innerException,
             [NotNull] IReadOnlyList<InternalEntityEntry> entries)
-            : base(message, context, innerException, entries)
+            : base(message, innerException, entries)
         {
         }
     }

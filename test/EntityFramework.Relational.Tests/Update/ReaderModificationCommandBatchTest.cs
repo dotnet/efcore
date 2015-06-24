@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 base.AppendBatchHeader(commandStringBuilder);
             }
 
-            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string tableName, string schemaName)
+            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schemaName)
             {
             }
 
@@ -336,7 +336,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 "T",
                 "S",
                 new ParameterNameGenerator(),
-                (Func<IProperty, IRelationalPropertyExtensions>)(p => p.Relational()),
+                (Func<IProperty, IRelationalPropertyAnnotations>)(p => p.Relational()),
                 Mock.Of<IRelationalValueBufferFactoryFactory>());
 
             commandMock1.Setup(m => m.ColumnModifications).Returns(
@@ -355,7 +355,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 "T",
                 "S",
                 new ParameterNameGenerator(),
-                (Func<IProperty, IRelationalPropertyExtensions>)(p => p.Relational()),
+                (Func<IProperty, IRelationalPropertyAnnotations>)(p => p.Relational()),
                 Mock.Of<IRelationalValueBufferFactoryFactory>());
             commandMock2.Setup(m => m.ColumnModifications).Returns(
                 new List<ColumnModification>

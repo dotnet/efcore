@@ -19,7 +19,7 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, nameof(builder));
 
             builder.GetService()
-                .AddSingleton<IDatabaseProvider, InMemoryDatabaseProvider>()
+                .AddSingleton<IDatabaseProvider, DatabaseProvider<InMemoryDatabaseProviderServices, InMemoryOptionsExtension>>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<InMemoryValueGeneratorCache>()
                     .AddSingleton<IInMemoryStore, InMemoryStore>()
@@ -28,7 +28,6 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddScoped<InMemoryQueryContextFactory>()
                     .AddScoped<InMemoryDatabaseProviderServices>()
                     .AddScoped<IInMemoryDatabase, InMemoryDatabase>()
-                    .AddScoped<InMemoryConnection>()
                     .AddScoped<InMemoryDatabaseCreator>());
 
             return builder;

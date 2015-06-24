@@ -11,56 +11,56 @@ namespace Microsoft.Data.Entity
 {
     public static class RelationalPropertyBuilderExtensions
     {
-        public static PropertyBuilder Column(
+        public static PropertyBuilder HasColumnName(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] string columnName)
+            [CanBeNull] string name)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-            Check.NullButNotEmpty(columnName, nameof(columnName));
+            Check.NullButNotEmpty(name, nameof(name));
 
-            propertyBuilder.Metadata.Relational().Column = columnName;
+            propertyBuilder.Metadata.Relational().Column = name;
 
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> Column<TProperty>(
+        public static PropertyBuilder<TProperty> HasColumnName<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string columnName)
-            => (PropertyBuilder<TProperty>)Column((PropertyBuilder)propertyBuilder, columnName);
+            [CanBeNull] string name)
+            => (PropertyBuilder<TProperty>)HasColumnName((PropertyBuilder)propertyBuilder, name);
 
-        public static PropertyBuilder ColumnType(
+        public static PropertyBuilder HasColumnType(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] string columnType)
+            [CanBeNull] string typeName)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-            Check.NullButNotEmpty(columnType, nameof(columnType));
+            Check.NullButNotEmpty(typeName, nameof(typeName));
 
-            propertyBuilder.Metadata.Relational().ColumnType = columnType;
+            propertyBuilder.Metadata.Relational().ColumnType = typeName;
 
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> ColumnType<TProperty>(
+        public static PropertyBuilder<TProperty> HasColumnType<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string columnType)
-            => (PropertyBuilder<TProperty>)ColumnType((PropertyBuilder)propertyBuilder, columnType);
+            [CanBeNull] string typeName)
+            => (PropertyBuilder<TProperty>)HasColumnType((PropertyBuilder)propertyBuilder, typeName);
 
-        public static PropertyBuilder DefaultExpression(
+        public static PropertyBuilder DefaultValueSql(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] string expression)
+            [CanBeNull] string sql)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-            Check.NullButNotEmpty(expression, nameof(expression));
+            Check.NullButNotEmpty(sql, nameof(sql));
 
-            propertyBuilder.Metadata.Relational().DefaultExpression = expression;
+            propertyBuilder.Metadata.Relational().DefaultValueSql = sql;
 
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> DefaultExpression<TProperty>(
+        public static PropertyBuilder<TProperty> DefaultValueSql<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] string expression)
-            => (PropertyBuilder<TProperty>)DefaultExpression((PropertyBuilder)propertyBuilder, expression);
+            [CanBeNull] string sql)
+            => (PropertyBuilder<TProperty>)DefaultValueSql((PropertyBuilder)propertyBuilder, sql);
 
         public static PropertyBuilder DefaultValue(
             [NotNull] this PropertyBuilder propertyBuilder,

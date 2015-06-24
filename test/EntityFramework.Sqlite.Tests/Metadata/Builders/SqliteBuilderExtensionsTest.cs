@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .SqliteColumn("MyNameIs")
+                .HasSqliteColumnName("MyNameIs")
                 .Metadata;
 
             Assert.Equal("MyNameIs", property.Sqlite().Column);
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property<string>("Name")
-                .SqliteColumn("MyNameIs")
+                .HasSqliteColumnName("MyNameIs")
                 .Metadata;
 
             Assert.Equal("MyNameIs", property.Sqlite().Column);
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .SqliteColumnType("nvarchar(DA)")
+                .HasSqliteColumnType("nvarchar(DA)")
                 .Metadata;
 
             Assert.Equal("nvarchar(DA)", property.Sqlite().ColumnType);
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property<string>("Name")
-                .SqliteColumnType("nvarchar(DA)")
+                .HasSqliteColumnType("nvarchar(DA)")
                 .Metadata;
 
             Assert.Equal("nvarchar(DA)", property.Sqlite().ColumnType);
@@ -73,10 +73,10 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .SqliteDefaultExpression("VanillaCoke")
+                .SqliteDefaultValueSql("VanillaCoke")
                 .Metadata;
 
-            Assert.Equal("VanillaCoke", property.Sqlite().DefaultExpression);
+            Assert.Equal("VanillaCoke", property.Sqlite().DefaultValueSql);
         }
 
         [Fact]
@@ -87,10 +87,10 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property<string>("Name")
-                .SqliteDefaultExpression("VanillaCoke")
+                .SqliteDefaultValueSql("VanillaCoke")
                 .Metadata;
 
-            Assert.Equal("VanillaCoke", property.Sqlite().DefaultExpression);
+            Assert.Equal("VanillaCoke", property.Sqlite().DefaultValueSql);
         }
 
         [Fact]

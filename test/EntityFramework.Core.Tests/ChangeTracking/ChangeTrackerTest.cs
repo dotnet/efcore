@@ -1061,6 +1061,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                         b.Reference(e => e.Product).InverseCollection(e => e.OrderDetails).ForeignKey(e => e.ProductId);
                     });
             }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+                => optionsBuilder.UseInMemoryDatabase();
         }
 
         public class KeyValueEntityTracker

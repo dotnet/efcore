@@ -14,15 +14,15 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Chassis>().Table("Chassis");
-            modelBuilder.Entity<Team>().Table("Teams").Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
-            modelBuilder.Entity<Driver>().Table("Drivers");
-            modelBuilder.Entity<Engine>().Table("Engines");
-            modelBuilder.Entity<EngineSupplier>().Table("EngineSuppliers");
-            modelBuilder.Entity<Gearbox>().Table("Gearboxes");
-            modelBuilder.Entity<Sponsor>().Table("Sponsors");
-            modelBuilder.Entity<TestDriver>().Table("TestDrivers");
-            modelBuilder.Entity<TitleSponsor>().Table("TitleSponsors");
+            modelBuilder.Entity<Chassis>().ToTable("Chassis");
+            modelBuilder.Entity<Team>().ToTable("Teams").Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+            modelBuilder.Entity<Driver>().ToTable("Drivers");
+            modelBuilder.Entity<Engine>().ToTable("Engines");
+            modelBuilder.Entity<EngineSupplier>().ToTable("EngineSuppliers");
+            modelBuilder.Entity<Gearbox>().ToTable("Gearboxes");
+            modelBuilder.Entity<Sponsor>().ToTable("Sponsors");
+            modelBuilder.Entity<TestDriver>().ToTable("TestDrivers");
+            modelBuilder.Entity<TitleSponsor>().ToTable("TitleSponsors");
         }
     }
 }

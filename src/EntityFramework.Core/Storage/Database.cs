@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -24,31 +23,19 @@ namespace Microsoft.Data.Entity.Storage
 
         protected Database(
             [NotNull] IModel model,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(model, nameof(model));
-            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
-            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
-            Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
 
             Model = model;
 
-            EntityKeyFactorySource = entityKeyFactorySource;
-            EntityMaterializerSource = entityMaterializerSource;
-            ClrPropertyGetterSource = clrPropertyGetterSource;
-
             _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<Database>);
         }
 
-        public virtual ILogger Logger => _logger.Value;
         public virtual IModel Model { get; }
-        public virtual IEntityKeyFactorySource EntityKeyFactorySource { get; }
-        public virtual IEntityMaterializerSource EntityMaterializerSource { get; }
-        public virtual IClrAccessorSource<IClrPropertyGetter> ClrPropertyGetterSource { get; }
+
+        public virtual ILogger Logger => _logger.Value;
 
         public abstract int SaveChanges(IReadOnlyList<InternalEntityEntry> entries);
 
@@ -56,12 +43,12 @@ namespace Microsoft.Data.Entity.Storage
             IReadOnlyList<InternalEntityEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        public static readonly MethodInfo CompileQueryMethod
+        public static MethodInfo CompileQueryMethod { get; }
             = typeof(IDatabase).GetTypeInfo().GetDeclaredMethod("CompileQuery");
 
         public abstract Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel);
 
-        public static readonly MethodInfo CompileAsyncQueryMethod
+        public static MethodInfo CompileAsyncQueryMethod { get; }
             = typeof(IDatabase).GetTypeInfo().GetDeclaredMethod("CompileAsyncQuery");
 
         public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)

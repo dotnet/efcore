@@ -338,12 +338,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 modelBuilder
                     .Entity<Jack>()
-                    .Table("Jack", "Apple")
+                    .ToTable("Jack", "Apple")
                     .Key(e => e.MyKey);
 
                 modelBuilder
                     .Entity<Black>()
-                    .ForSqlServer(b => b.Table("Black", "Apple"))
+                    .ForSqlServer(b => b.ToTable("Black", "Apple"))
                     .Key(e => e.MyKey);
             }
         }
@@ -524,7 +524,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<Customer>(b =>
                     {
                         b.Key(c => c.CustomerID);
-                        b.ForSqlServer().Table("Customers");
+                        b.ForSqlServer().ToTable("Customers");
                     });
             }
         }
@@ -579,7 +579,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<TBlog>().Table("Blog", "dbo");
+                modelBuilder.Entity<TBlog>().ToTable("Blog", "dbo");
             }
 
             public DbSet<TBlog> Blogs { get; set; }

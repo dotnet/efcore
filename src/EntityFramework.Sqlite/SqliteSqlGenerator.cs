@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Sqlite
     public class SqliteSqlGenerator : SqlGenerator
     {
         // TODO throw a logger warning that this call was improperly made. The SQLite provider should never specify a schema
-        public override string DelimitIdentifier(string tableName, string schemaName) => base.DelimitIdentifier(tableName);
+        public override string DelimitIdentifier(string name, string schemaName) => base.DelimitIdentifier(name);
 
         protected override void AppendIdentityWhereCondition(StringBuilder builder, ColumnModification columnModification)
         {
@@ -24,10 +24,10 @@ namespace Microsoft.Data.Entity.Sqlite
                 .Append("last_insert_rowid()");
         }
 
-        public override void AppendSelectAffectedCountCommand(StringBuilder builder, string tableName, string schemaName)
+        public override void AppendSelectAffectedCountCommand(StringBuilder builder, string name, string schemaName)
         {
             Check.NotNull(builder, nameof(builder));
-            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotEmpty(name, nameof(name));
 
             builder
                 .Append("SELECT changes()")

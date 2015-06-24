@@ -20,11 +20,11 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.dateColumn).Required();
 
-                entity.Property(e => e.datetime2Column).ColumnType("datetime2(7)");
+                entity.Property(e => e.datetime2Column).HasColumnType("datetime2(7)");
 
                 entity.Property(e => e.decimalColumn)
                     .Required()
-                    .ColumnType("decimal(18, 0)");
+                    .HasColumnType("decimal(18, 0)");
 
                 entity.Property(e => e.floatColumn).Required();
 
@@ -34,7 +34,7 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.numericColumn)
                     .Required()
-                    .ColumnType("numeric(18, 0)");
+                    .HasColumnType("numeric(18, 0)");
 
                 entity.Property(e => e.smallintColumn).Required();
 
@@ -107,8 +107,8 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.WithDateDefaultExpression)
                     .Required()
-                    .ColumnType("datetime2(7)")
-                    .DefaultExpression("getdate()");
+                    .HasColumnType("datetime2(7)")
+                    .DefaultValueSql("getdate()");
 
                 entity.Property(e => e.WithDefaultValue)
                     .Required()
@@ -116,7 +116,7 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.WithGuidDefaultExpression)
                     .Required()
-                    .DefaultExpression("newsequentialid()");
+                    .DefaultValueSql("newsequentialid()");
 
                 entity.Property(e => e.WithMoneyDefaultValue)
                     .Required()
@@ -141,39 +141,39 @@ namespace E2ETest.Namespace
             {
                 entity.Table("Test Spaces Keywords Table");
 
-                entity.Property(e => e.Test_Spaces_Keywords_TableID).Column("Test Spaces Keywords TableID");
+                entity.Property(e => e.Test_Spaces_Keywords_TableID).HasColumnName("Test Spaces Keywords TableID");
 
                 entity.Property(e => e.@Multiple_At_Symbols_In_Column)
                     .Required()
-                    .Column("@Multiple@At@Symbols@In@Column");
+                    .HasColumnName("@Multiple@At@Symbols@In@Column");
 
                 entity.Property(e => e._abstract)
                     .Required()
-                    .Column("abstract");
+                    .HasColumnName("abstract");
 
-                entity.Property(e => e._Backslashes_In_Column).Column("\\Backslashes\\In\\Column");
+                entity.Property(e => e._Backslashes_In_Column).HasColumnName("\\Backslashes\\In\\Column");
 
-                entity.Property(e => e._class).Column("class");
+                entity.Property(e => e._class).HasColumnName("class");
 
                 entity.Property(e => e._Dollar_Sign_Column)
                     .Required()
-                    .Column("$Dollar$Sign$Column");
+                    .HasColumnName("$Dollar$Sign$Column");
 
-                entity.Property(e => e._Double_Quotes_Column).Column("\"Double\"Quotes\"Column");
+                entity.Property(e => e._Double_Quotes_Column).HasColumnName("\"Double\"Quotes\"Column");
 
-                entity.Property(e => e._Exclamation_Mark_Column).Column("!Exclamation!Mark!Column");
+                entity.Property(e => e._Exclamation_Mark_Column).HasColumnName("!Exclamation!Mark!Column");
 
                 entity.Property(e => e._volatile)
                     .Required()
-                    .Column("volatile");
+                    .HasColumnName("volatile");
 
-                entity.Property(e => e.Commas_In_Column).Column("Commas,In,Column");
+                entity.Property(e => e.Commas_In_Column).HasColumnName("Commas,In,Column");
 
-                entity.Property(e => e.Spaces_In_Column).Column("Spaces In Column");
+                entity.Property(e => e.Spaces_In_Column).HasColumnName("Spaces In Column");
 
                 entity.Property(e => e.Tabs_In_Column)
                     .Required()
-                    .Column("Tabs\tIn\tColumn");
+                    .HasColumnName("Tabs\tIn\tColumn");
             });
         }
 

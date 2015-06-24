@@ -99,11 +99,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             var relationalQueryCompilationContext = QueryModelVisitor.QueryCompilationContext;
             var entityType = relationalQueryCompilationContext.Model.GetEntityType(elementType);
             var selectExpression = new SelectExpression();
-            var tableName = relationalQueryCompilationContext.GetTableName(entityType);
+            var name = relationalQueryCompilationContext.GetTableName(entityType);
 
             var tableAlias
                 = _querySource.HasGeneratedItemName()
-                    ? tableName[0].ToString().ToLower()
+                    ? name[0].ToString().ToLower()
                     : _querySource.ItemName;
 
             var fromSqlAnnotation
@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             {
                 selectExpression.AddTable(
                     new TableExpression(
-                        tableName,
+                        name,
                         relationalQueryCompilationContext.GetSchema(entityType),
                         tableAlias,
                         _querySource));

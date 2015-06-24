@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     Name = "Id",
                     Table = "Post",
                     Type = "int",
-                    DefaultExpression = "1"
+                    DefaultValueSql = "1"
                 },
                 "mb.AddColumn(" + EOL +
                 "    name: \"Id\"," + EOL +
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     Assert.Equal("Id", o.Name);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal("int", o.Type);
-                    Assert.Equal("1", o.DefaultExpression);
+                    Assert.Equal("1", o.DefaultValueSql);
                 });
         }
 
@@ -390,7 +390,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     Name = "Id",
                     Table = "Post",
                     Type = "int",
-                    DefaultExpression = "1"
+                    DefaultValueSql = "1"
                 },
                 "mb.AlterColumn(" + EOL +
                 "    name: \"Id\"," + EOL +
@@ -402,7 +402,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 {
                     Assert.Equal("Id", o.Name);
                     Assert.Equal("Post", o.Table);
-                    Assert.Equal("1", o.DefaultExpression);
+                    Assert.Equal("1", o.DefaultValueSql);
                 });
         }
 
@@ -672,7 +672,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                             Name = "Id",
                             Table = "Post",
                             Type = "int",
-                            DefaultExpression = "1"
+                            DefaultValueSql = "1"
                         }
                     }
                 },
@@ -692,7 +692,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     Assert.Equal("Id", o.Columns[0].Name);
                     Assert.Equal("Post", o.Columns[0].Table);
                     Assert.Equal("int", o.Columns[0].Type);
-                    Assert.Equal("1", o.Columns[0].DefaultExpression);
+                    Assert.Equal("1", o.Columns[0].DefaultValueSql);
                 });
         }
 

@@ -49,41 +49,41 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
             modelBuilder.Entity<MappedDataTypes>(b =>
                 {
-                    b.Property(e => e.Integer).ColumnType("Integer");
-                    b.Property(e => e.Real).ColumnType("Real");
-                    b.Property(e => e.Text).ColumnType("Text").Required();
-                    b.Property(e => e.Blob).ColumnType("Blob").Required();
-                    b.Property(e => e.SomeString).ColumnType("SomeString").Required();
-                    b.Property(e => e.Int).ColumnType("Int");
+                    b.Property(e => e.Integer).HasColumnType("Integer");
+                    b.Property(e => e.Real).HasColumnType("Real");
+                    b.Property(e => e.Text).HasColumnType("Text").Required();
+                    b.Property(e => e.Blob).HasColumnType("Blob").Required();
+                    b.Property(e => e.SomeString).HasColumnType("SomeString").Required();
+                    b.Property(e => e.Int).HasColumnType("Int");
                 });
 
             modelBuilder.Entity<MappedNullableDataTypes>(b =>
                 {
-                    b.Property(e => e.Integer).ColumnType("Integer");
-                    b.Property(e => e.Real).ColumnType("Real");
-                    b.Property(e => e.Text).ColumnType("Text");
-                    b.Property(e => e.Blob).ColumnType("Blob");
-                    b.Property(e => e.SomeString).ColumnType("SomeString");
-                    b.Property(e => e.Int).ColumnType("Int");
+                    b.Property(e => e.Integer).HasColumnType("Integer");
+                    b.Property(e => e.Real).HasColumnType("Real");
+                    b.Property(e => e.Text).HasColumnType("Text");
+                    b.Property(e => e.Blob).HasColumnType("Blob");
+                    b.Property(e => e.SomeString).HasColumnType("SomeString");
+                    b.Property(e => e.Int).HasColumnType("Int");
                 });
 
             modelBuilder.Entity<MappedSizedDataTypes>(b =>
             {
-                b.Property(e => e.Nvarchar).ColumnType("nvarchar(3)");
-                b.Property(e => e.Binary).ColumnType("varbinary(3)");
+                b.Property(e => e.Nvarchar).HasColumnType("nvarchar(3)");
+                b.Property(e => e.Binary).HasColumnType("varbinary(3)");
             });
 
             modelBuilder.Entity<MappedScaledDataTypes>(b =>
             {
-                b.Property(e => e.Float).ColumnType("real(3)");
-                b.Property(e => e.Datetimeoffset).ColumnType("datetimeoffset(3)");
-                b.Property(e => e.Datetime2).ColumnType("datetime2(3)");
-                b.Property(e => e.Decimal).ColumnType("decimal(3)");
+                b.Property(e => e.Float).HasColumnType("real(3)");
+                b.Property(e => e.Datetimeoffset).HasColumnType("datetimeoffset(3)");
+                b.Property(e => e.Datetime2).HasColumnType("datetime2(3)");
+                b.Property(e => e.Decimal).HasColumnType("decimal(3)");
             });
 
             modelBuilder.Entity<MappedPrecisionAndScaledDataTypes>(b =>
             {
-                b.Property(e => e.Decimal).ColumnType("decimal(5, 2)");
+                b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)");
             });
         }
 

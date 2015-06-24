@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             _index = index;
         }
 
-        public virtual SqlServerIndexBuilder Name([CanBeNull] string name)
+        public virtual SqlServerIndexBuilder IndexName([CanBeNull] string name)
         {
             Check.NullButNotEmpty(name, nameof(name));
 

@@ -219,6 +219,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
             }
 
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+                => optionsBuilder.UseInMemoryDatabase();
+
             public DbSet<Chunky> Icecream { get; set; }
         }
     }

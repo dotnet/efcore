@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
                 Type = type,
                 IsNullable = nullable,
                 DefaultValue = defaultValue,
-                DefaultExpression = defaultExpression
+                DefaultValueSql = defaultExpression
             };
             _createTableOperation.Columns.Add(operation);
 

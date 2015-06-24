@@ -51,11 +51,9 @@
     <Compile Include="InMemoryIntegerValueGeneratorFactory.cs" />
     <Compile Include="InMemoryModelSource.cs" />
     <Compile Include="InMemoryOptionsExtension.cs" />
-    <Compile Include="InMemoryConnection.cs" />
     <Compile Include="InMemoryStore.cs" />
     <Compile Include="InMemoryDatabase.cs" />
     <Compile Include="InMemoryDatabaseCreator.cs" />
-    <Compile Include="InMemoryDatabaseProvider.cs" />
     <Compile Include="Metadata\EntityTypeNameEqualityComparer.cs" />
     <Compile Include="Query\InMemoryQueryCompilationContext.cs" />
     <Compile Include="Query\InMemoryQueryContext.cs" />

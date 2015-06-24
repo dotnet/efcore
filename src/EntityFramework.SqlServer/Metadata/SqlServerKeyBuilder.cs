@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             _key = key;
         }
 
-        public virtual SqlServerKeyBuilder Name([CanBeNull] string name)
+        public virtual SqlServerKeyBuilder KeyName([CanBeNull] string name)
         {
             Check.NullButNotEmpty(name, nameof(name));
 

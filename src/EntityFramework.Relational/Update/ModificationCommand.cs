@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 {
     public class ModificationCommand
     {
-        private readonly Func<IProperty, IRelationalPropertyExtensions> _getPropertyExtensions;
+        private readonly Func<IProperty, IRelationalPropertyAnnotations> _getPropertyExtensions;
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly List<InternalEntityEntry> _entries = new List<InternalEntityEntry>();
 
@@ -28,18 +28,18 @@ namespace Microsoft.Data.Entity.Relational.Update
         private bool _requiresResultPropagation;
 
         public ModificationCommand(
-            [NotNull] string tableName,
+            [NotNull] string name,
             [CanBeNull] string schemaName,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
-            [NotNull] Func<IProperty, IRelationalPropertyExtensions> getPropertyExtensions,
+            [NotNull] Func<IProperty, IRelationalPropertyAnnotations> getPropertyExtensions,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
         {
-            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotEmpty(name, nameof(name));
             Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
             Check.NotNull(getPropertyExtensions, nameof(getPropertyExtensions));
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
-            TableName = tableName;
+            TableName = name;
             SchemaName = schemaName;
             ParameterNameGenerator = parameterNameGenerator;
             _getPropertyExtensions = getPropertyExtensions;

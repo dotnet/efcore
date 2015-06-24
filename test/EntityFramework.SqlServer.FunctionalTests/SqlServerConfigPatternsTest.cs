@@ -709,7 +709,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             builder.Entity<Customer>(b =>
                 {
                     b.Key(c => c.CustomerID);
-                    b.ForSqlServer().Table("Customers");
+                    b.ForSqlServer().ToTable("Customers");
                 });
         }
     }

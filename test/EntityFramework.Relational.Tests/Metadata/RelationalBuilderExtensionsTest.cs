@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .Column("Eman");
+                .HasColumnName("Eman");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .Column("Eman");
+                .HasColumnName("Eman");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ColumnType("nvarchar(42)");
+                .HasColumnType("nvarchar(42)");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ColumnType("nvarchar(42)");
+                .HasColumnType("nvarchar(42)");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -82,11 +82,11 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .DefaultExpression("CherryCoke");
+                .DefaultValueSql("CherryCoke");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
-            Assert.Equal("CherryCoke", property.Relational().DefaultExpression);
+            Assert.Equal("CherryCoke", property.Relational().DefaultValueSql);
         }
 
         [Fact]
@@ -97,11 +97,11 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .DefaultExpression("CherryCoke");
+                .DefaultValueSql("CherryCoke");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
-            Assert.Equal("CherryCoke", property.Relational().DefaultExpression);
+            Assert.Equal("CherryCoke", property.Relational().DefaultValueSql);
         }
 
         [Fact]
@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Key(e => e.Id)
-                .Name("KeyLimePie");
+                .KeyName("KeyLimePie");
 
             var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
 
@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Key(e => e.Id)
-                .Name("KeyLimePie");
+                .KeyName("KeyLimePie");
 
             var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
 
@@ -173,7 +173,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -181,7 +181,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .Name(null);
+                .ConstraintName(null);
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
         }
@@ -194,7 +194,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -208,7 +208,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -237,7 +237,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -245,7 +245,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .Name(null);
+                .ConstraintName(null);
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
         }
@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -272,7 +272,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -287,7 +287,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -302,7 +302,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .PrincipalKey<Order>(e => e.OrderId)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -310,7 +310,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
-                .Name(null);
+                .ConstraintName(null);
 
             Assert.Equal("FK_OrderDetails_Order_OrderId", foreignKey.Relational().Name);
         }
@@ -323,7 +323,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -338,7 +338,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .PrincipalKey<Order>(e => e.OrderId)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
-                .Name("LemonSupreme");
+                .ConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -368,7 +368,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Index(e => e.Id)
-                .Name("Eeeendeeex");
+                .IndexName("Eeeendeeex");
 
             var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
 
@@ -383,7 +383,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Index(e => e.Id)
-                .Name("Eeeendeeex");
+                .IndexName("Eeeendeeex");
 
             var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
 
@@ -397,7 +397,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>()
-                .Table("Customizer");
+                .ToTable("Customizer");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -412,7 +412,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>()
-                .Table("Customizer");
+                .ToTable("Customizer");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .Table("Customizer");
+                .ToTable("Customizer");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -442,7 +442,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .Table("Customizer");
+                .ToTable("Customizer");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -457,7 +457,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>()
-                .Table("Customizer", "db0");
+                .ToTable("Customizer", "db0");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -473,7 +473,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>()
-                .Table("Customizer", "db0");
+                .ToTable("Customizer", "db0");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -489,7 +489,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .Table("Customizer", "db0");
+                .ToTable("Customizer", "db0");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -505,7 +505,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .Table("Customizer", "db0");
+                .ToTable("Customizer", "db0");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -751,12 +751,12 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
-                    .Table("Will"));
+                    .ToTable("Will"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
-                    .Table("Jay", "Simon"));
+                    .ToTable("Jay", "Simon"));
         }
 
         [Fact]
@@ -766,11 +766,11 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .Table("Will");
+                .ToTable("Will");
 
             modelBuilder
                 .Entity<Customer>()
-                .Table("Jay", "Simon");
+                .ToTable("Jay", "Simon");
         }
 
         [Fact]
@@ -782,19 +782,19 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .Column("Will"));
+                    .HasColumnName("Will"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .ColumnType("Jay"));
+                    .HasColumnType("Jay"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .DefaultExpression("Simon"));
+                    .DefaultValueSql("Simon"));
 
             AssertIsGeneric(
                 modelBuilder
@@ -811,22 +811,22 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
-                .Column("Will");
+                .HasColumnName("Will");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .Column("Jay");
+                .HasColumnName("Jay");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .Column("Simon");
+                .HasColumnName("Simon");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .Column("Neil");
+                .HasColumnName("Neil");
         }
 
         [Fact]
@@ -838,21 +838,21 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 modelBuilder
                     .Entity<Customer>().Collection(e => e.Orders)
                     .InverseReference(e => e.Customer)
-                    .Name("Will"));
+                    .ConstraintName("Will"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Order>()
                     .Reference(e => e.Customer)
                     .InverseCollection(e => e.Orders)
-                    .Name("Jay"));
+                    .ConstraintName("Jay"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Order>()
                     .Reference(e => e.Details)
                     .InverseReference(e => e.Order)
-                    .Name("Simon"));
+                    .ConstraintName("Simon"));
         }
 
         [Fact]
@@ -863,19 +863,19 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>().Collection(typeof(Order), "Orders")
                 .InverseReference("Customer")
-                .Name("Will");
+                .ConstraintName("Will");
 
             modelBuilder
                 .Entity<Order>()
                 .Reference(e => e.Customer)
                 .InverseCollection(e => e.Orders)
-                .Name("Jay");
+                .ConstraintName("Jay");
 
             modelBuilder
                 .Entity<Order>()
                 .Reference(e => e.Details)
                 .InverseReference(e => e.Order)
-                .Name("Simon");
+                .ConstraintName("Simon");
         }
 
         private void AssertIsGeneric(EntityTypeBuilder<Customer> _)

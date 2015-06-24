@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.Storage
 {
     public interface IDatabaseProviderServices
     {
+        string InvariantName { get; }
         IDatabase Database { get; }
         IDatabaseCreator Creator { get; }
-        IDatabaseConnection Connection { get; }
         IValueGeneratorSelector ValueGeneratorSelector { get; }
         IConventionSetBuilder ConventionSetBuilder { get; }
         IModelSource ModelSource { get; }

@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             _foreignKey = foreignKey;
         }
 
-        public virtual SqlServerForeignKeyBuilder Name([CanBeNull] string name)
+        public virtual SqlServerForeignKeyBuilder ConstraintName([CanBeNull] string name)
         {
             Check.NullButNotEmpty(name, nameof(name));
 

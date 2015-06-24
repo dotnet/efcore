@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.ModelConventions;
@@ -28,9 +29,9 @@ namespace Microsoft.Data.Entity.SqlServer
         {
         }
 
+        public override string InvariantName => GetType().GetTypeInfo().Assembly.GetName().Name;
         public override IDatabase Database => GetService<SqlServerDatabase>();
         public override IDatabaseCreator Creator => GetService<SqlServerDatabaseCreator>();
-        public override IDatabaseConnection Connection => GetService<ISqlServerConnection>();
         public override IRelationalConnection RelationalConnection => GetService<ISqlServerConnection>();
         public override IValueGeneratorSelector ValueGeneratorSelector => GetService<SqlServerValueGeneratorSelector>();
         public override IRelationalDatabaseCreator RelationalDatabaseCreator => GetService<SqlServerDatabaseCreator>();

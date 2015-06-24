@@ -11,7 +11,5 @@ namespace Microsoft.Data.Entity.Storage
     {
         IDatabaseProviderServices GetProviderServices([NotNull] IServiceProvider serviceProvider);
         bool IsConfigured([NotNull] IDbContextOptions options);
-        string Name { get; }
-        void AutoConfigure([NotNull] DbContextOptionsBuilder optionsBuilder);
     }
 }

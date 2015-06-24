@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
@@ -627,7 +628,7 @@ FROM (
 
         public void Skip_when_no_order_by()
         {
-            Assert.Throws<DatabaseException>(() => AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
+            Assert.Throws<Exception>(() => AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
         }
 
         public override void Take_Distinct_Count()

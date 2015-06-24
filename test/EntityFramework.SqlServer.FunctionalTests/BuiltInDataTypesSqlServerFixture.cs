@@ -110,16 +110,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             foreach (var propertyInfo in entityType.ClrType.GetTypeInfo().DeclaredProperties)
             {
-                var columnType = propertyInfo.Name;
+                var typeName = propertyInfo.Name;
 
-                if (columnType.EndsWith("Max"))
+                if (typeName.EndsWith("Max"))
                 {
-                    columnType = columnType.Substring(0, columnType.IndexOf("Max")) + "(max)";
+                    typeName = typeName.Substring(0, typeName.IndexOf("Max")) + "(max)";
                 }
 
-                columnType = columnType.Replace('_', ' ');
+                typeName = typeName.Replace('_', ' ');
 
-                entityType.GetOrAddProperty(propertyInfo).Relational().ColumnType = columnType;
+                entityType.GetOrAddProperty(propertyInfo).Relational().ColumnType = typeName;
             }
         }
 
