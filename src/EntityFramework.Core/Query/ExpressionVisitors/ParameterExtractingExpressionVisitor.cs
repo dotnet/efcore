@@ -40,8 +40,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             {
                 var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
 
-                if (ReferenceEquals(methodInfo, EntityQueryModelVisitor.PropertyMethodInfo)
-                    || ReferenceEquals(methodInfo, QueryExtensions.ValueBufferPropertyMethodInfo))
+                if (ReferenceEquals(methodInfo, EntityQueryModelVisitor.PropertyMethodInfo))
                 {
                     return methodCallExpression;
                 }

@@ -241,7 +241,7 @@
     <value>An exception occurred in the database while saving changes.{newline}{error}</value>
   </data>
   <data name="PropertyMethodInvoked" xml:space="preserve">
-    <value>The EF.Property&amp;lt;T&amp;gt; method may only be used within LINQ queries.</value>
+    <value>The EF.Property&lt;T&gt; method may only be used within LINQ queries.</value>
   </data>
   <data name="DuplicateProperty" xml:space="preserve">
     <value>The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists.</value>

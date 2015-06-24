@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var typeMock = materializerMock.As<IEntityType>();
             typeMock.SetupGet(et => et.ClrType).Returns(typeof(string));
 
-            var reader = new ValueBuffer();
+            var reader = ValueBuffer.Empty;
             GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), typeMock.Object)(reader);
 
             materializerMock.Verify(m => m.CreateEntity(reader));

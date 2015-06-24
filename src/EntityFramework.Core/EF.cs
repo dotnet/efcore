@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using System;
 
-namespace Microsoft.Data.Entity.Query
+namespace Microsoft.Data.Entity
 {
     public static class EF
     {

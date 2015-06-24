@@ -1088,8 +1088,7 @@ namespace Microsoft.Data.Entity.Query
             {
                 var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
 
-                if (ReferenceEquals(methodInfo, PropertyMethodInfo)
-                    || ReferenceEquals(methodInfo, QueryExtensions.ValueBufferPropertyMethodInfo))
+                if (ReferenceEquals(methodInfo, PropertyMethodInfo))
                 {
                     var targetExpression = methodCallExpression.Arguments[0];
 
