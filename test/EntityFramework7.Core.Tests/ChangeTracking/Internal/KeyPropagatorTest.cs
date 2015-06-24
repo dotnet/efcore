@@ -176,7 +176,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         private class BaseType
         {
             public int Id { get; set; }
-            public int CategoryId { get; set; }
         }
 
         private class Category : BaseType
@@ -186,6 +185,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         private class Product : BaseType
         {
+            public int CategoryId { get; set; }
+
             public Category Category { get; set; }
 
             public ProductDetail Detail { get; set; }
@@ -193,8 +194,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             public ICollection<OrderLine> OrderLines { get; } = new List<OrderLine>();
         }
 
-        private class ProductDetail : BaseType
+        private class ProductDetail
         {
+            public int Id { get; set; }
             public Product Product { get; set; }
         }
 
@@ -227,6 +229,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var model = new Model();
             var builder = TestHelpers.Instance.CreateConventionBuilder(model);
 
+            builder.Entity<BaseType>();
+
             builder.Entity<Product>(b =>
                 {
                     b.Collection(e => e.OrderLines).InverseReference(e => e.Product);
@@ -244,9 +248,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             builder.Entity<OrderLine>(b =>
                 {
                     b.Key(e => new { e.OrderId, e.ProductId });
-                    b.Reference(e => e.Detail).InverseReference(e => e.OrderLine)
-                        // TODO: Remove this line when ForeignKeyConvention handles composite fks
-                        .ForeignKey<OrderLineDetail>(e => new { e.OrderId, e.ProductId });
+                    b.Reference(e => e.Detail).InverseReference(e => e.OrderLine);
                 });
 
             return model;

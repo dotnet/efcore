@@ -163,18 +163,6 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [NotNull]
-        public static Property GetProperty([NotNull] this EntityType entityType, [NotNull] PropertyInfo propertyInfo)
-        {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
-
-            return entityType.GetProperty(propertyInfo.Name);
-        }
-
-        [NotNull]
-        public static Property GetProperty([NotNull] this EntityType entityType, [NotNull] string propertyName) =>
-            (Property)((IEntityType)entityType).GetProperty(propertyName);
-
-        [NotNull]
         public static INavigation GetNavigation([NotNull] this IEntityType entityType, [NotNull] string name)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -187,10 +175,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
             return navigation;
         }
-
-        [NotNull]
-        public static Navigation GetNavigation([NotNull] this EntityType entityType, [NotNull] string name)
-            => (Navigation)((IEntityType)entityType).GetNavigation(name);
 
         public static IEnumerable<INavigation> GetDeclaredNavigations([NotNull] this IEntityType entityType)
         {
@@ -230,10 +214,10 @@ namespace Microsoft.Data.Entity.Metadata
                    || typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo());
         }
 
-        public static IIndex GetIndex([NotNull] this IEntityType entityType, [NotNull] Property property)
+        public static IIndex GetIndex([NotNull] this IEntityType entityType, [NotNull] IProperty property)
             => entityType.GetIndex(new[] { property });
 
-        public static IIndex GetIndex([NotNull] this IEntityType entityType, [NotNull] IReadOnlyList<Property> properties)
+        public static IIndex GetIndex([NotNull] this IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
         {
             var index = entityType.FindIndex(properties);
             if (index == null)
@@ -250,10 +234,10 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType.GetIndexes().Where(p => p.DeclaringEntityType == entityType);
         }
 
-        public static IForeignKey GetForeignKey([NotNull] this IEntityType entityType, [NotNull] Property property)
+        public static IForeignKey GetForeignKey([NotNull] this IEntityType entityType, [NotNull] IProperty property)
             => entityType.GetForeignKey(new[] { property });
 
-        public static IForeignKey GetForeignKey([NotNull] this IEntityType entityType, [NotNull] IReadOnlyList<Property> properties)
+        public static IForeignKey GetForeignKey([NotNull] this IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
         {
             var foreignKey = entityType.FindForeignKey(properties);
             if (foreignKey == null)
@@ -304,10 +288,10 @@ namespace Microsoft.Data.Entity.Metadata
             return primaryKey;
         }
 
-        public static IKey GetKey([NotNull] this IEntityType entityType, [NotNull] Property property)
+        public static IKey GetKey([NotNull] this IEntityType entityType, [NotNull] IProperty property)
             => entityType.GetKey(new[] { property });
 
-        public static IKey GetKey([NotNull] this IEntityType entityType, [NotNull] IReadOnlyList<Property> properties)
+        public static IKey GetKey([NotNull] this IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
         {
             var key = entityType.FindKey(properties);
             if (key == null)

@@ -19,10 +19,13 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             var entityType = entityTypeBuilder.Metadata;
 
-            var keyProperties = DiscoverKeyProperties(entityType);
-            if (keyProperties.Count != 0)
+            if (entityType.BaseType == null)
             {
-                entityTypeBuilder.PrimaryKey(keyProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+                var keyProperties = DiscoverKeyProperties(entityType);
+                if (keyProperties.Count != 0)
+                {
+                    entityTypeBuilder.PrimaryKey(keyProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+                }
             }
 
             return entityTypeBuilder;

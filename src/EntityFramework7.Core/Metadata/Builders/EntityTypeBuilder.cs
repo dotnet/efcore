@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     {
         /// <summary>
         ///     <para>
-        ///         Initializes a new instance of the <see cref="EntityTypeBuilder" /> class to configure a given entity
-        ///         type.
+        ///         Initializes a new instance of the <see cref="EntityTypeBuilder" /> class to configure a given
+        ///         entity type.
         ///     </para>
         ///     <para>
         ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
@@ -38,6 +38,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             Builder = builder;
         }
+
+        protected virtual EntityTypeBuilder New([NotNull] InternalEntityTypeBuilder builder)
+            => new EntityTypeBuilder(builder);
 
         private InternalEntityTypeBuilder Builder { get; }
 
@@ -73,6 +76,20 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
+        public virtual EntityTypeBuilder BaseType([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            return New(Builder.BaseType(name, ConfigurationSource.Explicit));
+        }
+
+        public virtual EntityTypeBuilder BaseType([NotNull] Type entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return New(Builder.BaseType(entityType, ConfigurationSource.Explicit));
+        }
+
         /// <summary>
         ///     Sets the properties that make up the primary key for this entity type.
         /// </summary>
@@ -86,7 +103,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         }
 
         /// <summary>
-        ///     Creates a new unique constraint for this entity type if one does not already exist over the specified properties.
+        ///     Creates a new unique constraint for this entity type if one does not already exist over the specified
+        ///     properties.
         /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the unique constraint. </param>
         /// <returns> An object that can be used to configure the unique constraint. </returns>
@@ -300,25 +318,21 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         }
 
         protected virtual InternalRelationshipBuilder ReferenceBuilder(EntityType relatedEntityType, string navigationName)
-        {
-            return Builder.Relationship(
+            => Builder.Relationship(
                 relatedEntityType,
                 Metadata,
                 navigationToPrincipalName: navigationName ?? "",
                 navigationToDependentName: null,
                 configurationSource: ConfigurationSource.Explicit,
                 strictPrincipal: relatedEntityType == Metadata);
-        }
 
         protected virtual InternalRelationshipBuilder CollectionBuilder(EntityType relatedEntityType, string navigationName)
-        {
-            return Builder.Relationship(
+            => Builder.Relationship(
                 Metadata,
                 relatedEntityType,
                 navigationToPrincipalName: null,
                 navigationToDependentName: navigationName ?? "",
                 configurationSource: ConfigurationSource.Explicit,
                 isUnique: false);
-        }
     }
 }

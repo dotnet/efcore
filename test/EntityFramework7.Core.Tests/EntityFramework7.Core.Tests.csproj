@@ -99,6 +99,7 @@
     <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipTypeTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipStringTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderGenericTest.cs" />
+    <Compile Include="ModelBuilderTest\InheritanceTestBase.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderNonGenericStringTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderNonGenericTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderTestBase.cs" />

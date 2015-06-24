@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Tests
             public Bun Bun { get; set; }
         }
 
-        private class Pickle
+        private class Ingredient
         {
             public int Id { get; set; }
 
@@ -29,12 +29,12 @@ namespace Microsoft.Data.Entity.Tests
             public BigMak BigMak { get; set; }
         }
 
-        private class Bun
+        private class Pickle : Ingredient
         {
-            public int Id { get; set; }
+        }
 
-            public int BurgerId { get; set; }
-            public BigMak BigMak { get; set; }
+        private class Bun : Ingredient
+        {
         }
 
         private class Whoopper
