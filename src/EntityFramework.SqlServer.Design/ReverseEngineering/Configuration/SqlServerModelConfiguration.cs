@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuratio
             // not have Identity set then we need to set to ValueGeneratedNever() to
             // override this behavior.
             if (propertyConfiguration.Property.SqlServer().IdentityStrategy == null
-                && _keyConvention.ValueGeneratedOnAddProperty(
+                && _keyConvention.FindValueGeneratedOnAddProperty(
                     new List<Property> { (Property)propertyConfiguration.Property },
                     (EntityType)propertyConfiguration.EntityConfiguration.EntityType) != null)
             {

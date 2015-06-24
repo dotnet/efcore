@@ -731,7 +731,6 @@ namespace Microsoft.Data.Entity.Tests
                 var newFk = (IForeignKey)dependentType.GetForeignKeys().Single();
 
                 Assert.False(newFk.IsUnique);
-                Assert.NotSame(fk, newFk);
 
                 Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
                 Assert.Equal("Pickles", principalType.Navigations.Single().Name);
@@ -1504,7 +1503,7 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = HobNobBuilder();
 
                 Assert.Equal(
-                    Strings.CannotBeNullable("NobId1", "Hob", "Int32"),
+                    Strings.ForeignKeyCannotBeOptional("{'NobId1', 'NobId2'}", "Hob"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder
                         .Entity<Hob>().Reference(e => e.Nob).InverseCollection(e => e.Hobs)
                         .ForeignKey(e => new { e.NobId1, e.NobId2 })

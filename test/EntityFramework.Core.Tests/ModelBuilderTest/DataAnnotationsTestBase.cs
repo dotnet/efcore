@@ -32,12 +32,11 @@ namespace Microsoft.Data.Entity.Tests
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<Book>();
-
-                Assert.Contains("Book", model.GetEntityType(typeof(BookLabel)).Navigations.Select(nav => nav.Name));
-                Assert.Equal("Label", model.GetEntityType(typeof(BookLabel)).FindNavigation("Book").ForeignKey.PrincipalToDependent.Name);
-
-                Assert.Contains("AlternateLabel", model.GetEntityType(typeof(Book)).Navigations.Select(nav => nav.Name));
-                Assert.Null(model.GetEntityType(typeof(Book)).FindNavigation("AlternateLabel").ForeignKey.PrincipalToDependent);
+                
+                Assert.Equal("Label",
+                    model.GetEntityType(typeof(BookLabel)).FindNavigation("Book").FindInverse().Name);
+                
+                Assert.Null(model.GetEntityType(typeof(Book)).FindNavigation("AlternateLabel").FindInverse());
             }
 
             [Fact]

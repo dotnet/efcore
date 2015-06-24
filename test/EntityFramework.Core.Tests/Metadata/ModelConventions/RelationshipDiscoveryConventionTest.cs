@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -112,15 +113,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         }
 
         [Fact]
-        public void One_to_many_bidirectional_is_not_discovered()
+        public void One_to_many_bidirectional_is_discovered()
         {
-            var entityBuilder = CreateInternalEntityBuilder<OneToManyDependent>();
+            var entityBuilder = CreateInternalEntityBuilder<OneToManyDependent>(ConfigureKeys);
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
-            Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
-            Assert.Empty(entityBuilder.Metadata.Navigations);
-            Assert.Empty(entityBuilder.Metadata.Properties);
+            VerifyOneToManyDependent(entityBuilder, unidirectional: false);
         }
 
         [Fact]
@@ -163,7 +162,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 ConfigureKeys, MultipleNavigationsSecond.IgnoreCollectionNavigation);
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
-            
+
             Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
             // TODO: remove discovered entity types if no relationship discovered
@@ -177,7 +176,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 ConfigureKeys, MultipleNavigationsSecond.IgnoreCollectionNavigation);
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
-            
+
             Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
             // TODO: remove discovered entity types if no relationship discovered
@@ -215,6 +214,41 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         }
 
         [Fact]
+        public void Bidirectional_ambiguous_cardinality_is_discovered()
+        {
+            var entityBuilder = CreateInternalEntityBuilder<AmbiguousCardinalityOne>(ConfigureKeys);
+
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
+
+            var model = (IModel)entityBuilder.Metadata.Model;
+            Assert.Equal(2, model.EntityTypes.Count);
+            var firstEntityType = model.EntityTypes.Single(e => e.ClrType == typeof(AmbiguousCardinalityOne));
+            var secondEntityType = model.EntityTypes.Single(e => e.ClrType == typeof(AmbiguousCardinalityTwo));
+
+            var fk = firstEntityType.GetNavigations().Single().ForeignKey;
+            Assert.Same(fk, secondEntityType.GetNavigations().Single().ForeignKey);
+            Assert.True(fk.IsUnique);
+        }
+
+        [Fact]
+        public void Unidirectional_ambiguous_cardinality_is_discovered()
+        {
+            var entityBuilder = CreateInternalEntityBuilder<AmbiguousCardinalityOne>(ConfigureKeys,
+                AmbiguousCardinalityTwo.IgnoreNavigation);
+
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
+
+            var model = (IModel)entityBuilder.Metadata.Model;
+            Assert.Equal(2, model.EntityTypes.Count);
+            var firstEntityType = model.EntityTypes.Single(e => e.ClrType == typeof(AmbiguousCardinalityOne));
+            var secondEntityType = model.EntityTypes.Single(e => e.ClrType == typeof(AmbiguousCardinalityTwo));
+
+            var fk = firstEntityType.GetNavigations().Single().ForeignKey;
+            Assert.Empty(secondEntityType.GetNavigations());
+            Assert.False(fk.IsUnique);
+        }
+
+        [Fact]
         public void Does_not_discover_nonNavigation_properties()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoValidNavigations>();
@@ -238,7 +272,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.Equal(2, entityType.GetProperties().Count());
             Assert.Equal(1, entityType.GetKeys().Count());
-            
+
             var fk = entityType.GetForeignKeys().Single();
             Assert.False(fk.IsRequired);
             Assert.True(fk.IsUnique);
@@ -247,7 +281,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Assert.Equal(SelfRef.SelfRef1NavigationProperty.Name, fk.PrincipalToDependent?.Name);
             Assert.Equal(SelfRef.SelfRef2NavigationProperty.Name, fk.DependentToPrincipal?.Name);
         }
-        
+
         [Fact]
         public void Navigation_to_abstract_is_discovered()
         {
@@ -535,6 +569,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         {
             public static readonly PropertyInfo SelfRef1NavigationProperty =
                 typeof(SelfRef).GetProperty("SelfRef1", BindingFlags.Public | BindingFlags.Instance);
+
             public static readonly PropertyInfo SelfRef2NavigationProperty =
                 typeof(SelfRef).GetProperty("SelfRef2", BindingFlags.Public | BindingFlags.Instance);
 
@@ -542,6 +577,48 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             public SelfRef SelfRef1 { get; set; }
             public SelfRef SelfRef2 { get; set; }
             public int SelfRefId { get; set; }
+        }
+
+        public class AmbiguousCardinalityOne : IEnumerable<AmbiguousCardinalityOne>
+        {
+            public int Id { get; set; }
+            public AmbiguousCardinalityTwo AmbiguousCardinalityTwo { get; set; }
+
+            public static void IgnoreNavigation(InternalEntityTypeBuilder entityTypeBuilder)
+            {
+                if (entityTypeBuilder.Metadata.ClrType == typeof(AmbiguousCardinalityOne))
+                {
+                    entityTypeBuilder.Ignore(nameof(AmbiguousCardinalityTwo), ConfigurationSource.DataAnnotation);
+                }
+            }
+
+            public IEnumerator<AmbiguousCardinalityOne> GetEnumerator()
+            {
+                yield return this;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        public class AmbiguousCardinalityTwo : IEnumerable<AmbiguousCardinalityTwo>
+        {
+            public int Id { get; set; }
+            public AmbiguousCardinalityOne AmbiguousCardinalityOne { get; set; }
+
+            public static void IgnoreNavigation(InternalEntityTypeBuilder entityTypeBuilder)
+            {
+                if (entityTypeBuilder.Metadata.ClrType == typeof(AmbiguousCardinalityTwo))
+                {
+                    entityTypeBuilder.Ignore(nameof(AmbiguousCardinalityOne), ConfigurationSource.DataAnnotation);
+                }
+            }
+
+            public IEnumerator<AmbiguousCardinalityTwo> GetEnumerator()
+            {
+                yield return this;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
     }
 }

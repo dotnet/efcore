@@ -215,6 +215,51 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         }
 
         [Fact]
+        public void OnPrimaryKeySet_calls_apply_on_conventions_in_order()
+        {
+            var conventions = new ConventionSet();
+
+            InternalKeyBuilder internalKeyBuilder = null;
+            var convention = new Mock<IPrimaryKeyConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalKeyBuilder>(), It.IsAny<Key>()))
+                .Returns<InternalKeyBuilder, Key>((b, t) =>
+                    {
+                        Assert.NotNull(b);
+                        Assert.Null(t);
+                        internalKeyBuilder = b;
+                        return true;
+                    });
+            conventions.PrimaryKeySetConventions.Add(convention.Object);
+
+            var nullConvention = new Mock<IPrimaryKeyConvention>();
+            nullConvention.Setup(c => c.Apply(It.IsAny<InternalKeyBuilder>(), It.IsAny<Key>()))
+                .Returns<InternalKeyBuilder, Key>((b, t) =>
+                    {
+                        Assert.Null(t);
+                        Assert.Same(internalKeyBuilder, b);
+                        return false;
+                    });
+            conventions.PrimaryKeySetConventions.Add(nullConvention.Object);
+
+            var extraConvention = new Mock<IPrimaryKeyConvention>();
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalKeyBuilder>(), It.IsAny<Key>()))
+                .Returns<InternalKeyBuilder, Key>((b, t) =>
+                    {
+                        Assert.False(true);
+                        return false;
+                    });
+            conventions.PrimaryKeySetConventions.Add(extraConvention.Object);
+
+            var entityBuilder = new InternalModelBuilder(new Model(), conventions)
+                .Entity(typeof(Order), ConfigurationSource.Convention);
+
+            entityBuilder.Key(new[] { "OrderId" }, ConfigurationSource.Convention);
+            Assert.NotNull(entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention));
+
+            Assert.NotNull(internalKeyBuilder);
+        }
+
+        [Fact]
         public void OnForeignKeyRemoved_calls_apply_on_conventions_in_order()
         {
             var conventions = new ConventionSet();
@@ -230,7 +275,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(
                 new[] { entityBuilder.Property("FK", typeof(int), ConfigurationSource.Convention).Metadata },
-                entityBuilder.Key(new[] { entityBuilder.Property("OrderId", typeof(int), ConfigurationSource.Convention).Metadata }, ConfigurationSource.Convention).Metadata,
+                entityBuilder.Key(new[] { "OrderId" }, ConfigurationSource.Convention).Metadata,
                 entityBuilder.Metadata,
                 entityBuilder.Metadata);
             var conventionDispatcher = new ConventionDispatcher(conventions);
@@ -285,10 +330,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
 
-            entityBuilder.Relationship(typeof(Order), typeof(OrderDetails), "Order", "OrderDetails", ConfigurationSource.Convention, isUnique: true);
+            Assert.Null(entityBuilder.Relationship(typeof(Order), typeof(OrderDetails), "Order", "OrderDetails", ConfigurationSource.Convention, isUnique: true));
 
             Assert.True(orderIgnored);
-            Assert.True(orderDetailsIgnored);
+            Assert.False(orderDetailsIgnored);
             Assert.NotNull(relationshipBuilder);
         }
 

@@ -36,13 +36,13 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
         public virtual InternalEntityTypeBuilder OnBaseEntityTypeSet(
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] EntityType oldBaseType)
+            [CanBeNull] EntityType previousBaseType)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             foreach (var entityTypeConvention in _conventionSet.BaseEntityTypeSetConventions)
             {
-                if (!entityTypeConvention.Apply(entityTypeBuilder, oldBaseType))
+                if (!entityTypeConvention.Apply(entityTypeBuilder, previousBaseType))
                 {
                     break;
                 }
@@ -86,6 +86,21 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 keyBuilder = keyConvention.Apply(keyBuilder);
                 if (keyBuilder == null)
+                {
+                    break;
+                }
+            }
+
+            return keyBuilder;
+        }
+
+        public virtual InternalKeyBuilder OnPrimaryKeySet([NotNull] InternalKeyBuilder keyBuilder, [CanBeNull] Key previousPrimaryKey)
+        {
+            Check.NotNull(keyBuilder, nameof(keyBuilder));
+
+            foreach (var keyConvention in _conventionSet.PrimaryKeySetConventions)
+            {
+                if (!keyConvention.Apply(keyBuilder, previousPrimaryKey))
                 {
                     break;
                 }

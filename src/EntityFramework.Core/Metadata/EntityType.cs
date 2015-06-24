@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -363,7 +362,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             return FindDeclaredKey(properties) ?? BaseType?.FindKey(properties);
         }
-        
+
         public virtual IEnumerable<Key> GetDeclaredKeys() => _keys.Values;
 
         public virtual Key FindDeclaredKey([NotNull] IReadOnlyList<Property> properties)
@@ -577,6 +576,13 @@ namespace Microsoft.Data.Entity.Metadata
                 throw new InvalidOperationException(Strings.NavigationOnWrongEntityType(name, Name, declaringTypeFromFk.Name));
             }
 
+            Navigation.IsCompatible(
+                name,
+                this,
+                pointsToPrincipal ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType,
+                !pointsToPrincipal && !((IForeignKey)foreignKey).IsUnique,
+                shouldThrow: true);
+
             var navigation = new Navigation(name, foreignKey);
             _navigations.Add(name, navigation);
             if (pointsToPrincipal)
@@ -586,42 +592,6 @@ namespace Microsoft.Data.Entity.Metadata
             else
             {
                 foreignKey.PrincipalToDependent = navigation;
-            }
-
-            if (!HasClrType)
-            {
-                throw new InvalidOperationException(Strings.NavigationOnShadowEntity(navigation.Name, Name));
-            }
-
-            var clrProperty = ClrType.GetPropertiesInHierarchy(navigation.Name).FirstOrDefault();
-            if (clrProperty == null)
-            {
-                throw new InvalidOperationException(Strings.NoClrNavigation(navigation.Name, Name));
-            }
-
-            var targetType = navigation.GetTargetType();
-            if (!targetType.HasClrType)
-            {
-                throw new InvalidOperationException(Strings.NavigationToShadowEntity(navigation.Name, Name, targetType.Name));
-            }
-
-            var targetClrType = targetType.ClrType;
-            Debug.Assert(targetClrType != null, "targetClrType != null");
-            if (navigation.IsCollection())
-            {
-                var elementType = clrProperty.PropertyType.TryGetSequenceType();
-
-                if (elementType == null
-                    || !elementType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
-                {
-                    throw new InvalidOperationException(Strings.NavigationCollectionWrongClrType(
-                        navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
-                }
-            }
-            else if (!clrProperty.PropertyType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
-            {
-                throw new InvalidOperationException(Strings.NavigationSingleWrongClrType(
-                    navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
             }
 
             return navigation;
@@ -902,7 +872,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         private IEnumerable<Property> FindProperties(IEnumerable<string> propertyNames)
             => propertyNames.Select(FindProperty).Where(p => p != null);
-        
+
         private IReadOnlyList<IProperty> FindPropertyCollisions(string[] propertyNames)
             => FindProperties(propertyNames).Concat(this.FindDerivedProperties(propertyNames)).ToList();
 

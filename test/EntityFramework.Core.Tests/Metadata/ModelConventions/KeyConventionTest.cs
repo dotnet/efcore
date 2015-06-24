@@ -398,6 +398,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             conventions.KeyAddedConventions.Add(keyConvention);
             conventions.ForeignKeyRemovedConventions.Add(keyConvention);
+            conventions.PrimaryKeySetConventions.Add(keyConvention);
 
             return new InternalModelBuilder(new Model(), conventions);
         }

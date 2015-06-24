@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 {
@@ -303,7 +302,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     b.Key(e => new { e.ReviewId, e.ProductId });
 
                     b.Collection(e => (IEnumerable<TProductWebFeature>)e.Features).InverseReference(e => (TProductReview)e.Review)
-                        .ForeignKey(e => new { e.ReviewId, e.ProductId });
+                        .ForeignKey(e => new { e.ReviewId, e.ProductId })
+                        .PrincipalKey(e => new { e.ReviewId, e.ProductId });
                 });
 
             modelBuilder.Entity<TLogin>(b =>

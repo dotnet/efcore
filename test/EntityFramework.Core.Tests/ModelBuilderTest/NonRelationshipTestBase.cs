@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
-                modelBuilder.Entity<Customer>();
+                modelBuilder.Entity<Customer>().Property<int>(Customer.IdProperty.Name);
 
                 var entity = model.GetEntityType(typeof(Customer));
                 var key = entity.AddKey(entity.GetOrAddProperty(Customer.NameProperty));
@@ -158,6 +158,10 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.Same(key, entity.GetKeys().Single());
                 Assert.Equal(Customer.NameProperty.Name, entity.GetPrimaryKey().Properties.Single().Name);
+
+                var idProperty = (IProperty)entity.GetProperty(Customer.IdProperty);
+                Assert.False(idProperty.RequiresValueGenerator);
+                Assert.Equal(ValueGenerated.Never, idProperty.ValueGenerated);
             }
 
             [Fact]
@@ -555,6 +559,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Quarks>(b =>
                     {
+                        b.Key(e => e.Id);
                         b.Property(e => e.Up).ValueGeneratedOnAddOrUpdate();
                         b.Property(e => e.Down).ValueGeneratedNever();
                         b.Property<int>("Charm").ValueGeneratedOnAdd();

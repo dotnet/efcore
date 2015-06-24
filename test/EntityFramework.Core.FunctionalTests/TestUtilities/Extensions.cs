@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private static void CloneKeys(IEntityType sourceEntityType, EntityType targetEntityType)
         {
-            foreach (var key in sourceEntityType.GetKeys())
+            foreach (var key in sourceEntityType.GetDeclaredKeys())
             {
                 var clonedKey = targetEntityType.AddKey(
                     key.Properties.Select(p => targetEntityType.GetProperty(p.Name)).ToList());
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var clonedForeignKey = targetEntityType.AddForeignKey(
                     foreignKey.Properties.Select(p => targetEntityType.GetProperty(p.Name)).ToList(),
                     targetPrincipalEntityType.GetKey(
-                        foreignKey.PrincipalKey.Properties.Select(p => targetEntityType.GetProperty(p.Name)).ToList()),
+                        foreignKey.PrincipalKey.Properties.Select(p => targetPrincipalEntityType.GetProperty(p.Name)).ToList()),
                     targetPrincipalEntityType);
                 clonedForeignKey.IsUnique = foreignKey.IsUnique;
                 clonedForeignKey.IsRequired = foreignKey.IsRequired;

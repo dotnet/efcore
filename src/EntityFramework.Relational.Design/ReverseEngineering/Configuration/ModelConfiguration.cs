@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 case ValueGenerated.OnAdd:
                     // If this property is the single integer primary key on the EntityType then
                     // KeyConvention assumes ValueGeneratedOnAdd() so there is no need to add it.
-                    if (_keyConvention.ValueGeneratedOnAddProperty(
+                    if (_keyConvention.FindValueGeneratedOnAddProperty(
                         new List<Property> { (Property)propertyConfiguration.Property },
                         (EntityType)propertyConfiguration.EntityConfiguration.EntityType) == null)
                     {

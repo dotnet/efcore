@@ -248,40 +248,6 @@ namespace Microsoft.Data.Entity.Metadata
         internal static string Format(IEnumerable<IProperty> properties)
             => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
 
-        public static bool AreCompatible([NotNull] IReadOnlyList<Property> principalProperties,
-            [NotNull] IReadOnlyList<Property> dependentProperties)
-            => ArePropertyCountsEqual(principalProperties, dependentProperties)
-               && ArePropertyTypesCompatible(principalProperties, dependentProperties);
-
-        public static void EnsureCompatible([NotNull] IReadOnlyList<Property> principalProperties, [NotNull] IReadOnlyList<Property> dependentProperties, [NotNull] EntityType principalEntityType, [NotNull] EntityType dependentEntityType)
-        {
-            if (!ArePropertyCountsEqual(principalProperties, dependentProperties))
-            {
-                throw new InvalidOperationException(
-                    Strings.ForeignKeyCountMismatch(
-                        Format(dependentProperties),
-                        dependentProperties[0].DeclaringEntityType.Name,
-                        Format(principalProperties),
-                        principalProperties[0].DeclaringEntityType.Name));
-            }
-
-            if (!ArePropertyTypesCompatible(principalProperties, dependentProperties))
-            {
-                throw new InvalidOperationException(
-                    Strings.ForeignKeyTypeMismatch(
-                        Format(dependentProperties),
-                        dependentProperties[0].DeclaringEntityType.Name,
-                        principalProperties[0].DeclaringEntityType.Name));
-            }
-        }
-
-        private static bool ArePropertyCountsEqual(IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
-            => principalProperties.Count == dependentProperties.Count;
-
-        private static bool ArePropertyTypesCompatible(IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
-            => principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(
-                dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
-
         Type IProperty.ClrType => ClrType ?? DefaultClrType;
         bool IProperty.IsConcurrencyToken => IsConcurrencyToken ?? DefaultIsConcurrencyToken;
         bool IProperty.IsReadOnlyBeforeSave => IsReadOnlyBeforeSave ?? DefaultIsReadOnlyBeforeSave;

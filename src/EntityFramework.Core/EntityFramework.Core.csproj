@@ -162,6 +162,7 @@
     <Compile Include="Metadata\Conventions\Internal\ForeignKeyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\INavigationConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\InversePropertyAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IPrimaryKeyConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\NavigationAttributeNavigationConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\NotMappedPropertyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\NavigationAttributeEntityTypeConvention.cs" />

@@ -20,6 +20,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private readonly LazyRef<Dictionary<string, ConfigurationSource>> _ignoredEntityTypeNames =
             new LazyRef<Dictionary<string, ConfigurationSource>>(() => new Dictionary<string, ConfigurationSource>());
 
+        private readonly HashSet<EntityType> _rootTypes = new HashSet<EntityType>();
+
         public InternalModelBuilder([NotNull] Model metadata, [NotNull] ConventionSet conventions)
             : base(metadata)
         {
@@ -38,22 +40,37 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     () => Metadata.FindEntityType(name),
                     () => Metadata.AddEntityType(name),
                     entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
-                    ConventionDispatcher.OnEntityTypeAdded,
-                    ConfigurationSource.DataAnnotation,
+                    OnEntityTypeAdded,
                     configurationSource);
         }
 
         public virtual InternalEntityTypeBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
         {
             return !CanAdd(type.FullName, configurationSource)
-                 ? null
-                 : _entityTypeBuilders.GetOrAdd(
-                     () => Metadata.FindEntityType(type),
-                     () => Metadata.AddEntityType(type),
-                     entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
-                     ConventionDispatcher.OnEntityTypeAdded,
-                     ConfigurationSource.DataAnnotation,
-                     configurationSource);
+                ? null
+                : _entityTypeBuilders.GetOrAdd(
+                    () => Metadata.FindEntityType(type),
+                    () => Metadata.AddEntityType(type),
+                    entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
+                    OnEntityTypeAdded,
+                    configurationSource);
+        }
+
+        private InternalEntityTypeBuilder OnEntityTypeAdded(InternalEntityTypeBuilder entityTypeBuilder)
+        {
+            var added = false;
+            try
+            {
+                added = _rootTypes.Add(entityTypeBuilder.Metadata);
+                return ConventionDispatcher.OnEntityTypeAdded(entityTypeBuilder);
+            }
+            finally
+            {
+                if (added)
+                {
+                    _rootTypes.Remove(entityTypeBuilder.Metadata);
+                }
+            }
         }
 
         private bool CanAdd(string name, ConfigurationSource configurationSource)
@@ -151,7 +168,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private IReadOnlyList<EntityType> GetRoots(ConfigurationSource configurationSource)
         {
-            var roots = new List<EntityType>();
+            var roots = new List<EntityType>(_rootTypes);
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var entityType in Metadata.EntityTypes)
             {

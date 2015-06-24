@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Metadata
             DeclaringEntityType = dependentEntityType;
             PrincipalEntityType = principalEntityType;
 
-            Property.EnsureCompatible(principalKey.Properties, dependentProperties, principalEntityType, dependentEntityType);
+            AreCompatible(principalKey.Properties, dependentProperties, principalEntityType, dependentEntityType, shouldThrow: true);
 
             if (!principalEntityType.GetKeys().Contains(principalKey))
             {
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Metadata
                     throw new InvalidOperationException(
                         Strings.NavigationForWrongForeignKey(value.Name, value.DeclaringEntityType.DisplayName(), Property.Format(Properties), Property.Format(value.ForeignKey.Properties)));
                 }
-                
+
                 if (!entityType.Navigations.Contains(value))
                 {
                     throw new InvalidOperationException(Strings.NavigationNotFound(value.Name, entityType.Name));
@@ -188,5 +188,140 @@ namespace Microsoft.Data.Entity.Metadata
 
         public override string ToString()
             => $"'{DeclaringEntityType.DisplayName()}' {Property.Format(Properties)} -> '{PrincipalEntityType.DisplayName()}' {Property.Format(PrincipalKey.Properties)}";
+
+        public static bool AreCompatible(
+            [NotNull] EntityType principalEntityType,
+            [NotNull] EntityType dependentEntityType,
+            [CanBeNull] string navigationToPrincipalName,
+            [CanBeNull] string navigationToDependentName,
+            [CanBeNull] IReadOnlyList<Property> dependentProperties,
+            [CanBeNull] IReadOnlyList<Property> principalProperties,
+            bool? unique,
+            bool? required,
+            bool shouldThrow)
+        {
+            Check.NotNull(principalEntityType, nameof(principalEntityType));
+            Check.NotNull(dependentEntityType, nameof(dependentEntityType));
+
+            if (navigationToDependentName != null
+                && !Navigation.IsCompatible(
+                    navigationToDependentName,
+                    principalEntityType,
+                    dependentEntityType,
+                    !unique,
+                    shouldThrow))
+            {
+                return false;
+            }
+
+            if (navigationToPrincipalName != null
+                && !Navigation.IsCompatible(
+                    navigationToPrincipalName,
+                    dependentEntityType,
+                    principalEntityType,
+                    false,
+                    shouldThrow))
+            {
+                return false;
+            }
+
+            if (dependentProperties != null
+                && !CanPropertiesBeRequired(dependentProperties, required, dependentEntityType, true))
+            {
+                return false;
+            }
+
+            if (principalProperties != null
+                && dependentProperties != null
+                && !AreCompatible(
+                    principalProperties,
+                    dependentProperties,
+                    principalEntityType,
+                    dependentEntityType,
+                    shouldThrow))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static bool CanPropertiesBeRequired(
+            [NotNull] IEnumerable<Property> properties,
+            bool? required,
+            [NotNull] EntityType entityType,
+            bool shouldThrow)
+        {
+            Check.NotNull(properties, nameof(properties));
+            Check.NotNull(entityType, nameof(entityType));
+
+            if (!required.HasValue
+                || required.Value)
+            {
+                return true;
+            }
+
+            var nullableProperties = properties.Where(p => ((IProperty)p).ClrType.IsNullableType()).ToList();
+            if (!nullableProperties.Any())
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(Strings.ForeignKeyCannotBeOptional(
+                        Property.Format(properties), entityType.DisplayName()));
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        public static bool AreCompatible(
+            [NotNull] IReadOnlyList<Property> principalProperties,
+            [NotNull] IReadOnlyList<Property> dependentProperties,
+            [NotNull] EntityType principalEntityType,
+            [NotNull] EntityType dependentEntityType,
+            bool shouldThrow)
+        {
+            Check.NotNull(principalProperties, nameof(principalProperties));
+            Check.NotNull(dependentProperties, nameof(dependentProperties));
+            Check.NotNull(principalEntityType, nameof(principalEntityType));
+            Check.NotNull(dependentEntityType, nameof(dependentEntityType));
+
+            if (!ArePropertyCountsEqual(principalProperties, dependentProperties))
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        Strings.ForeignKeyCountMismatch(
+                            Property.Format(dependentProperties),
+                            dependentProperties[0].DeclaringEntityType.Name,
+                            Property.Format(principalProperties),
+                            principalProperties[0].DeclaringEntityType.Name));
+                }
+                return false;
+            }
+
+            if (!ArePropertyTypesCompatible(principalProperties, dependentProperties))
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        Strings.ForeignKeyTypeMismatch(
+                            Property.Format(dependentProperties),
+                            dependentProperties[0].DeclaringEntityType.Name,
+                            principalProperties[0].DeclaringEntityType.Name));
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool ArePropertyCountsEqual(IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
+            => principalProperties.Count == dependentProperties.Count;
+
+        private static bool ArePropertyTypesCompatible(IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
+            => principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(
+                dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
     }
 }

@@ -21,14 +21,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] Func<TKey> createKey,
             [NotNull] Func<TKey, TValue> createValue,
             ConfigurationSource configurationSource)
-            => GetOrAdd(getKey, createKey, createValue, null, null, configurationSource);
+            => GetOrAdd(getKey, createKey, createValue, null, configurationSource);
 
         public virtual TValue GetOrAdd(
             [NotNull] Func<TKey> getKey,
             [NotNull] Func<TKey> createKey,
             [NotNull] Func<TKey, TValue> createValue,
             [CanBeNull] Func<TValue, TValue> onNewKeyAdded,
-            [CanBeNull] ConfigurationSource? newKeyConfigurationSource,
             ConfigurationSource configurationSource)
         {
             var isNewKey = false;
@@ -50,18 +49,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             value = createValue(key);
-            if (isNewKey)
+            Add(key, value, configurationSource);
+
+            if (isNewKey
+                && onNewKeyAdded != null)
             {
-                if (onNewKeyAdded != null)
-                {
-                    newKeyConfigurationSource = newKeyConfigurationSource?.Max(configurationSource) ?? configurationSource;
-                    Add(key, value, newKeyConfigurationSource.Value);
-
-                    value = onNewKeyAdded.Invoke(value);
-
-                    Remove(key, ConfigurationSource.Explicit);
-                }
-                Add(key, value, configurationSource);
+                value = onNewKeyAdded.Invoke(value);
             }
 
             return value;

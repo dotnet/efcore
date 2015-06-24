@@ -2518,9 +2518,9 @@ namespace Microsoft.Data.Entity.Tests
 
                 var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
 
-                Assert.True(entityType.GetProperty("HobId1").IsNullable);
-                Assert.True(entityType.GetProperty("HobId1").IsNullable);
                 Assert.False(entityType.GetForeignKeys().Single().IsRequired);
+                Assert.True(entityType.GetProperty("HobId1").IsNullable
+                    || entityType.GetProperty("HobId1").IsNullable);
             }
 
             [Fact]
@@ -2567,7 +2567,7 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = HobNobBuilder();
 
                 Assert.Equal(
-                    Strings.CannotBeNullable("NobId1", "Hob", "Int32"),
+                    Strings.ForeignKeyCannotBeOptional("{'NobId1', 'NobId2'}", "Hob"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder
                         .Entity<Nob>().Reference(e => e.Hob).InverseReference(e => e.Nob)
                         .ForeignKey<Hob>(e => new { e.NobId1, e.NobId2 })
@@ -2575,18 +2575,18 @@ namespace Microsoft.Data.Entity.Tests
 
                 var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
 
-                Assert.False(entityType.GetProperty("NobId1").IsNullable);
-                Assert.False(entityType.GetProperty("NobId1").IsNullable);
                 Assert.True(entityType.GetForeignKeys().Single().IsRequired);
+                Assert.False(entityType.GetProperty("NobId1").IsNullable);
+                Assert.False(entityType.GetProperty("NobId1").IsNullable);
             }
 
             [Fact]
-            public virtual void Can_use_non_nullable_FK_if_optional()
+            public virtual void Optional_FK_cannot_be_made_non_nullable()
             {
                 var modelBuilder = HobNobBuilder();
 
                 Assert.Equal(
-                    Strings.CannotBeNullable("NobId1", "Hob", "Int32"),
+                    Strings.ForeignKeyCannotBeOptional("{'NobId1', 'NobId2'}", "Hob"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder
                         .Entity<Nob>().Reference(e => e.Hob).InverseReference(e => e.Nob)
                         .Required(false)
@@ -2594,9 +2594,9 @@ namespace Microsoft.Data.Entity.Tests
 
                 var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
 
+                Assert.False(entityType.GetForeignKeys().Single().IsRequired);
                 Assert.False(entityType.GetProperty("NobId1").IsNullable);
                 Assert.False(entityType.GetProperty("NobId1").IsNullable);
-                Assert.True(entityType.GetForeignKeys().Single().IsRequired);
             }
 
             [Fact]
@@ -2622,7 +2622,29 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             [Fact]
-            public virtual void One_to_one_relationships_with_unspecified_keys_can_be_made_required()
+            public virtual void Unspecified_FK_can_be_made_optional_in_any_order()
+            {
+                var modelBuilder = HobNobBuilder();
+                var principalType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
+                var dependentType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
+                var expectedPrincipalProperties = principalType.GetProperties().ToList();
+                var expectedDependentProperties = dependentType.GetProperties().ToList();
+
+                modelBuilder
+                    .Entity<Hob>().Reference(e => e.Nob).InverseReference(e => e.Hob)
+                    .PrincipalKey<Nob>(e => new { e.Id1, e.Id2 })
+                    .Required(false);
+
+                var fk = dependentType.GetForeignKeys().Single();
+                Assert.False(fk.IsRequired);
+
+                AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
+                expectedDependentProperties.AddRange(fk.Properties);
+                AssertEqual(expectedDependentProperties, dependentType.GetProperties());
+            }
+
+            [Fact]
+            public virtual void Unspecified_FK_can_be_made_required()
             {
                 var modelBuilder = HobNobBuilder();
                 var principalType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
@@ -2648,6 +2670,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var modelBuilder = CreateModelBuilder(new Model());
 
+                modelBuilder.Entity<Nob>();
                 modelBuilder
                     .Entity<Hob>(eb =>
                         {
@@ -2672,6 +2695,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var modelBuilder = CreateModelBuilder(new Model());
 
+                modelBuilder.Entity<Nob>();
                 modelBuilder
                     .Entity<Hob>(eb =>
                         {

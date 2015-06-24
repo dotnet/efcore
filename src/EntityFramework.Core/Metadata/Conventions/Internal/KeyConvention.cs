@@ -10,17 +10,16 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class KeyConvention : IKeyConvention, IForeignKeyRemovedConvention
+    public class KeyConvention : IKeyConvention, IForeignKeyRemovedConvention, IPrimaryKeyConvention
     {
         public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
 
-            var entityTypeBuilder = keyBuilder.ModelBuilder.Entity(keyBuilder.Metadata.DeclaringEntityType.Name, ConfigurationSource.Convention);
-            var properties = keyBuilder.Metadata.Properties;
+            var entityTypeBuilder = keyBuilder.ModelBuilder.Entity(
+                keyBuilder.Metadata.DeclaringEntityType.Name, ConfigurationSource.Convention);
 
-            SetValueGeneration(entityTypeBuilder, properties);
-            SetIdentity(entityTypeBuilder, properties);
+            SetValueGeneration(entityTypeBuilder, keyBuilder.Metadata.Properties);
 
             return keyBuilder;
         }
@@ -30,8 +29,44 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            SetValueGeneration(entityTypeBuilder, foreignKey.Properties);
-            SetIdentity(entityTypeBuilder, foreignKey.Properties);
+            var properties = foreignKey.Properties;
+            SetValueGeneration(entityTypeBuilder, properties);
+
+            var valueGeneratedOnAddProperty = FindValueGeneratedOnAddProperty(properties);
+            if (valueGeneratedOnAddProperty != null
+                && entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null)
+            {
+                SetIdentity(entityTypeBuilder, valueGeneratedOnAddProperty);
+            }
+        }
+
+        public virtual bool Apply(InternalKeyBuilder keyBuilder, Key previousPrimaryKey)
+        {
+            Check.NotNull(keyBuilder, nameof(keyBuilder));
+
+            var entityTypeBuilder = keyBuilder.ModelBuilder.Entity(
+                keyBuilder.Metadata.DeclaringEntityType.Name, ConfigurationSource.Convention);
+
+            if (previousPrimaryKey != null)
+            {
+                foreach (var property in previousPrimaryKey.Properties)
+                {
+                    if (entityTypeBuilder.Metadata.FindProperty(property.Name) != null)
+                    {
+                        entityTypeBuilder.Property(property.Name, ConfigurationSource.Convention)
+                            ?.ValueGenerated(null, ConfigurationSource.Convention);
+                    }
+                }
+            }
+
+            var valueGeneratedOnAddProperty = FindValueGeneratedOnAddProperty(keyBuilder.Metadata.Properties);
+            if (valueGeneratedOnAddProperty != null
+                && !valueGeneratedOnAddProperty.IsForeignKey(entityTypeBuilder.Metadata))
+            {
+                SetIdentity(entityTypeBuilder, valueGeneratedOnAddProperty);
+            }
+
+            return true;
         }
 
         protected virtual void SetValueGeneration(
@@ -41,56 +76,27 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(properties, nameof(properties));
 
-            foreach (var property in properties.Where(
-                property => !entityTypeBuilder.Metadata.GetForeignKeys().SelectMany(fk => fk.Properties).Contains(property)))
+            var propertyBuilders = InternalEntityTypeBuilder.GetPropertyBuilders(
+                entityTypeBuilder.ModelBuilder,
+                properties.Where(property =>
+                    !entityTypeBuilder.Metadata.GetForeignKeys().SelectMany(fk => fk.Properties).Contains(property)),
+                ConfigurationSource.Convention);
+            foreach (var propertyBuilder in propertyBuilders)
             {
-                entityTypeBuilder.ModelBuilder.Entity(property.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                    .Property(property.Name, ConfigurationSource.Convention)
-                    ?.UseValueGenerator(true, ConfigurationSource.Convention);
+                propertyBuilder.UseValueGenerator(true, ConfigurationSource.Convention);
             }
         }
 
-        protected virtual void SetIdentity(
-            [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
-            [NotNull] IReadOnlyList<Property> properties)
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NotNull(properties, nameof(properties));
-
-            if (entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null)
-            {
-                foreach (var property in entityTypeBuilder.Metadata.GetDeclaredProperties())
-                {
-                    entityTypeBuilder.Property(property.Name, ConfigurationSource.Convention)
-                        ?.ValueGenerated(null, ConfigurationSource.Convention);
-                }
-
-                Property valueGeneratedOnAddProperty;
-                if ((valueGeneratedOnAddProperty =
-                    ValueGeneratedOnAddProperty(properties, entityTypeBuilder.Metadata)) != null)
-                {
-                    entityTypeBuilder.Property(
-                        valueGeneratedOnAddProperty.Name,
-                        ((IProperty)valueGeneratedOnAddProperty).ClrType,
-                        ConfigurationSource.Convention)
-                        ?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
-                }
-            }
-        }
-
-        public virtual Property ValueGeneratedOnAddProperty(
+        public virtual Property FindValueGeneratedOnAddProperty(
             [NotNull] IReadOnlyList<Property> properties, [NotNull] EntityType entityType)
         {
-            if (properties.Count == 1)
+            Check.NotNull(properties, nameof(properties));
+            Check.NotNull(entityType, nameof(entityType));
+
+            if (entityType.FindPrimaryKey(properties) != null)
             {
-                var property = properties.First();
-
-                var propertyType = ((IProperty)property).ClrType.UnwrapNullableType();
-
-                if ((propertyType.IsInteger()
-                    || propertyType == typeof(Guid))
-                    && entityType.FindPrimaryKey(properties) != null
-                    && !property.IsForeignKey(entityType))
+                var property = FindValueGeneratedOnAddProperty(properties);
+                if (!property.IsForeignKey(entityType))
                 {
                     return property;
                 }
@@ -98,5 +104,28 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             return null;
         }
+
+        private Property FindValueGeneratedOnAddProperty(IReadOnlyList<Property> properties)
+        {
+            if (properties.Count == 1)
+            {
+                var property = properties.First();
+                var propertyType = ((IProperty)property).ClrType.UnwrapNullableType();
+                if (propertyType.IsInteger()
+                    || propertyType == typeof(Guid))
+                {
+                    return property;
+                }
+            }
+
+            return null;
+        }
+
+        private void SetIdentity(InternalEntityTypeBuilder entityTypeBuilder, Property property)
+            => entityTypeBuilder.Property(
+                property.Name,
+                ((IProperty)property).ClrType,
+                ConfigurationSource.Convention)
+                ?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
     }
 }

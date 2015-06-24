@@ -13,6 +13,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         public virtual IList<IForeignKeyConvention> ForeignKeyAddedConventions { get; } = new List<IForeignKeyConvention>();
         public virtual IList<IForeignKeyRemovedConvention> ForeignKeyRemovedConventions { get; } = new List<IForeignKeyRemovedConvention>();
         public virtual IList<IKeyConvention> KeyAddedConventions { get; } = new List<IKeyConvention>();
+        public virtual IList<IPrimaryKeyConvention> PrimaryKeySetConventions { get; } = new List<IPrimaryKeyConvention>();
         public virtual IList<IModelConvention> ModelBuiltConventions { get; } = new List<IModelConvention>();
         public virtual IList<IModelConvention> ModelInitializedConventions { get; } = new List<IModelConvention>();
         public virtual IList<INavigationConvention> NavigationAddedConventions { get; } = new List<INavigationConvention>();

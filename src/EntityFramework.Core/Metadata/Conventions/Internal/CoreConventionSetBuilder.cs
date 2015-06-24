@@ -30,6 +30,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var keyConvention = new KeyConvention();
             conventionSet.KeyAddedConventions.Add(keyConvention);
 
+            conventionSet.PrimaryKeySetConventions.Add(keyConvention);
+
             conventionSet.ForeignKeyAddedConventions.Add(new ForeignKeyAttributeConvention());
             conventionSet.ForeignKeyAddedConventions.Add(new ForeignKeyPropertyDiscoveryConvention());
 

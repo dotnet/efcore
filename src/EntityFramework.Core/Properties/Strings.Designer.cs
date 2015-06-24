@@ -997,6 +997,14 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// The foreign key {foreignKey} on entity type '{entityType}' cannot be marked as optional because it does not contain any property of a nullable type. Any foreign key can be marked as required, but only foreign keys with at least one property of a nullable type and which is not part of primary key can be marked as optional.
+        /// </summary>
+        public static string ForeignKeyCannotBeOptional([CanBeNull] object foreignKey, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyCannotBeOptional", "foreignKey", "entityType"), foreignKey, entityType);
+        }
+
+        /// <summary>
         /// Entity type '{entityType}' is in shadow-state. A valid model requires all entity types to have corresponding CLR type.
         /// </summary>
         public static string ShadowEntity([CanBeNull] object entityType)
