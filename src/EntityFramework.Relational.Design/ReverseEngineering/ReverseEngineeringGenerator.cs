@@ -50,6 +50,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(configuration, nameof(configuration));
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             CheckConfiguration(configuration);
 
             var resultingFiles = new List<string>();

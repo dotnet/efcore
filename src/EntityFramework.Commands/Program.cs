@@ -7,6 +7,8 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Utilities;
@@ -25,21 +27,24 @@ namespace Microsoft.Data.Entity.Commands
         private readonly MigrationTool _migrationTool;
         private readonly DatabaseTool _databaseTool;
         private readonly IRuntimeEnvironment _runtimeEnv;
+        private readonly IApplicationShutdown _applicationShutdown;
         private CommandLineApplication _app;
         private readonly ILogger _logger;
 
         public Program([NotNull] IServiceProvider serviceProvider,
             [NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager,
-            [NotNull] IRuntimeEnvironment runtimeEnv)
+            [NotNull] IRuntimeEnvironment runtimeEnv, IApplicationShutdown applicationShutdown)
         {
             Check.NotNull(serviceProvider, nameof(serviceProvider));
             Check.NotNull(appEnv, nameof(appEnv));
             Check.NotNull(libraryManager, nameof(libraryManager));
             Check.NotNull(runtimeEnv, nameof(runtimeEnv));
+            Check.NotNull(applicationShutdown, nameof(applicationShutdown));
 
             _runtimeEnv = runtimeEnv;
             _projectDir = appEnv.ApplicationBasePath;
             _rootNamespace = appEnv.ApplicationName;
+            _applicationShutdown = applicationShutdown;
 
             var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose: true));
             var assemblyName = new AssemblyName(appEnv.ApplicationName);
@@ -53,6 +58,11 @@ namespace Microsoft.Data.Entity.Commands
         public virtual int Main([NotNull] string[] args)
         {
             Check.NotNull(args, nameof(args));
+
+            Console.CancelKeyPress += (sender, eventArgs) =>
+            {
+                _applicationShutdown.RequestShutdown();
+            };
 
             // TODO: Enable subcommands in help
             _app = new CommandLineApplication { Name = "ef" };
@@ -222,7 +232,11 @@ namespace Microsoft.Data.Entity.Commands
                             "[connectionString]",
                             "The connection string of the database");
 
-                    revEng.OnExecute(() => ReverseEngineer(connectionString.Value));
+                    revEng.OnExecute(async () =>
+                        {
+                            return await ReverseEngineerAsync(
+                                connectionString.Value, _applicationShutdown.ShutdownRequested);
+                        });
                 },
                 addHelpCommand: false);
             _app.Command(
@@ -361,11 +375,13 @@ namespace Microsoft.Data.Entity.Commands
                 });
         }
 
-        public virtual int ReverseEngineer([NotNull] string connectionString)
+        public virtual async Task<int> ReverseEngineerAsync(
+            [NotNull] string connectionString,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            _databaseTool.ReverseEngineerAsync(
+            await _databaseTool.ReverseEngineerAsync(
                 DatabaseTool._defaultReverseEngineeringProviderAssembly,
-                connectionString, _rootNamespace, _projectDir).GetAwaiter().GetResult();
+                connectionString, _rootNamespace, _projectDir);
 
             _logger.LogInformation("Done.");
 
