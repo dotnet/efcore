@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
     public class RelationshipDiscoveryConvention :
-        IEntityTypeConvention, IEntityTypeMemberIgnoredConvention, INavigationRemovedConvention
+        IEntityTypeConvention, IEntityTypeMemberIgnoredConvention, INavigationRemovedConvention, IBaseTypeConvention
     {
         public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
         {
@@ -92,15 +92,20 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
                     foreach (var navigationCandidate in navigationCandidates)
                     {
-                        var targetEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(navigationCandidate.FindCandidateNavigationPropertyType(), ConfigurationSource.Convention);
-                        targetEntityTypeBuilder.Relationship(entityTypeBuilder, navigationCandidate, reverseNavigationCandidates.SingleOrDefault(), ConfigurationSource.Convention);
+                        var targetEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(
+                            navigationCandidate.FindCandidateNavigationPropertyType(), ConfigurationSource.Convention);
+                        targetEntityTypeBuilder.Relationship(
+                            entityTypeBuilder,
+                            reverseNavigationCandidates.SingleOrDefault(),
+                            navigationCandidate,
+                            ConfigurationSource.Convention);
                     }
                 }
             }
 
             return entityTypeBuilder;
         }
-        
+
         public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, string ignoredMemberName)
             => Apply(entityTypeBuilder) != null;
 
@@ -111,5 +116,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 : relationshipBuilder.Metadata.PrincipalEntityType;
             return Apply(relationshipBuilder.ModelBuilder.Entity(owner.Name, ConfigurationSource.Convention)) != null;
         }
+
+        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
+            => Apply(entityTypeBuilder) != null;
     }
 }

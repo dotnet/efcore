@@ -64,9 +64,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string reference)
-            => Builder.DependentToPrincipal(
-                reference,
-                ConfigurationSource.Explicit,
-                strictPrincipal: true);
+            => Builder.DependentToPrincipal(reference, ConfigurationSource.Explicit);
     }
 }

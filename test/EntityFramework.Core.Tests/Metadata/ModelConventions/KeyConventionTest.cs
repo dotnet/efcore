@@ -59,13 +59,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "SampleEntityId" };
-            principalEntityBuilder.Relationship(
+            referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
-                referencedEntityBuilder,
-                null,
-                null,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                null,
                 ConfigurationSource.Convention);
 
             var keyBuilder = referencedEntityBuilder.HasKey(properties, ConfigurationSource.Convention);
@@ -86,13 +82,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "SampleEntityId" };
-            principalEntityBuilder.Relationship(
+            referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
-                referencedEntityBuilder,
-                null,
-                null,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                null,
                 ConfigurationSource.Convention);
 
             var keyBuilder = referencedEntityBuilder.HasKey(new List<string> { "Id", "SampleEntityId" }, ConfigurationSource.Convention);
@@ -114,13 +106,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "Id", "SampleEntityId" };
-            principalEntityBuilder.Relationship(
+            referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
-                referencedEntityBuilder,
-                null,
-                null,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                null,
                 ConfigurationSource.Convention);
 
             var keyBuilder = referencedEntityBuilder.HasKey(new List<string> { "SampleEntityId" }, ConfigurationSource.Convention);
@@ -167,13 +155,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.True(keyProperties[0].RequiresValueGenerator);
 
-            principalEntityBuilder.Relationship(
+            referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
-                referencedEntityBuilder,
-                null,
-                null,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                null,
                 ConfigurationSource.Convention);
 
             Assert.Null(keyProperties[0].RequiresValueGenerator);
@@ -196,13 +180,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.True(keyProperties[0].RequiresValueGenerator);
 
-            var relationshipBuilder = principalEntityBuilder.Relationship(
+            var relationshipBuilder = referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
-                referencedEntityBuilder,
-                null,
-                null,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                null,
                 ConfigurationSource.Convention);
 
             Assert.Null(keyProperties[0].RequiresValueGenerator);
@@ -339,13 +319,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
 
-            principalEntityBuilder.Relationship(
+            referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
-                referencedEntityBuilder,
-                null,
-                null,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                null,
                 ConfigurationSource.Convention);
 
             Assert.Null(property.ValueGenerated);
@@ -368,13 +344,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
 
-            var relationshipBuilder = principalEntityBuilder.Relationship(
+            var relationshipBuilder = referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
-                referencedEntityBuilder,
-                null,
-                null,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                null,
                 ConfigurationSource.Convention);
 
             Assert.Null(property.ValueGenerated);
@@ -434,13 +406,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             referencedEntityBuilder.Property("Foo", ConfigurationSource.Convention);
             var properties = new List<string> { "Foo" };
-            principalEntityBuilder.Relationship(
+            referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
-                referencedEntityBuilder,
-                null,
-                null,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                null,
                 ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.ReferencedShadowKey("{'Foo'}", typeof(SampleEntity).FullName, "{'Foo'}", "{'Foo'}",typeof(ReferencedEntity).FullName),
@@ -457,14 +425,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             principalEntityBuilder.Property("Foo", ConfigurationSource.DataAnnotation);
             referencedEntityBuilder.Property("Foo", ConfigurationSource.DataAnnotation);
             var properties = new List<string> { "Foo" };
-            principalEntityBuilder.Relationship(
+            referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
-                referencedEntityBuilder,
-                null,
-                null,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                principalEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-                ConfigurationSource.Convention);
+                ConfigurationSource.Convention)
+                .HasPrincipalKey(principalEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
+                    ConfigurationSource.Convention);
 
             Assert.Same(modelBuilder, new KeyConvention().Apply(modelBuilder));
         }

@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             foreach (var foreignKey in propertyBuilder.Metadata.FindContainingForeignKeysInHierarchy())
             {
                 Apply(propertyBuilder.ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                    .Relationship(foreignKey, true, ConfigurationSource.Convention));
+                    .Relationship(foreignKey, ConfigurationSource.Convention));
             }
 
             return true;
@@ -24,8 +24,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 ((IForeignKey)relationshipBuilder.Metadata).IsRequired
                     ? DeleteBehavior.Cascade
                     : DeleteBehavior.Restrict,
-                ConfigurationSource.Convention,
-                runConventions: false);
+                ConfigurationSource.Convention);
 
             return relationshipBuilder;
         }

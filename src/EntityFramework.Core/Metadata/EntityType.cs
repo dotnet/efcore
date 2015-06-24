@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Metadata
                                 value.Name,
                                 string.Join(", ", propertyCollisions.Select(p => p.Name))));
                     }
-                    
+
                     var navigationCollisions = value.Navigations.Select(p => p.Name)
                         .SelectMany(baseNavigation => FindNavigationsInHierarchy(baseNavigation));
                     if (navigationCollisions.Any())
@@ -150,9 +150,9 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        private List<EntityType> _directlyDerivedTypes = new List<EntityType>();
+        private readonly List<EntityType> _directlyDerivedTypes = new List<EntityType>();
         public virtual IReadOnlyList<EntityType> GetDirectlyDerivedTypes() => _directlyDerivedTypes;
-            
+
         public virtual IEnumerable<EntityType> GetDerivedTypes()
         {
             var derivedTypes = new List<EntityType>();
@@ -492,7 +492,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual ForeignKey GetForeignKey([NotNull] IReadOnlyList<Property> properties)
             => (ForeignKey)((IEntityType)this).GetForeignKey(properties);
-        
+
         public virtual ForeignKey FindForeignKey([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -517,7 +517,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IEnumerable<ForeignKey> FindDerivedForeignKeys([NotNull] IReadOnlyList<Property> properties)
             => GetDerivedTypes().SelectMany(et => et.GetDeclaredForeignKeys()
-                    .Where(foreignKey => PropertyListComparer.Instance.Equals(properties, foreignKey.Properties)));
+                .Where(foreignKey => PropertyListComparer.Instance.Equals(properties, foreignKey.Properties)));
 
         public virtual IEnumerable<ForeignKey> FindForeignKeysInHierarchy([NotNull] IReadOnlyList<Property> properties)
             => ToEnumerable(FindForeignKey(properties)).Concat(FindDerivedForeignKeys(properties));
@@ -644,7 +644,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual IEnumerable<Navigation> GetDeclaredNavigations() => _navigations.Values;
-        
+
         public virtual IEnumerable<Navigation> FindDerivedNavigations([NotNull] string navigationName)
             => ((IEntityType)this).FindDerivedNavigations(navigationName).Cast<Navigation>();
 
@@ -747,7 +747,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IEnumerable<Index> FindDerivedIndexes([NotNull] IReadOnlyList<Property> properties)
             => GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes()
-                    .Where(index => PropertyListComparer.Instance.Equals(properties, index.Properties)));
+                .Where(index => PropertyListComparer.Instance.Equals(properties, index.Properties)));
 
         public virtual Index RemoveIndex([NotNull] Index index)
         {
@@ -882,7 +882,7 @@ namespace Microsoft.Data.Entity.Metadata
                 : null;
         }
 
-        public virtual IEnumerable<Property> GetDeclaredProperties() => _properties.Values;        
+        public virtual IEnumerable<Property> GetDeclaredProperties() => _properties.Values;
 
         public virtual IEnumerable<Property> FindDerivedProperties([NotNull] string propertyName)
             => ((IEntityType)this).FindDerivedProperties(propertyName).Cast<Property>();

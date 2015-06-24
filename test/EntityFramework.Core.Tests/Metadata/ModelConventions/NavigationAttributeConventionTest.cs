@@ -24,20 +24,24 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+            dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
-                "Blog",
-                "BlogDetails",
+                nameof(BlogDetails.Blog),
+                nameof(Blog.BlogDetails),
                 ConfigurationSource.Convention);
 
-            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
-            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Blog");
+            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Blog.BlogDetails));
+            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(BlogDetails.Blog));
 
             new NotMappedMemberAttributeConvention().Apply(principalEntityTypeBuilder);
 
-            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
-            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Blog");
+            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Blog.BlogDetails));
+            Assert.DoesNotContain(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(BlogDetails.Blog));
+
+            new RelationshipDiscoveryConvention().Apply(dependentEntityTypeBuilder);
+
+            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Blog.BlogDetails));
+            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(BlogDetails.Blog));
         }
 
         [Fact]
@@ -46,20 +50,19 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+            dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
-                "Blog",
-                "BlogDetails",
+                nameof(BlogDetails.Blog),
+                nameof(Blog.BlogDetails),
                 ConfigurationSource.Explicit);
 
-            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
-            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Blog");
+            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Blog.BlogDetails));
+            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(BlogDetails.Blog));
 
             new NotMappedMemberAttributeConvention().Apply(principalEntityTypeBuilder);
 
-            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
-            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Blog");
+            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Blog.BlogDetails));
+            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(BlogDetails.Blog));
         }
 
         [Fact]
@@ -69,8 +72,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet(), model);
             modelBuilder.Entity<BlogDetails>();
 
-            Assert.DoesNotContain(model.GetEntityType(typeof(Blog)).Navigations, nav => nav.Name == "BlogDetails");
-            Assert.Contains(model.GetEntityType(typeof(BlogDetails)).Navigations, nav => nav.Name == "Blog");
+            Assert.DoesNotContain(model.GetEntityType(typeof(Blog)).Navigations, nav => nav.Name == nameof(Blog.BlogDetails));
+            Assert.Contains(model.GetEntityType(typeof(BlogDetails)).Navigations, nav => nav.Name == nameof(BlogDetails.Blog));
         }
 
         #endregion
@@ -85,12 +88,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
-                "Blog",
-                "Posts",
+                nameof(Post.Blog),
+                nameof(Blog.Posts),
                 ConfigurationSource.Convention);
 
-            var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation("Blog");
+            var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(BlogDetails.Blog));
 
             relationshipBuilder.IsRequired(false, ConfigurationSource.Convention);
 
@@ -99,8 +101,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             relationshipBuilder = new RequiredNavigationAttributeConvention().Apply(relationshipBuilder, navigation);
 
             Assert.True(relationshipBuilder.Metadata.IsRequired);
-            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Posts");
-            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Blog");
+            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Blog.Posts));
+            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Post.Blog));
         }
 
         [Fact]
@@ -111,12 +113,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
-                "Blog",
-                "Posts",
+                nameof(Post.Blog),
+                nameof(Blog.Posts),
                 ConfigurationSource.Convention);
 
-            var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation("Blog");
+            var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(BlogDetails.Blog));
 
             relationshipBuilder.IsRequired(false, ConfigurationSource.Explicit);
 
@@ -125,8 +126,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             relationshipBuilder = new RequiredNavigationAttributeConvention().Apply(relationshipBuilder, navigation);
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
-            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Posts");
-            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Blog");
+            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Blog.Posts));
+            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Post.Blog));
         }
 
         [Fact]
@@ -137,12 +138,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
-                "Principal",
-                "Dependents",
+                nameof(Dependent.Principal),
+                nameof(Principal.Dependents),
                 ConfigurationSource.Convention);
 
-            var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation("Principal");
+            var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(Dependent.Principal));
 
             Assert.Null(relationshipBuilder.Metadata.IsRequired);
 
@@ -159,12 +159,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
-                "Principal",
-                "Dependent",
+                nameof(Dependent.Principal),
+                nameof(Principal.Dependent),
                 ConfigurationSource.Convention);
 
-            var navigation = principalEntityTypeBuilder.Metadata.FindNavigation("Dependent");
+            var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependent));
 
             Assert.Null(relationshipBuilder.Metadata.IsRequired);
 
@@ -193,22 +192,21 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+            dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
-                "Principal",
-                "Dependents",
+                nameof(Dependent.Principal),
+                nameof(Principal.Dependents),
                 ConfigurationSource.Convention);
 
-            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Dependents");
-            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Dependent");
-            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Principal");
+            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Principal.Dependents));
+            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Principal.Dependent));
+            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Dependent.Principal));
 
             new InversePropertyAttributeConvention().Apply(dependentEntityTypeBuilder);
 
-            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Dependents");
-            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Dependent");
-            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Principal");
+            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Principal.Dependents));
+            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Principal.Dependent));
+            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Dependent.Principal));
         }
 
         [Fact]
@@ -217,22 +215,21 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
             var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
 
-            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+            dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
-                "Principal",
-                "Dependents",
+                nameof(Dependent.Principal),
+                nameof(Principal.Dependents),
                 ConfigurationSource.Explicit);
 
-            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Dependents");
-            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Dependent");
-            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Principal");
+            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Principal.Dependents));
+            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Principal.Dependent));
+            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Dependent.Principal));
 
             new InversePropertyAttributeConvention().Apply(dependentEntityTypeBuilder);
 
-            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Dependents");
-            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Dependent");
-            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "Principal");
+            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Principal.Dependents));
+            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Principal.Dependent));
+            Assert.Contains(dependentEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == nameof(Dependent.Principal));
         }
 
         [Fact]
@@ -284,12 +281,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
                 "Principal",
                 "Dependent",
-                dependentEntityTypeBuilder.GetOrCreateProperties(new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
-                null,
-                ConfigurationSource.Convention);
+                ConfigurationSource.Convention)
+                .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
+                    new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
+                    ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
 
@@ -306,12 +303,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
                 "Principal",
                 "Dependent",
-                dependentEntityTypeBuilder.GetOrCreateProperties(new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
-                null,
-                ConfigurationSource.Explicit);
+                ConfigurationSource.Convention)
+                .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
+                    new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
+                    ConfigurationSource.Explicit);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
 
@@ -328,12 +325,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
                 "Principal",
                 "Dependent",
-                dependentEntityTypeBuilder.GetOrCreateProperties(new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
-                null,
-                ConfigurationSource.Convention);
+                ConfigurationSource.Convention)
+                .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
+                    new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
+                    ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
 
@@ -350,12 +347,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
                 "AnotherPrincipal",
                 "Dependent",
-                dependentEntityTypeBuilder.GetOrCreateProperties(new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
-                null,
-                ConfigurationSource.Convention);
+                ConfigurationSource.Convention)
+                .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
+                    new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
+                    ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
 
@@ -372,12 +369,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
                 "AnotherPrincipal",
                 "Dependent",
-                dependentEntityTypeBuilder.GetOrCreateProperties(new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
-                null,
-                ConfigurationSource.Convention);
+                ConfigurationSource.Convention)
+                .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
+                    new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
+                    ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
 
@@ -394,12 +391,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
                 "Dependent",
                 "AnotherPrincipal",
-                dependentEntityTypeBuilder.GetOrCreateProperties(new List<PropertyInfo> { Principal.DependentIdProperty }, ConfigurationSource.Convention),
-                null,
-                ConfigurationSource.Convention);
+                ConfigurationSource.Convention)
+                .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
+                    new List<PropertyInfo> { Principal.DependentIdProperty }, ConfigurationSource.Convention),
+                    ConfigurationSource.Convention);
 
             Assert.Equal("DependentId", relationshipBuilder.Metadata.Properties.First().Name);
             Assert.Equal(typeof(Principal), relationshipBuilder.Metadata.DeclaringEntityType.ClrType);
@@ -420,12 +417,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
                 "CompositePrincipal",
                 "Dependent",
-                dependentEntityTypeBuilder.GetOrCreateProperties(new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
-                null,
-                ConfigurationSource.Convention);
+                ConfigurationSource.Convention)
+                .HasForeignKey(dependentEntityTypeBuilder.GetOrCreateProperties(
+                    new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
+                    ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
 
@@ -446,9 +443,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
                 "Principal",
-                null,ConfigurationSource.Convention);
+                null,
+                ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.FkAttributeOnPropertyNavigationMismatch("PrincipalId", "Principal", typeof(FkPropertyNavigationMismatch).FullName),
                 Assert.Throws<InvalidOperationException>(() => new ForeignKeyAttributeConvention().Apply(relationshipBuilder)).Message);
@@ -462,7 +459,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
                 "Principal",
                 null,
                 ConfigurationSource.Convention);
@@ -479,7 +475,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 principalEntityTypeBuilder,
-                dependentEntityTypeBuilder,
                 "Principal",
                 null,
                 ConfigurationSource.Convention);
@@ -613,7 +608,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             [InverseProperty("MismatchedInverseProperty")]
             public Principal Principal { get; set; }
-
         }
 
         private class FkPropertyNavigationMismatch

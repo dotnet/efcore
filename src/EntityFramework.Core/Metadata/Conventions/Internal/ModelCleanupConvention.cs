@@ -10,8 +10,25 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
             modelBuilder.RemoveEntityTypesUnreachableByNavigations(ConfigurationSource.DataAnnotation);
+            RemoveNavigationlessForeignKeys(modelBuilder);
 
             return modelBuilder;
+        }
+
+        private void RemoveNavigationlessForeignKeys(InternalModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Metadata.EntityTypes)
+            {
+                foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
+                {
+                    if (foreignKey.PrincipalToDependent == null
+                        && foreignKey.DependentToPrincipal == null)
+                    {
+                        modelBuilder.Entity(entityType.Name, ConfigurationSource.Convention)
+                            .RemoveForeignKey(foreignKey, ConfigurationSource.DataAnnotation);
+                    }
+                }
+            }
         }
     }
 }

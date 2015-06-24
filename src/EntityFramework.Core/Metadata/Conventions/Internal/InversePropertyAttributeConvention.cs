@@ -69,7 +69,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                         targetEntityTypeBuilder.Metadata.Name));
             }
 
-            targetEntityTypeBuilder.Relationship(entityTypeBuilder, navigationPropertyInfo, inverseNavigationPropertyInfo, ConfigurationSource.DataAnnotation);
+            targetEntityTypeBuilder.Relationship(
+                entityTypeBuilder,
+                inverseNavigationPropertyInfo,
+                navigationPropertyInfo,
+                ConfigurationSource.DataAnnotation);
 
             return entityTypeBuilder;
         }

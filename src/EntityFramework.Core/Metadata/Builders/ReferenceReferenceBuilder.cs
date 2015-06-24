@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -22,7 +24,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     /// </summary>
     public class ReferenceReferenceBuilder : IAccessor<Model>, IAccessor<InternalRelationshipBuilder>
     {
-        private readonly InternalRelationshipBuilder _builder;
+        private readonly IReadOnlyList<Property> _foreignKeyProperties;
+        private readonly IReadOnlyList<Property> _principalKeyProperties;
+        private readonly string _navigationToPrincipalName;
+        private readonly string _navigationToDependentName;
+        private readonly bool? _required;
 
         /// <summary>
         ///     <para>
@@ -35,16 +41,68 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="builder"> The internal builder being used to configure this relationship. </param>
         public ReferenceReferenceBuilder([NotNull] InternalRelationshipBuilder builder)
+            : this(builder, null)
         {
             Check.NotNull(builder, nameof(builder));
-
-            _builder = builder;
+            _navigationToPrincipalName = builder.Metadata.DependentToPrincipal?.Name;
+            _navigationToDependentName = builder.Metadata.PrincipalToDependent?.Name;
         }
+
+        protected ReferenceReferenceBuilder(
+            InternalRelationshipBuilder builder,
+            ReferenceReferenceBuilder oldBuilder,
+            bool inverted = false,
+            bool foreignKeySet = false,
+            bool principalKeySet = false,
+            bool requiredSet = false)
+        {
+            Builder = builder;
+            if (oldBuilder != null)
+            {
+                if (inverted)
+                {
+                    if (oldBuilder._foreignKeyProperties != null
+                        || oldBuilder._principalKeyProperties != null)
+
+                    {
+                        throw new InvalidOperationException(CoreStrings.RelationshipCannotBeInverted);
+                    }
+
+                    var navigationName = _navigationToDependentName;
+                    _navigationToDependentName = _navigationToPrincipalName;
+                    _navigationToPrincipalName = navigationName;
+                }
+
+                _foreignKeyProperties = foreignKeySet
+                    ? builder.Metadata.Properties
+                    : oldBuilder._foreignKeyProperties;
+                _principalKeyProperties = principalKeySet
+                    ? builder.Metadata.PrincipalKey.Properties
+                    : oldBuilder._principalKeyProperties;
+                _required = requiredSet
+                    ? builder.Metadata.IsRequired.Value
+                    : oldBuilder._required;
+
+                var foreignKey = builder.Metadata;
+                Entity.Metadata.ForeignKey.AreCompatible(
+                    foreignKey.PrincipalEntityType,
+                    foreignKey.DeclaringEntityType,
+                    _navigationToPrincipalName,
+                    _navigationToDependentName,
+                    _foreignKeyProperties,
+                    _principalKeyProperties,
+                    foreignKey.IsUnique,
+                    _required,
+                    shouldThrow: true);
+            }
+        }
+
+        protected virtual InternalRelationshipBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the internal builder being used to configure this relationship.
         /// </summary>
-        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => _builder;
+        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => Builder;
 
         /// <summary>
         ///     The foreign key that represents this relationship.
@@ -106,7 +164,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
             Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
-            return new ReferenceReferenceBuilder(Builder.HasForeignKey(dependentEntityType, foreignKeyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceReferenceBuilder(
+                Builder.DependentEntityType(dependentEntityType, ConfigurationSource.Explicit)
+                    .HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
+                this,
+                inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
+                foreignKeySet: true);
         }
 
         /// <summary>
@@ -128,8 +191,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <param name="dependentEntityTypeName">
-        ///     The name of the entity type that is the dependent in this relationship (the type that has the foreign key
-        ///     properties).
+        ///     The name of the entity type that is the dependent in this relationship (the type that has the foreign
+        ///     key properties).
         /// </param>
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
@@ -142,14 +205,19 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotEmpty(dependentEntityTypeName, nameof(dependentEntityTypeName));
             Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
-            return new ReferenceReferenceBuilder(Builder.HasForeignKey(dependentEntityTypeName, foreignKeyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceReferenceBuilder(
+                Builder.DependentEntityType(dependentEntityTypeName, ConfigurationSource.Explicit)
+                    .HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
+                this,
+                inverted: Builder.Metadata.DeclaringEntityType.Name != dependentEntityTypeName,
+                foreignKeySet: true);
         }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
         ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique constraint
-        ///     will be introduced.
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
+        ///     constraint will be introduced.
         /// </summary>
         /// <param name="principalEntityType">
         ///     The entity type that is the principal in this relationship (the type
@@ -164,14 +232,19 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotNull(principalEntityType, nameof(principalEntityType));
             Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
-            return new ReferenceReferenceBuilder(Builder.HasPrincipalKey(principalEntityType, keyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceReferenceBuilder(
+                Builder.PrincipalEntityType(principalEntityType, ConfigurationSource.Explicit)
+                    .HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
+                this,
+                inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
+                principalKeySet: true);
         }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
         ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique constraint
-        ///     will be introduced.
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
+        ///     constraint will be introduced.
         /// </summary>
         /// <param name="principalEntityTypeName">
         ///     The name of the entity type that is the principal in this relationship (the type
@@ -186,7 +259,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
             Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
-            return new ReferenceReferenceBuilder(Builder.HasPrincipalKey(principalEntityTypeName, keyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceReferenceBuilder(
+                Builder.PrincipalEntityType(principalEntityTypeName, ConfigurationSource.Explicit)
+                    .HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
+                this,
+                inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
+                principalKeySet: true);
         }
 
         /// <summary>
@@ -196,11 +274,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder IsRequired(bool required = true)
-            => new ReferenceReferenceBuilder(Builder.IsRequired(required, ConfigurationSource.Explicit));
+            => new ReferenceReferenceBuilder(Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
 
         public virtual ReferenceReferenceBuilder OnDelete(DeleteBehavior deleteBehavior)
-            => new ReferenceReferenceBuilder(Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit));
-
-        private InternalRelationshipBuilder Builder => this.GetService<InternalRelationshipBuilder>();
+            => new ReferenceReferenceBuilder(
+                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
     }
 }

@@ -14,9 +14,6 @@ namespace Microsoft.Data.Entity.Tests
 {
     public abstract partial class ModelBuilderTest
     {
-        // TODO: add convention-less tests
-        // Issue #2410
-
         public abstract class ModelBuilderTestBase
         {
             protected void AssertEqual(
@@ -140,10 +137,10 @@ namespace Microsoft.Data.Entity.Tests
             public abstract EntityType Metadata { get; }
             public abstract TestEntityTypeBuilder<TEntity> HasAnnotation(string annotation, object value);
 
-            public abstract TestEntityTypeBuilder<TEntity> BaseEntity<TBaseEntity>()
+            public abstract TestEntityTypeBuilder<TEntity> BaseType<TBaseEntity>()
                 where TBaseEntity : class;
 
-            public abstract TestEntityTypeBuilder<TEntity> BaseEntity(string baseEntityTypeName);
+            public abstract TestEntityTypeBuilder<TEntity> BaseType(string baseEntityTypeName);
             public abstract TestKeyBuilder HasKey(Expression<Func<TEntity, object>> keyExpression);
             public abstract TestKeyBuilder HasKey(params string[] propertyNames);
             public abstract TestKeyBuilder HasAlternateKey(Expression<Func<TEntity, object>> keyExpression);

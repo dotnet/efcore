@@ -1,9 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -87,27 +88,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder WithManyBuilder([CanBeNull] string collection)
-        {
-            var needToInvert = Builder.Metadata.PrincipalEntityType != RelatedEntityType;
-
-            Debug.Assert(!needToInvert
-                         || Builder.Metadata.DeclaringEntityType == RelatedEntityType);
-                         
-            var builder = Builder;
-            if (needToInvert)
-            {
-                builder = builder.Invert(ConfigurationSource.Explicit);
-            }
-
-            if (((IForeignKey)Builder.Metadata).IsUnique)
-            {
-                builder = builder.PrincipalToDependent(null, ConfigurationSource.Explicit);
-            }
-
-            builder = builder.IsUnique(false, ConfigurationSource.Explicit);
-
-            return builder.PrincipalToDependent(collection, ConfigurationSource.Explicit, strictPrincipal: true);
-        }
+            => Builder.PrincipalEntityType(RelatedEntityType, ConfigurationSource.Explicit)
+                .IsUnique(false, ConfigurationSource.Explicit)
+                .PrincipalToDependent(collection, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Configures this as a one-to-one relationship.
@@ -130,26 +113,20 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string reference)
         {
+            if (Builder.Metadata.IsSelfReferencing()
+                && ReferenceName == reference)
+            {
+                throw new InvalidOperationException(CoreStrings.DuplicateNavigation(
+                    reference, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
+            }
+
             var builder = Builder.IsUnique(true, ConfigurationSource.Explicit);
-            var foreignKey = builder.Metadata;
+            var pointsToPrincipal = !builder.Metadata.IsSelfReferencing()
+                                    && builder.Metadata.DeclaringEntityType == RelatedEntityType;
 
-            var isSelfReferencing = foreignKey.IsSelfReferencing();
-            var inverseToPrincipal = (isSelfReferencing
-                                      || foreignKey.DeclaringEntityType == RelatedEntityType)
-                                     && (!isSelfReferencing
-                                         || ReferenceName != null)
-                                     && foreignKey.PrincipalToDependent?.Name == ReferenceName;
-
-            Debug.Assert(inverseToPrincipal
-                         || (!isSelfReferencing
-                             && foreignKey.PrincipalEntityType == RelatedEntityType)
-                         || (isSelfReferencing
-                             && ReferenceName == null)
-                         || foreignKey.DependentToPrincipal?.Name == ReferenceName);
-
-            return inverseToPrincipal
-                ? builder.DependentToPrincipal(reference, ConfigurationSource.Explicit, strictPrincipal: isSelfReferencing)
-                : builder.PrincipalToDependent(reference, ConfigurationSource.Explicit, strictPrincipal: isSelfReferencing);
+            return pointsToPrincipal
+                ? builder.DependentToPrincipal(reference, ConfigurationSource.Explicit)
+                : builder.PrincipalToDependent(reference, ConfigurationSource.Explicit);
         }
     }
 }

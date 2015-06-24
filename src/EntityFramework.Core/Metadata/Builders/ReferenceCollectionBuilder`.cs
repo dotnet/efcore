@@ -5,7 +5,6 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -28,7 +27,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     {
         /// <summary>
         ///     <para>
-        ///         Initializes a new instance of the <see cref="ReferenceCollectionBuilder{TEntity,TRelatedEntity}" /> class.
+        ///         Initializes a new instance of the <see cref="ReferenceCollectionBuilder{TEntity,TRelatedEntity}" />
+        ///         class.
         ///     </para>
         ///     <para>
         ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
@@ -41,17 +41,24 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
         }
 
+        protected ReferenceCollectionBuilder(InternalRelationshipBuilder builder,
+            ReferenceCollectionBuilder oldBuilder,
+            bool foreignKeySet = false,
+            bool principalKeySet = false,
+            bool requiredSet = false)
+            : base(builder, oldBuilder, foreignKeySet, principalKeySet, requiredSet)
+        {
+        }
+
         /// <summary>
         ///     <para>
         ///         Configures the property(s) to use as the foreign key for this relationship.
         ///     </para>
         ///     <para>
-        ///         If <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity,object}})" /> is not specified, then an
-        ///         attempt will be made to match the data type and order of foreign key properties against the primary
-        ///         key of
-        ///         the principal entity type. If they do not match, new shadow state properties that form a unique
-        ///         index
-        ///         will be added to the principal entity type to serve as the reference key.
+        ///         If <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity, object}})" /> is not specified, then
+        ///         an attempt will be made to match the data type and order of foreign key properties against the
+        ///         primary key of the principal entity type. If they do not match, new shadow state properties that
+        ///         form a unique index will be added to the principal entity type to serve as the reference key.
         ///         A shadow state property is one that does not have a corresponding property in the entity class. The
         ///         current value for the property is stored in the <see cref="ChangeTracker" /> rather than being
         ///         stored in instances of the entity class.
@@ -73,14 +80,17 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression));
 
-            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.HasForeignKey(foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+                Builder.HasForeignKey(foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit),
+                this,
+                foreignKeySet: true);
         }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
         ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique constraint
-        ///     will be introduced.
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
+        ///     constraint will be introduced.
         /// </summary>
         /// <param name="keyExpression">
         ///     <para>
@@ -97,7 +107,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotNull(keyExpression, nameof(keyExpression));
 
-            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.HasPrincipalKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+                Builder.HasPrincipalKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit),
+                this,
+                principalKeySet: true);
         }
 
         /// <summary>
@@ -141,14 +154,17 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
-            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+                Builder.HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
+                this,
+                foreignKeySet: true);
         }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
         ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique constraint
-        ///     will be introduced.
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
+        ///     constraint will be introduced.
         /// </summary>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -156,7 +172,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
-            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+                Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
+                this,
+                principalKeySet: true);
         }
 
         /// <summary>
@@ -166,12 +185,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> IsRequired(bool required = true)
-            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.IsRequired(required, ConfigurationSource.Explicit));
+            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+                Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
 
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> OnDelete(DeleteBehavior deleteBehavior)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit));
-
-        private InternalRelationshipBuilder Builder => this.GetService<InternalRelationshipBuilder>();
+                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
     }
 }

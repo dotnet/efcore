@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
@@ -20,6 +21,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     /// </summary>
     public class ReferenceCollectionBuilder : IAccessor<Model>, IAccessor<InternalRelationshipBuilder>
     {
+        private readonly IReadOnlyList<Property> _foreignKeyProperties;
+        private readonly IReadOnlyList<Property> _principalKeyProperties;
+        private readonly bool? _required;
+
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="ReferenceCollectionBuilder" /> class.
@@ -31,13 +36,47 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="builder"> The internal builder being used to configure this relationship. </param>
         public ReferenceCollectionBuilder([NotNull] InternalRelationshipBuilder builder)
+            : this(builder, null)
+        {
+            Check.NotNull(builder, nameof(builder));
+        }
+
+        protected ReferenceCollectionBuilder(InternalRelationshipBuilder builder,
+            ReferenceCollectionBuilder oldBuilder,
+            bool foreignKeySet = false,
+            bool principalKeySet = false,
+            bool requiredSet = false)
         {
             Check.NotNull(builder, nameof(builder));
 
             Builder = builder;
+            if (oldBuilder != null)
+            {
+                _foreignKeyProperties = foreignKeySet
+                    ? builder.Metadata.Properties
+                    : oldBuilder._foreignKeyProperties;
+                _principalKeyProperties = principalKeySet
+                    ? builder.Metadata.PrincipalKey.Properties
+                    : oldBuilder._principalKeyProperties;
+                _required = requiredSet
+                    ? builder.Metadata.IsRequired.Value
+                    : oldBuilder._required;
+
+                var foreignKey = builder.Metadata;
+                Entity.Metadata.ForeignKey.AreCompatible(
+                    foreignKey.PrincipalEntityType,
+                    foreignKey.DeclaringEntityType,
+                    foreignKey.DependentToPrincipal?.Name,
+                    foreignKey.PrincipalToDependent?.Name,
+                    _foreignKeyProperties,
+                    _principalKeyProperties,
+                    foreignKey.IsUnique,
+                    _required,
+                    shouldThrow: true);
+            }
         }
 
-        private InternalRelationshipBuilder Builder { get; }
+        protected virtual InternalRelationshipBuilder Builder { get; }
 
         /// <summary>
         ///     The foreign key that represents this relationship.
@@ -98,14 +137,17 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
-            return new ReferenceCollectionBuilder(Builder.HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder(
+                Builder.HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
+                this,
+                foreignKeySet: true);
         }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
         ///     method if you want to use a property(s) other than the primary key as the principal property(s). If
-        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique constraint
-        ///     will be introduced.
+        ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
+        ///     constraint will be introduced.
         /// </summary>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -113,7 +155,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
-            return new ReferenceCollectionBuilder(Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder(
+                Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
+                this,
+                principalKeySet: true);
         }
 
         /// <summary>
@@ -123,9 +168,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder IsRequired(bool required = true)
-            => new ReferenceCollectionBuilder(Builder.IsRequired(required, ConfigurationSource.Explicit));
+            => new ReferenceCollectionBuilder(Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
 
         public virtual ReferenceCollectionBuilder OnDelete(DeleteBehavior deleteBehavior)
-            => new ReferenceCollectionBuilder(Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit));
+            => new ReferenceCollectionBuilder(
+                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
     }
 }

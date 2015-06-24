@@ -138,11 +138,10 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_upgrade_candidate_key_to_primary_key()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<Customer>().Property<int>(Customer.IdProperty.Name);
 
-                var entity = model.GetEntityType(typeof(Customer));
+                var entity = modelBuilder.Model.GetEntityType(typeof(Customer));
                 var key = entity.AddKey(entity.GetOrAddProperty(Customer.NameProperty));
 
                 modelBuilder.Entity<Customer>().HasKey(b => b.Name);

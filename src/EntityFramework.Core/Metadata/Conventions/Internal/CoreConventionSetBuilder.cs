@@ -18,6 +18,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             conventionSet.EntityTypeAddedConventions.Add(new InversePropertyAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(relationshipDiscoveryConvention);
 
+            conventionSet.BaseEntityTypeSetConventions.Add(relationshipDiscoveryConvention);
+
             // An ambiguity might have been resolved
             conventionSet.EntityTypeMemberIgnoredConventions.Add(relationshipDiscoveryConvention);
 
@@ -38,10 +40,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             conventionSet.KeyAddedConventions.Add(keyConvention);
 
             conventionSet.PrimaryKeySetConventions.Add(keyConvention);
-            
+
+            var cascadeDeleteConvention = new CascadeDeleteConvention();
             conventionSet.ForeignKeyAddedConventions.Add(new ForeignKeyAttributeConvention());
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
-
+            conventionSet.ForeignKeyAddedConventions.Add(cascadeDeleteConvention);
 
             conventionSet.ForeignKeyRemovedConventions.Add(keyConvention);
 
@@ -50,11 +53,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention());
             conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
-            
+
             conventionSet.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
 
-            var cascadeDeleteConvention = new CascadeDeleteConvention();
-            conventionSet.ForeignKeyAddedConventions.Add(cascadeDeleteConvention);
             conventionSet.PropertyNullableChangedConventions.Add(cascadeDeleteConvention);
 
             return conventionSet;

@@ -94,6 +94,11 @@ namespace Microsoft.Data.Entity.Tests
             public CustomerDetails Details { get; set; }
         }
 
+        private class SpecialCustomer : Customer
+        {
+            public ICollection<SpecialOrder> SpecialOrders { get; set; }
+        }
+
         private class CustomerDetails
         {
             public int Id { get; set; }
@@ -110,6 +115,14 @@ namespace Microsoft.Data.Entity.Tests
             public Customer Customer { get; set; }
 
             public OrderDetails Details { get; set; }
+        }
+
+        private class SpecialOrder : Order
+        {
+        }
+
+        private class BackOrder : Order
+        {
         }
 
         private class OrderDetails

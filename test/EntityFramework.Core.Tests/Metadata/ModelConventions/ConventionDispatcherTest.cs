@@ -254,11 +254,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 });
             conventions.ForeignKeyAddedConventions.Add(extraConvention.Object);
 
-            var builder = new InternalModelBuilder(new Model(), conventions);
+            var modelBuilder = new InternalModelBuilder(new Model(), conventions);
 
-            var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
             entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
-            Assert.Null(entityBuilder.Relationship(typeof(Order), typeof(Order), null, null, ConfigurationSource.Convention));
+            Assert.NotNull(entityBuilder.Relationship(entityBuilder, ConfigurationSource.Convention));
+
+            Assert.Null(entityBuilder.Relationship(entityBuilder, ConfigurationSource.Convention)
+                .HasForeignKey(new[] { nameof(Order.OrderId) }, ConfigurationSource.Convention ));
 
             Assert.NotNull(relationshipBuilder);
         }
@@ -356,7 +359,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var foreignKeyRemoved = false;
 
             var convention = new Mock<IForeignKeyRemovedConvention>();
-            convention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<ForeignKey>())).Callback(() => foreignKeyRemoved = true);
+            convention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<ForeignKey>()))
+                .Callback(() => foreignKeyRemoved = true);
             conventions.ForeignKeyRemovedConventions.Add(convention.Object);
 
             var builder = new InternalModelBuilder(new Model(), conventions);
@@ -416,14 +420,50 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var builder = new InternalModelBuilder(new Model(), conventions);
 
-            var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-            entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
+            var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
 
-            Assert.Null(entityBuilder.Relationship(typeof(Order), typeof(OrderDetails), "Order", "OrderDetails", ConfigurationSource.Convention, isUnique: true));
+            Assert.Null(dependentEntityBuilder.Relationship(principalEntityBuilder, nameof(OrderDetails.Order), nameof(Order.OrderDetails), ConfigurationSource.Convention));
 
             Assert.True(orderIgnored);
             Assert.False(orderDetailsIgnored);
             Assert.NotNull(relationshipBuilder);
+        }
+
+        [Fact]
+        public void OnNavigationRemoved_calls_apply_on_conventions_in_order()
+        {
+            var conventions = new ConventionSet();
+
+            InternalRelationshipBuilder relationshipBuilderFromConvention = null;
+            var convention = new Mock<INavigationRemovedConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>(), It.IsAny<string>(), It.IsAny<bool>())).Returns((InternalRelationshipBuilder b, string n, bool p) =>
+                {
+                    relationshipBuilderFromConvention = b;
+                    Assert.Equal(nameof(OrderDetails.Order), n);
+                    Assert.True(p);
+                    return false;
+                });
+            conventions.NavigationRemovedConventions.Add(convention.Object);
+
+            var extraConvention = new Mock<INavigationRemovedConvention>();
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>(), It.IsAny<string>(), It.IsAny<bool>())).Returns((InternalRelationshipBuilder b, string n, bool p) =>
+                {
+                    Assert.False(true);
+                    return false;
+                });
+            conventions.NavigationRemovedConventions.Add(extraConvention.Object);
+
+            var builder = new InternalModelBuilder(new Model(), conventions);
+            
+            var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
+            
+            var relationshipBuilder = dependentEntityBuilder.Relationship(principalEntityBuilder, nameof(OrderDetails.Order), nameof(Order.OrderDetails), ConfigurationSource.Convention);
+            relationshipBuilder.DependentToPrincipal(null, ConfigurationSource.Convention);
+
+            Assert.NotNull(relationshipBuilder);
+            Assert.Same(relationshipBuilderFromConvention, relationshipBuilder);
         }
 
         [Fact]

@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     relationshipBuilder.Metadata, onDependent: false);
 
                 bool shouldInvert;
-                if (ShouldFlip(relationshipBuilder.Metadata, foreignKeyProperties, candidatePropertiesOnPrincipal)
+                if (ShouldInvert(relationshipBuilder.Metadata, foreignKeyProperties, candidatePropertiesOnPrincipal)
                     && relationshipBuilder.CanSet(relationshipBuilder.Metadata.DeclaringEntityType,
                         relationshipBuilder.Metadata.PrincipalEntityType,
                         null,
@@ -38,24 +38,21 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                         null,
                         null,
                         null,
-                        true,
+                        /*strictPrincipal:*/ true,
                         ConfigurationSource.Convention,
                         out shouldInvert))
                 {
                     Debug.Assert(shouldInvert);
-                    var invertedBuilder = relationshipBuilder.Invert(ConfigurationSource.Convention);
-                    Debug.Assert(invertedBuilder != null);
+                    relationshipBuilder = relationshipBuilder.DependentEntityType(relationshipBuilder.Metadata.PrincipalEntityType, ConfigurationSource.Convention);
 
-                    if (candidatePropertiesOnPrincipal == null)
+                    if (candidatePropertiesOnPrincipal != null)
                     {
-                        return invertedBuilder;
+                        relationshipBuilder = relationshipBuilder.HasForeignKey(
+                            candidatePropertiesOnPrincipal, ConfigurationSource.Convention);
                     }
 
-                    // TODO: Remove, as this is redundant
-                    invertedBuilder = invertedBuilder.HasForeignKey(
-                        candidatePropertiesOnPrincipal, ConfigurationSource.Convention);
-                    Debug.Assert(invertedBuilder != null);
-                    return invertedBuilder;
+                    Debug.Assert(relationshipBuilder != null);
+                    return relationshipBuilder;
                 }
 
                 if (foreignKeyProperties == null)
@@ -67,20 +64,22 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 }
             }
 
-            if (foreignKeyProperties != null
-                && relationshipBuilder.Metadata.DeclaringEntityType.FindForeignKey(foreignKeyProperties) == null)
+            if (foreignKeyProperties == null
+                || relationshipBuilder.Metadata.DeclaringEntityType.FindForeignKey(foreignKeyProperties) != null)
             {
-                var newRelationshipBuilder = relationshipBuilder.HasForeignKey(foreignKeyProperties, ConfigurationSource.Convention);
-                if (newRelationshipBuilder != null)
-                {
-                    return newRelationshipBuilder;
-                }
+                return relationshipBuilder;
+            }
+
+            var newRelationshipBuilder = relationshipBuilder.HasForeignKey(foreignKeyProperties, ConfigurationSource.Convention);
+            if (newRelationshipBuilder != null)
+            {
+                return newRelationshipBuilder;
             }
 
             return relationshipBuilder;
         }
 
-        private bool ShouldFlip(
+        private bool ShouldInvert(
             ForeignKey foreignKey,
             IReadOnlyList<Property> currentDependentCandidateProperties,
             IReadOnlyList<Property> currentPrincipalCandidateProperties)
@@ -279,12 +278,14 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
                 foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
                 {
-                    var relationshipBuilder = entityTypeBuilder.Relationship(foreignKey, existingForeignKey: true, configurationSource: ConfigurationSource.Convention);
+                    var relationshipBuilder = entityTypeBuilder.Relationship(foreignKey, ConfigurationSource.Convention);
                     Apply(relationshipBuilder);
                 }
                 foreach (var foreignKey in entityType.FindReferencingForeignKeys().ToList())
                 {
-                    var relationshipBuilder = entityTypeBuilder.Relationship(foreignKey, existingForeignKey: true, configurationSource: ConfigurationSource.Convention);
+                    var relationshipBuilder = propertyBuilder.ModelBuilder
+                        .Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
+                        .Relationship(foreignKey, ConfigurationSource.Convention);
                     Apply(relationshipBuilder);
                 }
             }

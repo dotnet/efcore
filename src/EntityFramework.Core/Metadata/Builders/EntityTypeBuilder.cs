@@ -311,24 +311,18 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
         protected virtual InternalRelationshipBuilder ReferenceBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
-            => Builder.Relationship(
-                relatedEntityType,
-                Metadata,
-                navigationToPrincipalName: navigationName ?? "",
-                navigationToDependentName: null,
-                configurationSource: ConfigurationSource.Explicit,
-                strictPrincipal: relatedEntityType == Metadata);
+            => Builder.ModelBuilder.Entity(Metadata.Name, ConfigurationSource.Explicit)
+                .Relationship(relatedEntityType, ConfigurationSource.Explicit)
+                .DependentToPrincipal(navigationName, ConfigurationSource.Explicit);
 
         protected virtual InternalRelationshipBuilder CollectionBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
-            => Builder.Relationship(
-                Metadata,
-                relatedEntityType,
-                navigationToPrincipalName: null,
-                navigationToDependentName: navigationName ?? "",
-                configurationSource: ConfigurationSource.Explicit,
-                isUnique: false);
-        
+            => Builder.ModelBuilder.Entity(relatedEntityType.Name, ConfigurationSource.Explicit)
+                .Relationship(Metadata, ConfigurationSource.Explicit)
+                .DependentEntityType(relatedEntityType, ConfigurationSource.Explicit)
+                .IsUnique(false, ConfigurationSource.Explicit)
+                .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);
+
         protected virtual InternalPropertyBuilder PropertyBuilder(
             [NotNull] Type propertyType, [CanBeNull] string propertyName)
         {
