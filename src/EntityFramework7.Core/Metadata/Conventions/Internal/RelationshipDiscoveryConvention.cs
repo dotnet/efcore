@@ -117,7 +117,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var typeInfo = targetType.GetTypeInfo();
             if (targetType.IsPrimitive()
                 || typeInfo.IsValueType
-                || typeInfo.IsAbstract
                 || typeInfo.IsInterface)
             {
                 return null;

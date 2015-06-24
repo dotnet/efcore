@@ -248,6 +248,26 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Assert.Equal(SelfRef.SelfRef1NavigationProperty.Name, fk.PrincipalToDependent?.Name);
             Assert.Equal(SelfRef.SelfRef2NavigationProperty.Name, fk.DependentToPrincipal?.Name);
         }
+        
+        [Fact]
+        public void Navigation_to_abstract_is_discovered()
+        {
+            var entityBuilder = CreateInternalEntityBuilder<AbstractClass>();
+
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
+
+            IModel model = entityBuilder.Metadata.Model;
+            var entityType = model.EntityTypes.Single();
+
+            Assert.Equal(2, entityType.GetProperties().Count());
+            Assert.Equal(1, entityType.GetKeys().Count());
+
+            var fk = entityType.GetForeignKeys().Single();
+            Assert.False(fk.IsRequired);
+            Assert.False(fk.IsUnique);
+            Assert.True(fk.PrincipalEntityType.ClrType.IsAbstract);
+            Assert.Equal(1, entityType.GetNavigations().Count());
+        }
 
         private class EntityWithNoValidNavigations
         {
@@ -273,7 +293,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             public MyStruct Struct { get; set; }
             public IInterface Interface { get; set; }
-            public AbstractClass Abstract { get; set; }
         }
 
         private struct MyStruct
@@ -289,6 +308,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         private abstract class AbstractClass
         {
             public int Id { get; set; }
+            public AbstractClass Abstract { get; set; }
         }
 
         private static void VerifyOneToOne(IModel model)

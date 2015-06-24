@@ -309,17 +309,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var dependentType = model.GetEntityType(typeof(CustomerDetails));
                 var principalType = model.GetEntityType(typeof(Customer));
-
-                foreach (var navigation in principalType.Navigations.ToList())
-                {
-                    var inverse = navigation.FindInverse();
-                    inverse?.DeclaringEntityType.RemoveNavigation(inverse);
-                    principalType.RemoveNavigation(navigation);
-
-                    var foreignKey = navigation.ForeignKey;
-                    foreignKey.DeclaringEntityType.RemoveForeignKey(foreignKey);
-                }
-
+                
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
                 var expectedPrincipalProperties = principalType.Properties.ToList();
@@ -2671,9 +2661,8 @@ namespace Microsoft.Data.Entity.Tests
 
                 var dependentEntityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
                 var fk = dependentEntityType.GetForeignKeys().Single();
-                AssertEqual(fk.PrincipalKey.Properties, dependentEntityType.GetKeys().Single().Properties);
+                AssertEqual(new[] { dependentEntityType.GetProperty("HobId1"), dependentEntityType.GetProperty("HobId2") }, fk.Properties);
                 Assert.False(fk.IsRequired);
-
                 var principalEntityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
                 AssertEqual(fk.PrincipalKey.Properties, principalEntityType.GetKeys().Single().Properties);
             }
@@ -2696,9 +2685,8 @@ namespace Microsoft.Data.Entity.Tests
 
                 var dependentEntityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
                 var fk = dependentEntityType.GetForeignKeys().Single();
-                AssertEqual(fk.PrincipalKey.Properties, dependentEntityType.GetKeys().Single().Properties);
+                AssertEqual(new[] { dependentEntityType.GetProperty("NobId1"), dependentEntityType.GetProperty("NobId2") }, fk.Properties);
                 Assert.True(fk.IsRequired);
-
                 var principalEntityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
                 AssertEqual(fk.PrincipalKey.Properties, principalEntityType.GetKeys().Single().Properties);
             }

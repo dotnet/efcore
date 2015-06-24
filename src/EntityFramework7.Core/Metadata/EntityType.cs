@@ -89,7 +89,6 @@ namespace Microsoft.Data.Entity.Metadata
                 }
 
                 _baseType = null;
-
                 if (value != null)
                 {
                     if (value.InheritsFrom(this))
@@ -275,7 +274,9 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual Key GetPrimaryKey() => (Key)((IEntityType)this).GetPrimaryKey();
 
         public virtual Key FindPrimaryKey()
-            => BaseType?.FindPrimaryKey() ?? _primaryKey;
+            => BaseType?.FindPrimaryKey() ?? FindDeclaredPrimaryKey();
+
+        public virtual Key FindDeclaredPrimaryKey() => _primaryKey;
 
         public virtual Key FindPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
         {
@@ -336,10 +337,17 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(properties, nameof(properties));
 
+            return FindDeclaredKey(properties) ?? BaseType?.FindKey(properties);
+        }
+
+        public virtual Key FindDeclaredKey([NotNull] IReadOnlyList<Property> properties)
+        {
+            Check.NotEmpty(properties, nameof(properties));
+
             Key key;
             return _keys.TryGetValue(properties, out key)
                 ? key
-                : BaseType?.FindKey(properties);
+                : null;
         }
 
         public virtual IKey FindKey(IReadOnlyList<IProperty> properties)
@@ -376,7 +384,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IEnumerable<Key> GetKeys()
             => BaseType?.GetKeys().Concat(_keys.Values) ?? _keys.Values;
-
         #endregion
 
         #region Foreign Keys
@@ -435,10 +442,17 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(properties, nameof(properties));
 
+            return FindDeclaredForeignKey(properties) ?? BaseType?.FindForeignKey(properties);
+        }
+
+        public virtual ForeignKey FindDeclaredForeignKey([NotNull] IReadOnlyList<Property> properties)
+        {
+            Check.NotEmpty(properties, nameof(properties));
+
             ForeignKey foreignKey;
             return _foreignKeys.TryGetValue(properties, out foreignKey)
                 ? foreignKey
-                : BaseType?.FindForeignKey(properties);
+                : null;
         }
 
         public virtual IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties)
@@ -586,10 +600,17 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(name, nameof(name));
 
+            return FindDeclaredNavigation(name) ?? BaseType?.FindNavigation(name);
+        }
+
+        public virtual Navigation FindDeclaredNavigation([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
             Navigation navigation;
             return _navigations.TryGetValue(name, out navigation)
                 ? navigation
-                : BaseType?.FindNavigation(name);
+                : null;
         }
 
         private IEnumerable<Navigation> FindNavigations(IEnumerable<string> names)
@@ -675,10 +696,17 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(properties, nameof(properties));
 
+            return FindDeclaredIndex(properties) ?? BaseType?.FindIndex(properties);
+        }
+
+        public virtual Index FindDeclaredIndex([NotNull] IReadOnlyList<Property> properties)
+        {
+            Check.NotEmpty(properties, nameof(properties));
+
             Index index;
             return _indexes.TryGetValue(properties, out index)
                 ? index
-                : BaseType?.FindIndex(properties);
+                : null;
         }
 
         public virtual IIndex FindIndex(IReadOnlyList<IProperty> properties)
@@ -775,11 +803,17 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
-            Property property;
+            return FindDeclaredProperty(propertyName)?? BaseType?.FindProperty(propertyName);
+        }
 
+        public virtual Property FindDeclaredProperty([NotNull] string propertyName)
+        {
+            Check.NotEmpty(propertyName, nameof(propertyName));
+
+            Property property;
             return _properties.TryGetValue(propertyName, out property)
                 ? property
-                : BaseType?.FindProperty(propertyName);
+                : null;
         }
 
         private IEnumerable<Property> FindProperties(IEnumerable<string> propertyNames)
@@ -912,41 +946,7 @@ namespace Microsoft.Data.Entity.Metadata
         IEnumerable<IKey> IEntityType.GetKeys() => GetKeys();
 
         #endregion
-
-        private class PropertyListComparer : IComparer<IReadOnlyList<Property>>, IEqualityComparer<IReadOnlyList<Property>>
-        {
-            public static readonly PropertyListComparer Instance = new PropertyListComparer();
-
-            private PropertyListComparer()
-            {
-            }
-
-            public int Compare(IReadOnlyList<Property> x, IReadOnlyList<Property> y)
-            {
-                var result = x.Count - y.Count;
-
-                if (result != 0)
-                {
-                    return result;
-                }
-
-                var index = 0;
-                while (result == 0
-                       && index < x.Count)
-                {
-                    result = StringComparer.Ordinal.Compare(x[index].Name, y[index].Name);
-                    index++;
-                }
-                return result;
-            }
-
-            public bool Equals(IReadOnlyList<Property> x, IReadOnlyList<Property> y)
-                => Compare(x, y) == 0;
-
-            public int GetHashCode(IReadOnlyList<Property> obj)
-                => obj.Aggregate(0, (hash, p) => hash ^ p.GetHashCode());
-        }
-
+        
         private class PropertyComparer : IComparer<string>
         {
             private readonly EntityType _entityType;

@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     {
         /// <summary>
         ///     <para>
-        ///         Initializes a new instance of the <see cref="EntityTypeBuilder{TEntity}" /> class to configure a given
-        ///         entity type.
+        ///         Initializes a new instance of the <see cref="EntityTypeBuilder{TEntity}" /> class to configure a
+        ///         given entity type.
         ///     </para>
         ///     <para>
         ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
@@ -48,11 +48,16 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same typeBuilder instance so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TEntity> Annotation([NotNull] string annotation, [NotNull] object value)
-        {
-            base.Annotation(annotation, value);
+            => (EntityTypeBuilder<TEntity>)base.Annotation(annotation, value);
 
-            return this;
-        }
+        public new virtual EntityTypeBuilder<TEntity> BaseType([NotNull] string name)
+            => (EntityTypeBuilder<TEntity>)base.BaseType(name);
+
+        public new virtual EntityTypeBuilder<TEntity> BaseType([NotNull] Type entityType)
+            => (EntityTypeBuilder<TEntity>)base.BaseType(entityType);
+
+        public virtual EntityTypeBuilder<TEntity> BaseType<TBaseType>()
+            => (EntityTypeBuilder<TEntity>)base.BaseType(typeof(TBaseType));
 
         /// <summary>
         ///     Sets the properties that make up the primary key for this entity type.
@@ -75,15 +80,16 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         }
 
         /// <summary>
-        ///     Creates a new unique constraint for this entity type if one does not already exist over the specified properties.
+        ///     Creates a new unique constraint for this entity type if one does not already exist over the specified
+        ///     properties.
         /// </summary>
         /// <param name="keyExpression">
         ///     <para>
         ///         A lambda expression representing the unique constraint property(s) (<c>t => t.Id1</c>).
         ///     </para>
         ///     <para>
-        ///         If the unique constraint is made up of multiple properties then specify an anonymous type including the
-        ///         properties (<c>t => new { t.Id1, t.Id2 }</c>).
+        ///         If the unique constraint is made up of multiple properties then specify an anonymous type including
+        ///         the properties (<c>t => new { t.Id1, t.Id2 }</c>).
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the unique constraint. </returns>

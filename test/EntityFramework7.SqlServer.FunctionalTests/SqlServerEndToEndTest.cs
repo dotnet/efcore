@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.Equal(5, TestSqlLoggerFactory.SqlStatements.Count);
                     Assert.Contains("SELECT", TestSqlLoggerFactory.SqlStatements[0]);
                     Assert.Contains("SELECT", TestSqlLoggerFactory.SqlStatements[1]);
-                    Assert.Contains("@p0: 5", TestSqlLoggerFactory.SqlStatements[3]);
+                    Assert.Contains("@p0: " + deletedId, TestSqlLoggerFactory.SqlStatements[3]);
                     Assert.Contains("DELETE", TestSqlLoggerFactory.SqlStatements[4]);
                     Assert.Contains("UPDATE", TestSqlLoggerFactory.SqlStatements[4]);
                     Assert.Contains("INSERT", TestSqlLoggerFactory.SqlStatements[4]);
