@@ -363,9 +363,9 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual int ReverseEngineer([NotNull] string connectionString)
         {
-            _databaseTool.ReverseEngineer(
+            _databaseTool.ReverseEngineerAsync(
                 DatabaseTool._defaultReverseEngineeringProviderAssembly,
-                connectionString, _rootNamespace, _projectDir);
+                connectionString, _rootNamespace, _projectDir).GetAwaiter().GetResult();
 
             _logger.LogInformation("Done.");
 
