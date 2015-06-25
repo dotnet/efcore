@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Internal;
@@ -44,11 +46,12 @@ namespace Microsoft.Data.Entity.Commands
             _serviceProvider.AddService(typeof(ITemplating), new RazorTemplating(compilationService, metadataReferencesProvider));
         }
 
-        public virtual IEnumerable<string> ReverseEngineer(
+        public virtual async Task<IEnumerable<string>> ReverseEngineerAsync(
             [NotNull] string providerAssemblyName,
             [NotNull] string connectionString,
             [NotNull] string rootNamespace,
-            [NotNull] string projectDir)
+            [NotNull] string projectDir,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(providerAssemblyName, nameof(providerAssemblyName));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -70,7 +73,7 @@ namespace Microsoft.Data.Entity.Commands
             };
 
             var generator = new ReverseEngineeringGenerator(_serviceProvider);
-            return generator.GenerateAsync(configuration).Result;
+            return await generator.GenerateAsync(configuration, cancellationToken);
         }
     }
 }
