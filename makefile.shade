@@ -50,8 +50,8 @@ var sqliteDllPath='src/Microsoft.Data.Sqlite/redist/x86/sqlite3.dll'
             {
                 CreatePartFromFile(
                     package,
-                    @"src/Microsoft.Data.Sqlite/build/net451/Microsoft.Data.Sqlite.targets",
-                    @"build/net451/Microsoft.Data.Sqlite.targets");
+                    @"src/Microsoft.Data.Sqlite/build/net45/Microsoft.Data.Sqlite.targets",
+                    @"build/net45/Microsoft.Data.Sqlite.targets");
                 CreatePartFromFile(
                     package,
                     @"src/Microsoft.Data.Sqlite/redist/x86/sqlite3.dll",
