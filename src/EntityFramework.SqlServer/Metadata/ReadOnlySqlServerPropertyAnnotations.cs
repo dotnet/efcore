@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         protected const string SqlServerNameAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName;
         protected const string SqlServerColumnTypeAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType;
         protected const string SqlServerDefaultExpressionAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultExpression;
-        protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration;
+        protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ItentityStrategy;
         protected const string SqlServerComputedExpressionAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ColumnComputedExpression;
         protected const string SqlServerSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.SequenceName;
         protected const string SqlServerSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.SequenceSchema;
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public virtual string ComputedExpression
             => Property[SqlServerComputedExpressionAnnotation] as string;
 
-        public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
+        public virtual SqlServerIdentityStrategy? IdentityStrategy
         {
             get
             {
@@ -55,9 +55,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
                 var strategy = value == null
                     ? null
-                    : (SqlServerValueGenerationStrategy?)Enum.Parse(typeof(SqlServerValueGenerationStrategy), value);
+                    : (SqlServerIdentityStrategy?)Enum.Parse(typeof(SqlServerIdentityStrategy), value);
 
-                return strategy ?? Property.EntityType.Model.SqlServer().ValueGenerationStrategy;
+                return strategy ?? Property.EntityType.Model.SqlServer().IdentityStrategy;
             }
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
             var modelExtensions = Property.EntityType.Model.SqlServer();
 
-            if (ValueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence)
+            if (IdentityStrategy != SqlServerIdentityStrategy.SequenceHiLo)
             {
                 return null;
             }

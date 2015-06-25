@@ -139,7 +139,7 @@
     <value>Unable to interpret the string {sqlServerStringLiteral} as a SQLServer string literal.</value>
   </data>
   <data name="DataTypeDoesNotAllowIdentityStrategy" xml:space="preserve">
-    <value>For columnId {columnId}. The SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow ValueGenerationStrategy Identity. Generating a matching Property but ignoring the Identity setting.</value>
+    <value>For columnId {columnId}. The SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow IdentityStrategy Identity. Generating a matching Property but ignoring the Identity setting.</value>
   </data>
   <data name="NoPrimaryKeyColumns" xml:space="preserve">
     <value>Attempt to generate EntityType {entityTypeName} failed. Unable to identify any primary key columns in the underlying SQL Server table {schemaName}.{name}.</value>

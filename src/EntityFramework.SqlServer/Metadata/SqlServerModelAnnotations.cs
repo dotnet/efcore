@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         }
 
         [CanBeNull]
-        public new virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
+        public new virtual SqlServerIdentityStrategy? IdentityStrategy
         {
-            get { return base.ValueGenerationStrategy; }
+            get { return base.IdentityStrategy; }
             [param: CanBeNull]
             set
             {

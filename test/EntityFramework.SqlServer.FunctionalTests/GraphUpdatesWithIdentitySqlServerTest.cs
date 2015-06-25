@@ -15,9 +15,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             protected override string DatabaseName => "GraphIdentityUpdatesTest";
 
             public override int IntSentinel => 0;
+
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.ForSqlServer().UseIdentity(); // ensure model uses identity
+                modelBuilder.UseSqlServerIdentityColumns(); // ensure model uses identity
+
                 base.OnModelCreating(modelBuilder);
             }
         }

@@ -343,7 +343,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 modelBuilder
                     .Entity<Black>()
-                    .ForSqlServer(b => b.ToTable("Black", "Apple"))
+                    .ToSqlServerTable("Black", "Apple")
                     .Key(e => e.MyKey);
             }
         }
@@ -524,7 +524,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<Customer>(b =>
                     {
                         b.Key(c => c.CustomerID);
-                        b.ForSqlServer().ToTable("Customers");
+                        b.ToSqlServerTable("Customers");
                     });
             }
         }
@@ -545,7 +545,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.ForSqlServer().UseSequence();
+                modelBuilder.UseSqlServerSequenceHiLo();
             }
         }
 

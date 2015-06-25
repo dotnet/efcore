@@ -27,21 +27,21 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 yield return annotation;
             }
 
-            if (GetValueGenerationStrategy(property) == SqlServerValueGenerationStrategy.Identity)
+            if (GetIdentityStrategy(property) == SqlServerIdentityStrategy.IdentityColumn)
             {
                 yield return new Annotation(
-                    SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration,
-                    SqlServerValueGenerationStrategy.Identity.ToString());
+                    SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ItentityStrategy,
+                    SqlServerIdentityStrategy.IdentityColumn.ToString());
             }
         }
 
         // TODO: Move to metadata API?
-        private static SqlServerValueGenerationStrategy? GetValueGenerationStrategy(IProperty property)
+        private static SqlServerIdentityStrategy? GetIdentityStrategy(IProperty property)
             => property.StoreGeneratedPattern == StoreGeneratedPattern.Identity
                     && property.SqlServer().DefaultValueSql == null
                     && property.SqlServer().DefaultValue == null
                     && property.SqlServer().ComputedExpression == null
-                ? property.SqlServer().ValueGenerationStrategy
+                ? property.SqlServer().IdentityStrategy
                 : null;
     }
 }

@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             var model = new ModelBuilder(new ConventionSet(), new Model());
             model.Entity("a", b =>
                 {
-                    b.SqliteTable("A");
+                    b.ToSqliteTable("A");
                     b.Property<string>("2").HasSqliteColumnName("col2");
                     b.Property<string>("3").HasColumnName("col3");
                     b.Key("3");

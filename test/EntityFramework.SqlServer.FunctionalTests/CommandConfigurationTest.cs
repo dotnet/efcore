@@ -401,7 +401,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.ForSqlServer().UseSequence();
+                modelBuilder.UseSqlServerSequenceHiLo();
             }
         }
 

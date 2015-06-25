@@ -38,7 +38,7 @@ INSERT INTO Table1 (Col1, Col2) Values('dropped value','preserved entry');");
                                 .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
 
                             b.Property(p => p.Col2);
-                            b.SqliteTable("Table1");
+                            b.ToSqliteTable("Table1");
                         });
                 });
 
@@ -119,7 +119,7 @@ INSERT INTO Table1 (Col1, Col2) Values('dropped value','preserved entry');");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<UpdatedTableType>().SqliteTable("Table1");
+                modelBuilder.Entity<UpdatedTableType>().ToSqliteTable("Table1");
             }
         }
 

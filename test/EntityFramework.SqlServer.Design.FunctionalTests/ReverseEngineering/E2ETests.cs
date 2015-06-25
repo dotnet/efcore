@@ -36,7 +36,7 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
                 @"For columnId [dbo][AllDataTypes][geographyColumn]. Could not find type mapping for SQL Server type geography. Skipping column.",
                 @"For columnId [dbo][AllDataTypes][geometryColumn]. Could not find type mapping for SQL Server type geometry. Skipping column.",
                 @"For columnId [dbo][TableWithUnmappablePrimaryKeyColumn][TableWithUnmappablePrimaryKeyColumnID]. Could not find type mapping for SQL Server type hierarchyid. Skipping column.",
-                @"For columnId [dbo][PropertyConfiguration][PropertyConfigurationID]. The SQL Server data type is tinyint. This will be mapped to CLR type byte which does not allow ValueGenerationStrategy Identity. Generating a matching Property but ignoring the Identity setting.",
+                @"For columnId [dbo][PropertyConfiguration][PropertyConfigurationID]. The SQL Server data type is tinyint. This will be mapped to CLR type byte which does not allow IdentityStrategy Identity. Generating a matching Property but ignoring the Identity setting.",
                 @"Unable to generate EntityType TableWithUnmappablePrimaryKeyColumn. Error message: Attempt to generate EntityType TableWithUnmappablePrimaryKeyColumn failed. Unable to identify any primary key columns in the underlying SQL Server table dbo.TableWithUnmappablePrimaryKeyColumn.",
             };
         private static readonly List<string> _E2ETestExpectedFileNames = new List<string>

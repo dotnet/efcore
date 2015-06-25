@@ -64,8 +64,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<Gumball>(b =>
                     {
                         b.Property(e => e.Id)
-                            .ForSqlServer()
-                            .UseIdentity();
+                            .UseSqlServerIdentityColumn();
 
                         b.Property(e => e.Identity)
                             .DefaultValue("Banana Joe");

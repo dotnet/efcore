@@ -6,13 +6,13 @@ using Microsoft.Data.Entity.Metadata.ModelConventions;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
 {
-    public class SqlServerValueGenerationStrategyConvention : IModelConvention
+    public class SqlServerIdentityStrategyConvention : IModelConvention
     {
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
             modelBuilder.Annotation(
-                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration,
-                SqlServerValueGenerationStrategy.Identity.ToString(),
+                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ItentityStrategy,
+                SqlServerIdentityStrategy.IdentityColumn.ToString(),
                 ConfigurationSource.Convention);
             return modelBuilder;
         }

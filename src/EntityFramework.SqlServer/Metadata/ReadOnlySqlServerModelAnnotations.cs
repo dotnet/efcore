@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
     public class ReadOnlySqlServerModelAnnotations : ReadOnlyRelationalModelAnnotations, ISqlServerModelAnnotations
     {
-        protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration;
+        protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ItentityStrategy;
         protected const string SqlServerSequenceAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.Sequence;
         protected const string SqlServerDefaultSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.DefaultSequenceName;
         protected const string SqlServerDefaultSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.DefaultSequenceSchema;
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
         }
 
-        public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
+        public virtual SqlServerIdentityStrategy? IdentityStrategy
         {
             get
             {
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
                 return value == null
                     ? null
-                    : (SqlServerValueGenerationStrategy?)Enum.Parse(typeof(SqlServerValueGenerationStrategy), value);
+                    : (SqlServerIdentityStrategy?)Enum.Parse(typeof(SqlServerIdentityStrategy), value);
             }
         }
 

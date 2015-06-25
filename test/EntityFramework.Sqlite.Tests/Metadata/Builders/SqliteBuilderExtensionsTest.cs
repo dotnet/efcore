@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
             var key = modelBuilder
                 .Entity<Customer>()
                 .Key(e => e.Id)
-                .SqliteName("LemonSupreme")
+                .SqliteKeyName("LemonSupreme")
                 .Metadata;
 
             Assert.Equal("LemonSupreme", key.Sqlite().Name);
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
 
             var foreignKey = modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .SqliteName("ChocolateLimes")
+                .SqliteConstraintName("ChocolateLimes")
                 .Metadata;
 
             Assert.Equal("ChocolateLimes", foreignKey.Sqlite().Name);
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
 
             var foreignKey = modelBuilder
                 .Entity<Customer>().Collection(typeof(Order)).InverseReference()
-                .SqliteName("ChocolateLimes")
+                .SqliteConstraintName("ChocolateLimes")
                 .Metadata;
 
             Assert.Equal("ChocolateLimes", foreignKey.Sqlite().Name);
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
 
             var foreignKey = modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .SqliteName("ChocolateLimes")
+                .SqliteConstraintName("ChocolateLimes")
                 .Metadata;
 
             Assert.Equal("ChocolateLimes", foreignKey.Sqlite().Name);
@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
 
             var foreignKey = modelBuilder
                 .Entity<Order>().Reference(typeof(Customer)).InverseCollection()
-                .SqliteName("ChocolateLimes")
+                .SqliteConstraintName("ChocolateLimes")
                 .Metadata;
 
             Assert.Equal("ChocolateLimes", foreignKey.Sqlite().Name);
@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
 
             var foreignKey = modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
-                .SqliteName("ChocolateLimes")
+                .SqliteConstraintName("ChocolateLimes")
                 .Metadata;
 
             Assert.Equal("ChocolateLimes", foreignKey.Sqlite().Name);
@@ -179,7 +179,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
 
             var foreignKey = modelBuilder
                 .Entity<Order>().Reference(typeof(OrderDetails)).InverseReference()
-                .SqliteName("ChocolateLimes")
+                .SqliteConstraintName("ChocolateLimes")
                 .Metadata;
 
             Assert.Equal("ChocolateLimes", foreignKey.Sqlite().Name);
@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
             var index = modelBuilder
                 .Entity<Customer>()
                 .Index(e => e.Id)
-                .SqliteName("Dexter")
+                .SqliteIndexName("Dexter")
                 .Metadata;
 
             Assert.Equal("Dexter", index.Sqlite().Name);
@@ -206,7 +206,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
 
             var entityType = modelBuilder
                 .Entity<Customer>()
-                .SqliteTable("Custardizer")
+                .ToSqliteTable("Custardizer")
                 .Metadata;
 
             Assert.Equal("Custardizer", entityType.Sqlite().Table);
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
 
             var entityType = modelBuilder
                 .Entity("Customer")
-                .SqliteTable("Custardizer")
+                .ToSqliteTable("Custardizer")
                 .Metadata;
 
             Assert.Equal("Custardizer", entityType.Sqlite().Table);

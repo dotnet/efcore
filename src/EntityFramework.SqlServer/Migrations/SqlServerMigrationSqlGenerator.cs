@@ -252,8 +252,8 @@ namespace Microsoft.Data.Entity.SqlServer
                 model,
                 builder);
 
-            var valueGeneration = (string)annotatable[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration];
-            if (valueGeneration == "Identity")
+            var valueGeneration = (string)annotatable[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ItentityStrategy];
+            if (valueGeneration == SqlServerIdentityStrategy.IdentityColumn.ToString())
             {
                 builder.Append(" IDENTITY");
             }

@@ -608,7 +608,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 }
                 else
                 {
-                    property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
+                    property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
                 }
             }
 

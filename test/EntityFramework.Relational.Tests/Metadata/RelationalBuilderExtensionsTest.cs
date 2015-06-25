@@ -515,43 +515,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         }
 
         [Fact]
-        public void Can_create_default_sequence_with_convention_builder()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder.Sequence();
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
-
-            ValidateDefaultSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_default_sequence_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Sequence(b => { })
-                .Entity<Customer>();
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
-
-            ValidateDefaultSequence(sequence);
-        }
-
-        private static void ValidateDefaultSequence(Sequence sequence)
-        {
-            Assert.Equal(Sequence.DefaultName, sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(Sequence.DefaultIncrement, sequence.IncrementBy);
-            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.Type);
-        }
-
-        [Fact]
         public void Can_create_named_sequence_with_convention_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -623,38 +586,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
             Assert.Same(Sequence.DefaultType, sequence.Type);
-        }
-
-        [Fact]
-        public void Can_create_default_sequence_with_specific_facets_with_convention_builder()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Sequence()
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
-                .Type<int>();
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
-
-            ValidateDefaultSpecificSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_default_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Sequence(b => b.IncrementBy(11).Start(1729).Min(111).Max(2222).Type<int>())
-                .Entity<Customer>();
-
-            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
-
-            ValidateDefaultSpecificSequence(sequence);
         }
 
         private static void ValidateDefaultSpecificSequence(Sequence sequence)
@@ -821,12 +752,32 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .HasColumnName("Simon");
+                .HasColumnType("Simon");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .HasColumnName("Neil");
+                .HasColumnType("Neil");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .DefaultValueSql("Simon");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .DefaultValueSql("Neil");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .DefaultValue("Simon");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .DefaultValue("Neil");
         }
 
         [Fact]

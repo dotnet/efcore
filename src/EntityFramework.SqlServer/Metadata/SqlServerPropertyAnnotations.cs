@@ -106,9 +106,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         }
 
         [CanBeNull]
-        public new virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
+        public new virtual SqlServerIdentityStrategy? IdentityStrategy
         {
-            get { return base.ValueGenerationStrategy; }
+            get { return base.IdentityStrategy; }
             [param: CanBeNull]
             set
             {
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 {
                     var propertyType = Property.ClrType;
 
-                    if (value == SqlServerValueGenerationStrategy.Identity
+                    if (value == SqlServerIdentityStrategy.IdentityColumn
                         && (!propertyType.IsInteger()
                             || propertyType == typeof(byte)
                             || propertyType == typeof(byte?)))
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                             Property.Name, Property.EntityType.Name, propertyType.Name));
                     }
 
-                    if (value == SqlServerValueGenerationStrategy.Sequence
+                    if (value == SqlServerIdentityStrategy.SequenceHiLo
                         && !propertyType.IsInteger())
                     {
                         throw new ArgumentException(Strings.SequenceBadType(

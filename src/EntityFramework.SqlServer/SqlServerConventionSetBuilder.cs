@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(conventionSet, nameof(conventionSet));
                 
-            conventionSet.ModelInitializedConventions.Add(new SqlServerValueGenerationStrategyConvention());
+            conventionSet.ModelInitializedConventions.Add(new SqlServerIdentityStrategyConvention());
             return conventionSet;
         }
     }

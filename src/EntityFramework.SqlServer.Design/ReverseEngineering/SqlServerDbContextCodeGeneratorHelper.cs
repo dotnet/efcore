@@ -77,9 +77,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (propertyConfiguration.Property.SqlServer().ValueGenerationStrategy.HasValue
-                && SqlServerValueGenerationStrategy.Identity
-                == propertyConfiguration.Property.SqlServer().ValueGenerationStrategy.Value)
+            if (propertyConfiguration.Property.SqlServer().IdentityStrategy.HasValue
+                && SqlServerIdentityStrategy.IdentityColumn
+                == propertyConfiguration.Property.SqlServer().IdentityStrategy.Value)
             {
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration(

@@ -3,9 +3,9 @@
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public enum SqlServerValueGenerationStrategy
+    public enum SqlServerIdentityStrategy
     {
-        Sequence,
-        Identity
+        SequenceHiLo,
+        IdentityColumn
     }
 }

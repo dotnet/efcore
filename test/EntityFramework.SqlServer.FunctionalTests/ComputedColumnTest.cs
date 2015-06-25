@@ -79,12 +79,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<Entity>()
                     .Property(e => e.P4)
                     .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
-                    .ForSqlServer().ComputedExpression("P1 + P2");
+                    .SqlServerComputedExpression("P1 + P2");
 
                 modelBuilder.Entity<Entity>()
                     .Property(e => e.P5)
                     .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
-                    .ForSqlServer().ComputedExpression("P1 + P3");
+                    .SqlServerComputedExpression("P1 + P3");
             }
         }
 
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<EnumItem>()
                     .Property(entity => entity.CalculatedFlagEnum)
                     .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
-                    .ForSqlServer().ComputedExpression("FlagEnum | OptionalFlagEnum");
+                    .SqlServerComputedExpression("FlagEnum | OptionalFlagEnum");
             }
         }
 

@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Returns_sequence_value_generators_when_configured_for_model()
         {
             var model = BuildModel();
-            model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             var entityType = model.GetEntityType(typeof(AnEntity));
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Returns_generator_configured_on_model_when_property_is_Identity()
         {
             var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
-            model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             var entityType = model.GetEntityType(typeof(AnEntity));
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
@@ -118,8 +118,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 property.IsValueGeneratedOnAdd = generateValues;
             }
 
-            entityType.GetProperty("AlwaysIdentity").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
-            entityType.GetProperty("AlwaysSequence").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            entityType.GetProperty("AlwaysIdentity").SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
+            entityType.GetProperty("AlwaysSequence").SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
             return model;
         }

@@ -481,7 +481,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<Customer>(b =>
                     {
                         b.Key(c => c.CustomerID);
-                        b.ForSqlServer().ToTable("Customers");
+                        b.ToSqlServerTable("Customers");
                     });
             }
         }

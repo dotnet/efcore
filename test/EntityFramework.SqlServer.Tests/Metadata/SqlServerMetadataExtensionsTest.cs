@@ -606,18 +606,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
 
-            Assert.Null(model.SqlServer().ValueGenerationStrategy);
-            Assert.Null(((IModel)model).SqlServer().ValueGenerationStrategy);
+            Assert.Null(model.SqlServer().IdentityStrategy);
+            Assert.Null(((IModel)model).SqlServer().IdentityStrategy);
 
-            model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, model.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, ((IModel)model).SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, model.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, ((IModel)model).SqlServer().IdentityStrategy);
 
-            model.SqlServer().ValueGenerationStrategy = null;
+            model.SqlServer().IdentityStrategy = null;
 
-            Assert.Null(model.SqlServer().ValueGenerationStrategy);
-            Assert.Null(((IModel)model).SqlServer().ValueGenerationStrategy);
+            Assert.Null(model.SqlServer().IdentityStrategy);
+            Assert.Null(((IModel)model).SqlServer().IdentityStrategy);
         }
 
         [Fact]
@@ -670,21 +670,21 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Property(e => e.Id)
                 .Metadata;
 
-            Assert.Null(property.SqlServer().ValueGenerationStrategy);
-            Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.SqlServer().IdentityStrategy);
+            Assert.Null(((IProperty)property).SqlServer().IdentityStrategy);
             Assert.Null(property.IsValueGeneratedOnAdd);
             Assert.False(((IProperty)property).IsValueGeneratedOnAdd);
 
-            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, ((IProperty)property).SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, ((IProperty)property).SqlServer().IdentityStrategy);
             Assert.Null(property.IsValueGeneratedOnAdd);
 
-            property.SqlServer().ValueGenerationStrategy = null;
+            property.SqlServer().IdentityStrategy = null;
 
-            Assert.Null(property.SqlServer().ValueGenerationStrategy);
-            Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.SqlServer().IdentityStrategy);
+            Assert.Null(((IProperty)property).SqlServer().IdentityStrategy);
             Assert.Null(property.IsValueGeneratedOnAdd);
         }
 
@@ -698,21 +698,21 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Property(e => e.NullableInt)
                 .Metadata;
 
-            Assert.Null(property.SqlServer().ValueGenerationStrategy);
-            Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.SqlServer().IdentityStrategy);
+            Assert.Null(((IProperty)property).SqlServer().IdentityStrategy);
             Assert.Null(property.IsValueGeneratedOnAdd);
             Assert.False(((IProperty)property).IsValueGeneratedOnAdd);
 
-            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, ((IProperty)property).SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, ((IProperty)property).SqlServer().IdentityStrategy);
             Assert.Null(property.IsValueGeneratedOnAdd);
 
-            property.SqlServer().ValueGenerationStrategy = null;
+            property.SqlServer().IdentityStrategy = null;
 
-            Assert.Null(property.SqlServer().ValueGenerationStrategy);
-            Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.SqlServer().IdentityStrategy);
+            Assert.Null(((IProperty)property).SqlServer().IdentityStrategy);
             Assert.Null(property.IsValueGeneratedOnAdd);
         }
 
@@ -729,7 +729,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(
                 Strings.SequenceBadType("Name", typeof(Customer).FullName, "String"),
                 Assert.Throws<ArgumentException>(
-                    () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence).Message);
+                    () => property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo).Message);
         }
 
         [Fact]
@@ -745,7 +745,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(
                 Strings.IdentityBadType("Name", typeof(Customer).FullName, "String"),
                 Assert.Throws<ArgumentException>(
-                    () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity).Message);
+                    () => property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn).Message);
         }
 
         [Fact]
@@ -761,7 +761,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(
                 Strings.IdentityBadType("Byte", typeof(Customer).FullName, "Byte"),
                 Assert.Throws<ArgumentException>(
-                    () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity).Message);
+                    () => property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn).Message);
         }
 
         [Fact]
@@ -777,7 +777,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(
                 Strings.IdentityBadType("NullableByte", typeof(Customer).FullName, "Nullable`1"),
                 Assert.Throws<ArgumentException>(
-                    () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity).Message);
+                    () => property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn).Message);
         }
 
         [Fact]
@@ -848,13 +848,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Null(property.SqlServer().TryGetSequence());
             Assert.Null(((IProperty)property).SqlServer().TryGetSequence());
 
-            modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
+            modelBuilder.Model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
 
             Assert.Null(property.SqlServer().TryGetSequence());
             Assert.Null(((IProperty)property).SqlServer().TryGetSequence());
 
-            modelBuilder.Model.SqlServer().ValueGenerationStrategy = null;
-            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
+            modelBuilder.Model.SqlServer().IdentityStrategy = null;
+            property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
 
             Assert.Null(property.SqlServer().TryGetSequence());
             Assert.Null(((IProperty)property).SqlServer().TryGetSequence());
@@ -872,7 +872,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
             property.SqlServer().SequenceName = "DaneelOlivaw";
-            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
             Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
             Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
@@ -889,7 +889,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
-            modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            modelBuilder.Model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             property.SqlServer().SequenceName = "DaneelOlivaw";
 
             Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
@@ -908,7 +908,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
             modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
-            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
             Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
             Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
@@ -925,7 +925,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
-            modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            modelBuilder.Model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
 
             Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
@@ -945,7 +945,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
             property.SqlServer().SequenceName = "DaneelOlivaw";
             property.SqlServer().SequenceSchema = "R";
-            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
             Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
             Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
@@ -964,7 +964,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
-            modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            modelBuilder.Model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             property.SqlServer().SequenceName = "DaneelOlivaw";
             property.SqlServer().SequenceSchema = "R";
 
@@ -987,7 +987,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
             modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
             modelBuilder.Model.SqlServer().DefaultSequenceSchema = "R";
-            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
             Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
             Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
@@ -1006,7 +1006,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
-            modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            modelBuilder.Model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
             modelBuilder.Model.SqlServer().DefaultSequenceSchema = "R";
 

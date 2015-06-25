@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 base.OnModelCreating(modelBuilder);
 
                 modelBuilder.Sequence("StartAtZeroSequence").Start(0);
-                modelBuilder.ForSqlServer().UseSequence("StartAtZeroSequence");
+                modelBuilder.UseSqlServerSequenceHiLo("StartAtZeroSequence");
 
                 SetSentinelValues(modelBuilder, IntSentinel);
             }

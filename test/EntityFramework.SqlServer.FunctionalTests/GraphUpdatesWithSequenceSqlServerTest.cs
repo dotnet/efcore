@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public override int IntSentinel => 0;
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.ForSqlServer().UseSequence(); // ensure model uses sequences
+                modelBuilder.UseSqlServerSequenceHiLo(); // ensure model uses sequences
                 base.OnModelCreating(modelBuilder);
             }
         }

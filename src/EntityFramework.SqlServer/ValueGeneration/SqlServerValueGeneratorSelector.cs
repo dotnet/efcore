@@ -40,10 +40,10 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));
 
-            var strategy = property.SqlServer().ValueGenerationStrategy;
+            var strategy = property.SqlServer().IdentityStrategy;
 
             return property.ClrType.IsInteger()
-                   && strategy == SqlServerValueGenerationStrategy.Sequence
+                   && strategy == SqlServerIdentityStrategy.SequenceHiLo
                 ? _sequenceFactory.Create(property, Cache.GetOrAddSequenceState(property), _connection)
                 : Cache.GetOrAdd(property, entityType, Create);
         }

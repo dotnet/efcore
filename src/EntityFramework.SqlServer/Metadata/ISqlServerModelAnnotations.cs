@@ -7,7 +7,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
     public interface ISqlServerModelAnnotations : IRelationalModelAnnotations
     {
-        SqlServerValueGenerationStrategy? ValueGenerationStrategy { get; }
+        SqlServerIdentityStrategy? IdentityStrategy { get; }
         string DefaultSequenceName { get; }
         string DefaultSequenceSchema { get; }
     }

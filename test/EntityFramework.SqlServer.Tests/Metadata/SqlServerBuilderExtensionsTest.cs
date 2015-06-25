@@ -28,26 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ForSqlServer()
-                .HasColumnName("MyNameIs");
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal("Name", property.Name);
-            Assert.Equal("Eman", property.Relational().Column);
-            Assert.Equal("MyNameIs", property.SqlServer().Column);
-        }
-
-        [Fact]
-        public void Can_set_column_name_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .HasColumnName("Eman")
-                .ForSqlServer(b => { b.HasColumnName("MyNameIs"); });
+                .HasSqlServerColumnName("MyNameIs");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -69,25 +50,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ForSqlServer()
-                .HasColumnType("nvarchar(DA)");
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal("nvarchar(42)", property.Relational().ColumnType);
-            Assert.Equal("nvarchar(DA)", property.SqlServer().ColumnType);
-        }
-
-        [Fact]
-        public void Can_set_column_type_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .HasColumnType("nvarchar(42)")
-                .ForSqlServer(b => { b.HasColumnType("nvarchar(DA)"); });
+                .HasSqlServerColumnType("nvarchar(DA)");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -108,25 +71,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ForSqlServer()
-                .DefaultValueSql("VanillaCoke");
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal("CherryCoke", property.Relational().DefaultValueSql);
-            Assert.Equal("VanillaCoke", property.SqlServer().DefaultValueSql);
-        }
-
-        [Fact]
-        public void Can_set_column_default_expression_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .DefaultValueSql("CherryCoke")
-                .ForSqlServer(b => { b.DefaultValueSql("VanillaCoke"); });
+                .SqlServerDefaultValueSql("VanillaCoke");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -147,25 +92,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ForSqlServer()
-                .DefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)), property.Relational().DefaultValue);
-            Assert.Equal(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)), property.SqlServer().DefaultValue);
-        }
-
-        [Fact]
-        public void Can_set_column_default_value_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .DefaultValue(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)))
-                .ForSqlServer(b => { b.DefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0))); });
+                .SqlServerDefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -181,30 +108,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Key(e => e.Id)
-                .KeyName("KeyLimePie");
-
-            modelBuilder
-                .Entity<Customer>()
-                .Key(e => e.Id)
-                .ForSqlServer()
-                .KeyName("LemonSupreme");
-
-            var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
-
-            Assert.Equal("KeyLimePie", key.Relational().Name);
-            Assert.Equal("LemonSupreme", key.SqlServer().Name);
-        }
-
-        [Fact]
-        public void Can_set_key_name_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Key(e => e.Id)
                 .KeyName("KeyLimePie")
-                .ForSqlServer(b => { b.KeyName("LemonSupreme"); });
+                .SqlServerKeyName("LemonSupreme");
 
             var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
 
@@ -219,12 +124,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .ConstraintName("LemonSupreme");
-
-            modelBuilder
-                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .ForSqlServer()
-                .ConstraintName("ChocolateLimes");
+                .ConstraintName("LemonSupreme")
+                .SqlServerConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -233,8 +134,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .ForSqlServer()
-                .ConstraintName(null);
+                .SqlServerConstraintName(null);
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("LemonSupreme", foreignKey.SqlServer().Name);
@@ -248,46 +148,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
-                .ConstraintName("LemonSupreme");
-
-            modelBuilder
-                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .ForeignKey(e => e.CustomerId)
-                .ForSqlServer()
-                .ConstraintName("ChocolateLimes");
-
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
-
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
-            Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
-        }
-
-        [Fact]
-        public void Can_set_foreign_key_name_for_one_to_many_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
                 .ConstraintName("LemonSupreme")
-                .ForSqlServer(b => { b.ConstraintName("ChocolateLimes"); });
-
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
-
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
-            Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
-        }
-
-        [Fact]
-        public void Can_set_foreign_key_name_for_one_to_many_with_FK_specified_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
-                .ForeignKey(e => e.CustomerId)
-                .ConstraintName("LemonSupreme")
-                .ForSqlServer(b => { b.ConstraintName("ChocolateLimes"); });
+                .SqlServerConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -302,12 +164,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .ConstraintName("LemonSupreme");
-
-            modelBuilder
-                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .ForSqlServer()
-                .ConstraintName("ChocolateLimes");
+                .ConstraintName("LemonSupreme")
+                .SqlServerConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -316,8 +174,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .ForSqlServer()
-                .ConstraintName(null);
+                .SqlServerConstraintName(null);
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("LemonSupreme", foreignKey.SqlServer().Name);
@@ -331,46 +188,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
-                .ConstraintName("LemonSupreme");
-
-            modelBuilder
-                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .ForeignKey(e => e.CustomerId)
-                .ForSqlServer()
-                .ConstraintName("ChocolateLimes");
-
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
-
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
-            Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
-        }
-
-        [Fact]
-        public void Can_set_foreign_key_name_for_many_to_one_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
                 .ConstraintName("LemonSupreme")
-                .ForSqlServer(b => { b.ConstraintName("ChocolateLimes"); });
-
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
-
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
-            Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
-        }
-
-        [Fact]
-        public void Can_set_foreign_key_name_for_many_to_one_with_FK_specified_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
-                .ForeignKey(e => e.CustomerId)
-                .ConstraintName("LemonSupreme")
-                .ForSqlServer(b => { b.ConstraintName("ChocolateLimes"); });
+                .SqlServerConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -386,12 +205,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .PrincipalKey<Order>(e => e.OrderId)
-                .ConstraintName("LemonSupreme");
-
-            modelBuilder
-                .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
-                .ForSqlServer()
-                .ConstraintName("ChocolateLimes");
+                .ConstraintName("LemonSupreme")
+                .SqlServerConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -400,8 +215,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
-                .ForSqlServer()
-                .ConstraintName(null);
+                .SqlServerConstraintName(null);
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("LemonSupreme", foreignKey.SqlServer().Name);
@@ -415,47 +229,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
-                .ConstraintName("LemonSupreme");
-
-            modelBuilder
-                .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
-                .ForeignKey<OrderDetails>(e => e.Id)
-                .ForSqlServer()
-                .ConstraintName("ChocolateLimes");
-
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
-
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
-            Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
-        }
-
-        [Fact]
-        public void Can_set_foreign_key_name_for_one_to_one_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
-                .PrincipalKey<Order>(e => e.OrderId)
                 .ConstraintName("LemonSupreme")
-                .ForSqlServer(b => { b.ConstraintName("ChocolateLimes"); });
-
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
-
-            Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
-            Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
-        }
-
-        [Fact]
-        public void Can_set_foreign_key_name_for_one_to_one_with_FK_specified_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
-                .ForeignKey<OrderDetails>(e => e.Id)
-                .ConstraintName("LemonSupreme")
-                .ForSqlServer(b => { b.ConstraintName("ChocolateLimes"); });
+                .SqlServerConstraintName("ChocolateLimes");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -471,30 +246,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Index(e => e.Id)
-                .IndexName("Eeeendeeex");
-
-            modelBuilder
-                .Entity<Customer>()
-                .Index(e => e.Id)
-                .ForSqlServer()
-                .IndexName("Dexter");
-
-            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
-
-            Assert.Equal("Eeeendeeex", index.Relational().Name);
-            Assert.Equal("Dexter", index.SqlServer().Name);
-        }
-
-        [Fact]
-        public void Can_set_index_name_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Index(e => e.Id)
                 .IndexName("Eeeendeeex")
-                .ForSqlServer(b => { b.IndexName("Dexter"); });
+                .SqlServerIndexName("Dexter");
 
             var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
 
@@ -509,29 +262,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .ToTable("Customizer");
-
-            modelBuilder
-                .Entity<Customer>()
-                .ForSqlServer()
-                .ToTable("Custardizer");
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("Custardizer", entityType.SqlServer().Table);
-        }
-
-        [Fact]
-        public void Can_set_table_name_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
                 .ToTable("Customizer")
-                .ForSqlServer(b => { b.ToTable("Custardizer"); });
+                .ToSqlServerTable("Custardizer");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -547,29 +279,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .ToTable("Customizer");
-
-            modelBuilder
-                .Entity(typeof(Customer))
-                .ForSqlServer()
-                .ToTable("Custardizer");
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("Custardizer", entityType.SqlServer().Table);
-        }
-
-        [Fact]
-        public void Can_set_table_name_with_convention_builder_using_nested_closure_non_generic()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity(typeof(Customer))
                 .ToTable("Customizer")
-                .ForSqlServer(b => { b.ToTable("Custardizer"); });
+                .ToSqlServerTable("Custardizer");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -585,31 +296,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .ToTable("Customizer", "db0");
-
-            modelBuilder
-                .Entity<Customer>()
-                .ForSqlServer()
-                .ToTable("Custardizer", "dbOh");
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("Custardizer", entityType.SqlServer().Table);
-            Assert.Equal("db0", entityType.Relational().Schema);
-            Assert.Equal("dbOh", entityType.SqlServer().Schema);
-        }
-
-        [Fact]
-        public void Can_set_table_and_schema_name_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
                 .ToTable("Customizer", "db0")
-                .ForSqlServer(b => { b.ToTable("Custardizer", "dbOh"); });
+                .ToSqlServerTable("Custardizer", "dbOh");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -627,31 +315,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .ToTable("Customizer", "db0");
-
-            modelBuilder
-                .Entity<Customer>()
-                .ForSqlServer()
-                .ToTable("Custardizer", "dbOh");
-
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("Custardizer", entityType.SqlServer().Table);
-            Assert.Equal("db0", entityType.Relational().Schema);
-            Assert.Equal("dbOh", entityType.SqlServer().Schema);
-        }
-
-        [Fact]
-        public void Can_set_table_and_schema_name_with_convention_builder_using_nested_closure_non_generic()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity(typeof(Customer))
                 .ToTable("Customizer", "db0")
-                .ForSqlServer(b => { b.ToTable("Custardizer", "dbOh"); });
+                .ToSqlServerTable("Custardizer", "dbOh");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
@@ -670,23 +335,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Index(e => e.Id)
-                .ForSqlServer()
-                .Clustered();
-
-            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
-
-            Assert.True(index.SqlServer().IsClustered.Value);
-        }
-
-        [Fact]
-        public void Can_set_index_clustering_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Index(e => e.Id)
-                .ForSqlServer(b => { b.Clustered(); });
+                .SqlServerClustered();
 
             var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
 
@@ -701,23 +350,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Key(e => e.Id)
-                .ForSqlServer()
-                .Clustered();
-
-            var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
-
-            Assert.True(key.SqlServer().IsClustered.Value);
-        }
-
-        [Fact]
-        public void Can_set_key_clustering_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Key(e => e.Id)
-                .ForSqlServer(b => { b.Clustered(); });
+                .SqlServerClustered();
 
             var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
 
@@ -729,33 +362,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder
-                .ForSqlServer()
-                .UseSequence();
+            modelBuilder.UseSqlServerSequenceHiLo();
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Same(Sequence.DefaultName, sqlServerExtensions.DefaultSequenceName);
-            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
-
-            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
-            Assert.NotNull(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
-        }
-
-        [Fact]
-        public void Can_set_sequences_for_model_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .ForSqlServer(b => { b.UseSequence(); });
-
-            var relationalExtensions = modelBuilder.Model.Relational();
-            var sqlServerExtensions = modelBuilder.Model.SqlServer();
-
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
             Assert.Same(Sequence.DefaultName, sqlServerExtensions.DefaultSequenceName);
             Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
@@ -777,33 +389,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder
-                .ForSqlServer()
-                .UseSequence("Snook");
+            modelBuilder.UseSqlServerSequenceHiLo("Snook");
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
-            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
-
-            Assert.Null(relationalExtensions.TryGetSequence("Snook"));
-            ValidateNamedSequence(sqlServerExtensions.TryGetSequence("Snook"));
-        }
-
-        [Fact]
-        public void Can_set_sequences_with_name_for_model_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .ForSqlServer(b => { b.UseSequence("Snook"); });
-
-            var relationalExtensions = modelBuilder.Model.Relational();
-            var sqlServerExtensions = modelBuilder.Model.SqlServer();
-
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
             Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
             Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
@@ -827,33 +418,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder
-                .ForSqlServer()
-                .UseSequence("Snook", "Tasty");
+            modelBuilder.UseSqlServerSequenceHiLo("Snook", "Tasty");
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
-            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
-
-            Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
-            ValidateSchemaNamedSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
-        }
-
-        [Fact]
-        public void Can_set_sequences_with_schema_and_name_for_model_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
-
-            var relationalExtensions = modelBuilder.Model.Relational();
-            var sqlServerExtensions = modelBuilder.Model.SqlServer();
-
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
             Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
             Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
@@ -885,34 +455,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Max(2222)
                 .Type<int>();
 
-            modelBuilder
-                .ForSqlServer()
-                .UseSequence("Snook", "Tasty");
+            modelBuilder.UseSqlServerSequenceHiLo("Snook", "Tasty");
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
-            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
-
-            ValidateSchemaNamedSpecificSequence(relationalExtensions.TryGetSequence("Snook", "Tasty"));
-            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
-        }
-
-        [Fact]
-        public void Can_set_use_of_existing_relational_sequence_for_model_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Sequence("Snook", "Tasty", b => b.IncrementBy(11).Start(1729).Min(111).Max(2222).Type<int>())
-                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
-
-            var relationalExtensions = modelBuilder.Model.Relational();
-            var sqlServerExtensions = modelBuilder.Model.SqlServer();
-
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
             Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
             Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
@@ -926,50 +474,19 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServer()
-                .Sequence("Snook", "Tasty")
+                .SqlServerSequence("Snook", "Tasty")
                 .IncrementBy(11)
                 .Start(1729)
                 .Min(111)
                 .Max(2222)
                 .Type<int>();
 
-            modelBuilder
-                .ForSqlServer()
-                .UseSequence("Snook", "Tasty");
+            modelBuilder.UseSqlServerSequenceHiLo("Snook", "Tasty");
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
-            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
-
-            Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
-            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
-        }
-
-        [Fact]
-        public void Can_set_use_of_existing_SQL_sequence_for_model_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .ForSqlServer(b =>
-                    {
-                        b.Sequence("Snook", "Tasty")
-                            .IncrementBy(11)
-                            .Start(1729)
-                            .Min(111)
-                            .Max(2222)
-                            .Type<int>();
-                        b.UseSequence("Snook", "Tasty");
-                    });
-
-            var relationalExtensions = modelBuilder.Model.Relational();
-            var sqlServerExtensions = modelBuilder.Model.SqlServer();
-
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
             Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
             Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
@@ -993,33 +510,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder
-                .ForSqlServer()
-                .UseIdentity();
+            modelBuilder.UseSqlServerIdentityColumns();
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Identity, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Null(sqlServerExtensions.DefaultSequenceName);
-            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
-
-            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
-            Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
-        }
-
-        [Fact]
-        public void Can_set_identities_for_model_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .ForSqlServer(b => { b.UseIdentity(); });
-
-            var relationalExtensions = modelBuilder.Model.Relational();
-            var sqlServerExtensions = modelBuilder.Model.SqlServer();
-
-            Assert.Equal(SqlServerValueGenerationStrategy.Identity, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, sqlServerExtensions.IdentityStrategy);
             Assert.Null(sqlServerExtensions.DefaultSequenceName);
             Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
@@ -1035,34 +531,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServer()
-                .UseSequence();
+                .UseSqlServerSequenceHiLo();
 
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
-            Assert.Same(Sequence.DefaultName, property.SqlServer().SequenceName);
-
-            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
-            Assert.NotNull(model.SqlServer().TryGetSequence(Sequence.DefaultName));
-        }
-
-        [Fact]
-        public void Can_set_sequence_for_property_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Id)
-                .ForSqlServer(b => { b.UseSequence(); });
-
-            var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
-
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Same(Sequence.DefaultName, property.SqlServer().SequenceName);
 
@@ -1078,35 +552,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServer()
-                .UseSequence("Snook");
+                .UseSqlServerSequenceHiLo("Snook");
 
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
-            Assert.Equal("Snook", property.SqlServer().SequenceName);
-            Assert.Null(property.SqlServer().SequenceSchema);
-
-            Assert.Null(model.Relational().TryGetSequence("Snook"));
-            ValidateNamedSequence(model.SqlServer().TryGetSequence("Snook"));
-        }
-
-        [Fact]
-        public void Can_set_sequences_with_name_for_property_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Id)
-                .ForSqlServer(b => { b.UseSequence("Snook"); });
-
-            var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
-
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Null(property.SqlServer().SequenceSchema);
@@ -1123,35 +574,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServer()
-                .UseSequence("Snook", "Tasty");
+                .UseSqlServerSequenceHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
-            Assert.Equal("Snook", property.SqlServer().SequenceName);
-            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
-
-            Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
-            ValidateSchemaNamedSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
-        }
-
-        [Fact]
-        public void Can_set_sequences_with_schema_and_name_for_property_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Id)
-                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
-
-            var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
-
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
@@ -1176,13 +604,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServer()
-                .UseSequence("Snook", "Tasty");
+                .UseSqlServerSequenceHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
@@ -1200,12 +627,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Sequence("Snook", "Tasty", b => b.IncrementBy(11).Start(1729).Min(111).Max(2222).Type<int>())
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
+                .UseSqlServerSequenceHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
@@ -1220,8 +647,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServer()
-                .Sequence("Snook", "Tasty")
+                .SqlServerSequence("Snook", "Tasty")
                 .IncrementBy(11)
                 .Start(1729)
                 .Min(111)
@@ -1231,13 +657,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServer()
-                .UseSequence("Snook", "Tasty");
+                .UseSqlServerSequenceHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
@@ -1252,10 +677,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServer(b =>
+                .SqlServerSequence("Snook", "Tasty", b =>
                     {
-                        b.Sequence("Snook", "Tasty")
-                            .IncrementBy(11)
+                        b.IncrementBy(11)
                             .Start(1729)
                             .Min(111)
                             .Max(2222)
@@ -1263,12 +687,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                     })
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
+                .UseSqlServerSequenceHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
@@ -1285,13 +709,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServer()
-                .UseIdentity();
+                .UseSqlServerIdentityColumn();
 
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Identity, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, property.SqlServer().IdentityStrategy);
             Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Null(property.SqlServer().SequenceName);
 
@@ -1307,12 +730,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .ForSqlServer(b => { b.UseIdentity(); });
+                .UseSqlServerIdentityColumn();
 
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerValueGenerationStrategy.Identity, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, property.SqlServer().IdentityStrategy);
             Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
             Assert.Null(property.SqlServer().SequenceName);
 
@@ -1321,56 +744,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_create_default_sequence_with_convention_builder()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .ForSqlServer()
-                .Sequence();
-
-            Assert.Null(modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName));
-            var sequence = modelBuilder.Model.SqlServer().TryGetSequence(Sequence.DefaultName);
-
-            ValidateDefaultSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_default_sequence_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .ForSqlServer(b => { b.Sequence(); });
-
-            Assert.Null(modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName));
-            var sequence = modelBuilder.Model.SqlServer().TryGetSequence(Sequence.DefaultName);
-
-            ValidateDefaultSequence(sequence);
-        }
-
-        [Fact]
         public void Can_create_named_sequence_with_convention_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder
-                .ForSqlServer()
-                .Sequence("Snook");
-
-            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
-            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
-
-            ValidateNamedSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_named_sequence_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .ForSqlServer(b => { b.Sequence("Snook"); });
+            modelBuilder.SqlServerSequence("Snook");
 
             Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
             var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
@@ -1383,70 +761,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder
-                .ForSqlServer()
-                .Sequence("Snook", "Tasty");
+            modelBuilder.SqlServerSequence("Snook", "Tasty");
 
             Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
             var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
 
             ValidateSchemaNamedSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_schema_named_sequence_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .ForSqlServer(b => { b.Sequence("Snook", "Tasty"); });
-
-            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
-            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
-
-            ValidateSchemaNamedSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_default_sequence_with_specific_facets_with_convention_builder()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .ForSqlServer()
-                .Sequence()
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
-                .Type<int>();
-
-            Assert.Null(modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName));
-            var sequence = modelBuilder.Model.SqlServer().TryGetSequence(Sequence.DefaultName);
-
-            ValidateDefaultSpecificSequence(sequence);
-        }
-
-        [Fact]
-        public void Can_create_default_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .ForSqlServer(b =>
-                    {
-                        b.Sequence()
-                            .IncrementBy(11)
-                            .Start(1729)
-                            .Min(111)
-                            .Max(2222)
-                            .Type<int>();
-                    });
-
-            Assert.Null(modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName));
-            var sequence = modelBuilder.Model.SqlServer().TryGetSequence(Sequence.DefaultName);
-
-            ValidateDefaultSpecificSequence(sequence);
         }
 
         private static void ValidateDefaultSpecificSequence(Sequence sequence)
@@ -1466,8 +786,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServer()
-                .Sequence("Snook")
+                .SqlServerSequence("Snook")
                 .IncrementBy(11)
                 .Start(1729)
                 .Min(111)
@@ -1486,10 +805,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServer(b =>
+                .SqlServerSequence("Snook", b =>
                     {
-                        b.Sequence("Snook")
-                            .IncrementBy(11)
+                        b.IncrementBy(11)
                             .Start(1729)
                             .Min(111)
                             .Max(2222)
@@ -1519,8 +837,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServer()
-                .Sequence("Snook", "Tasty")
+                .SqlServerSequence("Snook", "Tasty")
                 .IncrementBy(11)
                 .Start(1729)
                 .Min(111)
@@ -1539,14 +856,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServer(b =>
+                .SqlServerSequence("Snook", "Tasty", b =>
                     {
-                        b.Sequence("Snook", "Tasty")
-                            .IncrementBy(11)
-                            .Start(1729)
-                            .Min(111)
-                            .Max(2222)
-                            .Type<int>();
+                        b.IncrementBy(11).Start(1729).Min(111).Max(2222).Type<int>();
                     });
 
             Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
@@ -1556,40 +868,191 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void ForSqlServer_methods_dont_break_out_of_the_generics()
+        public void SqlServer_entity_methods_dont_break_out_of_the_generics()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
-                    .ForSqlServer(b => { }));
+                    .ToSqlServerTable("Will"));
+
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>()
+                    .ToSqlServerTable("Jay", "Simon"));
+        }
+
+        [Fact]
+        public void SqlServer_entity_methods_have_non_generic_overloads()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .ToSqlServerTable("Will");
+
+            modelBuilder
+                .Entity<Customer>()
+                .ToSqlServerTable("Jay", "Simon");
+        }
+
+        [Fact]
+        public void SqlServer_property_methods_dont_break_out_of_the_generics()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .ForSqlServer(b => { }));
+                    .HasSqlServerColumnName("Will"));
+
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property(e => e.Name)
+                    .HasSqlServerColumnType("Jay"));
+
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property(e => e.Name)
+                    .SqlServerDefaultValueSql("Simon"));
+
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property(e => e.Name)
+                    .SqlServerComputedExpression("Simon"));
+
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property(e => e.Name)
+                    .SqlServerDefaultValue("Neil"));
+
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property(e => e.Id)
+                    .UseSqlServerSequenceHiLo());
+
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property(e => e.Id)
+                    .UseSqlServerIdentityColumn());
+        }
+
+        [Fact]
+        public void SqlServer_property_methods_have_non_generic_overloads()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .Property(typeof(string), "Name")
+                .HasSqlServerColumnName("Will");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .HasSqlServerColumnName("Jay");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .HasSqlServerColumnType("Simon");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .HasSqlServerColumnType("Neil");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .SqlServerDefaultValueSql("Simon");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .SqlServerDefaultValueSql("Neil");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .SqlServerDefaultValue("Simon");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .SqlServerDefaultValue("Neil");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .SqlServerComputedExpression("Simon");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(int), "Id")
+                .UseSqlServerSequenceHiLo();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(int), "Id")
+                .UseSqlServerIdentityColumn();
+        }
+
+        [Fact]
+        public void SqlServer_relationship_methods_dont_break_out_of_the_generics()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>().Collection(e => e.Orders)
                     .InverseReference(e => e.Customer)
-                    .ForSqlServer(b => { }));
+                    .SqlServerConstraintName("Will"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Order>()
                     .Reference(e => e.Customer)
                     .InverseCollection(e => e.Orders)
-                    .ForSqlServer(b => { }));
+                    .SqlServerConstraintName("Jay"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Order>()
                     .Reference(e => e.Details)
                     .InverseReference(e => e.Order)
-                    .ForSqlServer(b => { }));
+                    .SqlServerConstraintName("Simon"));
+        }
+
+        [Fact]
+        public void SqlServer_relationship_methods_have_non_generic_overloads()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>().Collection(typeof(Order), "Orders")
+                .InverseReference("Customer")
+                .SqlServerConstraintName("Will");
+
+            modelBuilder
+                .Entity<Order>()
+                .Reference(e => e.Customer)
+                .InverseCollection(e => e.Orders)
+                .SqlServerConstraintName("Jay");
+
+            modelBuilder
+                .Entity<Order>()
+                .Reference(e => e.Details)
+                .InverseReference(e => e.Order)
+                .SqlServerConstraintName("Simon");
         }
 
         private void AssertIsGeneric(EntityTypeBuilder<Customer> _)
@@ -1597,6 +1060,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         private void AssertIsGeneric(PropertyBuilder<string> _)
+        {
+        }
+
+        private void AssertIsGeneric(PropertyBuilder<int> _)
         {
         }
 
