@@ -8,6 +8,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
 {
     public class MoveDataOperation : MigrationOperation
     {
+        // TODO handle renaming columns
         public MoveDataOperation()
         {
             IsDestructiveChange = true;

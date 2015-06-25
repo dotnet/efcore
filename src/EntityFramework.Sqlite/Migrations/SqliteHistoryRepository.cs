@@ -83,7 +83,9 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                 }
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"SELECT 1 FROM sqlite_master WHERE tbl_name = '{_sql.EscapeLiteral(MigrationTableName)}' AND rootpage IS NOT NULL;";
+                    command.CommandText = $"SELECT 1 FROM sqlite_master WHERE type = 'table'" +
+                                          $" AND tbl_name = '{_sql.EscapeLiteral(MigrationTableName)}'" +
+                                          $" AND rootpage IS NOT NULL;";
                     var result = command.ExecuteScalar();
                     return result != null && (long)result == 1;
                 }

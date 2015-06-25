@@ -14,6 +14,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
     public class SqliteOperationTransformer
     {
         private readonly IModelDiffer _differ;
+        private readonly ISet<string> _tableRebuilds = new HashSet<string>();
 
         public SqliteOperationTransformer([NotNull] IModelDiffer differ)
         {
@@ -22,38 +23,66 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             _differ = differ;
         }
 
-        protected IList<MigrationOperation> TransformOperation(MigrationOperation operation, IModel model) =>
-            new[] { operation };
+        protected IList<MigrationOperation> TransformOperation(MigrationOperation operation, IModel model) 
+            => new[] { operation };
 
-        // TODO prevent multiple DropColumnOperations on the same table
         private IList<MigrationOperation> TransformOperation(DropColumnOperation operation, IModel model)
+            => CreateTableRebuild(operation.Table, model, operation);
+
+        private IList<MigrationOperation> TransformOperation(AlterColumnOperation operation, IModel model)
+            => FilterRedudantOperation(operation.Table, operation);
+
+        private IList<MigrationOperation> TransformOperation(AddColumnOperation operation, IModel model)
+            => FilterRedudantOperation(operation.Table, operation);
+
+        private IList<MigrationOperation> TransformOperation(AddForeignKeyOperation operation, IModel model)
+            => FilterRedudantOperation(operation.Table, operation);
+
+        private IList<MigrationOperation> TransformOperation(AddPrimaryKeyOperation operation, IModel model)
+            => FilterRedudantOperation(operation.Table, operation);
+
+        private IList<MigrationOperation> TransformOperation(CreateIndexOperation operation, IModel model)
+            => FilterRedudantOperation(operation.Table, operation);
+
+        private IList<MigrationOperation> TransformOperation(CreateTableOperation operation, IModel model)
+            => FilterRedudantOperation(operation.Name, operation);
+
+        private IList<MigrationOperation> FilterRedudantOperation(string tableName, MigrationOperation operation)
+            => _tableRebuilds.Contains(tableName) ? null : new[] { operation };
+
+        private IList<MigrationOperation> CreateTableRebuild(string tableName, IModel model, MigrationOperation operation)
         {
-            Check.NotNull(model, nameof(model));
-
-            // TODO ensure this temporary table does not conflict with an existing table
-            var tempTableName = operation.Table + "_temp";
-
-            // TODO find more efficient way to get a create table operation. Expose ModelDiffer.Add?
-            var createTableOperation = _differ.GetDifferences(null, model)
-                .FirstOrDefault(o => (o as CreateTableOperation)?.Name == operation.Table);
-
-            if (!(createTableOperation is CreateTableOperation))
+            if (_tableRebuilds.Contains(tableName))
             {
-                return new MigrationOperation[] { operation };
+                return null;
             }
 
-            return new[]
+            // TODO ensure this temporary table does not conflict with an existing table
+            var tempTableName = tableName + "_temp";
+
+            // TODO find more efficient way to get a create table operation. Expose ModelDiffer.Add?
+            var differences = _differ.GetDifferences(null, model);
+            var createTableOperation = differences.FirstOrDefault(o => (o as CreateTableOperation)?.Name == tableName);
+
+            if (createTableOperation == null)
+            {
+                return new[] { operation };
+            }
+
+            _tableRebuilds.Add(tableName);
+
+            var rebuildOperations = new List<MigrationOperation>
             {
                 new RenameTableOperation
                 {
-                    Name = operation.Table,
+                    Name = tableName,
                     NewName = tempTableName
                 },
                 createTableOperation,
                 new MoveDataOperation
                 {
                     OldTable = tempTableName,
-                    NewTable = operation.Table,
+                    NewTable = tableName,
                     Columns = ((CreateTableOperation)createTableOperation)
                         .Columns
                         .Select(c => c.Name)
@@ -64,6 +93,10 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                     Name = tempTableName
                 }
             };
+
+            rebuildOperations.AddRange(differences.Where(o => (o as CreateIndexOperation)?.Table == tableName));
+
+            return rebuildOperations;
         }
 
         public virtual IReadOnlyList<MigrationOperation> Transform(
@@ -75,7 +108,12 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             var finalOperations = new List<MigrationOperation>();
             foreach (var operation in operations)
             {
-                finalOperations.AddRange(TransformOperation((dynamic)operation, model));
+                var newOps = TransformOperation((dynamic)operation, model);
+                if (newOps == null)
+                {
+                    continue;
+                }
+                finalOperations.AddRange(newOps);
             }
             return finalOperations.AsReadOnly();
         }
