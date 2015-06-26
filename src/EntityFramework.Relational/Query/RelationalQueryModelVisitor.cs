@@ -36,6 +36,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private RelationalProjectionExpressionVisitor _projectionVisitor;
 
+        private Dictionary<IncludeSpecification, List<int>> _navigationIndexMap = new Dictionary<IncludeSpecification, List<int>>();
+
         public RelationalQueryModelVisitor(
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             [CanBeNull] RelationalQueryModelVisitor parentQueryModelVisitor)
@@ -119,22 +121,60 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         protected override void IncludeNavigations(
-            IQuerySource querySource,
+            [NotNull] QueryModel queryModel, 
+            [NotNull] IReadOnlyCollection<IncludeSpecification> includeSpecifications)
+        {
+            _navigationIndexMap = BuildNavigationIndexMap(includeSpecifications);
+
+            base.IncludeNavigations(queryModel, includeSpecifications);
+        }
+
+        private Dictionary<IncludeSpecification, List<int>> BuildNavigationIndexMap(
+            IReadOnlyCollection<IncludeSpecification> includeSpecifications)
+        {
+            var openedReaderCount = 0;
+            var navigationIndexMap = new Dictionary<IncludeSpecification, List<int>>();
+
+            foreach (var includeSpecification in includeSpecifications.Reverse())
+            {
+                var indexes = new List<int>();
+                var openedNewReader = false;
+                foreach (var navigation in includeSpecification.NavigationPath)
+                {
+                    if (navigation.IsCollection())
+                    {
+                        openedNewReader = true;
+                        openedReaderCount++;
+                    }
+                    else
+                    {
+                        var index = openedNewReader ? openedReaderCount : 0;
+                        indexes.Add(index);
+                    }
+                }
+
+                navigationIndexMap.Add(includeSpecification, indexes);
+            }
+
+            return navigationIndexMap;
+        }
+
+        protected override void IncludeNavigations(
+            IncludeSpecification includeSpecification,
             Type resultType,
             LambdaExpression accessorLambda,
-            IReadOnlyList<INavigation> navigationPath,
             bool querySourceRequiresTracking)
         {
-            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(includeSpecification, nameof(includeSpecification));
             Check.NotNull(resultType, nameof(resultType));
             Check.NotNull(accessorLambda, nameof(accessorLambda));
-            Check.NotNull(navigationPath, nameof(navigationPath));
 
             Expression
                 = new IncludeExpressionVisitor(
-                    querySource,
-                    navigationPath,
+                    includeSpecification.QuerySource,
+                    includeSpecification.NavigationPath,
                     QueryCompilationContext,
+                    _navigationIndexMap[includeSpecification],
                     querySourceRequiresTracking)
                     .Visit(Expression);
         }

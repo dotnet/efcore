@@ -14,6 +14,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
         }
 
+        protected override void ClearLog()
+        {
+            TestSqlLoggerFactory.Reset();
+        }
+
         public override void Include_multiple_one_to_one_and_one_to_many()
         {
             base.Include_multiple_one_to_one_and_one_to_many();
@@ -130,6 +135,67 @@ INNER JOIN (
     WHERE [g].[Nickname] = 'Marcus'
 ) AS [c] ON [g].[AssignedCityName] = [c].[Name]
 ORDER BY [c].[Name]",
+                Sql);
+        }
+
+        public override void Include_multiple_include_then_include()
+        {
+            base.Include_multiple_include_then_include();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c].[Name], [c].[Location], [c0].[Name], [c0].[Location], [c1].[Name], [c1].[Location], [c2].[Name], [c2].[Location]
+FROM [Gear] AS [g]
+LEFT JOIN [City] AS [c] ON [g].[AssignedCityName] = [c].[Name]
+LEFT JOIN [City] AS [c0] ON [g].[AssignedCityName] = [c0].[Name]
+INNER JOIN [City] AS [c1] ON [g].[CityOrBirthName] = [c1].[Name]
+INNER JOIN [City] AS [c2] ON [g].[CityOrBirthName] = [c2].[Name]
+ORDER BY [g].[Nickname], [c].[Name], [c0].[Name], [c1].[Name], [c2].[Name]
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
+FROM [Gear] AS [g]
+INNER JOIN (
+    SELECT DISTINCT [g].[Nickname], [c].[Name], [c0].[Name] AS [Name0], [c1].[Name] AS [Name1], [c2].[Name] AS [Name2]
+    FROM [Gear] AS [g]
+    LEFT JOIN [City] AS [c] ON [g].[AssignedCityName] = [c].[Name]
+    LEFT JOIN [City] AS [c0] ON [g].[AssignedCityName] = [c0].[Name]
+    INNER JOIN [City] AS [c1] ON [g].[CityOrBirthName] = [c1].[Name]
+    INNER JOIN [City] AS [c2] ON [g].[CityOrBirthName] = [c2].[Name]
+) AS [c2] ON [g].[AssignedCityName] = [c2].[Name2]
+LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname] AND [c].[GearSquadId] = [g].[SquadId])
+ORDER BY [c2].[Nickname], [c2].[Name]
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
+FROM [Gear] AS [g]
+INNER JOIN (
+    SELECT DISTINCT [g].[Nickname], [c].[Name], [c0].[Name] AS [Name0], [c1].[Name] AS [Name1]
+    FROM [Gear] AS [g]
+    LEFT JOIN [City] AS [c] ON [g].[AssignedCityName] = [c].[Name]
+    LEFT JOIN [City] AS [c0] ON [g].[AssignedCityName] = [c0].[Name]
+    INNER JOIN [City] AS [c1] ON [g].[CityOrBirthName] = [c1].[Name]
+) AS [c1] ON [g].[CityOrBirthName] = [c1].[Name1]
+LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname] AND [c].[GearSquadId] = [g].[SquadId])
+ORDER BY [c1].[Nickname], [c1].[Name]
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
+FROM [Gear] AS [g]
+INNER JOIN (
+    SELECT DISTINCT [g].[Nickname], [c].[Name], [c0].[Name] AS [Name0]
+    FROM [Gear] AS [g]
+    LEFT JOIN [City] AS [c] ON [g].[AssignedCityName] = [c].[Name]
+    LEFT JOIN [City] AS [c0] ON [g].[AssignedCityName] = [c0].[Name]
+) AS [c0] ON [g].[AssignedCityName] = [c0].[Name0]
+LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname] AND [c].[GearSquadId] = [g].[SquadId])
+ORDER BY [c0].[Nickname], [c0].[Name]
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c0].[Id], [c0].[GearNickName], [c0].[GearSquadId], [c0].[Note]
+FROM [Gear] AS [g]
+INNER JOIN (
+    SELECT DISTINCT [g].[Nickname], [c].[Name]
+    FROM [Gear] AS [g]
+    LEFT JOIN [City] AS [c] ON [g].[AssignedCityName] = [c].[Name]
+) AS [c] ON [g].[CityOrBirthName] = [c].[Name]
+LEFT JOIN [CogTag] AS [c0] ON ([c0].[GearNickName] = [g].[Nickname] AND [c0].[GearSquadId] = [g].[SquadId])
+ORDER BY [c].[Nickname], [c].[Name]",
                 Sql);
         }
 

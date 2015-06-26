@@ -30,19 +30,18 @@ namespace Microsoft.Data.Entity.InMemory.Query
         }
 
         protected override void IncludeNavigations(
-            IQuerySource querySource,
+            IncludeSpecification includeSpecification,
             Type resultType,
             LambdaExpression accessorLambda,
-            IReadOnlyList<INavigation> navigationPath,
             bool querySourceRequiresTracking)
         {
-            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(includeSpecification, nameof(includeSpecification));
             Check.NotNull(resultType, nameof(resultType));
             Check.NotNull(accessorLambda, nameof(accessorLambda));
-            Check.NotNull(navigationPath, nameof(navigationPath));
 
             var primaryKeyParameter = Expression.Parameter(typeof(EntityKey));
             var relatedKeyFactoryParameter = Expression.Parameter(typeof(Func<ValueBuffer, EntityKey>));
+            var navigationPath = includeSpecification.NavigationPath;
 
             Expression
                 = Expression.Call(

@@ -221,13 +221,23 @@ namespace Microsoft.Data.Entity.Query
 
                             return new IncludeSpecification(annotation.QuerySource, navigationPath);
                         })
+                    .OrderBy(a => a.NavigationPath.First().PointsToPrincipal())
                     .ToList();
+
+            IncludeNavigations(queryModel, includeSpecifications);
+        }
+
+        protected virtual void IncludeNavigations(
+            [NotNull] QueryModel queryModel,
+            [NotNull] IReadOnlyCollection<IncludeSpecification> includeSpecifications)
+        {
+            Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(includeSpecifications, nameof(includeSpecifications));
 
             var querySourceTracingExpressionVisitor
                 = new QuerySourceTracingExpressionVisitor();
 
-            foreach (var includeSpecification in includeSpecifications
-                .OrderBy(a => a.NavigationPath.First().PointsToPrincipal()))
+            foreach (var includeSpecification in includeSpecifications)
             {
                 var resultQuerySourceReferenceExpression
                     = querySourceTracingExpressionVisitor
@@ -250,10 +260,9 @@ namespace Microsoft.Data.Entity.Query
                             Strings.LogIncludingNavigation);
 
                     IncludeNavigations(
-                        includeSpecification.QuerySource,
+                        includeSpecification,
                         _expression.Type.GetSequenceType(),
                         accessorLambda,
-                        includeSpecification.NavigationPath,
                         QuerySourceRequiresTracking(includeSpecification.QuerySource));
 
                     QueryCompilationContext
@@ -292,10 +301,9 @@ namespace Microsoft.Data.Entity.Query
         }
 
         protected virtual void IncludeNavigations(
-            [NotNull] IQuerySource querySource,
+            [NotNull] IncludeSpecification includeSpecification,
             [NotNull] Type resultType,
             [NotNull] LambdaExpression accessorLambda,
-            [NotNull] IReadOnlyList<INavigation> navigationPath,
             bool querySourceRequiresTracking)
         {
             // template method

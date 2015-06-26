@@ -21,6 +21,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
         private readonly IQuerySource _querySource;
         private readonly IReadOnlyList<INavigation> _navigationPath;
         private readonly RelationalQueryCompilationContext _queryCompilationContext;
+        private readonly IReadOnlyList<int> _readerIndexes;
         private readonly bool _querySourceRequiresTracking;
 
         private bool _foundCreateEntityForQuerySource;
@@ -29,6 +30,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             [NotNull] IQuerySource querySource,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
+            [NotNull] IReadOnlyList<int> readerIndexes,
             bool querySourceRequiresTracking)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -38,6 +40,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             _querySource = querySource;
             _navigationPath = navigationPath;
             _queryCompilationContext = queryCompilationContext;
+            _readerIndexes = readerIndexes;
             _querySourceRequiresTracking = querySourceRequiresTracking;
         }
 
@@ -89,9 +92,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
             var targetTableExpression
                 = selectExpression.GetTableForQuerySource(querySource);
 
-            var readerIndex = 0;
             var canProduceInnerJoin = true;
 
+            var includeReferenceCount = 0;
             foreach (var navigation in navigationPath)
             {
                 var targetEntityType = navigation.GetTargetType();
@@ -147,6 +150,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                             navigation.PointsToPrincipal() ? joinExpression : targetTableExpression);
 
                     targetTableExpression = joinedTableExpression;
+
+                    var readerIndex = _readerIndexes[includeReferenceCount];
+                    includeReferenceCount++;
 
                     yield return
                         Expression.Lambda(
@@ -230,7 +236,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
                             innerJoinExpression);
 
                     selectExpression = targetSelectExpression;
-                    readerIndex++;
 
                     yield return
                         Expression.Lambda(
