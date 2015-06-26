@@ -294,7 +294,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             var operations = migrationBuilder.Operations.ToList();
             operations.Add(_historyRepository.GetInsertOperation(new HistoryRow(migration.Id, ProductVersion)));
 
-            var targetModel = _modelFactory.CreateModel(migration.BuildTargetModel);
+            var targetModel = _modelFactory.Create(migration.BuildTargetModel);
 
             return _migrationSqlGenerator.Generate(operations, targetModel);
         }

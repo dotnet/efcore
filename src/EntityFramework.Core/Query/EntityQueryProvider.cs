@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(expression, nameof(expression));
 
-            var queryContext = _queryContextFactory.CreateQueryContext();
+            var queryContext = _queryContextFactory.Create();
 
             queryContext.ContextType = _context.GetType();
 
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(expression, nameof(expression));
 
-            var queryContext = _queryContextFactory.CreateQueryContext();
+            var queryContext = _queryContextFactory.Create();
 
             queryContext.ContextType = _context.GetType();
 
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(expression, nameof(expression));
 
-            var queryContext = _queryContextFactory.CreateQueryContext();
+            var queryContext = _queryContextFactory.Create();
 
             queryContext.CancellationToken = cancellationToken;
             queryContext.ContextType = _context.GetType();

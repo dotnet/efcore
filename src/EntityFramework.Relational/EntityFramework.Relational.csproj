@@ -186,7 +186,6 @@
     <Compile Include="Query\IIncludeRelatedValuesStrategy.cs" />
     <Compile Include="Query\IncludeCollectionIterator.cs" />
     <Compile Include="Query\ExpressionVisitors\QueryFlatteningExpressionVisitor.cs" />
-    <Compile Include="Query\IRelationalQueryContextFactory.cs" />
     <Compile Include="Query\Methods\ContainsTranslator.cs" />
     <Compile Include="Query\QueryingEnumerable.cs" />
     <Compile Include="Query\QueryMethodProvider.cs" />

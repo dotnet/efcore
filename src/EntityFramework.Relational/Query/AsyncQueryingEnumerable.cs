@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     Current
                         = hasNext
                             ? _queryingEnumerable._commandBuilder.ValueBufferFactory
-                                .CreateValueBuffer(_dataReader)
+                                .Create(_dataReader)
                             : default(ValueBuffer);
 
                     return hasNext;
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         {
                             _buffer.Enqueue(
                                 _queryingEnumerable._commandBuilder.ValueBufferFactory
-                                    .CreateValueBuffer(_dataReader));
+                                    .Create(_dataReader));
                         }
                     }
 

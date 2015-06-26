@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             Check.NotNull(relationalValueBufferFactoryFactory, nameof(relationalValueBufferFactoryFactory));
 
             return relationalValueBufferFactoryFactory
-                .CreateValueBufferFactory(_selectExpression.GetProjectionTypes().ToArray(), indexMap: null);
+                .Create(_selectExpression.GetProjectionTypes().ToArray(), indexMap: null);
         }
 
         public virtual IReadOnlyList<CommandParameter> Parameters => _commandParameters;

@@ -96,7 +96,7 @@ INSERT INTO Table1 (Col1, Col2) Values('dropped value','preserved entry');");
 
             using (var context = CreateContext())
             {
-                var model = context.GetService<IMigrationModelFactory>().CreateModel(migration.BuildTargetModel);
+                var model = context.GetService<IMigrationModelFactory>().Create(migration.BuildTargetModel);
                 var command = context.GetService<IMigrationSqlGenerator>().Generate(operations, model);
 
                 using (var transaction = context.Database.GetDbConnection().BeginTransaction())

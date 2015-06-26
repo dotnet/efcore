@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 {
     public class MigrationModelFactory : IMigrationModelFactory
     {
-        public virtual IModel CreateModel(Action<ModelBuilder> onModelCreating)
+        public virtual IModel Create(Action<ModelBuilder> onModelCreating)
         {
             Check.NotNull(onModelCreating, nameof(onModelCreating));
 

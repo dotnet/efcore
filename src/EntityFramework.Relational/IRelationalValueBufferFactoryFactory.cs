@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Relational
 {
     public interface IRelationalValueBufferFactoryFactory
     {
-        IRelationalValueBufferFactory CreateValueBufferFactory(
+        IRelationalValueBufferFactory Create(
             [NotNull] IReadOnlyCollection<Type> valueTypes, [CanBeNull] IReadOnlyList<int> indexMap);
     }
 }

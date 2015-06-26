@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class UntypedValueBufferFactory : IRelationalValueBufferFactory
     {
-        public virtual ValueBuffer CreateValueBuffer(DbDataReader dataReader)
+        public virtual ValueBuffer Create(DbDataReader dataReader)
         {
             Debug.Assert(dataReader != null); // hot path
 

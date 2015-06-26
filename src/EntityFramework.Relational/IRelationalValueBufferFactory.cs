@@ -9,6 +9,6 @@ namespace Microsoft.Data.Entity.Relational
 {
     public interface IRelationalValueBufferFactory
     {
-        ValueBuffer CreateValueBuffer([NotNull] DbDataReader dataReader);
+        ValueBuffer Create([NotNull] DbDataReader dataReader);
     }
 }

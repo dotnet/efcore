@@ -279,7 +279,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         AggregateEntries(commandIndex, expectedRowsAffected));
                 }
 
-                tableModification.PropagateResults(tableModification.ValueBufferFactory.CreateValueBuffer(reader));
+                tableModification.PropagateResults(tableModification.ValueBufferFactory.Create(reader));
                 rowsAffected++;
             }
             while (++commandIndex < ResultSetEnds.Count
@@ -310,7 +310,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         AggregateEntries(commandIndex, expectedRowsAffected));
                 }
 
-                tableModification.PropagateResults(tableModification.ValueBufferFactory.CreateValueBuffer(reader));
+                tableModification.PropagateResults(tableModification.ValueBufferFactory.Create(reader));
                 rowsAffected++;
             }
             while (++commandIndex < ResultSetEnds.Count

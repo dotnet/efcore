@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             if (migrations.Count != 0)
             {
                 var migration = migrations.Last();
-                model = _modelFactory.CreateModel(migration.BuildTargetModel);
+                model = _modelFactory.Create(migration.BuildTargetModel);
 
                 if (!_modelDiffer.HasDifferences(model, lastModel))
                 {
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     }
 
                     model = migrations.Count > 1
-                        ? _modelFactory.CreateModel(migrations[migrations.Count - 2].BuildTargetModel)
+                        ? _modelFactory.Create(migrations[migrations.Count - 2].BuildTargetModel)
                         : null;
                 }
                 else

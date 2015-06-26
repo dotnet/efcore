@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                             return null;
                         }
 
-                        return modelFactory.CreateModel(_modelSnapshot.Value.BuildModel);
+                        return modelFactory.Create(_modelSnapshot.Value.BuildModel);
                     });
         }
 

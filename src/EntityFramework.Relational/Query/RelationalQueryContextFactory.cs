@@ -10,7 +10,7 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
-    public class RelationalQueryContextFactory : QueryContextFactory, IRelationalQueryContextFactory
+    public class RelationalQueryContextFactory : QueryContextFactory
     {
         private readonly IRelationalConnection _connection;
 
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             _connection = connection;
         }
 
-        public override QueryContext CreateQueryContext()
+        public override QueryContext Create()
             => new RelationalQueryContext(Logger, CreateQueryBuffer(), _connection);
     }
 }

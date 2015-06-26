@@ -4,13 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class CollectionTypeFactory : ICollectionTypeFactory
     {
-        public virtual Type TryFindTypeToInstantiate([NotNull] Type collectionType)
+        public virtual Type TryFindTypeToInstantiate(Type collectionType)
         {
             // Code taken from EF6. The rules are:
             // If the collection is defined as a concrete type with a public parameterless constructor, then create an instance of that type

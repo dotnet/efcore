@@ -5,6 +5,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public interface IChangeTrackerFactory
     {
-        ChangeTracker CreateChangeTracker();
+        ChangeTracker Create();
     }
 }

@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational
             _indexMap = indexMap;
         }
 
-        public virtual ValueBuffer CreateValueBuffer(DbDataReader dataReader)
+        public virtual ValueBuffer Create(DbDataReader dataReader)
         {
             Debug.Assert(dataReader != null); // hot path
             Debug.Assert(dataReader.FieldCount >= _indexMap.Count);

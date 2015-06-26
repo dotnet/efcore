@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         private IRelationalValueBufferFactory CreateValueBufferFactory()
             => _valueBufferFactoryFactory
-                .CreateValueBufferFactory(
+                .Create(
                     ColumnModifications
                         .Where(c => c.IsRead)
                         .Select(c => c.Property.ClrType)

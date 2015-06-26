@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Query
     public interface IQueryContextFactory
     {
         ILogger Logger { get; }
-        QueryContext CreateQueryContext();
+        QueryContext Create();
     }
 }

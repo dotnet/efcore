@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 }
             }
 
-            return relationalValueBufferFactoryFactory.CreateValueBufferFactory(types, indexMap);
+            return relationalValueBufferFactoryFactory.Create(types, indexMap);
         }
     }
 }

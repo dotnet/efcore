@@ -9,6 +9,6 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 {
     public interface IMigrationModelFactory
     {
-        IModel CreateModel([NotNull] Action<ModelBuilder> onModelCreating);
+        IModel Create([NotNull] Action<ModelBuilder> onModelCreating);
     }
 }

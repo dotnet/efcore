@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Relational
             _valueFactory = valueFactory;
         }
 
-        public virtual ValueBuffer CreateValueBuffer(DbDataReader dataReader)
+        public virtual ValueBuffer Create(DbDataReader dataReader)
         {
             Debug.Assert(dataReader != null); // hot path
 

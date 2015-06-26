@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Relational
         private readonly ThreadSafeDictionaryCache<CacheKey, Func<DbDataReader, object[]>> _cache
             = new ThreadSafeDictionaryCache<CacheKey, Func<DbDataReader, object[]>>();
 
-        public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
+        public virtual IRelationalValueBufferFactory Create(
             IReadOnlyCollection<Type> valueTypes, IReadOnlyList<int> indexMap)
         {
             Check.NotNull(valueTypes, nameof(valueTypes));

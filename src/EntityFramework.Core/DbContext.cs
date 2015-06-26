@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity
             InitializeSets(serviceProvider, options);
             _contextServices = new LazyRef<IDbContextServices>(() => InitializeServices(serviceProvider, options));
             _setInitializer = new LazyRef<IDbSetInitializer>(() => ServiceProvider.GetRequiredService<IDbSetInitializer>());
-            _changeTracker = new LazyRef<ChangeTracker>(() => ServiceProvider.GetRequiredService<IChangeTrackerFactory>().CreateChangeTracker());
+            _changeTracker = new LazyRef<ChangeTracker>(() => ServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create());
         }
 
         private DbContextOptions GetOptions(IServiceProvider serviceProvider)

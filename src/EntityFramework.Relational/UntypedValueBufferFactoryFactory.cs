@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class UntypedValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
     {
-        public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
+        public virtual IRelationalValueBufferFactory Create(
             IReadOnlyCollection<Type> _, IReadOnlyList<int> indexMap)
             => indexMap == null
                 ? (IRelationalValueBufferFactory)new UntypedValueBufferFactory()

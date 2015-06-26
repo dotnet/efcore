@@ -44,6 +44,6 @@ namespace Microsoft.Data.Entity.Query
         protected virtual IQueryBuffer CreateQueryBuffer()
             => new QueryBuffer(_stateManager, _entityKeyFactorySource, _collectionAccessorSource, _propertySetterSource);
 
-        public abstract QueryContext CreateQueryContext();
+        public abstract QueryContext Create();
     }
 }
