@@ -84,8 +84,7 @@ namespace Microsoft.Data.Entity.Commands
                             list.Description = "List the contexts";
                             list.HelpOption("-h|--help");
                             list.OnExecute(() => ListContexts());
-                        },
-                        addHelpCommand: false);
+                        });
                     context.OnExecute(
                         () =>
                         {
@@ -93,8 +92,7 @@ namespace Microsoft.Data.Entity.Commands
 
                             return 0;
                         });
-                },
-                addHelpCommand: false);
+                });
             _app.Command(
                 "migration",
                 migration =>
@@ -130,8 +128,7 @@ namespace Microsoft.Data.Entity.Commands
 
                                     return AddMigration(name.Value, context.Value(), startupProject.Value());
                                 });
-                        },
-                        addHelpCommand: false);
+                        });
                     migration.Command(
                         "apply",
                         apply =>
@@ -150,8 +147,7 @@ namespace Microsoft.Data.Entity.Commands
                                 CommandOptionType.SingleValue);
                             apply.HelpOption("-h|--help");
                             apply.OnExecute(() => ApplyMigration(migrationName.Value, context.Value(), startupProject.Value()));
-                        },
-                        addHelpCommand: false);
+                        });
                     migration.Command(
                         "list",
                         list =>
@@ -167,8 +163,7 @@ namespace Microsoft.Data.Entity.Commands
                                 CommandOptionType.SingleValue);
                             list.HelpOption("-h|--help");
                             list.OnExecute(() => ListMigrations(context.Value(), startupProject.Value()));
-                        },
-                        addHelpCommand: false);
+                        });
                     migration.Command(
                         "script",
                         script =>
@@ -194,8 +189,7 @@ namespace Microsoft.Data.Entity.Commands
                                 CommandOptionType.SingleValue);
                             script.HelpOption("-h|--help");
                             script.OnExecute(() => ScriptMigration(from.Value, to.Value, output.Value(), idempotent.HasValue(), context.Value(), startupProject.Value()));
-                        },
-                        addHelpCommand: false);
+                        });
                     migration.Command(
                         "remove",
                         remove =>
@@ -211,8 +205,7 @@ namespace Microsoft.Data.Entity.Commands
                                 CommandOptionType.SingleValue);
                             remove.HelpOption("-h|--help");
                             remove.OnExecute(() => RemoveMigration(context.Value(), startupProject.Value()));
-                        },
-                        addHelpCommand: false);
+                        });
                     migration.OnExecute(
                         () =>
                         {
@@ -220,8 +213,7 @@ namespace Microsoft.Data.Entity.Commands
 
                             return 0;
                         });
-                },
-                addHelpCommand: false);
+                });
             _app.Command(
                 "revEng",
                 revEng =>
@@ -234,8 +226,7 @@ namespace Microsoft.Data.Entity.Commands
 
                     revEng.OnExecute(() => ReverseEngineerAsync(
                                 connectionString.Value, _applicationShutdown.ShutdownRequested));
-                },
-                addHelpCommand: false);
+                });
             _app.Command(
                 "help",
                 help =>
@@ -254,8 +245,7 @@ namespace Microsoft.Data.Entity.Commands
 
                             return ShowHelp();
                         });
-                },
-                addHelpCommand: false);
+                });
             _app.OnExecute(() => ShowHelp());
 
             return _app.Execute(args);
