@@ -27,13 +27,15 @@ namespace Microsoft.Data.Entity.Relational
 
         public override IQueryContextFactory QueryContextFactory => GetService<RelationalQueryContextFactory>();
         public override IValueGeneratorSelector ValueGeneratorSelector => GetService<RelationalValueGeneratorSelector>();
+        public override IModelValidator ModelValidator => GetService<RelationalModelValidator>();
+
         public virtual IRelationalTypeMapper TypeMapper => GetService<RelationalTypeMapper>();
         public virtual IMigrationAnnotationProvider MigrationAnnotationProvider => GetService<MigrationAnnotationProvider>();
         public virtual IBatchExecutor BatchExecutor => GetService<BatchExecutor>();
         public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory => GetService<TypedValueBufferFactoryFactory>();
         public virtual ICommandBatchPreparer CommandBatchPreparer => GetService<CommandBatchPreparer>();
         public virtual ISqlStatementExecutor SqlStatementExecutor => GetService<SqlStatementExecutor>();
-        public override IModelValidator ModelValidator => GetService<RelationalModelValidator>();
+        public virtual IParameterNameGeneratorFactory ParameterNameGeneratorFactory => GetService<ParameterNameGeneratorFactory>();
 
         public abstract IMethodCallTranslator CompositeMethodCallTranslator { get; }
         public abstract IMemberTranslator CompositeMemberTranslator { get; }

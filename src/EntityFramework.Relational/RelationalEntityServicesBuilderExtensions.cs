@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(builder, nameof(builder));
 
             builder.GetService().TryAdd(new ServiceCollection()
-                .AddSingleton<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>()
+                .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()
                 .AddSingleton<IMigrationIdGenerator, MigrationIdGenerator>()
                 .AddSingleton<SqlStatementExecutor>()
@@ -43,6 +43,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddScoped<RelationalValueGeneratorSelector>()
                 .AddScoped<CommandBatchPreparer>()
                 .AddScoped<IModelDiffer, ModelDiffer>()
+                .AddScoped(p => GetProviderServices(p).ParameterNameGeneratorFactory)
                 .AddScoped(p => GetProviderServices(p).SqlStatementExecutor)
                 .AddScoped(p => GetProviderServices(p).CompositeMethodCallTranslator)
                 .AddScoped(p => GetProviderServices(p).CompositeMemberTranslator)

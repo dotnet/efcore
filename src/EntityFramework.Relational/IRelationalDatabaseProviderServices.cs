@@ -28,5 +28,6 @@ namespace Microsoft.Data.Entity.Relational
         ISqlStatementExecutor SqlStatementExecutor { get; }
         IMethodCallTranslator CompositeMethodCallTranslator { get; }
         IMemberTranslator CompositeMemberTranslator { get; }
+        IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; }
     }
 }
