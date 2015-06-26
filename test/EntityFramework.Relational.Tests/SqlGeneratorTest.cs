@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 {
     public class SqlGeneratorTest : SqlGeneratorTestBase
     {
-        protected override ISqlGenerator CreateSqlGenerator()
+        protected override IUpdateSqlGenerator CreateSqlGenerator()
         {
             return new ConcreteSqlGenerator();
         }
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             get { return "provider_specific_identity()"; }
         }
 
-        private class ConcreteSqlGenerator : SqlGenerator
+        private class ConcreteSqlGenerator : UpdateSqlGenerator
         {
             protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
             {

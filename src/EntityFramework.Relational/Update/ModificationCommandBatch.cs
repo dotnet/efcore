@@ -12,14 +12,14 @@ namespace Microsoft.Data.Entity.Relational.Update
 {
     public abstract class ModificationCommandBatch
     {
-        protected ModificationCommandBatch([NotNull] ISqlGenerator sqlGenerator)
+        protected ModificationCommandBatch([NotNull] IUpdateSqlGenerator sqlGenerator)
         {
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
-            SqlGenerator = sqlGenerator;
+            UpdateSqlGenerator = sqlGenerator;
         }
 
-        protected ISqlGenerator SqlGenerator { get; private set; }
+        protected IUpdateSqlGenerator UpdateSqlGenerator { get; private set; }
 
         public abstract IReadOnlyList<ModificationCommand> ModificationCommands { get; }
 

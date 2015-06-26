@@ -24,7 +24,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<IDatabaseProvider, DatabaseProvider<SqliteDatabaseProviderServices, SqliteOptionsExtension>>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqliteValueGeneratorCache>()
-                    .AddSingleton<SqliteSqlGenerator>()
+                    .AddSingleton<SqliteUpdateSqlGenerator>()
                     .AddSingleton<SqliteMetadataExtensionProvider>()
                     .AddSingleton<SqliteTypeMapper>()
                     .AddSingleton<SqliteModelSource>()

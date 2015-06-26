@@ -22,13 +22,13 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         private readonly ISqlServerConnection _connection;
         private readonly IRelationalDatabaseCreator _creator;
         private readonly Type _contextType;
-        private readonly ISqlServerSqlGenerator _sql;
+        private readonly ISqlServerUpdateSqlGenerator _sql;
 
         public SqlServerHistoryRepository(
             [NotNull] ISqlServerConnection connection,
             [NotNull] IRelationalDatabaseCreator creator,
             [NotNull] DbContext context,
-            [NotNull] ISqlServerSqlGenerator sqlGenerator)
+            [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(creator, nameof(creator));

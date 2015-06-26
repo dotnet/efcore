@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class UntypedValueBufferFactory : IRelationalValueBufferFactory
+    public class UntypedRelationalValueBufferFactory : IRelationalValueBufferFactory
     {
         public virtual ValueBuffer Create(DbDataReader dataReader)
         {

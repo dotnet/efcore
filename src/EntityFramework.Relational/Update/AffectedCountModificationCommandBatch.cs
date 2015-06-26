@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         private readonly List<bool> _resultSetEnd = new List<bool>();
 
         protected AffectedCountModificationCommandBatch(
-            [NotNull] ISqlGenerator sqlGenerator)
+            [NotNull] IUpdateSqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
         }

@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
     public class SqlServerMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
         protected override IMigrationSqlGenerator SqlGenerator =>
-            new SqlServerMigrationSqlGenerator(new SqlServerSqlGenerator());
+            new SqlServerMigrationSqlGenerator(new SqlServerUpdateSqlGenerator());
 
         [Fact]
         public virtual void AddColumnOperation_with_computedSql()

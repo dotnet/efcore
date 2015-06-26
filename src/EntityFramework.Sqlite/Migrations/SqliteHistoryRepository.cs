@@ -17,14 +17,14 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
     {
         private readonly IRelationalConnection _connection;
         private readonly string _contextKey;
-        private readonly SqliteSqlGenerator _sql;
+        private readonly SqliteUpdateSqlGenerator _sql;
 
         protected string MigrationTableName { get; } = "__migrationHistory";
 
         public SqliteHistoryRepository(
             [NotNull] IRelationalConnection connection,
             [NotNull] DbContext context,
-            [NotNull] SqliteSqlGenerator sql)
+            [NotNull] SqliteUpdateSqlGenerator sql)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(context, nameof(context));

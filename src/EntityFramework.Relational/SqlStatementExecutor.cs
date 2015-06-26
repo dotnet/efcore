@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Relational
                 cancellationToken);
         }
 
-        public virtual async Task<object> ExecuteAsync(
+        protected virtual async Task<object> ExecuteAsync(
             IRelationalConnection connection,
             Func<Task<object>> action,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Relational
                     });
         }
 
-        public virtual object Execute(
+        protected virtual object Execute(
             IRelationalConnection connection,
             Func<object> action)
         {

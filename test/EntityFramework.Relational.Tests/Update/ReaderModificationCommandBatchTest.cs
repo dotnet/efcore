@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
-            var sqlGeneratorMock = new Mock<ISqlGenerator>();
+            var sqlGeneratorMock = new Mock<IUpdateSqlGenerator>();
             var batch = new ModificationCommandBatchFake(sqlGeneratorMock.Object);
             batch.AddCommand(command);
 
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
-            var sqlGeneratorMock = new Mock<ISqlGenerator>();
+            var sqlGeneratorMock = new Mock<IUpdateSqlGenerator>();
             var batch = new ModificationCommandBatchFake(sqlGeneratorMock.Object);
             batch.AddCommand(command);
 
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
-            var sqlGeneratorMock = new Mock<ISqlGenerator>();
+            var sqlGeneratorMock = new Mock<IUpdateSqlGenerator>();
             var batch = new ModificationCommandBatchFake(sqlGeneratorMock.Object);
             batch.AddCommand(command);
 
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             Assert.Equal(1, fakeSqlGenerator.AppendBatchHeaderCalls);
         }
 
-        private class FakeSqlGenerator : SqlGenerator
+        private class FakeSqlGenerator : UpdateSqlGenerator
         {
             public override void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command)
             {
@@ -617,14 +617,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             private readonly DbDataReader _reader;
 
-            public ModificationCommandBatchFake(ISqlGenerator sqlGenerator = null)
+            public ModificationCommandBatchFake(IUpdateSqlGenerator sqlGenerator = null)
                 : base(sqlGenerator ?? new FakeSqlGenerator())
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;
             }
 
-            public ModificationCommandBatchFake(DbDataReader reader, ISqlGenerator sqlGenerator = null)
+            public ModificationCommandBatchFake(DbDataReader reader, IUpdateSqlGenerator sqlGenerator = null)
                 : base(sqlGenerator ?? new FakeSqlGenerator())
             {
                 _reader = reader;

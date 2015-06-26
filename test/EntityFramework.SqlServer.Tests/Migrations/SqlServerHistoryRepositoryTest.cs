@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 Mock.Of<ISqlServerConnection>(),
                 Mock.Of<IRelationalDatabaseCreator>(),
                 new Context(),
-                new SqlServerSqlGenerator());
+                new SqlServerUpdateSqlGenerator());
         }
 
         private class Context : DbContext

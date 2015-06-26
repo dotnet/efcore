@@ -16,7 +16,7 @@ namespace Microsoft.Framework.Logging
     internal static class RelationalLoggerExtensions
     {
         public static void LogSql([NotNull] this ILogger logger, [NotNull] string sql)
-            => logger.LogVerbose(RelationalLoggingEventIds.Sql, sql);
+            => logger.LogVerbose(RelationalLoggingEventIds.ExecutingSql, sql);
 
         public static void LogParameters([NotNull] this ILogger logger, [NotNull] DbParameterCollection parameters)
         {
@@ -32,7 +32,7 @@ namespace Microsoft.Framework.Logging
                 paramList.AppendLine();
                 paramList.AppendFormat("{0}: {1}", (parameters[i]).ParameterName, Convert.ToString((parameters[i]).Value, CultureInfo.InvariantCulture));
             }
-            logger.LogDebug(RelationalLoggingEventIds.Sql, paramList.ToString());
+            logger.LogDebug(RelationalLoggingEventIds.ExecutingSql, paramList.ToString());
         }
 
         public static void LogCommand([NotNull] this ILogger logger, [NotNull] DbCommand command)

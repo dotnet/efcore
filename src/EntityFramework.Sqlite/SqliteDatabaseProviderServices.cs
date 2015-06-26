@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Sqlite
         public override IMigrationSqlGenerator MigrationSqlGenerator => GetService<SqliteMigrationSqlGenerator>();
         public override IModelSource ModelSource => GetService<SqliteModelSource>();
         public override IRelationalConnection RelationalConnection => GetService<SqliteDatabaseConnection>();
-        public override ISqlGenerator SqlGenerator => GetService<SqliteSqlGenerator>();
+        public override IUpdateSqlGenerator UpdateSqlGenerator => GetService<SqliteUpdateSqlGenerator>();
         public override IDatabase Database => GetService<SqliteDatabase>();
         public override IValueGeneratorCache ValueGeneratorCache => GetService<SqliteValueGeneratorCache>();
         public override IRelationalTypeMapper TypeMapper => GetService<SqliteTypeMapper>();

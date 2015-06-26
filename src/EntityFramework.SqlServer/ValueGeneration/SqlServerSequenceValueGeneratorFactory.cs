@@ -13,11 +13,11 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
     public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGeneratorFactory
     {
         private readonly ISqlStatementExecutor _executor;
-        private readonly ISqlServerSqlGenerator _sqlGenerator;
+        private readonly ISqlServerUpdateSqlGenerator _sqlGenerator;
 
         public SqlServerSequenceValueGeneratorFactory(
             [NotNull] ISqlStatementExecutor executor,
-            [NotNull] ISqlServerSqlGenerator sqlGenerator)
+            [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
         {
             Check.NotNull(executor, nameof(executor));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));

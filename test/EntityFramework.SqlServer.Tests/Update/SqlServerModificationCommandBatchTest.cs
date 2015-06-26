@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         [Fact]
         public void AddCommand_returns_false_when_max_batch_size_is_reached()
         {
-            var batch = new SqlServerModificationCommandBatch(new SqlServerSqlGenerator(), 1);
+            var batch = new SqlServerModificationCommandBatch(new SqlServerUpdateSqlGenerator(), 1);
 
             Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));
             Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedValueBufferFactoryFactory())));

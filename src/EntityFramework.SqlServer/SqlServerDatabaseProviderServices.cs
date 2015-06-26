@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer
         public override IHistoryRepository HistoryRepository => GetService<SqlServerHistoryRepository>();
         public override IMigrationSqlGenerator MigrationSqlGenerator => GetService<SqlServerMigrationSqlGenerator>();
         public override IModelSource ModelSource => GetService<SqlServerModelSource>();
-        public override ISqlGenerator SqlGenerator => GetService<ISqlServerSqlGenerator>();
+        public override IUpdateSqlGenerator UpdateSqlGenerator => GetService<ISqlServerUpdateSqlGenerator>();
         public override IValueGeneratorCache ValueGeneratorCache => GetService<ISqlServerValueGeneratorCache>();
         public override IRelationalTypeMapper TypeMapper => GetService<SqlServerTypeMapper>();
         public override IModificationCommandBatchFactory ModificationCommandBatchFactory => GetService<SqlServerModificationCommandBatchFactory>();

@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Relational.Update;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public interface ISqlGenerator
+    public interface IUpdateSqlGenerator
     {
         string BatchCommandSeparator { get; }
         string BatchSeparator { get; }

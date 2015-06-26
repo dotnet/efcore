@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(valueTypes, nameof(valueTypes));
 
-            return new TypedValueBufferFactory(
+            return new TypedRelationalValueBufferFactory(
                 _cache.GetOrAdd(
                     new CacheKey(valueTypes.ToArray(), indexMap),
                     CreateArrayInitializer));

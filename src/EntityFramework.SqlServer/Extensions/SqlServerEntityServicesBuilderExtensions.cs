@@ -27,7 +27,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqlServerConventionSetBuilder>()
                     .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
-                    .AddSingleton<ISqlServerSqlGenerator, SqlServerSqlGenerator>()
+                    .AddSingleton<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
                     .AddSingleton<SqlServerTypeMapper>()
                     .AddSingleton<SqlServerModelSource>()
                     .AddSingleton<SqlServerMetadataExtensionProvider>()

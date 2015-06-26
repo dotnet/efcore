@@ -17,11 +17,11 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
 {
     public class SqliteMigrationSqlGenerator : MigrationSqlGenerator
     {
-        private readonly ISqlGenerator _sql;
+        private readonly IUpdateSqlGenerator _sql;
         private readonly SqliteOperationTransformer _transformer;
 
         public SqliteMigrationSqlGenerator(
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] IUpdateSqlGenerator sqlGenerator,
             [CanBeNull] SqliteOperationTransformer transformer)
             : base(sqlGenerator)
         {

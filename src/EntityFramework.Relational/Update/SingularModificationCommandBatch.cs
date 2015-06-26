@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Relational.Update
     public class SingularModificationCommandBatch : AffectedCountModificationCommandBatch
     {
         public SingularModificationCommandBatch(
-            [NotNull] ISqlGenerator sqlGenerator)
+            [NotNull] IUpdateSqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
         }

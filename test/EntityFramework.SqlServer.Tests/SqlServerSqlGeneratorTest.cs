@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 {
     public class SqlServerSqlGeneratorTest : SqlGeneratorTestBase
     {
-        protected override ISqlGenerator CreateSqlGenerator()
+        protected override IUpdateSqlGenerator CreateSqlGenerator()
         {
-            return new SqlServerSqlGenerator();
+            return new SqlServerUpdateSqlGenerator();
         }
 
         [Fact]
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var sb = new StringBuilder();
 
-            new SqlServerSqlGenerator().AppendBatchHeader(sb);
+            new SqlServerUpdateSqlGenerator().AppendBatchHeader(sb);
 
             Assert.Equal("SET NOCOUNT OFF;" + Environment.NewLine, sb.ToString());
         }
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var stringBuilder = new StringBuilder();
             var command = CreateInsertCommand(identityKey: true, isComputed: true);
 
-            var sqlGenerator = (ISqlServerSqlGenerator)CreateSqlGenerator();
+            var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
             var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command });
 
             Assert.Equal(
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 "VALUES (@p0, @p1, @p2)," + Environment.NewLine +
                 "(@p0, @p1, @p2);" + Environment.NewLine,
                 stringBuilder.ToString());
-            Assert.Equal(SqlServerSqlGenerator.ResultsGrouping.OneResultSet, grouping);
+            Assert.Equal(SqlServerUpdateSqlGenerator.ResultsGrouping.OneResultSet, grouping);
         }
 
         [Fact]
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var stringBuilder = new StringBuilder();
             var command = CreateInsertCommand(identityKey: false, isComputed: false);
 
-            var sqlGenerator = (ISqlServerSqlGenerator)CreateSqlGenerator();
+            var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
             var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command });
 
             Assert.Equal(
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 "(@p0, @p1, @p2, @p3);" + Environment.NewLine +
                 "SELECT @@ROWCOUNT;" + Environment.NewLine,
                 stringBuilder.ToString());
-            Assert.Equal(SqlServerSqlGenerator.ResultsGrouping.OneResultSet, grouping);
+            Assert.Equal(SqlServerUpdateSqlGenerator.ResultsGrouping.OneResultSet, grouping);
         }
 
         [Fact]
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var stringBuilder = new StringBuilder();
             var command = CreateInsertCommand(identityKey: true, isComputed: true, defaultsOnly: true);
 
-            var sqlGenerator = (ISqlServerSqlGenerator)CreateSqlGenerator();
+            var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
             var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command });
 
             var expectedText = "INSERT INTO [dbo].[Ducks]" + Environment.NewLine +
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                                "DEFAULT VALUES;" + Environment.NewLine;
             Assert.Equal(expectedText + expectedText,
                 stringBuilder.ToString());
-            Assert.Equal(SqlServerSqlGenerator.ResultsGrouping.OneCommandPerResultSet, grouping);
+            Assert.Equal(SqlServerUpdateSqlGenerator.ResultsGrouping.OneCommandPerResultSet, grouping);
         }
 
         [Fact]
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var stringBuilder = new StringBuilder();
             var command = CreateInsertCommand(identityKey: false, isComputed: false, defaultsOnly: true);
 
-            var sqlGenerator = (ISqlServerSqlGenerator)CreateSqlGenerator();
+            var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
             var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command });
 
             var expectedText = "INSERT INTO [dbo].[Ducks]" + Environment.NewLine +
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                                "SELECT @@ROWCOUNT;" + Environment.NewLine;
             Assert.Equal(expectedText + expectedText,
                 stringBuilder.ToString());
-            Assert.Equal(SqlServerSqlGenerator.ResultsGrouping.OneCommandPerResultSet, grouping);
+            Assert.Equal(SqlServerUpdateSqlGenerator.ResultsGrouping.OneCommandPerResultSet, grouping);
         }
 
         [Fact]

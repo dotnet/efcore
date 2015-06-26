@@ -11,14 +11,14 @@ namespace Microsoft.Data.Entity.Relational.Update
     public abstract class ModificationCommandBatchFactory : IModificationCommandBatchFactory
     {
         protected ModificationCommandBatchFactory(
-            [NotNull] ISqlGenerator sqlGenerator)
+            [NotNull] IUpdateSqlGenerator sqlGenerator)
         {
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
-            SqlGenerator = sqlGenerator;
+            UpdateSqlGenerator = sqlGenerator;
         }
 
-        protected ISqlGenerator SqlGenerator { get; }
+        protected IUpdateSqlGenerator UpdateSqlGenerator { get; }
 
         public abstract ModificationCommandBatch Create(
             IDbContextOptions options,

@@ -14,9 +14,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
 {
     public abstract class MigrationSqlGenerator : IMigrationSqlGenerator
     {
-        private readonly ISqlGenerator _sql;
+        private readonly IUpdateSqlGenerator _sql;
 
-        protected MigrationSqlGenerator([NotNull] ISqlGenerator sqlGenerator)
+        protected MigrationSqlGenerator([NotNull] IUpdateSqlGenerator sqlGenerator)
         {
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 

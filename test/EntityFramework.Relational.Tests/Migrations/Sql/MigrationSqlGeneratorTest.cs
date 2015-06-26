@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
         {
             get
             {
-                var sqlGenerator = new Mock<SqlGenerator>() { CallBase = true };
+                var sqlGenerator = new Mock<UpdateSqlGenerator>() { CallBase = true };
                 var migrationSqlGenerator = new Mock<MigrationSqlGenerator>(sqlGenerator.Object) { CallBase = true };
 
                 return migrationSqlGenerator.Object;

@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         private readonly IModelDiffer _modelDiffer;
         private readonly IModel _model;
         private readonly IMigrationIdGenerator _idGenerator;
-        private readonly ISqlGenerator _sqlGenerator;
+        private readonly IUpdateSqlGenerator _sqlGenerator;
         private readonly LazyRef<ILogger> _logger;
         private readonly IMigrationModelFactory _modelFactory;
 
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             [NotNull] IModelDiffer modelDiffer,
             [NotNull] IModel model,
             [NotNull] IMigrationIdGenerator idGenerator,
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] IUpdateSqlGenerator sqlGenerator,
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IMigrationModelFactory modelFactory)
         {

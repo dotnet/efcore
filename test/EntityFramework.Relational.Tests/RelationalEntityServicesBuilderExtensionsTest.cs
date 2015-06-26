@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             VerifyScoped<ICommandBatchPreparer>();
             VerifyScoped<IRelationalValueBufferFactoryFactory>();
             VerifyScoped<IRelationalDatabaseCreator>();
-            VerifyScoped<ISqlGenerator>();
+            VerifyScoped<IUpdateSqlGenerator>();
             VerifyScoped<IRelationalMetadataExtensionProvider>();
         }
     }

@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerMigrationSqlGenerator : MigrationSqlGenerator
     {
-        private readonly ISqlServerSqlGenerator _sql;
+        private readonly ISqlServerUpdateSqlGenerator _sql;
 
-        public SqlServerMigrationSqlGenerator([NotNull] ISqlServerSqlGenerator sqlGenerator)
+        public SqlServerMigrationSqlGenerator([NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
             : base(Check.NotNull(sqlGenerator, nameof(sqlGenerator)))
         {
             _sql = sqlGenerator;

@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Sqlite
 {
     public class SqliteSqlGeneratorTest : SqlGeneratorTestBase
     {
-        protected override ISqlGenerator CreateSqlGenerator() => new SqliteSqlGenerator();
+        protected override IUpdateSqlGenerator CreateSqlGenerator() => new SqliteUpdateSqlGenerator();
         protected override string RowsAffected => "changes()";
         protected override string Identity => "last_insert_rowid()";
         protected override string SchemaName => null;

@@ -45,7 +45,7 @@
     </Compile>
     <Compile Include="Extensions\SqlServerDbContextOptionsBuilder.cs" />
     <Compile Include="ISqlServerConnection.cs" />
-    <Compile Include="ISqlServerSqlGenerator.cs" />
+    <Compile Include="ISqlServerUpdateSqlGenerator.cs" />
     <Compile Include="Metadata\ISqlServerEntityTypeAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerForeignKeyAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerIndexAnnotations.cs" />
@@ -109,7 +109,7 @@
     <Compile Include="SqlServerDatabase.cs" />
     <Compile Include="SqlServerDatabaseCreator.cs" />
     <Compile Include="Migrations\SqlServerMigrationSqlGenerator.cs" />
-    <Compile Include="SqlServerSqlGenerator.cs" />
+    <Compile Include="SqlServerUpdateSqlGenerator.cs" />
     <Compile Include="SqlServerTypeMapper.cs" />
     <Compile Include="Extensions\SqlServerDbContextOptionsExtensions.cs" />
     <Compile Include="Extensions\SqlServerEntityServicesBuilderExtensions.cs" />

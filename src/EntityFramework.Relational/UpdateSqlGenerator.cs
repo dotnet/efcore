@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public abstract class SqlGenerator : ISqlGenerator
+    public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     {
         public virtual void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command)
         {

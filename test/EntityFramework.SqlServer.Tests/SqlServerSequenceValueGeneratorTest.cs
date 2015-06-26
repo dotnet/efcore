@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var state = new SqlServerSequenceValueGeneratorState("Foo", blockSize, poolSize);
             var generator = new SqlServerSequenceValueGenerator<TValue>(
                 new FakeSqlStatementExecutor(blockSize),
-                new SqlServerSqlGenerator(),
+                new SqlServerUpdateSqlGenerator(),
                 state,
                 CreateConnection());
 
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
             var state = new SqlServerSequenceValueGeneratorState("Foo", blockSize, poolSize);
             var executor = new FakeSqlStatementExecutor(blockSize);
-            var sqlGenerator = new SqlServerSqlGenerator();
+            var sqlGenerator = new SqlServerUpdateSqlGenerator();
 
             var tests = new Action[threadCount];
             var generatedValues = new List<long>[threadCount];
@@ -173,7 +173,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var state = new SqlServerSequenceValueGeneratorState("Foo", 4, 3);
             var generator = new SqlServerSequenceValueGenerator<int>(
                 new FakeSqlStatementExecutor(4),
-                new SqlServerSqlGenerator(),
+                new SqlServerUpdateSqlGenerator(),
                 state,
                 CreateConnection());
 

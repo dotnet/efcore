@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerSqlGenerator : SqlGenerator, ISqlServerSqlGenerator
+    public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateSqlGenerator
     {
         public override void AppendInsertOperation(
             StringBuilder commandStringBuilder,

@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 statement);
         }
 
-        protected abstract ISqlGenerator CreateSqlGenerator();
+        protected abstract IUpdateSqlGenerator CreateSqlGenerator();
 
         protected abstract string RowsAffected { get; }
 

@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         protected int LastCachedCommandIndex;
 
         protected ReaderModificationCommandBatch(
-            [NotNull] ISqlGenerator sqlGenerator)
+            [NotNull] IUpdateSqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
         }
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         protected virtual void ResetCommandText()
         {
             CachedCommandText = new StringBuilder();
-            SqlGenerator.AppendBatchHeader(CachedCommandText);
+            UpdateSqlGenerator.AppendBatchHeader(CachedCommandText);
             LastCachedCommandIndex = -1;
         }
 
@@ -86,13 +86,13 @@ namespace Microsoft.Data.Entity.Relational.Update
             switch (newModificationCommand.EntityState)
             {
                 case EntityState.Added:
-                    SqlGenerator.AppendInsertOperation(CachedCommandText, newModificationCommand);
+                    UpdateSqlGenerator.AppendInsertOperation(CachedCommandText, newModificationCommand);
                     break;
                 case EntityState.Modified:
-                    SqlGenerator.AppendUpdateOperation(CachedCommandText, newModificationCommand);
+                    UpdateSqlGenerator.AppendUpdateOperation(CachedCommandText, newModificationCommand);
                     break;
                 case EntityState.Deleted:
-                    SqlGenerator.AppendDeleteOperation(CachedCommandText, newModificationCommand);
+                    UpdateSqlGenerator.AppendDeleteOperation(CachedCommandText, newModificationCommand);
                     break;
             }
 

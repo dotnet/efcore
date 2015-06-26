@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Sqlite.Update
 {
     public class SqliteModificationCommandBatchFactory : ModificationCommandBatchFactory
     {
-        public SqliteModificationCommandBatchFactory([NotNull] ISqlGenerator sqlGenerator)
+        public SqliteModificationCommandBatchFactory([NotNull] IUpdateSqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
         }
@@ -19,6 +19,6 @@ namespace Microsoft.Data.Entity.Sqlite.Update
         public override ModificationCommandBatch Create(
             IDbContextOptions options,
             IRelationalMetadataExtensionProvider metadataExtensionProvider)
-            => new SingularModificationCommandBatch(SqlGenerator);
+            => new SingularModificationCommandBatch(UpdateSqlGenerator);
     }
 }

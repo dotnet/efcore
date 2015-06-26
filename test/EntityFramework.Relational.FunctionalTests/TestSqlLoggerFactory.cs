@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
                 if (format != null)
                 {
-                    if (eventId == RelationalLoggingEventIds.Sql)
+                    if (eventId == RelationalLoggingEventIds.ExecutingSql)
                     {
                         if (_cancellationTokenSource != null)
                         {

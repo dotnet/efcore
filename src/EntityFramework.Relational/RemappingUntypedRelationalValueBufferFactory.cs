@@ -11,11 +11,11 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class RemappingUntypedValueBufferFactory : IRelationalValueBufferFactory
+    public class RemappingUntypedRelationalValueBufferFactory : IRelationalValueBufferFactory
     {
         private readonly IReadOnlyList<int> _indexMap;
 
-        public RemappingUntypedValueBufferFactory([NotNull] IReadOnlyList<int> indexMap)
+        public RemappingUntypedRelationalValueBufferFactory([NotNull] IReadOnlyList<int> indexMap)
         {
             Check.NotNull(indexMap, nameof(indexMap));
 

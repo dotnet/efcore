@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Relational
         public abstract IHistoryRepository HistoryRepository { get; }
         public abstract IMigrationSqlGenerator MigrationSqlGenerator { get; }
         public abstract IRelationalConnection RelationalConnection { get; }
-        public abstract ISqlGenerator SqlGenerator { get; }
+        public abstract IUpdateSqlGenerator UpdateSqlGenerator { get; }
         public abstract IModificationCommandBatchFactory ModificationCommandBatchFactory { get; }
         public abstract IRelationalDatabaseCreator RelationalDatabaseCreator { get; }
         public abstract IRelationalMetadataExtensionProvider MetadataExtensionProvider { get; }

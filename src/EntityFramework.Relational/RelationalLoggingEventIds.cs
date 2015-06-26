@@ -5,12 +5,12 @@ namespace Microsoft.Data.Entity.Relational
 {
     public static class RelationalLoggingEventIds
     {
-        public static readonly int Sql = 42;
-        public static readonly int CreatingDatabase = 43;
-        public static readonly int OpeningConnection = 44;
-        public static readonly int ClosingConnection = 45;
-        public static readonly int BeginningTransaction = 46;
-        public static readonly int CommittingTransaction = 47;
-        public static readonly int RollingbackTransaction = 48;
+        public const int ExecutingSql = 42;
+        public const int CreatingDatabase = 43;
+        public const int OpeningConnection = 44;
+        public const int ClosingConnection = 45;
+        public const int BeginningTransaction = 46;
+        public const int CommittingTransaction = 47;
+        public const int RollingbackTransaction = 48;
     }
 }

@@ -19,7 +19,7 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public static class RelationalEntityServicesBuilderExtensions
+    public static class RelationalEntityFrameworkServicesBuilderExtensions
     {
         public static EntityFrameworkServicesBuilder AddRelational([NotNull] this EntityFrameworkServicesBuilder builder)
         {
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddScoped(p => GetProviderServices(p).BatchExecutor)
                 .AddScoped(p => GetProviderServices(p).ValueBufferFactoryFactory)
                 .AddScoped(p => GetProviderServices(p).RelationalDatabaseCreator)
-                .AddScoped(p => GetProviderServices(p).SqlGenerator)
+                .AddScoped(p => GetProviderServices(p).UpdateSqlGenerator)
                 .AddScoped(p => GetProviderServices(p).MetadataExtensionProvider));
 
             return builder;

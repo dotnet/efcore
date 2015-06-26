@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             var mockConnection = new Mock<IRelationalConnection>();
             mockConnection.SetupGet(p => p.DbConnection).Returns(connection);
 
-            var hp = new SqliteHistoryRepository(mockConnection.Object, new TestContext(), new SqliteSqlGenerator());
+            var hp = new SqliteHistoryRepository(mockConnection.Object, new TestContext(), new SqliteUpdateSqlGenerator());
 
             Assert.True(hp.Exists());
         }
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             var mockConnection = new Mock<IRelationalConnection>();
             mockConnection.SetupGet(p => p.DbConnection).Returns(connection);
 
-            var hp = new SqliteHistoryRepository(mockConnection.Object, new TestContext(), new SqliteSqlGenerator());
+            var hp = new SqliteHistoryRepository(mockConnection.Object, new TestContext(), new SqliteUpdateSqlGenerator());
 
             Assert.False(hp.Exists());
         }
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             }
 
 
-            var hp = new SqliteHistoryRepository(mockConnection.Object, new TestContext(), new SqliteSqlGenerator());
+            var hp = new SqliteHistoryRepository(mockConnection.Object, new TestContext(), new SqliteUpdateSqlGenerator());
 
             Assert.Collection(hp.GetAppliedMigrations(), p =>
                 {
@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
 
         }
 
-        private static SqliteHistoryRepository CreateSqliteHistoryRepo() => new SqliteHistoryRepository(Mock.Of<IRelationalConnection>(), new TestContext(), new SqliteSqlGenerator());
+        private static SqliteHistoryRepository CreateSqliteHistoryRepo() => new SqliteHistoryRepository(Mock.Of<IRelationalConnection>(), new TestContext(), new SqliteUpdateSqlGenerator());
 
         private class TestContext : DbContext
         {

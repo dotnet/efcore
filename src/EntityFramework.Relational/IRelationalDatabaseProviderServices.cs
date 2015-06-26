@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Relational
         IMigrationSqlGenerator MigrationSqlGenerator { get; }
         IRelationalConnection RelationalConnection { get; }
         IRelationalTypeMapper TypeMapper { get; }
-        ISqlGenerator SqlGenerator { get; }
+        IUpdateSqlGenerator UpdateSqlGenerator { get; }
         IModificationCommandBatchFactory ModificationCommandBatchFactory { get; }
         ICommandBatchPreparer CommandBatchPreparer { get; }
         IBatchExecutor BatchExecutor { get; }

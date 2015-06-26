@@ -356,7 +356,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
 
             public TestSqlServerModificationCommandBatch(
-                ISqlServerSqlGenerator sqlGenerator,
+                ISqlServerUpdateSqlGenerator sqlGenerator,
                 int? maxBatchSize)
                 : base(sqlGenerator, maxBatchSize)
             {
@@ -366,7 +366,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public class TestSqlServerModificationCommandBatchFactory : SqlServerModificationCommandBatchFactory
         {
             public TestSqlServerModificationCommandBatchFactory(
-                ISqlServerSqlGenerator sqlGenerator)
+                ISqlServerUpdateSqlGenerator sqlGenerator)
                 : base(sqlGenerator)
             {
             }
@@ -380,7 +380,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var maxBatchSize = optionsExtension?.MaxBatchSize;
 
                 return new TestSqlServerModificationCommandBatch(
-                    (ISqlServerSqlGenerator)SqlGenerator,
+                    (ISqlServerUpdateSqlGenerator)UpdateSqlGenerator,
                     maxBatchSize);
             }
         }

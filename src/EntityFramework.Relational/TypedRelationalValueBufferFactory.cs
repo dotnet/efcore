@@ -10,11 +10,11 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class TypedValueBufferFactory : IRelationalValueBufferFactory
+    public class TypedRelationalValueBufferFactory : IRelationalValueBufferFactory
     {
         private readonly Func<DbDataReader, object[]> _valueFactory;
 
-        public TypedValueBufferFactory([NotNull] Func<DbDataReader, object[]> valueFactory)
+        public TypedRelationalValueBufferFactory([NotNull] Func<DbDataReader, object[]> valueFactory)
         {
             Check.NotNull(valueFactory, nameof(valueFactory));
 

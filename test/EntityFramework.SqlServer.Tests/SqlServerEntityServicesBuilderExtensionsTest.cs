@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             // SQL Server dingletones
             VerifySingleton<SqlServerConventionSetBuilder>();
             VerifySingleton<ISqlServerValueGeneratorCache>();
-            VerifySingleton<ISqlServerSqlGenerator>();
+            VerifySingleton<ISqlServerUpdateSqlGenerator>();
             VerifySingleton<SqlServerTypeMapper>();
             VerifySingleton<SqlServerModelSource>();
             VerifySingleton<SqlServerMetadataExtensionProvider>();

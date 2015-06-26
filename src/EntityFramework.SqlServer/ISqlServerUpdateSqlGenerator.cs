@@ -10,9 +10,9 @@ using Microsoft.Data.Entity.Relational.Update;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public interface ISqlServerSqlGenerator : ISqlGenerator
+    public interface ISqlServerUpdateSqlGenerator : IUpdateSqlGenerator
     {
-        SqlServerSqlGenerator.ResultsGrouping AppendBulkInsertOperation(
+        SqlServerUpdateSqlGenerator.ResultsGrouping AppendBulkInsertOperation(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] IReadOnlyList<ModificationCommand> modificationCommands);
 

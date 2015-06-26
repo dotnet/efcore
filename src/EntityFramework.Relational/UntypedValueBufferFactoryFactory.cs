@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Relational
         public virtual IRelationalValueBufferFactory Create(
             IReadOnlyCollection<Type> _, IReadOnlyList<int> indexMap)
             => indexMap == null
-                ? (IRelationalValueBufferFactory)new UntypedValueBufferFactory()
-                : new RemappingUntypedValueBufferFactory(indexMap);
+                ? (IRelationalValueBufferFactory)new UntypedRelationalValueBufferFactory()
+                : new RemappingUntypedRelationalValueBufferFactory(indexMap);
     }
 }

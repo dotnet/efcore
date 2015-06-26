@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         private int _commandsLeftToLengthCheck = 50;
 
         public SqlServerModificationCommandBatch(
-            [NotNull] ISqlServerSqlGenerator sqlGenerator,
+            [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator,
             [CanBeNull] int? maxBatchSize)
             : base(sqlGenerator)
         {
@@ -108,10 +108,10 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             }
 
             var stringBuilder = new StringBuilder();
-            var grouping = ((ISqlServerSqlGenerator)SqlGenerator).AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands);
+            var grouping = ((ISqlServerUpdateSqlGenerator)UpdateSqlGenerator).AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands);
             for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
             {
-                ResultSetEnds[i] = grouping == SqlServerSqlGenerator.ResultsGrouping.OneCommandPerResultSet;
+                ResultSetEnds[i] = grouping == SqlServerUpdateSqlGenerator.ResultsGrouping.OneCommandPerResultSet;
             }
 
             ResultSetEnds[lastIndex - 1] = true;
