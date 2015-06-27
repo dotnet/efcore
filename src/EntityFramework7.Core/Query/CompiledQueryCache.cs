@@ -20,6 +20,7 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
+using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 using Remotion.Linq.Parsing.Structure;
 using Remotion.Linq.Parsing.Structure.ExpressionTreeProcessors;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
@@ -160,7 +161,7 @@ namespace Microsoft.Data.Entity.Query
 
             var parameterizedQuery
                 = ParameterExtractingExpressionVisitor
-                    .ExtractParameters(query, queryContext);
+                    .ExtractParameters(query, queryContext, new NullEvaluatableExpressionFilter());
 
             var cacheKey
                 = database.Model.GetHashCode().ToString()
@@ -204,10 +205,14 @@ namespace Microsoft.Data.Entity.Query
                     _cachedNodeTypeProvider.Value,
                     new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
                     {
-                        new PartialEvaluatingExpressionTreeProcessor(),
+                        new PartialEvaluatingExpressionTreeProcessor(new NullEvaluatableExpressionFilter()),
                         new FunctionEvaluationEnablingProcessor(),
                         new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
                     })));
+
+        private class NullEvaluatableExpressionFilter : EvaluatableExpressionFilterBase
+        {
+        }
 
         private class FunctionEvaluationEnablingProcessor : IExpressionTreeProcessor
         {
@@ -247,7 +252,7 @@ namespace Microsoft.Data.Entity.Query
 
         private static ReadonlyNodeTypeProvider CreateNodeTypeProvider()
         {
-            var methodInfoBasedNodeTypeRegistry = MethodInfoBasedNodeTypeRegistry.CreateFromRemotionLinqAssembly();
+            var methodInfoBasedNodeTypeRegistry = MethodInfoBasedNodeTypeRegistry.CreateFromRelinqAssembly();
 
             methodInfoBasedNodeTypeRegistry
                 .Register(QueryAnnotationExpressionNode.SupportedMethods, typeof(QueryAnnotationExpressionNode));
@@ -262,7 +267,7 @@ namespace Microsoft.Data.Entity.Query
                 = new INodeTypeProvider[]
                 {
                     methodInfoBasedNodeTypeRegistry,
-                    MethodNameBasedNodeTypeRegistry.CreateFromRemotionLinqAssembly()
+                    MethodNameBasedNodeTypeRegistry.CreateFromRelinqAssembly()
                 };
 
             return new ReadonlyNodeTypeProvider(new CompoundNodeTypeProvider(innerProviders));
