@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         TestInt64 = -1234567890123456789L,
                         TestDouble = -1.23456789,
                         TestDecimal = -1234567890.01M,
-                        TestDateTime = new DateTime(),
+                        TestDateTime = Fixture.DefaultDateTime,
                         TestDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
                         TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
                         TestSingle = -1.234F,
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var param5 = -1234567890.01M;
                 Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestDecimal == param5));
 
-                var param6 = new DateTime();
+                var param6 = Fixture.DefaultDateTime;
                 Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestDateTime == param6));
 
                 if (entityType.FindProperty("TestDateTimeOffset") != null) {
@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         TestNullableInt64 = -1234567890123456789L,
                         TestNullableDouble = -1.23456789,
                         TestNullableDecimal = -1234567890.01M,
-                        TestNullableDateTime = new DateTime(),
+                        TestNullableDateTime = Fixture.DefaultDateTime,
                         TestNullableDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
                         TestNullableTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
                         TestNullableSingle = -1.234F,
@@ -241,7 +241,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 decimal? param5 = -1234567890.01M;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableDecimal == param5));
 
-                DateTime? param6 = new DateTime();
+                DateTime? param6 = Fixture.DefaultDateTime;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableDateTime == param6));
 
                 if (entityType.FindProperty("TestNullableDateTimeOffset") != null)
