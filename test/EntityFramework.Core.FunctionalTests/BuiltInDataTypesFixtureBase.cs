@@ -62,6 +62,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public abstract void Dispose();
 
         public abstract bool SupportsBinaryKeys { get; }
+
+        public abstract DateTime DefaultDateTime { get; }
     }
 
     public class BuiltInDataTypes
