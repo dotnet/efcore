@@ -13,7 +13,7 @@ using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Framework.Logging
 {
-    internal static class RelationalLoggerExtensions
+    public static class RelationalLoggerExtensions
     {
         public static void LogSql([NotNull] this ILogger logger, [NotNull] string sql)
             => logger.LogVerbose(RelationalLoggingEventIds.Sql, sql);
