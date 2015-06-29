@@ -33,12 +33,15 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsNoTrackingTestBase.cs" />
     <Compile Include="ChangeTrackingTestBase.cs" />
     <Compile Include="ComplexNavigationsQueryFixtureBase.cs" />
     <Compile Include="ComplexNavigationsQueryTestBase.cs" />
+    <Compile Include="DataAnnotationFixtureBase.cs" />
+    <Compile Include="DataAnnotationTestBase.cs" />
     <Compile Include="DatabaseErrorLogStateTest.cs" />
     <Compile Include="BuiltInDataTypesFixtureBase.cs" />
     <Compile Include="BuiltInDataTypesTestBase.cs" />

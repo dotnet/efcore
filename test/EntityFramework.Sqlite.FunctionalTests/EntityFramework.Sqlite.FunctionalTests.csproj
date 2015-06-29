@@ -44,6 +44,8 @@
     <Compile Include="ChangeTrackingSqliteTest.cs" />
     <Compile Include="ComplexNavigationsQuerySqliteFixture.cs" />
     <Compile Include="ComplexNavigationsQuerySqliteTest.cs" />
+    <Compile Include="DataAnnotationSqliteFixture.cs" />
+    <Compile Include="DataAnnotationSqliteTest.cs" />
     <Compile Include="F1SqliteFixture.cs" />
     <Compile Include="FromSqlQuerySqliteTest.cs" />
     <Compile Include="GearsOfWarQuerySqliteFixture.cs" />

@@ -8,7 +8,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.ModelConventions;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -169,6 +168,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual InternalModelBuilder Initialize()
-            => ConventionDispatcher.InitializingModel(this);
+            => ConventionDispatcher.OnModelInitialized(this);
+
+        public virtual InternalModelBuilder Validate()
+            => ConventionDispatcher.OnModelBuilt(this);
     }
 }

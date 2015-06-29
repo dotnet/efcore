@@ -35,6 +35,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
@@ -59,6 +60,8 @@
     <Compile Include="IUpdateSqlGenerator.cs" />
     <Compile Include="ISqlStatementExecutor.cs" />
     <Compile Include="Metadata\IRelationalMetadataExtensionProvider.cs" />
+    <Compile Include="Metadata\ModelConventions\RelationalTableAttributeConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\RelationalColumnAttributeConvention.cs" />
     <Compile Include="Metadata\RelationalReferenceReferenceBuilderExtensions.cs" />
     <Compile Include="Migrations\Builders\ColumnsBuilder.cs" />
     <Compile Include="Migrations\Builders\CreateTableBuilder.cs" />
@@ -149,6 +152,7 @@
     <Compile Include="Query\RelationalCompositeMethodCallTranslator.cs" />
     <Compile Include="Query\RelationalCompositeMemberTranslator.cs" />
     <Compile Include="RelationalDatabaseProviderServices.cs" />
+    <Compile Include="RelationalConventionSetBuilder.cs" />
     <Compile Include="RelationalModelValidator.cs" />
     <Compile Include="RelationalTypeMapperExtensions.cs" />
     <Compile Include="RemappingUntypedRelationalValueBufferFactory.cs" />

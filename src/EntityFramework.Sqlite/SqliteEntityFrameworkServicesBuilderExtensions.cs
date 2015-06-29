@@ -29,6 +29,7 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddSingleton<SqliteTypeMapper>()
                     .AddSingleton<SqliteModelSource>()
                     .AddSingleton<SqliteMigrationAnnotationProvider>()
+                    .AddSingleton<SqliteConventionSetBuilder>()
                     .AddScoped<SqliteModificationCommandBatchFactory>()
                     .AddScoped<SqliteOperationTransformer>()
                     .AddScoped<SqliteDatabaseProviderServices>()

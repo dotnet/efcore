@@ -46,6 +46,8 @@ namespace Microsoft.Data.Entity.Internal
 
             OnModelCreating(context, modelBuilder);
 
+            modelBuilder.Validate();
+
             validator.Validate(model);
 
             return model;

@@ -31,6 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DataAnnotationInMemoryFixture.cs" />
+    <Compile Include="DataAnnotationInMemoryTest.cs" />
     <Compile Include="EntityTypeTest.cs" />
     <Compile Include="AsNoTrackingInMemoryTest.cs" />
     <Compile Include="ChangeTrackingInMemoryTest.cs" />
@@ -75,6 +77,9 @@
       <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
       <Name>EntityFramework.Core.FunctionalTests</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

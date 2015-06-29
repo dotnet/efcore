@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\tools\Resources.cs">
@@ -144,12 +145,18 @@
     <Compile Include="DbContextOptionsBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\CoreAnnotationNames.cs" />
+    <Compile Include="Metadata\ModelConventions\EntityTypeAttributeConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\KeyAttributeConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\DatabaseGeneratedAttributeConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\ConcurrencyCheckAttributeConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\RequiredAttributeConvention.cs" />
     <Compile Include="Metadata\ModelConventions\CoreConventionSetBuilder.cs" />
     <Compile Include="Metadata\ModelConventions\IConventionSetBuilder.cs" />
     <Compile Include="Metadata\ModelConventions\ICoreConventionSetBuilder.cs" />
     <Compile Include="Metadata\MetadataHelper.cs" />
     <Compile Include="Metadata\ModelConventions\IPropertyConvention.cs" />
     <Compile Include="Metadata\ModelConventions\IModelConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\PropertyAttributeConvention.cs" />
     <Compile Include="Metadata\StoreGeneratedPattern.cs" />
     <Compile Include="Infrastructure\CoreOptionsExtension.cs" />
     <Compile Include="Infrastructure\DbContextOptions.cs" />
@@ -373,6 +380,9 @@
       <CustomToolNamespace>Microsoft.Data.Entity.Internal</CustomToolNamespace>
     </Content>
     <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

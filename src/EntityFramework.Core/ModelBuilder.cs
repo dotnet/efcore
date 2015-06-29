@@ -58,6 +58,13 @@ namespace Microsoft.Data.Entity
             _builder = new InternalModelBuilder(model, conventions).Initialize();
         }
 
+        public virtual ModelBuilder Validate()
+        {
+            Builder.Validate();
+
+            return this;
+        }
+
         /// <summary>
         ///     The model being configured.
         /// </summary>

@@ -501,4 +501,7 @@
   <data name="ShadowEntity" xml:space="preserve">
     <value>Entity type '{entityType}' is in shadow-state. A valid model requires all entity types to have corresponding CLR type.</value>
   </data>
+  <data name="CompositePKWithDataAnnotation" xml:space="preserve">
+    <value>Entity type '{entityType}' has composite primary key defined with data annotations. To set composite primary key, use fluent API.</value>
+  </data>
 </root>

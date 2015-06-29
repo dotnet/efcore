@@ -245,7 +245,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The database providers {storeNames}are configured. A context can only be configured to use a single ddatabase.
+        /// The database providers {storeNames}are configured. A context can only be configured to use a single database provider.
         /// </summary>
         public static string MultipleProvidersConfigured([CanBeNull] object storeNames)
         {
@@ -293,7 +293,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database provider is configured to generate values for this property.
+        /// The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.
         /// </summary>
         public static string TempValuePersists([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object state)
         {
@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// An error occured while running a ddatabase operation. See InnerException for details.
+        /// An error occured while running a database operation. See InnerException for details.
         /// </summary>
         public static string DatabaseException
         {
@@ -325,7 +325,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// An exception occurred in the ddatabase while iterating the results of a query.{newline}{error}
+        /// An exception occurred in the database while iterating the results of a query.{newline}{error}
         /// </summary>
         public static string LogExceptionDuringQueryIteration([CanBeNull] object newline, [CanBeNull] object error)
         {
@@ -333,7 +333,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// An exception occurred in the ddatabase while saving changes.{newline}{error}
+        /// An exception occurred in the database while saving changes.{newline}{error}
         /// </summary>
         public static string LogExceptionDuringSaveChanges([CanBeNull] object newline, [CanBeNull] object error)
         {
@@ -661,7 +661,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The Include operator is not implemented by the current ddatabase provider.
+        /// The Include operator is not implemented by the current database provider.
         /// </summary>
         public static string IncludeNotImplemented
         {
@@ -1034,6 +1034,14 @@ namespace Microsoft.Data.Entity.Internal
         public static string ShadowEntity([CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ShadowEntity", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// Entity type '{entityType}' has composite primary key defined with data annotations. To set composite primary key, use fluent API.
+        /// </summary>
+        public static string CompositePKWithDataAnnotation([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CompositePKWithDataAnnotation", "entityType"), entityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

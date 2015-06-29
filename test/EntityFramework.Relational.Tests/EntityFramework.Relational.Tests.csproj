@@ -32,10 +32,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="Metadata\RelationalEntityTypeAttributeConventionTest.cs" />
+    <Compile Include="Metadata\RelationalPropertyAttributeConventionTest.cs" />
     <Compile Include="Migrations\Infrastructure\ContextTypeAttributeTest.cs" />
     <Compile Include="Metadata\RelationalMetadataExtensionsTest.cs" />
     <Compile Include="Metadata\SequenceTest.cs" />

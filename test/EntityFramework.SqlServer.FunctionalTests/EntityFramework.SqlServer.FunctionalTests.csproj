@@ -39,6 +39,8 @@
     <Compile Include="AsyncFromSqlSprocQuerySqlServerTest.cs" />
     <Compile Include="CommandConfigurationTest.cs" />
     <Compile Include="ComputedColumnTest.cs" />
+    <Compile Include="DataAnnotationSqlServerFixture.cs" />
+    <Compile Include="DataAnnotationSqlServerTest.cs" />
     <Compile Include="FromSqlSprocQuerySqlServerTest.cs" />
     <Compile Include="GraphUpdatesWithIdentitySqlServerTest.cs" />
     <Compile Include="GraphUpdatesWithSequenceSqlServerTest.cs" />

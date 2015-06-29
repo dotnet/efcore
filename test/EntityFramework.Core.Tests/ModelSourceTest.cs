@@ -5,9 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.ModelConventions;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -64,7 +62,7 @@ namespace Microsoft.Data.Entity.Tests
         {
         }
 
-        private IModelSource CreateDefaultModelSource(IDbSetFinder setFinder) 
+        private IModelSource CreateDefaultModelSource(IDbSetFinder setFinder)
             => new ConcreteModelSource(setFinder);
 
         private class ConcreteModelSource : ModelSource
