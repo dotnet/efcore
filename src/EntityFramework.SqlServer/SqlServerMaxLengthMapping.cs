@@ -4,7 +4,7 @@
 using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.SqlServer
 {

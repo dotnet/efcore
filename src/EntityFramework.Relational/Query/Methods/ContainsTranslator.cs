@@ -3,10 +3,10 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.Data.Entity.Relational.Query.Expressions;
+using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Query.Methods
+namespace Microsoft.Data.Entity.Query.Methods
 {
     public class ContainsTranslator : IMethodCallTranslator
     {

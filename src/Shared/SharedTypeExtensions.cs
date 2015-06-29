@@ -73,7 +73,7 @@ namespace System
         }
 
         public static bool IsPrimitive(this Type type)
-            => type.IsInteger()|| type.IsNonIntegerPrimitive();
+            => type.IsInteger() || type.IsNonIntegerPrimitive();
 
         public static Type UnwrapEnumType(this Type type)
         {

@@ -3,10 +3,10 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.Builders
+namespace Microsoft.Data.Entity.Migrations.Builders
 {
     public class OperationBuilder<TOperation> : IAccessor<TOperation>
         where TOperation : MigrationOperation

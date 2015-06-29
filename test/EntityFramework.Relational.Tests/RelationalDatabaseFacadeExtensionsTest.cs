@@ -6,11 +6,14 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests
+namespace Microsoft.Data.Entity.Tests
 {
     public class RelationalDatabaseFacadeExtensionsTest
     {

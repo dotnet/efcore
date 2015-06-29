@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
@@ -7,15 +10,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.Logging;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Relational.Internal;
 
-namespace Microsoft.Data.Entity.Relational.Update
+namespace Microsoft.Data.Entity.Update
 {
     /// <summary>
-    /// A <see cref="ReaderModificationCommandBatch"/> for providers which append an SQL query to find out
-    /// how many rows were affected (see <see cref="SqlGenerator.AppendSelectAffectedCountCommand"/>).
+    ///     A <see cref="ReaderModificationCommandBatch" /> for providers which append an SQL query to find out
+    ///     how many rows were affected (see <see cref="SqlGenerator.AppendSelectAffectedCountCommand" />).
     /// </summary>
     public abstract class AffectedCountModificationCommandBatch : ReaderModificationCommandBatch
     {
@@ -56,8 +58,9 @@ namespace Microsoft.Data.Entity.Relational.Update
                         ? ConsumeResultSetWithPropagation(commandIndex, reader, context)
                         : ConsumeResultSetWithoutPropagation(commandIndex, reader, context);
                     actualResultSetCount++;
-                } while (commandIndex < ResultSetEnds.Count
-                         && reader.NextResult());
+                }
+                while (commandIndex < ResultSetEnds.Count
+                       && reader.NextResult());
 
                 Debug.Assert(commandIndex == ModificationCommands.Count,
                     "Expected " + ModificationCommands.Count + " results, got " + commandIndex);

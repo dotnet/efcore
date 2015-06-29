@@ -10,16 +10,14 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Relational.Query.Expressions;
-using Microsoft.Data.Entity.Relational.Query.ExpressionVisitors;
+using Microsoft.Data.Entity.Query.Expressions;
+using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Parsing.ExpressionVisitors;
 
-namespace Microsoft.Data.Entity.Relational.Query
+namespace Microsoft.Data.Entity.Query
 {
     public class RelationalQueryModelVisitor : EntityQueryModelVisitor
     {
@@ -121,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         protected override void IncludeNavigations(
-            [NotNull] QueryModel queryModel, 
+            [NotNull] QueryModel queryModel,
             [NotNull] IReadOnlyCollection<IncludeSpecification> includeSpecifications)
         {
             _navigationIndexMap = BuildNavigationIndexMap(includeSpecifications);
@@ -223,7 +221,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 }
 
                 shaperMethodArgs[0] = Expression.Constant(fromClause);
-                
+
                 return Expression.Call(
                     QueryCompilationContext.QueryMethodProvider.ShapedQueryMethod
                         .MakeGenericMethod(shaperMethod.ReturnType),

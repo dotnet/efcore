@@ -6,7 +6,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using Microsoft.Data.Entity.Relational.FunctionalTests;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Sqlite;
 
 namespace Microsoft.Data.Entity.Sqlite.FunctionalTests

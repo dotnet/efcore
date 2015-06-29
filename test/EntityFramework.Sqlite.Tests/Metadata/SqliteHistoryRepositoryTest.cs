@@ -2,11 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Migrations.History;
-using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations.History;
+using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Sqlite.Migrations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Sqlite;
 using Moq;
 using Xunit;
@@ -39,11 +38,11 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         {
             var hp = CreateSqliteHistoryRepo();
             var methods = new Action[]
-                {
-                    () => hp.BeginIfExists("any"),
-                    () => hp.BeginIfNotExists("any"),
-                    () => hp.EndIf(),
-                };
+            {
+                () => hp.BeginIfExists("any"),
+                () => hp.BeginIfNotExists("any"),
+                () => hp.EndIf()
+            };
             foreach (var method in methods)
             {
                 var ex = Assert.Throws<NotSupportedException>(method);
@@ -129,7 +128,6 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
                 command.ExecuteNonQuery();
             }
 
-
             var row = new HistoryRow("Mig1", "7");
             using (var command = connection.CreateCommand())
             {
@@ -139,7 +137,6 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
                 command.ExecuteNonQuery();
             }
 
-
             var hp = new SqliteHistoryRepository(mockConnection.Object, new TestContext(), new SqliteUpdateSqlGenerator());
 
             Assert.Collection(hp.GetAppliedMigrations(), p =>
@@ -147,7 +144,6 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
                     Assert.Equal(row.MigrationId, p.MigrationId);
                     Assert.Equal(row.ProductVersion, p.ProductVersion);
                 });
-
         }
 
         private static SqliteHistoryRepository CreateSqliteHistoryRepo() => new SqliteHistoryRepository(Mock.Of<IRelationalConnection>(), new TestContext(), new SqliteUpdateSqlGenerator());

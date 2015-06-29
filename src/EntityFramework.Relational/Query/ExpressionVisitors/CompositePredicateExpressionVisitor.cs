@@ -3,10 +3,10 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Query.Expressions;
+using Microsoft.Data.Entity.Query.Expressions;
 using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class CompositePredicateExpressionVisitor : RelinqExpressionVisitor
     {

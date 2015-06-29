@@ -4,7 +4,7 @@
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 
-namespace Microsoft.Data.Entity.Relational.FunctionalTests
+namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class NorthwindQueryRelationalFixture : NorthwindQueryFixtureBase
     {

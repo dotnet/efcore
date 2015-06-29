@@ -13,10 +13,10 @@ namespace Microsoft.Data.Entity.Storage
         where TProviderServices : class, IDatabaseProviderServices
         where TOptionsExtension : class, IDbContextOptionsExtension
     {
-        public virtual IDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider) 
+        public virtual IDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider)
             => Check.NotNull(serviceProvider, nameof(serviceProvider)).GetRequiredService<TProviderServices>();
 
-        public virtual bool IsConfigured(IDbContextOptions options) 
+        public virtual bool IsConfigured(IDbContextOptions options)
             => Check.NotNull(options, nameof(options)).Extensions.OfType<TOptionsExtension>().Any();
     }
 }

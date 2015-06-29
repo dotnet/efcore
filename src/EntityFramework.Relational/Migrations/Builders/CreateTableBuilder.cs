@@ -7,10 +7,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.Builders
+namespace Microsoft.Data.Entity.Migrations.Builders
 {
     public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperation>
     {

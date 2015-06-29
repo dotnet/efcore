@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Relational.Tests
+namespace Microsoft.Data.Entity.Tests
 {
     public class RelationalTestHelpers : TestHelpers
     {

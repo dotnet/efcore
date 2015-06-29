@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.History
+namespace Microsoft.Data.Entity.Migrations.History
 {
     public class HistoryRow : IHistoryRow
     {

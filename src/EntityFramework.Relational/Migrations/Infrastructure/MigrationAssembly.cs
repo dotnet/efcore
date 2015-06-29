@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
+namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class MigrationAssembly : IMigrationAssembly
     {

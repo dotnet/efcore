@@ -6,11 +6,12 @@ using System.Reflection;
 using Microsoft.Data.Entity.Commands.TestUtilities;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
-using Microsoft.Data.Entity.Relational.Migrations;
-using Microsoft.Data.Entity.Relational.Migrations.Builders;
-using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Metadata.Conventions;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
+using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Migrations.Builders;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Operations;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
@@ -33,9 +34,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 new MigrationOperation[0]);
             Assert.Equal(
                 @"using System.Collections.Generic;
-using Microsoft.Data.Entity.Relational.Migrations;
-using Microsoft.Data.Entity.Relational.Migrations.Builders;
-using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Migrations.Builders;
+using Microsoft.Data.Entity.Migrations.Operations;
 
 namespace MyNamespace
 {
@@ -64,7 +65,7 @@ namespace MyNamespace
                 @"using System;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Commands.Migrations;
 
 namespace MyNamespace
@@ -142,7 +143,7 @@ namespace MyNamespace
             Assert.Equal(@"using System;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Commands.Migrations;
 
 namespace MyNamespace

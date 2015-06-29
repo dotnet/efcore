@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.Operations
+namespace Microsoft.Data.Entity.Migrations.Operations
 {
     public class RenameSequenceOperation : MigrationOperation
     {
@@ -11,12 +11,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
         public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
-        /// The new schema name or null if unchanged.
+        ///     The new schema name or null if unchanged.
         /// </summary>
         public virtual string NewName { get; [param: CanBeNull] set; }
 
         /// <summary>
-        /// The new sequence name or null if unchanged.
+        ///     The new sequence name or null if unchanged.
         /// </summary>
         public virtual string NewSchema { get; [param: CanBeNull] set; }
     }

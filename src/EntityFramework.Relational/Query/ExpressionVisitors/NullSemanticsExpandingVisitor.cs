@@ -3,9 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Relational.Query.Expressions;
+using Microsoft.Data.Entity.Query.Expressions;
 
-namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class NullSemanticsExpandingVisitor : NullSemanticsExpressionVisitorBase
     {

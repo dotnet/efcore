@@ -3,10 +3,10 @@
 
 using System;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
+using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
+namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class MigrationModelFactory : IMigrationModelFactory
     {

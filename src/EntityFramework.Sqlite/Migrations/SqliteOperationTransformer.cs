@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Sqlite.Migrations
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             _differ = differ;
         }
 
-        protected IList<MigrationOperation> TransformOperation(MigrationOperation operation, IModel model) => 
+        protected IList<MigrationOperation> TransformOperation(MigrationOperation operation, IModel model) =>
             new[] { operation };
 
         // TODO prevent multiple DropColumnOperations on the same table

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.Operations
+namespace Microsoft.Data.Entity.Migrations.Operations
 {
     public class CreateTableOperation : MigrationOperation
     {

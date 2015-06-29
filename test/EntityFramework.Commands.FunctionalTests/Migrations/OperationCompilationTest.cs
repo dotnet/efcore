@@ -6,8 +6,8 @@ using System.Linq;
 using Microsoft.Data.Entity.Commands.TestUtilities;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Relational.Migrations.Builders;
-using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations.Builders;
+using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
@@ -1604,8 +1604,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 },
                 Sources = { @"
                     using System.Collections.Generic;
-                    using Microsoft.Data.Entity.Relational.Migrations.Builders;
-                    using Microsoft.Data.Entity.Relational.Migrations.Operations;
+                    using Microsoft.Data.Entity.Migrations.Builders;
+                    using Microsoft.Data.Entity.Migrations.Operations;
 
                     public static class OperationsFactory
                     {

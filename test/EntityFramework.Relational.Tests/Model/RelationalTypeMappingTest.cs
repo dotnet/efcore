@@ -4,9 +4,10 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using Microsoft.Data.Entity.Storage;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests.Model
+namespace Microsoft.Data.Entity.Tests.Model
 {
     public class RelationalTypeMappingTest
     {

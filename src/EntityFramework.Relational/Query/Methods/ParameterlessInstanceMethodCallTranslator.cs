@@ -6,9 +6,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Query.Expressions;
+using Microsoft.Data.Entity.Query.Expressions;
 
-namespace Microsoft.Data.Entity.Relational.Query.Methods
+namespace Microsoft.Data.Entity.Query.Methods
 {
     public abstract class ParameterlessInstanceMethodCallTranslator : IMethodCallTranslator
     {

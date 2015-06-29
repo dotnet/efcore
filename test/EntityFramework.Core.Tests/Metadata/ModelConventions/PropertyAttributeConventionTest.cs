@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata.ModelConventions
+namespace Microsoft.Data.Entity.Metadata.Conventions
 {
     public class PropertyAttributeConventionTest
     {

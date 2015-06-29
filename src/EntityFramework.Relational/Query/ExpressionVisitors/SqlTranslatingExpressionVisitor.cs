@@ -6,17 +6,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Query.Expressions;
+using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Parsing;
-using Remotion.Linq.Parsing.ExpressionVisitors;
 
 // ReSharper disable AssignNullToNotNullAttribute
 
-namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class SqlTranslatingExpressionVisitor : ThrowingExpressionVisitor
     {
@@ -370,26 +369,26 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
         }
 
         private static readonly Type[] _supportedConstantTypes =
-            {
-                typeof(bool),
-                typeof(byte),
-                typeof(byte[]),
-                typeof(char),
-                typeof(decimal),
-                typeof(DateTime),
-                typeof(DateTimeOffset),
-                typeof(double),
-                typeof(float),
-                typeof(Guid),
-                typeof(int),
-                typeof(long),
-                typeof(sbyte),
-                typeof(short),
-                typeof(string),
-                typeof(uint),
-                typeof(ulong),
-                typeof(ushort)
-            };
+        {
+            typeof(bool),
+            typeof(byte),
+            typeof(byte[]),
+            typeof(char),
+            typeof(decimal),
+            typeof(DateTime),
+            typeof(DateTimeOffset),
+            typeof(double),
+            typeof(float),
+            typeof(Guid),
+            typeof(int),
+            typeof(long),
+            typeof(sbyte),
+            typeof(short),
+            typeof(string),
+            typeof(uint),
+            typeof(ulong),
+            typeof(ushort)
+        };
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {

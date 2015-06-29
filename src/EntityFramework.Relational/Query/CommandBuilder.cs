@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Query.Sql;
+using Microsoft.Data.Entity.Query.Sql;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Query
+namespace Microsoft.Data.Entity.Query
 {
     public class CommandBuilder
     {

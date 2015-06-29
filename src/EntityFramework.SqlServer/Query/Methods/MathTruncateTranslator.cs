@@ -6,8 +6,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Query.Expressions;
-using Microsoft.Data.Entity.Relational.Query.Methods;
+using Microsoft.Data.Entity.Query.Expressions;
+using Microsoft.Data.Entity.Query.Methods;
 
 namespace Microsoft.Data.Entity.SqlServer.Query.Methods
 {

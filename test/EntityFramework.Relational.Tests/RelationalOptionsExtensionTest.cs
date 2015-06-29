@@ -4,10 +4,11 @@
 using System;
 using System.Data.Common;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Relational.Internal;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests
+namespace Microsoft.Data.Entity.Tests
 {
     public class RelationalOptionsExtensionTest
     {

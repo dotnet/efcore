@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Relational.Query.Expressions;
+using Microsoft.Data.Entity.Query.Expressions;
 using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class IsNullExpressionBuildingVisitor : RelinqExpressionVisitor
     {

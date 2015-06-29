@@ -4,7 +4,7 @@ using Microsoft.Data.Entity.Tests.Infrastructure;
 using Microsoft.Data.Entity.Tests.TestUtilities;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests
+namespace Microsoft.Data.Entity.Tests
 {
     public class RelationalModelValidatorTest : LoggingModelValidatorTest
     {
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             entityA.Relational().Table = "Table";
             entityB.Relational().Table = "Table";
 
-            VerifyError(Strings.DuplicateTableName("Table", null, entityB.DisplayName()), model);
+            VerifyError(Relational.Internal.Strings.DuplicateTableName("Table", null, entityB.DisplayName()), model);
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             entityB.Relational().Table = "Table";
             entityB.Relational().Schema = "Schema";
 
-            VerifyError(Strings.DuplicateTableName("Table", "Schema", entityB.DisplayName()), model);
+            VerifyError(Relational.Internal.Strings.DuplicateTableName("Table", "Schema", entityB.DisplayName()), model);
         }
 
         [Fact]

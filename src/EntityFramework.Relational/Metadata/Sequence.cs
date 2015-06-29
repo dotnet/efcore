@@ -5,10 +5,10 @@ using System;
 using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Metadata
+namespace Microsoft.Data.Entity.Metadata
 {
     public class Sequence : ISequence
     {

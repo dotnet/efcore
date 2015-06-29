@@ -80,7 +80,6 @@ namespace Microsoft.Data.Entity
             [CanBeNull] object value)
             => (PropertyBuilder<TProperty>)SqlServerDefaultValue((PropertyBuilder)propertyBuilder, value);
 
-
         public static PropertyBuilder SqlServerComputedExpression(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string sql)
@@ -99,7 +98,7 @@ namespace Microsoft.Data.Entity
             => (PropertyBuilder<TProperty>)SqlServerComputedExpression((PropertyBuilder)propertyBuilder, sql);
 
         public static PropertyBuilder UseSqlServerSequenceHiLo(
-            [NotNull] this PropertyBuilder propertyBuilder, 
+            [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string name = null,
             [CanBeNull] string schema = null)
         {

@@ -5,10 +5,9 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 
-namespace Microsoft.Data.Entity.Relational.Query
+namespace Microsoft.Data.Entity.Query
 {
     public interface IAsyncIncludeRelatedValuesStrategy : IDisposable
     {

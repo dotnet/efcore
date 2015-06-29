@@ -3,9 +3,9 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.Relational.Update
+namespace Microsoft.Data.Entity.Update
 {
     public interface IModificationCommandBatchFactory
     {

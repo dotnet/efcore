@@ -4,7 +4,7 @@
 using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Sqlite;
 using Microsoft.Framework.Logging;
 

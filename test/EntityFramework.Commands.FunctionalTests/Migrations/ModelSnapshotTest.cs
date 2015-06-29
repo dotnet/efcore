@@ -712,8 +712,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
                     using System;
                     using Microsoft.Data.Entity;
                     using Microsoft.Data.Entity.Metadata;
-                    using Microsoft.Data.Entity.Metadata.ModelConventions;
-                    using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+                    using Microsoft.Data.Entity.Metadata.Conventions;
+                    using Microsoft.Data.Entity.Migrations.Infrastructure;
 
 
                     public static class ModelSnapshot

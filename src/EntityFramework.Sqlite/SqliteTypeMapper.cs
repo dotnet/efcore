@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Sqlite
 {

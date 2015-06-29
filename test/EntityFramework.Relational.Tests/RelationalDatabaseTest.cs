@@ -8,14 +8,16 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Query.Methods;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
-using Microsoft.Data.Entity.Relational.Query.Methods;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.Update;
 
-namespace Microsoft.Data.Entity.Relational.Tests
+namespace Microsoft.Data.Entity.Tests
 {
     public class RelationalDatabaseTest
     {

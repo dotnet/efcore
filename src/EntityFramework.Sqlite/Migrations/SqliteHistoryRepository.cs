@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Data;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Migrations.History;
-using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations.History;
+using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Sqlite.Migrations
@@ -118,20 +118,20 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
         }
 
         public virtual MigrationOperation GetDeleteOperation(string migrationId) => new SqlOperation
-            {
-                Sql = $"DELETE FROM {_sql.DelimitIdentifier(MigrationTableName)} WHERE {_sql.DelimitIdentifier("MigrationId")} = '{_sql.EscapeLiteral(migrationId)}';"
-            };
+        {
+            Sql = $"DELETE FROM {_sql.DelimitIdentifier(MigrationTableName)} WHERE {_sql.DelimitIdentifier("MigrationId")} = '{_sql.EscapeLiteral(migrationId)}';"
+        };
 
         public virtual MigrationOperation GetInsertOperation(IHistoryRow row) => new SqlOperation
-            {
-                Sql = new IndentedStringBuilder().Append("INSERT INTO ")
-                    .Append(_sql.DelimitIdentifier(MigrationTableName))
-                    .Append(" (\"MigrationId\", \"ContextKey\", \"ProductVersion\") VALUES (")
-                    .Append($"'{_sql.EscapeLiteral(row.MigrationId)}', ")
-                    .Append($"'{_sql.EscapeLiteral(_contextKey)}', ")
-                    .Append($"'{_sql.EscapeLiteral(row.ProductVersion)}'")
-                    .Append(");")
-                    .ToString()
-            };
+        {
+            Sql = new IndentedStringBuilder().Append("INSERT INTO ")
+                .Append(_sql.DelimitIdentifier(MigrationTableName))
+                .Append(" (\"MigrationId\", \"ContextKey\", \"ProductVersion\") VALUES (")
+                .Append($"'{_sql.EscapeLiteral(row.MigrationId)}', ")
+                .Append($"'{_sql.EscapeLiteral(_contextKey)}', ")
+                .Append($"'{_sql.EscapeLiteral(row.ProductVersion)}'")
+                .Append(");")
+                .ToString()
+        };
     }
 }

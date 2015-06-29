@@ -3,7 +3,7 @@
 
 using Microsoft.Data.Entity.Infrastructure;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.Operations
+namespace Microsoft.Data.Entity.Migrations.Operations
 {
     public abstract class MigrationOperation : Annotatable
     {

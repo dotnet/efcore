@@ -5,7 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Relational.Query.Expressions
+namespace Microsoft.Data.Entity.Query.Expressions
 {
     public abstract class AggregateExpression : Expression
     {

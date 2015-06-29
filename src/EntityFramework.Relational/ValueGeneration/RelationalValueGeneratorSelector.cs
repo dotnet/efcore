@@ -4,11 +4,9 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration;
 
-namespace Microsoft.Data.Entity.Relational.ValueGeneration
+namespace Microsoft.Data.Entity.ValueGeneration
 {
     public class RelationalValueGeneratorSelector : ValueGeneratorSelector
     {

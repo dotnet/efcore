@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
+namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public interface IMigrationAnnotationProvider
     {

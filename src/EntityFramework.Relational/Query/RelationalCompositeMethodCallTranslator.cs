@@ -4,10 +4,10 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Query.Methods;
+using Microsoft.Data.Entity.Query.Methods;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.Relational.Query
+namespace Microsoft.Data.Entity.Query
 {
     public abstract class RelationalCompositeMethodCallTranslator : IMethodCallTranslator
     {

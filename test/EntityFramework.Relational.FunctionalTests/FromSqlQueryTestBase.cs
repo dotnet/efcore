@@ -3,11 +3,11 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
+using Microsoft.Data.Entity.Relational.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.FunctionalTests
+namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class FromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
@@ -91,9 +91,9 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 var actual
                     = (from c in context.Set<Customer>().FromSql("SELECT * FROM Customers")
-                       from o in context.Set<Order>().FromSql("SELECT * FROM Orders")
-                       where c.CustomerID == o.CustomerID
-                       select new { c, o })
+                        from o in context.Set<Order>().FromSql("SELECT * FROM Orders")
+                        where c.CustomerID == o.CustomerID
+                        select new { c, o })
                         .ToArray();
 
                 Assert.Equal(830, actual.Length);
@@ -110,11 +110,11 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 var actual
                     = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM Customers")
-                       from o in context.Set<Order>().FromSql("SELECT * FROM Orders WHERE OrderDate BETWEEN {0} AND {1}",
-                        startDate,
-                        endDate)
-                       where c.CustomerID == o.CustomerID
-                       select new { c, o })
+                        from o in context.Set<Order>().FromSql("SELECT * FROM Orders WHERE OrderDate BETWEEN {0} AND {1}",
+                            startDate,
+                            endDate)
+                        where c.CustomerID == o.CustomerID
+                        select new { c, o })
                         .ToArray();
 
                 Assert.Equal(411, actual.Length);
@@ -133,11 +133,11 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 var actual
                     = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM Customers WHERE City = {0}",
                         city)
-                       from o in context.Set<Order>().FromSql("SELECT * FROM Orders WHERE OrderDate BETWEEN {0} AND {1}",
-                        startDate,
-                        endDate)
-                       where c.CustomerID == o.CustomerID
-                       select new { c, o })
+                        from o in context.Set<Order>().FromSql("SELECT * FROM Orders WHERE OrderDate BETWEEN {0} AND {1}",
+                            startDate,
+                            endDate)
+                        where c.CustomerID == o.CustomerID
+                        select new { c, o })
                         .ToArray();
 
                 Assert.Equal(25, actual.Length);
@@ -282,7 +282,7 @@ FROM Customers")
         [Fact]
         public virtual void From_sql_queryable_simple_projection_not_composed()
         {
-            using(var context = CreateContext())
+            using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
                     .FromSql("SELECT * FROM Customers")

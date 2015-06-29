@@ -2,13 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Conventions;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
-using Microsoft.Data.Entity.Relational.Metadata.ModelConventions;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Metadata
+namespace Microsoft.Data.Entity.Metadata
 {
     public class RelationalEntityTypeAttributeConventionTest
     {

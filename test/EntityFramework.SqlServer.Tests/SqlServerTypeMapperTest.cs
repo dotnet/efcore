@@ -5,7 +5,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Storage;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests

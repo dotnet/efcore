@@ -8,12 +8,10 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Storage;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Relational.Query
+namespace Microsoft.Data.Entity.Query
 {
     public class QueryMethodProvider : IQueryMethodProvider
     {

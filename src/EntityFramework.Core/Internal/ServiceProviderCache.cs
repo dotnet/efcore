@@ -3,19 +3,20 @@
 
 using System;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Internal
 {
-    internal class ServiceProviderCache
+    public class ServiceProviderCache
     {
         private readonly ThreadSafeDictionaryCache<long, IServiceProvider> _configurations
             = new ThreadSafeDictionaryCache<long, IServiceProvider>();
 
         public static ServiceProviderCache Instance { get; } = new ServiceProviderCache();
 
-        public virtual IServiceProvider GetOrAdd(IDbContextOptions options)
+        public virtual IServiceProvider GetOrAdd([NotNull] IDbContextOptions options)
         {
             var services = new ServiceCollection();
             var builder = services.AddEntityFramework();

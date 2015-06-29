@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer

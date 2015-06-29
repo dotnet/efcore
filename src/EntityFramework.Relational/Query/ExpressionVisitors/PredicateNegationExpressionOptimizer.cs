@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Relational.Query.ExpressionVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class PredicateNegationExpressionOptimizer : RelinqExpressionVisitor
     {

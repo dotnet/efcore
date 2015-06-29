@@ -3,8 +3,8 @@
 
 using System;
 using System.Text;
-using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Tests;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests

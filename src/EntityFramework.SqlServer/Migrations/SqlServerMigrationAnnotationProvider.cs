@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 
 namespace Microsoft.Data.Entity.SqlServer.Migrations
@@ -38,9 +38,9 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         // TODO: Move to metadata API?
         private static SqlServerIdentityStrategy? GetIdentityStrategy(IProperty property)
             => property.StoreGeneratedPattern == StoreGeneratedPattern.Identity
-                    && property.SqlServer().DefaultValueSql == null
-                    && property.SqlServer().DefaultValue == null
-                    && property.SqlServer().ComputedExpression == null
+               && property.SqlServer().DefaultValueSql == null
+               && property.SqlServer().DefaultValue == null
+               && property.SqlServer().ComputedExpression == null
                 ? property.SqlServer().IdentityStrategy
                 : null;
     }

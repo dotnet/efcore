@@ -3,10 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Metadata
+namespace Microsoft.Data.Entity.Metadata
 {
     public class RelationalSequenceBuilder
     {
@@ -19,7 +18,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         {
             Check.NotNull(sequence, nameof(sequence));
             Check.NotNull(updateAction, nameof(updateAction));
-
 
             _sequence = sequence;
             _updateAction = updateAction;

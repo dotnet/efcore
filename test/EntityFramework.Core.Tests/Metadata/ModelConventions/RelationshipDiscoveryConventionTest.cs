@@ -6,11 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Conventions;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
+namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 {
     public class RelationshipDiscoveryConventionTest
     {

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Relational.Migrations
+namespace Microsoft.Data.Entity.Migrations
 {
     public interface IMigrator
     {

@@ -5,7 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
+namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class ContextTypeAttribute : Attribute

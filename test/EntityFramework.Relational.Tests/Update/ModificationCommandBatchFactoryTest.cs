@@ -4,12 +4,12 @@
 using System;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Metadata;
-using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Update;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests.Update
+namespace Microsoft.Data.Entity.Tests.Update
 {
     public class ModificationCommandBatchFactoryTest
     {

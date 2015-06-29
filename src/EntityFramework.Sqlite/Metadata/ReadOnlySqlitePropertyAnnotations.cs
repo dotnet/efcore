@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Metadata;
 
 namespace Microsoft.Data.Entity.Sqlite.Metadata
 {
@@ -24,6 +23,6 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         public override string ColumnType => Property[SqliteColumnTypeAnnotation] as string ?? base.ColumnType;
 
         public override string DefaultValueSql => Property[SqliteDefaultExpressionAnnotation] as string
-                                                    ?? base.DefaultValueSql;
+                                                  ?? base.DefaultValueSql;
     }
 }

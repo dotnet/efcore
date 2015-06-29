@@ -4,7 +4,7 @@
 using System.Text;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests.Utilities
+namespace Microsoft.Data.Entity.Tests.Utilities
 {
     public class StringBuilderExtensionsTest
     {

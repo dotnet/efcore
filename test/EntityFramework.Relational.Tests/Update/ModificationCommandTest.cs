@@ -4,10 +4,13 @@
 using System;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.Update;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests.Update
+namespace Microsoft.Data.Entity.Tests.Update
 {
     public class ModificationCommandTest
     {

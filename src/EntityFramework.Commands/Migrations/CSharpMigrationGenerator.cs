@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
@@ -48,9 +48,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             var builder = new IndentedStringBuilder();
             builder
                 .AppendLine("using System.Collections.Generic;")
-                .AppendLine("using Microsoft.Data.Entity.Relational.Migrations;")
-                .AppendLine("using Microsoft.Data.Entity.Relational.Migrations.Builders;")
-                .AppendLine("using Microsoft.Data.Entity.Relational.Migrations.Operations;")
+                .AppendLine("using Microsoft.Data.Entity.Migrations;")
+                .AppendLine("using Microsoft.Data.Entity.Migrations.Builders;")
+                .AppendLine("using Microsoft.Data.Entity.Migrations.Operations;")
                 .AppendLine()
                 .Append("namespace ").AppendLine(migrationNamespace)
                 .AppendLine("{");
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .AppendLine("using System;")
                 .AppendLine("using Microsoft.Data.Entity;")
                 .AppendLine("using Microsoft.Data.Entity.Metadata;")
-                .AppendLine("using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;")
+                .AppendLine("using Microsoft.Data.Entity.Migrations.Infrastructure;")
                 .Append("using ").Append(contextType.Namespace).AppendLine(";")
                 .AppendLine()
                 .Append("namespace ").AppendLine(migrationNamespace)
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .AppendLine("using System;")
                 .AppendLine("using Microsoft.Data.Entity;")
                 .AppendLine("using Microsoft.Data.Entity.Metadata;")
-                .AppendLine("using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;")
+                .AppendLine("using Microsoft.Data.Entity.Migrations.Infrastructure;")
                 .Append("using ").Append(contextType.Namespace).AppendLine(";")
                 .AppendLine()
                 .Append("namespace ").AppendLine(modelSnapshotNamespace)

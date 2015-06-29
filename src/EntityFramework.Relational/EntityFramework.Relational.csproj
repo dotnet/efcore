@@ -8,7 +8,7 @@
     <ProjectGuid>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Relational</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity</RootNamespace>
     <AssemblyName>EntityFramework.Relational</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -47,22 +47,27 @@
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
     <Compile Include="..\Shared\AsyncEnumerableExtensions.cs">
-      <Link>AsyncEnumerableExtensions.cs</Link>
+      <Link>Extensions\AsyncEnumerableExtensions.cs</Link>
     </Compile>
     <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>LoggingExtensions.cs</Link>
+      <Link>Extensions\LoggingExtensions.cs</Link>
     </Compile>
-    <Compile Include="IRelationalConnection.cs" />
-    <Compile Include="IRelationalDatabaseCreator.cs" />
-    <Compile Include="IRelationalTransaction.cs" />
-    <Compile Include="IRelationalTypeMapper.cs" />
-    <Compile Include="IRelationalValueBufferFactoryFactory.cs" />
-    <Compile Include="IUpdateSqlGenerator.cs" />
-    <Compile Include="ISqlStatementExecutor.cs" />
+    <Compile Include="Infrastructure\ISqlStatementExecutor.cs" />
+    <Compile Include="Infrastructure\IUpdateSqlGenerator.cs" />
+    <Compile Include="Infrastructure\RelationalDbContextOptionsBuilder.cs" />
+    <Compile Include="Infrastructure\RelationalEntityFrameworkServicesBuilderExtensions.cs" />
+    <Compile Include="Infrastructure\RelationalLoggingEventIds.cs" />
+    <Compile Include="Infrastructure\RelationalOptionsExtension.cs" />
+    <Compile Include="Infrastructure\SqlBatch.cs" />
+    <Compile Include="Infrastructure\SqlBatchBuilder.cs" />
+    <Compile Include="Infrastructure\SqlStatementExecutor.cs" />
+    <Compile Include="Infrastructure\UpdateSqlGenerator.cs" />
+    <Compile Include="Internal\RelationalModelValidator.cs" />
+    <Compile Include="Metadata\Conventions\Internal\RelationalColumnAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\RelationalConventionSetBuilder.cs" />
+    <Compile Include="Metadata\Conventions\Internal\RelationalTableAttributeConvention.cs" />
     <Compile Include="Metadata\IRelationalMetadataExtensionProvider.cs" />
-    <Compile Include="Metadata\ModelConventions\RelationalTableAttributeConvention.cs" />
-    <Compile Include="Metadata\ModelConventions\RelationalColumnAttributeConvention.cs" />
-    <Compile Include="Metadata\RelationalReferenceReferenceBuilderExtensions.cs" />
+    <Compile Include="RelationalReferenceReferenceBuilderExtensions.cs" />
     <Compile Include="Migrations\Builders\ColumnsBuilder.cs" />
     <Compile Include="Migrations\Builders\CreateTableBuilder.cs" />
     <Compile Include="Migrations\Builders\OperationBuilder.cs" />
@@ -97,18 +102,18 @@
     <Compile Include="Metadata\ReadOnlyRelationalModelAnnotations.cs" />
     <Compile Include="Metadata\ReadOnlyRelationalPropertyAnnotations.cs" />
     <Compile Include="Metadata\RelationalAnnotationNames.cs" />
-    <Compile Include="Metadata\RelationalEntityTypeBuilderExtensions.cs" />
+    <Compile Include="RelationalEntityTypeBuilderExtensions.cs" />
     <Compile Include="Metadata\RelationalEntityTypeAnnotations.cs" />
     <Compile Include="Metadata\RelationalForeignKeyAnnotations.cs" />
-    <Compile Include="Metadata\RelationalReferenceCollectionBuilderExtensions.cs" />
+    <Compile Include="RelationalReferenceCollectionBuilderExtensions.cs" />
     <Compile Include="Metadata\RelationalIndexAnnotations.cs" />
-    <Compile Include="Metadata\RelationalIndexBuilderExtensions.cs" />
+    <Compile Include="RelationalIndexBuilderExtensions.cs" />
     <Compile Include="Metadata\RelationalKeyAnnotations.cs" />
-    <Compile Include="Metadata\RelationalKeyBuilderExtensions.cs" />
-    <Compile Include="Metadata\RelationalModelBuilderExtensions.cs" />
+    <Compile Include="RelationalKeyBuilderExtensions.cs" />
+    <Compile Include="RelationalModelBuilderExtensions.cs" />
     <Compile Include="Metadata\RelationalModelAnnotations.cs" />
     <Compile Include="Metadata\RelationalPropertyAnnotations.cs" />
-    <Compile Include="Metadata\RelationalPropertyBuilderExtensions.cs" />
+    <Compile Include="RelationalPropertyBuilderExtensions.cs" />
     <Compile Include="Metadata\RelationalSequenceBuilder.cs" />
     <Compile Include="Metadata\Sequence.cs" />
     <Compile Include="Migrations\Migration.cs" />
@@ -151,13 +156,27 @@
     <Compile Include="Query\Methods\SingleOverloadStaticMethodCallTranslator.cs" />
     <Compile Include="Query\RelationalCompositeMethodCallTranslator.cs" />
     <Compile Include="Query\RelationalCompositeMemberTranslator.cs" />
-    <Compile Include="RelationalDatabaseProviderServices.cs" />
-    <Compile Include="RelationalConventionSetBuilder.cs" />
-    <Compile Include="RelationalModelValidator.cs" />
-    <Compile Include="RelationalTypeMapperExtensions.cs" />
-    <Compile Include="RemappingUntypedRelationalValueBufferFactory.cs" />
-    <Compile Include="UntypedRelationalValueBufferFactory.cs" />
-    <Compile Include="UntypedValueBufferFactoryFactory.cs" />
+    <Compile Include="Storage\IRelationalConnection.cs" />
+    <Compile Include="Storage\IRelationalDatabaseCreator.cs" />
+    <Compile Include="Storage\IRelationalDatabaseProviderServices.cs" />
+    <Compile Include="Storage\IRelationalTransaction.cs" />
+    <Compile Include="Storage\IRelationalTypeMapper.cs" />
+    <Compile Include="Storage\IRelationalValueBufferFactory.cs" />
+    <Compile Include="Storage\IRelationalValueBufferFactoryFactory.cs" />
+    <Compile Include="Storage\RelationalConnection.cs" />
+    <Compile Include="Storage\RelationalDatabase.cs" />
+    <Compile Include="Storage\RelationalDatabaseCreator.cs" />
+    <Compile Include="Storage\RelationalDatabaseProviderServices.cs" />
+    <Compile Include="Storage\RelationalSizedTypeMapping.cs" />
+    <Compile Include="Storage\RelationalTransaction.cs" />
+    <Compile Include="Storage\RelationalTypeMapper.cs" />
+    <Compile Include="Storage\RelationalTypeMapperExtensions.cs" />
+    <Compile Include="Storage\RelationalTypeMapping.cs" />
+    <Compile Include="Storage\RemappingUntypedRelationalValueBufferFactory.cs" />
+    <Compile Include="Storage\TypedRelationalValueBufferFactory.cs" />
+    <Compile Include="Storage\TypedValueBufferFactoryFactory.cs" />
+    <Compile Include="Storage\UntypedRelationalValueBufferFactory.cs" />
+    <Compile Include="Storage\UntypedValueBufferFactoryFactory.cs" />
     <Compile Include="Query\AsyncQueryingEnumerable.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\CommandBuilder.cs" />
@@ -220,34 +239,15 @@
     <Compile Include="Query\Sql\DefaultQuerySqlGenerator.cs" />
     <Compile Include="Query\Sql\RawSqlQueryGenerator.cs" />
     <Compile Include="RelationalDatabaseFacadeExtensions.cs" />
-    <Compile Include="RelationalDatabaseCreator.cs" />
-    <Compile Include="IRelationalDatabaseProviderServices.cs" />
-    <Compile Include="RelationalDbContextOptionsBuilder.cs" />
     <Compile Include="RelationalQueryableExtensions.cs" />
     <Compile Include="RelationalMetadataExtensions.cs" />
-    <Compile Include="RelationalOptionsExtension.cs" />
-    <Compile Include="RelationalConnection.cs" />
-    <Compile Include="RelationalDatabase.cs" />
-    <Compile Include="RelationalEntityFrameworkServicesBuilderExtensions.cs" />
-    <Compile Include="RelationalLoggerExtensions.cs" />
-    <Compile Include="RelationalLoggingEventIds.cs" />
+    <Compile Include="Extensions\RelationalLoggerExtensions.cs" />
     <Compile Include="Query\RelationalQueryContext.cs" />
-    <Compile Include="RelationalTransaction.cs" />
-    <Compile Include="IRelationalValueBufferFactory.cs" />
-    <Compile Include="SqlBatch.cs" />
-    <Compile Include="SqlBatchBuilder.cs" />
-    <Compile Include="UpdateSqlGenerator.cs" />
-    <Compile Include="SqlStatementExecutor.cs" />
-    <Compile Include="RelationalSizedTypeMapping.cs" />
-    <Compile Include="RelationalTypeMapper.cs" />
-    <Compile Include="RelationalTypeMapping.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="TypedRelationalValueBufferFactory.cs" />
-    <Compile Include="TypedValueBufferFactoryFactory.cs" />
     <Compile Include="Update\AffectedCountModificationCommandBatch.cs" />
     <Compile Include="Update\BatchExecutor.cs" />
     <Compile Include="Update\ColumnModification.cs" />
@@ -267,12 +267,18 @@
     <Compile Include="..\Shared\Check.cs">
       <Link>Utilities\Check.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\CodeAnnotations.cs" />
-    <Compile Include="..\Shared\StringBuilderExtensions.cs" />
-    <Compile Include="..\Shared\SharedTypeExtensions.cs" />
-    <Compile Include="Utilities\EnumerableExtensions.cs" />
-    <Compile Include="Utilities\ExpressionExtensions.cs" />
-    <Compile Include="Utilities\MethodInfoExtensions.cs" />
+    <Compile Include="..\Shared\CodeAnnotations.cs">
+      <Link>Utilities\CodeAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\StringBuilderExtensions.cs">
+      <Link>Extensions\StringBuilderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>Extensions\SharedTypeExtensions.cs</Link>
+    </Compile>
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\ExpressionExtensions.cs" />
+    <Compile Include="Extensions\MethodInfoExtensions.cs" />
     <Compile Include="ValueGeneration\DiscriminatorValueGenerator.cs" />
     <Compile Include="ValueGeneration\RelationalValueGeneratorSelector.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
@@ -283,6 +289,7 @@
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.Data.Entity.Relational.Internal</CustomToolNamespace>
     </Content>
     <None Include="project.json" />
   </ItemGroup>
@@ -291,6 +298,9 @@
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>EntityFramework.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

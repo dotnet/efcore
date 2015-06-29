@@ -5,9 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
+namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class MigrationIdGenerator : IMigrationIdGenerator
     {

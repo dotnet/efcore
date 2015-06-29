@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemantics;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemanticsModel;
-using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests

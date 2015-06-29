@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
 using System;
 
-namespace Microsoft.Data.Entity.Relational.FunctionalTests
+namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class AsyncFromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()

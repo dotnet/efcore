@@ -7,12 +7,14 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.Logging;
 using Moq;
 using Moq.Protected;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests
+namespace Microsoft.Data.Entity.Tests
 {
     public class RelationalConnectionTest
     {
@@ -315,7 +317,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Throws_if_no_connection_or_connection_string_is_specified()
         {
             Assert.Equal(
-                Strings.NoConnectionOrConnectionString,
+                Relational.Internal.Strings.NoConnectionOrConnectionString,
                 Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateOptions(new FakeOptionsExtension1()))).Message);
         }
 
@@ -323,7 +325,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Throws_if_both_connection_and_connection_string_are_specified()
         {
             Assert.Equal(
-                Strings.ConnectionAndConnectionString,
+                Relational.Internal.Strings.ConnectionAndConnectionString,
                 Assert.Throws<InvalidOperationException>(() => new FakeConnection(
                     CreateOptions(new FakeOptionsExtension1
                         {

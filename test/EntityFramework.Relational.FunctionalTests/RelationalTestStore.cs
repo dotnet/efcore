@@ -4,7 +4,7 @@
 using System.Data.Common;
 using Microsoft.Data.Entity.FunctionalTests;
 
-namespace Microsoft.Data.Entity.Relational.FunctionalTests
+namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class RelationalTestStore : TestStore
     {

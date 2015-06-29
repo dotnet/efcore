@@ -3,7 +3,7 @@
 
 using Microsoft.Data.Entity.FunctionalTests;
 
-namespace Microsoft.Data.Entity.Relational.FunctionalTests
+namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class ComplexNavigationsQueryRelationalFixture<TTestStore> : ComplexNavigationsQueryFixtureBase<TTestStore>
         where TTestStore : TestStore

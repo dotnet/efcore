@@ -7,8 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Migrations;
+using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity
             => GetRelationalConnection(databaseFacade).Open();
 
         public static Task OpenConnectionAsync(
-            [NotNull] this DatabaseFacade databaseFacade, 
+            [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default(CancellationToken))
             => GetRelationalConnection(databaseFacade).OpenAsync(cancellationToken);
 
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity
             => GetRelationalConnection(databaseFacade).BeginTransaction();
 
         public static Task<IRelationalTransaction> BeginTransactionAsync(
-            [NotNull] this DatabaseFacade databaseFacade, 
+            [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default(CancellationToken))
             => GetRelationalConnection(databaseFacade).BeginTransactionAsync(cancellationToken);
 

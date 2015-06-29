@@ -75,9 +75,9 @@ namespace Microsoft.Data.Entity.Commands
                             using System;
                             using Microsoft.Data.Entity;
                             using Microsoft.Data.Entity.Metadata;
-                            using Microsoft.Data.Entity.Relational.Migrations;
-                            using Microsoft.Data.Entity.Relational.Migrations.Builders;
-                            using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+                            using Microsoft.Data.Entity.Migrations;
+                            using Microsoft.Data.Entity.Migrations.Builders;
+                            using Microsoft.Data.Entity.Migrations.Infrastructure;
 
                             namespace SimpleProject
                             {
@@ -159,9 +159,9 @@ namespace Microsoft.Data.Entity.Commands
                         using System;
                         using Microsoft.Data.Entity;
                         using Microsoft.Data.Entity.Metadata;
-                        using Microsoft.Data.Entity.Relational.Migrations;
-                        using Microsoft.Data.Entity.Relational.Migrations.Builders;
-                        using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+                        using Microsoft.Data.Entity.Migrations;
+                        using Microsoft.Data.Entity.Migrations.Builders;
+                        using Microsoft.Data.Entity.Migrations.Infrastructure;
 
                         namespace MyProject
                         {
@@ -273,9 +273,9 @@ namespace Microsoft.Data.Entity.Commands
                         using System;
                         using Microsoft.Data.Entity;
                         using Microsoft.Data.Entity.Metadata;
-                        using Microsoft.Data.Entity.Relational.Migrations;
-                        using Microsoft.Data.Entity.Relational.Migrations.Builders;
-                        using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+                        using Microsoft.Data.Entity.Migrations;
+                        using Microsoft.Data.Entity.Migrations.Builders;
+                        using Microsoft.Data.Entity.Migrations.Infrastructure;
 
                         namespace MyProject
                         {

@@ -3,7 +3,7 @@
 
 using Microsoft.Data.Entity.FunctionalTests;
 
-namespace Microsoft.Data.Entity.Relational.FunctionalTests
+namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class GearsOfWarQueryRelationalFixture<TTestStore> : GearsOfWarQueryFixtureBase<TTestStore>
         where TTestStore : TestStore

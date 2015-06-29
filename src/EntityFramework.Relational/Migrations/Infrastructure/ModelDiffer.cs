@@ -9,11 +9,11 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Metadata;
-using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
+namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     // TODO: Handle transitive renames (See #1907)
     // TODO: Structural matching
@@ -219,17 +219,17 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 Diff, Add, Remove,
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
                 (s, t) => string.Equals(
-                        MetadataExtensions.Extensions(s).Schema,
-                        MetadataExtensions.Extensions(t).Schema,
-                        StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(
-                        MetadataExtensions.Extensions(s).Table,
-                        MetadataExtensions.Extensions(t).Table,
-                        StringComparison.OrdinalIgnoreCase),
+                    MetadataExtensions.Extensions(s).Schema,
+                    MetadataExtensions.Extensions(t).Schema,
+                    StringComparison.OrdinalIgnoreCase)
+                          && string.Equals(
+                              MetadataExtensions.Extensions(s).Table,
+                              MetadataExtensions.Extensions(t).Table,
+                              StringComparison.OrdinalIgnoreCase),
                 (s, t) => string.Equals(
-                     MetadataExtensions.Extensions(s).Table,
-                     MetadataExtensions.Extensions(t).Table,
-                     StringComparison.OrdinalIgnoreCase));
+                    MetadataExtensions.Extensions(s).Table,
+                    MetadataExtensions.Extensions(t).Table,
+                    StringComparison.OrdinalIgnoreCase));
 
         protected virtual IEnumerable<MigrationOperation> Diff(IEntityType source, IEntityType target)
         {
@@ -348,7 +348,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 || HasDifferences(Annotations.For(source), targetAnnotations))
             {
                 var isDestructiveChange = (isNullableChanged && source.IsNullable)
-                                          // TODO: Detect type narrowing
+                    // TODO: Detect type narrowing
                                           || columnTypeChanged;
 
                 var alterColumnOperation = new AlterColumnOperation
@@ -410,8 +410,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 source, target,
                 Diff, Add, Remove,
                 (s, t) => MetadataExtensions.Extensions(s).Name == MetadataExtensions.Extensions(t).Name
-                    && GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties))
-                    && s.IsPrimaryKey() == t.IsPrimaryKey());
+                          && GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties))
+                          && s.IsPrimaryKey() == t.IsPrimaryKey());
 
         protected virtual IEnumerable<MigrationOperation> Diff(IKey source, IKey target)
             => HasDifferences(Annotations.For(source), Annotations.For(target))
@@ -483,16 +483,16 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 source, target,
                 Diff, Add, Remove,
                 (s, t) =>
-                {
-                    var sourcePrincipalEntityTypeExtensions = MetadataExtensions.Extensions(s.PrincipalEntityType);
-                    var targetPrincipalEntityTypeExtensions = MetadataExtensions.Extensions(t.PrincipalEntityType);
+                    {
+                        var sourcePrincipalEntityTypeExtensions = MetadataExtensions.Extensions(s.PrincipalEntityType);
+                        var targetPrincipalEntityTypeExtensions = MetadataExtensions.Extensions(t.PrincipalEntityType);
 
-                    return MetadataExtensions.Extensions(s).Name == MetadataExtensions.Extensions(t).Name
-                        && GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties))
-                        && sourcePrincipalEntityTypeExtensions.Schema == targetPrincipalEntityTypeExtensions.Schema
-                        && sourcePrincipalEntityTypeExtensions.Table == targetPrincipalEntityTypeExtensions.Table
-                        && GetColumnNames(s.PrincipalKey.Properties).SequenceEqual(GetColumnNames(t.PrincipalKey.Properties));
-                });
+                        return MetadataExtensions.Extensions(s).Name == MetadataExtensions.Extensions(t).Name
+                               && GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties))
+                               && sourcePrincipalEntityTypeExtensions.Schema == targetPrincipalEntityTypeExtensions.Schema
+                               && sourcePrincipalEntityTypeExtensions.Table == targetPrincipalEntityTypeExtensions.Table
+                               && GetColumnNames(s.PrincipalKey.Properties).SequenceEqual(GetColumnNames(t.PrincipalKey.Properties));
+                    });
 
         protected virtual IEnumerable<MigrationOperation> Diff(IForeignKey source, IForeignKey target)
             => HasDifferences(Annotations.For(source), Annotations.For(target))
@@ -543,10 +543,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 source, target,
                 Diff, Add, Remove,
                 (s, t) => string.Equals(
-                        MetadataExtensions.Extensions(s).Name,
-                        MetadataExtensions.Extensions(t).Name,
-                        StringComparison.OrdinalIgnoreCase)
-                    && GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties)),
+                    MetadataExtensions.Extensions(s).Name,
+                    MetadataExtensions.Extensions(t).Name,
+                    StringComparison.OrdinalIgnoreCase)
+                          && GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties)),
                 (s, t) => GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties)));
 
         protected virtual IEnumerable<MigrationOperation> Diff(IIndex source, IIndex target)
@@ -617,10 +617,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 source, target,
                 Diff, Add, Remove,
                 (s, t) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                    && s.Type == t.Type,
+                          && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+                          && s.Type == t.Type,
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                    && s.Type == t.Type);
+                          && s.Type == t.Type);
 
         protected virtual IEnumerable<MigrationOperation> Diff(ISequence source, ISequence target)
         {

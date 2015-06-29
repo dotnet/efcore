@@ -5,7 +5,7 @@ using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests

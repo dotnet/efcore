@@ -5,9 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests.Model
+namespace Microsoft.Data.Entity.Tests.Model
 {
     public class RelationalTypeMapperTest
     {

@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations.Operations;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.History
+namespace Microsoft.Data.Entity.Migrations.History
 {
     // TODO: Consider upgrade scenarios
     public interface IHistoryRepository

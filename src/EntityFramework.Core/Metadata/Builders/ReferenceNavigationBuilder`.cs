@@ -84,7 +84,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> InverseCollection([CanBeNull] string collection = null)
             => new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(InverseCollectionBuilder(collection));
 
-
         /// <summary>
         ///     Configures this as a one-to-one relationship.
         /// </summary>

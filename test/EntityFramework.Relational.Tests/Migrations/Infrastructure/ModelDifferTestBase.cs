@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Metadata;
-using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
 
-namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
+namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class ModelDifferTestBase
     {

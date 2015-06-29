@@ -2,17 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Conventions;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Moq;
-using Moq.Protected;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
+namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 {
     public class KeyDiscoveryConventionTest
     {

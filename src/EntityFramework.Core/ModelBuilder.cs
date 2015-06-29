@@ -6,8 +6,9 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.Conventions;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
@@ -142,7 +143,7 @@ namespace Microsoft.Data.Entity
         /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
         /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
         /// <returns>
-        ///     The same <see cref="ModelBuilder"/> instance so that additional configuration calls can be chained.
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
         public virtual ModelBuilder Entity<TEntity>([NotNull] Action<EntityTypeBuilder<TEntity>> buildAction) where TEntity : class
         {
@@ -167,7 +168,7 @@ namespace Microsoft.Data.Entity
         /// <param name="type"> The entity type to be configured. </param>
         /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
         /// <returns>
-        ///     The same <see cref="ModelBuilder"/> instance so that additional configuration calls can be chained.
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
         public virtual ModelBuilder Entity([NotNull] Type type, [NotNull] Action<EntityTypeBuilder> buildAction)
         {
@@ -194,7 +195,7 @@ namespace Microsoft.Data.Entity
         /// <param name="name"> The name of the entity type to be configured. </param>
         /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
         /// <returns>
-        ///     The same <see cref="ModelBuilder"/> instance so that additional configuration calls can be chained.
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
         public virtual ModelBuilder Entity([NotNull] string name, [NotNull] Action<EntityTypeBuilder> buildAction)
         {

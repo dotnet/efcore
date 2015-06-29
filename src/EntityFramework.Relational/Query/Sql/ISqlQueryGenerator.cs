@@ -4,8 +4,9 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Storage;
 
-namespace Microsoft.Data.Entity.Relational.Query.Sql
+namespace Microsoft.Data.Entity.Query.Sql
 {
     public interface ISqlQueryGenerator
     {

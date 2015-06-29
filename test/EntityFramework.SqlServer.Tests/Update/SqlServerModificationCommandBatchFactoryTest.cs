@@ -3,10 +3,10 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Update;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Update;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests.Update
