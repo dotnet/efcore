@@ -244,6 +244,7 @@
     </Compile>
     <Compile Include="TypedValueBufferFactory.cs" />
     <Compile Include="TypedValueBufferFactoryFactory.cs" />
+    <Compile Include="Update\AffectedCountModificationCommandBatch.cs" />
     <Compile Include="Update\BatchExecutor.cs" />
     <Compile Include="Update\ColumnModification.cs" />
     <Compile Include="Update\CommandBatchPreparer.cs" />
