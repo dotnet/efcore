@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
-    // TODO: Test rename ordering & matching
+    // TODO: Test matching
     public class ModelDifferTest : ModelDifferTestBase
     {
         [Fact]
@@ -1870,6 +1870,372 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     o => Assert.IsType<DropForeignKeyOperation>(o),
                     o => Assert.IsType<DropUniqueConstraintOperation>(o),
                     o => Assert.IsType<DropColumnOperation>(o)));
+        }
+
+        [Fact]
+        public void Rename_column_with_primary_key()
+        {
+            Execute(
+                source => source.Entity(
+                    "Hornet",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                    }),
+                target => target.Entity(
+                    "Hornet",
+                    x =>
+                    {
+                        x.Property<int>("Id").HasColumnName("HornetId");
+                        x.Key("Id");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    Assert.IsType<RenameColumnOperation>(operations[0]);
+                });
+        }
+
+        [Fact]
+        public void Rename_column_with_unique_constraint()
+        {
+            Execute(
+                source => source.Entity(
+                    "Wasp",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name");
+                        x.AlternateKey("Name");
+                    }),
+                target => target.Entity(
+                    "Wasp",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name").HasColumnName("WaspName");
+                        x.AlternateKey("Name");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    Assert.IsType<RenameColumnOperation>(operations[0]);
+                });
+        }
+
+        [Fact]
+        public void Rename_column_with_index()
+        {
+            Execute(
+                source => source.Entity(
+                    "Bee",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name");
+                        x.Index("Name");
+                    }),
+                target => target.Entity(
+                    "Bee",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name").HasColumnName("BeeName");
+                        x.Index("Name");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    Assert.IsType<RenameColumnOperation>(operations[0]);
+                });
+        }
+
+        [Fact]
+        public void Rename_table_with_unique_constraint()
+        {
+            Execute(
+                source => source.Entity(
+                    "Fly",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name");
+                        x.AlternateKey("Name");
+                    }),
+                target => target.Entity(
+                    "Fly",
+                    x =>
+                    {
+                        x.ToTable("Flies");
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name");
+                        x.AlternateKey("Name");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    Assert.IsType<RenameTableOperation>(operations[0]);
+                });
+        }
+
+        [Fact]
+        public void Rename_table_with_index()
+        {
+            Execute(
+                source => source.Entity(
+                    "Gnat",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name");
+                        x.Index("Name");
+                    }),
+                target => target.Entity(
+                    "Gnat",
+                    x =>
+                    {
+                        x.ToTable("Gnats");
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name");
+                        x.Index("Name");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    Assert.IsType<RenameTableOperation>(operations[0]);
+                });
+        }
+
+        [Fact]
+        public void Rename_entity_type_with_primary_key_and_unique_constraint()
+        {
+            Execute(
+                source => source.Entity(
+                    "Grasshopper",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name");
+                        x.AlternateKey("Name");
+                    }),
+                target => target.Entity(
+                    "grasshopper",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id").KeyName("PK_Grasshopper");
+                        x.Property<string>("Name");
+                        x.AlternateKey("Name").KeyName("AK_Grasshopper_Name");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    Assert.IsType<RenameTableOperation>(operations[0]);
+                });
+        }
+
+        [Fact]
+        public void Rename_entity_type_with_index()
+        {
+            Execute(
+                source => source.Entity(
+                    "Cricket",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name");
+                        x.Index("Name");
+                    }),
+                target => target.Entity(
+                    "cricket",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id").KeyName("PK_Cricket");
+                        x.Property<string>("Name");
+                        x.Index("Name").IndexName("IX_Cricket_Name");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    Assert.IsType<RenameTableOperation>(operations[0]);
+                });
+        }
+
+        [Fact]
+        public void Rename_column_with_foreign_key()
+        {
+            Execute(
+                source => source.Entity(
+                    "Yeast",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<int>("ParentId");
+                        x.Reference("Yeast").InverseCollection().ForeignKey("ParentId");
+                    }),
+                target => target.Entity(
+                    "Yeast",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<int>("ParentId").HasColumnName("ParentYeastId");
+                        x.Reference("Yeast").InverseCollection().ForeignKey("ParentId");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+                    Assert.IsType<RenameColumnOperation>(operations[0]);
+                });
+        }
+
+        [Fact]
+        public void Rename_column_with_referencing_foreign_key()
+        {
+            Execute(
+                source => source.Entity(
+                    "Mucor",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<int>("ParentId");
+                        x.Reference("Mucor").InverseCollection().ForeignKey("ParentId");
+                    }),
+                target => target.Entity(
+                    "Mucor",
+                    x =>
+                    {
+                        x.Property<int>("Id").HasColumnName("MucorId");
+                        x.Key("Id");
+                        x.Property<int>("ParentId");
+                        x.Reference("Mucor").InverseCollection().ForeignKey("ParentId");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+                    Assert.IsType<RenameColumnOperation>(operations[0]);
+                });
+        }
+
+        [Fact]
+        public void Rename_table_with_foreign_key()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity(
+                        "Zebra",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    source.Entity(
+                        "Zonkey",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("ParentId");
+                            x.Reference("Zebra").InverseCollection().ForeignKey("ParentId");
+                        });
+                },
+                target =>
+                {
+                    target.Entity(
+                        "Zebra",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    target.Entity(
+                        "Zonkey",
+                        x =>
+                        {
+                            x.ToTable("Zonkeys");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("ParentId");
+                            x.Reference("Zebra").InverseCollection().ForeignKey("ParentId");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+                    Assert.IsType<RenameTableOperation>(operations[0]);
+                });
+        }
+
+        [Fact]
+        public void Rename_table_with_referencing_foreign_key()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity(
+                        "Jaguar",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    source.Entity(
+                        "Jaglion",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("ParentId");
+                            x.Reference("Jaguar").InverseCollection().ForeignKey("ParentId");
+                        });
+                },
+                target =>
+                {
+                    target.Entity(
+                        "Jaguar",
+                        x =>
+                        {
+                            x.ToTable("Jaguars");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    target.Entity(
+                        "Jaglion",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("ParentId");
+                            x.Reference("Jaguar").InverseCollection().ForeignKey("ParentId");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+                    Assert.IsType<RenameTableOperation>(operations[0]);
+                });
         }
     }
 }

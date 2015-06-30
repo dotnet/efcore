@@ -15,13 +15,11 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
-    // TODO: Handle transitive renames (See #1907)
     // TODO: Structural matching
     public class ModelDiffer : IModelDiffer
     {
         private static readonly Type[] _dropOperationTypes =
         {
-            typeof(DropForeignKeyOperation),
             typeof(DropIndexOperation),
             typeof(DropPrimaryKeyOperation),
             typeof(DropSequenceOperation),
@@ -72,6 +70,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             Check.NotNull(operations, nameof(operations));
 
+            var dropForeignKeyOperations = new List<MigrationOperation>();
             var dropOperations = new List<MigrationOperation>();
             var dropColumnOperations = new List<MigrationOperation>();
             var dropTableOperations = new List<MigrationOperation>();
@@ -88,7 +87,11 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             foreach (var operation in operations)
             {
                 var type = operation.GetType();
-                if (_dropOperationTypes.Contains(type))
+                if (type == typeof(DropForeignKeyOperation))
+                {
+                    dropForeignKeyOperations.Add(operation);
+                }
+                else if (_dropOperationTypes.Contains(type))
                 {
                     dropOperations.Add(operation);
                 }
@@ -173,7 +176,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     })
                 .Select(k => createTableOperations[k]);
 
-            return dropOperations
+            return dropForeignKeyOperations
+                .Concat(dropOperations)
                 .Concat(dropColumnOperations)
                 .Concat(dropTableOperations)
                 .Concat(dropSchemaOperations)
@@ -190,20 +194,41 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         #region IModel
 
-        protected virtual IEnumerable<MigrationOperation> Diff([CanBeNull] IModel source, [CanBeNull] IModel target) =>
-            source != null && target != null
-                ? Diff(source.EntityTypes, target.EntityTypes)
+        protected virtual IEnumerable<MigrationOperation> Diff([CanBeNull] IModel source, [CanBeNull] IModel target)
+        {
+            if (source != null && target != null)
+            {
+                var diffContext = new ModelDifferContext();
+
+                return Diff(source.EntityTypes, target.EntityTypes, diffContext)
                     .Concat(
                         Diff(MetadataExtensions.Extensions(source).Sequences, MetadataExtensions.Extensions(target).Sequences))
-                : target != null
-                    ? Add(target)
-                    : source != null
-                        ? Remove(source)
-                        : Enumerable.Empty<MigrationOperation>();
+                    .Concat(
+                        Diff(
+                            source.EntityTypes.SelectMany(t => t.GetForeignKeys()),
+                            target.EntityTypes.SelectMany(t => t.GetForeignKeys()),
+                            diffContext));
+            }
+            if (target != null)
+            {
+                return Add(target);
+            }
+            if (source != null)
+            {
+                return Remove(source);
+            }
 
-        protected virtual IEnumerable<MigrationOperation> Add(IModel target) =>
-            target.EntityTypes.SelectMany(Add)
-                .Concat(MetadataExtensions.Extensions(target).Sequences.SelectMany(Add));
+            return Enumerable.Empty<MigrationOperation>();
+        }
+
+        protected virtual IEnumerable<MigrationOperation> Add(IModel target)
+        {
+            var diffContext = new ModelDifferContext();
+
+            return target.EntityTypes.SelectMany(t => Add(t, diffContext))
+                .Concat(MetadataExtensions.Extensions(target).Sequences.SelectMany(Add))
+                .Concat(target.EntityTypes.SelectMany(t => t.GetForeignKeys()).SelectMany(k => Add(k, diffContext)));
+        }
 
         protected virtual IEnumerable<MigrationOperation> Remove(IModel source) =>
             source.EntityTypes.SelectMany(Remove)
@@ -213,10 +238,16 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         #region IEntityType
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IEntityType> source, IEnumerable<IEntityType> target)
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            IEnumerable<IEntityType> source,
+            IEnumerable<IEntityType> target,
+            ModelDifferContext diffContext)
             => DiffCollection(
-                source, target,
-                Diff, Add, Remove,
+                source,
+                target,
+                (s, t) => Diff(s, t, diffContext),
+                t => Add(t, diffContext),
+                Remove,
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
                 (s, t) => string.Equals(
                     MetadataExtensions.Extensions(s).Schema,
@@ -231,7 +262,10 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     MetadataExtensions.Extensions(t).Table,
                     StringComparison.OrdinalIgnoreCase));
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEntityType source, IEntityType target)
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            IEntityType source,
+            IEntityType target,
+            ModelDifferContext diffContext)
         {
             var sourceExtensions = MetadataExtensions.Extensions(source);
             var targetExtensions = MetadataExtensions.Extensions(target);
@@ -249,21 +283,18 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 };
             }
 
-            var sourcePrimaryKey = source.GetPrimaryKey();
-            var targetPrimaryKey = target.GetPrimaryKey();
+            diffContext.AddMapping(source, target);
 
-            var operations = Diff(source.GetProperties(), target.GetProperties())
-                .Concat(Diff(new[] { sourcePrimaryKey }, new[] { targetPrimaryKey }))
-                .Concat(Diff(source.GetKeys().Where(k => k != sourcePrimaryKey), target.GetKeys().Where(k => k != targetPrimaryKey)))
-                .Concat(Diff(source.GetForeignKeys(), target.GetForeignKeys()))
-                .Concat(Diff(source.GetIndexes(), target.GetIndexes()));
+            var operations = Diff(source.GetProperties(), target.GetProperties(), diffContext)
+                .Concat(Diff(source.GetKeys(), target.GetKeys(), diffContext))
+                .Concat(Diff(source.GetIndexes(), target.GetIndexes(), diffContext));
             foreach (var operation in operations)
             {
                 yield return operation;
             }
         }
 
-        protected virtual IEnumerable<MigrationOperation> Add(IEntityType target)
+        protected virtual IEnumerable<MigrationOperation> Add(IEntityType target, ModelDifferContext diffContext)
         {
             var targetExtensions = MetadataExtensions.Extensions(target);
 
@@ -279,7 +310,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             createTableOperation.PrimaryKey = Add(primaryKey).Cast<AddPrimaryKeyOperation>().Single();
             createTableOperation.UniqueConstraints.AddRange(
                 target.GetKeys().Where(k => k != primaryKey).SelectMany(Add).Cast<AddUniqueConstraintOperation>());
-            createTableOperation.ForeignKeys.AddRange(target.GetForeignKeys().SelectMany(Add).Cast<AddForeignKeyOperation>());
+
+            diffContext.AddCreate(target, createTableOperation);
 
             yield return createTableOperation;
 
@@ -304,10 +336,21 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         #region IProperty
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IProperty> source, IEnumerable<IProperty> target)
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            IEnumerable<IProperty> source,
+            IEnumerable<IProperty> target,
+            ModelDifferContext diffContext)
             => DiffCollection(
-                source, target,
-                Diff, Add, Remove,
+                source,
+                target,
+                (s, t) =>
+                {
+                    diffContext.AddMapping(s, t);
+
+                    return Diff(s, t);
+                },
+                Add,
+                Remove,
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
                 (s, t) => string.Equals(
                     MetadataExtensions.Extensions(s).Column,
@@ -348,7 +391,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 || HasDifferences(Annotations.For(source), targetAnnotations))
             {
                 var isDestructiveChange = (isNullableChanged && source.IsNullable)
-                    // TODO: Detect type narrowing
+                                          // TODO: Detect type narrowing
                                           || columnTypeChanged;
 
                 var alterColumnOperation = new AlterColumnOperation
@@ -405,12 +448,15 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         #region IKey
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IKey> source, IEnumerable<IKey> target)
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            IEnumerable<IKey> source,
+            IEnumerable<IKey> target,
+            ModelDifferContext diffContext)
             => DiffCollection(
                 source, target,
                 Diff, Add, Remove,
                 (s, t) => MetadataExtensions.Extensions(s).Name == MetadataExtensions.Extensions(t).Name
-                          && GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties))
+                          && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
                           && s.IsPrimaryKey() == t.IsPrimaryKey());
 
         protected virtual IEnumerable<MigrationOperation> Diff(IKey source, IKey target)
@@ -478,28 +524,30 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         #region IForeignKey
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IForeignKey> source, IEnumerable<IForeignKey> target)
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            IEnumerable<IForeignKey> source,
+            IEnumerable<IForeignKey> target,
+            ModelDifferContext diffContext)
             => DiffCollection(
-                source, target,
-                Diff, Add, Remove,
+                source,
+                target,
+                (s, t) => Diff(s, t, diffContext),
+                t => Add(t, diffContext),
+                Remove,
                 (s, t) =>
                     {
-                        var sourcePrincipalEntityTypeExtensions = MetadataExtensions.Extensions(s.PrincipalEntityType);
-                        var targetPrincipalEntityTypeExtensions = MetadataExtensions.Extensions(t.PrincipalEntityType);
-
                         return MetadataExtensions.Extensions(s).Name == MetadataExtensions.Extensions(t).Name
-                               && GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties))
-                               && sourcePrincipalEntityTypeExtensions.Schema == targetPrincipalEntityTypeExtensions.Schema
-                               && sourcePrincipalEntityTypeExtensions.Table == targetPrincipalEntityTypeExtensions.Table
-                               && GetColumnNames(s.PrincipalKey.Properties).SequenceEqual(GetColumnNames(t.PrincipalKey.Properties));
+                               && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
+                               && diffContext.FindTarget(s.PrincipalEntityType) == t.PrincipalEntityType
+                               && s.PrincipalKey.Properties.Select(diffContext.FindTarget).SequenceEqual(t.PrincipalKey.Properties);
                     });
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IForeignKey source, IForeignKey target)
+        protected virtual IEnumerable<MigrationOperation> Diff(IForeignKey source, IForeignKey target, ModelDifferContext diffContext)
             => HasDifferences(Annotations.For(source), Annotations.For(target))
-                ? Remove(source).Concat(Add(target))
+                ? Remove(source).Concat(Add(target, diffContext))
                 : Enumerable.Empty<MigrationOperation>();
 
-        protected virtual IEnumerable<MigrationOperation> Add(IForeignKey target)
+        protected virtual IEnumerable<MigrationOperation> Add(IForeignKey target, ModelDifferContext diffContext)
         {
             var targetExtensions = MetadataExtensions.Extensions(target);
             var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.EntityType);
@@ -518,7 +566,15 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             };
             CopyAnnotations(Annotations.For(target), operation);
 
-            yield return operation;
+            var createTableOperation = diffContext.FindCreate(target.EntityType);
+            if (createTableOperation != null)
+            {
+                createTableOperation.ForeignKeys.Add(operation);
+            }
+            else
+            {
+                yield return operation;
+            }
         }
 
         protected virtual IEnumerable<MigrationOperation> Remove(IForeignKey source)
@@ -538,7 +594,10 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         #region IIndex
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<IIndex> source, IEnumerable<IIndex> target)
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            IEnumerable<IIndex> source,
+            IEnumerable<IIndex> target,
+            ModelDifferContext diffContext)
             => DiffCollection(
                 source, target,
                 Diff, Add, Remove,
@@ -546,8 +605,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     MetadataExtensions.Extensions(s).Name,
                     MetadataExtensions.Extensions(t).Name,
                     StringComparison.OrdinalIgnoreCase)
-                          && GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties)),
-                (s, t) => GetColumnNames(s.Properties).SequenceEqual(GetColumnNames(t.Properties)));
+                          && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties),
+                (s, t) => s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties));
 
         protected virtual IEnumerable<MigrationOperation> Diff(IIndex source, IIndex target)
         {
