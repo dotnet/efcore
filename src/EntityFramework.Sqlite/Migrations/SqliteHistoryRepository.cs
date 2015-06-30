@@ -94,6 +94,11 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
         {
             var migrations = new List<IHistoryRow>();
 
+            if (!Exists())
+            {
+                return migrations;
+            }
+
             using (var connection = _connection.DbConnection)
             {
                 if (connection.State != ConnectionState.Open)
