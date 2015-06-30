@@ -270,9 +270,12 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
                     using (var innerContext = CreateContext())
                     {
-                        using (innerContext.Database.BeginTransaction(IsolationLevel.ReadUncommitted))
+                        if (DirtyReadsOccur)
                         {
-                            Assert.Equal(Fixture.Customers.Count - 1, innerContext.Set<TransactionCustomer>().Count());
+                            using (innerContext.Database.BeginTransaction(IsolationLevel.ReadUncommitted))
+                            {
+                                Assert.Equal(Fixture.Customers.Count - 1, innerContext.Set<TransactionCustomer>().Count());
+                            }
                         }
 
                         if (SnapshotSupported)
@@ -305,9 +308,12 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
                     using (var innerContext = CreateContext())
                     {
-                        using (await innerContext.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
+                        if (DirtyReadsOccur)
                         {
-                            Assert.Equal(Fixture.Customers.Count - 1, await innerContext.Set<TransactionCustomer>().CountAsync());
+                            using (await innerContext.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
+                            {
+                                Assert.Equal(Fixture.Customers.Count - 1, await innerContext.Set<TransactionCustomer>().CountAsync());
+                            }
                         }
 
                         if (SnapshotSupported)
@@ -417,6 +423,8 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         protected abstract bool SnapshotSupported { get; }
+
+        protected virtual bool DirtyReadsOccur => true;
 
         protected DbContext CreateContext()
         {
