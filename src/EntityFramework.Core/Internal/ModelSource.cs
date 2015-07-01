@@ -2,12 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Utilities;
+
 
 namespace Microsoft.Data.Entity.Internal
 {
@@ -41,6 +43,11 @@ namespace Microsoft.Data.Entity.Internal
 
             var conventionSet = CreateConventionSet(conventionSetBuilder);
             var model = new Model();
+
+            var productVersion = typeof(ModelSource).GetTypeInfo().Assembly
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+            model[CoreAnnotationNames.ProductVersionAnnotation] = productVersion;
+
             var modelBuilder = new ModelBuilder(conventionSet, model);
 
             FindSets(modelBuilder, context);

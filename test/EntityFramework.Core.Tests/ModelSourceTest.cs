@@ -5,9 +5,8 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -54,6 +53,16 @@ namespace Microsoft.Data.Entity.Tests
             Assert.NotSame(model1, model2);
             Assert.Same(model1, modelSource.GetModel(new Context1(), null, new LoggingModelValidator(new LoggerFactory())));
             Assert.Same(model2, modelSource.GetModel(new Context2(), null, new LoggingModelValidator(new LoggerFactory())));
+        }
+
+        [Fact]
+        public void Stores_model_version_information_as_annotation_on_model()
+        {
+            var modelSource = CreateDefaultModelSource(new DbSetFinder());
+
+            var model = modelSource.GetModel(new Context1(), null, new LoggingModelValidator(new LoggerFactory()));
+
+            Assert.StartsWith("7.0.0-", model[CoreAnnotationNames.ProductVersionAnnotation].ToString(), StringComparison.OrdinalIgnoreCase);
         }
 
         private class Context1 : DbContext

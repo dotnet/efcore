@@ -7,6 +7,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         public const string MaxLengthAnnotation = "MaxLength";
         public const string OriginalValueIndexAnnotation = "OriginalValueIndex";
+        public const string ProductVersionAnnotation = "ProductVersion";
         public const string ShadowIndexAnnotation = "ShadowIndex";
     }
 }
