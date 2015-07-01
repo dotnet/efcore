@@ -49,11 +49,29 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
+        public void Returns_temp_guid_generator_when_default_sql_set()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(AnEntity));
+
+            entityType.GetProperty("Guid").SqlServer().DefaultValueSql = "newid()";
+
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
+
+            Assert.IsType<TemporaryGuidValueGenerator>(selector.Select(entityType.GetProperty("Guid"), entityType));
+        }
+
+        [Fact]
         public void Returns_sequence_value_generators_when_configured_for_model()
         {
             var model = BuildModel();
             model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             var entityType = model.GetEntityType(typeof(AnEntity));
+
+            foreach (var property in entityType.Properties)
+            {
+                property.StoreGeneratedPattern = StoreGeneratedPattern.Identity;
+            }
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
@@ -118,7 +136,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 property.IsValueGeneratedOnAdd = generateValues;
             }
 
+            entityType.GetProperty("AlwaysIdentity").StoreGeneratedPattern = StoreGeneratedPattern.Identity;
             entityType.GetProperty("AlwaysIdentity").SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
+
+            entityType.GetProperty("AlwaysSequence").StoreGeneratedPattern = StoreGeneratedPattern.Identity;
             entityType.GetProperty("AlwaysSequence").SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
             return model;

@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         }
 
         [Fact]
-        public override void Identity_property_on_Added_entity_with_sentinal_value_gets_value_from_store()
+        public override void Identity_property_on_Added_entity_with_sentinel_value_gets_value_from_store()
         {
             // In-memory store does not support store generation 
         }
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         }
 
         [Fact]
-        public override void Computed_property_on_Added_entity_with_sentinal_value_gets_value_from_store()
+        public override void Computed_property_on_Added_entity_with_sentinel_value_gets_value_from_store()
         {
             // In-memory store does not support store generation 
         }

@@ -68,7 +68,10 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 {
                     var property = properties.First();
 
-                    if (property.ClrType.IsInteger()
+                    var propertyType = property.ClrType.UnwrapNullableType();
+
+                    if ((propertyType.IsInteger()
+                        || propertyType == typeof(Guid))
                         && entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null
                         && !property.IsForeignKey())
                     {

@@ -14,6 +14,9 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
     {
         private readonly ISqlServerSequenceValueGeneratorFactory _sequenceFactory;
 
+        private readonly ValueGeneratorFactory<TemporaryGuidValueGenerator> _tempraryGuidFactory
+            = new ValueGeneratorFactory<TemporaryGuidValueGenerator>();
+
         private readonly ValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory
             = new ValueGeneratorFactory<SequentialGuidValueGenerator>();
 
@@ -39,10 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));
 
-            var strategy = property.SqlServer().IdentityStrategy;
-
-            return property.ClrType.IsInteger()
-                   && strategy == SqlServerIdentityStrategy.SequenceHiLo
+            return property.SqlServer().IdentityStrategy == SqlServerIdentityStrategy.SequenceHiLo
                 ? _sequenceFactory.Create(property, Cache.GetOrAddSequenceState(property), _connection)
                 : Cache.GetOrAdd(property, entityType, Create);
         }
@@ -52,8 +52,10 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));
 
-            return property.ClrType == typeof(Guid)
-                ? _sequentialGuidFactory.Create(property)
+            return property.ClrType.UnwrapNullableType() == typeof(Guid)
+                ? (property.SqlServer().HasStoreDefault()
+                    ? _tempraryGuidFactory.Create(property)
+                    : _sequentialGuidFactory.Create(property))
                 : base.Create(property, entityType);
         }
     }

@@ -20,6 +20,8 @@ namespace Microsoft.Data.Entity.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));
 
+            var propertyType = property.ClrType.UnwrapNullableType();
+
             if (property.EntityType.BaseType == null)
             {
                 var discriminatorPropertyName

@@ -49,6 +49,13 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
             get
             {
+                if (Property.StoreGeneratedPattern != StoreGeneratedPattern.Identity
+                    || !Property.ClrType.UnwrapNullableType().IsInteger()
+                    || Property.SqlServer().HasStoreDefault())
+                {
+                    return null;
+                }
+
                 // TODO: Issue #777: Non-string annotations
                 var value = Property[SqlServerValueGenerationAnnotation] as string;
 

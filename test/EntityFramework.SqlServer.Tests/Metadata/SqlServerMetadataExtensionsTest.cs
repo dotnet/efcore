@@ -668,6 +668,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
                 .Metadata;
 
             Assert.Null(property.SqlServer().IdentityStrategy);
@@ -696,6 +697,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.NullableInt)
+                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
                 .Metadata;
 
             Assert.Null(property.SqlServer().IdentityStrategy);
@@ -868,6 +870,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
@@ -886,6 +889,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
@@ -904,6 +908,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
@@ -922,6 +927,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
@@ -940,6 +946,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
@@ -961,6 +968,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
@@ -982,6 +990,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
@@ -1003,6 +1012,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
+                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));

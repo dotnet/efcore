@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -57,7 +56,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Identity_property_on_Added_entity_with_sentinal_value_gets_value_from_store()
+        public virtual void Identity_property_on_Added_entity_with_sentinel_value_gets_value_from_store()
         {
             int id;
 
@@ -231,7 +230,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Computed_property_on_Added_entity_with_sentinal_value_gets_value_from_store()
+        public virtual void Computed_property_on_Added_entity_with_sentinel_value_gets_value_from_store()
         {
             int id;
 
