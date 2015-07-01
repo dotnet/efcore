@@ -88,6 +88,12 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         [InlineData(
             (ushort)42,
             "(ushort)42")]
+        [InlineData(
+            "",
+            "\"\"")]
+        [InlineData(
+            SomeEnum.Default,
+            "CSharpHelperTest.SomeEnum.Default")]
         public void Literal_works(object value, string expected)
         {
             var literal = new CSharpHelper().UnknownLiteral(value);
@@ -209,6 +215,11 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             public class DoubleNested
             {
             }
+        }
+
+        private enum SomeEnum
+        {
+            Default
         }
     }
 }

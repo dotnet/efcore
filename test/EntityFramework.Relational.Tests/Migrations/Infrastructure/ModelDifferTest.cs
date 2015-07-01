@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Linq;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Xunit;
 
@@ -84,6 +86,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Assert.Equal("Node", createTableOperation.Name);
                     Assert.Equal("dbo", createTableOperation.Schema);
                     Assert.Equal(3, createTableOperation.Columns.Count);
+                    Assert.Null(createTableOperation.Columns.First(o => o.Name == "AltId").DefaultValue);
                     Assert.NotNull(createTableOperation.PrimaryKey);
                     Assert.Equal(1, createTableOperation.UniqueConstraints.Count);
                     Assert.Equal(1, createTableOperation.ForeignKeys.Count);
@@ -233,6 +236,40 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Draco", operation.DefaultValue);
                     Assert.Equal("CreateDragonName()", operation.DefaultValueSql);
+                });
+        }
+
+        [Theory]
+        [InlineData(typeof(int), 0)]
+        [InlineData(typeof(int?), 0)]
+        [InlineData(typeof(string), "")]
+        [InlineData(typeof(byte[]), new byte[0])]
+        public void Add_column_not_null(Type type, object expectedDefault)
+        {
+            Execute(
+                source => source.Entity(
+                    "Robin",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                    }),
+                target => target.Entity(
+                    "Robin",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property(type, "Value").Required();
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddColumnOperation>(operations[0]);
+                    Assert.Equal("Robin", operation.Table);
+                    Assert.Equal("Value", operation.Name);
+                    Assert.Equal(expectedDefault, operation.DefaultValue);
                 });
         }
 

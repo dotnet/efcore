@@ -320,7 +320,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             };
             CopyAnnotations(Annotations.For(target), createTableOperation);
 
-            createTableOperation.Columns.AddRange(target.GetProperties().SelectMany(Add).Cast<AddColumnOperation>());
+            createTableOperation.Columns.AddRange(target.GetProperties().SelectMany(p => Add(p, inline: true)).Cast<AddColumnOperation>());
             var primaryKey = target.GetPrimaryKey();
             createTableOperation.PrimaryKey = Add(primaryKey).Cast<AddPrimaryKeyOperation>().Single();
             createTableOperation.UniqueConstraints.AddRange(
@@ -364,7 +364,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
                     return Diff(s, t);
                 },
-                Add,
+                t => Add(t),
                 Remove,
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
                 (s, t) => string.Equals(
@@ -426,7 +426,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             }
         }
 
-        protected virtual IEnumerable<MigrationOperation> Add(IProperty target)
+        protected virtual IEnumerable<MigrationOperation> Add(IProperty target, bool inline = false)
         {
             var targetExtensions = MetadataExtensions.Extensions(target);
             var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.EntityType);
@@ -438,7 +438,10 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 Name = targetExtensions.Column,
                 Type = targetExtensions.ColumnType ?? TypeMapper.MapPropertyType(target).DefaultTypeName,
                 IsNullable = target.IsNullable,
-                DefaultValue = targetExtensions.DefaultValue,
+                DefaultValue = targetExtensions.DefaultValue
+                    ?? (inline || target.IsNullable
+                        ? null
+                        : GetDefaultValue(target.ClrType)),
                 DefaultValueSql = targetExtensions.DefaultValueSql
             };
             CopyAnnotations(Annotations.For(target), operation);
@@ -846,5 +849,12 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IEnumerable<string> GetSchemas(IModel model)
             => model.EntityTypes.Select(t => MetadataExtensions.Extensions(t).Schema).Where(s => !string.IsNullOrEmpty(s))
                 .Distinct();
+
+        protected virtual object GetDefaultValue(Type type)
+            => type == typeof(string)
+                ? string.Empty
+                : type.IsArray
+                    ? Array.CreateInstance(type.GetElementType(), 0)
+                    : type.UnwrapNullableType().GetDefaultValue();
     }
 }

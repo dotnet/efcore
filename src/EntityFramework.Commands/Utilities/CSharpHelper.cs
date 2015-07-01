@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
                 ? Literal(values[0])
                 : "new[] { " + string.Join(", ", values.Select(Literal)) + " }";
 
-        public virtual string Literal([NotNull] Enum value) => value.GetType().Name + "." + value;
+        public virtual string Literal([NotNull] Enum value) => Reference(value.GetType()) + "." + value;
 
         public virtual string UnknownLiteral([CanBeNull] object value)
         {

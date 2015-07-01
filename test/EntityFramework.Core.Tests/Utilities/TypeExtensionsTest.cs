@@ -45,6 +45,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             Assert.False(typeof(bool?).IsInteger());
             Assert.False(typeof(decimal).IsInteger());
             Assert.False(typeof(float).IsInteger());
+            Assert.False(typeof(SomeEnum).IsInteger());
         }
 
         public class CtorFixture
@@ -391,6 +392,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
 
         // ReSharper restore InconsistentNaming
 
+        [Fact]
         public void Can_get_default_value_for_type()
         {
             Assert.Equal(false, typeof(bool).GetDefaultValue());
@@ -409,6 +411,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             Assert.Equal(default(DateTime), typeof(DateTime).GetDefaultValue());
             Assert.Equal(default(DateTimeOffset), typeof(DateTimeOffset).GetDefaultValue());
             Assert.Equal(default(SomeStruct), typeof(SomeStruct).GetDefaultValue());
+            Assert.Equal(default(SomeEnum), typeof(SomeEnum).GetDefaultValue());
             Assert.Equal(null, typeof(string).GetDefaultValue());
             Assert.Equal(null, typeof(bool?).GetDefaultValue());
             Assert.Equal(null, typeof(sbyte?).GetDefaultValue());
@@ -426,12 +429,18 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             Assert.Equal(null, typeof(DateTime?).GetDefaultValue());
             Assert.Equal(null, typeof(DateTimeOffset?).GetDefaultValue());
             Assert.Equal(null, typeof(SomeStruct?).GetDefaultValue());
+            Assert.Equal(null, typeof(SomeEnum?).GetDefaultValue());
         }
 
         private struct SomeStruct
         {
             public int Value1 { get; set; }
             public long Value2 { get; set; }
+        }
+
+        private enum SomeEnum
+        {
+            Default
         }
     }
 }

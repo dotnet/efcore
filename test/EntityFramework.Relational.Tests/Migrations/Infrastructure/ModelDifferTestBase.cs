@@ -51,7 +51,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     {
                         { typeof(int), new RelationalTypeMapping("int") },
                         { typeof(long), new RelationalTypeMapping("bigint") },
-                        { typeof(string), new RelationalTypeMapping("nvarchar(4000)") }
+                        { typeof(string), new RelationalTypeMapping("nvarchar(4000)") },
+                        { typeof(byte[]), new RelationalTypeMapping("varbinary(8000)") }
                     };
 
             protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
