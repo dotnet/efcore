@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,7 +42,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                     {
                         foreach (var sqlBatch in sqlBatches)
                         {
-                            var command = CreateCommand(connection, transaction, sqlBatch.Sql);
+                            var command = sqlBatch.CreateCommand(connection, transaction);
                             Logger.LogCommand(command);
 
                             await command.ExecuteNonQueryAsync(cancellationToken);
@@ -66,7 +65,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 connection,
                 () =>
                     {
-                        var command = CreateCommand(connection, transaction, sql);
+                        var command = new SqlBatch(sql).CreateCommand(connection, transaction);
                         Logger.LogCommand(command);
 
                         return command.ExecuteScalarAsync(cancellationToken);
@@ -81,13 +80,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             Check.NotNull(connection, nameof(connection));
 
-            var connectionWasOpen = connection.DbConnection.State == ConnectionState.Open;
-            if (!connectionWasOpen)
-            {
-                Logger.OpeningConnection(connection.ConnectionString);
-
-                await connection.OpenAsync(cancellationToken);
-            }
+            await connection.OpenAsync(cancellationToken);
 
             try
             {
@@ -95,12 +88,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             }
             finally
             {
-                if (!connectionWasOpen)
-                {
-                    Logger.ClosingConnection(connection.ConnectionString);
-
-                    connection.Close();
-                }
+                connection.Close();
             }
         }
 
@@ -118,7 +106,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                     {
                         foreach (var sqlBatch in sqlBatches)
                         {
-                            var command = CreateCommand(connection, transaction, sqlBatch.Sql);
+                            var command = sqlBatch.CreateCommand(connection, transaction);
                             Logger.LogCommand(command);
 
                             command.ExecuteNonQuery();
@@ -139,7 +127,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 connection,
                 () =>
                     {
-                        var command = CreateCommand(connection, transaction, sql);
+                        var command = new SqlBatch(sql).CreateCommand(connection, transaction);
                         Logger.LogCommand(command);
 
                         return command.ExecuteScalar();
@@ -153,14 +141,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             Check.NotNull(connection, nameof(connection));
 
             // TODO Deal with suppressing transactions etc.
-
-            var connectionWasOpen = connection.DbConnection.State == ConnectionState.Open;
-            if (!connectionWasOpen)
-            {
-                Logger.OpeningConnection(connection.ConnectionString);
-
-                connection.Open();
-            }
+            connection.Open();
 
             try
             {
@@ -168,30 +149,8 @@ namespace Microsoft.Data.Entity.Infrastructure
             }
             finally
             {
-                if (!connectionWasOpen)
-                {
-                    Logger.ClosingConnection(connection.ConnectionString);
-
-                    connection.Close();
-                }
+                connection.Close();
             }
-        }
-
-        protected virtual DbCommand CreateCommand(
-            IRelationalConnection connection,
-            DbTransaction transaction,
-            string sql)
-        {
-            var command = connection.DbConnection.CreateCommand();
-            command.CommandText = sql;
-            command.Transaction = transaction;
-
-            if (connection.CommandTimeout != null)
-            {
-                command.CommandTimeout = (int)connection.CommandTimeout;
-            }
-
-            return command;
         }
     }
 }

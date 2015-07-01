@@ -28,7 +28,6 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<IParameterNameGeneratorFactory>();
             VerifySingleton<IComparer<ModificationCommand>>();
             VerifySingleton<IMigrationIdGenerator>();
-            VerifySingleton<SqlStatementExecutor>();
             VerifySingleton<UntypedValueBufferFactoryFactory>();
             VerifySingleton<TypedValueBufferFactoryFactory>();
             VerifySingleton<IMigrationModelFactory>();
@@ -40,6 +39,8 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<BatchExecutor>();
             VerifyScoped<ModelDiffer>();
             VerifyScoped<RelationalValueGeneratorSelector>();
+            VerifyScoped<RelationalSqlExecutor>();
+            VerifyScoped<SqlStatementExecutor>();
             VerifyScoped<CommandBatchPreparer>();
 
             VerifyScoped<ISqlStatementExecutor>();

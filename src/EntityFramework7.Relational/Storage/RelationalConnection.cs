@@ -168,6 +168,8 @@ namespace Microsoft.Data.Entity.Storage
 #endif
             if (_openedCount == 0)
             {
+                _logger.Value.OpeningConnection(ConnectionString);
+
                 _connection.Value.Open();
             }
 
@@ -182,6 +184,8 @@ namespace Microsoft.Data.Entity.Storage
 #endif
             if (_openedCount == 0)
             {
+                _logger.Value.OpeningConnection(ConnectionString);
+
                 await _connection.Value.OpenAsync(cancellationToken);
             }
 
@@ -207,6 +211,8 @@ namespace Microsoft.Data.Entity.Storage
             if (_openedCount > 0
                 && --_openedCount == 0)
             {
+                _logger.Value.ClosingConnection(ConnectionString);
+
                 _connection.Value.Close();
             }
         }
