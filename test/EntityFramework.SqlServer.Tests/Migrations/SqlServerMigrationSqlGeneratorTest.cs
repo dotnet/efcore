@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 "CREATE DATABASE [Northwind]" + EOL +
                 "GO" + EOL +
                 EOL +
-                "IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N'ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON';" + EOL,
+                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON');" + EOL,
                 Sql);
         }
 
@@ -106,12 +106,32 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         }
 
         [Fact]
+        public virtual void CreateSchemaOperation()
+        {
+            Generate(new CreateSchemaOperation { Name = "my" });
+
+            Assert.Equal(
+                "IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my]');" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateSchemaOperation_dbo()
+        {
+            Generate(new CreateSchemaOperation { Name = "dbo" });
+
+            Assert.Equal(
+                ";" + EOL,
+                Sql);
+        }
+
+        [Fact]
         public virtual void DropDatabaseOperation()
         {
             Generate(new DropDatabaseOperation { Name = "Northwind" });
 
             Assert.Equal(
-                "IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N'ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE'" + EOL +
+                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE')" + EOL +
                 "GO" + EOL +
                 EOL +
                 "DROP DATABASE [Northwind];" + EOL,
@@ -172,7 +192,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 });
 
             Assert.Equal(
-                "EXECUTE sp_rename 'dbo.People.Name', 'FullName', 'COLUMN';" + EOL,
+                "EXEC sp_rename N'dbo.People.Name', N'FullName', 'COLUMN';" + EOL,
                 Sql);
         }
 
@@ -189,7 +209,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 });
 
             Assert.Equal(
-                "EXECUTE sp_rename 'dbo.People.IX_People_Name', 'IX_People_FullName', 'INDEX';" + EOL,
+                "EXEC sp_rename N'dbo.People.IX_People_Name', N'IX_People_FullName', 'INDEX';" + EOL,
                 Sql);
         }
 
@@ -205,7 +225,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 });
 
             Assert.Equal(
-                "EXECUTE sp_rename 'dbo.DefaultSequence', 'MySequence';" + EOL,
+                "EXEC sp_rename N'dbo.DefaultSequence', N'MySequence';" + EOL,
                 Sql);
         }
 
@@ -221,7 +241,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 });
 
             Assert.Equal(
-                "EXECUTE sp_rename 'dbo.People', 'Person';" + EOL,
+                "EXEC sp_rename N'dbo.People', N'Person';" + EOL,
                 Sql);
         }
     }

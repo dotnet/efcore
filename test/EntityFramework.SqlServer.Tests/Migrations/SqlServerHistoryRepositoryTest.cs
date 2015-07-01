@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             var sql = CreateHistoryRepository().Create(ifNotExists: true);
 
             Assert.Equal(
-                "IF NOT EXISTS(SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_SCHEMA] = N'dbo' AND [TABLE_NAME] = '__MigrationHistory' AND [TABLE_TYPE] = 'BASE TABLE')" + EOL +
+                "IF OBJECT_ID(N'dbo.__MigrationHistory') IS NULL" + EOL +
                 "    CREATE TABLE [dbo].[__MigrationHistory] (" + EOL +
                 "        [MigrationId] nvarchar(150) NOT NULL," + EOL +
                 "        [ContextKey] nvarchar(300) NOT NULL," + EOL +

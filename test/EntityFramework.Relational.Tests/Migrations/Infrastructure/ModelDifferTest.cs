@@ -75,17 +75,20 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     }),
                 operations =>
                 {
-                    Assert.Equal(2, operations.Count);
+                    Assert.Equal(3, operations.Count);
 
-                    var operation = Assert.IsType<CreateTableOperation>(operations[0]);
-                    Assert.Equal("Node", operation.Name);
-                    Assert.Equal("dbo", operation.Schema);
-                    Assert.Equal(3, operation.Columns.Count);
-                    Assert.NotNull(operation.PrimaryKey);
-                    Assert.Equal(1, operation.UniqueConstraints.Count);
-                    Assert.Equal(1, operation.ForeignKeys.Count);
+                    var createSchemaOperation = Assert.IsType<CreateSchemaOperation>(operations[0]);
+                    Assert.Equal("dbo", createSchemaOperation.Name);
 
-                    Assert.IsType<CreateIndexOperation>(operations[1]);
+                    var createTableOperation = Assert.IsType<CreateTableOperation>(operations[1]);
+                    Assert.Equal("Node", createTableOperation.Name);
+                    Assert.Equal("dbo", createTableOperation.Schema);
+                    Assert.Equal(3, createTableOperation.Columns.Count);
+                    Assert.NotNull(createTableOperation.PrimaryKey);
+                    Assert.Equal(1, createTableOperation.UniqueConstraints.Count);
+                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+
+                    Assert.IsType<CreateIndexOperation>(operations[2]);
                 });
         }
 
@@ -158,13 +161,16 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     }),
                 operations =>
                 {
-                    Assert.Equal(1, operations.Count);
+                    Assert.Equal(2, operations.Count);
 
-                    var operation = Assert.IsType<RenameTableOperation>(operations[0]);
-                    Assert.Equal("People", operation.Name);
-                    Assert.Equal("dbo", operation.Schema);
-                    Assert.Null(operation.NewName);
-                    Assert.Equal("public", operation.NewSchema);
+                    var createSchemaOperation = Assert.IsType<CreateSchemaOperation>(operations[0]);
+                    Assert.Equal("public", createSchemaOperation.Name);
+
+                    var renameTableOperation = Assert.IsType<RenameTableOperation>(operations[1]);
+                    Assert.Equal("People", renameTableOperation.Name);
+                    Assert.Equal("dbo", renameTableOperation.Schema);
+                    Assert.Null(renameTableOperation.NewName);
+                    Assert.Equal("public", renameTableOperation.NewSchema);
                 });
         }
 

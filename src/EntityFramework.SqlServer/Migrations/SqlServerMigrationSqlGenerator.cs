@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -138,6 +139,24 @@ namespace Microsoft.Data.Entity.SqlServer
             }
         }
 
+        public override void Generate(CreateSchemaOperation operation, IModel model, SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            if (string.Equals(operation.Name, "DBO", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            builder
+                .Append("IF SCHEMA_ID(N")
+                .Append(_sql.GenerateLiteral(operation.Name))
+                .Append(") IS NULL EXEC(N'CREATE SCHEMA ")
+                .Append(_sql.DelimitIdentifier(operation.Name))
+                .Append("')");
+        }
+
         public virtual void Generate(
             [NotNull] CreateDatabaseOperation operation,
             [CanBeNull] IModel model,
@@ -150,9 +169,9 @@ namespace Microsoft.Data.Entity.SqlServer
                 .Append("CREATE DATABASE ")
                 .Append(_sql.DelimitIdentifier(operation.Name))
                 .EndBatch()
-                .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N'ALTER DATABASE ")
+                .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE ")
                 .Append(_sql.DelimitIdentifier(operation.Name))
-                .Append(" SET READ_COMMITTED_SNAPSHOT ON'");
+                .Append(" SET READ_COMMITTED_SNAPSHOT ON')");
         }
 
         public virtual void Generate(
@@ -164,9 +183,9 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(builder, nameof(builder));
 
             builder
-                .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N'ALTER DATABASE ")
+                .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE ")
                 .Append(_sql.DelimitIdentifier(operation.Name))
-                .Append(" SET SINGLE_USER WITH ROLLBACK IMMEDIATE'")
+                .Append(" SET SINGLE_USER WITH ROLLBACK IMMEDIATE')")
                 .EndBatch()
                 .Append("DROP DATABASE ")
                 .Append(_sql.DelimitIdentifier(operation.Name));
@@ -274,9 +293,9 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(builder, nameof(builder));
 
             builder
-                .Append("EXECUTE sp_rename ")
+                .Append("EXEC sp_rename N")
                 .Append(_sql.GenerateLiteral(name))
-                .Append(", ")
+                .Append(", N")
                 .Append(_sql.GenerateLiteral(newName));
 
             if (type != null)

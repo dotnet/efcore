@@ -51,14 +51,12 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             }
 
             var command = (SqlCommand)_connection.DbConnection.CreateCommand();
-            command.CommandText =
-                @"SELECT 1 FROM [INFORMATION_SCHEMA].[TABLES]
-WHERE [TABLE_SCHEMA] = N'dbo' AND [TABLE_NAME] = '" + MigrationHistoryTableName + "' AND [TABLE_TYPE] = 'BASE TABLE'";
+            command.CommandText = "SELECT OBJECT_ID(N'dbo." + MigrationHistoryTableName + "');";
 
             _connection.Open();
             try
             {
-                exists = command.ExecuteScalar() != null;
+                exists = command.ExecuteScalar() != DBNull.Value;
             }
             finally
             {
@@ -109,7 +107,7 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
 
             if (ifNotExists)
             {
-                builder.AppendLine("IF NOT EXISTS(SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_SCHEMA] = N'dbo' AND [TABLE_NAME] = '" + MigrationHistoryTableName + "' AND [TABLE_TYPE] = 'BASE TABLE')");
+                builder.AppendLine("IF OBJECT_ID(N'dbo." + MigrationHistoryTableName + "') IS NULL");
                 builder.IncrementIndent();
             }
 

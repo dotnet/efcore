@@ -171,18 +171,10 @@ namespace Microsoft.Data.Entity.Migrations.Sql
                 .Append(")");
         }
 
-        public virtual void Generate(
+        public abstract void Generate(
             [NotNull] CreateSchemaOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
-                .Append("CREATE SCHEMA ")
-                .Append(_sql.DelimitIdentifier(operation.Name));
-        }
+            [NotNull] SqlBatchBuilder builder);
 
         public virtual void Generate(
             [NotNull] CreateSequenceOperation operation,

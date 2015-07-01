@@ -27,9 +27,12 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                     }),
                 operations =>
                 {
-                    Assert.Equal(1, operations.Count);
+                    Assert.Equal(2, operations.Count);
 
-                    var addTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
+                    var createSchemaOperation = Assert.IsType<CreateSchemaOperation>(operations[0]);
+                    Assert.Equal("dbo", createSchemaOperation.Name);
+
+                    var addTableOperation = Assert.IsType<CreateTableOperation>(operations[1]);
                     Assert.Equal("dbo", addTableOperation.Schema);
                     Assert.Equal("People", addTableOperation.Name);
 
@@ -58,9 +61,12 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                     }),
                 operations =>
                 {
-                    Assert.Equal(1, operations.Count);
+                    Assert.Equal(2, operations.Count);
 
-                    var addTableOperation = Assert.IsType<RenameTableOperation>(operations[0]);
+                    var createSchemaOperation = Assert.IsType<CreateSchemaOperation>(operations[0]);
+                    Assert.Equal("dbo", createSchemaOperation.Name);
+
+                    var addTableOperation = Assert.IsType<RenameTableOperation>(operations[1]);
                     Assert.Equal("Person", addTableOperation.Name);
                     Assert.Equal("dbo", addTableOperation.NewSchema);
                     Assert.Equal("People", addTableOperation.NewName);
