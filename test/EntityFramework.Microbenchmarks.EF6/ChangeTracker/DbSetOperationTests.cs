@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Data.Entity;
 using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
@@ -13,34 +12,23 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
 {
     public class DbSetOperationTests
     {
-        private static readonly string _connectionString 
-            = $@"Server={TestConfig.Instance.DataSource};Database=Perf_ChangeTracker_DbSetOperation_EF6;Integrated Security=True;MultipleActiveResultSets=true;";
+        private static readonly string _connectionString
+            = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=Perf_ChangeTracker_DbSetOperation_EF6;Integrated Security=True;MultipleActiveResultSets=true;";
 
-        [Fact]
-        public void Add()
+        public DbSetOperationTests()
         {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_Add_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Run = harness => Add(harness, true)
-                }.RunTest();
+            new OrdersSeedData().EnsureCreated(
+                _connectionString,
+                productCount: 0,
+                customerCount: 1000,
+                ordersPerCustomer: 0,
+                linesPerOrder: 0);
         }
 
-        [Fact]
-        public void Add_AutoDetectChangesDisabled()
-        {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_Add_AutoDetectChangesDisabled_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Run = harness => Add(harness, false)
-                }.RunTest();
-        }
-
-        public void Add(TestHarness harness, bool autoDetectChanges)
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void Add(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = new OrdersContext(_connectionString))
             {
@@ -51,7 +39,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 }
 
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
-                using (harness.StartCollection())
+                using (collector.StartCollection())
                 {
                     foreach (var customer in customers)
                     {
@@ -61,60 +49,28 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             }
         }
 
-        [Fact]
-        public void AddCollection()
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void AddCollection(MetricCollector collector)
         {
-            new TestDefinition
+            using (var context = new OrdersContext(_connectionString))
+            {
+                var customers = new Customer[1000];
+                for (var i = 0; i < customers.Length; i++)
                 {
-                    TestName = "ChangeTracker_DbSetOperation_AddCollection_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Run = harness =>
-                        {
-                            using (var context = new OrdersContext(_connectionString))
-                            {
-                                var customers = new Customer[1000];
-                                for (var i = 0; i < customers.Length; i++)
-                                {
-                                    customers[i] = new Customer { Name = "Customer " + i };
-                                }
+                    customers[i] = new Customer { Name = "Customer " + i };
+                }
 
-                                using (harness.StartCollection())
-                                {
-                                    context.Customers.AddRange(customers);
-                                }
-                            }
-                        }
-                }.RunTest();
+                using (collector.StartCollection())
+                {
+                    context.Customers.AddRange(customers);
+                }
+            }
         }
 
-        [Fact]
-        public void Attach()
-        {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_Attach_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness => Attach(harness, true)
-                }.RunTest();
-        }
-
-        [Fact]
-        public void Attach_AutoDetectChangesDisabled()
-        {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_Attach_AutoDetectChangesDisabled_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness => Attach(harness, false)
-                }.RunTest();
-        }
-
-        public void Attach(TestHarness harness, bool autoDetectChanges)
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void Attach(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = new OrdersContext(_connectionString))
             {
@@ -122,7 +78,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 Assert.Equal(1000, customers.Length);
 
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
-                using (harness.StartCollection())
+                using (collector.StartCollection())
                 {
                     foreach (var customer in customers)
                     {
@@ -135,33 +91,10 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         // Note: AttachCollection() not implemented because there is no
         //       API for bulk attach in EF6.x
 
-        [Fact]
-        public void Remove()
-        {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_Remove_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness => Remove(harness, true)
-                }.RunTest();
-        }
-
-        [Fact]
-        public void Remove_AutoDetectChangesDisabled()
-        {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_Remove_AutoDetectChangesDisabled_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness => Remove(harness, false)
-                }.RunTest();
-        }
-
-        public void Remove(TestHarness harness, bool autoDetectChanges)
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void Remove(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = new OrdersContext(_connectionString))
             {
@@ -169,7 +102,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 Assert.Equal(1000, customers.Length);
 
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
-                using (harness.StartCollection())
+                using (collector.StartCollection())
                 {
                     foreach (var customer in customers)
                     {
@@ -179,58 +112,25 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             }
         }
 
-        [Fact]
-        public void RemoveCollection()
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void RemoveCollection(MetricCollector collector)
         {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_RemoveCollection_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness =>
-                        {
-                            using (var context = new OrdersContext(_connectionString))
-                            {
-                                var customers = context.Customers.ToArray();
-                                Assert.Equal(1000, customers.Length);
+            using (var context = new OrdersContext(_connectionString))
+            {
+                var customers = context.Customers.ToArray();
+                Assert.Equal(1000, customers.Length);
 
-                                using (harness.StartCollection())
-                                {
-                                    context.Customers.RemoveRange(customers);
-                                }
-                            }
-                        }
-                }.RunTest();
+                using (collector.StartCollection())
+                {
+                    context.Customers.RemoveRange(customers);
+                }
+            }
         }
 
-        [Fact]
-        public void Update()
-        {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_Update_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness => Update(harness, true)
-                }.RunTest();
-        }
-
-        [Fact]
-        public void Update_AutoDetectChangesDisabled()
-        {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_Update_AutoDetectChangesDisabled_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness => Update(harness, false)
-                }.RunTest();
-        }
-
-        public void Update(TestHarness harness, bool autoDetectChanges)
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void Update(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = new OrdersContext(_connectionString))
             {
@@ -238,7 +138,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 Assert.Equal(1000, customers.Length);
 
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
-                using (harness.StartCollection())
+                using (collector.StartCollection())
                 {
                     foreach (var customer in customers)
                     {
@@ -257,16 +157,6 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             {
                 return context.Customers.ToArray();
             }
-        }
-
-        private static void EnsureDatabaseSetup()
-        {
-            new OrdersSeedData().EnsureCreated(
-                _connectionString,
-                productCount: 0,
-                customerCount: 1000,
-                ordersPerCustomer: 0,
-                linesPerOrder: 0);
         }
     }
 }

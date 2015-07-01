@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Core.Models.Orders;
@@ -12,23 +11,21 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
 {
     public class SimpleUpdatePipelineTests
     {
-        private static readonly string _connectionString 
-            = $@"Server={TestConfig.Instance.DataSource};Database=Perf_UpdatePipeline_Simple_EF6;Integrated Security=True;MultipleActiveResultSets=true;";
+        private static readonly string _connectionString
+            = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=Perf_UpdatePipeline_Simple_EF6;Integrated Security=True;MultipleActiveResultSets=true;";
 
-        [Fact]
-        public void Insert()
+        public SimpleUpdatePipelineTests()
         {
-            new TestDefinition
-                {
-                    TestName = "UpdatePipeline_Simple_Insert_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Run = Insert,
-                    Setup = EnsureDatabaseSetup
-                }.RunTest();
+            new OrdersSeedData().EnsureCreated(
+                _connectionString,
+                productCount: 0,
+                customerCount: 1000,
+                ordersPerCustomer: 0,
+                linesPerOrder: 0);
         }
 
-        private static void Insert(TestHarness harness)
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void Insert(MetricCollector collector)
         {
             using (var context = new OrdersContext(_connectionString))
             {
@@ -39,29 +36,17 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                         context.Customers.Add(new Customer { Name = "New Customer " + i });
                     }
 
-                    harness.StartCollection();
+                    collector.StartCollection();
                     var records = context.SaveChanges();
-                    harness.StopCollection();
+                    collector.StopCollection();
 
                     Assert.Equal(1000, records);
                 }
             }
         }
 
-        [Fact]
-        public void Update()
-        {
-            new TestDefinition
-                {
-                    TestName = "UpdatePipeline_Simple_Update_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Run = Update,
-                    Setup = EnsureDatabaseSetup
-                }.RunTest();
-        }
-
-        private static void Update(TestHarness harness)
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void Update(MetricCollector collector)
         {
             using (var context = new OrdersContext(_connectionString))
             {
@@ -72,29 +57,17 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                         customer.Name += " Modified";
                     }
 
-                    harness.StartCollection();
+                    collector.StartCollection();
                     var records = context.SaveChanges();
-                    harness.StopCollection();
+                    collector.StopCollection();
 
                     Assert.Equal(1000, records);
                 }
             }
         }
 
-        [Fact]
-        public void Delete()
-        {
-            new TestDefinition
-                {
-                    TestName = "UpdatePipeline_Simple_Delete_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Run = Delete,
-                    Setup = EnsureDatabaseSetup
-                }.RunTest();
-        }
-
-        private static void Delete(TestHarness harness)
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void Delete(MetricCollector collector)
         {
             using (var context = new OrdersContext(_connectionString))
             {
@@ -105,29 +78,17 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                         context.Customers.Remove(customer);
                     }
 
-                    harness.StartCollection();
+                    collector.StartCollection();
                     var records = context.SaveChanges();
-                    harness.StopCollection();
+                    collector.StopCollection();
 
                     Assert.Equal(1000, records);
                 }
             }
         }
 
-        [Fact]
-        public void Mixed()
-        {
-            new TestDefinition
-                {
-                    TestName = "UpdatePipeline_Simple_Mixed_EF6",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Run = Mixed,
-                    Setup = EnsureDatabaseSetup
-                }.RunTest();
-        }
-
-        private static void Mixed(TestHarness harness)
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void Mixed(MetricCollector collector)
         {
             using (var context = new OrdersContext(_connectionString))
             {
@@ -150,23 +111,13 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                         customers[i].Name += " Modified";
                     }
 
-                    harness.StartCollection();
+                    collector.StartCollection();
                     var records = context.SaveChanges();
-                    harness.StopCollection();
+                    collector.StopCollection();
 
                     Assert.Equal(1000, records);
                 }
             }
-        }
-
-        private static void EnsureDatabaseSetup()
-        {
-            new OrdersSeedData().EnsureCreated(
-                _connectionString,
-                productCount: 0,
-                customerCount: 1000,
-                ordersPerCustomer: 0,
-                linesPerOrder: 0);
         }
     }
 }

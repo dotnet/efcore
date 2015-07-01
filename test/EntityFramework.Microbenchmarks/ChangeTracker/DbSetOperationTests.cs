@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Core.Models.Orders;
@@ -12,223 +11,157 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
 {
     public class DbSetOperationTests
     {
-        private static readonly string _connectionString 
-            = $@"Server={TestConfig.Instance.DataSource};Database=Perf_ChangeTracker_DbSetOperation;Integrated Security=True;MultipleActiveResultSets=true;";
+        private static readonly string _connectionString
+            = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=Perf_ChangeTracker_DbSetOperation;Integrated Security=True;MultipleActiveResultSets=true;";
 
-        [Fact]
-        public void Add()
+        public DbSetOperationTests()
         {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_Add",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Run = harness =>
-                        {
-                            using (var context = new OrdersContext(_connectionString))
-                            {
-                                var customers = new Customer[1000];
-                                for (var i = 0; i < customers.Length; i++)
-                                {
-                                    customers[i] = new Customer { Name = "Customer " + i };
-                                }
-
-                                using (harness.StartCollection())
-                                {
-                                    foreach (var customer in customers)
-                                    {
-                                        context.Customers.Add(customer);
-                                    }
-                                }
-                            }
-                        }
-                }.RunTest();
+            new OrdersSeedData().EnsureCreated(
+                _connectionString,
+                productCount: 0,
+                customerCount: 1000,
+                ordersPerCustomer: 0,
+                linesPerOrder: 0);
         }
 
-        [Fact]
-        public void AddCollection()
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void Add(MetricCollector collector)
         {
-            new TestDefinition
+            using (var context = new OrdersContext(_connectionString))
+            {
+                var customers = new Customer[1000];
+                for (var i = 0; i < customers.Length; i++)
                 {
-                    TestName = "ChangeTracker_DbSetOperation_AddCollection",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Run = harness =>
-                        {
-                            using (var context = new OrdersContext(_connectionString))
-                            {
-                                var customers = new Customer[1000];
-                                for (var i = 0; i < customers.Length; i++)
-                                {
-                                    customers[i] = new Customer { Name = "Customer " + i };
-                                }
+                    customers[i] = new Customer { Name = "Customer " + i };
+                }
 
-                                using (harness.StartCollection())
-                                {
-                                    context.Customers.AddRange(customers);
-                                }
-                            }
-                        }
-                }.RunTest();
+                using (collector.StartCollection())
+                {
+                    foreach (var customer in customers)
+                    {
+                        context.Customers.Add(customer);
+                    }
+                }
+            }
         }
 
-        [Fact]
-        public void Attach()
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void AddCollection(MetricCollector collector)
         {
-            new TestDefinition
+            using (var context = new OrdersContext(_connectionString))
+            {
+                var customers = new Customer[1000];
+                for (var i = 0; i < customers.Length; i++)
                 {
-                    TestName = "ChangeTracker_DbSetOperation_Attach",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness =>
-                        {
-                            using (var context = new OrdersContext(_connectionString))
-                            {
-                                var customers = GetAllCustomersFromDatabase();
-                                Assert.Equal(1000, customers.Length);
+                    customers[i] = new Customer { Name = "Customer " + i };
+                }
 
-                                using (harness.StartCollection())
-                                {
-                                    foreach (var customer in customers)
-                                    {
-                                        context.Customers.Attach(customer);
-                                    }
-                                }
-                            }
-                        }
-                }.RunTest();
+                using (collector.StartCollection())
+                {
+                    context.Customers.AddRange(customers);
+                }
+            }
+
         }
 
-        [Fact]
-        public void AttachCollection()
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void Attach(MetricCollector collector)
         {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_AttachCollection",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness =>
-                        {
-                            using (var context = new OrdersContext(_connectionString))
-                            {
-                                var customers = GetAllCustomersFromDatabase();
-                                Assert.Equal(1000, customers.Length);
+            using (var context = new OrdersContext(_connectionString))
+            {
+                var customers = GetAllCustomersFromDatabase();
+                Assert.Equal(1000, customers.Length);
 
-                                using (harness.StartCollection())
-                                {
-                                    context.Customers.AttachRange(customers);
-                                }
-                            }
-                        }
-                }.RunTest();
+                using (collector.StartCollection())
+                {
+                    foreach (var customer in customers)
+                    {
+                        context.Customers.Attach(customer);
+                    }
+                }
+            }
+
         }
 
-        [Fact]
-        public void Remove()
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void AttachCollection(MetricCollector collector)
         {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_Remove",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness =>
-                        {
-                            using (var context = new OrdersContext(_connectionString))
-                            {
-                                var customers = context.Customers.ToArray();
-                                Assert.Equal(1000, customers.Length);
+            using (var context = new OrdersContext(_connectionString))
+            {
+                var customers = GetAllCustomersFromDatabase();
+                Assert.Equal(1000, customers.Length);
 
-                                using (harness.StartCollection())
-                                {
-                                    foreach (var customer in customers)
-                                    {
-                                        context.Customers.Remove(customer);
-                                    }
-                                }
-                            }
-                        }
-                }.RunTest();
+                using (collector.StartCollection())
+                {
+                    context.Customers.AttachRange(customers);
+                }
+            }
         }
 
-        [Fact]
-        public void RemoveCollection()
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void Remove(MetricCollector collector)
         {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_RemoveCollection",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness =>
-                        {
-                            using (var context = new OrdersContext(_connectionString))
-                            {
-                                var customers = context.Customers.ToArray();
-                                Assert.Equal(1000, customers.Length);
+            using (var context = new OrdersContext(_connectionString))
+            {
+                var customers = context.Customers.ToArray();
+                Assert.Equal(1000, customers.Length);
 
-                                using (harness.StartCollection())
-                                {
-                                    context.Customers.RemoveRange(customers);
-                                }
-                            }
-                        }
-                }.RunTest();
+                using (collector.StartCollection())
+                {
+                    foreach (var customer in customers)
+                    {
+                        context.Customers.Remove(customer);
+                    }
+                }
+            }
         }
 
-        [Fact]
-        public void Update()
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void RemoveCollection(MetricCollector collector)
         {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_Update",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness =>
-                        {
-                            using (var context = new OrdersContext(_connectionString))
-                            {
-                                var customers = GetAllCustomersFromDatabase();
-                                Assert.Equal(1000, customers.Length);
+            using (var context = new OrdersContext(_connectionString))
+            {
+                var customers = context.Customers.ToArray();
+                Assert.Equal(1000, customers.Length);
 
-                                using (harness.StartCollection())
-                                {
-                                    foreach (var customer in customers)
-                                    {
-                                        context.Customers.Update(customer);
-                                    }
-                                }
-                            }
-                        }
-                }.RunTest();
+                using (collector.StartCollection())
+                {
+                    context.Customers.RemoveRange(customers);
+                }
+            }
         }
 
-        [Fact]
-        public void UpdateCollection()
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void Update(MetricCollector collector)
         {
-            new TestDefinition
-                {
-                    TestName = "ChangeTracker_DbSetOperation_UpdateCollection",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Setup = EnsureDatabaseSetup,
-                    Run = harness =>
-                        {
-                            using (var context = new OrdersContext(_connectionString))
-                            {
-                                var customers = GetAllCustomersFromDatabase();
-                                Assert.Equal(1000, customers.Length);
+            using (var context = new OrdersContext(_connectionString))
+            {
+                var customers = GetAllCustomersFromDatabase();
+                Assert.Equal(1000, customers.Length);
 
-                                using (harness.StartCollection())
-                                {
-                                    context.Customers.UpdateRange(customers);
-                                }
-                            }
-                        }
-                }.RunTest();
+                using (collector.StartCollection())
+                {
+                    foreach (var customer in customers)
+                    {
+                        context.Customers.Update(customer);
+                    }
+                }
+            }
+        }
+
+        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        public void UpdateCollection(MetricCollector collector)
+        {
+            using (var context = new OrdersContext(_connectionString))
+            {
+                var customers = GetAllCustomersFromDatabase();
+                Assert.Equal(1000, customers.Length);
+
+                using (collector.StartCollection())
+                {
+                    context.Customers.UpdateRange(customers);
+                }
+            }
         }
 
         private static Customer[] GetAllCustomersFromDatabase()
@@ -237,16 +170,6 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 return context.Customers.ToArray();
             }
-        }
-
-        private static void EnsureDatabaseSetup()
-        {
-            new OrdersSeedData().EnsureCreated(
-                _connectionString,
-                productCount: 0,
-                customerCount: 1000,
-                ordersPerCustomer: 0,
-                linesPerOrder: 0);
         }
     }
 }

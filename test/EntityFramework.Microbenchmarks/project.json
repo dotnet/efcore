@@ -2,8 +2,7 @@
   "dependencies": {
     "EntityFramework.SqlServer": "7.0.0-*",
     "EntityFramework.Microbenchmarks.Core": "1.0.0-*",
-    "Microsoft.Framework.Configuration.Json": "1.0.0-*",
-    "Microsoft.Framework.Configuration.Xml": "1.0.0-*"
+    "Microsoft.Framework.Configuration.Json": "1.0.0-*"
   },
   "commands": {
     "test": "xunit.runner.dnx"
@@ -12,17 +11,12 @@
     "net46": { },
     "dnxcore50": {
       "dependencies": {
-        "System.ComponentModel.Annotations": "4.0.10-beta-*",
-        "System.Net.NetworkInformation": "4.0.10-beta-*",
         "xunit.runner.dnx": "2.1.0-*"
       }
     },
     "dnx451": {
       "dependencies": {
         "xunit.runner.dnx": "2.1.0-*"
-      },
-      "frameworkAssemblies": {
-        "System.ComponentModel.DataAnnotations": ""
       }
     }
   }

@@ -3,47 +3,29 @@
 
 using System.Threading;
 using EntityFramework.Microbenchmarks.Core;
-using Xunit;
 
 namespace EntityFramework.Microbenchmarks
 {
     public class CalibrationTests
     {
-        [Fact]
-        public void Calibration_100ms()
+        [Benchmark(Iterations = 10)]
+        public void Calibration_100ms(MetricCollector collector)
         {
-            new TestDefinition
-                {
-                    TestName = "Calibration_100ms",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Run = harness =>
-                        {
-                            using (harness.StartCollection())
-                            {
-                                Thread.Sleep(100);
-                            }
-                        }
-                }.RunTest();
+            using (collector.StartCollection())
+            {
+                Thread.Sleep(100);
+            }
         }
 
-        [Fact]
-        public void Calibration_100ms_controlled()
+        [Benchmark(Iterations = 10)]
+        public void Calibration_100ms_controlled(MetricCollector collector)
         {
-            new TestDefinition
-                {
-                    TestName = "Calibration_100ms_controlled",
-                    IterationCount = 100,
-                    WarmupCount = 5,
-                    Run = harness =>
-                        {
-                            Thread.Sleep(100);
-                            using (harness.StartCollection())
-                            {
-                                Thread.Sleep(100);
-                            }
-                        }
-                }.RunTest();
+
+            Thread.Sleep(100);
+            using (collector.StartCollection())
+            {
+                Thread.Sleep(100);
+            }
         }
     }
 }

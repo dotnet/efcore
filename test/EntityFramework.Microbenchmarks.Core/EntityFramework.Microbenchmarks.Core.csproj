@@ -32,26 +32,38 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions.cs" />
-    <Compile Include="IterationCounter.cs" />
+    <Compile Include="BenchmarkAttribute.cs" />
+    <Compile Include="BenchmarkConfig.cs" />
+    <Compile Include="BenchmarkIterationSummary.cs" />
+    <Compile Include="BenchmarkRunSummary.cs" />
+    <Compile Include="BenchmarkTestCase.cs" />
+    <Compile Include="BenchmarkTestCaseDiscoverer.cs" />
+    <Compile Include="BenchmarkTestCaseRunner.cs" />
+    <Compile Include="BenchmarkVariationAttribute.cs" />
+    <Compile Include="MetricCollector.cs" />
     <Compile Include="Models\Orders\Customer.cs" />
     <Compile Include="Models\Orders\Order.cs" />
     <Compile Include="Models\Orders\OrderLine.cs" />
     <Compile Include="Models\Orders\OrdersSeedDataBase.cs" />
     <Compile Include="Models\Orders\Product.cs" />
-    <Compile Include="PerformanceCaseResult.cs" />
-    <Compile Include="PerformanceMetric.cs" />
-    <Compile Include="PerfTestRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RunResult.cs" />
-    <Compile Include="TestConfig.cs" />
-    <Compile Include="TestDefinition.cs" />
-    <Compile Include="TestHarness.cs" />
+    <Compile Include="SqlServerBenchmarkResultProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
+      <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>
+      <Name>EntityFramework.SqlServer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
