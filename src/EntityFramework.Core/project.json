@@ -1,6 +1,10 @@
 {
   "version": "7.0.0-*",
   "description": "Entity Framework is Microsoft's recommended data access technology for new applications.",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aspnet/entityframework"
+  },
   "compilationOptions": {
     "warningsAsErrors": true
   },

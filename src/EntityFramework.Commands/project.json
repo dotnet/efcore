@@ -1,6 +1,10 @@
 {
   "version": "7.0.0-*",
   "description": "Command line utilities for Entity Framework.",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aspnet/entityframework"
+  },
   "compilationOptions": {
     "warningsAsErrors": true
   },

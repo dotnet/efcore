@@ -1,6 +1,10 @@
 {
   "version": "7.0.0-*",
   "description": "Microsoft SQL Server data store for Entity Framework.",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aspnet/entityframework"
+  },
   "compilationOptions": {
     "warningsAsErrors": true
   },
