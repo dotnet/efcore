@@ -54,6 +54,7 @@ var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configur
     var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.Sqlite/*").OrderByDescending(d => d).First() + "/redist/x86"}'
     copy outputDir='${sqliteTestDir}'
     copy outputDir='test/EntityFramework.CrossStore.FunctionalTests/bin/${E("Configuration")}/x86'
+    copy outputDir='test/EntityFramework.Sqlite.Tests/bin/${E("Configuration")}/x86'
 
 #nuspec-pack target="compile"
     var DNX_BUILD_VERSION='${E("DNX_BUILD_VERSION")}'

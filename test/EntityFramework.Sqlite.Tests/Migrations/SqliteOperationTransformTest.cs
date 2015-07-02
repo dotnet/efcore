@@ -1,75 +1,95 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Migrations.Operations;
 using Xunit;
-using Microsoft.Data.Entity.Migrations.Builders;
 
 namespace Microsoft.Data.Entity.Sqlite.Migrations
 {
-    public class SqliteOperationTransformTest
+    public class SqliteOperationTransformTest : SqliteOperationTransformBase
     {
+        [Fact]
+        public void RenameColumn_to_TableRebuild()
+        {
+            var operations = Transform(m => { m.RenameColumn("OldName", "A", "NewName"); }, model =>
+                {
+                    model.Entity("A", b =>
+                        {
+                            b.Property<string>("Id");
+                            b.Property<string>("NewName");
+                            b.Key("Id");
+                        });
+                });
+
+            var steps = Assert.IsType<TableRebuildOperation>(operations[0]);
+            Assert.Collection(steps.Operations,
+                AssertRenameTemp("A"),
+                AssertCreateTable("A", new[] { "Id", "NewName" }),
+                AssertMoveData("A", new[] { "Id", "OldName" }, new[] { "Id", "NewName" }),
+                AssertDropTemp("A"));
+        }
+
+        [Fact]
+        public void Rebuild_filters_obviated_operations()
+        {
+            var t = "TableName";
+            var operations = Transform(migrate =>
+                {
+                    migrate.DropColumn("Dropped", t);
+                    migrate.AlterColumn("Altered", t, "TEXT", nullable: true);
+                    migrate.AddColumn("New", t, "TEXT");
+                    migrate.CreateIndex("IDX_A", t, new[] { "Indexed" }, unique: true);
+                    migrate.AddPrimaryKey("PK_A", t, new[] { "Key" });
+                }, model =>
+                    {
+                        model.Entity(t, b =>
+                            {
+                                b.Property<string>("Altered");
+                                b.Property<string>("New");
+                                b.Property<string>("Key");
+                                b.Property<string>("Indexed");
+                                b.Index("Indexed").Unique();
+                                b.Key("Key");
+                            });
+                    });
+
+            var steps = Assert.IsType<TableRebuildOperation>(operations[0]);
+
+            Assert.Collection(steps.Operations,
+                AssertRenameTemp(t),
+                AssertCreateTable(t, new[] { "Key", "Altered", "Indexed", "New" }, new[] { "Key" }),
+                AssertMoveData(t, new[] { "Key", "Altered", "Indexed" }, new[] { "Key", "Altered", "Indexed" }),
+                AssertDropTemp(t),
+                AssertCreateIndex(t, new[] { "Indexed" }, unique: true));
+        }
+
         [Fact]
         public void DropColumn_to_TableRebuild()
         {
-            var builder = new MigrationBuilder();
-            builder.DropColumn("col1", "A");
-            builder.AlterColumn("col2", "A", "TEXT", nullable: true);
-            builder.AddColumn("col3", "A", "TEXT");
-
-            var model = new ModelBuilder(new ConventionSet(), new Model());
-            model.Entity("a", b =>
+            var operations = Transform(migrate => { migrate.DropColumn("OldCol", "A"); }, model =>
                 {
-                    b.ToSqliteTable("A");
-                    b.Property<string>("2").HasSqliteColumnName("col2");
-                    b.Property<string>("3").HasColumnName("col3");
-                    b.Index("2").Unique();
-                    b.Key("3");
+                    model.Entity("A", b =>
+                        {
+                            b.Property<string>("Col");
+                            b.Key("Col");
+                        });
                 });
-            var transformer = new SqliteOperationTransformer(
+
+            var steps = Assert.IsType<TableRebuildOperation>(operations[0]);
+            Assert.Collection(steps.Operations,
+                AssertRenameTemp("A"),
+                AssertCreateTable("A", new[] { "Col" }, new[] { "Col" }),
+                AssertMoveData("A", new[] { "Col" }, new[] { "Col" }),
+                AssertDropTemp("A"));
+        }
+
+        protected override SqliteOperationTransformer CreateTransformer()
+            => new SqliteOperationTransformer(
                 new ModelDiffer(
                     new SqliteTypeMapper(),
                     new SqliteMetadataExtensionProvider(),
                     new MigrationAnnotationProvider()));
-
-            var actual = transformer.Transform(builder.Operations.ToList(), model.Model);
-
-            Assert.Collection(actual, op1 =>
-                {
-                    var rename = Assert.IsType<RenameTableOperation>(op1);
-                    Assert.Equal("A", rename.Name);
-                    Assert.Equal("A_temp", rename.NewName);
-                },
-                op2 =>
-                    {
-                        var create = Assert.IsType<CreateTableOperation>(op2);
-                        Assert.Equal("A", create.Name);
-                        Assert.Equal(2, create.Columns.Count);
-                        Assert.Collection(create.PrimaryKey.Columns, s => { Assert.Equal(s, "col3"); });
-                    },
-                op3 =>
-                    {
-                        var move = Assert.IsType<MoveDataOperation>(op3);
-                        Assert.Equal("A_temp", move.OldTable);
-                        Assert.Equal("A", move.NewTable);
-                        Assert.Equal(new[] { "col3", "col2" }, move.Columns);
-                    },
-                op4 =>
-                    {
-                        var drop = Assert.IsType<DropTableOperation>(op4);
-                        Assert.Equal("A_temp", drop.Name);
-                    },
-                op5 =>
-                    {
-                        var index = Assert.IsType<CreateIndexOperation>(op5);
-                        Assert.Equal(true, index.IsUnique);
-                        Assert.Collection(index.Columns, s => { Assert.Equal(s, "col2"); });
-                    });
-        }
     }
 }

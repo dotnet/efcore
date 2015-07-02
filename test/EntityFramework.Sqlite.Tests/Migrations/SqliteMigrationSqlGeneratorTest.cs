@@ -5,6 +5,7 @@ using System;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Migrations.Sql;
 using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Migrations.Operations;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Sqlite.Migrations
@@ -18,7 +19,11 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
         {
             var operation = new MoveDataOperation
             {
-                Columns = new[] { "col1", "col2" },
+                ColumnMapping =
+                {
+                    { "col1", "col1" },
+                    { "col2", "col2" }
+                },
                 OldTable = "OldTable",
                 NewTable = "RebuiltTable"
             };
@@ -36,7 +41,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             {
                 Name = "Id",
                 Type = "INTEGER",
-                IsNullable = false,
+                IsNullable = false
             };
             if (autoincrement)
             {
@@ -44,11 +49,11 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             }
 
             Generate(
-                 new CreateTableOperation
-                 {
-                     Name = "People",
-                     Columns =
-                     {
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Columns =
+                    {
                         addIdColumn,
                         new AddColumnOperation
                         {
@@ -56,33 +61,33 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                             Type = "int",
                             IsNullable = true
                         },
-                         new AddColumnOperation
+                        new AddColumnOperation
                         {
                             Name = "SSN",
                             Type = "char(11)",
                             IsNullable = true
                         }
-                     },
-                     PrimaryKey = new AddPrimaryKeyOperation
-                     {
-                         Columns = new[] { "Id" }
-                     },
-                     UniqueConstraints =
-                     {
+                    },
+                    PrimaryKey = new AddPrimaryKeyOperation
+                    {
+                        Columns = new[] { "Id" }
+                    },
+                    UniqueConstraints =
+                    {
                         new AddUniqueConstraintOperation
                         {
                             Columns = new[] { "SSN" }
                         }
-                     },
-                     ForeignKeys =
-                     {
+                    },
+                    ForeignKeys =
+                    {
                         new AddForeignKeyOperation
                         {
                             Columns = new[] { "EmployerId" },
                             ReferencedTable = "Companies"
                         }
-                     }
-                 });
+                    }
+                });
 
             Assert.Equal(
                 "CREATE TABLE \"People\" (" + EOL +
