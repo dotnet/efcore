@@ -10,6 +10,8 @@ namespace Microsoft.Data.Entity.Sqlite
 {
     public class SqliteOptionsExtension : RelationalOptionsExtension
     {
+        public virtual bool ForeignKeys { get; set; } = true;
+
         public SqliteOptionsExtension()
         {
         }
@@ -17,6 +19,7 @@ namespace Microsoft.Data.Entity.Sqlite
         public SqliteOptionsExtension([NotNull] SqliteOptionsExtension copyFrom)
             : base(copyFrom)
         {
+            ForeignKeys = copyFrom.ForeignKeys;
         }
 
         public override void ApplyServices(EntityFrameworkServicesBuilder builder)

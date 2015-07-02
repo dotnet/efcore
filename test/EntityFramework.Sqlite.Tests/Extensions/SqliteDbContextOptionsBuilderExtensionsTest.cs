@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.Sqlite.Extensions
 
             Assert.Equal("Database=Crunchie", extension.ConnectionString);
             Assert.Null(extension.Connection);
+            Assert.True(extension.ForeignKeys);
         }
 
         [Fact]
@@ -59,6 +60,19 @@ namespace Microsoft.Data.Entity.Sqlite.Extensions
 
             Assert.Same(connection, extension.Connection);
             Assert.Null(extension.ConnectionString);
+        }
+
+        [Fact]
+        public void Can_suppress_foreign_keys()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
+
+            optionsBuilder.UseSqlite("some string")
+                .SuppressForeignKeysEnforcement();
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
+
+            Assert.False(extension.ForeignKeys);
         }
     }
 }

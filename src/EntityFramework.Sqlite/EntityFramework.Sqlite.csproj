@@ -103,6 +103,7 @@
     <Compile Include="SqliteDatabaseConnection.cs" />
     <Compile Include="SqliteDatabaseCreator.cs" />
     <Compile Include="SqliteConventionSetBuilder.cs" />
+    <Compile Include="SqliteDbContextOptionsBuilder.cs" />
     <Compile Include="SqliteDbContextOptionsBuilderExtensions.cs" />
     <Compile Include="SqliteEntityFrameworkServicesBuilderExtensions.cs" />
     <Compile Include="SqliteCompositeMethodCallTranslator.cs" />
