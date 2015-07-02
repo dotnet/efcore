@@ -171,8 +171,8 @@
   <data name="UnknownLiteral" xml:space="preserve">
     <value>The current CSharpHelper cannot scaffold literals of type '{literalType}'. Configure your services to use one that can.</value>
   </data>
-  <data name="CannotFindAssembly" xml:space="preserve">
-    <value>Unable to find asssembly with name {assemblyName}.</value>
+  <data name="CannotFindRuntimeProviderAssembly" xml:space="preserve">
+    <value>Unable to find runtime provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.</value>
   </data>
   <data name="DestructiveOperation" xml:space="preserve">
     <value>An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.</value>
@@ -194,5 +194,17 @@
   </data>
   <data name="ReusingSnapshotName" xml:space="preserve">
     <value>Reusing model snapshot name '{name}'.</value>
+  </data>
+  <data name="CannotFindDesignTimeProviderAssembly" xml:space="preserve">
+    <value>Unable to find design-time provider assembly with name {designTimeProviderAssemblyName}. Ensure that the assembly is referenced by the project.</value>
+  </data>
+  <data name="SpecifiedDesignTimeTypeDoesNotImplementInterface" xml:space="preserve">
+    <value>The type {typeName} in the design-time provider assembly {assemblyName} exists but does not implement interface {metadataModelProviderInterfaceName}.</value>
+  </data>
+  <data name="CannotFindDesignTimeProviderAssemblyAttribute" xml:space="preserve">
+    <value>Unable to find expected assembly attribute named {attributeName} in runtime provider assembly {runtimeProviderAssemblyName}. This attribute is required to identify the design-time provider type.</value>
+  </data>
+  <data name="DesignTimeAssemblyProviderDoesNotContainSpecifiedType" xml:space="preserve">
+    <value>Design-time provider assembly {assemblyName} does not contain the specified type {typeName}.</value>
   </data>
 </root>

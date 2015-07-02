@@ -157,11 +157,11 @@ namespace Microsoft.Data.Entity.Commands
         }
 
         /// <summary>
-        /// Unable to find asssembly with name {assemblyName}.
+        /// Unable to find runtime provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.
         /// </summary>
-        public static string CannotFindAssembly([CanBeNull] object assemblyName)
+        public static string CannotFindRuntimeProviderAssembly([CanBeNull] object assemblyName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindAssembly", "assemblyName"), assemblyName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindRuntimeProviderAssembly", "assemblyName"), assemblyName);
         }
 
         /// <summary>
@@ -218,6 +218,38 @@ namespace Microsoft.Data.Entity.Commands
         public static string ReusingSnapshotName([CanBeNull] object name)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ReusingSnapshotName", "name"), name);
+        }
+
+        /// <summary>
+        /// Unable to find design-time provider assembly with name {designTimeProviderAssemblyName}. Ensure that the assembly is referenced by the project.
+        /// </summary>
+        public static string CannotFindDesignTimeProviderAssembly([CanBeNull] object designTimeProviderAssemblyName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindDesignTimeProviderAssembly", "designTimeProviderAssemblyName"), designTimeProviderAssemblyName);
+        }
+
+        /// <summary>
+        /// The type {typeName} in the design-time provider assembly {assemblyName} exists but does not implement interface {metadataModelProviderInterfaceName}.
+        /// </summary>
+        public static string SpecifiedDesignTimeTypeDoesNotImplementInterface([CanBeNull] object typeName, [CanBeNull] object assemblyName, [CanBeNull] object metadataModelProviderInterfaceName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("SpecifiedDesignTimeTypeDoesNotImplementInterface", "typeName", "assemblyName", "metadataModelProviderInterfaceName"), typeName, assemblyName, metadataModelProviderInterfaceName);
+        }
+
+        /// <summary>
+        /// Unable to find expected assembly attribute named {attributeName} in runtime provider assembly {runtimeProviderAssemblyName}. This attribute is required to identify the design-time provider type.
+        /// </summary>
+        public static string CannotFindDesignTimeProviderAssemblyAttribute([CanBeNull] object attributeName, [CanBeNull] object runtimeProviderAssemblyName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindDesignTimeProviderAssemblyAttribute", "attributeName", "runtimeProviderAssemblyName"), attributeName, runtimeProviderAssemblyName);
+        }
+
+        /// <summary>
+        /// Design-time provider assembly {assemblyName} does not contain the specified type {typeName}.
+        /// </summary>
+        public static string DesignTimeAssemblyProviderDoesNotContainSpecifiedType([CanBeNull] object assemblyName, [CanBeNull] object typeName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DesignTimeAssemblyProviderDoesNotContainSpecifiedType", "assemblyName", "typeName"), assemblyName, typeName);
         }
 
         private static string GetString(string name, params string[] formatterNames)

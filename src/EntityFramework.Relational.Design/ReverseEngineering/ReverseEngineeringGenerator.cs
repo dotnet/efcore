@@ -55,15 +55,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             CheckConfiguration(configuration);
 
             var resultingFiles = new List<string>();
-            var providerAssembly = configuration.ProviderAssembly;
-            var provider = GetProvider(providerAssembly);
+            var provider = configuration.Provider;
             var metadataModel = GetMetadataModel(provider, configuration);
 
             var dbContextGeneratorModel = new DbContextGeneratorModel
             {
                 ClassName = configuration.ContextClassName,
                 Namespace = configuration.Namespace,
-                ProviderAssembly = configuration.ProviderAssembly.FullName,
                 ConnectionString = configuration.ConnectionString,
                 Generator = this,
                 MetadataModel = metadataModel
@@ -98,7 +96,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 {
                     EntityType = entityType,
                     Namespace = configuration.Namespace,
-                    ProviderAssembly = configuration.ProviderAssembly.FullName,
                     ConnectionString = configuration.ConnectionString,
                     Generator = this
                 };
@@ -121,23 +118,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
 
             return resultingFiles;
-        }
-
-        public virtual IDatabaseMetadataModelProvider GetProvider([NotNull] Assembly providerAssembly)
-        {
-            Check.NotNull(providerAssembly, nameof(providerAssembly));
-
-            var type = providerAssembly.GetExportedTypes()
-                .FirstOrDefault(t => typeof(IDatabaseMetadataModelProvider).IsAssignableFrom(t));
-            if (type == null)
-            {
-                throw new InvalidOperationException(
-                    Strings.AssemblyDoesNotContainMetadataModelProvider(
-                        providerAssembly.FullName,
-                        typeof(IDatabaseMetadataModelProvider).FullName));
-            }
-
-            return (IDatabaseMetadataModelProvider)Activator.CreateInstance(type, _serviceProvider);
         }
 
         public virtual IModel GetMetadataModel(
@@ -200,9 +180,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         private static void CheckConfiguration(ReverseEngineeringConfiguration configuration)
         {
-            if (configuration.ProviderAssembly == null)
+            if (configuration.Provider == null)
             {
-                throw new ArgumentException(Strings.ProviderAssemblyRequired);
+                throw new ArgumentException(Strings.ProviderRequired);
             }
 
             if (string.IsNullOrEmpty(configuration.ConnectionString))

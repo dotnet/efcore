@@ -13,14 +13,6 @@ namespace Microsoft.Data.Entity.Relational.Design
             = new ResourceManager("EntityFramework.Relational.Design.Strings", typeof(Strings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// Assembly {assemblyName} does not contain an implemetation of {metadataModelProviderInterfaceName}.
-        /// </summary>
-        public static string AssemblyDoesNotContainMetadataModelProvider([CanBeNull] object assemblyName, [CanBeNull] object metadataModelProviderInterfaceName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("AssemblyDoesNotContainMetadataModelProvider", "assemblyName", "metadataModelProviderInterfaceName"), assemblyName, metadataModelProviderInterfaceName);
-        }
-
-        /// <summary>
         /// ConnectionString is required to generate code.
         /// </summary>
         public static string ConnectionStringRequired
@@ -77,11 +69,11 @@ namespace Microsoft.Data.Entity.Relational.Design
         }
 
         /// <summary>
-        /// ProviderAssembly is required to generate code.
+        /// Provider is required to generate code.
         /// </summary>
-        public static string ProviderAssemblyRequired
+        public static string ProviderRequired
         {
-            get { return GetString("ProviderAssemblyRequired"); }
+            get { return GetString("ProviderRequired"); }
         }
 
         /// <summary>

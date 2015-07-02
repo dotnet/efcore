@@ -165,6 +165,7 @@
     <Compile Include="Storage\IRelationalTypeMapper.cs" />
     <Compile Include="Storage\IRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\IRelationalValueBufferFactoryFactory.cs" />
+    <Compile Include="Storage\ProviderDesignTimeServicesAttribute.cs" />
     <Compile Include="Storage\RelationalConnection.cs" />
     <Compile Include="Storage\RelationalDatabase.cs" />
     <Compile Include="Storage\RelationalDatabaseCreator.cs" />
