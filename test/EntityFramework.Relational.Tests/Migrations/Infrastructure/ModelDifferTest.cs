@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
     public class ModelDifferTest : ModelDifferTestBase
     {
         [Fact]
-        public void Model_differ_breaks_foreign_key_cycles()
+        public void Model_differ_breaks_foreign_key_cycles_in_create_table_operations()
         {
             Execute(
                 _ => { },
@@ -54,6 +54,43 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Assert.Equal(0, firstOperation.ForeignKeys.Count);
                     Assert.Equal(1, secondOperation.ForeignKeys.Count);
                     Assert.Equal(firstOperation.Name, thirdOperation.Table);
+                });
+        }
+
+        [Fact]
+        public void Model_differ_breaks_foreign_key_cycles_in_drop_table_operations()
+        {
+            Execute(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Third",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("FourthId");
+                        });
+                    modelBuilder.Entity(
+                        "Fourth",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("ThirdId");
+                        });
+
+                    modelBuilder.Entity("Third").Reference("Fourth").InverseCollection().ForeignKey("FourthId");
+                    modelBuilder.Entity("Fourth").Reference("Third").InverseCollection().ForeignKey("ThirdId");
+                },
+                _ => { },
+                operations =>
+                {
+                    Assert.Collection(
+                        operations,
+                        o => Assert.IsType<DropForeignKeyOperation>(o),
+                        o => Assert.IsType<DropTableOperation>(o),
+                        o => Assert.IsType<DropTableOperation>(o));
                 });
         }
 
@@ -1758,20 +1795,20 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 target =>
                 {
                     target.Entity(
-                    "Car",
-                    x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Key("Id");
-                        x.Property<int>("MakerId");
-                        x.Reference("Maker").InverseCollection().ForeignKey("MakerId");
-                    });
-                    target.Entity(
                         "Maker",
                         x =>
                         {
                             x.Property<int>("Id");
                             x.Key("Id");
+                        });
+                    target.Entity(
+                        "Car",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("MakerId");
+                            x.Reference("Maker").InverseCollection().ForeignKey("MakerId");
                         });
                 },
                 operations => Assert.Collection(
@@ -1787,6 +1824,13 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 source =>
                 {
                     source.Entity(
+                        "Maker",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    source.Entity(
                         "Boat",
                         x =>
                         {
@@ -1794,13 +1838,6 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                             x.Key("Id");
                             x.Property<int>("MakerId");
                             x.Reference("Maker").InverseCollection().ForeignKey("MakerId");
-                        });
-                    source.Entity(
-                        "Maker",
-                        x =>
-                        {
-                            x.Property<int>("Id");
-                            x.Key("Id");
                         });
                 },
                 target => target.Entity(
@@ -1824,19 +1861,19 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 source =>
                 {
                     source.Entity(
+                        "Maker",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    source.Entity(
                         "Airplane",
                         x =>
                         {
                             x.Property<int>("Id");
                             x.Key("Id");
                             x.Property<int>("MakerId");
-                        });
-                    source.Entity(
-                        "Maker",
-                        x =>
-                        {
-                            x.Property<int>("Id");
-                            x.Key("Id");
                         });
                 },
                 target =>
@@ -1893,6 +1930,13 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 target =>
                 {
                     target.Entity(
+                        "Maker",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    target.Entity(
                         "Submarine",
                         x =>
                         {
@@ -1900,19 +1944,84 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                             x.Key("Id");
                             x.Property<int>("MakerId");
                         });
-                    target.Entity(
-                        "Maker",
-                        x =>
-                        {
-                            x.Property<int>("Id");
-                            x.Key("Id");
-                        });
                 },
                 operations => Assert.Collection(
                     operations,
                     o => Assert.IsType<DropForeignKeyOperation>(o),
                     o => Assert.IsType<DropUniqueConstraintOperation>(o),
                     o => Assert.IsType<DropColumnOperation>(o)));
+        }
+
+        [Fact]
+        public void Sort_creates_tables_in_topologic_order()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Maker",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    modelBuilder.Entity(
+                        "Helicopter",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("MakerId");
+                            x.Reference("Maker").InverseCollection().ForeignKey("MakerId");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation1 = Assert.IsType<CreateTableOperation>(operations[0]);
+                    Assert.Equal("Maker", operation1.Name);
+
+                    var operation2 = Assert.IsType<CreateTableOperation>(operations[1]);
+                    Assert.Equal("Helicopter", operation2.Name);
+                });
+        }
+
+        [Fact]
+        public void Sort_drops_tables_in_topologic_order()
+        {
+            Execute(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Maker",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    modelBuilder.Entity(
+                        "Glider",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("MakerId");
+                            x.Reference("Maker").InverseCollection().ForeignKey("MakerId");
+                        });
+                },
+                _ => { },
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation1 = Assert.IsType<DropTableOperation>(operations[0]);
+                    Assert.Equal("Glider", operation1.Name);
+
+                    var operation2 = Assert.IsType<DropTableOperation>(operations[1]);
+                    Assert.Equal("Maker", operation2.Name);
+                });
         }
 
         [Fact]

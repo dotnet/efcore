@@ -61,21 +61,29 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IRelationalMetadataExtensionProvider MetadataExtensions { get; }
         protected virtual IMigrationAnnotationProvider Annotations { get; }
 
-        public virtual bool HasDifferences(IModel source, [CanBeNull] IModel target) => Diff(source, target).Any();
+        public virtual bool HasDifferences(IModel source, [CanBeNull] IModel target)
+            => Diff(source, target, new ModelDifferContext()).Any();
 
-        public virtual IReadOnlyList<MigrationOperation> GetDifferences(IModel source, IModel target) => Sort(Diff(source, target));
+        public virtual IReadOnlyList<MigrationOperation> GetDifferences(IModel source, IModel target)
+        {
+            var diffContext = new ModelDifferContext();
 
-        protected virtual IReadOnlyList<MigrationOperation> Sort([NotNull] IEnumerable<MigrationOperation> operations)
+            return Sort(Diff(source, target, diffContext), diffContext);
+        }
+
+        protected virtual IReadOnlyList<MigrationOperation> Sort(
+            [NotNull] IEnumerable<MigrationOperation> operations,
+            [NotNull] ModelDifferContext diffContext)
         {
             Check.NotNull(operations, nameof(operations));
 
             var dropForeignKeyOperations = new List<MigrationOperation>();
             var dropOperations = new List<MigrationOperation>();
             var dropColumnOperations = new List<MigrationOperation>();
-            var dropTableOperations = new List<MigrationOperation>();
+            var dropTableOperations = new List<DropTableOperation>();
             var createSchemaOperations = new List<MigrationOperation>();
             var createSequenceOperations = new List<MigrationOperation>();
-            var createTableOperations = new Dictionary<string, CreateTableOperation>();
+            var createTableOperations = new List<CreateTableOperation>();
             var alterOperations = new List<MigrationOperation>();
             var renameOperations = new List<MigrationOperation>();
             var renameIndexOperations = new List<MigrationOperation>();
@@ -99,7 +107,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 }
                 else if (type == typeof(DropTableOperation))
                 {
-                    dropTableOperations.Add(operation);
+                    dropTableOperations.Add((DropTableOperation)operation);
                 }
                 else if (type == typeof(CreateSchemaOperation))
                 {
@@ -111,11 +119,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 }
                 else if (type == typeof(CreateTableOperation))
                 {
-                    var createTableOperation = (CreateTableOperation)operation;
-
-                    createTableOperations.Add(
-                        createTableOperation.Schema + ":" + createTableOperation.Name,
-                        createTableOperation);
+                    createTableOperations.Add((CreateTableOperation)operation);
                 }
                 else if (_alterOperationTypes.Contains(type))
                 {
@@ -140,35 +144,66 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 }
             }
 
-            var createTableGraph = new Multigraph<string, AddForeignKeyOperation>();
-            createTableGraph.AddVertices(createTableOperations.Keys);
-            foreach (var pair in createTableOperations)
+            var createTableGraph = new Multigraph<CreateTableOperation, AddForeignKeyOperation>();
+            createTableGraph.AddVertices(createTableOperations);
+            foreach (var createTableOperation in createTableOperations)
             {
-                foreach (var addForeignKeyOperation in pair.Value.ForeignKeys)
+                foreach (var addForeignKeyOperation in createTableOperation.ForeignKeys)
                 {
-                    var principalTable = addForeignKeyOperation.ReferencedSchema + ":" + addForeignKeyOperation.ReferencedTable;
-                    if (principalTable == pair.Key)
+                    if (addForeignKeyOperation.Table == addForeignKeyOperation.ReferencedTable
+                        && addForeignKeyOperation.Schema == addForeignKeyOperation.ReferencedSchema)
                     {
                         continue;
                     }
-                    if (!createTableOperations.ContainsKey(principalTable))
+
+                    var principalCreateTableOperation = createTableOperations.FirstOrDefault(
+                        o => o.Name == addForeignKeyOperation.ReferencedTable
+                            && o.Schema == addForeignKeyOperation.ReferencedSchema);
+                    if (principalCreateTableOperation != null)
                     {
-                        continue;
+                        createTableGraph.AddEdge(principalCreateTableOperation, createTableOperation, addForeignKeyOperation);
                     }
-                    createTableGraph.AddEdge(principalTable, pair.Key, addForeignKeyOperation);
                 }
             }
-            var sortedCreateTableOperations = createTableGraph.TopologicalSort(
-                (principalTable, key, foreignKeyOperations) =>
+            createTableOperations = createTableGraph.TopologicalSort(
+                    (principalCreateTableOperation, createTableOperation, addForeignKeyOperations) =>
                     {
-                        foreach (var foreignKeyOperation in foreignKeyOperations)
+                        foreach (var addForeignKeyOperation in addForeignKeyOperations)
                         {
-                            createTableOperations[key].ForeignKeys.Remove(foreignKeyOperation);
-                            alterOperations.Add(foreignKeyOperation);
+                            createTableOperation.ForeignKeys.Remove(addForeignKeyOperation);
+                            alterOperations.Add(addForeignKeyOperation);
                         }
+
                         return true;
-                    })
-                .Select(k => createTableOperations[k]);
+                    }).ToList();
+
+            var dropTableGraph = new Multigraph<DropTableOperation, IForeignKey>();
+            dropTableGraph.AddVertices(dropTableOperations);
+            foreach (var dropTableOperation in dropTableOperations)
+            {
+                var entityType = diffContext.GetMetadata(dropTableOperation);
+                foreach (var foreignKey in entityType.GetForeignKeys())
+                {
+                    if (entityType == foreignKey.PrincipalEntityType)
+                    {
+                        continue;
+                    }
+
+                    var principalDropTableOperation = diffContext.FindDrop(foreignKey.PrincipalEntityType);
+                    if (principalDropTableOperation != null)
+                    {
+                        dropTableGraph.AddEdge(dropTableOperation, principalDropTableOperation, foreignKey);
+                    }
+                }
+            }
+            var newDiffContext = new ModelDifferContext();
+            dropTableOperations = dropTableGraph.TopologicalSort(
+                (dropTableOperation, principalDropTableOperation, foreignKeys) =>
+                {
+                    dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
+
+                    return true;
+                }).ToList();
 
             return dropForeignKeyOperations
                 .Concat(dropOperations)
@@ -176,7 +211,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 .Concat(dropTableOperations)
                 .Concat(createSchemaOperations)
                 .Concat(createSequenceOperations)
-                .Concat(sortedCreateTableOperations)
+                .Concat(createTableOperations)
                 .Concat(alterOperations)
                 .Concat(renameOperations)
                 .Concat(renameIndexOperations)
@@ -187,13 +222,12 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         #region IModel
 
-        protected virtual IEnumerable<MigrationOperation> Diff([CanBeNull] IModel source, [CanBeNull] IModel target)
-        {
-            if (source != null && target != null)
-            {
-                var diffContext = new ModelDifferContext();
-
-                return Diff(GetSchemas(source), GetSchemas(target))
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            [CanBeNull] IModel source,
+            [CanBeNull] IModel target,
+            [NotNull] ModelDifferContext diffContext)
+            => source != null && target != null
+                ? Diff(GetSchemas(source), GetSchemas(target))
                     .Concat(Diff(source.EntityTypes, target.EntityTypes, diffContext))
                     .Concat(
                         Diff(MetadataExtensions.Extensions(source).Sequences, MetadataExtensions.Extensions(target).Sequences))
@@ -201,32 +235,21 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         Diff(
                             source.EntityTypes.SelectMany(t => t.GetForeignKeys()),
                             target.EntityTypes.SelectMany(t => t.GetForeignKeys()),
-                            diffContext));
-            }
-            if (target != null)
-            {
-                return Add(target);
-            }
-            if (source != null)
-            {
-                return Remove(source);
-            }
+                            diffContext))
+                : target != null
+                    ? Add(target, diffContext)
+                    : source != null
+                        ? Remove(source, diffContext)
+                        : Enumerable.Empty<MigrationOperation>();
 
-            return Enumerable.Empty<MigrationOperation>();
-        }
-
-        protected virtual IEnumerable<MigrationOperation> Add(IModel target)
-        {
-            var diffContext = new ModelDifferContext();
-
-            return GetSchemas(target).SelectMany(Add)
+        protected virtual IEnumerable<MigrationOperation> Add(IModel target, ModelDifferContext diffContext)
+            => GetSchemas(target).SelectMany(Add)
                 .Concat(target.EntityTypes.SelectMany(t => Add(t, diffContext)))
                 .Concat(MetadataExtensions.Extensions(target).Sequences.SelectMany(Add))
                 .Concat(target.EntityTypes.SelectMany(t => t.GetForeignKeys()).SelectMany(k => Add(k, diffContext)));
-        }
 
-        protected virtual IEnumerable<MigrationOperation> Remove(IModel source) =>
-            source.EntityTypes.SelectMany(Remove)
+        protected virtual IEnumerable<MigrationOperation> Remove(IModel source, ModelDifferContext diffContext) =>
+            source.EntityTypes.SelectMany(t => Remove(t, diffContext))
                 .Concat(MetadataExtensions.Extensions(source).Sequences.SelectMany(Remove));
 
         #endregion
@@ -262,7 +285,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 target,
                 (s, t) => Diff(s, t, diffContext),
                 t => Add(t, diffContext),
-                Remove,
+                s => Remove(s, diffContext),
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
                 (s, t) => string.Equals(
                     MetadataExtensions.Extensions(s).Schema,
@@ -336,15 +359,18 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             }
         }
 
-        protected virtual IEnumerable<MigrationOperation> Remove(IEntityType source)
+        protected virtual IEnumerable<MigrationOperation> Remove(IEntityType source, ModelDifferContext diffContext)
         {
             var sourceExtensions = MetadataExtensions.Extensions(source);
 
-            yield return new DropTableOperation
+            var operation = new DropTableOperation
             {
                 Schema = sourceExtensions.Schema,
                 Name = sourceExtensions.Table
             };
+            diffContext.AddDrop(source, operation);
+
+            yield return operation;
         }
 
         #endregion
@@ -551,7 +577,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 target,
                 (s, t) => Diff(s, t, diffContext),
                 t => Add(t, diffContext),
-                Remove,
+                s => Remove(s, diffContext),
                 (s, t) =>
                     {
                         return MetadataExtensions.Extensions(s).Name == MetadataExtensions.Extensions(t).Name
@@ -562,7 +588,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Diff(IForeignKey source, IForeignKey target, ModelDifferContext diffContext)
             => HasDifferences(Annotations.For(source), Annotations.For(target))
-                ? Remove(source).Concat(Add(target, diffContext))
+                ? Remove(source, diffContext).Concat(Add(target, diffContext))
                 : Enumerable.Empty<MigrationOperation>();
 
         protected virtual IEnumerable<MigrationOperation> Add(IForeignKey target, ModelDifferContext diffContext)
@@ -595,17 +621,21 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             }
         }
 
-        protected virtual IEnumerable<MigrationOperation> Remove(IForeignKey source)
+        protected virtual IEnumerable<MigrationOperation> Remove(IForeignKey source, ModelDifferContext diffContext)
         {
             var sourceExtensions = MetadataExtensions.Extensions(source);
             var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.EntityType);
 
-            yield return new DropForeignKeyOperation
+            var dropTableOperation = diffContext.FindDrop(source.EntityType);
+            if (dropTableOperation == null)
             {
-                Schema = sourceEntityTypeExtensions.Schema,
-                Table = sourceEntityTypeExtensions.Table,
-                Name = sourceExtensions.Name
-            };
+                yield return new DropForeignKeyOperation
+                {
+                    Schema = sourceEntityTypeExtensions.Schema,
+                    Table = sourceEntityTypeExtensions.Table,
+                    Name = sourceExtensions.Name
+                };
+            }
         }
 
         #endregion
