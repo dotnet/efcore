@@ -9,7 +9,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     {
         public virtual string ClassName { get; [param: CanBeNull] set; }
         public virtual string Namespace { get; [param: CanBeNull] set; }
-        public virtual string ProviderAssembly { get; [param: NotNull] set; }
         public virtual string ConnectionString { get; [param: NotNull] set; }
         public virtual ReverseEngineeringGenerator Generator { get; [param: NotNull] set; }
     }

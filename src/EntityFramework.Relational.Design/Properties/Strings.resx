@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AssemblyDoesNotContainMetadataModelProvider" xml:space="preserve">
-    <value>Assembly {assemblyName} does not contain an implemetation of {metadataModelProviderInterfaceName}.</value>
-  </data>
   <data name="ConnectionStringRequired" xml:space="preserve">
     <value>ConnectionString is required to generate code.</value>
   </data>
@@ -141,8 +138,8 @@
   <data name="OutputPathRequired" xml:space="preserve">
     <value>OutputPath is required to generate code.</value>
   </data>
-  <data name="ProviderAssemblyRequired" xml:space="preserve">
-    <value>ProviderAssembly is required to generate code.</value>
+  <data name="ProviderRequired" xml:space="preserve">
+    <value>Provider is required to generate code.</value>
   </data>
   <data name="ProviderReturnedNullModel" xml:space="preserve">
     <value>Metadata model returned should not be null. Provider: {providerTypeName} , connection string: {connectionString}.</value>

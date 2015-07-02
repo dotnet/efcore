@@ -223,9 +223,14 @@ namespace Microsoft.Data.Entity.Commands
                     var connectionString = revEng.Argument(
                             "[connectionString]",
                             "The connection string of the database");
+                    var providerAssemblyName = revEng.Argument(
+                            "[provider]",
+                            "The assembly name of the provider");
 
                     revEng.OnExecute(() => ReverseEngineerAsync(
-                                connectionString.Value, _applicationShutdown.ShutdownRequested));
+                                connectionString.Value,
+                                providerAssemblyName.Value,
+                                _applicationShutdown.ShutdownRequested));
                 });
             _app.Command(
                 "help",
@@ -364,11 +369,11 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual async Task<int> ReverseEngineerAsync(
             [NotNull] string connectionString,
+            [NotNull] string providerAssemblyName,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             await _databaseTool.ReverseEngineerAsync(
-                DatabaseTool._defaultReverseEngineeringProviderAssembly,
-                connectionString, _rootNamespace, _projectDir);
+                providerAssemblyName, connectionString, _rootNamespace, _projectDir);
 
             _logger.LogInformation("Done.");
 

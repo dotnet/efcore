@@ -50,6 +50,7 @@
     <Compile Include="ReverseEngineering\Model\TableConstraintColumn.cs" />
     <Compile Include="ReverseEngineering\Model\Table.cs" />
     <Compile Include="ReverseEngineering\SqlServerDbContextCodeGeneratorHelper.cs" />
+    <Compile Include="ReverseEngineering\SqlServerDesignTimeMetadataProviderFactory.cs" />
     <Compile Include="ReverseEngineering\SqlServerEntityTypeCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\SqlServerMetadataModelProvider.cs" />
     <Compile Include="ReverseEngineering\SqlServerNameMapper.cs" />

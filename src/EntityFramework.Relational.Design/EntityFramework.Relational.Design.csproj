@@ -70,6 +70,7 @@
     <Compile Include="ReverseEngineering\EntityTypeGeneratorModel.cs" />
     <Compile Include="ReverseEngineering\FileSystemFileService.cs" />
     <Compile Include="ReverseEngineering\IDatabaseMetadataModelProvider.cs" />
+    <Compile Include="ReverseEngineering\IDesignTimeMetadataProviderFactory.cs" />
     <Compile Include="ReverseEngineering\IFileService.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />

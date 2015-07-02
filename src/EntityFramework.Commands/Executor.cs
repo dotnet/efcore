@@ -248,8 +248,7 @@ namespace Microsoft.Data.Entity.Commands
                 Check.NotNull(args, nameof(args));
 
                 var connectionString = (string)args["connectionString"];
-
-                var providerAssemblyName = DatabaseTool._defaultReverseEngineeringProviderAssembly;
+                var providerAssemblyName = (string)args["provider"];
 
                 Execute(() => executor.ReverseEngineerImplAsync(providerAssemblyName, connectionString).GetAwaiter().GetResult());
             }

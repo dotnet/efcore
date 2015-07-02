@@ -157,11 +157,11 @@ namespace Microsoft.Data.Entity.Commands
         }
 
         /// <summary>
-        /// Unable to find asssembly with name {assemblyName}.
+        /// Unable to find provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.
         /// </summary>
-        public static string CannotFindAssembly([CanBeNull] object assemblyName)
+        public static string CannotFindRuntimeProviderAssembly([CanBeNull] object assemblyName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindAssembly", "assemblyName"), assemblyName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindRuntimeProviderAssembly", "assemblyName"), assemblyName);
         }
 
         /// <summary>
@@ -218,6 +218,30 @@ namespace Microsoft.Data.Entity.Commands
         public static string ReusingSnapshotName([CanBeNull] object name)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ReusingSnapshotName", "name"), name);
+        }
+
+        /// <summary>
+        /// Unable to find design-time provider assembly. Please install the {designTimeProviderAssemblyName} NuGet package and ensure that the package is referenced by the project.
+        /// </summary>
+        public static string CannotFindDesignTimeProviderAssembly([CanBeNull] object designTimeProviderAssemblyName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindDesignTimeProviderAssembly", "designTimeProviderAssemblyName"), designTimeProviderAssemblyName);
+        }
+
+        /// <summary>
+        /// Unable to find expected assembly attribute named {attributeName} in provider assembly {runtimeProviderAssemblyName}. This attribute is required to identify the class which acts as the design-time service provider factory.
+        /// </summary>
+        public static string CannotFindDesignTimeProviderAssemblyAttribute([CanBeNull] object attributeName, [CanBeNull] object runtimeProviderAssemblyName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindDesignTimeProviderAssemblyAttribute", "attributeName", "runtimeProviderAssemblyName"), attributeName, runtimeProviderAssemblyName);
+        }
+
+        /// <summary>
+        /// Design-time provider assembly {assemblyName} does not contain the specified type {typeName}.
+        /// </summary>
+        public static string DesignTimeAssemblyProviderDoesNotContainSpecifiedType([CanBeNull] object assemblyName, [CanBeNull] object typeName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DesignTimeAssemblyProviderDoesNotContainSpecifiedType", "assemblyName", "typeName"), assemblyName, typeName);
         }
 
         private static string GetString(string name, params string[] formatterNames)
