@@ -33,19 +33,13 @@ namespace System.Linq.Expressions
 
         public static bool IsSimpleExpression([NotNull] this Expression expression)
         {
-            var unaryExpression = expression as UnaryExpression;
+            var unwrappedExpression = expression.RemoveConvert();
 
-            if (unaryExpression != null
-                && unaryExpression.NodeType == ExpressionType.Convert)
-            {
-                return IsSimpleExpression(unaryExpression.Operand);
-            }
-
-            return expression is ConstantExpression
-                   || expression is ColumnExpression
-                   || expression is ParameterExpression
-                   || expression is LiteralExpression
-                   || expression.IsAliasWithColumnExpression();
+            return unwrappedExpression is ConstantExpression
+                   || unwrappedExpression is ColumnExpression
+                   || unwrappedExpression is ParameterExpression
+                   || unwrappedExpression is LiteralExpression
+                   || unwrappedExpression.IsAliasWithColumnExpression();
         }
     }
 }

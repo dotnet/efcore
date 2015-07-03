@@ -18,6 +18,7 @@ using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
 
+
 namespace Microsoft.Data.Entity.Query.Sql
 {
     public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
@@ -941,8 +942,8 @@ namespace Microsoft.Data.Entity.Query.Sql
                         && parameterValue == null)
                     {
                         var columnExpression
-                            = expression.Left.TryGetColumnExpression()
-                              ?? expression.Right.TryGetColumnExpression();
+                            = expression.Left.RemoveConvert().TryGetColumnExpression()
+                              ?? expression.Right.RemoveConvert().TryGetColumnExpression();
 
                         if (columnExpression != null)
                         {

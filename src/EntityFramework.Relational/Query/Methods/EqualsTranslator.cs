@@ -34,13 +34,7 @@ namespace Microsoft.Data.Entity.Query.Methods
                 if (methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
                     && @object.Type != argument.Type)
                 {
-                    var unaryArgument = argument as UnaryExpression;
-                    if (unaryArgument != null
-                        && argument.NodeType == ExpressionType.Convert)
-                    {
-                        argument = unaryArgument.Operand;
-                    }
-
+                    argument = argument.RemoveConvert();
                     var unwrappedObjectType = @object.Type.UnwrapNullableType();
                     var unwrappedArgumentType = argument.Type.UnwrapNullableType();
                     if (unwrappedObjectType == unwrappedArgumentType)

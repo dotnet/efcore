@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
 
@@ -143,8 +144,10 @@ namespace System.Linq.Expressions
             return propertyInfos.ToArray();
         }
 
-        private static Expression RemoveConvert(this Expression expression)
+        public static Expression RemoveConvert([NotNull] this Expression expression)
         {
+            Check.NotNull(expression, nameof(expression));
+
             while ((expression != null)
                    && (expression.NodeType == ExpressionType.Convert
                        || expression.NodeType == ExpressionType.ConvertChecked))
