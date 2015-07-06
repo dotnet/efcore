@@ -131,7 +131,7 @@ function Apply-Migration {
     $targetFrameworkMoniker = GetProperty $dteProject.Properties TargetFrameworkMoniker
     $frameworkName = New-Object System.Runtime.Versioning.FrameworkName $targetFrameworkMoniker
     if ($frameworkName.Identifier -eq '.NETCore') {
-        throw 'Apply-Migration should not be used with Universal Windows apps. Instead, call DbContext.Database.AsRelational().ApplyMigrations() at runtime.'
+        throw 'Apply-Migration should not be used with Universal Windows apps. Instead, call DbContext.Database.ApplyMigrations() at runtime.'
     }
 
     InvokeOperation $dteProject ApplyMigration @{
@@ -418,16 +418,9 @@ function InvokeOperation($project, $operation, $arguments = @{}, $startupProject
     Write-Verbose "Using start-up project '$startupProjectName'."
 
     if (![Type]::GetType('Microsoft.Data.Entity.Commands.ILogHandler')) {
-        $componentModel = Get-VSComponentModel
-        $packageInstaller = $componentModel.GetService([NuGet.VisualStudio.IVsPackageInstallerServices])
-        $package = $packageInstaller.GetInstalledPackages() | ? Id -eq EntityFramework.Commands |
-            sort Version -Descending | select -First 1
-        $installPath = $package.InstallPath
-        $toolsPath = Join-Path $installPath tools
-
         Add-Type @(
-            Join-Path $toolsPath IHandlers.cs
-            Join-Path $toolsPath Handlers.cs
+            Join-Path $PSScriptRoot IHandlers.cs
+            Join-Path $PSScriptRoot Handlers.cs
         )
     }
 

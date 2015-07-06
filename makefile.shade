@@ -51,7 +51,7 @@ k-standard-goals
 
 var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configuration")}/x86'
 #copy-sqlite target='initialize' if='!IsMono && !IsTeamCity && !File.Exists(sqliteTestDir + "/sqlite3.dll")'
-    var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.Sqlite/*").OrderByDescending(d => d).First() + "/redist/x86"}'
+    var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.Sqlite/*").OrderByDescending(d => d).First() + "/runtimes/win-x86/native"}'
     copy outputDir='${sqliteTestDir}'
     copy outputDir='test/EntityFramework.CrossStore.FunctionalTests/bin/${E("Configuration")}/x86'
 
@@ -99,23 +99,6 @@ var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configur
                     package,
                     @"src/EntityFramework.Commands/tools/install.ps1",
                     @"tools/install.ps1");
-            }
-        }
-        
-        packagePaths = Files.Include("artifacts/build/**/EntityFramework.Relational.Design.*.nupkg")
-            .Exclude("**/*.symbols.nupkg");
-        foreach (var packagePath in packagePaths)
-        {
-            using (var package = Package.Open(packagePath, FileMode.Open, FileAccess.ReadWrite))
-            {
-                CreatePartFromFile(
-                    package,
-                    @"src/EntityFramework.Relational.Design/build/netcore50/EntityFramework.Relational.Design.targets",
-                    @"build/netcore50/EntityFramework.Relational.Design.targets");
-                CreatePartFromFile(
-                    package,
-                    @"src/EntityFramework.Relational.Design/lib/netcore50/_._",
-                    @"lib/netcore50/_._");
             }
         }
     }

@@ -8,24 +8,27 @@
   "compilationOptions": {
     "warningsAsErrors": true
   },
-  "dependencies": {
-    "EntityFramework.Relational.Design": "7.0.0-*",
-  },
   "compile": "..\\Shared\\*.cs",
   "exclude": "tools\\Handlers.cs",
   "namedResource": {
     "EntityFramework.Commands.Strings": "Properties/Strings.resx"
   },
   "frameworks": {
-    "net45": { },
+    "net45": {
+      "dependencies": {
+        "EntityFramework.Relational.Design": "7.0.0-*"
+      }
+    },
     "dnx451": {
       "dependencies": {
+        "EntityFramework.Relational.Design": "7.0.0-*",
         "Microsoft.AspNet.Hosting": "1.0.0-*",
         "Microsoft.Framework.CommandLineUtils.Sources": { "version": "1.0.0-*", "type": "build" }
       }
     },
     "dnxcore50": {
       "dependencies": {
+        "EntityFramework.Relational.Design": "7.0.0-*",
         "Microsoft.AspNet.Hosting": "1.0.0-*",
         "Microsoft.Framework.CommandLineUtils.Sources": { "version": "1.0.0-*", "type": "build" }
       }

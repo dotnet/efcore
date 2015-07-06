@@ -39,11 +39,6 @@
       "dependencies": {
         "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*"
       }
-    },
-    "netcore50": {
-      "bin": {
-        "assembly": "lib\\netcore50\\_._"
-      }
     }
   }
 }
