@@ -344,6 +344,16 @@ namespace Microsoft.Data.Entity.Query
             return LiftSubQuery(joinClause, joinClause.InnerSequence, queryModel, expression);
         }
 
+        protected override Expression CompileGroupJoinInnerSequenceExpression(GroupJoinClause groupJoinClause, QueryModel queryModel)
+        {
+            Check.NotNull(groupJoinClause, nameof(groupJoinClause));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            var expression = base.CompileGroupJoinInnerSequenceExpression(groupJoinClause, queryModel);
+
+            return LiftSubQuery(groupJoinClause.JoinClause, groupJoinClause.JoinClause.InnerSequence, queryModel, expression);
+        }
+
         private Expression LiftSubQuery(
             IQuerySource querySource, Expression itemsExpression, QueryModel queryModel, Expression expression)
         {
