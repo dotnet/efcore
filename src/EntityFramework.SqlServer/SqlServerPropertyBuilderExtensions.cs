@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity
             var sequence = property.EntityType.Model.SqlServer().GetOrAddSequence(name, schema);
 
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
-            property.StoreGeneratedPattern = StoreGeneratedPattern.Identity;
+            property.ValueGenerated = ValueGenerated.OnAdd;
             property.SqlServer().SequenceName = sequence.Name;
             property.SqlServer().SequenceSchema = sequence.Schema;
 
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity
             var property = propertyBuilder.Metadata;
 
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
-            property.StoreGeneratedPattern = StoreGeneratedPattern.Identity;
+            property.ValueGenerated = ValueGenerated.OnAdd;
             property.SqlServer().SequenceName = null;
             property.SqlServer().SequenceSchema = null;
 

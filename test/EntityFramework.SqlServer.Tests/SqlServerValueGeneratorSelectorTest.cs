@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             foreach (var property in entityType.Properties)
             {
-                property.StoreGeneratedPattern = StoreGeneratedPattern.Identity;
+                property.ValueGenerated = ValueGenerated.OnAdd;
             }
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
@@ -133,13 +133,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             foreach (var property in entityType.Properties)
             {
-                property.IsValueGeneratedOnAdd = generateValues;
+                property.RequiresValueGenerator = generateValues;
             }
 
-            entityType.GetProperty("AlwaysIdentity").StoreGeneratedPattern = StoreGeneratedPattern.Identity;
+            entityType.GetProperty("AlwaysIdentity").ValueGenerated = ValueGenerated.OnAdd;
             entityType.GetProperty("AlwaysIdentity").SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
 
-            entityType.GetProperty("AlwaysSequence").StoreGeneratedPattern = StoreGeneratedPattern.Identity;
+            entityType.GetProperty("AlwaysSequence").ValueGenerated = ValueGenerated.OnAdd;
             entityType.GetProperty("AlwaysSequence").SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
             return model;

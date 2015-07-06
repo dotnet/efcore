@@ -112,27 +112,27 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Property_does_not_use_StoreGeneratedPattern_by_default()
+        public void Property_does_not_use_ValueGenerated_by_default()
         {
             var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
 
-            Assert.Null(property.StoreGeneratedPattern);
-            Assert.Equal(StoreGeneratedPattern.None, ((IProperty)property).StoreGeneratedPattern);
+            Assert.Null(property.ValueGenerated);
+            Assert.Equal(ValueGenerated.Never, ((IProperty)property).ValueGenerated);
         }
 
         [Fact]
-        public void Can_mark_property_as_using_StoreGeneratedPattern()
+        public void Can_mark_property_as_using_ValueGenerated()
         {
             var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(Entity)));
 
-            property.StoreGeneratedPattern = StoreGeneratedPattern.Computed;
-            Assert.Equal(StoreGeneratedPattern.Computed, property.StoreGeneratedPattern.Value);
+            property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated.Value);
 
-            property.StoreGeneratedPattern = StoreGeneratedPattern.None;
-            Assert.Equal(StoreGeneratedPattern.None, property.StoreGeneratedPattern.Value);
+            property.ValueGenerated = ValueGenerated.Never;
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated.Value);
 
-            property.StoreGeneratedPattern = null;
-            Assert.Null(property.StoreGeneratedPattern);
+            property.ValueGenerated = null;
+            Assert.Null(property.ValueGenerated);
         }
 
         [Fact]

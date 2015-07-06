@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -34,9 +33,7 @@ INSERT INTO Table1 (Col1, Col2) Values('dropped value','preserved entry');");
                     targetModel.Entity<UpdatedTableType>(b =>
                         {
                             b.Key(p => p.Id);
-                            b.Property(p => p.Id)
-                                .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-
+                            b.Property(p => p.Id).ValueGeneratedOnAdd();
                             b.Property(p => p.Col2);
                             b.ToSqliteTable("Table1");
                         });

@@ -641,7 +641,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
             Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
 
-            nameProperty.StoreGeneratedPattern = StoreGeneratedPattern.Computed;
+            nameProperty.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
             Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
             Assert.True(((IProperty)nameProperty).IsReadOnlyBeforeSave);

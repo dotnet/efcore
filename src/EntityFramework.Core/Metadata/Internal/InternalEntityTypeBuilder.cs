@@ -1013,8 +1013,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 var propertyBuilder = dependentEntityTypeBuilder.Property(
                     foreignKeyProperty.ClrType, foreignKeyProperty.Name, ConfigurationSource.Convention);
 
-                propertyBuilder.GenerateValueOnAdd(null, ConfigurationSource.Convention);
-                propertyBuilder.StoreGeneratedPattern(null, ConfigurationSource.Convention);
+                propertyBuilder.UseValueGenerator(null, ConfigurationSource.Convention);
+                propertyBuilder.ValueGenerated(null, ConfigurationSource.Convention);
             }
 
             return newForeignKey;

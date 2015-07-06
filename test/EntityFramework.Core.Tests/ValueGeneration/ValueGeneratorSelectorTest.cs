@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
 
             foreach (var property in entityType.Properties)
             {
-                property.IsValueGeneratedOnAdd = generateValues;
+                property.RequiresValueGenerator = generateValues;
             }
 
             return model;

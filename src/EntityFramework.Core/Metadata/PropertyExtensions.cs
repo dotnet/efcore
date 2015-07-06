@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 var currentProperty = traversalList[index];
 
-                if (currentProperty.IsValueGeneratedOnAdd)
+                if (currentProperty.RequiresValueGenerator)
                 {
                     return currentProperty;
                 }

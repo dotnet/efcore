@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -429,45 +428,31 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 modelBuilder.Entity<Gumball>(b =>
                     {
-                        var property = b.Property(e => e.Id)
-                            .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
-                            .Metadata;
+                        var property = b.Property(e => e.Id).ValueGeneratedOnAdd().Metadata;
                         property.IsReadOnlyAfterSave = true;
                         property.IsReadOnlyBeforeSave = true;
 
-                        property = b.Property(e => e.Identity)
-                            .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
-                            .Metadata;
+                        property = b.Property(e => e.Identity).ValueGeneratedOnAdd().Metadata;
                         property.IsReadOnlyAfterSave = false;
                         property.IsReadOnlyBeforeSave = false;
 
-                        property = b.Property(e => e.IdentityReadOnlyBeforeSave)
-                            .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
-                            .Metadata;
+                        property = b.Property(e => e.IdentityReadOnlyBeforeSave).ValueGeneratedOnAdd().Metadata;
                         property.IsReadOnlyAfterSave = false;
                         property.IsReadOnlyBeforeSave = true;
 
-                        property = b.Property(e => e.IdentityReadOnlyAfterSave)
-                            .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
-                            .Metadata;
+                        property = b.Property(e => e.IdentityReadOnlyAfterSave).ValueGeneratedOnAdd().Metadata;
                         property.IsReadOnlyAfterSave = true;
                         property.IsReadOnlyBeforeSave = false;
 
-                        property = b.Property(e => e.Computed)
-                            .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
-                            .Metadata;
+                        property = b.Property(e => e.Computed).ValueGeneratedOnAddOrUpdate().Metadata;
                         property.IsReadOnlyAfterSave = false;
                         property.IsReadOnlyBeforeSave = false;
 
-                        property = b.Property(e => e.ComputedReadOnlyBeforeSave)
-                            .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
-                            .Metadata;
+                        property = b.Property(e => e.ComputedReadOnlyBeforeSave).ValueGeneratedOnAddOrUpdate().Metadata;
                         property.IsReadOnlyAfterSave = false;
                         property.IsReadOnlyBeforeSave = true;
 
-                        property = b.Property(e => e.ComputedReadOnlyAfterSave)
-                            .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
-                            .Metadata;
+                        property = b.Property(e => e.ComputedReadOnlyAfterSave).ValueGeneratedOnAddOrUpdate().Metadata;
                         property.IsReadOnlyAfterSave = true;
                         property.IsReadOnlyBeforeSave = false;
                     });

@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             discriminatorProperty.IsNullable = false;
             //discriminatorProperty.IsReadOnlyBeforeSave = true; // #2132
             discriminatorProperty.IsReadOnlyAfterSave = true;
-            discriminatorProperty.IsValueGeneratedOnAdd = true;
+            discriminatorProperty.RequiresValueGenerator = true;
 
             animal.Relational().DiscriminatorProperty = discriminatorProperty;
         }

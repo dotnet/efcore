@@ -60,39 +60,39 @@ namespace Microsoft.Data.Entity.Metadata
 
         protected virtual bool DefaultIsNullable => (EntityType.FindPrimaryKey()?.Properties.Contains(this)) != true && ClrType.IsNullableType();
 
-        public virtual StoreGeneratedPattern? StoreGeneratedPattern
+        public virtual ValueGenerated? ValueGenerated
         {
             get
             {
-                var isIdentity = GetFlag(PropertyFlags.IsIdentity);
-                var isComputed = GetFlag(PropertyFlags.IsComputed);
+                var isIdentity = GetFlag(PropertyFlags.ValueGeneratedOnAdd);
+                var isComputed = GetFlag(PropertyFlags.ValueGeneratedOnAddOrUpdate);
 
                 return isIdentity == null && isComputed == null
-                    ? (StoreGeneratedPattern?)null
+                    ? (ValueGenerated?)null
                     : isIdentity.HasValue && isIdentity.Value
-                        ? Metadata.StoreGeneratedPattern.Identity
+                        ? Metadata.ValueGenerated.OnAdd
                         : isComputed.HasValue && isComputed.Value
-                            ? Metadata.StoreGeneratedPattern.Computed
-                            : Metadata.StoreGeneratedPattern.None;
+                            ? Metadata.ValueGenerated.OnAddOrUpdate
+                            : Metadata.ValueGenerated.Never;
             }
             set
             {
                 if (value == null)
                 {
-                    SetFlag(null, PropertyFlags.IsIdentity);
-                    SetFlag(null, PropertyFlags.IsComputed);
+                    SetFlag(null, PropertyFlags.ValueGeneratedOnAdd);
+                    SetFlag(null, PropertyFlags.ValueGeneratedOnAddOrUpdate);
                 }
                 else
                 {
                     Check.IsDefined(value.Value, nameof(value));
 
-                    SetFlag(value.Value == Metadata.StoreGeneratedPattern.Identity, PropertyFlags.IsIdentity);
-                    SetFlag(value.Value == Metadata.StoreGeneratedPattern.Computed, PropertyFlags.IsComputed);
+                    SetFlag(value.Value == Metadata.ValueGenerated.OnAdd, PropertyFlags.ValueGeneratedOnAdd);
+                    SetFlag(value.Value == Metadata.ValueGenerated.OnAddOrUpdate, PropertyFlags.ValueGeneratedOnAddOrUpdate);
                 }
             }
         }
 
-        protected virtual StoreGeneratedPattern DefaultStoreGeneratedPattern => Metadata.StoreGeneratedPattern.None;
+        protected virtual ValueGenerated DefaultValueGenerated => Metadata.ValueGenerated.Never;
 
         public virtual bool? IsReadOnlyBeforeSave
         {
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Metadata
             set { SetFlag(value, PropertyFlags.IsReadOnlyBeforeSave); }
         }
 
-        protected virtual bool DefaultIsReadOnlyBeforeSave => StoreGeneratedPattern == Metadata.StoreGeneratedPattern.Computed;
+        protected virtual bool DefaultIsReadOnlyBeforeSave => ValueGenerated == Metadata.ValueGenerated.OnAddOrUpdate;
 
         public virtual bool? IsReadOnlyAfterSave
         {
@@ -118,16 +118,16 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         protected virtual bool DefaultIsReadOnlyAfterSave
-            => StoreGeneratedPattern == Metadata.StoreGeneratedPattern.Computed
+            => ValueGenerated == Metadata.ValueGenerated.OnAddOrUpdate
                || this.IsKey();
 
-        public virtual bool? IsValueGeneratedOnAdd
+        public virtual bool? RequiresValueGenerator
         {
-            get { return GetFlag(PropertyFlags.IsValueGeneratedOnAdd); }
-            set { SetFlag(value, PropertyFlags.IsValueGeneratedOnAdd); }
+            get { return GetFlag(PropertyFlags.RequiresValueGenerator); }
+            set { SetFlag(value, PropertyFlags.RequiresValueGenerator); }
         }
 
-        protected virtual bool DefaultIsValueGeneratedOnAdd => false;
+        protected virtual bool DefaultRequiresValueGenerator => false;
 
         public virtual bool IsShadowProperty
         {
@@ -230,13 +230,13 @@ namespace Microsoft.Data.Entity.Metadata
 
         bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;
 
-        StoreGeneratedPattern IProperty.StoreGeneratedPattern => StoreGeneratedPattern ?? DefaultStoreGeneratedPattern;
+        ValueGenerated IProperty.ValueGenerated => ValueGenerated ?? DefaultValueGenerated;
 
         bool IProperty.IsReadOnlyBeforeSave => IsReadOnlyBeforeSave ?? DefaultIsReadOnlyBeforeSave;
 
         bool IProperty.IsReadOnlyAfterSave => IsReadOnlyAfterSave ?? DefaultIsReadOnlyAfterSave;
 
-        bool IProperty.IsValueGeneratedOnAdd => IsValueGeneratedOnAdd ?? DefaultIsValueGeneratedOnAdd;
+        bool IProperty.RequiresValueGenerator => RequiresValueGenerator ?? DefaultRequiresValueGenerator;
 
         bool IProperty.IsConcurrencyToken => IsConcurrencyToken ?? DefaultIsConcurrencyToken;
 
@@ -249,9 +249,9 @@ namespace Microsoft.Data.Entity.Metadata
             IsNullable = 2,
             IsReadOnlyBeforeSave = 4,
             IsReadOnlyAfterSave = 8,
-            IsIdentity = 16,
-            IsComputed = 32,
-            IsValueGeneratedOnAdd = 64,
+            ValueGeneratedOnAdd = 16,
+            ValueGeneratedOnAddOrUpdate = 32,
+            RequiresValueGenerator = 64,
             IsShadowProperty = 128
         }
     }

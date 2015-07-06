@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -21,14 +20,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     b.Key(c => c.TeamId);
                     b.Property(e => e.Version)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
+                        .ValueGeneratedOnAddOrUpdate()
                         .ConcurrencyToken();
                 });
 
             modelBuilder.Entity<Driver>(b =>
                 {
                     b.Property(e => e.Version)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
+                        .ValueGeneratedOnAddOrUpdate()
                         .ConcurrencyToken();
                 });
 
@@ -60,7 +59,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<Sponsor>(b =>
                 {
                     b.Property(e => e.Version)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
+                        .ValueGeneratedOnAddOrUpdate()
                         .ConcurrencyToken();
                 });
 
@@ -77,7 +76,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<Team>(b =>
                 {
                     b.Property(t => t.Version)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
+                        .ValueGeneratedOnAddOrUpdate()
                         .ConcurrencyToken();
 
                     b.Reference(e => e.Gearbox).InverseReference().ForeignKey<Team>(e => e.GearboxId);

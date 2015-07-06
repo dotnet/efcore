@@ -11,8 +11,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ConfigurationSource? _maxLengthConfigurationSource;
         private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
         private ConfigurationSource _isShadowPropertyConfigurationSource;
-        private ConfigurationSource? _isValueGeneratedOnAddConfigurationSource;
-        private ConfigurationSource? _storeGeneratedPatternConfigurationSource;
+        private ConfigurationSource? _requiresValueGeneratorConfigurationSource;
+        private ConfigurationSource? _valueGeneratedConfigurationSource;
 
         public InternalPropertyBuilder(
             [NotNull] Property property,
@@ -106,44 +106,44 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return false;
         }
 
-        public virtual bool GenerateValueOnAdd(bool? generateValue, ConfigurationSource configurationSource)
+        public virtual bool UseValueGenerator(bool? generateValue, ConfigurationSource configurationSource)
         {
-            if (configurationSource.CanSet(_isValueGeneratedOnAddConfigurationSource, Metadata.IsValueGeneratedOnAdd.HasValue)
-                || Metadata.IsValueGeneratedOnAdd.Value == generateValue)
+            if (configurationSource.CanSet(_requiresValueGeneratorConfigurationSource, Metadata.RequiresValueGenerator.HasValue)
+                || Metadata.RequiresValueGenerator.Value == generateValue)
             {
-                if (_isValueGeneratedOnAddConfigurationSource == null
-                    && Metadata.IsValueGeneratedOnAdd != null)
+                if (_requiresValueGeneratorConfigurationSource == null
+                    && Metadata.RequiresValueGenerator != null)
                 {
-                    _isValueGeneratedOnAddConfigurationSource = ConfigurationSource.Explicit;
+                    _requiresValueGeneratorConfigurationSource = ConfigurationSource.Explicit;
                 }
                 else
                 {
-                    _isValueGeneratedOnAddConfigurationSource = configurationSource.Max(_isValueGeneratedOnAddConfigurationSource);
+                    _requiresValueGeneratorConfigurationSource = configurationSource.Max(_requiresValueGeneratorConfigurationSource);
                 }
 
-                Metadata.IsValueGeneratedOnAdd = generateValue;
+                Metadata.RequiresValueGenerator = generateValue;
                 return true;
             }
 
             return false;
         }
 
-        public virtual bool StoreGeneratedPattern(StoreGeneratedPattern? storeGeneratedPattern, ConfigurationSource configurationSource)
+        public virtual bool ValueGenerated(ValueGenerated? valueGenerated, ConfigurationSource configurationSource)
         {
-            if (configurationSource.CanSet(_storeGeneratedPatternConfigurationSource, Metadata.StoreGeneratedPattern.HasValue)
-                || Metadata.StoreGeneratedPattern == storeGeneratedPattern)
+            if (configurationSource.CanSet(_valueGeneratedConfigurationSource, Metadata.ValueGenerated.HasValue)
+                || Metadata.ValueGenerated == valueGenerated)
             {
-                if (_storeGeneratedPatternConfigurationSource == null
-                    && Metadata.StoreGeneratedPattern != null)
+                if (_valueGeneratedConfigurationSource == null
+                    && Metadata.ValueGenerated != null)
                 {
-                    _storeGeneratedPatternConfigurationSource = ConfigurationSource.Explicit;
+                    _valueGeneratedConfigurationSource = ConfigurationSource.Explicit;
                 }
                 else
                 {
-                    _storeGeneratedPatternConfigurationSource = configurationSource.Max(_storeGeneratedPatternConfigurationSource);
+                    _valueGeneratedConfigurationSource = configurationSource.Max(_valueGeneratedConfigurationSource);
                 }
 
-                Metadata.StoreGeneratedPattern = storeGeneratedPattern;
+                Metadata.ValueGenerated = valueGenerated;
                 return true;
             }
 

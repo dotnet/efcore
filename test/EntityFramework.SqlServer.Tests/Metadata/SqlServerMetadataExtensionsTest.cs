@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Xunit;
 
@@ -668,25 +667,25 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                .ValueGeneratedOnAdd()
                 .Metadata;
 
             Assert.Null(property.SqlServer().IdentityStrategy);
             Assert.Null(((IProperty)property).SqlServer().IdentityStrategy);
-            Assert.Null(property.IsValueGeneratedOnAdd);
-            Assert.False(((IProperty)property).IsValueGeneratedOnAdd);
+            Assert.Null(property.RequiresValueGenerator);
+            Assert.False(((IProperty)property).RequiresValueGenerator);
 
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, ((IProperty)property).SqlServer().IdentityStrategy);
-            Assert.Null(property.IsValueGeneratedOnAdd);
+            Assert.Null(property.RequiresValueGenerator);
 
             property.SqlServer().IdentityStrategy = null;
 
             Assert.Null(property.SqlServer().IdentityStrategy);
             Assert.Null(((IProperty)property).SqlServer().IdentityStrategy);
-            Assert.Null(property.IsValueGeneratedOnAdd);
+            Assert.Null(property.RequiresValueGenerator);
         }
 
         [Fact]
@@ -697,25 +696,25 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.NullableInt)
-                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                .ValueGeneratedOnAdd()
                 .Metadata;
 
             Assert.Null(property.SqlServer().IdentityStrategy);
             Assert.Null(((IProperty)property).SqlServer().IdentityStrategy);
-            Assert.Null(property.IsValueGeneratedOnAdd);
-            Assert.False(((IProperty)property).IsValueGeneratedOnAdd);
+            Assert.Null(property.RequiresValueGenerator);
+            Assert.False(((IProperty)property).RequiresValueGenerator);
 
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, ((IProperty)property).SqlServer().IdentityStrategy);
-            Assert.Null(property.IsValueGeneratedOnAdd);
+            Assert.Null(property.RequiresValueGenerator);
 
             property.SqlServer().IdentityStrategy = null;
 
             Assert.Null(property.SqlServer().IdentityStrategy);
             Assert.Null(((IProperty)property).SqlServer().IdentityStrategy);
-            Assert.Null(property.IsValueGeneratedOnAdd);
+            Assert.Null(property.RequiresValueGenerator);
         }
 
         [Fact]
@@ -870,7 +869,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                .ValueGeneratedOnAdd()
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
@@ -889,7 +888,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                .ValueGeneratedOnAdd()
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
@@ -908,7 +907,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                .ValueGeneratedOnAdd()
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
@@ -927,7 +926,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                .ValueGeneratedOnAdd()
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
@@ -946,7 +945,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                .ValueGeneratedOnAdd()
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
@@ -968,7 +967,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                .ValueGeneratedOnAdd()
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
@@ -990,7 +989,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                .ValueGeneratedOnAdd()
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
@@ -1012,7 +1011,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                .ValueGeneratedOnAdd()
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));

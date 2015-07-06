@@ -15,13 +15,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             var country = model.AddEntityType(typeof(Country));
             var countryIdProperty = country.AddProperty("Id", typeof(int));
-            countryIdProperty.IsValueGeneratedOnAdd = true;
+            countryIdProperty.RequiresValueGenerator = true;
             var countryKey = country.SetPrimaryKey(countryIdProperty);
             country.AddProperty("Name", typeof(string));
 
             var animal = model.AddEntityType(typeof(Animal));
             var animalSpeciesProperty = animal.AddProperty("Species", typeof(string));
-            animalSpeciesProperty.IsValueGeneratedOnAdd = true;
+            animalSpeciesProperty.RequiresValueGenerator = true;
             var animalKey = animal.SetPrimaryKey(animalSpeciesProperty);
             animal.AddProperty("Name", typeof(string));
             var countryFk = animal.AddForeignKey(animal.AddProperty("CountryId", typeof(int)), countryKey);

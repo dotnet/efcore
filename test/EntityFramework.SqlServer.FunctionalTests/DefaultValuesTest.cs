@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -71,7 +70,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 modelBuilder.Entity<KettleChips>()
                     .Property(e => e.BestBuyDate)
-                    .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                    .ValueGeneratedOnAdd()
                     .DefaultValue(new DateTime(2035, 9, 25));
             }
         }

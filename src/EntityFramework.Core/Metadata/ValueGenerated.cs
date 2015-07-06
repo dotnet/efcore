@@ -3,11 +3,10 @@
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    // TODO: Replace with enum from data annotations
-    public enum StoreGeneratedPattern
+    public enum ValueGenerated
     {
-        None,
-        Identity,
-        Computed
+        Never,
+        OnAdd,
+        OnAddOrUpdate
     }
 }

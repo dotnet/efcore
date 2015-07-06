@@ -372,7 +372,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var entityType = model.AddEntityType(typeof(T1));
 
             var key = entityType.GetOrAddProperty("Id", typeof(int));
-            key.StoreGeneratedPattern = generateKeyValues ? StoreGeneratedPattern.Identity : StoreGeneratedPattern.None;
+            key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             key.Relational().Column = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
@@ -380,7 +380,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             nonKey.IsConcurrencyToken = computeNonKeyValue;
 
             nonKey.Relational().Column = "Col2";
-            nonKey.StoreGeneratedPattern = computeNonKeyValue ? StoreGeneratedPattern.Computed : StoreGeneratedPattern.None;
+            nonKey.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
 
             return model;
         }

@@ -616,7 +616,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 || tableColumn.DataType == "timestamp")
             {
                 // timestamp columns should always be treated as store generated
-                property.StoreGeneratedPattern = StoreGeneratedPattern.Computed;
+                property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
             }
 
             if (tableColumn.DefaultValue != null)

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -178,7 +177,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     modelBuilder
                         .Entity<Blog>()
                         .Property(e => e.Id)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.None);
+                        .ValueGeneratedNever();
                 }
             }
         }
@@ -212,7 +211,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     modelBuilder
                         .Entity<Blog>()
                         .Property(e => e.Id)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.None)
+                        .ValueGeneratedNever()
                         .Metadata.SentinelValue = -1;
                 }
             }
@@ -249,7 +248,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     modelBuilder
                         .Entity<Blog>()
                         .Property(e => e.Id)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.None);
+                        .ValueGeneratedNever();
                 }
             }
         }
@@ -303,7 +302,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<Blog>()
                         .Property(e => e.CreatedOn)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                        .ValueGeneratedOnAdd()
                         .DefaultValueSql("getdate()");
                 }
             }
@@ -358,7 +357,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     // TODO: Make DefaultValueSql on fluent API set Identity
                     modelBuilder.Entity<Blog>()
                         .Property(e => e.CreatedOn)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                        .ValueGeneratedOnAdd()
                         .DefaultValueSql("getdate()")
                         .Metadata.IsReadOnlyBeforeSave = true;
                 }
@@ -400,7 +399,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     // TODO: Change to DefaultColumnSql and make it set Computed
                     modelBuilder.Entity<FullNameBlog>()
                         .Property(e => e.FullName)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
+                        .ValueGeneratedOnAddOrUpdate()
                         .SqlServerComputedExpression("FirstName + ' ' + LastName");
                 }
             }
@@ -546,7 +545,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     modelBuilder
                         .Entity<Blog>()
                         .Property(e => e.Id)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.None);
+                        .ValueGeneratedNever();
                 }
             }
         }
@@ -608,7 +607,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<Blog>()
                         .Property(e => e.CreatedOn)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.Identity)
+                        .ValueGeneratedOnAdd()
                         .DefaultValueSql("getdate()")
                         .Metadata.IsReadOnlyBeforeSave = true;
                 }
@@ -638,7 +637,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<FullNameBlog>()
                         .Property(e => e.FullName)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
+                        .ValueGeneratedOnAddOrUpdate()
                         .SqlServerComputedExpression("FirstName + ' ' + LastName");
                 }
             }
@@ -676,7 +675,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<FullNameBlog>()
                         .Property(e => e.FullName)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
+                        .ValueGeneratedOnAddOrUpdate()
                         .SqlServerComputedExpression("FirstName + ' ' + LastName");
                 }
             }
@@ -743,7 +742,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<ConcurrentBlog>()
                         .Property(e => e.Timestamp)
-                        .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
+                        .ValueGeneratedOnAddOrUpdate()
                         .ConcurrencyToken();
                 }
             }

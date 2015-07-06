@@ -536,7 +536,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Same(Sequence.DefaultName, property.SqlServer().SequenceName);
 
             Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
@@ -557,7 +557,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Null(property.SqlServer().SequenceSchema);
 
@@ -579,7 +579,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
@@ -609,7 +609,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
@@ -632,7 +632,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
@@ -662,7 +662,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
@@ -692,7 +692,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().SequenceName);
             Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
@@ -714,7 +714,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, property.SqlServer().IdentityStrategy);
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Null(property.SqlServer().SequenceName);
 
             Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
@@ -735,7 +735,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, property.SqlServer().IdentityStrategy);
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Null(property.SqlServer().SequenceName);
 
             Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));

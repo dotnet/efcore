@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -87,7 +86,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 {
                     b.ToSqliteTable("People2");
                     b.Key(t => t.Name);
-                    b.Property(t => t.Name).StoreGeneratedPattern(StoreGeneratedPattern.Identity);
+                    b.Property(t => t.Name).ValueGeneratedOnAdd();
                 });
         }
     }

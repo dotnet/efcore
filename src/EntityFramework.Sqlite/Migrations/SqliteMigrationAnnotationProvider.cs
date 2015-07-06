@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
     {
         public override IEnumerable<IAnnotation> For(IProperty property)
         {
-            if (property.StoreGeneratedPattern == StoreGeneratedPattern.Identity
+            if (property.ValueGenerated == ValueGenerated.OnAdd
                 && property.ClrType.UnwrapNullableType().IsInteger())
             {
                 yield return new Annotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement, true);

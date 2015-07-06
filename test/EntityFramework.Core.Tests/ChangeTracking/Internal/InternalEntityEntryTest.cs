@@ -1335,7 +1335,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
-            entityType.GetProperty("Name").StoreGeneratedPattern = StoreGeneratedPattern.Computed;
+            entityType.GetProperty("Name").ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(model),
@@ -1357,7 +1357,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
-            entityType.GetProperty("Name").StoreGeneratedPattern = StoreGeneratedPattern.Computed;
+            entityType.GetProperty("Name").ValueGenerated = ValueGenerated.OnAddOrUpdate;
             entityType.GetProperty("Name").IsReadOnlyAfterSave = false;
 
             var entry = CreateInternalEntry(
@@ -1430,8 +1430,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             modelBuilder
                 .Entity<Root>(b =>
                     {
-                        b.Property(e => e.Id)
-                            .StoreGeneratedPattern(StoreGeneratedPattern.None);
+                        b.Property(e => e.Id).ValueGeneratedNever();
 
                         b.Reference(e => e.First)
                             .InverseReference(e => e.Root)
@@ -1505,7 +1504,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entityType1 = model.AddEntityType(typeof(SomeEntity));
             var key1 = entityType1.GetOrAddProperty("Id", typeof(int));
-            key1.IsValueGeneratedOnAdd = true;
+            key1.RequiresValueGenerator = true;
             entityType1.GetOrSetPrimaryKey(key1);
             entityType1.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
 
@@ -1516,7 +1515,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var fk = entityType2.GetOrAddProperty("SomeEntityId", typeof(int));
             entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.GetPrimaryKey());
             var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
-            justAProperty.IsValueGeneratedOnAdd = true;
+            justAProperty.RequiresValueGenerator = true;
 
             var entityType3 = model.AddEntityType(typeof(FullNotificationEntity));
             entityType3.GetOrSetPrimaryKey(entityType3.GetOrAddProperty("Id", typeof(int)));

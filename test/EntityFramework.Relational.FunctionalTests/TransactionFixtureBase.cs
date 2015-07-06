@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             modelBuilder.Entity<TransactionCustomer>(ps =>
                 {
-                    ps.Property(c => c.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+                    ps.Property(c => c.Id).ValueGeneratedNever();
                     ps.ToTable("Customers");
                 });
         }

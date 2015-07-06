@@ -160,8 +160,9 @@ namespace Microsoft.Data.Entity.Tests
             public abstract TestPropertyBuilder<TProperty> MaxLength(int maxLength);
             public abstract TestPropertyBuilder<TProperty> ConcurrencyToken(bool isConcurrencyToken = true);
 
-            public abstract TestPropertyBuilder<TProperty> StoreGeneratedPattern(
-                StoreGeneratedPattern storeGeneratedPattern);
+            public abstract TestPropertyBuilder<TProperty> ValueGeneratedNever();
+            public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnAdd();
+            public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate();
         }
 
         public abstract class TestCollectionNavigationBuilder<TEntity, TRelatedEntity>

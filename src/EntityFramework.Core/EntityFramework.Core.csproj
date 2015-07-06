@@ -174,7 +174,7 @@
     <Compile Include="Metadata\Conventions\Internal\RequiredAttributeConvention.cs" />
     <Compile Include="Metadata\CoreAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\MetadataHelper.cs" />
-    <Compile Include="Metadata\StoreGeneratedPattern.cs" />
+    <Compile Include="Metadata\ValueGenerated.cs" />
     <Compile Include="Infrastructure\CoreOptionsExtension.cs" />
     <Compile Include="Infrastructure\DbContextOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptions`.cs" />

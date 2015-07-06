@@ -1,9 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -15,7 +13,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Chassis>().ToTable("Chassis");
-            modelBuilder.Entity<Team>().ToTable("Teams").Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+            modelBuilder.Entity<Team>().ToTable("Teams").Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<Driver>().ToTable("Drivers");
             modelBuilder.Entity<Engine>().ToTable("Engines");
             modelBuilder.Entity<EngineSupplier>().ToTable("EngineSuppliers");

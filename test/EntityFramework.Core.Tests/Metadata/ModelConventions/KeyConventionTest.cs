@@ -26,10 +26,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             public int SampleEntityId { get; set; }
         }
 
-        #region IsValueGeneratedOnAdd
+        #region RequiresValueGenerator
 
         [Fact]
-        public void IsValueGeneratedOnAdd_flag_is_set_for_key_properties()
+        public void RequiresValueGenerator_flag_is_set_for_key_properties()
         {
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
@@ -41,15 +41,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
-            Assert.NotNull(keyProperties[0].IsValueGeneratedOnAdd);
-            Assert.NotNull(keyProperties[1].IsValueGeneratedOnAdd);
+            Assert.NotNull(keyProperties[0].RequiresValueGenerator);
+            Assert.NotNull(keyProperties[1].RequiresValueGenerator);
 
-            Assert.True(keyProperties[0].IsValueGeneratedOnAdd.Value);
-            Assert.True(keyProperties[1].IsValueGeneratedOnAdd.Value);
+            Assert.True(keyProperties[0].RequiresValueGenerator.Value);
+            Assert.True(keyProperties[1].RequiresValueGenerator.Value);
         }
 
         [Fact]
-        public void IsValueGeneratedOnAdd_flag_is_not_set_for_foreign_key()
+        public void RequiresValueGenerator_flag_is_not_set_for_foreign_key()
         {
             var modelBuilder = CreateInternalModelBuilder();
 
@@ -72,11 +72,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
-            Assert.Null(keyProperties[0].IsValueGeneratedOnAdd);
+            Assert.Null(keyProperties[0].RequiresValueGenerator);
         }
 
         [Fact]
-        public void IsValueGeneratedOnAdd_flag_is_set_for_property_which_are_not_part_of_any_foreign_key()
+        public void RequiresValueGenerator_flag_is_set_for_property_which_are_not_part_of_any_foreign_key()
         {
             var modelBuilder = CreateInternalModelBuilder();
 
@@ -99,12 +99,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
-            Assert.True(keyProperties[0].IsValueGeneratedOnAdd);
-            Assert.Null(keyProperties[1].IsValueGeneratedOnAdd);
+            Assert.True(keyProperties[0].RequiresValueGenerator);
+            Assert.Null(keyProperties[1].RequiresValueGenerator);
         }
 
         [Fact]
-        public void IsValueGeneratedOnAdd_flag_is_not_set_for_properties_which_are_part_of_a_foreign_key()
+        public void RequiresValueGenerator_flag_is_not_set_for_properties_which_are_part_of_a_foreign_key()
         {
             var modelBuilder = CreateInternalModelBuilder();
 
@@ -127,17 +127,17 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
-            Assert.Null(keyProperties[0].IsValueGeneratedOnAdd);
+            Assert.Null(keyProperties[0].RequiresValueGenerator);
         }
 
         [Fact]
-        public void KeyConvention_does_not_override_IsValueGeneratedOnAdd_when_configured_explicitly()
+        public void KeyConvention_does_not_override_RequiresValueGenerator_when_configured_explicitly()
         {
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "Id" };
-            entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention).GenerateValueOnAdd(false, ConfigurationSource.Explicit);
+            entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention).UseValueGenerator(false, ConfigurationSource.Explicit);
 
             var keyBuilder = entityBuilder.Key(properties, ConfigurationSource.Convention);
 
@@ -145,11 +145,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
-            Assert.False(keyProperties[0].IsValueGeneratedOnAdd.Value);
+            Assert.False(keyProperties[0].RequiresValueGenerator.Value);
         }
 
         [Fact]
-        public void IsValueGeneratedOnAdd_flag_is_turned_off_when_foreign_key_is_added()
+        public void RequiresValueGenerator_flag_is_turned_off_when_foreign_key_is_added()
         {
             var modelBuilder = CreateInternalModelBuilder();
 
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
-            Assert.True(keyProperties[0].IsValueGeneratedOnAdd);
+            Assert.True(keyProperties[0].RequiresValueGenerator);
 
             principalEntityBuilder.Relationship(
                 principalEntityBuilder,
@@ -174,11 +174,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 null,
                 ConfigurationSource.Convention);
 
-            Assert.Null(keyProperties[0].IsValueGeneratedOnAdd);
+            Assert.Null(keyProperties[0].RequiresValueGenerator);
         }
 
         [Fact]
-        public void IsValueGeneratedOnAdd_flag_is_set_when_foreign_key_is_removed()
+        public void RequiresValueGenerator_flag_is_set_when_foreign_key_is_removed()
         {
             var modelBuilder = CreateInternalModelBuilder();
 
@@ -192,7 +192,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
-            Assert.True(keyProperties[0].IsValueGeneratedOnAdd);
+            Assert.True(keyProperties[0].RequiresValueGenerator);
 
             var relationshipBuilder = principalEntityBuilder.Relationship(
                 principalEntityBuilder,
@@ -203,11 +203,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 null,
                 ConfigurationSource.Convention);
 
-            Assert.Null(keyProperties[0].IsValueGeneratedOnAdd);
+            Assert.Null(keyProperties[0].RequiresValueGenerator);
 
             referencedEntityBuilder.RemoveRelationship(relationshipBuilder.Metadata, ConfigurationSource.Convention);
 
-            Assert.True(keyProperties[0].IsValueGeneratedOnAdd);
+            Assert.True(keyProperties[0].RequiresValueGenerator);
         }
 
         #endregion
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var property = keyBuilder.Metadata.Properties.First();
 
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
         [Fact]
@@ -241,7 +241,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var property = keyBuilder.Metadata.Properties.First();
 
-            Assert.Null(property.StoreGeneratedPattern);
+            Assert.Null(property.ValueGenerated);
         }
 
         [Fact]
@@ -256,8 +256,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
-            Assert.Null(keyProperties[0].StoreGeneratedPattern);
-            Assert.Null(keyProperties[1].StoreGeneratedPattern);
+            Assert.Null(keyProperties[0].ValueGenerated);
+            Assert.Null(keyProperties[1].ValueGenerated);
         }
 
         [Fact]
@@ -270,7 +270,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var property = keyBuilder.Metadata.Properties.First();
 
-            Assert.Null(property.StoreGeneratedPattern);
+            Assert.Null(property.ValueGenerated);
         }
 
         [Fact]
@@ -282,15 +282,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var idProperty = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention).Metadata;
             var numberProperty = entityBuilder.Property(typeof(int), "Number", ConfigurationSource.Convention).Metadata;
 
-            Assert.Equal(StoreGeneratedPattern.Identity, idProperty.StoreGeneratedPattern);
-            Assert.Null(numberProperty.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, idProperty.ValueGenerated);
+            Assert.Null(numberProperty.ValueGenerated);
 
             var keyBuilder = entityBuilder.PrimaryKey(new List<string> { "Number" }, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 
-            Assert.Null(idProperty.StoreGeneratedPattern);
-            Assert.Equal(StoreGeneratedPattern.Identity, numberProperty.StoreGeneratedPattern);
+            Assert.Null(idProperty.ValueGenerated);
+            Assert.Equal(ValueGenerated.OnAdd, numberProperty.ValueGenerated);
         }
 
         [Fact]
@@ -300,7 +300,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
 
             entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention)
-                .StoreGeneratedPattern(StoreGeneratedPattern.None, ConfigurationSource.Explicit);
+                .ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
 
             var keyBuilder = entityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
 
@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var property = keyBuilder.Metadata.Properties.First();
 
-            Assert.Equal(StoreGeneratedPattern.None, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
         [Fact]
@@ -326,7 +326,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var property = keyBuilder.Metadata.Properties.First();
 
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
 
             principalEntityBuilder.Relationship(
                 principalEntityBuilder,
@@ -337,7 +337,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 null,
                 ConfigurationSource.Convention);
 
-            Assert.Null(property.StoreGeneratedPattern);
+            Assert.Null(property.ValueGenerated);
         }
 
         [Fact]
@@ -355,7 +355,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var property = keyBuilder.Metadata.Properties.First();
 
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
 
             var relationshipBuilder = principalEntityBuilder.Relationship(
                 principalEntityBuilder,
@@ -366,13 +366,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 null,
                 ConfigurationSource.Convention);
 
-            Assert.Null(property.StoreGeneratedPattern);
+            Assert.Null(property.ValueGenerated);
 
             referencedEntityBuilder.RemoveRelationship(relationshipBuilder.Metadata, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 
-            Assert.Equal(StoreGeneratedPattern.Identity, property.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
 
         }
 

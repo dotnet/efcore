@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 throw new InvalidOperationException(Strings.TimestampAttributeOnNonBinary(propertyBuilder.Metadata.Name));
             }
 
-            propertyBuilder.StoreGeneratedPattern(StoreGeneratedPattern.Computed, ConfigurationSource.DataAnnotation);
+            propertyBuilder.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.DataAnnotation);
             propertyBuilder.ConcurrencyToken(true, ConfigurationSource.DataAnnotation);
 
             return propertyBuilder;

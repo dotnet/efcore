@@ -419,7 +419,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private bool MayGetStoreValue([CanBeNull] IProperty property, IEntityType entityType)
             => property != null
-               && (property.StoreGeneratedPattern != StoreGeneratedPattern.None
+               && (property.ValueGenerated != ValueGenerated.Never
                    || StateManager.ValueGeneration.MayGetTemporaryValue(property, entityType));
 
         public virtual void AutoRollbackSidecars()
@@ -476,9 +476,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual bool StoreMustGenerateValue([NotNull] IProperty property)
-            => property.StoreGeneratedPattern != StoreGeneratedPattern.None
+            => property.ValueGenerated != ValueGenerated.Never
                && ((EntityState == EntityState.Added && IsTemporaryOrSentinel(property))
-                   || (property.StoreGeneratedPattern == StoreGeneratedPattern.Computed
+                   || (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
                        && (EntityState == EntityState.Modified && !IsPropertyModified(property))));
 
         private bool IsTemporaryOrSentinel(IProperty property) => HasTemporaryValue(property) || property.IsSentinelValue(this[property]);

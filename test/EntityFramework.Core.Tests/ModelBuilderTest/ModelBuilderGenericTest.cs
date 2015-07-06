@@ -188,8 +188,14 @@ namespace Microsoft.Data.Entity.Tests
             public override TestPropertyBuilder<TProperty> ConcurrencyToken(bool isConcurrencyToken = true)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.ConcurrencyToken(isConcurrencyToken));
 
-            public override TestPropertyBuilder<TProperty> StoreGeneratedPattern(StoreGeneratedPattern storeGeneratedPattern)
-                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.StoreGeneratedPattern(storeGeneratedPattern));
+            public override TestPropertyBuilder<TProperty> ValueGeneratedNever()
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.ValueGeneratedNever());
+
+            public override TestPropertyBuilder<TProperty> ValueGeneratedOnAdd()
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.ValueGeneratedOnAdd());
+
+            public override TestPropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate()
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.ValueGeneratedOnAddOrUpdate());
         }
 
         protected class GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>

@@ -22,30 +22,51 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             _provider = new SqliteMigrationAnnotationProvider();
         }
 
-        [Theory]
-        [InlineData(StoreGeneratedPattern.Computed, false)]
-        [InlineData(StoreGeneratedPattern.Identity, true)]
-        [InlineData(StoreGeneratedPattern.None, false)]
-        public void Adds_Autoincrement_by_store_generated_pattern(StoreGeneratedPattern pattern, bool addsAnnotation)
+        [Fact]
+        public void Adds_Autoincrement_for_OnAdd_integer_property()
         {
-            _modelBuilder.Entity<Entity>(b => { b.Property(e => e.Prop).StoreGeneratedPattern(pattern); });
-            var property = _modelBuilder.Model.GetEntityType(typeof(Entity)).GetProperty("Prop");
+            var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAdd().Metadata;
 
-            var annotation = _provider.For(property);
-            if (addsAnnotation)
-            {
-                Assert.Contains(annotation, a => a.Name == _autoincrement.Name && (bool)a.Value);
-            }
-            else
-            {
-                Assert.DoesNotContain(annotation, a => a.Name == _autoincrement.Name && (bool)a.Value);
-            }
+            Assert.Contains(_provider.For(property), a => a.Name == _autoincrement.Name && (bool)a.Value);
+        }
+
+        [Fact]
+        public void Does_not_add_Autoincrement_for_OnAddOrUpdate_integer_property()
+        {
+            var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAddOrUpdate().Metadata;
+
+            Assert.DoesNotContain(_provider.For(property), a => a.Name == _autoincrement.Name);
+        }
+
+        [Fact]
+        public void Does_not_add_Autoincrement_for_Never_value_generated_integer_property()
+        {
+            var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedNever().Metadata;
+
+            Assert.DoesNotContain(_provider.For(property), a => a.Name == _autoincrement.Name);
+        }
+
+        [Fact]
+        public void Does_not_add_Autoincrement_for_default_integer_property()
+        {
+            var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).Metadata;
+
+            Assert.DoesNotContain(_provider.For(property), a => a.Name == _autoincrement.Name);
+        }
+
+        [Fact]
+        public void Does_not_add_Autoincrement_for_non_integer_OnAdd_property()
+        {
+            var property = _modelBuilder.Entity<Entity>().Property(e => e.StringProp).ValueGeneratedOnAdd().Metadata;
+
+            Assert.DoesNotContain(_provider.For(property), a => a.Name == _autoincrement.Name);
         }
 
         private class Entity
         {
             public int Id { get; set; }
-            public long Prop { get; set; }
+            public long IntProp { get; set; }
+            public string StringProp { get; set; }
         }
     }
 }

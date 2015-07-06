@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 property => !entityTypeBuilder.Metadata.GetForeignKeys().SelectMany(fk => fk.Properties).Contains(property)))
             {
                 entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
-                    ?.GenerateValueOnAdd(true, ConfigurationSource.Convention);
+                    ?.UseValueGenerator(true, ConfigurationSource.Convention);
             }
         }
 
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 foreach (var property in entityTypeBuilder.Metadata.Properties)
                 {
                     entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
-                        ?.StoreGeneratedPattern(null, ConfigurationSource.Convention);
+                        ?.ValueGenerated(null, ConfigurationSource.Convention);
                 }
 
                 if (properties.Count == 1)
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                         && !property.IsForeignKey())
                     {
                         entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
-                            ?.StoreGeneratedPattern(StoreGeneratedPattern.Identity, ConfigurationSource.Convention);
+                            ?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
                     }
                 }
             }

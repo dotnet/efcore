@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             foreach (var property in entityType.Properties)
             {
-                property.IsValueGeneratedOnAdd = generateValues;
+                property.RequiresValueGenerator = generateValues;
             }
 
             return model;

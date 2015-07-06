@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Blog>().Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+                modelBuilder.Entity<Blog>().Property(e => e.Id).ValueGeneratedNever();
             }
 
             public DbSet<Blog> Blogs { get; set; }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -162,7 +163,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             AddRequiredFacetConfiguration(propertyConfiguration);
             AddMaxLengthFacetConfiguration(propertyConfiguration);
-            AddStoreGeneratedPatternFacetConfiguration(propertyConfiguration);
+            AddValueGeneratedFacetConfiguration(propertyConfiguration);
             AddColumnNameFacetConfiguration(propertyConfiguration);
             AddColumnTypeFacetConfiguration(propertyConfiguration);
             AddDefaultValueFacetConfiguration(propertyConfiguration);
@@ -204,19 +205,20 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public virtual void AddStoreGeneratedPatternFacetConfiguration(
+        public virtual void AddValueGeneratedFacetConfiguration(
             [NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (propertyConfiguration.Property.StoreGeneratedPattern != StoreGeneratedPattern.None)
+            var valueGenerated = propertyConfiguration.Property.ValueGenerated;
+            switch (valueGenerated)
             {
-                propertyConfiguration.AddFacetConfiguration(
-                    new FacetConfiguration(
-                        string.Format(CultureInfo.InvariantCulture,
-                            "StoreGeneratedPattern({0})",
-                            CSharpUtilities.Instance.GenerateLiteral(
-                                propertyConfiguration.Property.StoreGeneratedPattern))));
+                case ValueGenerated.OnAdd:
+                    propertyConfiguration.AddFacetConfiguration(new FacetConfiguration("ValueGeneratedOnAdd()"));
+                    break;
+                case ValueGenerated.OnAddOrUpdate:
+                    propertyConfiguration.AddFacetConfiguration(new FacetConfiguration("ValueGeneratedOnAddOrUpdate()"));
+                    break;
             }
         }
 

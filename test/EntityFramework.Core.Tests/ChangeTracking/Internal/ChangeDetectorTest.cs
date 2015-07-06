@@ -1806,7 +1806,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     b.Reference(e => e.Tag).InverseReference(e => e.Product)
                         .PrincipalKey<Product>(e => e.TagId)
                         .ForeignKey<ProductTag>(e => e.ProductId);
-                    b.Property(e => e.TagId).Metadata.IsValueGeneratedOnAdd = false;
+                    b.Property(e => e.TagId).Metadata.RequiresValueGenerator = false;
                 });
 
             builder.Entity<Category>(b =>
@@ -1814,12 +1814,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     b.Collection(e => e.Products).InverseReference(e => e.Category)
                         .ForeignKey(e => e.DependentId)
                         .PrincipalKey(e => e.PrincipalId);
-                    b.Property(e => e.PrincipalId).Metadata.IsValueGeneratedOnAdd = false;
+                    b.Property(e => e.PrincipalId).Metadata.RequiresValueGenerator = false;
 
                     b.Reference(e => e.Tag).InverseReference(e => e.Category)
                         .ForeignKey<CategoryTag>(e => e.CategoryId)
                         .PrincipalKey<Category>(e => e.TagId);
-                    b.Property(e => e.TagId).Metadata.IsValueGeneratedOnAdd = false;
+                    b.Property(e => e.TagId).Metadata.RequiresValueGenerator = false;
                 });
 
             builder.Entity<Person>()
@@ -2031,7 +2031,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     b.Reference(e => e.Tag).InverseReference(e => e.Product)
                         .PrincipalKey<NotifyingProduct>(e => e.TagId)
                         .ForeignKey<NotifyingProductTag>(e => e.ProductId);
-                    b.Property(e => e.TagId).Metadata.IsValueGeneratedOnAdd = false;
+                    b.Property(e => e.TagId).Metadata.RequiresValueGenerator = false;
                 });
 
 
@@ -2040,12 +2040,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     b.Collection(e => e.Products).InverseReference(e => e.Category)
                         .ForeignKey(e => e.DependentId)
                         .PrincipalKey(e => e.PrincipalId);
-                    b.Property(e => e.PrincipalId).Metadata.IsValueGeneratedOnAdd = false;
+                    b.Property(e => e.PrincipalId).Metadata.RequiresValueGenerator = false;
 
                     b.Reference(e => e.Tag).InverseReference(e => e.Category)
                         .ForeignKey<NotifyingCategoryTag>(e => e.CategoryId)
                         .PrincipalKey<NotifyingCategory>(e => e.TagId);
-                    b.Property(e => e.TagId).Metadata.IsValueGeneratedOnAdd = false;
+                    b.Property(e => e.TagId).Metadata.RequiresValueGenerator = false;
                 });
 
             builder.Entity<NotifyingPerson>()

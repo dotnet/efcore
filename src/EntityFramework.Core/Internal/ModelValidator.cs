@@ -111,14 +111,14 @@ namespace Microsoft.Data.Entity.Internal
                         rootPrincipal = VerifyRootPrincipal(nextPrincipalProperty, verifiedProperties, visitedForeignKeys.Add(foreignKey), out errorMessage);
                         if (rootPrincipal == null)
                         {
-                            if (principalProperty.IsValueGeneratedOnAdd)
+                            if (principalProperty.RequiresValueGenerator)
                             {
                                 rootPrincipals[principalProperty] = foreignKey;
                             }
                             continue;
                         }
 
-                        if (principalProperty.IsValueGeneratedOnAdd)
+                        if (principalProperty.RequiresValueGenerator)
                         {
                             ShowError(Strings.ForeignKeyValueGenerationOnAdd(
                                 principalProperty.Name,
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Internal
                     return null;
                 }
 
-                if (!principalProperty.IsValueGeneratedOnAdd)
+                if (!principalProperty.RequiresValueGenerator)
                 {
                     ShowError(Strings.PrincipalKeyNoValueGenerationOnAdd(principalProperty.Name, principalProperty.EntityType.DisplayName()));
                     return null;

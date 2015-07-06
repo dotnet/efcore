@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -78,12 +77,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 modelBuilder.Entity<Entity>()
                     .Property(e => e.P4)
-                    .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
+                    .ValueGeneratedOnAddOrUpdate()
                     .SqlServerComputedExpression("P1 + P2");
 
                 modelBuilder.Entity<Entity>()
                     .Property(e => e.P5)
-                    .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
+                    .ValueGeneratedOnAddOrUpdate()
                     .SqlServerComputedExpression("P1 + P3");
             }
         }
@@ -135,7 +134,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 modelBuilder.Entity<EnumItem>()
                     .Property(entity => entity.CalculatedFlagEnum)
-                    .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
+                    .ValueGeneratedOnAddOrUpdate()
                     .SqlServerComputedExpression("FlagEnum | OptionalFlagEnum");
             }
         }

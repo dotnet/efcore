@@ -531,24 +531,24 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Quarks>(b =>
                     {
-                        b.Property(e => e.Id).Metadata.IsValueGeneratedOnAdd = false;
-                        b.Property(e => e.Up).Metadata.IsValueGeneratedOnAdd = true;
-                        b.Property(e => e.Down).Metadata.IsValueGeneratedOnAdd = true;
-                        b.Property<int>("Charm").Metadata.IsValueGeneratedOnAdd = true;
-                        b.Property<string>("Strange").Metadata.IsValueGeneratedOnAdd = false;
-                        b.Property<int>("Top").Metadata.IsValueGeneratedOnAdd = true;
-                        b.Property<string>("Bottom").Metadata.IsValueGeneratedOnAdd = false;
+                        b.Property(e => e.Id).Metadata.RequiresValueGenerator = false;
+                        b.Property(e => e.Up).Metadata.RequiresValueGenerator = true;
+                        b.Property(e => e.Down).Metadata.RequiresValueGenerator = true;
+                        b.Property<int>("Charm").Metadata.RequiresValueGenerator = true;
+                        b.Property<string>("Strange").Metadata.RequiresValueGenerator = false;
+                        b.Property<int>("Top").Metadata.RequiresValueGenerator = true;
+                        b.Property<string>("Bottom").Metadata.RequiresValueGenerator = false;
                     });
 
                 var entityType = model.GetEntityType(typeof(Quarks));
 
-                Assert.Equal(false, entityType.GetProperty(Customer.IdProperty.Name).IsValueGeneratedOnAdd);
-                Assert.Equal(true, entityType.GetProperty("Up").IsValueGeneratedOnAdd);
-                Assert.Equal(true, entityType.GetProperty("Down").IsValueGeneratedOnAdd);
-                Assert.Equal(true, entityType.GetProperty("Charm").IsValueGeneratedOnAdd);
-                Assert.Equal(false, entityType.GetProperty("Strange").IsValueGeneratedOnAdd);
-                Assert.Equal(true, entityType.GetProperty("Top").IsValueGeneratedOnAdd);
-                Assert.Equal(false, entityType.GetProperty("Bottom").IsValueGeneratedOnAdd);
+                Assert.Equal(false, entityType.GetProperty(Customer.IdProperty.Name).RequiresValueGenerator);
+                Assert.Equal(true, entityType.GetProperty("Up").RequiresValueGenerator);
+                Assert.Equal(true, entityType.GetProperty("Down").RequiresValueGenerator);
+                Assert.Equal(true, entityType.GetProperty("Charm").RequiresValueGenerator);
+                Assert.Equal(false, entityType.GetProperty("Strange").RequiresValueGenerator);
+                Assert.Equal(true, entityType.GetProperty("Top").RequiresValueGenerator);
+                Assert.Equal(false, entityType.GetProperty("Bottom").RequiresValueGenerator);
             }
 
             [Fact]
@@ -559,23 +559,23 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Quarks>(b =>
                     {
-                        b.Property(e => e.Up).StoreGeneratedPattern(StoreGeneratedPattern.Computed);
-                        b.Property(e => e.Down).StoreGeneratedPattern(StoreGeneratedPattern.None);
-                        b.Property<int>("Charm").StoreGeneratedPattern(StoreGeneratedPattern.Identity);
-                        b.Property<string>("Strange").StoreGeneratedPattern(StoreGeneratedPattern.None);
-                        b.Property<int>("Top").StoreGeneratedPattern(StoreGeneratedPattern.Computed);
-                        b.Property<string>("Bottom").StoreGeneratedPattern(StoreGeneratedPattern.None);
+                        b.Property(e => e.Up).ValueGeneratedOnAddOrUpdate();
+                        b.Property(e => e.Down).ValueGeneratedNever();
+                        b.Property<int>("Charm").ValueGeneratedOnAdd();
+                        b.Property<string>("Strange").ValueGeneratedNever();
+                        b.Property<int>("Top").ValueGeneratedOnAddOrUpdate();
+                        b.Property<string>("Bottom").ValueGeneratedNever();
                     });
 
                 var entityType = model.GetEntityType(typeof(Quarks));
 
-                Assert.Equal(StoreGeneratedPattern.Identity, entityType.GetProperty(Customer.IdProperty.Name).StoreGeneratedPattern);
-                Assert.Equal(StoreGeneratedPattern.Computed, entityType.GetProperty("Up").StoreGeneratedPattern);
-                Assert.Equal(StoreGeneratedPattern.None, entityType.GetProperty("Down").StoreGeneratedPattern);
-                Assert.Equal(StoreGeneratedPattern.Identity, entityType.GetProperty("Charm").StoreGeneratedPattern);
-                Assert.Equal(StoreGeneratedPattern.None, entityType.GetProperty("Strange").StoreGeneratedPattern);
-                Assert.Equal(StoreGeneratedPattern.Computed, entityType.GetProperty("Top").StoreGeneratedPattern);
-                Assert.Equal(StoreGeneratedPattern.None, entityType.GetProperty("Bottom").StoreGeneratedPattern);
+                Assert.Equal(ValueGenerated.OnAdd, entityType.GetProperty(Customer.IdProperty.Name).ValueGenerated);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, entityType.GetProperty("Up").ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, entityType.GetProperty("Down").ValueGenerated);
+                Assert.Equal(ValueGenerated.OnAdd, entityType.GetProperty("Charm").ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, entityType.GetProperty("Strange").ValueGenerated);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, entityType.GetProperty("Top").ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, entityType.GetProperty("Bottom").ValueGenerated);
             }
 
             [Fact]
@@ -614,7 +614,9 @@ namespace Microsoft.Data.Entity.Tests
                     .Required()
                     .Annotation("A", "V")
                     .ConcurrencyToken()
-                    .StoreGeneratedPattern(StoreGeneratedPattern.Computed)
+                    .ValueGeneratedNever()
+                    .ValueGeneratedOnAdd()
+                    .ValueGeneratedOnAddOrUpdate()
                     .MaxLength(100)
                     .Required();
             }

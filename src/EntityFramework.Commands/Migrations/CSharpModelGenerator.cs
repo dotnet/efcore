@@ -175,13 +175,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         .Append(".Required()");
                 }
 
-                if (property.StoreGeneratedPattern != StoreGeneratedPattern.None)
+                if (property.ValueGenerated != ValueGenerated.Never)
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(".StoreGeneratedPattern(StoreGeneratedPattern.")
-                        .Append(property.StoreGeneratedPattern.ToString())
-                        .Append(")");
+                        .Append(
+                            property.ValueGenerated == ValueGenerated.OnAdd
+                                ? ".ValueGeneratedOnAdd()"
+                                : ".ValueGeneratedOnAddOrUpdate()");
                 }
 
                 GeneratePropertyAnnotations(property, stringBuilder);

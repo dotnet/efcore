@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
             get
             {
-                if (Property.StoreGeneratedPattern != StoreGeneratedPattern.Identity
+                if (Property.ValueGenerated != ValueGenerated.OnAdd
                     || !Property.ClrType.UnwrapNullableType().IsInteger()
                     || Property.SqlServer().HasStoreDefault())
                 {

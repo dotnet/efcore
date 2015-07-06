@@ -65,11 +65,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
 
-            propertyBuilder.StoreGeneratedPattern(StoreGeneratedPattern.Identity, ConfigurationSource.Convention);
+            propertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
 
             new DatabaseGeneratedAttributeConvention().Apply(propertyBuilder);
 
-            Assert.Equal(StoreGeneratedPattern.Computed, propertyBuilder.Metadata.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, propertyBuilder.Metadata.ValueGenerated);
         }
 
         [Fact]
@@ -79,11 +79,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
 
-            propertyBuilder.StoreGeneratedPattern(StoreGeneratedPattern.None, ConfigurationSource.Explicit);
+            propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
 
             new DatabaseGeneratedAttributeConvention().Apply(propertyBuilder);
 
-            Assert.Equal(StoreGeneratedPattern.None, propertyBuilder.Metadata.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.Never, propertyBuilder.Metadata.ValueGenerated);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             var entityTypeBuilder = modelBuilder.Entity<A>();
 
-            Assert.Equal(StoreGeneratedPattern.Computed, entityTypeBuilder.Property(e => e.Id).Metadata.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, entityTypeBuilder.Property(e => e.Id).Metadata.ValueGenerated);
         }
 
         #endregion
@@ -296,12 +296,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var propertyBuilder = entityBuilder.Property(typeof(byte[]), "Timestamp", ConfigurationSource.Explicit);
 
-            propertyBuilder.StoreGeneratedPattern(StoreGeneratedPattern.None, ConfigurationSource.Convention);
+            propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
             propertyBuilder.ConcurrencyToken(false, ConfigurationSource.Convention);
 
             new TimestampAttributeConvention().Apply(propertyBuilder);
 
-            Assert.Equal(StoreGeneratedPattern.Computed, propertyBuilder.Metadata.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, propertyBuilder.Metadata.ValueGenerated);
             Assert.True(propertyBuilder.Metadata.IsConcurrencyToken);
         }
 
@@ -312,12 +312,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var propertyBuilder = entityBuilder.Property(typeof(byte[]), "Timestamp", ConfigurationSource.Explicit);
 
-            propertyBuilder.StoreGeneratedPattern(StoreGeneratedPattern.None, ConfigurationSource.Explicit);
+            propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
             propertyBuilder.ConcurrencyToken(false, ConfigurationSource.Explicit);
 
             new TimestampAttributeConvention().Apply(propertyBuilder);
 
-            Assert.Equal(StoreGeneratedPattern.None, propertyBuilder.Metadata.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.Never, propertyBuilder.Metadata.ValueGenerated);
             Assert.False(propertyBuilder.Metadata.IsConcurrencyToken);
         }
 
@@ -327,7 +327,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             var entityTypeBuilder = modelBuilder.Entity<A>();
 
-            Assert.Equal(StoreGeneratedPattern.Computed, entityTypeBuilder.Property(e => e.Timestamp).Metadata.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, entityTypeBuilder.Property(e => e.Timestamp).Metadata.ValueGenerated);
             Assert.True(entityTypeBuilder.Property(e => e.Timestamp).Metadata.IsConcurrencyToken);
         }
 

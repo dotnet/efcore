@@ -42,65 +42,65 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Can_only_override_lower_source_GenerateValueOnAdd()
+        public void Can_only_override_lower_source_UseValueGenerator()
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
 
-            Assert.True(builder.GenerateValueOnAdd(true, ConfigurationSource.Convention));
-            Assert.True(builder.GenerateValueOnAdd(false, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.UseValueGenerator(true, ConfigurationSource.Convention));
+            Assert.True(builder.UseValueGenerator(false, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(false, metadata.IsValueGeneratedOnAdd);
+            Assert.Equal(false, metadata.RequiresValueGenerator);
 
-            Assert.False(builder.GenerateValueOnAdd(true, ConfigurationSource.Convention));
-            Assert.Equal(false, metadata.IsValueGeneratedOnAdd);
+            Assert.False(builder.UseValueGenerator(true, ConfigurationSource.Convention));
+            Assert.Equal(false, metadata.RequiresValueGenerator);
         }
 
         [Fact]
-        public void Can_only_override_existing_GenerateValueOnAdd_value_explicitly()
+        public void Can_only_override_existing_UseValueGenerator_value_explicitly()
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
-            metadata.IsValueGeneratedOnAdd = true;
+            metadata.RequiresValueGenerator = true;
 
-            Assert.True(builder.GenerateValueOnAdd(true, ConfigurationSource.DataAnnotation));
-            Assert.False(builder.GenerateValueOnAdd(false, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.UseValueGenerator(true, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.UseValueGenerator(false, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(true, metadata.IsValueGeneratedOnAdd);
+            Assert.Equal(true, metadata.RequiresValueGenerator);
 
-            Assert.True(builder.GenerateValueOnAdd(false, ConfigurationSource.Explicit));
-            Assert.Equal(false, metadata.IsValueGeneratedOnAdd);
+            Assert.True(builder.UseValueGenerator(false, ConfigurationSource.Explicit));
+            Assert.Equal(false, metadata.RequiresValueGenerator);
         }
 
         [Fact]
-        public void Can_only_override_lower_source_StoreGeneratedPattern()
+        public void Can_only_override_lower_source_ValueGenerated()
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
 
-            Assert.True(builder.StoreGeneratedPattern(StoreGeneratedPattern.Computed, ConfigurationSource.Convention));
-            Assert.True(builder.StoreGeneratedPattern(StoreGeneratedPattern.None, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Convention));
+            Assert.True(builder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(StoreGeneratedPattern.None, metadata.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
 
-            Assert.False(builder.StoreGeneratedPattern(StoreGeneratedPattern.Computed, ConfigurationSource.Convention));
-            Assert.Equal(StoreGeneratedPattern.None, metadata.StoreGeneratedPattern);
+            Assert.False(builder.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Convention));
+            Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
         }
 
         [Fact]
-        public void Can_only_override_existing_StoreGeneratedPattern_value_explicitly()
+        public void Can_only_override_existing_ValueGenerated_value_explicitly()
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
-            metadata.StoreGeneratedPattern = StoreGeneratedPattern.Computed;
+            metadata.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
-            Assert.True(builder.StoreGeneratedPattern(StoreGeneratedPattern.Computed, ConfigurationSource.DataAnnotation));
-            Assert.False(builder.StoreGeneratedPattern(StoreGeneratedPattern.None, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(StoreGeneratedPattern.Computed, metadata.StoreGeneratedPattern);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, metadata.ValueGenerated);
 
-            Assert.True(builder.StoreGeneratedPattern(StoreGeneratedPattern.None, ConfigurationSource.Explicit));
-            Assert.Equal(StoreGeneratedPattern.None, metadata.StoreGeneratedPattern);
+            Assert.True(builder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit));
+            Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
         }
 
         [Fact]

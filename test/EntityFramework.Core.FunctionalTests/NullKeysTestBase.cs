@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 modelBuilder.Entity<WithIntKey>(b =>
                     {
-                        b.Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+                        b.Property(e => e.Id).ValueGeneratedNever();
                         b.Collection(e => e.Dependents)
                             .InverseReference(e => e.Principal)
                             .ForeignKey(e => e.Fk);
@@ -203,17 +203,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 modelBuilder.Entity<WithNullableIntKey>(b =>
                     {
-                        b.Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+                        b.Property(e => e.Id).ValueGeneratedNever();
                         b.Collection(e => e.Dependents)
                             .InverseReference(e => e.Principal)
                             .ForeignKey(e => e.Fk);
                     });
 
                 modelBuilder.Entity<WithIntFk>()
-                    .Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+                    .Property(e => e.Id).ValueGeneratedNever();
 
                 modelBuilder.Entity<WithNullableIntFk>()
-                    .Property(e => e.Id).StoreGeneratedPattern(StoreGeneratedPattern.None);
+                    .Property(e => e.Id).ValueGeneratedNever();
             }
 
             protected void EnsureCreated()
