@@ -277,23 +277,23 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (var context = new BlogContext())
                 {
-                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+                    var blogs = context.Blogs.OrderBy(e => e.Name).ToList();
 
-                    Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[0].CreatedOn);
-                    Assert.NotEqual(new DateTime(), blogs[1].CreatedOn);
+                    Assert.NotEqual(new DateTime(), blogs[0].CreatedOn);
+                    Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[1].CreatedOn);
 
-                    blogs[0].Name = "One Pegasus";
-                    blogs[1].CreatedOn = new DateTime(1973, 9, 3, 0, 10, 0);
+                    blogs[0].CreatedOn = new DateTime(1973, 9, 3, 0, 10, 0);
+                    blogs[1].Name = "Zwo Unicorns";
 
                     context.SaveChanges();
                 }
 
                 using (var context = new BlogContext())
                 {
-                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+                    var blogs = context.Blogs.OrderBy(e => e.Name).ToList();
 
-                    Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[0].CreatedOn);
-                    Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 0), blogs[1].CreatedOn);
+                    Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[1].CreatedOn);
+                    Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 0), blogs[0].CreatedOn);
                 }
             }
 
