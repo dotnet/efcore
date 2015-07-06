@@ -10,7 +10,7 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class InheritanceSqlServerFixture : InheritanceFixtureBase
+    public class InheritanceSqlServerFixture : InheritanceRelationalFixture
     {
         private readonly DbContextOptions _options;
         private readonly IServiceProvider _serviceProvider;
@@ -49,6 +49,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     [Group] int,
                     FoundOn tinyint,
                     Discriminator nvarchar(255) NOT NULL
+                );
+
+                CREATE TABLE Plant(
+                    Genus int NOT NULL,
+                    Species nvarchar(100) NOT NULL PRIMARY KEY,
+                    Name nvarchar(100) NOT NULL,
+                    HasThorns bit
                 );");
 
             using (var context = CreateContext())
@@ -57,28 +64,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        public override AnimalContext CreateContext()
+        public override InheritanceContext CreateContext()
         {
-            return new AnimalContext(_serviceProvider, _options);
-        }
-
-        public override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            // TODO: Code First this
-
-            var animal = modelBuilder.Entity<Animal>().Metadata;
-
-            var discriminatorProperty
-                = animal.AddProperty("Discriminator", typeof(string), shadowProperty: true);
-
-            discriminatorProperty.IsNullable = false;
-            //discriminatorProperty.IsReadOnlyBeforeSave = true; // #2132
-            discriminatorProperty.IsReadOnlyAfterSave = true;
-            discriminatorProperty.RequiresValueGenerator = true;
-
-            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+            return new InheritanceContext(_serviceProvider, _options);
         }
     }
 }

@@ -31,9 +31,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             }
         }
 
-        public override AnimalContext CreateContext()
+        public override InheritanceContext CreateContext()
         {
-            return new AnimalContext(_serviceProvider, _optionsBuilder.Options);
+            return new InheritanceContext(_serviceProvider, _optionsBuilder.Options);
         }
     }
 }

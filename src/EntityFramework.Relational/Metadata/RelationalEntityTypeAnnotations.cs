@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public new virtual string DiscriminatorValue
+        public new virtual object DiscriminatorValue
         {
             get { return base.DiscriminatorValue; }
             [param: CanBeNull] set { EntityType[DiscriminatorValueAnnotation] = value; }

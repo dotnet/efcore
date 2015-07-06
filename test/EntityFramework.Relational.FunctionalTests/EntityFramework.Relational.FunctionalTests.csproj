@@ -8,7 +8,7 @@
     <ProjectGuid>{82FAD20C-28C6-4B48-B7E4-971AC821E27A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Relational.FunctionalTests</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.FunctionalTests</RootNamespace>
     <AssemblyName>EntityFramework.Relational.FunctionalTests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -38,6 +38,7 @@
     <Compile Include="AsyncFromSqlQueryTestBase.cs" />
     <Compile Include="AsyncFromSqlSprocQueryTestBase.cs" />
     <Compile Include="FromSqlSprocQueryTestBase.cs" />
+    <Compile Include="InheritanceRelationalFixture.cs" />
     <Compile Include="NorthwindSprocQueryRelationalFixture.cs" />
     <Compile Include="MappingQueryTestBase.cs" />
     <Compile Include="MappingQueryFixtureBase.cs" />

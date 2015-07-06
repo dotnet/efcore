@@ -55,6 +55,17 @@ WHERE [a].[Discriminator] = 'Kiwi'",
                 Sql);
         }
 
+        public override void Can_use_of_type_rose()
+        {
+            base.Can_use_of_type_rose();
+
+            Assert.Equal(
+                @"SELECT [p].[Species], [p].[Genus], [p].[Name], [p].[HasThorns]
+FROM [Plant] AS [p]
+WHERE [p].[Genus] = 0",
+                Sql);
+        }
+
         public override void Can_query_all_animals()
         {
             base.Can_query_all_animals();
@@ -63,6 +74,18 @@ WHERE [a].[Discriminator] = 'Kiwi'",
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN ('Kiwi', 'Eagle')
+ORDER BY [a].[Species]",
+                Sql);
+        }
+
+        public override void Can_query_all_plants()
+        {
+            base.Can_query_all_plants();
+
+            Assert.Equal(
+                @"SELECT [a].[Species], [a].[Genus], [a].[Name], [a].[HasThorns]
+FROM [Plant] AS [a]
+WHERE [a].[Genus] IN (0, 1)
 ORDER BY [a].[Species]",
                 Sql);
         }
@@ -100,6 +123,18 @@ ORDER BY [a].[Species]",
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] = 'Kiwi'",
                 Sql);
+        }
+
+        public override void Can_query_just_roses()
+        {
+            base.Can_query_just_roses();
+
+            Assert.Equal(
+                @"SELECT TOP(2) [p].[Species], [p].[Genus], [p].[Name], [p].[HasThorns]
+FROM [Plant] AS [p]
+WHERE [p].[Genus] = 0",
+                Sql
+                );
         }
 
         public override void Can_include_prey()

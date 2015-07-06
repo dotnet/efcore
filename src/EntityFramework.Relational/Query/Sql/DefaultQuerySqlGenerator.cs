@@ -873,6 +873,9 @@ namespace Microsoft.Data.Entity.Query.Sql
         protected virtual string GenerateLiteral([NotNull] object value)
             => string.Format(CultureInfo.InvariantCulture, "{0}", value);
 
+        protected virtual string GenerateLiteral([NotNull] Enum value)
+            => string.Format(CultureInfo.InvariantCulture, "{0:d}", value);
+
         protected virtual string GenerateLiteral(int value)
             => value.ToString();
 

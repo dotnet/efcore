@@ -32,6 +32,19 @@ ORDER BY ""a"".""Species""",
                 Sql);
         }
 
+        public override void Can_use_of_type_bird_first()
+        {
+            base.Can_use_of_type_bird_first();
+
+            Assert.Equal(
+                @"SELECT ""a"".""Species"", ""a"".""CountryId"", ""a"".""Discriminator"", ""a"".""Name"", ""a"".""EagleId"", ""a"".""IsFlightless"", ""a"".""Group"", ""a"".""FoundOn""
+FROM ""Animal"" AS ""a""
+WHERE ""a"".""Discriminator"" IN ('Kiwi', 'Eagle')
+ORDER BY ""a"".""Species""
+LIMIT 1",
+                Sql);
+        }
+
         public override void Can_use_of_type_kiwi()
         {
             base.Can_use_of_type_kiwi();
@@ -43,6 +56,17 @@ WHERE ""a"".""Discriminator"" = 'Kiwi'",
                 Sql);
         }
 
+        public override void Can_use_of_type_rose()
+        {
+            base.Can_use_of_type_rose();
+
+            Assert.Equal(
+                @"SELECT ""p"".""Species"", ""p"".""Genus"", ""p"".""Name"", ""p"".""HasThorns""
+FROM ""Plant"" AS ""p""
+WHERE ""p"".""Genus"" = 0",
+                Sql);
+        }
+
         public override void Can_query_all_animals()
         {
             base.Can_query_all_animals();
@@ -51,6 +75,18 @@ WHERE ""a"".""Discriminator"" = 'Kiwi'",
                 @"SELECT ""a"".""Species"", ""a"".""CountryId"", ""a"".""Discriminator"", ""a"".""Name"", ""a"".""EagleId"", ""a"".""IsFlightless"", ""a"".""Group"", ""a"".""FoundOn""
 FROM ""Animal"" AS ""a""
 WHERE ""a"".""Discriminator"" IN ('Kiwi', 'Eagle')
+ORDER BY ""a"".""Species""",
+                Sql);
+        }
+
+        public override void Can_query_all_plants()
+        {
+            base.Can_query_all_plants();
+
+            Assert.Equal(
+                @"SELECT ""a"".""Species"", ""a"".""Genus"", ""a"".""Name"", ""a"".""HasThorns""
+FROM ""Plant"" AS ""a""
+WHERE ""a"".""Genus"" IN (0, 1)
 ORDER BY ""a"".""Species""",
                 Sql);
         }
@@ -87,6 +123,18 @@ ORDER BY ""a"".""Species""",
                 @"SELECT ""a"".""Species"", ""a"".""CountryId"", ""a"".""Discriminator"", ""a"".""Name"", ""a"".""EagleId"", ""a"".""IsFlightless"", ""a"".""FoundOn""
 FROM ""Animal"" AS ""a""
 WHERE ""a"".""Discriminator"" = 'Kiwi'
+LIMIT 2",
+                Sql);
+        }
+
+        public override void Can_query_just_roses()
+        {
+            base.Can_query_just_roses();
+
+            Assert.Equal(
+                @"SELECT ""p"".""Species"", ""p"".""Genus"", ""p"".""Name"", ""p"".""HasThorns""
+FROM ""Plant"" AS ""p""
+WHERE ""p"".""Genus"" = 0
 LIMIT 2",
                 Sql);
         }
@@ -132,6 +180,57 @@ INNER JOIN (
 ) AS ""c"" ON ""a"".""CountryId"" = ""c"".""Id""
 WHERE (""a"".""Discriminator"" = 'Kiwi' OR ""a"".""Discriminator"" = 'Eagle')
 ORDER BY ""c"".""Name"", ""c"".""Id""",
+                Sql);
+        }
+
+        public override void Can_insert_update_delete()
+        {
+            base.Can_insert_update_delete();
+
+            Assert.Equal(
+                @"SELECT ""c"".""Id"", ""c"".""Name""
+FROM ""Country"" AS ""c""
+WHERE ""c"".""Id"" = 1
+LIMIT 2
+
+@p0: Apteryx owenii
+@p1: 1
+@p2: Kiwi
+@p3: Little spotted kiwi
+@p4: 
+@p5: True
+@p6: North
+
+INSERT INTO ""Animal"" (""Species"", ""CountryId"", ""Discriminator"", ""Name"", ""EagleId"", ""IsFlightless"", ""FoundOn"")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+SELECT changes();
+
+SELECT ""k"".""Species"", ""k"".""CountryId"", ""k"".""Discriminator"", ""k"".""Name"", ""k"".""EagleId"", ""k"".""IsFlightless"", ""k"".""FoundOn""
+FROM ""Animal"" AS ""k""
+WHERE (""k"".""Discriminator"" = 'Kiwi' AND ""k"".""Species"" LIKE '%' || 'owenii')
+LIMIT 2
+
+@p1: Apteryx owenii
+@p0: Aquila chrysaetos canadensis
+
+UPDATE ""Animal"" SET ""EagleId"" = @p0
+WHERE ""Species"" = @p1;
+SELECT changes();
+
+SELECT ""k"".""Species"", ""k"".""CountryId"", ""k"".""Discriminator"", ""k"".""Name"", ""k"".""EagleId"", ""k"".""IsFlightless"", ""k"".""FoundOn""
+FROM ""Animal"" AS ""k""
+WHERE (""k"".""Discriminator"" = 'Kiwi' AND ""k"".""Species"" LIKE '%' || 'owenii')
+LIMIT 2
+
+@p0: Apteryx owenii
+
+DELETE FROM ""Animal""
+WHERE ""Species"" = @p0;
+SELECT changes();
+
+SELECT COUNT(*)
+FROM ""Animal"" AS ""k""
+WHERE (""k"".""Discriminator"" = 'Kiwi' AND ""k"".""Species"" LIKE '%' || 'owenii')",
                 Sql);
         }
 

@@ -76,8 +76,13 @@
     <Compile Include="TestModels\Inheritance\Bird.cs" />
     <Compile Include="TestModels\Inheritance\Country.cs" />
     <Compile Include="TestModels\Inheritance\Eagle.cs" />
+    <Compile Include="TestModels\Inheritance\Flower.cs" />
     <Compile Include="TestModels\Inheritance\Kiwi.cs" />
-    <Compile Include="TestModels\Inheritance\AnimalContext.cs" />
+    <Compile Include="TestModels\Inheritance\InheritanceContext.cs" />
+    <Compile Include="TestModels\Inheritance\Plant.cs" />
+    <Compile Include="TestModels\Inheritance\PlantGenus.cs" />
+    <Compile Include="TestModels\Inheritance\Rose.cs" />
+    <Compile Include="TestModels\Inheritance\Daisy.cs" />
     <Compile Include="TestModels\Northwind\Customer.cs" />
     <Compile Include="TestModels\Northwind\Employee.cs" />
     <Compile Include="TestModels\Northwind\NorthwindContext.cs" />

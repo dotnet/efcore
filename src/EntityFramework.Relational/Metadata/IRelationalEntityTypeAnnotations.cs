@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Metadata
         string Table { get; }
         string Schema { get; }
         IProperty DiscriminatorProperty { get; }
-        string DiscriminatorValue { get; } // TODO: should be object
+        object DiscriminatorValue { get; }
     }
 }

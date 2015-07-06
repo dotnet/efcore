@@ -35,8 +35,8 @@ namespace Microsoft.Data.Entity.Metadata
                     (string)_entityType.RootType()
                         .GetAnnotation(DiscriminatorPropertyAnnotation).Value);
 
-        public virtual string DiscriminatorValue
-            => _entityType[DiscriminatorValueAnnotation] as string
+        public virtual object DiscriminatorValue
+            => _entityType[DiscriminatorValueAnnotation]
                ?? _entityType.DisplayName();
 
         protected virtual IEntityType EntityType => _entityType;

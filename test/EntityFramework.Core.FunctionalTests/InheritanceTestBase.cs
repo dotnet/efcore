@@ -65,6 +65,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Can_use_of_type_rose()
+        {
+            using (var context = CreateContext())
+            {
+                var plants = context.Set<Plant>().OfType<Rose>().ToList();
+
+                Assert.Equal(1, plants.Count);
+                Assert.IsType<Rose>(plants[0]);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
         public virtual void Can_query_all_animals()
         {
             using (var context = CreateContext())
@@ -74,6 +87,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(2, animals.Count);
                 Assert.IsType<Kiwi>(animals[0]);
                 Assert.IsType<Eagle>(animals[1]);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_query_all_plants()
+        {
+            using (var context = CreateContext())
+            {
+                var plants = context.Set<Plant>().OrderBy(a => a.Species).ToList();
+
+                Assert.Equal(2, plants.Count);
+                Assert.IsType<Daisy>(plants[0]);
+                Assert.IsType<Rose>(plants[1]);
             }
         }
 
@@ -114,6 +140,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var kiwi = context.Set<Kiwi>().Single();
 
                 Assert.NotNull(kiwi);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_query_just_roses()
+        {
+            using (var context = CreateContext())
+            {
+                var rose = context.Set<Rose>().Single();
+
+                Assert.NotNull(rose);
             }
         }
 
@@ -197,7 +234,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        protected AnimalContext CreateContext()
+        protected InheritanceContext CreateContext()
         {
             return Fixture.CreateContext();
         }

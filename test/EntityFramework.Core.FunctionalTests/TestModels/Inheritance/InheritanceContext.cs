@@ -6,11 +6,11 @@ using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Inheritance
 {
-    public class AnimalContext : DbContext
+    public class InheritanceContext : DbContext
     {
-        public static readonly string StoreName = "Animals";
+        public static readonly string StoreName = "Inheritance";
 
-        public AnimalContext(IServiceProvider serviceProvider, DbContextOptions options)
+        public InheritanceContext(IServiceProvider serviceProvider, DbContextOptions options)
             : base(serviceProvider, options)
         {
         }

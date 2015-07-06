@@ -16,5 +16,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Inheritance
         public string Name { get; set; }
 
         public IList<Animal> Animals { get; set; }
+        public IList<Plant> Plants { get; set; }
     }
 }
