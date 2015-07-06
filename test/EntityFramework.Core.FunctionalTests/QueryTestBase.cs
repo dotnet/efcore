@@ -2191,6 +2191,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void GroupJoin_customers_employees_subquery_shadow_take()
+        {
+            AssertQuery<Customer, Employee>((cs, es) =>
+                (from c in cs
+                 join e in es.OrderBy(e => e.City).Take(5) on c.City equals e.City into employees
+                 select employees)
+                    .SelectMany(emps => emps)
+                    .Select(e =>
+                        new
+                        {
+                            Title = EF.Property<string>(e, "Title"),
+                            Id = e.EmployeeID
+                        }));
+        }
+
+        [Fact]
         public virtual void SelectMany_customer_orders()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -3318,6 +3334,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
                 join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders
+                select o);
+        }
+
+        [Fact]
+        public virtual void GroupJoin_simple_subquery()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os.OrderBy(o => o.OrderID).Take(4) on c.CustomerID equals o.CustomerID into orders
                 from o in orders
                 select o);
         }

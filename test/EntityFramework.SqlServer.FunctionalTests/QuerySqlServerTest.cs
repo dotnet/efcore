@@ -1980,6 +1980,23 @@ ORDER BY [e].[City], [c].[CustomerID] DESC",
                 Sql);
         }
 
+        public override void GroupJoin_simple_subquery()
+        {
+            base.GroupJoin_simple_subquery();
+
+            Assert.Equal(
+                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+FROM (
+    SELECT TOP(4) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t0]
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void GroupJoin_customers_orders_count()
         {
             base.GroupJoin_customers_orders_count();
