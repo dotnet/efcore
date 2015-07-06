@@ -1767,6 +1767,99 @@ FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]", Sql);
         }
 
+        public override void Join_customers_orders_with_subquery()
+        {
+            base.Join_customers_orders_with_subquery();
+
+            Assert.Equal(
+                @"SELECT [o2].[CustomerID], [o2].[OrderID]
+FROM [Orders] AS [o2]
+ORDER BY [o2].[OrderID]
+
+SELECT [c].[CustomerID], [c].[ContactName]
+FROM [Customers] AS [c]", Sql);
+        }
+
+        public override void Join_customers_orders_with_subquery_with_take()
+        {
+            base.Join_customers_orders_with_subquery_with_take();
+
+            Assert.Equal(
+                @"SELECT [c].[ContactName], [t0].[OrderID]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT TOP(5) [o2].*
+    FROM [Orders] AS [o2]
+    ORDER BY [o2].[OrderID]
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+WHERE [t0].[CustomerID] = 'ALFKI'", Sql);
+        }
+
+        public override void Join_customers_orders_with_subquery_anonymous_property_method()
+        {
+            base.Join_customers_orders_with_subquery_anonymous_property_method();
+
+            Assert.Equal(
+                @"SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o2]
+ORDER BY [o2].[OrderID]
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]", Sql);
+        }
+
+        public override void Join_customers_orders_with_subquery_anonymous_property_method_with_take()
+        {
+            base.Join_customers_orders_with_subquery_anonymous_property_method_with_take();
+
+            Assert.Equal(
+                @"SELECT TOP(5) [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o2]
+ORDER BY [o2].[OrderID]
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]", Sql);
+        }
+
+        public override void Join_customers_orders_with_subquery_predicate()
+        {
+            base.Join_customers_orders_with_subquery_predicate();
+
+            Assert.Equal(
+                @"SELECT [o2].[CustomerID], [o2].[OrderID]
+FROM [Orders] AS [o2]
+WHERE [o2].[OrderID] > 0
+ORDER BY [o2].[OrderID]
+
+SELECT [c].[CustomerID], [c].[ContactName]
+FROM [Customers] AS [c]", Sql);
+        }
+
+        public override void Join_customers_orders_with_subquery_predicate_with_take()
+        {
+            base.Join_customers_orders_with_subquery_predicate_with_take();
+
+            Assert.Equal(
+                @"SELECT [c].[ContactName], [t0].[OrderID]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT TOP(5) [o2].*
+    FROM [Orders] AS [o2]
+    ORDER BY [o2].[OrderID]
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+WHERE [t0].[CustomerID] = 'ALFKI'", Sql);
+        }
+
+        public override void Join_customers_orders_select()
+        {
+            base.Join_customers_orders_select();
+
+            Assert.Equal(
+                @"SELECT [c].[ContactName], [o].[OrderID]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]", Sql);
+        }
+
         public override void Multiple_joins_Where_Order_Any()
         {
             base.Multiple_joins_Where_Order_Any();
