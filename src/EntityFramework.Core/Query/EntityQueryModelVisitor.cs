@@ -567,7 +567,7 @@ namespace Microsoft.Data.Entity.Query
                 = ReplaceClauseReferences(joinClause.OuterKeySelector, joinClause);
 
             var innerSequenceExpression
-                = ReplaceClauseReferences(joinClause.InnerSequence, joinClause);
+                = CompileJoinClauseInnerSequenceExpression(joinClause, queryModel);
 
             var innerSequenceType
                 = innerSequenceExpression.Type.GetSequenceType();
@@ -624,6 +624,15 @@ namespace Microsoft.Data.Entity.Query
             querySourceMapping.ReplaceMapping(
                 joinClause,
                 QueryResultScope.GetResult(QueryResultScopeParameter, joinClause, innerElementType));
+        }
+
+        protected virtual Expression CompileJoinClauseInnerSequenceExpression(
+            [NotNull] JoinClause joinClause, [NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(joinClause, nameof(joinClause));
+            Check.NotNull(queryModel, nameof(queryModel));
+            
+            return ReplaceClauseReferences(joinClause.InnerSequence, joinClause);
         }
 
         public override void VisitGroupJoinClause(

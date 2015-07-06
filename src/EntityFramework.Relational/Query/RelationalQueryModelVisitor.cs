@@ -204,7 +204,7 @@ namespace Microsoft.Data.Entity.Query
 
             var expression = base.CompileMainFromClauseExpression(mainFromClause, queryModel);
 
-            return LiftSubQuery(mainFromClause, queryModel, expression);
+            return LiftSubQuery(mainFromClause, mainFromClause.FromExpression, queryModel, expression);
         }
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
@@ -261,87 +261,7 @@ namespace Microsoft.Data.Entity.Query
 
             var expression = base.CompileAdditionalFromClauseExpression(additionalFromClause, queryModel);
 
-            return LiftSubQuery(additionalFromClause, queryModel, expression);
-        }
-
-        private Expression LiftSubQuery(FromClauseBase fromClauseBase, QueryModel queryModel, Expression expression)
-        {
-            SelectExpression subSelectExpression;
-            if (_subqueriesBySource.TryGetValue(fromClauseBase, out subSelectExpression)
-                && (!subSelectExpression.OrderBy.Any()
-                    || subSelectExpression.Limit != null))
-            {
-                subSelectExpression.PushDownSubquery().QuerySource = fromClauseBase;
-
-                AddQuery(fromClauseBase, subSelectExpression);
-
-                _subqueriesBySource.Remove(fromClauseBase);
-
-                var shapedQueryMethodExpression
-                    = new ShapedQueryFindingExpressionVisitor(QueryCompilationContext)
-                        .Find(expression);
-
-                var shaperLambda = (LambdaExpression)shapedQueryMethodExpression.Arguments[2];
-                var shaperMethodCall = (MethodCallExpression)shaperLambda.Body;
-
-                var shaperMethod = shaperMethodCall.Method;
-                var shaperMethodArgs = shaperMethodCall.Arguments.ToList();
-
-                if (!QueryCompilationContext.QuerySourceRequiresMaterialization(fromClauseBase)
-                    && shaperMethod.MethodIsClosedFormOf(CreateEntityMethodInfo))
-                {
-                    shaperMethod = CreateValueBufferMethodInfo;
-                    shaperMethodArgs.RemoveRange(5, 5);
-                }
-                else
-                {
-                    subSelectExpression.ExplodeStarProjection();
-                }
-
-                var innerQuerySource = (IQuerySource)((ConstantExpression)shaperMethodArgs[0]).Value;
-
-                foreach (var queryAnnotation 
-                    in QueryCompilationContext.QueryAnnotations
-                        .Where(qa => qa.QuerySource == innerQuerySource))
-                {
-                    queryAnnotation.QuerySource = fromClauseBase;
-                }
-
-                shaperMethodArgs[0] = Expression.Constant(fromClauseBase);
-
-                var querySourceReferenceExpression
-                    = queryModel.SelectClause.Selector as QuerySourceReferenceExpression;
-
-                if (querySourceReferenceExpression != null
-                    && querySourceReferenceExpression.ReferencedQuerySource == fromClauseBase)
-                {
-                    var subQueryModel = (fromClauseBase.FromExpression as SubQueryExpression)?.QueryModel;
-
-                    if (subQueryModel != null)
-                    {
-                        queryModel.SelectClause.Selector = subQueryModel.SelectClause.Selector;
-
-                        QueryCompilationContext.QuerySourceMapping
-                            .ReplaceMapping(
-                                subQueryModel.MainFromClause,
-                                QueryResultScope.GetResult(
-                                    QueryResultScopeParameter,
-                                    fromClauseBase,
-                                    shaperMethod.ReturnType.GenericTypeArguments[0]));
-                    }
-                }
-
-                return Expression.Call(
-                    QueryCompilationContext.QueryMethodProvider.ShapedQueryMethod
-                        .MakeGenericMethod(shaperMethod.ReturnType),
-                    shapedQueryMethodExpression.Arguments[0],
-                    shapedQueryMethodExpression.Arguments[1],
-                    Expression.Lambda(
-                        Expression.Call(shaperMethod, shaperMethodArgs),
-                        shaperLambda.Parameters[0]));
-            }
-
-            return expression;
+            return LiftSubQuery(additionalFromClause, additionalFromClause.FromExpression, queryModel, expression);
         }
 
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
@@ -412,6 +332,97 @@ namespace Microsoft.Data.Entity.Query
                     }
                 }
             }
+        }
+
+        protected override Expression CompileJoinClauseInnerSequenceExpression(JoinClause joinClause, QueryModel queryModel)
+        {
+            Check.NotNull(joinClause, nameof(joinClause));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            var expression = base.CompileJoinClauseInnerSequenceExpression(joinClause, queryModel);
+
+            return LiftSubQuery(joinClause, joinClause.InnerSequence, queryModel, expression);
+        }
+
+        private Expression LiftSubQuery(
+            IQuerySource querySource, Expression itemsExpression, QueryModel queryModel, Expression expression)
+        {
+            SelectExpression subSelectExpression;
+            if (_subqueriesBySource.TryGetValue(querySource, out subSelectExpression)
+                && (!subSelectExpression.OrderBy.Any()
+                    || subSelectExpression.Limit != null))
+            {
+                subSelectExpression.PushDownSubquery().QuerySource = querySource;
+
+                AddQuery(querySource, subSelectExpression);
+
+                _subqueriesBySource.Remove(querySource);
+
+                var shapedQueryMethodExpression
+                    = new ShapedQueryFindingExpressionVisitor(QueryCompilationContext)
+                        .Find(expression);
+
+                var shaperLambda = (LambdaExpression)shapedQueryMethodExpression.Arguments[2];
+                var shaperMethodCall = (MethodCallExpression)shaperLambda.Body;
+
+                var shaperMethod = shaperMethodCall.Method;
+                var shaperMethodArgs = shaperMethodCall.Arguments.ToList();
+
+                if (!QueryCompilationContext.QuerySourceRequiresMaterialization(querySource)
+                    && shaperMethod.MethodIsClosedFormOf(CreateEntityMethodInfo))
+                {
+                    shaperMethod = CreateValueBufferMethodInfo;
+                    shaperMethodArgs.RemoveRange(5, 5);
+                }
+                else
+                {
+                    subSelectExpression.ExplodeStarProjection();
+                }
+
+                var innerQuerySource = (IQuerySource)((ConstantExpression)shaperMethodArgs[0]).Value;
+
+                foreach (var queryAnnotation 
+                    in QueryCompilationContext.QueryAnnotations
+                        .Where(qa => qa.QuerySource == innerQuerySource))
+                {
+                    queryAnnotation.QuerySource = querySource;
+                }
+
+                shaperMethodArgs[0] = Expression.Constant(querySource);
+
+                var querySourceReferenceExpression
+                    = queryModel.SelectClause.Selector as QuerySourceReferenceExpression;
+
+                if (querySourceReferenceExpression != null
+                    && querySourceReferenceExpression.ReferencedQuerySource == querySource)
+                {
+                    var subQueryModel = (itemsExpression as SubQueryExpression)?.QueryModel;
+
+                    if (subQueryModel != null)
+                    {
+                        queryModel.SelectClause.Selector = subQueryModel.SelectClause.Selector;
+
+                        QueryCompilationContext.QuerySourceMapping
+                            .ReplaceMapping(
+                                subQueryModel.MainFromClause,
+                                QueryResultScope.GetResult(
+                                    QueryResultScopeParameter,
+                                    querySource,
+                                    shaperMethod.ReturnType.GenericTypeArguments[0]));
+                    }
+                }
+
+                return Expression.Call(
+                    QueryCompilationContext.QueryMethodProvider.ShapedQueryMethod
+                        .MakeGenericMethod(shaperMethod.ReturnType),
+                    shapedQueryMethodExpression.Arguments[0],
+                    shapedQueryMethodExpression.Arguments[1],
+                    Expression.Lambda(
+                        Expression.Call(shaperMethod, shaperMethodArgs),
+                        shaperLambda.Parameters[0]));
+            }
+
+            return expression;
         }
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
