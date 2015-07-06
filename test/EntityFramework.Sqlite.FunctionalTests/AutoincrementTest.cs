@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Sqlite;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -42,12 +41,11 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         }
 
         [Fact]
-        public void Autoincrement_not_on_text()
+        public void Identity_metadata_not_on_text_is_ignored()
         {
             using (var context = new JokerContext(_provider, _options))
             {
-                var ex = Assert.Throws<SqliteException>(() => context.Database.EnsureCreated());
-                Assert.Contains("AUTOINCREMENT is only allowed on an INTEGER PRIMARY KEY", ex.Message);
+                context.Database.EnsureCreated();
             }
         }
 
