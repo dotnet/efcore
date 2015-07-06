@@ -1951,6 +1951,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Join_customers_orders_with_subquery_with_take()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o1 in
+                    (from o2 in os orderby o2.OrderID select o2).Take(5) on c.CustomerID equals o1.CustomerID
+                where o1.CustomerID == "ALFKI"
+                select new { c.ContactName, o1.OrderID });
+        }
+
+        [Fact]
         public virtual void Join_customers_orders_with_subquery_anonymous_property_method()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -1962,12 +1973,34 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Join_customers_orders_with_subquery_anonymous_property_method_with_take()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o1 in
+                    (from o2 in os orderby o2.OrderID select new { o2 }).Take(5) on c.CustomerID equals o1.o2.CustomerID
+                where EF.Property<string>(o1.o2, "CustomerID") == "ALFKI"
+                select new { o1, o1.o2, Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate") });
+        }
+
+        [Fact]
         public virtual void Join_customers_orders_with_subquery_predicate()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 from c in cs
                 join o1 in
                     (from o2 in os where o2.OrderID > 0 orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
+                where o1.CustomerID == "ALFKI"
+                select new { c.ContactName, o1.OrderID });
+        }
+
+        [Fact]
+        public virtual void Join_customers_orders_with_subquery_predicate_with_take()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o1 in
+                    (from o2 in os where o2.OrderID > 0 orderby o2.OrderID select o2).Take(5) on c.CustomerID equals o1.CustomerID
                 where o1.CustomerID == "ALFKI"
                 select new { c.ContactName, o1.OrderID });
         }
