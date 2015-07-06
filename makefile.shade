@@ -55,11 +55,6 @@ var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configur
     copy outputDir='${sqliteTestDir}'
     copy outputDir='test/EntityFramework.CrossStore.FunctionalTests/bin/${E("Configuration")}/x86'
 
-#nuspec-pack target="compile"
-    var DNX_BUILD_VERSION='${E("DNX_BUILD_VERSION")}'
-    var DNX_AUTHOR='${E("DNX_AUTHOR")}'
-    nuget-pack each='var nuspecFile in Files.Include("src/**/*.nuspec")' outputDir='artifacts/build' extra='-Properties "star=${DNX_BUILD_VERSION};author=${DNX_AUTHOR}"'
-
 #nupkg-patch target='compile'
     @{
         var packagePaths = Files.Include("artifacts/build/**/EntityFramework.Commands.*.nupkg")
