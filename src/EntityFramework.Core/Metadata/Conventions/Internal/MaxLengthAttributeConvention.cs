@@ -7,14 +7,17 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class ConcurrencyCheckAttributeConvention : PropertyAttributeConvention<ConcurrencyCheckAttribute>
+    public class MaxLengthAttributeConvention : PropertyAttributeConvention<MaxLengthAttribute>
     {
-        public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, ConcurrencyCheckAttribute attribute)
+        public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, MaxLengthAttribute attribute)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(attribute, nameof(attribute));
 
-            propertyBuilder.ConcurrencyToken(true, ConfigurationSource.DataAnnotation);
+            if (attribute.Length > 0)
+            {
+                propertyBuilder.MaxLength(attribute.Length, ConfigurationSource.DataAnnotation);
+            }
 
             return propertyBuilder;
         }

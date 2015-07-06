@@ -21,13 +21,17 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 foreach (var attribute in attributes)
                 {
-                    Apply(entityTypeBuilder, attribute);
+                    entityTypeBuilder = Apply(entityTypeBuilder, attribute);
+                    if (entityTypeBuilder == null)
+                    {
+                        break;
+                    }
                 }
             }
 
             return entityTypeBuilder;
         }
 
-        public abstract void Apply([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] TAttribute attribute);
+        public abstract InternalEntityTypeBuilder Apply([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] TAttribute attribute);
     }
 }

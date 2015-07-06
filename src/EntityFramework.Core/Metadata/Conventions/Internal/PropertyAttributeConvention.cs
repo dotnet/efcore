@@ -24,12 +24,16 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 foreach (var attribute in attributes)
                 {
-                    Apply(propertyBuilder, attribute);
+                    propertyBuilder = Apply(propertyBuilder, attribute);
+                    if (propertyBuilder == null)
+                    {
+                        break;
+                    }
                 }
             }
             return propertyBuilder;
         }
 
-        public abstract void Apply([NotNull] InternalPropertyBuilder propertyBuilder, [NotNull] TAttribute attribute);
+        public abstract InternalPropertyBuilder Apply([NotNull] InternalPropertyBuilder propertyBuilder, [NotNull] TAttribute attribute);
     }
 }

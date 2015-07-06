@@ -147,6 +147,10 @@
     <Compile Include="DbContextOptionsBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\Conventions\ConventionSet.cs" />
+    <Compile Include="Metadata\Conventions\Internal\TimestampAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\StringLengthAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\MaxLengthAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\NotMappedEntityTypeAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\ConcurrencyCheckAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\ConventionDispatcher.cs" />
     <Compile Include="Metadata\Conventions\Internal\CoreConventionSetBuilder.cs" />

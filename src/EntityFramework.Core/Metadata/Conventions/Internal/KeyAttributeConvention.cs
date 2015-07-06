@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
     public class KeyAttributeConvention : PropertyAttributeConvention<KeyAttribute>, IModelConvention
     {
-        public override void Apply(InternalPropertyBuilder propertyBuilder, KeyAttribute attribute)
+        public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, KeyAttribute attribute)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(attribute, nameof(attribute));
@@ -25,19 +25,21 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             if (currentKey == null)
             {
                 entityTypeBuilder.PrimaryKey(properties, ConfigurationSource.DataAnnotation);
-                return;
+                return propertyBuilder;
             }
 
             var newKey = entityTypeBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
             if (newKey != null)
             {
                 entityTypeBuilder.PrimaryKey(properties, ConfigurationSource.DataAnnotation);
-                return;
+                return propertyBuilder;
             }
 
             properties.AddRange(currentKey.Properties.Select(p => p.Name));
             properties.Sort(StringComparer.OrdinalIgnoreCase);
             entityTypeBuilder.PrimaryKey(properties, ConfigurationSource.DataAnnotation);
+
+            return propertyBuilder;
         }
 
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)

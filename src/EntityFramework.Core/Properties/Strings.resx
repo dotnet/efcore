@@ -504,4 +504,7 @@
   <data name="CompositePKWithDataAnnotation" xml:space="preserve">
     <value>Entity type '{entityType}' has composite primary key defined with data annotations. To set composite primary key, use fluent API.</value>
   </data>
+  <data name="TimestampAttributeOnNonBinary" xml:space="preserve">
+    <value>The property '{property}' is not a Byte array. TimestampAttribute can only be applied for Byte array properties.</value>
+  </data>
 </root>

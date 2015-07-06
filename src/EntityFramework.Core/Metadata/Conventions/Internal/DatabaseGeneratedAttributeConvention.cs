@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
     public class DatabaseGeneratedAttributeConvention : PropertyAttributeConvention<DatabaseGeneratedAttribute>
     {
-        public override void Apply(InternalPropertyBuilder propertyBuilder, DatabaseGeneratedAttribute attribute)
+        public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, DatabaseGeneratedAttribute attribute)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(attribute, nameof(attribute));
@@ -19,6 +19,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Enum.TryParse(attribute.DatabaseGeneratedOption.ToString(), out storeGeneratedPattern);
 
             propertyBuilder.StoreGeneratedPattern(storeGeneratedPattern, ConfigurationSource.DataAnnotation);
+
+            return propertyBuilder;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
     public class RelationalTableAttributeConvention : EntityTypeAttributeConvention<TableAttribute>
     {
-        public override void Apply(InternalEntityTypeBuilder entityTypeBuilder, TableAttribute attribute)
+        public override InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder, TableAttribute attribute)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(attribute, nameof(attribute));
@@ -23,6 +23,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 entityTypeBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.TableName, attribute.Name, ConfigurationSource.DataAnnotation);
             }
+
+            return entityTypeBuilder;
         }
     }
 }

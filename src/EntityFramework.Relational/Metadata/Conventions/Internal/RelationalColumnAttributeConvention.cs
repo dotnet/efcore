@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
     public class RelationalColumnAttributeConvention : PropertyAttributeConvention<ColumnAttribute>
     {
-        public override void Apply(InternalPropertyBuilder propertyBuilder, ColumnAttribute attribute)
+        public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, ColumnAttribute attribute)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(attribute, nameof(attribute));
@@ -28,6 +28,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType, attribute.TypeName, ConfigurationSource.DataAnnotation);
             }
+
+            return propertyBuilder;
         }
     }
 }

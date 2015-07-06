@@ -1044,6 +1044,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("CompositePKWithDataAnnotation", "entityType"), entityType);
         }
 
+        /// <summary>
+        /// The property '{property}' is not a Byte array. TimestampAttribute can only be applied for Byte array properties.
+        /// </summary>
+        public static string TimestampAttributeOnNonBinary([CanBeNull] object property)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("TimestampAttributeOnNonBinary", "property"), property);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

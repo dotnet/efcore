@@ -18,6 +18,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<One>();
+            modelBuilder.Entity<Two>();
         }
     }
 
@@ -30,6 +31,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public DbSet<One> Ones { get; set; }
 
+        public DbSet<Two> Twos { get; set; }
     }
 
     [Table("Sample")]
@@ -45,14 +47,39 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Required]
         [Column("Name")]
         public string RequiredColumn { get; set; }
+
+        [MaxLength(10)]
+        public string MaxLengthProperty { get; set; }
     }
 
+    public class Two
+    {
+        public int Id { get; set; }
+
+        [StringLength(16)]
+        public string Data { get; set; }
+
+        [Timestamp]
+        public byte[] Timestamp { get; set; }
+
+        public virtual C NavC { get; set; }
+    }
+
+    [NotMapped]
+    public class C
+    {
+        public int Id { get; set; }
+    }
     public class DataAnnotationModelInitializer
     {
         public static void Seed(DataAnnotationContext context)
         {
             context.Ones.Add(new One { RequiredColumn = "First", RowVersion = new Guid("00000001-0000-0000-0000-000000000001") });
             context.Ones.Add(new One { RequiredColumn = "Second", RowVersion = new Guid("00000001-0000-0000-0000-000000000001") });
+
+
+            context.Twos.Add(new Two { Data = "First" });
+            context.Twos.Add(new Two { Data = "Second" });
 
             context.SaveChanges();
         }

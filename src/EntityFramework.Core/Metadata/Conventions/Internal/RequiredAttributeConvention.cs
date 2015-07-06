@@ -9,12 +9,14 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
     public class RequiredAttributeConvention : PropertyAttributeConvention<RequiredAttribute>
     {
-        public override void Apply(InternalPropertyBuilder propertyBuilder, RequiredAttribute attribute)
+        public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, RequiredAttribute attribute)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(attribute, nameof(attribute));
 
             propertyBuilder.Required(true, ConfigurationSource.DataAnnotation);
+
+            return propertyBuilder;
         }
     }
 }

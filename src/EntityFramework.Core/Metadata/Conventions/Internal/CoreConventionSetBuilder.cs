@@ -9,6 +9,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         {
             var conventionSet = new ConventionSet();
 
+            conventionSet.EntityTypeAddedConventions.Add(new NotMappedEntityTypeAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention());
             conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention());
             conventionSet.EntityTypeAddedConventions.Add(new RelationshipDiscoveryConvention());
@@ -16,6 +17,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             conventionSet.PropertyAddedConventions.Add(new ConcurrencyCheckAttributeConvention());
             conventionSet.PropertyAddedConventions.Add(new DatabaseGeneratedAttributeConvention());
             conventionSet.PropertyAddedConventions.Add(new RequiredAttributeConvention());
+            conventionSet.PropertyAddedConventions.Add(new MaxLengthAttributeConvention());
+            conventionSet.PropertyAddedConventions.Add(new StringLengthAttributeConvention());
+            conventionSet.PropertyAddedConventions.Add(new TimestampAttributeConvention());
 
             var keyAttributeConvention = new KeyAttributeConvention();
             conventionSet.PropertyAddedConventions.Add(keyAttributeConvention);
