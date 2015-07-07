@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
         {
             Check.NotNull(property, nameof(property));
 
-            var incrementBy = property.SqlServer().TryGetSequence().IncrementBy;
+            var incrementBy = property.SqlServer().TryGetHiLoSequence().IncrementBy;
 
             if (incrementBy <= 0)
             {
@@ -42,13 +42,18 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
         {
             Check.NotNull(property, nameof(property));
 
-            var sequence = property.SqlServer().TryGetSequence();
+            var sequence = property.SqlServer().TryGetHiLoSequence();
 
             return (sequence.Schema == null ? "" : (sequence.Schema + ".")) + sequence.Name;
         }
 
-        // TODO: Allow configuration without creation of derived factory type
-        // Issue #778
-        public virtual int GetPoolSize([NotNull] IProperty property) => 5;
+        public virtual int GetPoolSize([NotNull] IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return property.SqlServer().HiLoSequencePoolSize
+                   ?? property.DeclaringEntityType.Model.SqlServer().HiLoSequencePoolSize
+                   ?? 1;
+        }
     }
 }

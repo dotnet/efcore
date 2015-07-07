@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
-using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
@@ -46,8 +45,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return base.ClassName(connectionString);
         }
 
-        public override void AddNavigationsConfiguration(
-            [NotNull] EntityConfiguration entityConfiguration)
+        public override void AddNavigationsConfiguration(EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
@@ -61,30 +59,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 entityConfiguration.RelationshipConfigurations.Add(
                     new RelationshipConfiguration(entityConfiguration, foreignKey,
                         dependentEndNavigationPropertyName, principalEndNavigationPropertyName));
-            }
-        }
-
-        public override void AddPropertyFacetsConfiguration([NotNull] PropertyConfiguration propertyConfiguration)
-        {
-            Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
-
-            base.AddPropertyFacetsConfiguration(propertyConfiguration);
-            AddUseIdentityFacetConfiguration(propertyConfiguration);
-        }
-
-        public virtual void AddUseIdentityFacetConfiguration(
-            [NotNull] PropertyConfiguration propertyConfiguration)
-        {
-            Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
-
-            if (propertyConfiguration.Property.SqlServer().IdentityStrategy.HasValue
-                && SqlServerIdentityStrategy.IdentityColumn
-                == propertyConfiguration.Property.SqlServer().IdentityStrategy.Value)
-            {
-                propertyConfiguration.AddFacetConfiguration(
-                    new FacetConfiguration(
-                        "ForSqlServer",
-                        "UseIdentity()"));
             }
         }
     }

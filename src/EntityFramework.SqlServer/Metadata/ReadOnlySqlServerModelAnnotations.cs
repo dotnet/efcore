@@ -14,8 +14,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     {
         protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ItentityStrategy;
         protected const string SqlServerSequenceAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.Sequence;
-        protected const string SqlServerDefaultSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.DefaultSequenceName;
-        protected const string SqlServerDefaultSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.DefaultSequenceSchema;
+        protected const string SqlServerHiLoSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceName;
+        protected const string SqlServerHiLoSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceSchema;
+        protected const string SqlServerHiLoSequencePoolSizeAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequencePoolSize;
 
         public ReadOnlySqlServerModelAnnotations([NotNull] IModel model)
             : base(model)
@@ -35,8 +36,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             }
         }
 
-        public virtual string DefaultSequenceName => Model[SqlServerDefaultSequenceNameAnnotation] as string;
-        public virtual string DefaultSequenceSchema => Model[SqlServerDefaultSequenceSchemaAnnotation] as string;
+        public virtual string HiLoSequenceName => Model[SqlServerHiLoSequenceNameAnnotation] as string;
+        public virtual string HiLoSequenceSchema => Model[SqlServerHiLoSequenceSchemaAnnotation] as string;
+        public virtual int? HiLoSequencePoolSize => Model[SqlServerHiLoSequencePoolSizeAnnotation] as int?;
 
         public override IReadOnlyList<Sequence> Sequences
         {

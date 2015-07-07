@@ -55,17 +55,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
                     Assert.Equal(1, blogs[0].Id);
-                    Assert.Equal(11, blogs[1].Id);
+                    Assert.Equal(2, blogs[1].Id);
                 }
             }
 
             public class BlogContext : ContextBase
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    // TODO: Allow pool size to be configured and set default to 1
-                    modelBuilder.UseSqlServerSequenceHiLo();
-                }
+                protected override void OnModelCreating(ModelBuilder modelBuilder) 
+                    => modelBuilder.UseSqlServerSequenceHiLo();
             }
         }
 

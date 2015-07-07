@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
     public class SqlServerBuilderExtensionsTest
     {
         [Fact]
-        public void Can_set_column_name_with_convention_builder()
+        public void Can_set_column_name()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_column_type_with_convention_builder()
+        public void Can_set_column_type()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_column_default_expression_with_convention_builder()
+        public void Can_set_column_default_expression()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_column_default_value_with_convention_builder()
+        public void Can_set_column_default_value()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_key_name_with_convention_builder()
+        public void Can_set_key_name()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_foreign_key_name_for_one_to_many_with_convention_builder()
+        public void Can_set_foreign_key_name_for_one_to_many()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_foreign_key_name_for_one_to_many_with_FK_specified_with_convention_builder()
+        public void Can_set_foreign_key_name_for_one_to_many_with_FK_specified()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -157,7 +157,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_foreign_key_name_for_many_to_one_with_convention_builder()
+        public void Can_set_foreign_key_name_for_many_to_one()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -180,7 +180,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_foreign_key_name_for_many_to_one_with_FK_specified_with_convention_builder()
+        public void Can_set_foreign_key_name_for_many_to_one_with_FK_specified()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_foreign_key_name_for_one_to_one_with_convention_builder()
+        public void Can_set_foreign_key_name_for_one_to_one()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_foreign_key_name_for_one_to_one_with_FK_specified_with_convention_builder()
+        public void Can_set_foreign_key_name_for_one_to_one_with_FK_specified()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -238,7 +238,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_index_name_with_convention_builder()
+        public void Can_set_index_name()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -255,7 +255,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_table_name_with_convention_builder()
+        public void Can_set_table_name()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -272,7 +272,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_table_name_with_convention_builder_non_generic()
+        public void Can_set_table_name_non_generic()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -289,7 +289,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_table_and_schema_name_with_convention_builder()
+        public void Can_set_table_and_schema_name()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_table_and_schema_name_with_convention_builder_non_generic()
+        public void Can_set_table_and_schema_name_non_generic()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -327,7 +327,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_index_clustering_with_convention_builder()
+        public void Can_set_index_clustering()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -342,7 +342,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_key_clustering_with_convention_builder()
+        public void Can_set_key_clustering()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -357,7 +357,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_sequences_for_model_with_convention_builder()
+        public void Can_set_sequences_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -367,24 +367,37 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
-            Assert.Same(Sequence.DefaultName, sqlServerExtensions.DefaultSequenceName);
-            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
+            Assert.Same(Sequence.DefaultName, sqlServerExtensions.HiLoSequenceName);
+            Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
             Assert.NotNull(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
-        }
 
-        private static void ValidateDefaultSequence(Sequence sequence)
-        {
-            Assert.Equal(Sequence.DefaultName, sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(Sequence.DefaultIncrement, sequence.IncrementBy);
-            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
-            Assert.Same(Sequence.DefaultType, sequence.Type);
+            Assert.Null(sqlServerExtensions.HiLoSequencePoolSize);
         }
 
         [Fact]
-        public void Can_set_sequences_with_name_for_model_with_convention_builder()
+        public void Can_set_sequences_with_pool_size_for_model()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.UseSqlServerSequenceHiLo(7);
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
+            Assert.Same(Sequence.DefaultName, sqlServerExtensions.HiLoSequenceName);
+            Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
+
+            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.NotNull(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+
+            Assert.Equal(7, sqlServerExtensions.HiLoSequencePoolSize);
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_name_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -394,11 +407,33 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
-            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
-            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
+            Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
+            Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook"));
             ValidateNamedSequence(sqlServerExtensions.TryGetSequence("Snook"));
+
+            Assert.Null(sqlServerExtensions.HiLoSequencePoolSize);
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_name_and_pool_size_for_model()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.UseSqlServerSequenceHiLo(7, "Snook");
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
+            Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
+            Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook"));
+            ValidateNamedSequence(sqlServerExtensions.TryGetSequence("Snook"));
+
+            Assert.Equal(7, sqlServerExtensions.HiLoSequencePoolSize);
         }
 
         private static void ValidateNamedSequence(Sequence sequence)
@@ -413,7 +448,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_sequences_with_schema_and_name_for_model_with_convention_builder()
+        public void Can_set_sequences_with_schema_and_name_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -423,8 +458,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
-            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
-            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
+            Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.HiLoSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -442,7 +477,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_use_of_existing_relational_sequence_for_model_with_convention_builder()
+        public void Can_set_use_of_existing_relational_sequence_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -460,15 +495,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
-            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
-            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
+            Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.HiLoSequenceSchema);
 
             ValidateSchemaNamedSpecificSequence(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
         }
 
         [Fact]
-        public void Can_set_use_of_existing_SQL_sequence_for_model_with_convention_builder()
+        public void Can_set_use_of_existing_SQL_sequence_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -486,8 +521,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
-            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
-            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
+            Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.HiLoSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -505,7 +540,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_set_identities_for_model_with_convention_builder()
+        public void Can_set_identities_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -515,15 +550,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, sqlServerExtensions.IdentityStrategy);
-            Assert.Null(sqlServerExtensions.DefaultSequenceName);
-            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
+            Assert.Null(sqlServerExtensions.HiLoSequenceName);
+            Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
             Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
         }
 
         [Fact]
-        public void Can_set_sequence_for_property_with_convention_builder()
+        public void Can_set_sequence_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -537,14 +572,39 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Same(Sequence.DefaultName, property.SqlServer().SequenceName);
+            Assert.Same(Sequence.DefaultName, property.SqlServer().HiLoSequenceName);
 
             Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
             Assert.NotNull(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+
+            Assert.Null(property.SqlServer().HiLoSequencePoolSize);
         }
 
         [Fact]
-        public void Can_set_sequences_with_name_for_property_with_convention_builder()
+        public void Can_set_sequence_with_pool_size_for_property()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseSqlServerSequenceHiLo(3);
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+            Assert.Same(Sequence.DefaultName, property.SqlServer().HiLoSequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
+            Assert.NotNull(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+
+            Assert.Equal(3, property.SqlServer().HiLoSequencePoolSize);
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_name_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -558,15 +618,41 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Equal("Snook", property.SqlServer().SequenceName);
-            Assert.Null(property.SqlServer().SequenceSchema);
+            Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
+            Assert.Null(property.SqlServer().HiLoSequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook"));
             ValidateNamedSequence(model.SqlServer().TryGetSequence("Snook"));
+
+            Assert.Null(property.SqlServer().HiLoSequencePoolSize);
         }
 
         [Fact]
-        public void Can_set_sequences_with_schema_and_name_for_property_with_convention_builder()
+        public void Can_set_sequences_with_name_and_pool_size_for_property()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseSqlServerSequenceHiLo(3, "Snook");
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+            Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
+            Assert.Null(property.SqlServer().HiLoSequenceSchema);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook"));
+            ValidateNamedSequence(model.SqlServer().TryGetSequence("Snook"));
+
+            Assert.Equal(3, property.SqlServer().HiLoSequencePoolSize);
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_schema_and_name_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -580,15 +666,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Equal("Snook", property.SqlServer().SequenceName);
-            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
+            Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
+            Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
         }
 
         [Fact]
-        public void Can_set_use_of_existing_relational_sequence_for_property_with_convention_builder()
+        public void Can_set_use_of_existing_relational_sequence_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -610,15 +696,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Equal("Snook", property.SqlServer().SequenceName);
-            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
+            Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
+            Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
 
             ValidateSchemaNamedSpecificSequence(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
         }
 
         [Fact]
-        public void Can_set_use_of_existing_relational_sequence_for_property_with_convention_builder_using_nested_closure()
+        public void Can_set_use_of_existing_relational_sequence_for_property_using_nested_closure()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -633,15 +719,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Equal("Snook", property.SqlServer().SequenceName);
-            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
+            Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
+            Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
 
             ValidateSchemaNamedSpecificSequence(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
         }
 
         [Fact]
-        public void Can_set_use_of_existing_SQL_sequence_for_property_with_convention_builder()
+        public void Can_set_use_of_existing_SQL_sequence_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -663,15 +749,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Equal("Snook", property.SqlServer().SequenceName);
-            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
+            Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
+            Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
         }
 
         [Fact]
-        public void Can_set_use_of_existing_SQL_sequence_for_property_with_convention_builder_using_nested_closure()
+        public void Can_set_use_of_existing_SQL_sequence_for_property_using_nested_closure()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -693,15 +779,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Equal("Snook", property.SqlServer().SequenceName);
-            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
+            Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
+            Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
         }
 
         [Fact]
-        public void Can_set_identities_for_property_with_convention_builder()
+        public void Can_set_identities_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -715,14 +801,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, property.SqlServer().IdentityStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Null(property.SqlServer().SequenceName);
+            Assert.Null(property.SqlServer().HiLoSequenceName);
 
             Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
             Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
         }
 
         [Fact]
-        public void Can_set_identities_for_property_with_convention_builder_using_nested_closure()
+        public void Can_set_identities_for_property_using_nested_closure()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -736,14 +822,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, property.SqlServer().IdentityStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Null(property.SqlServer().SequenceName);
+            Assert.Null(property.SqlServer().HiLoSequenceName);
 
             Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
             Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
         }
 
         [Fact]
-        public void Can_create_named_sequence_with_convention_builder()
+        public void Can_create_named_sequence()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -756,7 +842,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_create_schema_named_sequence_with_convention_builder()
+        public void Can_create_schema_named_sequence()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -780,7 +866,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_create_named_sequence_with_specific_facets_with_convention_builder()
+        public void Can_create_named_sequence_with_specific_facets()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -799,7 +885,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_create_named_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
+        public void Can_create_named_sequence_with_specific_facets_using_nested_closure()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -831,7 +917,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_create_schema_named_sequence_with_specific_facets_with_convention_builder()
+        public void Can_create_schema_named_sequence_with_specific_facets()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -850,7 +936,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_create_schema_named_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
+        public void Can_create_schema_named_sequence_with_specific_facets_using_nested_closure()
         {
             var modelBuilder = CreateConventionModelBuilder();
 

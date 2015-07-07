@@ -111,8 +111,8 @@ namespace Microsoft.Data.Entity
 
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             property.ValueGenerated = ValueGenerated.OnAdd;
-            property.SqlServer().SequenceName = sequence.Name;
-            property.SqlServer().SequenceSchema = sequence.Schema;
+            property.SqlServer().HiLoSequenceName = sequence.Name;
+            property.SqlServer().HiLoSequenceSchema = sequence.Schema;
 
             return propertyBuilder;
         }
@@ -123,6 +123,35 @@ namespace Microsoft.Data.Entity
             [CanBeNull] string schema = null)
             => (PropertyBuilder<TProperty>)UseSqlServerSequenceHiLo((PropertyBuilder)propertyBuilder, name, schema);
 
+        public static PropertyBuilder UseSqlServerSequenceHiLo(
+            [NotNull] this PropertyBuilder propertyBuilder,
+            int poolSize,
+            [CanBeNull] string name = null,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            var property = propertyBuilder.Metadata;
+            var sequence = property.DeclaringEntityType.Model.SqlServer().GetOrAddSequence(name, schema);
+
+            property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
+            property.ValueGenerated = ValueGenerated.OnAdd;
+            property.SqlServer().HiLoSequenceName = sequence.Name;
+            property.SqlServer().HiLoSequenceSchema = sequence.Schema;
+            property.SqlServer().HiLoSequencePoolSize = poolSize;
+
+            return propertyBuilder;
+        }
+
+        public static PropertyBuilder<TProperty> UseSqlServerSequenceHiLo<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            int poolSize,
+            [CanBeNull] string name = null,
+            [CanBeNull] string schema = null)
+            => (PropertyBuilder<TProperty>)UseSqlServerSequenceHiLo((PropertyBuilder)propertyBuilder, poolSize, name, schema);
+
         public static PropertyBuilder UseSqlServerIdentityColumn(
             [NotNull] this PropertyBuilder propertyBuilder)
         {
@@ -132,8 +161,8 @@ namespace Microsoft.Data.Entity
 
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
             property.ValueGenerated = ValueGenerated.OnAdd;
-            property.SqlServer().SequenceName = null;
-            property.SqlServer().SequenceSchema = null;
+            property.SqlServer().HiLoSequenceName = null;
+            property.SqlServer().HiLoSequenceSchema = null;
 
             return propertyBuilder;
         }

@@ -67,7 +67,6 @@
     <Compile Include="Metadata\SqlServerMetadataExtensionProvider.cs" />
     <Compile Include="Metadata\SqlServerModelAnnotations.cs" />
     <Compile Include="Metadata\SqlServerPropertyAnnotations.cs" />
-    <Compile Include="Metadata\SqlServerPropertyBuilder.cs" />
     <Compile Include="Metadata\SqlServerSequenceBuilder.cs" />
     <Compile Include="Metadata\SqlServerIdentityStrategy.cs" />
     <Compile Include="Migrations\CreateDatabaseOperation.cs" />

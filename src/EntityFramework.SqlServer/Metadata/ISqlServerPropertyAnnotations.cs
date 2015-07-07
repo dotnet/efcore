@@ -9,8 +9,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     {
         SqlServerIdentityStrategy? IdentityStrategy { get; }
         string ComputedExpression { get; }
-        string SequenceName { get; }
-        string SequenceSchema { get; }
-        Sequence TryGetSequence();
+        string HiLoSequenceName { get; }
+        string HiLoSequenceSchema { get; }
+        int? HiLoSequencePoolSize { get; }
+        Sequence TryGetHiLoSequence();
     }
 }
