@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             await AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains("M") 
+                cs => cs.Where(c => c.ContactName.Contains("M")
                                      || c.ContactName.Contains("m")), // case-sensitive
                 entryCount: 34);
         }
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             await AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1()) 
+                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())
                                     || c.ContactName.Contains(LocalMethod2())), // case-sensitive
                 entryCount: 34);
         }
@@ -59,6 +59,24 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             await Assert.ThrowsAsync<TaskCanceledException>(async () =>
                 await Single_Predicate_Cancellation(TestSqlLoggerFactory.CancelQuery()));
+        }
+
+        [Fact]
+        public async Task Invalid_query_should_not_generate_nested_aggregates()
+        {
+            AggregateException exception = await Assert.ThrowsAsync<AggregateException>(async () =>
+                {
+                    using (var context = CreateContext())
+                    {
+                        await context.Products
+                            .Where(p => p.ProductID == 1)
+                            .Take(50)
+                            .Skip(5)
+                            .ToArrayAsync();
+                    }
+                });
+
+            Assert.IsNotType<AggregateException>(exception.InnerException);
         }
 
         public AsyncQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture)

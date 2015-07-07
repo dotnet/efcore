@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -93,6 +94,11 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         public virtual bool HasPendingModelChanges() => _modelDiffer.HasDifferences(_migrationAssembly.LastModel, _model);
+
+        public async Task ApplyMigrationsAsync(string targetMigration = null)
+        {
+            await Task.Run(() => ApplyMigrations(targetMigration));
+        }
 
         public virtual void ApplyMigrations(string targetMigration = null)
         {
