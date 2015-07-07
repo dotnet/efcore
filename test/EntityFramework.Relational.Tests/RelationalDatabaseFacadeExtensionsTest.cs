@@ -6,9 +6,9 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Xunit;
@@ -220,6 +220,31 @@ namespace Microsoft.Data.Entity.Tests
             context.Database.RollbackTransaction();
 
             transactionMock.Verify(m => m.Rollback(), Times.Once);
+        }
+
+        [Fact]
+        public void Can_apply_migration()
+        {
+            var migratorMock = new Mock<IMigrator>();
+
+            var context = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddInstance(migratorMock.Object));
+
+            context.Database.ApplyMigrations();
+
+            migratorMock.Verify(m => m.ApplyMigrations(null), Times.Once);
+        }
+
+        [Fact]
+        public void Can_apply_migration_async()
+        {
+            var migratorMock = new Mock<IMigrator>();
+            var context = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddInstance(migratorMock.Object));
+
+            context.Database.ApplyMigrationsAsync();
+
+            migratorMock.Verify(m => m.ApplyMigrationsAsync(null), Times.Once);
         }
     }
 }

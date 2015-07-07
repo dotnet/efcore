@@ -30,6 +30,20 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
+        [Fact]
+        public async Task Empty_Migration_Creates_Database_Async()
+        {
+            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
+            {
+                using (var context = CreateContext(testDatabase))
+                {
+                    await context.Database.ApplyMigrationsAsync();
+
+                    Assert.True(context.GetService<IRelationalDatabaseCreator>().Exists());
+                }
+            }
+        }
+
         private static BloggingContext CreateContext(SqlServerTestStore testStore)
         {
             var serviceProvider =
