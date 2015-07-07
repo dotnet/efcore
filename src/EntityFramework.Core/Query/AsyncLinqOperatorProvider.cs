@@ -149,6 +149,16 @@ namespace Microsoft.Data.Entity.Query
 
                         return await _inner.MoveNext(cancellationToken);
                     }
+                    catch (AggregateException aggregateException)
+                    {
+                        _exceptionInterceptor._queryContext.Logger.LogError(
+                           new DatabaseErrorLogState(_exceptionInterceptor._queryContext.ContextType),
+                           aggregateException.GetBaseException(),
+                           (state, exception) =>
+                               Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
+
+                        throw aggregateException.GetBaseException();
+                    }
                     catch (Exception e)
                     {
                         _exceptionInterceptor._queryContext.Logger.LogError(
