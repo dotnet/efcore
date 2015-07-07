@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -21,8 +23,6 @@ namespace Microsoft.Data.Entity.Commands
 {
     public class DatabaseTool
     {
-        public static readonly string _defaultReverseEngineeringProviderAssembly = "EntityFramework.SqlServer.Design";
-
         private readonly ServiceProvider _serviceProvider;
         private readonly LazyRef<ILogger> _logger;
 
@@ -47,26 +47,46 @@ namespace Microsoft.Data.Entity.Commands
         }
 
         public virtual Task<IReadOnlyList<string>> ReverseEngineerAsync(
-            [NotNull] string providerAssemblyName,
+            [NotNull] string runtimeProviderAssemblyName,
             [NotNull] string connectionString,
             [NotNull] string rootNamespace,
             [NotNull] string projectDir,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(providerAssemblyName, nameof(providerAssemblyName));
+            Check.NotNull(runtimeProviderAssemblyName, nameof(runtimeProviderAssemblyName));
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
             Check.NotEmpty(projectDir, nameof(projectDir));
 
-            var assembly = Assembly.Load(new AssemblyName(providerAssemblyName));
-            if (assembly == null)
+            Assembly runtimeProviderAssembly = null;
+            try
             {
-                throw new InvalidOperationException(Strings.CannotFindAssembly(providerAssemblyName));
+                runtimeProviderAssembly = Assembly.Load(new AssemblyName(runtimeProviderAssemblyName));
             }
+            catch(Exception exception)
+            {
+                throw new InvalidOperationException(
+                    Strings.CannotFindRuntimeProviderAssembly(runtimeProviderAssemblyName), exception);
+            }
+
+            var designTimeServicesTypeAttribute = (ProviderDesignTimeServicesAttribute)runtimeProviderAssembly
+                .GetCustomAttribute(typeof(ProviderDesignTimeServicesAttribute));
+            if (designTimeServicesTypeAttribute == null)
+            {
+                throw new InvalidOperationException(
+                    Strings.CannotFindDesignTimeProviderAssemblyAttribute(
+                        nameof(ProviderDesignTimeServicesAttribute), runtimeProviderAssemblyName));
+            }
+
+            var designTimeTypeName = designTimeServicesTypeAttribute.TypeName;
+            var designTimeAssemblyName =
+                designTimeServicesTypeAttribute.AssemblyName ?? runtimeProviderAssemblyName;
+
+            var designTimeProvider = GetDesignTimeProvider(designTimeTypeName, designTimeAssemblyName);
 
             var configuration = new ReverseEngineeringConfiguration
             {
-                ProviderAssembly = assembly,
+                Provider = designTimeProvider,
                 ConnectionString = connectionString,
                 Namespace = rootNamespace,
                 OutputPath = projectDir
@@ -74,6 +94,45 @@ namespace Microsoft.Data.Entity.Commands
 
             var generator = new ReverseEngineeringGenerator(_serviceProvider);
             return generator.GenerateAsync(configuration, cancellationToken);
+        }
+
+        public virtual IDatabaseMetadataModelProvider GetDesignTimeProvider(
+            [NotNull] string providerTypeFullName, [NotNull] string providerAssemblyName)
+        {
+            Check.NotNull(providerTypeFullName, nameof(providerTypeFullName));
+            Check.NotNull(providerAssemblyName, nameof(providerAssemblyName));
+
+            Assembly designTimeProviderAssembly = null;
+            try
+            {
+                designTimeProviderAssembly = Assembly.Load(new AssemblyName(providerAssemblyName));
+            }
+            catch (Exception exception)
+            {
+                throw new InvalidOperationException(
+                    Strings.CannotFindDesignTimeProviderAssembly(providerAssemblyName), exception);
+            }
+
+            var type = designTimeProviderAssembly.GetExportedTypes()
+                .FirstOrDefault(t => t.FullName == providerTypeFullName);
+            if (type == null)
+            {
+                throw new InvalidOperationException(
+                    Strings.DesignTimeAssemblyProviderDoesNotContainSpecifiedType(
+                        designTimeProviderAssembly.FullName,
+                        providerTypeFullName));
+            }
+
+            if (!typeof(IDatabaseMetadataModelProvider).IsAssignableFrom(type))
+            {
+                throw new InvalidOperationException(
+                    Strings.SpecifiedDesignTimeTypeDoesNotImplementInterface(
+                        providerTypeFullName,
+                        designTimeProviderAssembly.FullName,
+                        typeof(IDatabaseMetadataModelProvider).FullName));
+            }
+
+            return (IDatabaseMetadataModelProvider)Activator.CreateInstance(type, _serviceProvider);
         }
     }
 }

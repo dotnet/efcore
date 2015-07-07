@@ -1,13 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Microsoft.Data.Entity.Commands;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
@@ -69,21 +69,24 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 #endif
+            var serviceProvider = SetupServiceProvider();
+            var logger = new InMemoryCommandLogger("E2ETest");
+            serviceProvider.AddService(typeof(ILogger), logger);
+            var fileService = new InMemoryFileService();
+            serviceProvider.AddService(typeof(IFileService), fileService);
 
-            var assembly = Assembly.Load(new AssemblyName(DatabaseTool._defaultReverseEngineeringProviderAssembly));
+            var designTimeAssembly = Assembly.Load(new AssemblyName("EntityFramework.SqlServer.Design"));
+            var type = designTimeAssembly.GetExportedTypes()
+                .First(t => t.FullName == "Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.SqlServerMetadataModelProvider");
+            var provider = (IDatabaseMetadataModelProvider)Activator.CreateInstance(type, serviceProvider);
+
             var configuration = new ReverseEngineeringConfiguration
             {
-                ProviderAssembly = assembly,
+                Provider = provider,
                 ConnectionString = E2EConnectionString,
                 Namespace = TestNamespace,
                 OutputPath = TestOutputDir
             };
-
-            var serviceProvider = SetupServiceProvider();
-            var fileService = new InMemoryFileService();
-            serviceProvider.AddService(typeof(IFileService), fileService);
-            var logger = new InMemoryCommandLogger("E2ETest");
-            serviceProvider.AddService(typeof(ILogger), logger);
 
             var expectedFileContents = InitializeExpectedFileContents();
 
