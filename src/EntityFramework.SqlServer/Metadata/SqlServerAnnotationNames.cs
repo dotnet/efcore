@@ -9,9 +9,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public const string Clustered = "Clustered";
         public const string ItentityStrategy = "ItentityStrategy";
         public const string ColumnComputedExpression = "ColumnComputedExpression";
-        public const string DefaultSequenceName = "DefaultSequenceName";
-        public const string DefaultSequenceSchema = "DefaultSequenceSchema";
-        public const string SequenceName = "SequenceName";
-        public const string SequenceSchema = "SequenceSchema";
+        public const string HiLoSequenceName = "HiLoSequenceName";
+        public const string HiLoSequenceSchema = "HiLoSequenceSchema";
+        public const string HiLoSequencePoolSize = "HiLoSequencePoolSize";
     }
 }

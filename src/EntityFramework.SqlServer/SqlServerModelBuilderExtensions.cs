@@ -60,8 +60,29 @@ namespace Microsoft.Data.Entity
             var sequence = model.SqlServer().GetOrAddSequence(name, schema);
 
             model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
-            model.SqlServer().DefaultSequenceName = sequence.Name;
-            model.SqlServer().DefaultSequenceSchema = sequence.Schema;
+            model.SqlServer().HiLoSequenceName = sequence.Name;
+            model.SqlServer().HiLoSequenceSchema = sequence.Schema;
+
+            return modelBuilder;
+        }
+
+        public static ModelBuilder UseSqlServerSequenceHiLo(
+            [NotNull] this ModelBuilder modelBuilder,
+            int poolSize,
+            [CanBeNull] string name = null,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            var model = modelBuilder.Model;
+            var sequence = model.SqlServer().GetOrAddSequence(name, schema);
+
+            model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
+            model.SqlServer().HiLoSequenceName = sequence.Name;
+            model.SqlServer().HiLoSequenceSchema = sequence.Schema;
+            model.SqlServer().HiLoSequencePoolSize = poolSize;
 
             return modelBuilder;
         }
@@ -74,8 +95,8 @@ namespace Microsoft.Data.Entity
             var property = modelBuilder.Model;
 
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
-            property.SqlServer().DefaultSequenceName = null;
-            property.SqlServer().DefaultSequenceSchema = null;
+            property.SqlServer().HiLoSequenceName = null;
+            property.SqlServer().HiLoSequenceSchema = null;
 
             return modelBuilder;
         }

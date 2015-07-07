@@ -80,28 +80,44 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         }
 
         [CanBeNull]
-        public new virtual string SequenceName
+        public new virtual string HiLoSequenceName
         {
-            get { return base.SequenceName; }
+            get { return base.HiLoSequenceName; }
             [param: CanBeNull]
             set
             {
                 Check.NullButNotEmpty(value, nameof(value));
 
-                ((Property)Property)[SqlServerSequenceNameAnnotation] = value;
+                ((Property)Property)[SqlServerHiLoSequenceNameAnnotation] = value;
             }
         }
 
         [CanBeNull]
-        public new virtual string SequenceSchema
+        public new virtual string HiLoSequenceSchema
         {
-            get { return base.SequenceSchema; }
+            get { return base.HiLoSequenceSchema; }
             [param: CanBeNull]
             set
             {
                 Check.NullButNotEmpty(value, nameof(value));
 
-                ((Property)Property)[SqlServerSequenceSchemaAnnotation] = value;
+                ((Property)Property)[SqlServerHiLoSequenceSchemaAnnotation] = value;
+            }
+        }
+
+        [CanBeNull]
+        public new virtual int? HiLoSequencePoolSize
+        {
+            get { return base.HiLoSequencePoolSize; }
+            [param: CanBeNull]
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
+                ((Property)Property)[SqlServerHiLoSequencePoolSizeAnnotation] = value;
             }
         }
 

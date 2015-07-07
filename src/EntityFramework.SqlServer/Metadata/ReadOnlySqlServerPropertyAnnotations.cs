@@ -14,8 +14,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         protected const string SqlServerDefaultExpressionAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultExpression;
         protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ItentityStrategy;
         protected const string SqlServerComputedExpressionAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ColumnComputedExpression;
-        protected const string SqlServerSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.SequenceName;
-        protected const string SqlServerSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.SequenceSchema;
+        protected const string SqlServerHiLoSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceName;
+        protected const string SqlServerHiLoSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceSchema;
+        protected const string SqlServerHiLoSequencePoolSizeAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequencePoolSize;
         protected const string SqlServerDefaultValueAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultValue;
         protected const string SqlServerDefaultValueTypeAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultValueType;
 
@@ -67,10 +68,11 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             }
         }
 
-        public virtual string SequenceName => Property[SqlServerSequenceNameAnnotation] as string;
-        public virtual string SequenceSchema => Property[SqlServerSequenceSchemaAnnotation] as string;
+        public virtual string HiLoSequenceName => Property[SqlServerHiLoSequenceNameAnnotation] as string;
+        public virtual string HiLoSequenceSchema => Property[SqlServerHiLoSequenceSchemaAnnotation] as string;
+        public virtual int? HiLoSequencePoolSize => Property[SqlServerHiLoSequencePoolSizeAnnotation] as int?;
 
-        public virtual Sequence TryGetSequence()
+        public virtual Sequence TryGetHiLoSequence()
         {
             var modelExtensions = Property.DeclaringEntityType.Model.SqlServer();
 
@@ -79,12 +81,12 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 return null;
             }
 
-            var sequenceName = SequenceName
-                               ?? modelExtensions.DefaultSequenceName
+            var sequenceName = HiLoSequenceName
+                               ?? modelExtensions.HiLoSequenceName
                                ?? Sequence.DefaultName;
 
-            var sequenceSchema = SequenceSchema
-                                 ?? modelExtensions.DefaultSequenceSchema;
+            var sequenceSchema = HiLoSequenceSchema
+                                 ?? modelExtensions.HiLoSequenceSchema;
 
             return modelExtensions.TryGetSequence(sequenceName, sequenceSchema)
                    ?? new Sequence(Sequence.DefaultName);

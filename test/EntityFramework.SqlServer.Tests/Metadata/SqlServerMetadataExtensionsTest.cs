@@ -625,18 +625,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
 
-            Assert.Null(model.SqlServer().DefaultSequenceName);
-            Assert.Null(((IModel)model).SqlServer().DefaultSequenceName);
+            Assert.Null(model.SqlServer().HiLoSequenceName);
+            Assert.Null(((IModel)model).SqlServer().HiLoSequenceName);
 
-            model.SqlServer().DefaultSequenceName = "Tasty.Snook";
+            model.SqlServer().HiLoSequenceName = "Tasty.Snook";
 
-            Assert.Equal("Tasty.Snook", model.SqlServer().DefaultSequenceName);
-            Assert.Equal("Tasty.Snook", ((IModel)model).SqlServer().DefaultSequenceName);
+            Assert.Equal("Tasty.Snook", model.SqlServer().HiLoSequenceName);
+            Assert.Equal("Tasty.Snook", ((IModel)model).SqlServer().HiLoSequenceName);
 
-            model.SqlServer().DefaultSequenceName = null;
+            model.SqlServer().HiLoSequenceName = null;
 
-            Assert.Null(model.SqlServer().DefaultSequenceName);
-            Assert.Null(((IModel)model).SqlServer().DefaultSequenceName);
+            Assert.Null(model.SqlServer().HiLoSequenceName);
+            Assert.Null(((IModel)model).SqlServer().HiLoSequenceName);
         }
 
         [Fact]
@@ -645,18 +645,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
 
-            Assert.Null(model.SqlServer().DefaultSequenceSchema);
-            Assert.Null(((IModel)model).SqlServer().DefaultSequenceSchema);
+            Assert.Null(model.SqlServer().HiLoSequenceSchema);
+            Assert.Null(((IModel)model).SqlServer().HiLoSequenceSchema);
 
-            model.SqlServer().DefaultSequenceSchema = "Tasty.Snook";
+            model.SqlServer().HiLoSequenceSchema = "Tasty.Snook";
 
-            Assert.Equal("Tasty.Snook", model.SqlServer().DefaultSequenceSchema);
-            Assert.Equal("Tasty.Snook", ((IModel)model).SqlServer().DefaultSequenceSchema);
+            Assert.Equal("Tasty.Snook", model.SqlServer().HiLoSequenceSchema);
+            Assert.Equal("Tasty.Snook", ((IModel)model).SqlServer().HiLoSequenceSchema);
 
-            model.SqlServer().DefaultSequenceSchema = null;
+            model.SqlServer().HiLoSequenceSchema = null;
 
-            Assert.Null(model.SqlServer().DefaultSequenceSchema);
-            Assert.Null(((IModel)model).SqlServer().DefaultSequenceSchema);
+            Assert.Null(model.SqlServer().HiLoSequenceSchema);
+            Assert.Null(((IModel)model).SqlServer().HiLoSequenceSchema);
         }
 
         [Fact]
@@ -791,18 +791,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Property(e => e.Id)
                 .Metadata;
 
-            Assert.Null(property.SqlServer().SequenceName);
-            Assert.Null(((IProperty)property).SqlServer().SequenceName);
+            Assert.Null(property.SqlServer().HiLoSequenceName);
+            Assert.Null(((IProperty)property).SqlServer().HiLoSequenceName);
 
-            property.SqlServer().SequenceName = "Snook";
+            property.SqlServer().HiLoSequenceName = "Snook";
 
-            Assert.Equal("Snook", property.SqlServer().SequenceName);
-            Assert.Equal("Snook", ((IProperty)property).SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
+            Assert.Equal("Snook", ((IProperty)property).SqlServer().HiLoSequenceName);
 
-            property.SqlServer().SequenceName = null;
+            property.SqlServer().HiLoSequenceName = null;
 
-            Assert.Null(property.SqlServer().SequenceName);
-            Assert.Null(((IProperty)property).SqlServer().SequenceName);
+            Assert.Null(property.SqlServer().HiLoSequenceName);
+            Assert.Null(((IProperty)property).SqlServer().HiLoSequenceName);
         }
 
         [Fact]
@@ -815,18 +815,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Property(e => e.Id)
                 .Metadata;
 
-            Assert.Null(property.SqlServer().SequenceSchema);
-            Assert.Null(((IProperty)property).SqlServer().SequenceSchema);
+            Assert.Null(property.SqlServer().HiLoSequenceSchema);
+            Assert.Null(((IProperty)property).SqlServer().HiLoSequenceSchema);
 
-            property.SqlServer().SequenceSchema = "Tasty";
+            property.SqlServer().HiLoSequenceSchema = "Tasty";
 
-            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
-            Assert.Equal("Tasty", ((IProperty)property).SqlServer().SequenceSchema);
+            Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
+            Assert.Equal("Tasty", ((IProperty)property).SqlServer().HiLoSequenceSchema);
 
-            property.SqlServer().SequenceSchema = null;
+            property.SqlServer().HiLoSequenceSchema = null;
 
-            Assert.Null(property.SqlServer().SequenceSchema);
-            Assert.Null(((IProperty)property).SqlServer().SequenceSchema);
+            Assert.Null(property.SqlServer().HiLoSequenceSchema);
+            Assert.Null(((IProperty)property).SqlServer().HiLoSequenceSchema);
         }
 
         [Fact]
@@ -841,24 +841,24 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
 
-            Assert.Null(property.SqlServer().TryGetSequence());
-            Assert.Null(((IProperty)property).SqlServer().TryGetSequence());
+            Assert.Null(property.SqlServer().TryGetHiLoSequence());
+            Assert.Null(((IProperty)property).SqlServer().TryGetHiLoSequence());
 
-            property.SqlServer().SequenceName = "DaneelOlivaw";
+            property.SqlServer().HiLoSequenceName = "DaneelOlivaw";
 
-            Assert.Null(property.SqlServer().TryGetSequence());
-            Assert.Null(((IProperty)property).SqlServer().TryGetSequence());
+            Assert.Null(property.SqlServer().TryGetHiLoSequence());
+            Assert.Null(((IProperty)property).SqlServer().TryGetHiLoSequence());
 
             modelBuilder.Model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
 
-            Assert.Null(property.SqlServer().TryGetSequence());
-            Assert.Null(((IProperty)property).SqlServer().TryGetSequence());
+            Assert.Null(property.SqlServer().TryGetHiLoSequence());
+            Assert.Null(((IProperty)property).SqlServer().TryGetHiLoSequence());
 
             modelBuilder.Model.SqlServer().IdentityStrategy = null;
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
 
-            Assert.Null(property.SqlServer().TryGetSequence());
-            Assert.Null(((IProperty)property).SqlServer().TryGetSequence());
+            Assert.Null(property.SqlServer().TryGetHiLoSequence());
+            Assert.Null(((IProperty)property).SqlServer().TryGetHiLoSequence());
         }
 
         [Fact]
@@ -873,11 +873,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
-            property.SqlServer().SequenceName = "DaneelOlivaw";
+            property.SqlServer().HiLoSequenceName = "DaneelOlivaw";
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
-            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
-            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetHiLoSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetHiLoSequence().Name);
         }
 
         [Fact]
@@ -893,10 +893,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
             modelBuilder.Model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
-            property.SqlServer().SequenceName = "DaneelOlivaw";
+            property.SqlServer().HiLoSequenceName = "DaneelOlivaw";
 
-            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
-            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetHiLoSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetHiLoSequence().Name);
         }
 
         [Fact]
@@ -911,11 +911,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
-            modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
+            modelBuilder.Model.SqlServer().HiLoSequenceName = "DaneelOlivaw";
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
-            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
-            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetHiLoSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetHiLoSequence().Name);
         }
 
         [Fact]
@@ -931,10 +931,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
             modelBuilder.Model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
-            modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
+            modelBuilder.Model.SqlServer().HiLoSequenceName = "DaneelOlivaw";
 
-            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
-            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetHiLoSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetHiLoSequence().Name);
         }
 
         [Fact]
@@ -949,14 +949,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
-            property.SqlServer().SequenceName = "DaneelOlivaw";
-            property.SqlServer().SequenceSchema = "R";
+            property.SqlServer().HiLoSequenceName = "DaneelOlivaw";
+            property.SqlServer().HiLoSequenceSchema = "R";
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
-            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
-            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
-            Assert.Equal("R", property.SqlServer().TryGetSequence().Schema);
-            Assert.Equal("R", ((IProperty)property).SqlServer().TryGetSequence().Schema);
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetHiLoSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetHiLoSequence().Name);
+            Assert.Equal("R", property.SqlServer().TryGetHiLoSequence().Schema);
+            Assert.Equal("R", ((IProperty)property).SqlServer().TryGetHiLoSequence().Schema);
         }
 
         [Fact]
@@ -972,13 +972,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
             modelBuilder.Model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
-            property.SqlServer().SequenceName = "DaneelOlivaw";
-            property.SqlServer().SequenceSchema = "R";
+            property.SqlServer().HiLoSequenceName = "DaneelOlivaw";
+            property.SqlServer().HiLoSequenceSchema = "R";
 
-            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
-            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
-            Assert.Equal("R", property.SqlServer().TryGetSequence().Schema);
-            Assert.Equal("R", ((IProperty)property).SqlServer().TryGetSequence().Schema);
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetHiLoSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetHiLoSequence().Name);
+            Assert.Equal("R", property.SqlServer().TryGetHiLoSequence().Schema);
+            Assert.Equal("R", ((IProperty)property).SqlServer().TryGetHiLoSequence().Schema);
         }
 
         [Fact]
@@ -993,14 +993,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
-            modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
-            modelBuilder.Model.SqlServer().DefaultSequenceSchema = "R";
+            modelBuilder.Model.SqlServer().HiLoSequenceName = "DaneelOlivaw";
+            modelBuilder.Model.SqlServer().HiLoSequenceSchema = "R";
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
 
-            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
-            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
-            Assert.Equal("R", property.SqlServer().TryGetSequence().Schema);
-            Assert.Equal("R", ((IProperty)property).SqlServer().TryGetSequence().Schema);
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetHiLoSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetHiLoSequence().Name);
+            Assert.Equal("R", property.SqlServer().TryGetHiLoSequence().Schema);
+            Assert.Equal("R", ((IProperty)property).SqlServer().TryGetHiLoSequence().Schema);
         }
 
         [Fact]
@@ -1016,13 +1016,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
             modelBuilder.Model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
-            modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
-            modelBuilder.Model.SqlServer().DefaultSequenceSchema = "R";
+            modelBuilder.Model.SqlServer().HiLoSequenceName = "DaneelOlivaw";
+            modelBuilder.Model.SqlServer().HiLoSequenceSchema = "R";
 
-            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
-            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
-            Assert.Equal("R", property.SqlServer().TryGetSequence().Schema);
-            Assert.Equal("R", ((IProperty)property).SqlServer().TryGetSequence().Schema);
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetHiLoSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetHiLoSequence().Name);
+            Assert.Equal("R", property.SqlServer().TryGetHiLoSequence().Schema);
+            Assert.Equal("R", ((IProperty)property).SqlServer().TryGetHiLoSequence().Schema);
         }
 
         private class Customer

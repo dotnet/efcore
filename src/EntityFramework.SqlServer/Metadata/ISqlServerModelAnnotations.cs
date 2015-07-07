@@ -8,7 +8,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     public interface ISqlServerModelAnnotations : IRelationalModelAnnotations
     {
         SqlServerIdentityStrategy? IdentityStrategy { get; }
-        string DefaultSequenceName { get; }
-        string DefaultSequenceSchema { get; }
+        string HiLoSequenceName { get; }
+        string HiLoSequenceSchema { get; }
+        int? HiLoSequencePoolSize { get; }
     }
 }

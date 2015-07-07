@@ -301,8 +301,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Theory]
         [InlineData(51, 6)]
         [InlineData(50, 5)]
-        [InlineData(20, 5)]
-        [InlineData(2, 2)]
+        [InlineData(20, 2)]
+        [InlineData(2, 1)]
         public void Keys_generated_in_batches(int count, int expected)
         {
             var loggerFactory = new TestSqlLoggerFactory();

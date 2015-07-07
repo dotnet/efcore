@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -26,27 +27,42 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             }
         }
 
-        public new virtual string DefaultSequenceName
+        public new virtual string HiLoSequenceName
         {
-            get { return base.DefaultSequenceName; }
+            get { return base.HiLoSequenceName; }
             [param: CanBeNull]
             set
             {
                 Check.NullButNotEmpty(value, nameof(value));
 
-                ((Model)Model)[SqlServerDefaultSequenceNameAnnotation] = value;
+                ((Model)Model)[SqlServerHiLoSequenceNameAnnotation] = value;
             }
         }
 
-        public new virtual string DefaultSequenceSchema
+        public new virtual string HiLoSequenceSchema
         {
-            get { return base.DefaultSequenceSchema; }
+            get { return base.HiLoSequenceSchema; }
             [param: CanBeNull]
             set
             {
                 Check.NullButNotEmpty(value, nameof(value));
 
-                ((Model)Model)[SqlServerDefaultSequenceSchemaAnnotation] = value;
+                ((Model)Model)[SqlServerHiLoSequenceSchemaAnnotation] = value;
+            }
+        }
+
+        [CanBeNull]
+        public new virtual int? HiLoSequencePoolSize
+        {
+            get { return base.HiLoSequencePoolSize; }
+            [param: CanBeNull] set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
+                ((Model)Model)[SqlServerHiLoSequencePoolSizeAnnotation] = value;
             }
         }
 
@@ -85,8 +101,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            name = name ?? DefaultSequenceName;
-            schema = schema ?? DefaultSequenceSchema;
+            name = name ?? HiLoSequenceName;
+            schema = schema ?? HiLoSequenceSchema;
 
             var model = (Model)Model;
             model[SqlServerSequenceAnnotation + schema + "." + name] = null;
