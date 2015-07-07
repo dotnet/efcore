@@ -4,18 +4,18 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuration
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
 {
-    public class SqlServerNavigationProperty
+    public class NavigationPropertyConfiguration
     {
-        public SqlServerNavigationProperty([NotNull] string errorAnnotation)
+        public NavigationPropertyConfiguration([NotNull] string errorAnnotation)
         {
             Check.NotEmpty(errorAnnotation, nameof(errorAnnotation));
 
             ErrorAnnotation = errorAnnotation;
         }
 
-        public SqlServerNavigationProperty([NotNull] string type, [NotNull] string name)
+        public NavigationPropertyConfiguration([NotNull] string type, [NotNull] string name)
         {
             Check.NotNull(type, nameof(type));
             Check.NotEmpty(name, nameof(name));

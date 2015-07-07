@@ -1,6 +1,5 @@
 @inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
-@using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
-@using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuration
+@using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
 @{
     string errorMessageAnnotation = Model.Helper.ErrorMessageAnnotation;
 }@if (errorMessageAnnotation != null) {
@@ -34,7 +33,7 @@ else {
     @if ((int)(Model.Helper.NavigationProperties.Count) > 0)
     {
 @:
-        @foreach (SqlServerNavigationProperty navProp in Model.Helper.NavigationProperties)
+        @foreach (NavigationPropertyConfiguration navProp in Model.Helper.NavigationProperties)
         {
             @if (navProp.ErrorAnnotation != null)
             {

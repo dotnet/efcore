@@ -6,7 +6,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuration;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
@@ -27,11 +27,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        public virtual IEnumerable<SqlServerNavigationPropertyInitializer> NavPropInitializers
+        public virtual IEnumerable<NavigationPropertyInitializerConfiguration> NavPropInitializers
         {
             get
             {
-                var navPropInitializers = new List<SqlServerNavigationPropertyInitializer>();
+                var navPropInitializers = new List<NavigationPropertyInitializerConfiguration>();
 
                 foreach (var otherEntityType in GeneratorModel.EntityType.Model
                     .EntityTypes.Where(et => et != GeneratorModel.EntityType))
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                             if (!foreignKey.IsUnique)
                             {
                                 navPropInitializers.Add(
-                                    new SqlServerNavigationPropertyInitializer(
+                                    new NavigationPropertyInitializerConfiguration(
                                         navigationPropertyName, otherEntityType.Name));
                             }
                         }
@@ -59,11 +59,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        public virtual IEnumerable<SqlServerNavigationProperty> NavigationProperties
+        public virtual IEnumerable<NavigationPropertyConfiguration> NavigationProperties
         {
             get
             {
-                var navProps = new List<SqlServerNavigationProperty>();
+                var navProps = new List<NavigationPropertyConfiguration>();
 
                 foreach (var otherEntityType in GeneratorModel.EntityType.Model
                     .EntityTypes.Where(et => et != GeneratorModel.EntityType))
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         if (((EntityType)otherEntityType)
                             .FindAnnotation(SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) != null)
                         {
-                            navProps.Add(new SqlServerNavigationProperty(
+                            navProps.Add(new NavigationPropertyConfiguration(
                                 Strings.UnableToAddNavigationProperty(otherEntityType.Name)));
                         }
                         else
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                             var referencedType = foreignKey.IsUnique
                                 ? otherEntityType.Name
                                 : "ICollection<" + otherEntityType.Name + ">";
-                            navProps.Add(new SqlServerNavigationProperty(
+                            navProps.Add(new NavigationPropertyConfiguration(
                                 referencedType,
                                 (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]));
                         }
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 foreach (var foreignKey in GeneratorModel.EntityType.GetForeignKeys())
                 {
                     // set up the navigation property on this end of foreign keys owned by this EntityType
-                    navProps.Add(new SqlServerNavigationProperty(
+                    navProps.Add(new NavigationPropertyConfiguration(
                         foreignKey.PrincipalEntityType.Name,
                         (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName]));
 
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         var referencedType = foreignKey.IsUnique
                             ? foreignKey.DeclaringEntityType.Name
                             : "ICollection<" + foreignKey.DeclaringEntityType.Name + ">";
-                        navProps.Add(new SqlServerNavigationProperty(
+                        navProps.Add(new NavigationPropertyConfiguration(
                             referencedType,
                             (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]));
                     }

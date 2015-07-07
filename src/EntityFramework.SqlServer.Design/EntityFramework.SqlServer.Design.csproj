@@ -43,8 +43,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="ReverseEngineering\Configuration\SqlServerNavigationProperty.cs" />
-    <Compile Include="ReverseEngineering\Configuration\SqlServerNavigationPropertyInitializer.cs" />
     <Compile Include="ReverseEngineering\Model\ForeignKeyColumnMapping.cs" />
     <Compile Include="ReverseEngineering\Model\TableColumn.cs" />
     <Compile Include="ReverseEngineering\Model\TableConstraintColumn.cs" />
@@ -53,7 +51,6 @@
     <Compile Include="ReverseEngineering\SqlServerDesignTimeMetadataProviderFactory.cs" />
     <Compile Include="ReverseEngineering\SqlServerEntityTypeCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\SqlServerMetadataModelProvider.cs" />
-    <Compile Include="ReverseEngineering\SqlServerNameMapper.cs" />
     <Compile Include="Utilities\SqlServerLiteralUtilities.cs" />
     <Compile Include="Utilities\SqlServerTypeMapping.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

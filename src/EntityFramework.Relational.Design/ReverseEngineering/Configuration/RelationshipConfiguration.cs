@@ -7,9 +7,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
 {
-    public class NavigationConfiguration
+    public class RelationshipConfiguration
     {
-        public NavigationConfiguration([NotNull] EntityConfiguration entityConfiguration,
+        public RelationshipConfiguration([NotNull] EntityConfiguration entityConfiguration,
             [NotNull] IForeignKey foreignKey, [NotNull] string dependentEndNavigationPropertyName,
             [NotNull] string principalEndNavigationPropertyName)
         {

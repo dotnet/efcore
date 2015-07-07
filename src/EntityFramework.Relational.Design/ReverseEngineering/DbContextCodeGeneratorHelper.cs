@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
                     if (entityConfiguration.FacetConfigurations.Any()
                         || entityConfiguration.PropertyConfigurations.Any()
-                        || entityConfiguration.NavigationConfigurations.Any())
+                        || entityConfiguration.RelationshipConfigurations.Any())
                     {
                         entityConfigurations.Add(entityConfiguration);
                     }
