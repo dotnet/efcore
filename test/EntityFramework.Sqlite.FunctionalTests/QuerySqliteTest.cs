@@ -1802,22 +1802,30 @@ END",
         {
             base.Where_subquery_recursive_trivial();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT ""e1"".""EmployeeID"", ""e1"".""City"", ""e1"".""Country"", ""e1"".""FirstName"", ""e1"".""ReportsTo"", ""e1"".""Title""
 FROM ""Employees"" AS ""e1""
-ORDER BY ""e1"".""EmployeeID""
-
-SELECT 1
-FROM ""Employees"" AS ""e2""
-
-SELECT CASE
-    WHEN
-        (EXISTS (
-            SELECT 1
-            FROM ""Employees"" AS ""e3"")
-        )
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END",
+WHERE (
+    SELECT CASE
+        WHEN
+            (EXISTS (
+                SELECT 1
+                FROM ""Employees"" AS ""e2""
+                WHERE (
+                    SELECT CASE
+                        WHEN
+                            (EXISTS (
+                                SELECT 1
+                                FROM ""Employees"" AS ""e3"")
+                            )
+                        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+                    END
+                ) = 1)
+            )
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1
+ORDER BY ""e1"".""EmployeeID""",
                 Sql);
         }
 

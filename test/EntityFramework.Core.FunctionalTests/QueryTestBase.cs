@@ -697,6 +697,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_subquery_correlated()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c1 => cs.Any(c2 => c1.CustomerID == c2.CustomerID)),
+                entryCount: 91);
+        }
+
+        [Fact]
+        public virtual void Where_subquery_correlated_client_eval()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c1 => cs.Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
+                entryCount: 6);
+        }
+
+        [Fact]
         public virtual void Where_client_and_server_top_level()
         {
             AssertQuery<Customer>(

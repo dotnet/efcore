@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             [param: NotNull]
             set
             {
-                Check.NotEmpty(value, nameof(value));
+                Check.NotNull(value, nameof(value));
 
                 _alias = value;
             }

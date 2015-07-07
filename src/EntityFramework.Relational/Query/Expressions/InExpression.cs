@@ -23,14 +23,26 @@ namespace Microsoft.Data.Entity.Query.Expressions
             Values = values;
         }
 
+        public InExpression(
+            [NotNull] AliasExpression operand,
+            [NotNull] SelectExpression subQuery)
+        {
+            Check.NotNull(operand, nameof(operand));
+            Check.NotNull(subQuery, nameof(subQuery));
+
+            Operand = operand;
+            SubQuery = subQuery;
+        }
+
         public virtual AliasExpression Operand { get; }
         public virtual IReadOnlyList<Expression> Values { get; }
+        public virtual SelectExpression SubQuery { get; }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
         public override Type Type => typeof(bool);
 
-        protected override Expression Accept([NotNull] ExpressionVisitor visitor)
+        protected override Expression Accept(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
 

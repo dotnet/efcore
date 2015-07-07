@@ -22,8 +22,6 @@ namespace Microsoft.Data.Entity.Query
 {
     public class RelationalQueryModelVisitor : EntityQueryModelVisitor
     {
-        private readonly RelationalQueryModelVisitor _parentQueryModelVisitor;
-
         private readonly Dictionary<IQuerySource, SelectExpression> _queriesBySource
             = new Dictionary<IQuerySource, SelectExpression>();
 
@@ -35,6 +33,7 @@ namespace Microsoft.Data.Entity.Query
 
         private bool _requiresClientFilter;
         private bool _requiresClientResultOperator;
+        private bool _bindParentQueries;
 
         private RelationalProjectionExpressionVisitor _projectionVisitor;
 
@@ -45,7 +44,7 @@ namespace Microsoft.Data.Entity.Query
             [CanBeNull] RelationalQueryModelVisitor parentQueryModelVisitor)
             : base(Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)))
         {
-            _parentQueryModelVisitor = parentQueryModelVisitor;
+            ParentQueryModelVisitor = parentQueryModelVisitor;
         }
 
         public virtual bool RequiresClientEval { get; set; }
@@ -63,6 +62,8 @@ namespace Microsoft.Data.Entity.Query
             => (RelationalQueryCompilationContext)base.QueryCompilationContext;
 
         public virtual ICollection<SelectExpression> Queries => _queriesBySource.Values;
+
+        public virtual RelationalQueryModelVisitor ParentQueryModelVisitor { get; }
 
         public virtual void RegisterSubQueryVisitor(
             [NotNull] IQuerySource querySource, [NotNull] RelationalQueryModelVisitor queryModelVisitor)
@@ -131,6 +132,13 @@ namespace Microsoft.Data.Entity.Query
                 selectExpression.Predicate
                     = compositePredicateVisitor.Visit(selectExpression.Predicate);
             }
+        }
+
+        public virtual void VisitSubQueryModel([NotNull] QueryModel queryModel)
+        {
+            _bindParentQueries = true;
+
+            VisitQueryModel(queryModel);
         }
 
         protected override void IncludeNavigations(
@@ -302,7 +310,7 @@ namespace Microsoft.Data.Entity.Query
                 if (selectExpression != null)
                 {
                     var filteringExpressionVisitor
-                        = new SqlTranslatingExpressionVisitor(this, null);
+                        = new SqlTranslatingExpressionVisitor(this, targetSelectExpression: null);
 
                     var predicate
                         = filteringExpressionVisitor
@@ -363,6 +371,50 @@ namespace Microsoft.Data.Entity.Query
             var expression = base.CompileGroupJoinInnerSequenceExpression(groupJoinClause, queryModel);
 
             return LiftSubQuery(groupJoinClause.JoinClause, groupJoinClause.JoinClause.InnerSequence, queryModel, expression);
+        }
+
+        public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
+        {
+            Check.NotNull(whereClause, nameof(whereClause));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            var selectExpression = TryGetQuery(queryModel.MainFromClause);
+            var requiresClientFilter = selectExpression == null;
+
+            if (!requiresClientFilter)
+            {
+                var sqlTranslatingExpressionVisitor
+                    = new SqlTranslatingExpressionVisitor(
+                        this, selectExpression, whereClause.Predicate, _bindParentQueries);
+
+                var sqlPredicateExpression = sqlTranslatingExpressionVisitor.Visit(whereClause.Predicate);
+
+                if (sqlPredicateExpression != null)
+                {
+                    selectExpression.Predicate
+                        = selectExpression.Predicate == null
+                            ? sqlPredicateExpression
+                            : Expression.AndAlso(selectExpression.Predicate, sqlPredicateExpression);
+                }
+                else
+                {
+                    requiresClientFilter = true;
+                }
+
+                if (sqlTranslatingExpressionVisitor.ClientEvalPredicate != null
+                    && selectExpression.Predicate != null)
+                {
+                    requiresClientFilter = true;
+                    whereClause = new WhereClause(sqlTranslatingExpressionVisitor.ClientEvalPredicate);
+                }
+            }
+
+            _requiresClientFilter |= requiresClientFilter;
+
+            if (RequiresClientFilter)
+            {
+                base.VisitWhereClause(whereClause, queryModel, index);
+            }
         }
 
         private Expression LiftSubQuery(
@@ -446,48 +498,6 @@ namespace Microsoft.Data.Entity.Query
             return expression;
         }
 
-        public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
-        {
-            Check.NotNull(whereClause, nameof(whereClause));
-            Check.NotNull(queryModel, nameof(queryModel));
-
-            var selectExpression = TryGetQuery(queryModel.MainFromClause);
-            var requiresClientFilter = selectExpression == null;
-
-            if (!requiresClientFilter)
-            {
-                var translatingVisitor
-                    = new SqlTranslatingExpressionVisitor(this, selectExpression, whereClause.Predicate);
-
-                var sqlPredicateExpression = translatingVisitor.Visit(whereClause.Predicate);
-
-                if (sqlPredicateExpression != null)
-                {
-                    selectExpression.Predicate
-                        = selectExpression.Predicate == null
-                            ? sqlPredicateExpression
-                            : Expression.AndAlso(selectExpression.Predicate, sqlPredicateExpression);
-                }
-                else
-                {
-                    requiresClientFilter = true;
-                }
-
-                if (translatingVisitor.ClientEvalPredicate != null)
-                {
-                    requiresClientFilter = true;
-                    whereClause = new WhereClause(translatingVisitor.ClientEvalPredicate);
-                }
-            }
-
-            _requiresClientFilter |= requiresClientFilter;
-
-            if (RequiresClientFilter)
-            {
-                base.VisitWhereClause(whereClause, queryModel, index);
-            }
-        }
-
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
         {
             Check.NotNull(orderByClause, nameof(orderByClause));
@@ -499,7 +509,8 @@ namespace Microsoft.Data.Entity.Query
             if (!requiresClientOrderBy)
             {
                 var sqlTranslatingExpressionVisitor
-                    = new SqlTranslatingExpressionVisitor(this, selectExpression);
+                    = new SqlTranslatingExpressionVisitor(
+                        this, selectExpression, bindParentQueries: _bindParentQueries);
 
                 var orderings = new List<Ordering>();
 
@@ -650,7 +661,7 @@ namespace Microsoft.Data.Entity.Query
                 }
 
                 selectExpression
-                    = _parentQueryModelVisitor?.TryGetQuery(querySource);
+                    = ParentQueryModelVisitor?.TryGetQuery(querySource);
 
                 selectExpression?.AddToProjection(
                     QueryCompilationContext.GetColumnName(property),

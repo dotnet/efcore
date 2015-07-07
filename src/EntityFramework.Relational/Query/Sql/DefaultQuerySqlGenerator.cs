@@ -18,7 +18,6 @@ using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
 
-
 namespace Microsoft.Data.Entity.Query.Sql
 {
     public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
@@ -133,8 +132,9 @@ namespace Microsoft.Data.Entity.Query.Sql
                 }
                 else
                 {
-                    var predicate = new NullComparisonTransformingVisitor(_parameterValues)
-                        .Visit(selectExpression.Predicate);
+                    var predicate
+                        = new NullComparisonTransformingVisitor(_parameterValues)
+                            .Visit(selectExpression.Predicate);
 
                     // we have to optimize out comparisons to null-valued parameters before we can expand null semantics 
                     if (_parameterValues.Count > 0)
@@ -157,7 +157,8 @@ namespace Microsoft.Data.Entity.Query.Sql
                     Visit(predicate);
 
                     if (selectExpression.Predicate is ParameterExpression
-                        || selectExpression.Predicate.IsAliasWithColumnExpression())
+                        || selectExpression.Predicate.IsAliasWithColumnExpression()
+                        || selectExpression.Predicate is SelectExpression)
                     {
                         _sql.Append(" = ");
                         _sql.Append(TrueLiteral);
@@ -212,8 +213,13 @@ namespace Microsoft.Data.Entity.Query.Sql
                 subQueryIndent.Dispose();
 
                 _sql.AppendLine()
-                    .Append(") AS ")
-                    .Append(DelimitIdentifier(selectExpression.Alias));
+                    .Append(")");
+
+                if (selectExpression.Alias.Length > 0)
+                {
+                    _sql.Append(" AS ")
+                        .Append(DelimitIdentifier(selectExpression.Alias));
+                }
             }
 
             return selectExpression;
@@ -349,31 +355,42 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         public virtual Expression VisitIn(InExpression inExpression)
         {
-            var inValues = ProcessInExpressionValues(inExpression.Values);
-            var inValuesNotNull = ExtractNonNullExpressionValues(inValues);
-
-            if (inValues.Count != inValuesNotNull.Count)
+            if (inExpression.Values != null)
             {
-                var nullSemanticsInExpression = Expression.OrElse(
-                    new InExpression(inExpression.Operand, inValuesNotNull),
-                    new IsNullExpression(inExpression.Operand));
+                var inValues = ProcessInExpressionValues(inExpression.Values);
+                var inValuesNotNull = ExtractNonNullExpressionValues(inValues);
 
-                return Visit(nullSemanticsInExpression);
-            }
+                if (inValues.Count != inValuesNotNull.Count)
+                {
+                    var nullSemanticsInExpression = Expression.OrElse(
+                        new InExpression(inExpression.Operand, inValuesNotNull),
+                        new IsNullExpression(inExpression.Operand));
 
-            if (inValuesNotNull.Count > 0)
-            {
-                Visit(inExpression.Operand);
+                    return Visit(nullSemanticsInExpression);
+                }
 
-                _sql.Append(" IN (");
+                if (inValuesNotNull.Count > 0)
+                {
+                    Visit(inExpression.Operand);
 
-                VisitJoin(inValuesNotNull);
+                    _sql.Append(" IN (");
 
-                _sql.Append(")");
+                    VisitJoin(inValuesNotNull);
+
+                    _sql.Append(")");
+                }
+                else
+                {
+                    _sql.Append("1 = 0");
+                }
             }
             else
             {
-                _sql.Append("1 = 0");
+                Visit(inExpression.Operand);
+
+                _sql.Append(" IN ");
+
+                Visit(inExpression.SubQuery);
             }
 
             return inExpression;
@@ -381,40 +398,54 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         protected virtual Expression VisitNotIn(InExpression inExpression)
         {
-            var inValues = ProcessInExpressionValues(inExpression.Values);
-            var inValuesNotNull = ExtractNonNullExpressionValues(inValues);
-
-            if (inValues.Count != inValuesNotNull.Count)
+            if (inExpression.Values != null)
             {
-                var nullSemanticsNotInExpression = Expression.AndAlso(
-                    Expression.Not(new InExpression(inExpression.Operand, inValuesNotNull)),
-                    Expression.Not(new IsNullExpression(inExpression.Operand)));
+                var inValues = ProcessInExpressionValues(inExpression.Values);
+                var inValuesNotNull = ExtractNonNullExpressionValues(inValues);
 
-                return Visit(nullSemanticsNotInExpression);
-            }
+                if (inValues.Count != inValuesNotNull.Count)
+                {
+                    var nullSemanticsNotInExpression = Expression.AndAlso(
+                        Expression.Not(new InExpression(inExpression.Operand, inValuesNotNull)),
+                        Expression.Not(new IsNullExpression(inExpression.Operand)));
 
-            if (inValues.Count > 0)
-            {
-                Visit(inExpression.Operand);
+                    return Visit(nullSemanticsNotInExpression);
+                }
 
-                _sql.Append(" NOT IN (");
+                if (inValues.Count > 0)
+                {
+                    Visit(inExpression.Operand);
 
-                VisitJoin(inValues);
+                    _sql.Append(" NOT IN (");
 
-                _sql.Append(")");
+                    VisitJoin(inValues);
+
+                    _sql.Append(")");
+                }
+                else
+                {
+                    _sql.Append("1 = 1");
+                }
             }
             else
             {
-                _sql.Append("1 = 1");
-            }
+                Visit(inExpression.Operand);
 
+                _sql.Append(" NOT IN ");
+
+                Visit(inExpression.SubQuery);
+            }
+            
             return inExpression;
         }
 
         protected virtual IReadOnlyList<Expression> ProcessInExpressionValues(
-            IReadOnlyList<Expression> inExpressionValues)
+            [NotNull] IReadOnlyList<Expression> inExpressionValues)
         {
+            Check.NotNull(inExpressionValues, nameof(inExpressionValues));
+
             var inConstants = new List<Expression>();
+
             foreach (var inValue in inExpressionValues)
             {
                 var inConstant = inValue as ConstantExpression;
@@ -533,11 +564,12 @@ namespace Microsoft.Data.Entity.Query.Sql
             }
         }
 
-        protected override Expression VisitConditional([NotNull] ConditionalExpression expression)
+        protected override Expression VisitConditional(ConditionalExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
             _sql.AppendLine("CASE");
+
             using (_sql.Indent())
             {
                 _sql.AppendLine("WHEN");
@@ -545,13 +577,16 @@ namespace Microsoft.Data.Entity.Query.Sql
                 using (_sql.Indent())
                 {
                     _sql.Append("(");
+
                     Visit(expression.Test);
+
                     _sql.AppendLine(")");
                 }
 
                 _sql.Append("THEN ");
 
                 var constantIfTrue = expression.IfTrue as ConstantExpression;
+
                 if (constantIfTrue != null
                     && constantIfTrue.Type == typeof(bool))
                 {
@@ -565,6 +600,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                 _sql.Append(" ELSE ");
 
                 var constantIfFalse = expression.IfFalse as ConstantExpression;
+
                 if (constantIfFalse != null
                     && constantIfFalse.Type == typeof(bool))
                 {
@@ -613,9 +649,10 @@ namespace Microsoft.Data.Entity.Query.Sql
             }
             else
             {
-                var needParentheses = !binaryExpression.Left.IsSimpleExpression()
-                                      || !binaryExpression.Right.IsSimpleExpression()
-                                      || binaryExpression.IsLogicalOperation();
+                var needParentheses
+                    = !binaryExpression.Left.IsSimpleExpression()
+                      || !binaryExpression.Right.IsSimpleExpression()
+                      || binaryExpression.IsLogicalOperation();
 
                 if (needParentheses)
                 {

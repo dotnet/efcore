@@ -121,10 +121,11 @@ namespace Microsoft.Data.Entity.Query
             ContainsResultOperator containsResultOperator,
             QueryModel queryModel)
         {
-            var item = entityQueryModelVisitor
-                .ReplaceClauseReferences(
-                    containsResultOperator.Item,
-                    queryModel.MainFromClause);
+            var item
+                = entityQueryModelVisitor
+                    .ReplaceClauseReferences(
+                        containsResultOperator.Item,
+                        queryModel.MainFromClause);
 
             return CallWithPossibleCancellationToken(
                 entityQueryModelVisitor.LinqOperatorProvider.Contains
