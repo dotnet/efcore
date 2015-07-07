@@ -101,7 +101,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 && selectExpression != null)
             {
                 var sqlExpression
-                    = new SqlTranslatingExpressionVisitor(_queryModelVisitor, selectExpression)
+                    = new SqlTranslatingExpressionVisitor(
+                        _queryModelVisitor, selectExpression, inProjection: true)
                         .Visit(expression);
 
                 if (sqlExpression == null)

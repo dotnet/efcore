@@ -26,13 +26,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             base.Where_query_composition();
 
-            Assert.StartsWith(
+            Assert.Equal(
                  @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM [Employees] AS [e1]
-
-SELECT TOP(1) [e].[FirstName]
-FROM [Employees] AS [e]
-ORDER BY [e].[EmployeeID]",
+WHERE ([e1].[FirstName] = (
+    SELECT TOP(1) [e].[FirstName]
+    FROM [Employees] AS [e]
+    ORDER BY [e].[EmployeeID]
+))",
                  Sql);
         }
 
@@ -54,13 +55,14 @@ ORDER BY [e].[EmployeeID]",
         {
             base.Where_shadow_subquery_first();
 
-            Assert.StartsWith(
+            Assert.Equal(
                  @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-
-SELECT TOP(1) [e2].[Title]
-FROM [Employees] AS [e2]
-ORDER BY [e2].[Title]",
+WHERE ([e].[Title] = (
+    SELECT TOP(1) [e2].[Title]
+    FROM [Employees] AS [e2]
+    ORDER BY [e2].[Title]
+))",
                  Sql);
         }
 
@@ -79,6 +81,40 @@ CROSS JOIN (
     FROM [Orders] AS [o]
 ) AS [t1]",
                 Sql);
+        }
+
+        public override void Where_subquery_correlated()
+        {
+            base.Where_subquery_correlated();
+
+            Assert.Equal(
+                 @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+FROM [Customers] AS [c1]
+WHERE (
+    SELECT CASE
+        WHEN
+            (EXISTS (
+                SELECT 1
+                FROM [Customers] AS [c2]
+                WHERE [c1].[CustomerID] = [c2].[CustomerID])
+            )
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1",
+                 Sql);
+        }
+
+        public override void Where_subquery_correlated_client_eval()
+        {
+            base.Where_subquery_correlated_client_eval();
+
+            Assert.StartsWith(
+                 @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+FROM [Customers] AS [c1]
+
+SELECT [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
+FROM [Customers] AS [c2]",
+                 Sql);
         }
 
         public override void OrderBy_SelectMany()
@@ -1419,7 +1455,7 @@ WHERE ([c].[City] = 'London' OR [e].[City] = 'London')",
         {
             base.Where_select_many_or2();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
@@ -1431,7 +1467,7 @@ WHERE [c].[City] IN ('London', 'Berlin')",
         {
             base.Where_select_many_or3();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
@@ -1443,7 +1479,7 @@ WHERE [c].[City] IN ('London', 'Berlin', 'Seattle')",
         {
             base.Where_select_many_or4();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
@@ -1455,7 +1491,7 @@ WHERE [c].[City] IN ('London', 'Berlin', 'Seattle', 'Lisboa')",
         {
             base.Where_select_many_or_with_parameter();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"@__london_0: London
 @__lisboa_1: Lisboa
 
@@ -1470,7 +1506,7 @@ WHERE [c].[City] IN (@__london_0, 'Berlin', 'Seattle', @__lisboa_1)",
         {
             base.Where_in_optimization_multiple();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
@@ -1494,7 +1530,7 @@ WHERE (([c].[City] <> 'London' OR [c].[City] IS NULL) AND ([e].[City] <> 'London
         {
             base.Where_not_in_optimization2();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
@@ -1506,7 +1542,7 @@ WHERE [c].[City] NOT IN ('London', 'Berlin')",
         {
             base.Where_not_in_optimization3();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
@@ -1518,7 +1554,7 @@ WHERE [c].[City] NOT IN ('London', 'Berlin', 'Seattle')",
         {
             base.Where_not_in_optimization4();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
@@ -1581,7 +1617,7 @@ FROM [Customers] AS [c]",
         {
             base.SelectMany_simple_subquery();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT TOP(9) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -1971,7 +2007,7 @@ FROM [Orders] AS [o]",
         {
             base.SelectMany_cartesian_product_with_ordering();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
@@ -2216,29 +2252,55 @@ END",
                 Sql);
         }
 
+        public override void OrderBy_correlated_subquery_lol()
+        {
+            base.OrderBy_correlated_subquery_lol();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY (
+    SELECT CASE
+        WHEN
+            (EXISTS (
+                SELECT 1
+                FROM [Customers] AS [c2]
+                WHERE [c2].[CustomerID] = [c].[CustomerID])
+            )
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+)",
+                Sql);
+        }
+
         public override void Where_subquery_recursive_trivial()
         {
             base.Where_subquery_recursive_trivial();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM [Employees] AS [e1]
-ORDER BY [e1].[EmployeeID]
-
-SELECT 1
-FROM [Employees] AS [e2]
-
-SELECT CASE
-    WHEN
-        (EXISTS (
-            SELECT 1
-            FROM [Employees] AS [e3])
-        )
-    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END
-
-SELECT 1
-FROM [Employees] AS [e2]",
+WHERE (
+    SELECT CASE
+        WHEN
+            (EXISTS (
+                SELECT 1
+                FROM [Employees] AS [e2]
+                WHERE (
+                    SELECT CASE
+                        WHEN
+                            (EXISTS (
+                                SELECT 1
+                                FROM [Employees] AS [e3])
+                            )
+                        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+                    END
+                ) = 1)
+            )
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1
+ORDER BY [e1].[EmployeeID]",
                 Sql);
         }
 
@@ -3021,6 +3083,20 @@ ORDER BY CASE
         ([c].[Region] IS NULL)
     THEN 'ZZ' ELSE [c].[Region]
 END",
+                Sql);
+        }
+
+        public override void Contains_with_subquery()
+        {
+            base.Contains_with_subquery();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+)",
                 Sql);
         }
 

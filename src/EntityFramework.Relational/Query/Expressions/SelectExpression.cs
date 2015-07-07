@@ -44,6 +44,9 @@ namespace Microsoft.Data.Entity.Query.Expressions
             : base(null, Check.NotEmpty(alias, nameof(alias)))
         {
         }
+        public override Type Type => _projection.Count == 1
+          ? _projection[0].Type
+          : base.Type;
 
         public virtual SelectExpression Clone([NotNull] string alias)
         {

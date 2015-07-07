@@ -490,11 +490,9 @@ namespace Microsoft.Data.Entity.Query
                         QueryResultScopeParameter),
                     Expression.Lambda(_expression, QueryResultScopeParameter));
 
-            var querySourceMapping = _queryCompilationContext.QuerySourceMapping;
-
-            if (!querySourceMapping.ContainsMapping(fromClause))
+            if (!_queryCompilationContext.QuerySourceMapping.ContainsMapping(fromClause))
             {
-                querySourceMapping.AddMapping(
+                _queryCompilationContext.QuerySourceMapping.AddMapping(
                     fromClause,
                     QueryResultScope.GetResult(QueryResultScopeParameter, fromClause, elementType));
             }
@@ -543,9 +541,12 @@ namespace Microsoft.Data.Entity.Query
                     _expression,
                     Expression.Lambda(innerExpression, QueryResultScopeParameter));
 
-            _queryCompilationContext.QuerySourceMapping.AddMapping(
-                fromClause,
-                QueryResultScope.GetResult(QueryResultScopeParameter, fromClause, innerElementType));
+            if (!_queryCompilationContext.QuerySourceMapping.ContainsMapping(fromClause))
+            {
+                _queryCompilationContext.QuerySourceMapping.AddMapping(
+                    fromClause,
+                    QueryResultScope.GetResult(QueryResultScopeParameter, fromClause, innerElementType));
+            }
         }
 
         protected virtual Expression CompileAdditionalFromClauseExpression(
