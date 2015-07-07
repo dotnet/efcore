@@ -24,35 +24,29 @@ namespace Microsoft.Data.Sqlite.Interop
 #if NET45 || DNX451 || DNXCORE50
         static NativeMethods()
         {
-            try
-            {
-                var loaded = NativeLibraryLoader.TryLoad("sqlite3");
+            var loaded = NativeLibraryLoader.TryLoad("sqlite3");
 
 #if DNX451 || DNXCORE50
-                if (!loaded)
+            // TODO: Remove when DNX supports native artifacts
+            if (!loaded)
+            {
+                var library = CallContextServiceLocator
+                    .Locator
+                    .ServiceProvider
+                    .GetRequiredService<ILibraryManager>()
+                    .GetLibraryInformation(typeof(NativeMethods).GetTypeInfo().Assembly.GetName().Name);
+
+                var installPath = library.Path;
+                if (library.Type == "Project")
                 {
-                    var library = CallContextServiceLocator
-                        .Locator
-                        .ServiceProvider
-                        .GetRequiredService<ILibraryManager>()
-                        .GetLibraryInformation(typeof(NativeMethods).GetTypeInfo().Assembly.GetName().Name);
-
-                    var installPath = library.Path;
-                    if (library.Type == "Project")
-                    {
-                        installPath = Path.GetDirectoryName(installPath);
-                    }
-
-                    loaded =  NativeLibraryLoader.TryLoad("sqlite3", Path.Combine(installPath, "redist"));
+                    installPath = Path.GetDirectoryName(installPath);
                 }
+
+                loaded = NativeLibraryLoader.TryLoad("sqlite3", Path.Combine(installPath, "runtimes/win/native"));
+            }
 #endif
 
-                Debug.Assert(loaded, "loaded is false.");
-            }
-            catch (Exception ex)
-            {
-                Debug.Fail(ex.Message);
-            }
+            Debug.Assert(loaded, "loaded is false.");
         }
 #endif
 

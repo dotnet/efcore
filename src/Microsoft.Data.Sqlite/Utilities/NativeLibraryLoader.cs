@@ -4,6 +4,7 @@
 #if NET45 || DNX451 || DNXCORE50
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -18,12 +19,18 @@ namespace Microsoft.Framework.Internal
     internal static class NativeLibraryLoader
     {
         private const uint LOAD_WITH_ALTERED_SEARCH_PATH = 8;
+        private const short PROCESSOR_ARCHITECTURE_INTEL = 0;
+        private const short PROCESSOR_ARCHITECTURE_ARM = 5;
+        private const short PROCESSOR_ARCHITECTURE_AMD64 = 9;
 
         [DllImport("api-ms-win-core-libraryloader-l1-1-0", SetLastError = true)]
         private static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hFile, uint dwFlags);
 
         [DllImport("api-ms-win-core-libraryloader-l1-1-0", SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+        [DllImport("api-ms-win-core-libraryloader-l1-1-0")]
+        private static extern void GetSystemInfo(out SYSTEM_INFO lpSystemInfo);
 
         public static bool TryLoad(string dllName)
         {
@@ -58,15 +65,12 @@ namespace Microsoft.Framework.Internal
                 return true;
             }
 
-            // TODO: Use GetSystemInfo (in api-ms-win-core-sysinfo-l1-1-0.dll) to detect ARM
-            var architecture = IntPtr.Size == 4 ? "x86" : "x64";
-
             if (!dllName.EndsWith(".dll"))
             {
                 dllName += ".dll";
             }
 
-            var dllPath = Path.Combine(applicationBase, architecture, dllName);
+            var dllPath = Path.Combine(applicationBase, GetArchitecture(), dllName);
 
             if (!File.Exists(dllPath))
             {
@@ -81,10 +85,57 @@ namespace Microsoft.Framework.Internal
 
         public static bool IsLoaded(string dllName)
         {
+            if (dllName == null)
+            {
+                throw new ArgumentNullException(nameof(dllName));
+            }
+            if (IsMono())
+            {
+                return true;
+            }
+
             var handle = GetModuleHandle(dllName);
             Marshal.ThrowExceptionForHR(Marshal.GetLastWin32Error());
 
             return handle != IntPtr.Zero;
+        }
+
+        private static bool IsMono() => Type.GetType("Mono.Runtime") != null;
+
+        private static string GetArchitecture()
+        {
+            SYSTEM_INFO systemInfo;
+            GetSystemInfo(out systemInfo);
+
+            switch (systemInfo.wProcessorArchitecture)
+            {
+                case PROCESSOR_ARCHITECTURE_AMD64:
+                    return "x64";
+
+                case PROCESSOR_ARCHITECTURE_ARM:
+                    return "arm";
+
+                default:
+                    Debug.Assert(
+                        systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL,
+                        "Unexpected processor architecture: " + systemInfo.wProcessorArchitecture);
+                    return "x86";
+            }
+        }
+
+        private struct SYSTEM_INFO
+        {
+            public short wProcessorArchitecture;
+            public short wReserved;
+            public int dwPageSize;
+            public IntPtr lpMinimumApplicationAddress;
+            public IntPtr lpMaximumApplicationAddress;
+            public IntPtr dwActiveProcessorMask;
+            public int dwNumberOfProcessors;
+            public int dwProcessorType;
+            public int dwAllocationGranularity;
+            public short wProcessorLevel;
+            public short wProcessorRevision;
         }
     }
 }

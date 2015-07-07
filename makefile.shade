@@ -13,31 +13,18 @@ var AUTHORS='Microsoft Open Technologies, Inc.'
 use-standard-lifecycle
 k-standard-goals
 
-var sqliteDllPath='src/Microsoft.Data.Sqlite/redist/x86/sqlite3.dll'
+var sqliteDllPath='src/Microsoft.Data.Sqlite/runtimes/win-x86/native/sqlite3.dll'
 #sqlite-download target='initialize' if='!File.Exists(sqliteDllPath)'
-    var sqliteUri='https://sqlite.org/2015/sqlite-dll-win32-x86-3081002.zip'
     @{
-        var tmpFile = "sqlite-dll-win32-x86-3080900.zip";
-        using (var webClient = new WebClient()) 
-        {
-            webClient.DownloadFile(sqliteUri, tmpFile);
-        }
-        using (var fileStream = new FileStream(tmpFile, FileMode.Open))
-        using (var archive = new ZipArchive(fileStream))
-        {
-            var entry = archive.GetEntry("sqlite3.dll");
-            if (entry == null)
-                throw new FileNotFoundException("Could not find file 'sqlite3.dll'.");
-                
-            Directory.CreateDirectory(Path.GetDirectoryName(sqliteDllPath));
-            
-            using (var entryStream = entry.Open())
-            using (var dllStream = File.OpenWrite(sqliteDllPath))
-            {
-                entryStream.CopyTo(dllStream);
-            }
-        }
-        File.Delete(tmpFile);
+        DownloadAndExtract(
+            "https://sqlite.org/2015/sqlite-dll-win32-x86-3081002.zip",
+            Tuple.Create("sqlite3.dll", sqliteDllPath),
+            Tuple.Create("sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win/native/x86/sqlite3.dll"));
+        DownloadAndExtract(
+            "https://sqlite.org/snapshot/sqlite-uap-201504202353.vsix",
+            Tuple.Create("Redist/Retail/x86/sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win10-x86/native/sqlite3.dll"),
+            Tuple.Create("Redist/Retail/x64/sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win10-x64/native/sqlite3.dll"),
+            Tuple.Create("Redist/Retail/ARM/sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win10-arm/native/sqlite3.dll"));
     }
 
 #nupkg-patch target='compile'
@@ -50,12 +37,24 @@ var sqliteDllPath='src/Microsoft.Data.Sqlite/redist/x86/sqlite3.dll'
             {
                 CreatePartFromFile(
                     package,
-                    @"src/Microsoft.Data.Sqlite/build/net45/Microsoft.Data.Sqlite.targets",
-                    @"build/net45/Microsoft.Data.Sqlite.targets");
+                    sqliteDllPath,
+                    @"runtimes/win-x86/native/sqlite3.dll");
                 CreatePartFromFile(
                     package,
-                    @"src/Microsoft.Data.Sqlite/redist/x86/sqlite3.dll",
-                    @"redist/x86/sqlite3.dll");
+                    "src/Microsoft.Data.Sqlite/runtimes/win/native/x86/sqlite3.dll",
+                    @"runtimes/win/native/x86/sqlite3.dll");
+                CreatePartFromFile(
+                    package,
+                    "src/Microsoft.Data.Sqlite/runtimes/win10-x86/native/sqlite3.dll",
+                    @"runtimes/win10-x86/native/sqlite3.dll");
+                CreatePartFromFile(
+                    package,
+                    "src/Microsoft.Data.Sqlite/runtimes/win10-x64/native/sqlite3.dll",
+                    @"runtimes/win10-x64/native/sqlite3.dll");
+                CreatePartFromFile(
+                    package,
+                    "src/Microsoft.Data.Sqlite/runtimes/win10-arm/native/sqlite3.dll",
+                    @"runtimes/win10-arm/native/sqlite3.dll");
             }
         }
     }
@@ -77,5 +76,35 @@ functions
             }
 
             return packagePart;
+        }
+
+        void DownloadAndExtract(
+            string uri,
+            params Tuple<string, string>[] files)
+        {
+            var tmpFile = "temp.zip";
+            using (var webClient = new WebClient())
+            {
+                webClient.DownloadFile(uri, tmpFile);
+            }
+            using (var fileStream = new FileStream(tmpFile, FileMode.Open))
+            using (var archive = new ZipArchive(fileStream))
+            {
+                foreach (var file in files)
+                {
+                    var entry = archive.GetEntry(file.Item1);
+                    if (entry == null)
+                        throw new FileNotFoundException("Could not find file '" + file.Item1 + "'.");
+
+                    Directory.CreateDirectory(Path.GetDirectoryName(file.Item2));
+
+                    using (var entryStream = entry.Open())
+                    using (var dllStream = File.OpenWrite(file.Item2))
+                    {
+                        entryStream.CopyTo(dllStream);
+                    }
+                }
+            }
+            File.Delete(tmpFile);
         }
     }

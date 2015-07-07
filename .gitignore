@@ -6,7 +6,7 @@
 /.vs/
 /artifacts/
 /packages/
-/src/Microsoft.Data.Sqlite/redist/
+/src/Microsoft.Data.Sqlite/runtimes/
 bin/
 obj/
 project.lock.json
