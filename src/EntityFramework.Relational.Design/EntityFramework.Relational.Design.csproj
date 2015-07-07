@@ -62,8 +62,10 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <Compile Include="ReverseEngineering\Configuration\EntityConfiguration.cs" />
     <Compile Include="ReverseEngineering\Configuration\FacetConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\NavigationConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\NavigationPropertyConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\NavigationPropertyInitializerConfiguration.cs" />
     <Compile Include="ReverseEngineering\Configuration\PropertyConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\RelationshipConfiguration.cs" />
     <Compile Include="ReverseEngineering\DbContextCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\DbContextGeneratorModel.cs" />
     <Compile Include="ReverseEngineering\EntityTypeCodeGeneratorHelper.cs" />
@@ -72,6 +74,7 @@
     <Compile Include="ReverseEngineering\IDatabaseMetadataModelProvider.cs" />
     <Compile Include="ReverseEngineering\IDesignTimeMetadataProviderFactory.cs" />
     <Compile Include="ReverseEngineering\IFileService.cs" />
+    <Compile Include="ReverseEngineering\MetadataModelNameMapper.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />
     <Compile Include="Templating\Compilation\CompiledAssemblyResult.cs" />

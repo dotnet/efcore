@@ -247,7 +247,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             // names fit CSharp conventions etc.
             var relationalModel = ConstructRelationalModel();
 
-            var nameMapper = new SqlServerNameMapper(
+            var nameMapper = new MetadataModelNameMapper(
                 relationalModel,
                 entity => _tables[entity.Name].TableName,
                 property => _tableColumns[property.Name].ColumnName);
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         }
 
         public virtual IModel ConstructCodeGenModel(
-            [NotNull] IModel relationalModel, [NotNull] SqlServerNameMapper nameMapper)
+            [NotNull] IModel relationalModel, [NotNull] MetadataModelNameMapper nameMapper)
         {
             Check.NotNull(relationalModel, nameof(relationalModel));
             Check.NotNull(nameMapper, nameof(nameMapper));

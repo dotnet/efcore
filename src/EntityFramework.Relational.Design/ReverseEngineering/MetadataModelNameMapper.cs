@@ -9,9 +9,9 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
-    public class SqlServerNameMapper
+    public class MetadataModelNameMapper
     {
         private readonly IModel _sourceModel;
         private readonly Func<IEntityType, string> _defaultEntityNameFunc;
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         private Dictionary<IEntityType, string> _entityTypeToClassNameMap;
         private Dictionary<IProperty, string> _propertyToPropertyNameMap;
 
-        public SqlServerNameMapper([NotNull] IModel sourceModel,
+        public MetadataModelNameMapper([NotNull] IModel sourceModel,
             [NotNull] Func<IEntityType, string> defaultEntityNameFunc,
             [NotNull] Func<IProperty, string> defaultPropertyNameFunc)
         {

@@ -20,6 +20,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         public virtual IEntityType EntityType { get; [param: NotNull] private set; }
         public virtual List<FacetConfiguration> FacetConfigurations { get; } = new List<FacetConfiguration>();
         public virtual List<PropertyConfiguration> PropertyConfigurations { get; } = new List<PropertyConfiguration>();
-        public virtual List<NavigationConfiguration> NavigationConfigurations { get; } = new List<NavigationConfiguration>();
+        public virtual List<RelationshipConfiguration> RelationshipConfigurations { get; } = new List<RelationshipConfiguration>();
     }
 }

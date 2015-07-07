@@ -112,14 +112,14 @@ var firstEntity = true;
         }
     }
     var firstNavigation = true;
-    @foreach (var navigationConfig in entityConfig.NavigationConfigurations)
+    @foreach (var relationshipConfig in entityConfig.RelationshipConfigurations)
     {
         @if (!firstEntityFacet || !firstProperty || !firstNavigation)
         {
 @:
         }
         firstNavigation = false;
-@:                entity.@Model.Generator.ModelUtilities.ConstructNavigationConfiguration(navigationConfig);
+@:                entity.@Model.Generator.ModelUtilities.ConstructRelationshipConfiguration(relationshipConfig);
     }
 @:            });
 }

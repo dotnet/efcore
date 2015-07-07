@@ -58,8 +58,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 var principalEndNavigationPropertyName =
                     (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
 
-                entityConfiguration.NavigationConfigurations.Add(
-                    new NavigationConfiguration(entityConfiguration, foreignKey,
+                entityConfiguration.RelationshipConfigurations.Add(
+                    new RelationshipConfiguration(entityConfiguration, foreignKey,
                         dependentEndNavigationPropertyName, principalEndNavigationPropertyName));
             }
         }

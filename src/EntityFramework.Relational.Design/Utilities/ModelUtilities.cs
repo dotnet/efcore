@@ -81,17 +81,18 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
             return foreignKey.DeclaringEntityType.DisplayName();
         }
 
-        public virtual string ConstructNavigationConfiguration([NotNull] NavigationConfiguration navigationConfiguration)
+        public virtual string ConstructRelationshipConfiguration(
+            [NotNull] RelationshipConfiguration relationshipConfiguration)
         {
-            Check.NotNull(navigationConfiguration, nameof(navigationConfiguration));
+            Check.NotNull(relationshipConfiguration, nameof(relationshipConfiguration));
 
             var sb = new StringBuilder();
             sb.Append("Reference");
             sb.Append("(d => d.");
-            sb.Append(navigationConfiguration.DependentEndNavigationPropertyName);
+            sb.Append(relationshipConfiguration.DependentEndNavigationPropertyName);
             sb.Append(")");
 
-            if (navigationConfiguration.ForeignKey.IsUnique)
+            if (relationshipConfiguration.ForeignKey.IsUnique)
             {
                 sb.Append(".InverseReference(");
             }
@@ -99,25 +100,25 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
             {
                 sb.Append(".InverseCollection(");
             }
-            if (!string.IsNullOrEmpty(navigationConfiguration.PrincipalEndNavigationPropertyName))
+            if (!string.IsNullOrEmpty(relationshipConfiguration.PrincipalEndNavigationPropertyName))
             {
                 sb.Append("p => p.");
-                sb.Append(navigationConfiguration.PrincipalEndNavigationPropertyName);
+                sb.Append(relationshipConfiguration.PrincipalEndNavigationPropertyName);
             }
             sb.Append(")");
 
             sb.Append(".ForeignKey");
-            if (navigationConfiguration.ForeignKey.IsUnique)
+            if (relationshipConfiguration.ForeignKey.IsUnique)
             {
                 // If the relationship is 1:1 need to define to which end
                 // the ForeignKey properties belong.
                 sb.Append("<");
-                sb.Append(navigationConfiguration.EntityConfiguration.EntityType.DisplayName());
+                sb.Append(relationshipConfiguration.EntityConfiguration.EntityType.DisplayName());
                 sb.Append(">");
             }
 
             sb.Append("(d => ");
-            sb.Append(GenerateLambdaToKey(navigationConfiguration.ForeignKey.Properties, "d"));
+            sb.Append(GenerateLambdaToKey(relationshipConfiguration.ForeignKey.Properties, "d"));
             sb.Append(")");
 
             return sb.ToString();

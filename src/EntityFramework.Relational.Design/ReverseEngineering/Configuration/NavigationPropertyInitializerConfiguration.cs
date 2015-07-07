@@ -4,11 +4,11 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuration
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
 {
-    public class SqlServerNavigationPropertyInitializer
+    public class NavigationPropertyInitializerConfiguration
     {
-        public SqlServerNavigationPropertyInitializer([NotNull] string navPropName, [NotNull] string principalEntityTypeName)
+        public NavigationPropertyInitializerConfiguration([NotNull] string navPropName, [NotNull] string principalEntityTypeName)
         {
             Check.NotEmpty(navPropName, nameof(navPropName));
             Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
