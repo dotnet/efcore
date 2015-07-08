@@ -148,6 +148,7 @@
     <Compile Include="DbContextOptionsBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\Conventions\ConventionSet.cs" />
+    <Compile Include="Metadata\Conventions\Internal\NotMappedPropertyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\TimestampAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\StringLengthAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\MaxLengthAttributeConvention.cs" />
@@ -172,7 +173,7 @@
     <Compile Include="Metadata\Conventions\Internal\PropertyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\PropertyDiscoveryConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationshipDiscoveryConvention.cs" />
-    <Compile Include="Metadata\Conventions\Internal\RequiredAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\RequiredPropertyAttributeConvention.cs" />
     <Compile Include="Metadata\CoreAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\MetadataHelper.cs" />
     <Compile Include="Metadata\ValueGenerated.cs" />

@@ -14,9 +14,10 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention());
             conventionSet.EntityTypeAddedConventions.Add(new RelationshipDiscoveryConvention());
 
+            conventionSet.PropertyAddedConventions.Add(new NotMappedPropertyAttributeConvention());
             conventionSet.PropertyAddedConventions.Add(new ConcurrencyCheckAttributeConvention());
             conventionSet.PropertyAddedConventions.Add(new DatabaseGeneratedAttributeConvention());
-            conventionSet.PropertyAddedConventions.Add(new RequiredAttributeConvention());
+            conventionSet.PropertyAddedConventions.Add(new RequiredPropertyAttributeConvention());
             conventionSet.PropertyAddedConventions.Add(new MaxLengthAttributeConvention());
             conventionSet.PropertyAddedConventions.Add(new StringLengthAttributeConvention());
             conventionSet.PropertyAddedConventions.Add(new TimestampAttributeConvention());
