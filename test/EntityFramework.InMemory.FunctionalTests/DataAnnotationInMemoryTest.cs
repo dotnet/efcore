@@ -30,7 +30,15 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             }
         }
 
-        public override void RequiredAttribute_throws_while_inserting_null_value()
+        public override void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.True(context.Model.GetEntityType(typeof(BookDetail)).FindNavigation("Book").ForeignKey.IsRequired);
+            }
+        }
+
+        public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
         {
             using (var context = CreateContext())
             {

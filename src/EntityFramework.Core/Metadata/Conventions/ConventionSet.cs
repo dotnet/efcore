@@ -9,11 +9,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
     public class ConventionSet
     {
         public virtual IList<IEntityTypeConvention> EntityTypeAddedConventions { get; } = new List<IEntityTypeConvention>();
-        public virtual IList<IPropertyConvention> PropertyAddedConventions { get; } = new List<IPropertyConvention>();
-        public virtual IList<IKeyConvention> KeyAddedConventions { get; } = new List<IKeyConvention>();
         public virtual IList<IForeignKeyConvention> ForeignKeyAddedConventions { get; } = new List<IForeignKeyConvention>();
         public virtual IList<IForeignKeyRemovedConvention> ForeignKeyRemovedConventions { get; } = new List<IForeignKeyRemovedConvention>();
-        public virtual IList<IModelConvention> ModelInitializedConventions { get; } = new List<IModelConvention>();
+        public virtual IList<IKeyConvention> KeyAddedConventions { get; } = new List<IKeyConvention>();
         public virtual IList<IModelConvention> ModelBuiltConventions { get; } = new List<IModelConvention>();
+        public virtual IList<IModelConvention> ModelInitializedConventions { get; } = new List<IModelConvention>();
+        public virtual IList<INavigationConvention> NavigationAddedConventions { get; } = new List<INavigationConvention>();
+        public virtual IList<IPropertyConvention> PropertyAddedConventions { get; } = new List<IPropertyConvention>();
     }
 }

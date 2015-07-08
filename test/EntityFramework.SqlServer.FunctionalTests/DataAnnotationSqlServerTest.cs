@@ -86,9 +86,29 @@ VALUES (@p0, @p1, @p2);",
                 Sql);
         }
 
-        public override void RequiredAttribute_throws_while_inserting_null_value()
+        public override void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
         {
-            base.RequiredAttribute_throws_while_inserting_null_value();
+            base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
+
+            Assert.Equal(@"@p0: Book1
+
+SET NOCOUNT OFF;
+INSERT INTO [BookDetail] ([BookId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+
+@p0:
+
+SET NOCOUNT OFF;
+INSERT INTO [BookDetail] ([BookId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);",
+                Sql);
+        }
+
+        public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
+        {
+            base.RequiredAttribute_for_property_throws_while_inserting_null_value();
 
             Assert.Equal(@"@p0: 
 @p1: ValidString

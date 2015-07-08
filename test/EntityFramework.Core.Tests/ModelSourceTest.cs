@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var model = modelSource.GetModel(new Context1(), null, new LoggingModelValidator(new LoggerFactory()));
 
-            Assert.StartsWith("7.0.0-", model[CoreAnnotationNames.ProductVersionAnnotation].ToString(), StringComparison.OrdinalIgnoreCase);
+            Assert.StartsWith("7.0.0", model[CoreAnnotationNames.ProductVersionAnnotation].ToString(), StringComparison.OrdinalIgnoreCase);
         }
 
         private class Context1 : DbContext
