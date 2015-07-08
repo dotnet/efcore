@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             if (property.SqlServer().IdentityStrategy == SqlServerIdentityStrategy.IdentityColumn)
             {
                 yield return new Annotation(
-                    SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ItentityStrategy,
+                    SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy,
                     SqlServerIdentityStrategy.IdentityColumn.ToString());
             }
         }

@@ -7,7 +7,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     {
         public const string Prefix = "SqlServer:";
         public const string Clustered = "Clustered";
-        public const string ItentityStrategy = "ItentityStrategy";
+        public const string ValueGenerationStrategy = "ValueGenerationStrategy";
         public const string ColumnComputedExpression = "ColumnComputedExpression";
         public const string HiLoSequenceName = "HiLoSequenceName";
         public const string HiLoSequenceSchema = "HiLoSequenceSchema";
