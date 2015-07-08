@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Xunit;
 
@@ -2387,6 +2388,937 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 {
                     Assert.Equal(1, operations.Count);
                     Assert.IsType<RenameTableOperation>(operations[0]);
+                });
+        }
+
+        [Fact]
+        public void Create_table_with_property_on_subtype()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    EntityType animal = null;
+                    modelBuilder.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    modelBuilder.Entity(
+                        "Fish",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<string>("Name");
+                            x.Metadata.Relational().DiscriminatorValue = "Fish";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<CreateTableOperation>(operations[0]);
+                    Assert.Equal("Animal", operation.Name);
+                    Assert.Equal(3, operation.Columns.Count);
+
+                    Assert.Contains(operation.Columns, c => c.Name == "Name");
+                });
+        }
+
+        [Fact]
+        public void Create_table_with_required_property_on_subtype()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    EntityType animal = null;
+                    modelBuilder.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    modelBuilder.Entity(
+                        "Whale",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<int>("Value");
+                            x.Metadata.Relational().DiscriminatorValue = "Whale";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<CreateTableOperation>(operations[0]);
+                    Assert.Equal("Animal", operation.Name);
+                    Assert.Equal(3, operation.Columns.Count);
+
+                    Assert.True(operation.Columns.First(c => c.Name == "Value").IsNullable);
+                });
+        }
+
+        [Fact]
+        public void Add_property_on_subtype()
+        {
+            Execute(
+                source =>
+                {
+                    EntityType animal = null;
+                    source.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.ToTable("Animal", "dbo");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    source.Entity(
+                        "Shark",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Metadata.Relational().DiscriminatorValue = "Shark";
+                        });
+                },
+                target =>
+                {
+                    EntityType animal = null;
+                    target.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.ToTable("Animal", "dbo");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    target.Entity(
+                        "Shark",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<string>("Name");
+                            x.Metadata.Relational().DiscriminatorValue = "Shark";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddColumnOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                });
+        }
+
+        [Fact]
+        public void Add_required_property_on_subtype()
+        {
+            Execute(
+                source =>
+                {
+                    EntityType animal = null;
+                    source.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    source.Entity(
+                        "Marlin",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Metadata.Relational().DiscriminatorValue = "Marlin";
+                        });
+                },
+                target =>
+                {
+                    EntityType animal = null;
+                    target.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    target.Entity(
+                        "Marlin",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<int>("Value");
+                            x.Metadata.Relational().DiscriminatorValue = "Marlin";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddColumnOperation>(operations[0]);
+                    Assert.Equal("Value", operation.Name);
+                    Assert.Equal("Value", operation.Name);
+                    Assert.True(operation.IsNullable);
+                });
+        }
+
+        [Fact]
+        public void Remove_property_on_subtype()
+        {
+            Execute(
+                source =>
+                {
+                    EntityType animal = null;
+                    source.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.ToTable("Animal", "dbo");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    source.Entity(
+                        "Blowfish",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<string>("Name");
+                            x.Metadata.Relational().DiscriminatorValue = "Blowfish";
+                        });
+                },
+                target =>
+                {
+                    EntityType animal = null;
+                    target.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.ToTable("Animal", "dbo");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    target.Entity(
+                        "Blowfish",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Metadata.Relational().DiscriminatorValue = "Blowfish";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<DropColumnOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                });
+        }
+
+        [Fact]
+        public void Alter_property_on_subtype()
+        {
+            Execute(
+                source =>
+                {
+                    EntityType animal = null;
+                    source.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.ToTable("Animal", "dbo");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    source.Entity(
+                        "Barracuda",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<string>("Name");
+                            x.Metadata.Relational().DiscriminatorValue = "Barracuda";
+                        });
+                },
+                target =>
+                {
+                    EntityType animal = null;
+                    target.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.ToTable("Animal", "dbo");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    target.Entity(
+                        "Barracuda",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<string>("Name").HasColumnType("varchar(30)");
+                            x.Metadata.Relational().DiscriminatorValue = "Barracuda";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                    Assert.Equal("varchar(30)", operation.Type);
+                });
+        }
+
+        [Fact]
+        public void Create_index_on_subtype()
+        {
+            Execute(
+                source =>
+                {
+                    EntityType animal = null;
+                    source.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.ToTable("Animal", "dbo");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    source.Entity(
+                        "Minnow",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<string>("Name");
+                            x.Metadata.Relational().DiscriminatorValue = "Minnow";
+                        });
+                },
+                target =>
+                {
+                    EntityType animal = null;
+                    target.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.ToTable("Animal", "dbo");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    target.Entity(
+                        "Minnow",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<string>("Name");
+                            x.Index("Name");
+                            x.Metadata.Relational().DiscriminatorValue = "Minnow";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<CreateIndexOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("IX_Minnow_Name", operation.Name);
+                    Assert.Equal(new[] { "Name" }, operation.Columns);
+                });
+        }
+
+        [Fact]
+        public void Alter_index_on_subtype()
+        {
+            Execute(
+                source =>
+                {
+                    EntityType animal = null;
+                    source.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.ToTable("Animal", "dbo");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    source.Entity(
+                        "Pike",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<string>("Name");
+                            x.Index("Name");
+                            x.Metadata.Relational().DiscriminatorValue = "Pike";
+                        });
+                },
+                target =>
+                {
+                    EntityType animal = null;
+                    target.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.ToTable("Animal", "dbo");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    target.Entity(
+                        "Pike",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<string>("Name");
+                            x.Index("Name").IndexName("IX_Animal_Pike_Name");
+                            x.Metadata.Relational().DiscriminatorValue = "Pike";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<RenameIndexOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("IX_Pike_Name", operation.Name);
+                    Assert.Equal("IX_Animal_Pike_Name", operation.NewName);
+                });
+        }
+
+        [Fact]
+        public void Drop_index_on_subtype()
+        {
+            Execute(
+                source =>
+                {
+                    EntityType animal = null;
+                    source.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.ToTable("Animal", "dbo");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    source.Entity(
+                        "Catfish",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<string>("Name");
+                            x.Index("Name");
+                            x.Metadata.Relational().DiscriminatorValue = "Catfish";
+                        });
+                },
+                target =>
+                {
+                    EntityType animal = null;
+                    target.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.ToTable("Animal", "dbo");
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    target.Entity(
+                        "Catfish",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<string>("Name");
+                            x.Metadata.Relational().DiscriminatorValue = "Catfish";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<DropIndexOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("IX_Catfish_Name", operation.Name);
+                });
+        }
+
+        [Fact]
+        public void Create_table_with_foreign_key_on_subtype()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Person",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    EntityType animal = null;
+                    modelBuilder.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    modelBuilder.Entity(
+                        "Stag",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<int>("HandlerId");
+                            x.Reference("Person").InverseCollection().ForeignKey("HandlerId");
+                            x.Metadata.Relational().DiscriminatorValue = "Stag";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    Assert.IsType<CreateTableOperation>(operations[0]);
+
+                    var createTableOperation = Assert.IsType<CreateTableOperation>(operations[1]);
+                    Assert.Equal("Animal", createTableOperation.Name);
+                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+
+                    var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
+                    Assert.Equal("FK_Stag_Person_HandlerId", addForeignKeyOperation.Name);
+                    Assert.Equal(new[] { "HandlerId" }, addForeignKeyOperation.Columns);
+                    Assert.Equal("Person", addForeignKeyOperation.ReferencedTable);
+                    Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ReferencedColumns);
+                });
+        }
+
+        [Fact]
+        public void Create_table_with_foreign_key_to_subtype()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    EntityType animal = null;
+                    modelBuilder.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    modelBuilder.Entity(
+                        "DomesticAnimal",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Metadata.Relational().DiscriminatorValue = "DomesticAnimal";
+                        });
+                    modelBuilder.Entity(
+                        "Person",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("PetId");
+                            x.Reference("DomesticAnimal").InverseCollection().ForeignKey("PetId");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    Assert.IsType<CreateTableOperation>(operations[0]);
+
+                    var createTableOperation = Assert.IsType<CreateTableOperation>(operations[1]);
+                    Assert.Equal("Person", createTableOperation.Name);
+                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+
+                    var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
+                    Assert.Equal("FK_Person_DomesticAnimal_PetId", addForeignKeyOperation.Name);
+                    Assert.Equal(new[] { "PetId" }, addForeignKeyOperation.Columns);
+                    Assert.Equal("Animal", addForeignKeyOperation.ReferencedTable);
+                    Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ReferencedColumns);
+                });
+        }
+
+        [Fact]
+        public void Create_table_with_selfReferencing_foreign_key_in_hierarchy()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    EntityType animal = null;
+                    modelBuilder.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    modelBuilder.Entity(
+                        "Predator",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<int>("PreyId");
+                            x.Reference("Animal").InverseCollection().ForeignKey("PreyId");
+                            x.Metadata.Relational().DiscriminatorValue = "Predator";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var createTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
+                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+
+                    var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
+                    Assert.Equal("FK_Predator_Animal_PreyId", addForeignKeyOperation.Name);
+                    Assert.Equal(new[] { "PreyId" }, addForeignKeyOperation.Columns);
+                    Assert.Equal("Animal", addForeignKeyOperation.ReferencedTable);
+                    Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ReferencedColumns);
+                });
+        }
+
+        [Fact]
+        public void Add_foreign_key_on_subtype()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity(
+                        "Person",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    EntityType animal = null;
+                    source.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    source.Entity(
+                        "GameAnimal",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<int>("HunterId");
+                            x.Metadata.Relational().DiscriminatorValue = "GameAnimal";
+                        });
+                },
+                target =>
+                {
+                    target.Entity(
+                        "Person",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    EntityType animal = null;
+                    target.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    target.Entity(
+                        "GameAnimal",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<int>("HunterId");
+                            x.Reference("Person").InverseCollection().ForeignKey("HunterId");
+                            x.Metadata.Relational().DiscriminatorValue = "GameAnimal";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddForeignKeyOperation>(operations[0]);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("FK_GameAnimal_Person_HunterId", operation.Name);
+                    Assert.Equal(new[] { "HunterId" }, operation.Columns);
+                    Assert.Equal("Person", operation.ReferencedTable);
+                    Assert.Equal(new[] { "Id" }, operation.ReferencedColumns);
+                });
+        }
+
+        [Fact]
+        public void Add_foreign_key_to_subtype()
+        {
+            Execute(
+                source =>
+                {
+                    EntityType animal = null;
+                    source.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    source.Entity(
+                        "TrophyAnimal",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Metadata.Relational().DiscriminatorValue = "TrophyAnimal";
+                        });
+                    source.Entity(
+                        "Person",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("TrophyId");
+                        });
+                },
+                target =>
+                {
+                    EntityType animal = null;
+                    target.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    target.Entity(
+                        "TrophyAnimal",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Metadata.Relational().DiscriminatorValue = "TrophyAnimal";
+                        });
+                    target.Entity(
+                        "Person",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("TrophyId");
+                            x.Reference("TrophyAnimal").InverseCollection().ForeignKey("TrophyId");
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddForeignKeyOperation>(operations[0]);
+                    Assert.Equal("Person", operation.Table);
+                    Assert.Equal("FK_Person_TrophyAnimal_TrophyId", operation.Name);
+                    Assert.Equal(new[] { "TrophyId" }, operation.Columns);
+                    Assert.Equal("Animal", operation.ReferencedTable);
+                    Assert.Equal(new[] { "Id" }, operation.ReferencedColumns);
+                });
+        }
+
+        [Fact]
+        public void Drop_foreign_key_on_subtype()
+        {
+            Execute(
+                source =>
+                {
+                    source.Entity(
+                        "Person",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    EntityType animal = null;
+                    source.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    source.Entity(
+                        "MountAnimal",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<int>("RiderId");
+                            x.Reference("Person").InverseCollection().ForeignKey("RiderId");
+                            x.Metadata.Relational().DiscriminatorValue = "MountAnimal";
+                        });
+                },
+                target =>
+                {
+                    target.Entity(
+                        "Person",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    EntityType animal = null;
+                    target.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            var discriminatorProperty = x.Property<string>("Discriminator").Required().Metadata;
+
+                            animal = x.Metadata;
+                            animal.Relational().DiscriminatorProperty = discriminatorProperty;
+                            animal.Relational().DiscriminatorValue = "Animal";
+                        });
+                    target.Entity(
+                        "MountAnimal",
+                        x =>
+                        {
+                            x.Metadata.BaseType = animal;
+                            x.Property<int>("RiderId");
+                            x.Metadata.Relational().DiscriminatorValue = "MountAnimal";
+                        });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<DropForeignKeyOperation>(operations[0]);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("FK_MountAnimal_Person_RiderId", operation.Name);
                 });
         }
     }
