@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
     public class ReadOnlySqlServerModelAnnotations : ReadOnlyRelationalModelAnnotations, ISqlServerModelAnnotations
     {
-        protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ItentityStrategy;
+        protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy;
         protected const string SqlServerSequenceAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.Sequence;
         protected const string SqlServerHiLoSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceName;
         protected const string SqlServerHiLoSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceSchema;

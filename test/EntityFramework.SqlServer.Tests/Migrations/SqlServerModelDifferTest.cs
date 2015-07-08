@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                         Assert.Equal("bah", operation.Schema);
                         Assert.Equal("Lamb", operation.Table);
                         Assert.Equal("Id", operation.Name);
-                        Assert.Equal("IdentityColumn", operation["SqlServer:ItentityStrategy"]);
+                        Assert.Equal("IdentityColumn", operation["SqlServer:ValueGenerationStrategy"]);
                     });
         }
 
