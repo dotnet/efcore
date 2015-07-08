@@ -60,7 +60,6 @@
     <Compile Include="InheritanceSqliteTest.cs" />
     <Compile Include="MappingQuerySqliteFixture.cs" />
     <Compile Include="MappingQuerySqliteTest.cs" />
-    <Compile Include="MigrationTest.cs" />
     <Compile Include="MonsterFixupSqliteTest.cs" />
     <Compile Include="NorthwindQuerySqliteFixture.cs" />
     <Compile Include="NullKeysSqliteTest.cs" />

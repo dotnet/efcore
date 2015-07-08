@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -17,27 +16,11 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
     public class SqliteMigrationSqlGenerator : MigrationSqlGenerator
     {
         private readonly IUpdateSqlGenerator _sql;
-        private readonly SqliteOperationTransformer _transformer;
 
-        public SqliteMigrationSqlGenerator(
-            [NotNull] IUpdateSqlGenerator sqlGenerator,
-            [CanBeNull] SqliteOperationTransformer transformer)
+        public SqliteMigrationSqlGenerator([NotNull] IUpdateSqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
             _sql = sqlGenerator;
-            _transformer = transformer;
-        }
-
-        public override IReadOnlyList<SqlBatch> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null)
-        {
-            Check.NotNull(operations, nameof(operations));
-
-            if (_transformer != null)
-            {
-                operations = _transformer.Transform(operations, model);
-            }
-
-            return base.Generate(operations, model);
         }
 
         public override void Generate(DropIndexOperation operation, IModel model, SqlBatchBuilder builder)
@@ -63,29 +46,6 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                     .Append(" RENAME TO ")
                     .Append(_sql.DelimitIdentifier(operation.NewName));
             }
-        }
-
-        public virtual void Generate([NotNull] MoveDataOperation operation, [CanBeNull] IModel model, [NotNull] SqlBatchBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            if (operation.Columns?.Length == 0)
-            {
-                return;
-            }
-
-            var columnList = string.Join(", ", operation.Columns.Select(s => _sql.DelimitIdentifier(s)));
-
-            builder.Append("INSERT INTO ")
-                .Append(_sql.DelimitIdentifier(operation.NewTable))
-                .Append(" (")
-                .Append(columnList)
-                .AppendLine(")")
-                .Append("SELECT ")
-                .Append(columnList)
-                .Append(" FROM ")
-                .Append(_sql.DelimitIdentifier(operation.OldTable));
         }
 
         public override void Generate(CreateTableOperation operation, IModel model, SqlBatchBuilder builder)

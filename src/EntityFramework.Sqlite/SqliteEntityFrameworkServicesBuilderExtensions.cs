@@ -30,7 +30,6 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddSingleton<SqliteMigrationAnnotationProvider>()
                     .AddSingleton<SqliteConventionSetBuilder>()
                     .AddScoped<SqliteModificationCommandBatchFactory>()
-                    .AddScoped<SqliteOperationTransformer>()
                     .AddScoped<SqliteDatabaseProviderServices>()
                     .AddScoped<SqliteDatabase>()
                     .AddScoped<SqliteDatabaseConnection>()

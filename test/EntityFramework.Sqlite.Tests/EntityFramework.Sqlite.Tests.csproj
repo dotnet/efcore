@@ -42,7 +42,6 @@
     <Compile Include="Metadata\SqliteMetadataExtensionsTest.cs" />
     <Compile Include="Migrations\SqliteMigrationAnnotationProviderTest.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGeneratorTest.cs" />
-    <Compile Include="Migrations\SqliteOperationTransformTest.cs" />
     <Compile Include="SqliteSqlGeneratorTest.cs" />
     <None Include="project.json" />
   </ItemGroup>

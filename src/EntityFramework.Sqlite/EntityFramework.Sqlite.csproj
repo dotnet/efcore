@@ -88,8 +88,6 @@
     <Compile Include="Migrations\SqliteHistoryRepository.cs" />
     <Compile Include="Migrations\SqliteMigrationAnnotationProvider.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGenerator.cs" />
-    <Compile Include="Migrations\SqliteOperationTransformer.cs" />
-    <Compile Include="Migrations\MoveDataOperation.cs" />
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>

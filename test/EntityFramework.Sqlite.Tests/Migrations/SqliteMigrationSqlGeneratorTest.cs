@@ -11,21 +11,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
 {
     public class SqliteMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        protected override IMigrationSqlGenerator SqlGenerator => new SqliteMigrationSqlGenerator(new SqliteUpdateSqlGenerator(), transformer: null);
-
-        [Fact]
-        public void Insert_into_select()
-        {
-            var operation = new MoveDataOperation
-            {
-                Columns = new[] { "col1", "col2" },
-                OldTable = "OldTable",
-                NewTable = "RebuiltTable"
-            };
-
-            Generate(operation);
-            Assert.Equal("INSERT INTO \"RebuiltTable\" (\"col1\", \"col2\")" + EOL + "SELECT \"col1\", \"col2\" FROM \"OldTable\";" + EOL, Sql);
-        }
+        protected override IMigrationSqlGenerator SqlGenerator => new SqliteMigrationSqlGenerator(new SqliteUpdateSqlGenerator());
 
         [Theory]
         [InlineData(true)]
