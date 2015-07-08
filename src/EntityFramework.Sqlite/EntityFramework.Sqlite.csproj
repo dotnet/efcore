@@ -85,11 +85,12 @@
     <Compile Include="Metadata\SqliteMetadataExtensions.cs" />
     <Compile Include="Metadata\SqliteModelAnnotations.cs" />
     <Compile Include="Metadata\SqlitePropertyAnnotations.cs" />
+    <Compile Include="Migrations\Operations\MoveDataOperation.cs" />
+    <Compile Include="Migrations\Operations\TableRebuildOperation.cs" />
     <Compile Include="Migrations\SqliteHistoryRepository.cs" />
     <Compile Include="Migrations\SqliteMigrationAnnotationProvider.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGenerator.cs" />
     <Compile Include="Migrations\SqliteOperationTransformer.cs" />
-    <Compile Include="Migrations\MoveDataOperation.cs" />
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>

@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         [Fact]
         public void DropColumn_rebuilds_table()
         {
-            _testStore.ExecuteNonQuery(@"CREATE TABLE Table1 (Id INT PRIMARY KEY, Col1, Col2); 
+            _testStore.ExecuteNonQuery(@"CREATE TABLE Table1 (Id INTEGER PRIMARY KEY, Col1, Col2); 
 INSERT INTO Table1 (Col1, Col2) Values('dropped value','preserved entry');");
 
             Migrate(up => { up.DropColumn("Col1", "Table1"); }, targetModel =>
@@ -53,6 +53,41 @@ INSERT INTO Table1 (Col1, Col2) Values('dropped value','preserved entry');");
                 Assert.Equal("preserved entry", all[0].Col2);
             }
         }
+
+        [Fact]
+        public void RenameColumn_rebuilds_table()
+        {
+            _testStore.ExecuteNonQuery(@"CREATE TABLE Table1 (Id INTEGER PRIMARY KEY, OriginalCol); 
+INSERT INTO Table1 (OriginalCol) Values('renamed');");
+
+            Migrate(up => { up.RenameColumn("OriginalCol", "Table1","Col2"); }, targetModel =>
+            {
+                targetModel.Entity<UpdatedTableType>(b =>
+                {
+                    b.Key(p => p.Id);
+                    b.Property(p => p.Id)
+                        .StoreGeneratedPattern(StoreGeneratedPattern.Identity);
+
+                    b.Property(p => p.Col2);
+                    b.ToSqliteTable("Table1");
+                });
+            });
+
+            AssertColumns("Table1", new List<string>
+            {
+                "Id", "Col2"
+            });
+
+            using (var context = CreateContext())
+            {
+                // Assert data moved
+                var all = context.Set<UpdatedTableType>().ToList();
+                Assert.Equal(1, all.Count);
+                Assert.Equal(1, all[0].Id);
+                Assert.Equal("renamed", all[0].Col2);
+            }
+        }
+
 
         public MigrationTest()
         {

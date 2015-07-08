@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Migrations.Sql;
 using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Sqlite.Migrations
@@ -70,22 +71,35 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            if (operation.Columns?.Length == 0)
+            if (operation.ColumnMapping.Count == 0)
             {
                 return;
             }
 
-            var columnList = string.Join(", ", operation.Columns.Select(s => _sql.DelimitIdentifier(s)));
+            var destinationColumns = string.Join(", ", operation.ColumnMapping.Keys.Select(s => _sql.DelimitIdentifier(s)));
+            var sourceColumns = string.Join(", ", operation.ColumnMapping.Values.Select(s => _sql.DelimitIdentifier(s)));
 
             builder.Append("INSERT INTO ")
                 .Append(_sql.DelimitIdentifier(operation.NewTable))
                 .Append(" (")
-                .Append(columnList)
+                .Append(destinationColumns)
                 .AppendLine(")")
                 .Append("SELECT ")
-                .Append(columnList)
+                .Append(sourceColumns)
                 .Append(" FROM ")
                 .Append(_sql.DelimitIdentifier(operation.OldTable));
+        }
+
+        public virtual void Generate([NotNull] TableRebuildOperation operation, [CanBeNull] IModel model, [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            foreach (var step in operation.Operations)
+            {
+                Generate((dynamic)step, model, builder);
+                builder.AppendLine(_sql.BatchCommandSeparator);
+            }
         }
 
         public override void Generate(CreateTableOperation operation, IModel model, SqlBatchBuilder builder)
