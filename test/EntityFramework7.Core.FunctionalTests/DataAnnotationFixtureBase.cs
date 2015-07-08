@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             modelBuilder.Entity<One>();
             modelBuilder.Entity<Two>();
+            modelBuilder.Entity<Book>();
         }
     }
 
@@ -32,6 +33,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public DbSet<One> Ones { get; set; }
 
         public DbSet<Two> Twos { get; set; }
+
+        public DbSet<Book> Books { get; set; }
+        public DbSet<BookDetail> BookDetails { get; set; }
+
     }
 
     [Table("Sample")]
@@ -43,6 +48,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         [ConcurrencyCheck]
         public Guid RowVersion { get; set; }
+
+        [NotMapped]
+        public string IgnoredProperty { get; set; }
 
         [Required]
         [Column("Name")]
@@ -70,6 +78,36 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         public int Id { get; set; }
     }
+
+    public class Book
+    {
+        public string Id { get; set; }
+
+        public virtual BookDetail OrderDetail { get; set; }
+
+        [NotMapped]
+        public virtual UselessBookDetails UselessOrderDetails { get; set; }
+    }
+
+    public class BookDetail
+    {
+        public int Id { get; set; }
+
+        public string BookId { get; set; }
+
+        [Required]
+        public virtual Book Book { get; set; }
+    }
+
+    public class UselessBookDetails
+    {
+        public int Id { get; set; }
+
+        [NotMapped]
+        public virtual Book Book { get; set; }
+    }
+
+
     public class DataAnnotationModelInitializer
     {
         public static void Seed(DataAnnotationContext context)
@@ -80,6 +118,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             context.Twos.Add(new Two { Data = "First" });
             context.Twos.Add(new Two { Data = "Second" });
+
+            context.Books.Add(new Book { Id = "Book1" });
 
             context.SaveChanges();
         }

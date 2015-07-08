@@ -20,9 +20,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void ConcurrencyCheckAttribute_overrides_configuration_from_convention_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(Guid), "RowVersion", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(Guid), "RowVersion", ConfigurationSource.Explicit);
 
             propertyBuilder.ConcurrencyToken(false, ConfigurationSource.Convention);
 
@@ -34,9 +34,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void ConcurrencyCheckAttribute_does_not_override_configuration_from_explicit_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(Guid), "RowVersion", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(Guid), "RowVersion", ConfigurationSource.Explicit);
 
             propertyBuilder.ConcurrencyToken(false, ConfigurationSource.Explicit);
 
@@ -61,9 +61,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void DatabaseGeneratedAttribute_overrides_configuration_from_convention_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
 
             propertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
 
@@ -75,9 +75,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void DatabaseGeneratedAttribute_does_not_override_configuration_from_explicit_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
 
             propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
 
@@ -102,29 +102,29 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void KeyAttribute_overrides_configuration_from_convention_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
-            entityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
+            entityTypeBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
 
             new KeyAttributeConvention().Apply(propertyBuilder);
 
-            Assert.Equal("MyPrimaryKey", entityBuilder.Metadata.GetPrimaryKey().Properties[0].Name);
+            Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.GetPrimaryKey().Properties[0].Name);
         }
 
         [Fact]
         public void KeyAttribute_does_not_override_configuration_from_explicit_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
-            entityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Explicit);
+            entityTypeBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Explicit);
 
             new KeyAttributeConvention().Apply(propertyBuilder);
 
-            Assert.Equal("Id", entityBuilder.Metadata.GetPrimaryKey().Properties[0].Name);
+            Assert.Equal("Id", entityTypeBuilder.Metadata.GetPrimaryKey().Properties[0].Name);
         }
 
         [Fact]
@@ -169,9 +169,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void MaxLengthAttribute_overrides_configuration_from_convention_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit);
 
             propertyBuilder.MaxLength(100, ConfigurationSource.Convention);
 
@@ -183,9 +183,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void MaxLengthAttribute_does_not_override_configuration_from_explicit_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit);
 
             propertyBuilder.MaxLength(100, ConfigurationSource.Explicit);
 
@@ -205,18 +205,55 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
         #endregion
 
+        #region NotMappedAttribute
+
+        [Fact]
+        public void NotMappedAttribute_overrides_configuration_from_convention_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "IgnoredProperty", ConfigurationSource.Convention);
+
+            new NotMappedPropertyAttributeConvention().Apply(propertyBuilder);
+
+            Assert.False(entityTypeBuilder.Metadata.Properties.Any(p => p.Name == "IgnoredProperty"));
+        }
+
+        [Fact]
+        public void NotMappedAttribute_does_not_override_configuration_from_explicit_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "IgnoredProperty", ConfigurationSource.Explicit);
+
+            new NotMappedPropertyAttributeConvention().Apply(propertyBuilder);
+
+            Assert.True(entityTypeBuilder.Metadata.Properties.Any(p => p.Name == "IgnoredProperty"));
+        }
+
+        [Fact]
+        public void NotMappedAttribute_ignores_property_with_conventional_builder()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<A>();
+
+            Assert.False(entityTypeBuilder.Metadata.Properties.Any(p => p.Name == "IgnoredProperty"));
+        }
+
+        #endregion
+
         #region RequiredAttribute
 
         [Fact]
         public void RequiredAttribute_overrides_configuration_from_convention_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
 
             propertyBuilder.Required(false, ConfigurationSource.Convention);
 
-            new RequiredAttributeConvention().Apply(propertyBuilder);
+            new RequiredPropertyAttributeConvention().Apply(propertyBuilder);
 
             Assert.False(propertyBuilder.Metadata.IsNullable);
         }
@@ -224,13 +261,13 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void RequiredAttribute_does_not_override_configuration_from_explicit_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
 
             propertyBuilder.Required(false, ConfigurationSource.Explicit);
 
-            new RequiredAttributeConvention().Apply(propertyBuilder);
+            new RequiredPropertyAttributeConvention().Apply(propertyBuilder);
 
             Assert.True(propertyBuilder.Metadata.IsNullable);
         }
@@ -251,9 +288,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void StringLengthAttribute_overrides_configuration_from_convention_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(string), "StringLengthProperty", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "StringLengthProperty", ConfigurationSource.Explicit);
 
             propertyBuilder.MaxLength(100, ConfigurationSource.Convention);
 
@@ -265,9 +302,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void StringLengthAttribute_does_not_override_configuration_from_explicit_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(string), "StringLengthProperty", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "StringLengthProperty", ConfigurationSource.Explicit);
 
             propertyBuilder.MaxLength(100, ConfigurationSource.Explicit);
 
@@ -292,9 +329,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void TimestampAttribute_overrides_configuration_from_convention_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(byte[]), "Timestamp", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(byte[]), "Timestamp", ConfigurationSource.Explicit);
 
             propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
             propertyBuilder.ConcurrencyToken(false, ConfigurationSource.Convention);
@@ -308,9 +345,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void TimestampAttribute_does_not_override_configuration_from_explicit_source()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(byte[]), "Timestamp", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(byte[]), "Timestamp", ConfigurationSource.Explicit);
 
             propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
             propertyBuilder.ConcurrencyToken(false, ConfigurationSource.Explicit);
@@ -334,9 +371,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void TimestampAttribute_throws_if_used_on_non_binary_property()
         {
-            var entityBuilder = CreateInternalEntityTypeBuilder<C>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<C>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(string), "Timestamp", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Timestamp", ConfigurationSource.Explicit);
 
             Assert.Equal(Strings.TimestampAttributeOnNonBinary("Timestamp"),
                 Assert.Throws<InvalidOperationException>(() => new TimestampAttributeConvention().Apply(propertyBuilder)).Message);

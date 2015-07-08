@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class RequiredAttributeConvention : PropertyAttributeConvention<RequiredAttribute>
+    public class RequiredPropertyAttributeConvention : PropertyAttributeConvention<RequiredAttribute>
     {
         public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, RequiredAttribute attribute)
         {

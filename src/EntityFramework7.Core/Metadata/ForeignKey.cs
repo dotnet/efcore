@@ -14,7 +14,6 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class ForeignKey : Annotatable, IForeignKey
     {
-        private bool _isRequiredSet;
         private Navigation _dependentToPrincipal;
         private Navigation _principalToDependent;
 
@@ -119,11 +118,6 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get
             {
-                if (!_isRequiredSet)
-                {
-                    return null;
-                }
-
                 return Properties.Any(p => p.IsNullable.HasValue)
                     ? !Properties.Any(p => ((IProperty)p).IsNullable) as bool?
                     : null;
@@ -135,7 +129,6 @@ namespace Microsoft.Data.Entity.Metadata
                     return;
                 }
 
-                _isRequiredSet = value.HasValue;
                 var properties = Properties;
                 if (value.HasValue
                     && !value.Value)
