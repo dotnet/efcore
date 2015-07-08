@@ -40,11 +40,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.Conventions
                 RelationalAnnotationNames.Sequence +
                 "." +
                 Sequence.DefaultName,
-                annotations.ElementAt(2).Name);
-            Assert.Equal(new Sequence(Sequence.DefaultName).Serialize(), annotations.ElementAt(2).Value);
+                annotations.ElementAt(1).Name);
+            Assert.Equal(new Sequence(Sequence.DefaultName, null, 1, 10).Serialize(), annotations.ElementAt(1).Value);
 
-            Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy, annotations.ElementAt(1).Name);
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo.ToString(), annotations.ElementAt(1).Value);
+            Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy, annotations.ElementAt(2).Name);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo.ToString(), annotations.ElementAt(2).Value);
         }
     }
 }

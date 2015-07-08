@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Internal;
 using Xunit;
 
@@ -17,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
-            Assert.Equal(10, sequence.IncrementBy);
+            Assert.Equal(1, sequence.IncrementBy);
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
@@ -83,7 +82,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
-            Assert.Equal(10, sequence.IncrementBy);
+            Assert.Equal(1, sequence.IncrementBy);
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
