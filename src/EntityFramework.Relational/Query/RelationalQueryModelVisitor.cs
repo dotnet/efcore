@@ -220,10 +220,7 @@ namespace Microsoft.Data.Entity.Query
 
             if (selectExpression != null)
             {
-                var previousQuerySource
-                    = index == 0
-                        ? queryModel.MainFromClause
-                        : queryModel.BodyClauses[index - 1] as IQuerySource;
+                var previousQuerySource = FindPreviousQuerySource(queryModel, index);
 
                 if (previousQuerySource != null)
                 {
@@ -251,6 +248,23 @@ namespace Microsoft.Data.Entity.Query
                     }
                 }
             }
+        }
+
+        private IQuerySource FindPreviousQuerySource(QueryModel queryModel, int index)
+        {
+            for (int i = index; i >= 0; i--)
+            {
+                var candidate = i == 0
+                    ? queryModel.MainFromClause
+                    : queryModel.BodyClauses[i - 1] as IQuerySource;
+
+                if (candidate != null)
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
         }
 
         protected override Expression CompileAdditionalFromClauseExpression(
@@ -349,10 +363,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(joinClause, nameof(joinClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var previousQuerySource
-                = index == 0
-                    ? queryModel.MainFromClause
-                    : queryModel.BodyClauses[index - 1] as IQuerySource;
+            var previousQuerySource = FindPreviousQuerySource(queryModel, index);
 
             var previousSelectExpression
                 = previousQuerySource != null

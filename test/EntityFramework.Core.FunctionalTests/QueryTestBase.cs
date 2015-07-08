@@ -2021,6 +2021,60 @@ namespace Microsoft.Data.Entity.FunctionalTests
                  select c).Count());
         }
 
+        [Fact]
+        public virtual void Where_join_select()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 where c.CustomerID == "ALFKI"
+                 join o in os on c.CustomerID equals o.CustomerID
+                 select c));
+        }
+
+        [Fact]
+        public virtual void Where_orderby_join_select()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 where c.CustomerID != "ALFKI"
+                 orderby c.CustomerID
+                 join o in os on c.CustomerID equals o.CustomerID
+                 select c));
+        }
+
+        [Fact]
+        public virtual void Where_join_orderby_join_select()
+        {
+            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
+                (from c in cs
+                 where c.CustomerID != "ALFKI"
+                 join o in os on c.CustomerID equals o.CustomerID
+                 orderby c.CustomerID
+                 join od in ods on o.OrderID equals od.OrderID
+                 select c));
+        }
+
+        [Fact]
+        public virtual void Where_select_many()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 where c.CustomerID == "ALFKI"
+                 from o in os
+                 select c));
+        }
+
+        [Fact]
+        public virtual void Where_orderby_select_many()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 where c.CustomerID == "ALFKI"
+                 orderby c.CustomerID
+                 from o in os
+                 select c));
+        }
+
         private class Foo
         {
             // ReSharper disable once UnusedAutoPropertyAccessor.Local

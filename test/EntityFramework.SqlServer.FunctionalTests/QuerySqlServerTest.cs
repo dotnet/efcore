@@ -1785,6 +1785,65 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]", Sql);
 END", Sql);
         }
 
+        public override void Where_join_select()
+        {
+            base.Where_join_select();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] = 'ALFKI'", Sql);
+        }
+
+        public override void Where_orderby_join_select()
+        {
+            base.Where_orderby_join_select();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] <> 'ALFKI'
+ORDER BY [c].[CustomerID]", Sql);
+        }
+
+        public override void Where_join_orderby_join_select()
+        {
+            base.Where_join_orderby_join_select();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+INNER JOIN [Order Details] AS [od] ON [o].[OrderID] = [od].[OrderID]
+WHERE [c].[CustomerID] <> 'ALFKI'
+ORDER BY [c].[CustomerID]", Sql);
+        }
+
+        public override void Where_select_many()
+        {
+            base.Where_select_many();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+CROSS JOIN [Orders] AS [o]
+WHERE [c].[CustomerID] = 'ALFKI'", Sql);
+        }
+
+        public override void Where_orderby_select_many()
+        {
+            base.Where_orderby_select_many();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+CROSS JOIN [Orders] AS [o]
+WHERE [c].[CustomerID] = 'ALFKI'
+ORDER BY [c].[CustomerID]", Sql);
+        }
+
         public override void GroupBy_Distinct()
         {
             base.GroupBy_Distinct();
