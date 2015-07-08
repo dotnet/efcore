@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 if (valueGenerator != null)
                 {
-                    entry[property] = valueGenerator.Next();
+                    entry[property] = valueGenerator.NextSkippingSentinel(property);
                 }
             }
         }

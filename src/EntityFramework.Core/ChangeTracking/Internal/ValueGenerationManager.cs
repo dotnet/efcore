@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                         Debug.Assert(valueGenerator != null);
 
-                        var generatedValue = valueGenerator.Next();
+                        var generatedValue = valueGenerator.NextSkippingSentinel(property);
                         SetGeneratedValue(entry, property, generatedValue, valueGenerator.GeneratesTemporaryValues);
                     }
                 }

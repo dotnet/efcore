@@ -365,6 +365,7 @@
     <Compile Include="ValueGeneration\TemporaryDateTimeValueGenerator.cs" />
     <Compile Include="ValueGeneration\TemporaryGuidValueGenerator.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorCache.cs" />
+    <Compile Include="ValueGeneration\ValueGeneratorExtensions.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorFactory`.cs" />
     <Compile Include="ValueGeneration\ValueGenerator.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorFactory.cs" />
