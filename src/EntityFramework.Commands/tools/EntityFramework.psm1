@@ -397,6 +397,12 @@ function ShowConsole {
 }
 
 function InvokeOperation($project, $operation, $arguments = @{}, $startupProject = $project, [switch] $skipBuild) {
+
+    $package = Get-Package -ProjectName $project.ProjectName | ? Id -eq EntityFramework.Commands
+    if (!($package)) {
+        throw 'Cannot execute this operation because EntityFramework.Commands is not installed in the targeted project'
+    }
+
     $projectName = $project.ProjectName
 
     Write-Verbose "Using project '$projectName'"
