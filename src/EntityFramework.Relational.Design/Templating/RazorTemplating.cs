@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -48,19 +49,20 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
                     return new TemplateResult
                     {
                         GeneratedText = string.Empty,
-                        ProcessingException = new TemplateProcessingException(messages, generatorResults.GeneratedCode)
+                        ProcessingException = new TemplateProcessingException(messages)
                     };
                 }
 
                 provider.AddReferencesForTemplates(_metadataReferencesProvider);
                 var references = _metadataReferencesProvider.GetApplicationReferences();
-                var templateResult = _compilationService.Compile(generatorResults.GeneratedCode, references);
+                var templateResult = _compilationService.Compile(
+                    new List<string> { generatorResults.GeneratedCode }, references);
                 if (templateResult.Messages.Any())
                 {
                     return new TemplateResult
                     {
                         GeneratedText = string.Empty,
-                        ProcessingException = new TemplateProcessingException(templateResult.Messages, generatorResults.GeneratedCode)
+                        ProcessingException = new TemplateProcessingException(templateResult.Messages)
                     };
                 }
 

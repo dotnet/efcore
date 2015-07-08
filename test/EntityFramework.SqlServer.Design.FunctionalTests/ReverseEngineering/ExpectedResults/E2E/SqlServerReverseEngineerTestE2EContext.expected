@@ -139,7 +139,7 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<Test_Spaces_Keywords_Table>(entity =>
             {
-                entity.Table("Test Spaces Keywords Table");
+                entity.ToTable("Test Spaces Keywords Table");
 
                 entity.Property(e => e.Test_Spaces_Keywords_TableID).HasColumnName("Test Spaces Keywords TableID");
 

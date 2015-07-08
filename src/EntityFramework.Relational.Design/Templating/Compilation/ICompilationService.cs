@@ -9,6 +9,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
 {
     public interface ICompilationService
     {
-        CompilationResult Compile([NotNull] string content, [NotNull] List<MetadataReference> references);
+        CompilationResult Compile(
+            [NotNull] IEnumerable<string> contents, [NotNull] List<MetadataReference> references);
     }
 }

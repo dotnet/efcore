@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Microsoft.CodeAnalysis;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
@@ -16,6 +17,7 @@ using Microsoft.Framework.Logging;
 using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 using Xunit;
+using Xunit.Abstractions;
 #if DNX451 || DNXCORE50
 using Microsoft.Framework.Runtime.Infrastructure;
 #endif
@@ -55,6 +57,13 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
                 @"TableWithUnmappablePrimaryKeyColumn.cs",
                 @"Test_Spaces_Keywords_Table.cs",
             };
+
+        private readonly ITestOutputHelper _output;
+
+        public E2ETests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
 
         [Fact]
         public void E2ETest()
@@ -112,10 +121,32 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
                 Assert.Equal(expectedFilePath, filePaths[i++]);
             }
 
+            var listOfFileContents = new List<string>();
             foreach (var fileName in _E2ETestExpectedFileNames)
             {
                 var fileContents = fileService.RetrieveFileContents(TestOutputDir, fileName);
                 Assert.Equal(expectedFileContents[fileName], fileContents);
+                listOfFileContents.Add(fileContents);
+            }
+
+            // compile generated code
+            var metadataReferencesProvider =
+                (MetadataReferencesProvider)serviceProvider.GetService(typeof(MetadataReferencesProvider));
+            var metadataReferences = SetupMetadataReferencesForCompilationOfGeneratedCode(metadataReferencesProvider);
+            var roslynCompilationService = new RoslynCompilationService();
+            var compilationResult =
+                roslynCompilationService.Compile(listOfFileContents, metadataReferences);
+
+            if (compilationResult.Messages.Any())
+            {
+                _output.WriteLine("Compilation Errors from compiling generated code");
+                _output.WriteLine("================================================");
+                foreach (var message in compilationResult.Messages)
+                {
+                    _output.WriteLine(message);
+                }
+                _output.WriteLine("================================================");
+                Assert.Equal(string.Empty, "See Compilation Errors in Output.");
             }
         }
 
@@ -148,6 +179,29 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             }
 
             return expectedContents;
+        }
+
+        private List<MetadataReference> SetupMetadataReferencesForCompilationOfGeneratedCode(
+            MetadataReferencesProvider metadataReferencesProvider)
+        {
+            metadataReferencesProvider.AddReferenceFromName("EntityFramework.Core");
+            metadataReferencesProvider.AddReferenceFromName("EntityFramework.Relational");
+            metadataReferencesProvider.AddReferenceFromName("EntityFramework.SqlServer");
+
+#if DNXCORE50 || NETCORE50
+            metadataReferencesProvider.AddReferenceFromName("System.Data.Common");
+            metadataReferencesProvider.AddReferenceFromName("System.Linq.Expressions");
+            metadataReferencesProvider.AddReferenceFromName("System.Reflection");
+
+            return metadataReferencesProvider.GetApplicationReferences();
+#else
+            var metadataReferences = metadataReferencesProvider.GetApplicationReferences();
+            metadataReferences.Add(MetadataReference.CreateFromFile(
+                Assembly.Load(new AssemblyName(
+                    "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location));
+
+            return metadataReferences;
+#endif
         }
     }
 }
