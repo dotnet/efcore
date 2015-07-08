@@ -9,14 +9,11 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
 {
     public class TemplateProcessingException : Exception
     {
-        public TemplateProcessingException([NotNull] IEnumerable<string> messages, [NotNull] string generatedCode)
+        public TemplateProcessingException([NotNull] IEnumerable<string> messages)
             : base(FormatMessage(messages))
         {
             Messages = messages;
-            GeneratedCode = generatedCode;
         }
-
-        public virtual string GeneratedCode { get; [param: NotNull] private set; }
 
         public virtual IEnumerable<string> Messages { get; }
 

@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             {
                 entityConfiguration.FacetConfigurations.Add(
                     new FacetConfiguration(
-                        string.Format(CultureInfo.InvariantCulture, "Table({0}, {1})",
+                        string.Format(CultureInfo.InvariantCulture, "ToTable({0}, {1})",
                             CSharpUtilities.Instance.DelimitString(entityType.Relational().Table),
                             CSharpUtilities.Instance.DelimitString(entityType.Relational().Schema))));
             }
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             {
                 entityConfiguration.FacetConfigurations.Add(
                     new FacetConfiguration(
-                        string.Format(CultureInfo.InvariantCulture, "Table({0})",
+                        string.Format(CultureInfo.InvariantCulture, "ToTable({0})",
                             CSharpUtilities.Instance.DelimitString(entityType.Relational().Table))));
             }
         }

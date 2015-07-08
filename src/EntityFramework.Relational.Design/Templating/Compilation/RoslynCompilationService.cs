@@ -16,12 +16,14 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
 {
     public class RoslynCompilationService : ICompilationService
     {
-        public virtual CompilationResult Compile([NotNull] string content, [NotNull] List<MetadataReference> references)
+        public virtual CompilationResult Compile(
+            [NotNull] IEnumerable<string> contents, [NotNull] List<MetadataReference> references)
         {
-            Check.NotEmpty(content, nameof(content));
+            Check.NotNull(contents, nameof(contents));
             Check.NotNull(references, nameof(references));
 
-            var syntaxTrees = new[] { CSharpSyntaxTree.ParseText(content) };
+            var syntaxTrees = contents
+                .Select(content => CSharpSyntaxTree.ParseText(content));
 
             var assemblyName = Path.GetRandomFileName();
 
@@ -36,9 +38,9 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
                 var type = result.Assembly.GetExportedTypes()
                     .First();
 
-                return CompilationResult.Successful(string.Empty, type);
+                return CompilationResult.Successful(type);
             }
-            return CompilationResult.Failed(content, result.ErrorMessages);
+            return CompilationResult.Failed(result.ErrorMessages);
         }
 
         public static CompiledAssemblyResult GetAssemblyFromCompilation(
