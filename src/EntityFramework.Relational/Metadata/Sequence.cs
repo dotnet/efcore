@@ -13,7 +13,6 @@ namespace Microsoft.Data.Entity.Metadata
     public class Sequence : ISequence
     {
         public const string DefaultName = "DefaultSequence";
-        public const int DefaultIncrement = 10;
         public const long DefaultStartValue = 1;
         public static readonly Type DefaultType = typeof(long);
 
@@ -23,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] string name,
             [CanBeNull] string schema = null,
             long startValue = DefaultStartValue,
-            int incrementBy = DefaultIncrement,
+            int incrementBy = 1,
             [CanBeNull] long? minValue = null,
             [CanBeNull] long? maxValue = null,
             [CanBeNull] Type type = null,

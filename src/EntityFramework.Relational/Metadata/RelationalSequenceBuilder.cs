@@ -23,6 +23,8 @@ namespace Microsoft.Data.Entity.Metadata
             _updateAction = updateAction;
         }
 
+        public virtual Sequence Metadata => _sequence;
+
         public virtual RelationalSequenceBuilder IncrementBy(int increment)
         {
             _sequence = new Sequence(

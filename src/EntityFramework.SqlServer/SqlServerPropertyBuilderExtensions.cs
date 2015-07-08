@@ -107,7 +107,17 @@ namespace Microsoft.Data.Entity
             Check.NullButNotEmpty(schema, nameof(schema));
 
             var property = propertyBuilder.Metadata;
-            var sequence = property.DeclaringEntityType.Model.SqlServer().GetOrAddSequence(name, schema);
+
+            name = name ?? Sequence.DefaultName;
+
+            var sqlServerModel = property.DeclaringEntityType.Model.SqlServer();
+
+            var sequence =
+                sqlServerModel.TryGetSequence(name, schema) ??
+                new RelationalSequenceBuilder(
+                    sqlServerModel.GetOrAddSequence(name, schema),
+                    s => sqlServerModel.AddOrReplaceSequence(s))
+                    .IncrementBy(10).Metadata;
 
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             property.ValueGenerated = ValueGenerated.OnAdd;
@@ -133,14 +143,8 @@ namespace Microsoft.Data.Entity
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            var property = propertyBuilder.Metadata;
-            var sequence = property.DeclaringEntityType.Model.SqlServer().GetOrAddSequence(name, schema);
-
-            property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
-            property.ValueGenerated = ValueGenerated.OnAdd;
-            property.SqlServer().HiLoSequenceName = sequence.Name;
-            property.SqlServer().HiLoSequenceSchema = sequence.Schema;
-            property.SqlServer().HiLoSequencePoolSize = poolSize;
+            propertyBuilder.UseSqlServerSequenceHiLo(name, schema);
+            propertyBuilder.Metadata.SqlServer().HiLoSequencePoolSize = poolSize;
 
             return propertyBuilder;
         }
@@ -163,6 +167,7 @@ namespace Microsoft.Data.Entity
             property.ValueGenerated = ValueGenerated.OnAdd;
             property.SqlServer().HiLoSequenceName = null;
             property.SqlServer().HiLoSequenceSchema = null;
+            property.SqlServer().HiLoSequencePoolSize = null;
 
             return propertyBuilder;
         }
