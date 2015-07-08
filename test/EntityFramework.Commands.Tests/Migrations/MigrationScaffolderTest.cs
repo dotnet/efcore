@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -80,7 +81,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             public string Create(bool ifNotExists) => null;
             public string EndIf() => null;
             public bool Exists() => false;
+            public Task<bool> ExistsAsync() => null;
             public IReadOnlyList<IHistoryRow> GetAppliedMigrations() => null;
+            public Task<IReadOnlyList<IHistoryRow>> GetAppliedMigrationsAsync() => null;
             public MigrationOperation GetDeleteOperation(string migrationId) => null;
             public MigrationOperation GetInsertOperation(IHistoryRow row) => null;
         }

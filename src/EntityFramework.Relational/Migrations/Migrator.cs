@@ -97,7 +97,78 @@ namespace Microsoft.Data.Entity.Migrations
 
         public async Task ApplyMigrationsAsync(string targetMigration = null)
         {
-            await Task.Run(() => ApplyMigrations(targetMigration));
+            var connection = _connection.DbConnection;
+            _logger.Value.LogVerbose(Strings.UsingConnection(connection.Database, connection.DataSource));
+
+            var migrations = _migrationAssembly.Migrations;
+            var appliedMigrationEntries = await _historyRepository.GetAppliedMigrationsAsync();
+
+            var appliedMigrations = new List<Migration>();
+            var unappliedMigrations = new List<Migration>();
+            foreach (var migraion in migrations)
+            {
+                if (appliedMigrationEntries.Any(
+                    e => string.Equals(e.MigrationId, migraion.Id, StringComparison.OrdinalIgnoreCase)))
+                {
+                    appliedMigrations.Add(migraion);
+                }
+                else
+                {
+                    unappliedMigrations.Add(migraion);
+                }
+            }
+
+            IEnumerable<Migration> migrationsToApply;
+            IEnumerable<Migration> migrationsToRevert;
+            if (string.IsNullOrEmpty(targetMigration))
+            {
+                migrationsToApply = unappliedMigrations;
+                migrationsToRevert = Enumerable.Empty<Migration>();
+            }
+            else if (targetMigration == InitialDatabase)
+            {
+                migrationsToApply = Enumerable.Empty<Migration>();
+                migrationsToRevert = appliedMigrations;
+            }
+            else
+            {
+                targetMigration = _idGenerator.ResolveId(targetMigration, migrations);
+                migrationsToApply = unappliedMigrations
+                    .Where(m => string.Compare(m.Id, targetMigration, StringComparison.OrdinalIgnoreCase) <= 0);
+                migrationsToRevert = appliedMigrations
+                    .Where(m => string.Compare(m.Id, targetMigration, StringComparison.OrdinalIgnoreCase) > 0)
+                    .OrderByDescending(m => m.Id);
+            }
+
+            bool first;
+            var checkFirst = true;
+            foreach (var migration in migrationsToApply)
+            {
+                var batches = ApplyMigration(migration).ToList();
+
+                first = false;
+                if (checkFirst)
+                {
+                    first = migration == migrations[0];
+                    if (first && !_historyRepository.Exists())
+                    {
+                        batches.Insert(0, new SqlBatch(_historyRepository.Create(ifNotExists: false)));
+                    }
+
+                    checkFirst = false;
+                }
+
+                _logger.Value.LogInformation(Strings.ApplyingMigration(migration.Id));
+
+                await ExecuteAsync(batches, first);
+            }
+
+            foreach (var migration in migrationsToRevert)
+            {
+                _logger.Value.LogInformation(Strings.RevertingMigration(migration.Id));
+
+                await ExecuteAsync(RevertMigration(migration));
+            }
         }
 
         public virtual void ApplyMigrations(string targetMigration = null)
@@ -319,6 +390,20 @@ namespace Microsoft.Data.Entity.Migrations
 
             // TODO: Pass source model?
             return _migrationSqlGenerator.Generate(operations);
+        }
+
+        protected virtual async Task ExecuteAsync([NotNull] IEnumerable<SqlBatch> sqlBatches, bool ensureDatabase = false)
+        {
+            if (ensureDatabase && !await _databaseCreator.ExistsAsync())
+            {
+                await _databaseCreator.CreateAsync();
+            }
+
+            using (var transaction = await _connection.BeginTransactionAsync())
+            {
+                await _executor.ExecuteNonQueryAsync(_connection, transaction.DbTransaction, sqlBatches);
+                transaction.Commit();
+            }
         }
 
         protected virtual void Execute([NotNull] IEnumerable<SqlBatch> sqlBatches, bool ensureDatabase = false)

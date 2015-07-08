@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations.History;
@@ -57,6 +58,31 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             try
             {
                 exists = command.ExecuteScalar() != DBNull.Value;
+            }
+            finally
+            {
+                _connection.Close();
+            }
+
+            return exists;
+        }
+
+        public async Task<bool> ExistsAsync()
+        {
+            var exists = false;
+
+            if (!await _creator.ExistsAsync())
+            {
+                return exists;
+            }
+
+            var command = (SqlCommand)_connection.DbConnection.CreateCommand();
+            command.CommandText = "SELECT OBJECT_ID(N'dbo." + MigrationHistoryTableName + "');";
+
+            await _connection.OpenAsync();
+            try
+            {
+                exists = await command.ExecuteScalarAsync() != DBNull.Value;
             }
             finally
             {
@@ -124,6 +150,41 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
             builder.Append(");");
 
             return builder.ToString();
+        }
+
+        public async Task<IReadOnlyList<IHistoryRow>> GetAppliedMigrationsAsync()
+        {
+            var rows = new List<HistoryRow>();
+
+            if (!await ExistsAsync())
+            {
+                return rows;
+            }
+
+            await _connection.OpenAsync();
+            try
+            {
+                var command = (SqlCommand)_connection.DbConnection.CreateCommand();
+                command.CommandText =
+                    @"SELECT [MigrationId], [ProductVersion]
+FROM [dbo].[" + MigrationHistoryTableName + @"]
+WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
+                command.Parameters.AddWithValue("@ContextKey", _contextType.FullName);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        rows.Add(new HistoryRow(reader.GetString(0), reader.GetString(1)));
+                    }
+                }
+            }
+            finally
+            {
+                _connection.Close();
+            }
+
+            return rows;
         }
 
         public virtual MigrationOperation GetDeleteOperation(string migrationId)

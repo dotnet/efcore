@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations.History;
@@ -73,6 +74,25 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             throw new NotSupportedException(Strings.MigrationScriptGenerationNotSupported);
         }
 
+        public async Task<bool> ExistsAsync()
+        {
+            using (var connection = _connection.DbConnection)
+            {
+                if (connection.State != ConnectionState.Open)
+                {
+                    await connection.OpenAsync();
+                }
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = $"SELECT 1 FROM sqlite_master WHERE type = 'table'" +
+                                          $" AND tbl_name = '{_sql.EscapeLiteral(MigrationTableName)}'" +
+                                          $" AND rootpage IS NOT NULL;";
+                    var result = await command.ExecuteScalarAsync();
+                    return result != null && (long)result == 1;
+                }
+            }
+        }
+
         public virtual bool Exists()
         {
             using (var connection = _connection.DbConnection)
@@ -90,6 +110,38 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                     return result != null && (long)result == 1;
                 }
             }
+        }
+
+        public async Task<IReadOnlyList<IHistoryRow>> GetAppliedMigrationsAsync()
+        {
+            var migrations = new List<IHistoryRow>();
+
+            if (!await ExistsAsync())
+            {
+                return migrations;
+            }
+
+            using (var connection = _connection.DbConnection)
+            {
+                if (connection.State != ConnectionState.Open)
+                {
+                    await connection.OpenAsync();
+                }
+                var command = connection.CreateCommand();
+                command.CommandText = $"SELECT MigrationId, ProductVersion FROM {_sql.DelimitIdentifier(MigrationTableName)} " +
+                                      $"WHERE ContextKey = '{_sql.EscapeLiteral(_contextKey)}' ORDER BY MigrationId;";
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var row = new HistoryRow(reader.GetString(0), reader.GetString(1));
+                        migrations.Add(row);
+                    }
+                }
+            }
+
+            return migrations.AsReadOnly();
         }
 
         public virtual IReadOnlyList<IHistoryRow> GetAppliedMigrations()
