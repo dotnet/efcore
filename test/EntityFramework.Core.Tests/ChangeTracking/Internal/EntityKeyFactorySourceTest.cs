@@ -19,9 +19,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         }
 
         [Fact]
-        public void Returns_a_simple_entity_key_factory_for_single_nullable_property()
+        public void Returns_a_null_sentinel_entity_key_factory_for_single_nullable_property()
         {
             var property = GetEntityType().GetProperty("NullableInt");
+
+            Assert.IsType<SimpleNullSentinelEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(new[] { property }));
+        }
+
+        [Fact]
+        public void Returns_a_simple_entity_key_factory_for_single_nullable_property_with_sentinel_set()
+        {
+            var property = GetEntityType().GetProperty("NullableSentinelInt");
 
             Assert.IsType<SimpleEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(new[] { property }));
         }
@@ -89,12 +97,21 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         }
 
         [Fact]
-        public void Returns_a_simple_entity_key_factory_for_single_reference_property()
+        public void Returns_a_null_sentinel_entity_key_factory_for_single_reference_property()
         {
             var property = GetEntityType().GetProperty("String");
 
+            Assert.IsType<SimpleNullSentinelEntityKeyFactory<string>>(CreateKeyFactorySource().GetKeyFactory(new[] { property }));
+        }
+
+        [Fact]
+        public void Returns_a_simple_entity_key_factory_for_single_reference_property_with_sentinel_set()
+        {
+            var property = GetEntityType().GetProperty("SentinelString");
+
             Assert.IsType<SimpleEntityKeyFactory<string>>(CreateKeyFactorySource().GetKeyFactory(new[] { property }));
         }
+
 
         [Fact]
         public void Returns_a_composite_entity_key_factory_for_single_structural_property()
@@ -122,7 +139,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var builder = TestHelpers.Instance.CreateConventionBuilder();
 
-            builder.Entity<ScissorSister>();
+            builder.Entity<ScissorSister>()
+                .Property(e => e.NullableSentinelInt)
+                .Metadata
+                .SentinelValue = -1;
+
+            builder.Entity<ScissorSister>()
+                .Property(e => e.SentinelString)
+                .Metadata
+                .SentinelValue = "Excellent!";
 
             return builder.Model.GetEntityType(typeof(ScissorSister));
         }
@@ -131,7 +156,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             public int Id { get; set; }
             public int? NullableInt { get; set; }
+            public int? NullableSentinelInt { get; set; }
             public string String { get; set; }
+            public string SentinelString { get; set; }
             public Guid Guid1 { get; set; }
             public Guid Guid2 { get; set; }
             public Guid? NullableGuid1 { get; set; }

@@ -34,9 +34,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                             {
                                 var sentinel = keyProperty.SentinelValue;
 
-                                return (EntityKeyFactory)(keyType.IsNullableType()
-                                    ? Activator.CreateInstance(typeof(SimpleEntityKeyFactory<>).MakeGenericType(keyType.UnwrapNullableType()), sentinel)
-                                    : Activator.CreateInstance(typeof(SimpleEntityKeyFactory<>).MakeGenericType(keyType), sentinel));
+                                return (EntityKeyFactory)(sentinel == null
+                                    ? Activator.CreateInstance(typeof(SimpleNullSentinelEntityKeyFactory<>).MakeGenericType(keyType.UnwrapNullableType()))
+                                    : Activator.CreateInstance(typeof(SimpleEntityKeyFactory<>).MakeGenericType(keyType.UnwrapNullableType()), sentinel));
                             }
                         }
 

@@ -57,6 +57,7 @@
     </Compile>
     <Compile Include="ChangeTracking\ChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\IChangeTrackerFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\SimpleNullSentinelEntityKeyFactory.cs" />
     <Compile Include="DbUpdateConcurrencyException.cs" />
     <Compile Include="DbUpdateException.cs" />
     <Compile Include="Extensions\Internal\ExpressionExtensions.cs" />

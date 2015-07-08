@@ -219,8 +219,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public class NoKeyGenerationNullableKey : TestBase<NoKeyGenerationNullableKey.BlogContext>
         {
-            //[Fact]
-            // TODO: Make sentinel null even if property is Required
+            [Fact]
             public void Insert_with_explicit_with_sentinel_keys()
             {
                 using (var context = new BlogContext())
@@ -246,7 +245,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     modelBuilder
-                        .Entity<Blog>()
+                        .Entity<NullableKeyBlog>()
                         .Property(e => e.Id)
                         .ValueGeneratedNever();
                 }
