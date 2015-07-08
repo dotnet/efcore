@@ -32,6 +32,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Select(c => new { c }),
                 entryCount: 91);
         }
+        
+        [Fact]
+        public virtual void Queryable_simple_anonymous_projection_subquery()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Take(91).Select(c => new { c }).Select(a => a.c.City));
+        }
+
+        [Fact]
+        public virtual void Queryable_simple_anonymous_subquery()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c }).Take(91).Select(a => a.c));
+        }
 
         [Fact]
         public virtual void Queryable_nested_simple()
@@ -1612,6 +1626,69 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_query_composition2()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where e1.FirstName == 
+                        (from e2 in es.OrderBy(e => e.EmployeeID)
+                         select new { Foo = e2 })
+                            .First().Foo.FirstName
+                    select e1,
+                entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_query_composition3()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c1 in cs
+                    where c1.City == cs.OrderBy(c => c.CustomerID).First(c => c.IsLondon).City
+                    select c1,
+                entryCount: 6);
+        }
+
+        [Fact]
+        public virtual void Where_query_composition4()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c1 in cs
+                    where c1.City == (from c2 in cs.OrderBy(c => c.CustomerID)
+                                      from c3 in cs.OrderBy(c => c.IsLondon).ThenBy(c => c.CustomerID)
+                                      select new { c3 }).First().c3.City
+                    select c1,
+                entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_query_composition5()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c1 in cs
+                    where c1.IsLondon == cs.OrderBy(c => c.CustomerID).First().IsLondon
+                    select c1,
+                entryCount: 85);
+        }
+
+        [Fact]
+        public virtual void Where_query_composition6()
+        {
+            AssertQuery<Customer>(
+                cs =>
+                    from c1 in cs
+                    where c1.IsLondon == 
+                        cs.OrderBy(c => c.CustomerID)
+                          .Select(c => new { Foo = c})
+                          .First().Foo.IsLondon
+                    select c1,
+                entryCount: 85);
+        }
+
+        [Fact]
         public virtual void Where_subquery_recursive_trivial()
         {
             AssertQuery<Employee>(
@@ -2098,6 +2175,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID),
+                assertOrder: true,
+                entryCount: 91);
+        }
+
+        [Fact]
+        public virtual void OrderBy_anon()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.CustomerID }).OrderBy(a => a.CustomerID),
+                assertOrder: true);
+        }
+
+        [Fact]
+        public virtual void OrderBy_anon2()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c }).OrderBy(a => a.c.CustomerID),
                 assertOrder: true,
                 entryCount: 91);
         }
@@ -2724,6 +2818,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Distinct().OrderBy(c => c.CustomerID),
                 assertOrder: true,
                 entryCount: 91);
+        }
+
+        [Fact]
+        public virtual void Distinct_OrderBy3()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.CustomerID }).Distinct().OrderBy(a => a.CustomerID),
+                assertOrder: true);
         }
 
         [Fact]

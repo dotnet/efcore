@@ -45,9 +45,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IEnumerable<T> _ShapedQuery<T>(
-            QueryContext queryContext,
-            CommandBuilder commandBuilder,
-            Func<ValueBuffer, T> shaper)
+            QueryContext queryContext, CommandBuilder commandBuilder, Func<ValueBuffer, T> shaper)
         {
             return
                 new QueryingEnumerable(

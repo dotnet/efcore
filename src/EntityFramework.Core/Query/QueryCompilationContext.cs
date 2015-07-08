@@ -9,8 +9,10 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Annotations;
+using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
@@ -19,6 +21,7 @@ namespace Microsoft.Data.Entity.Query
     {
         private IReadOnlyCollection<QueryAnnotationBase> _queryAnnotations;
         private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
+        private ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
         protected QueryCompilationContext(
             [NotNull] IModel model,
@@ -110,6 +113,32 @@ namespace Microsoft.Data.Entity.Query
             List<IReadOnlyList<INavigation>> includes;
 
             return _trackableIncludes.TryGetValue(querySource, out includes) ? includes : null;
+        }
+
+        public virtual void FindQuerySourcesRequiringMaterialization(
+            [NotNull] EntityQueryModelVisitor queryModelVisitor, [NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            var requiresEntityMaterializationExpressionVisitor
+                = new RequiresMaterializationExpressionVisitor(queryModelVisitor);
+
+            _querySourcesRequiringMaterialization
+                = requiresEntityMaterializationExpressionVisitor
+                    .FindQuerySourcesRequiringMaterialization(queryModel);
+
+            foreach (var groupJoinClause in queryModel.BodyClauses.OfType<GroupJoinClause>())
+            {
+                _querySourcesRequiringMaterialization.Add(groupJoinClause.JoinClause);
+            }
+        }
+
+        public virtual bool QuerySourceRequiresMaterialization([NotNull] IQuerySource querySource)
+        {
+            Check.NotNull(querySource, nameof(querySource));
+
+            return _querySourcesRequiringMaterialization.Contains(querySource);
         }
     }
 }

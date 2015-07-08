@@ -32,26 +32,42 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return _reachable ? _originQuerySourceReferenceExpression : null;
         }
 
-        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
+        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression querySourceReferenceExpression)
         {
+            Check.NotNull(querySourceReferenceExpression, nameof(querySourceReferenceExpression));
+
             if (!_reachable)
             {
                 if (_originQuerySourceReferenceExpression == null)
                 {
-                    _originQuerySourceReferenceExpression = expression;
+                    _originQuerySourceReferenceExpression = querySourceReferenceExpression;
                 }
 
-                if (expression.ReferencedQuerySource.Equals(_targetQuerySource))
+                if (querySourceReferenceExpression.ReferencedQuerySource.Equals(_targetQuerySource))
                 {
                     _reachable = true;
                 }
                 else
                 {
-                    var fromClauseBase = expression.ReferencedQuerySource as FromClauseBase;
+                    var fromClauseBase = querySourceReferenceExpression.ReferencedQuerySource as FromClauseBase;
 
                     if (fromClauseBase != null)
                     {
                         Visit(fromClauseBase.FromExpression);
+                    }
+                    
+                    var joinClause = querySourceReferenceExpression.ReferencedQuerySource as JoinClause;
+
+                    if (joinClause != null)
+                    {
+                        Visit(joinClause.InnerSequence);
+                    }
+
+                    var groupJoinClause = querySourceReferenceExpression.ReferencedQuerySource as GroupJoinClause;
+
+                    if (groupJoinClause != null)
+                    {
+                        Visit(groupJoinClause.JoinClause.InnerSequence);
                     }
                 }
 
@@ -61,21 +77,21 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
             }
 
-            return expression;
+            return querySourceReferenceExpression;
         }
 
-        protected override Expression VisitSubQuery(SubQueryExpression expression)
+        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
         {
-            Visit(expression.QueryModel.SelectClause.Selector);
+            Check.NotNull(subQueryExpression, nameof(subQueryExpression));
 
-            return expression;
+            Visit(subQueryExpression.QueryModel.SelectClause.Selector);
+
+            return subQueryExpression;
         }
 
         // Prune these nodes...
 
         protected override Expression VisitMember(MemberExpression expression) => expression;
-
-        protected override Expression VisitMethodCall(MethodCallExpression expression) => expression;
 
         protected override Expression VisitConditional(ConditionalExpression expression) => expression;
 

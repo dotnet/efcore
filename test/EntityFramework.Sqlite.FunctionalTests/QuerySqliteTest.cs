@@ -777,7 +777,7 @@ FROM ""Customers"" AS ""c""",
             Assert.Equal(
                 @"SELECT ""t0"".""EmployeeID""
 FROM (
-    SELECT ""e"".""EmployeeID"", ""e"".""City"", ""e"".""Country"", ""e"".""FirstName"", ""e"".""ReportsTo"", ""e"".""Title""
+    SELECT ""e"".*
     FROM ""Employees"" AS ""e""
     LIMIT 9
 ) AS ""t0""",
@@ -1802,13 +1802,12 @@ END",
         {
             base.Where_subquery_recursive_trivial();
 
-            Assert.Equal(2848, Sql.Length);
             Assert.StartsWith(
                 @"SELECT ""e1"".""EmployeeID"", ""e1"".""City"", ""e1"".""Country"", ""e1"".""FirstName"", ""e1"".""ReportsTo"", ""e1"".""Title""
 FROM ""Employees"" AS ""e1""
 ORDER BY ""e1"".""EmployeeID""
 
-SELECT ""e2"".""EmployeeID"", ""e2"".""City"", ""e2"".""Country"", ""e2"".""FirstName"", ""e2"".""ReportsTo"", ""e2"".""Title""
+SELECT 1
 FROM ""Employees"" AS ""e2""
 
 SELECT CASE
@@ -1818,10 +1817,7 @@ SELECT CASE
             FROM ""Employees"" AS ""e3"")
         )
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END
-
-SELECT ""e2"".""EmployeeID"", ""e2"".""City"", ""e2"".""Country"", ""e2"".""FirstName"", ""e2"".""ReportsTo"", ""e2"".""Title""
-FROM ""Employees"" AS ""e2""",
+END",
                 Sql);
         }
 

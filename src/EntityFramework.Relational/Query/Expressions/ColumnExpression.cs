@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public override Type Type => _property.ClrType;
 
-        protected override Expression Accept([NotNull] ExpressionVisitor visitor)
+        protected override Expression Accept(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
 
