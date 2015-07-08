@@ -295,6 +295,9 @@ Register-TabExpansion Reverse-Engineer @{
 .PARAMETER ConnectionString
 	Specifies the connection string of the database.
 
+.PARAMETER Provider
+	Specifies the name of the provider to use, for example EntityFramework7.SqlServer
+
 .PARAMETER Project
 	Specifies the project to use. If omitted, the default project is used.
 
@@ -303,7 +306,7 @@ Register-TabExpansion Reverse-Engineer @{
 #>
 function Reverse-Engineer {
     [CmdletBinding()]
-    param ([string] $ConnectionString, [string] $Project, [string] $StartupProject)
+    param ([string] $ConnectionString, [string] $Provider, [string] $Project, [string] $StartupProject)
 
     $values = ProcessCommonParameters -projectName $Project -startupProjectName $StartupProject
     $dteProject = $values.Project
@@ -311,6 +314,7 @@ function Reverse-Engineer {
 
     $artifacts = InvokeOperation $dteProject ReverseEngineer @{
         connectionString = $ConnectionString
+        provider = $Provider
     } -startupProject $dteStartupProject
 
     $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
