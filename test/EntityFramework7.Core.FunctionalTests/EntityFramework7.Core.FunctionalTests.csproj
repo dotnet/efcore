@@ -72,6 +72,7 @@
     <Compile Include="TestModels\ComplexNavigationsModel\Level2.cs" />
     <Compile Include="TestModels\ComplexNavigationsModel\Level3.cs" />
     <Compile Include="TestModels\ComplexNavigationsModel\Level4.cs" />
+    <Compile Include="TestModels\GearsOfWarModel\AmmunitionType.cs" />
     <Compile Include="TestModels\Inheritance\Animal.cs" />
     <Compile Include="TestModels\Inheritance\Bird.cs" />
     <Compile Include="TestModels\Inheritance\Country.cs" />

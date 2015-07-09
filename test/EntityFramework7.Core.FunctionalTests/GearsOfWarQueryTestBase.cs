@@ -152,16 +152,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cityBornGears = context.Cities
                     .Include(c => c.BornGears)
                     .ToDictionary(
-                        c => c.Name, 
-                        c => c.BornGears != null 
-                            ? c.BornGears.Select(g => g.Nickname).ToList() 
+                        c => c.Name,
+                        c => c.BornGears != null
+                            ? c.BornGears.Select(g => g.Nickname).ToList()
                             : new List<string>());
 
                 cityStationedGears = context.Cities
                     .Include(c => c.StationedGears)
                     .ToDictionary(
-                        c => c.Name, 
-                        c => c.StationedGears != null 
+                        c => c.Name,
+                        c => c.StationedGears != null
                             ? c.StationedGears.Select(g => g.Nickname).ToList()
                             : new List<string>());
             }
@@ -227,6 +227,86 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         }
                     }
                 }
+            }
+        }
+
+        [Fact]
+        public virtual void Where_enum()
+        {
+            using (var context = CreateContext())
+            {
+                var gears = context.Gears
+                    .Where(g => g.Rank == MilitaryRank.Sergeant)
+                    .ToList();
+
+                Assert.Equal(1, gears.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Where_nullable_enum_with_constant()
+        {
+            using (var context = CreateContext())
+            {
+                var weapons = context.Weapons
+                    .Where(w => w.AmmunitionType == AmmunitionType.Cartridge)
+                    .ToList();
+
+                Assert.Equal(5, weapons.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Where_nullable_enum_with_null_constant()
+        {
+            using (var context = CreateContext())
+            {
+                var weapons = context.Weapons
+                    .Where(w => w.AmmunitionType == null)
+                    .ToList();
+
+                Assert.Equal(1, weapons.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Where_nullable_enum_with_non_nullable_parameter()
+        {
+            var ammunitionType = AmmunitionType.Cartridge;
+
+            using (var context = CreateContext())
+            {
+                var weapons = context.Weapons
+                    .Where(w => w.AmmunitionType == ammunitionType)
+                    .ToList();
+
+                Assert.Equal(5, weapons.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Where_nullable_enum_with_nullable_parameter()
+        {
+            AmmunitionType? ammunitionType = AmmunitionType.Cartridge;
+
+            using (var context = CreateContext())
+            {
+                var weapons = context.Weapons
+                    .Where(w => w.AmmunitionType == ammunitionType)
+                    .ToList();
+
+                Assert.Equal(5, weapons.Count);
+            }
+
+            ammunitionType = null;
+
+            using (var context = CreateContext())
+            {
+                var weapons = context.Weapons
+                    .Where(w => w.AmmunitionType == ammunitionType)
+                    .ToList();
+
+                Assert.Equal(1, weapons.Count);
             }
         }
     }

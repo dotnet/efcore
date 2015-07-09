@@ -28,7 +28,7 @@ FROM [CogTag] AS [t]
 LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
 ORDER BY [g].[Nickname], [g].[SquadId]
 
-SELECT [w].[Id], [w].[Name], [w].[OwnerNickname], [w].[OwnerSquadId], [w].[SynergyWithId]
+SELECT [w].[Id], [w].[AmmunitionType], [w].[Name], [w].[OwnerNickname], [w].[OwnerSquadId], [w].[SynergyWithId]
 FROM [Weapon] AS [w]
 INNER JOIN (
     SELECT DISTINCT [g].[Nickname], [g].[SquadId]
@@ -195,6 +195,69 @@ INNER JOIN (
 ) AS [c] ON [g].[CityOrBirthName] = [c].[Name]
 LEFT JOIN [CogTag] AS [c0] ON ([c0].[GearNickName] = [g].[Nickname] AND [c0].[GearSquadId] = [g].[SquadId])
 ORDER BY [c].[Nickname], [c].[Name]",
+                Sql);
+        }
+
+        public override void Where_enum()
+        {
+            base.Where_enum();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Rank] = 2",
+                Sql);
+        }
+
+        public override void Where_nullable_enum_with_constant()
+        {
+            base.Where_nullable_enum_with_constant();
+
+            Assert.Equal(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[Name], [w].[OwnerNickname], [w].[OwnerSquadId], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+WHERE [w].[AmmunitionType] = 1",
+                Sql);
+        }
+
+        public override void Where_nullable_enum_with_null_constant()
+        {
+            base.Where_nullable_enum_with_null_constant();
+
+            Assert.Equal(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[Name], [w].[OwnerNickname], [w].[OwnerSquadId], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+WHERE [w].[AmmunitionType] IS NULL",
+                Sql);
+        }
+
+        public override void Where_nullable_enum_with_non_nullable_parameter()
+        {
+            base.Where_nullable_enum_with_non_nullable_parameter();
+
+            Assert.Equal(
+                @"@__p_0: 1
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[Name], [w].[OwnerNickname], [w].[OwnerSquadId], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+WHERE [w].[AmmunitionType] = @__p_0",
+                Sql);
+        }
+
+        public override void Where_nullable_enum_with_nullable_parameter()
+        {
+            base.Where_nullable_enum_with_nullable_parameter();
+
+            Assert.Equal(
+                @"@__p_0: 1
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[Name], [w].[OwnerNickname], [w].[OwnerSquadId], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+WHERE [w].[AmmunitionType] = @__p_0
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[Name], [w].[OwnerNickname], [w].[OwnerSquadId], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+WHERE [w].[AmmunitionType] IS NULL",
                 Sql);
         }
 
