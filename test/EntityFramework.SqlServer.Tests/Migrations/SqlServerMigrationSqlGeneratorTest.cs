@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                     Name = "Id",
                     Type = "int",
                     IsNullable = false,
-                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ItentityStrategy] =
+                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] =
                         SqlServerIdentityStrategy.IdentityColumn.ToString()
                 });
 

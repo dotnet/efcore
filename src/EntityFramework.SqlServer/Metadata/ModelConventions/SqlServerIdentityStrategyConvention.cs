@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
             modelBuilder.Annotation(
-                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ItentityStrategy,
+                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy,
                 SqlServerIdentityStrategy.IdentityColumn.ToString(),
                 ConfigurationSource.Convention);
             return modelBuilder;
