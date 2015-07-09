@@ -283,6 +283,7 @@ function Remove-Migration {
 Register-TabExpansion Reverse-Engineer @{
     Project = { GetProjects }
     StartupProject = { GetProjects }
+    Provider = { Get-Package | select -ExpandProperty Id }
 }
 
 <#
