@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.Conventions
             var annotations = model.Annotations.OrderBy(a => a.Name);
             Assert.Equal(3, annotations.Count());
 
-            Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.DefaultSequenceName, annotations.ElementAt(0).Name);
+            Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceName, annotations.ElementAt(0).Name);
             Assert.Equal(Sequence.DefaultName, annotations.ElementAt(0).Value);
 
             Assert.Equal(

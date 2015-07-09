@@ -25,7 +25,6 @@ namespace Microsoft.Data.Entity.ValueGeneration
             {
                 _pool[i] = new HiLoValue(-1, 0);
                 _locks[i] = new object();
-                ;
             }
         }
 

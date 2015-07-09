@@ -304,13 +304,36 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
-        public void Returns_the_default_pool_size()
+        public void Returns_the_default_pool_size_if_non_set()
         {
             var property = CreateProperty();
 
             var cache = new SqlServerValueGeneratorCache();
 
+            Assert.Equal(1, cache.GetPoolSize(property));
+        }
+
+        [Fact]
+        public void Pool_size_is_obtained_from_property_over_model()
+        {
+            var property = CreateProperty();
+            property.SqlServer().HiLoSequencePoolSize = 5;
+            property.DeclaringEntityType.Model.SqlServer().HiLoSequencePoolSize = 10;
+
+            var cache = new SqlServerValueGeneratorCache();
+
             Assert.Equal(5, cache.GetPoolSize(property));
+        }
+
+        [Fact]
+        public void Pool_size_is_obtained_from__model()
+        {
+            var property = CreateProperty();
+            property.DeclaringEntityType.Model.SqlServer().HiLoSequencePoolSize = 10;
+
+            var cache = new SqlServerValueGeneratorCache();
+
+            Assert.Equal(10, cache.GetPoolSize(property));
         }
 
         protected virtual ModelBuilder CreateConventionModelBuilder()
