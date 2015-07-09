@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     {
                         aliasExpression.SourceMember 
                             = newExpression.Members?[i] 
-                                ?? (newExpression.Arguments[i] as MemberExpression).Member;
+                                ?? (newExpression.Arguments[i] as MemberExpression)?.Member;
                     }
                 }
             }
