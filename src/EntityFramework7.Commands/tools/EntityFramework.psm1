@@ -10,7 +10,7 @@ $EFDefaultParameterValues = @{
 #
 
 Register-TabExpansion Use-DbContext @{
-    Context = { param ($context) GetContextTypes $context.Project }
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project }
     Project = { GetProjects }
 }
 
@@ -43,7 +43,7 @@ function Use-DbContext {
 #
 
 Register-TabExpansion Add-Migration @{
-    Context = { param ($context) GetContextTypes $context.Project }
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -64,7 +64,7 @@ Register-TabExpansion Add-Migration @{
 .PARAMETER Project
 	Specifies the project to use. If omitted, the default project is used.
 
-.PARAMETER $StartupProject
+.PARAMETER StartupProject
 	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Add-Migration {
@@ -93,8 +93,8 @@ function Add-Migration {
 #
 
 Register-TabExpansion Apply-Migration @{
-    Migration = { param ($context) GetMigrations $context.Context $context.Project }
-    Context = { param ($context) GetContextTypes $context.Project }
+    Migration = { param ($tabExpansionContext) GetMigrations $tabExpansionContext.Context $tabExpansionContext.Project }
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -116,7 +116,7 @@ Register-TabExpansion Apply-Migration @{
 .PARAMETER Project
 	Specifies the project to use. If omitted, the default project is used.
 
-.PARAMETER $StartupProject
+.PARAMETER StartupProject
 	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Apply-Migration {
@@ -145,8 +145,8 @@ function Apply-Migration {
 #
 
 Register-TabExpansion Update-Database @{
-    Migration = { param ($context) GetMigrations $context.Context $context.Project }
-    Context = { param ($context) GetContextTypes $context.Project }
+    Migration = { param ($tabExpansionContext) GetMigrations $tabExpansionContext.Context $tabExpansionContext.Project }
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -165,9 +165,9 @@ function Update-Database {
 #
 
 Register-TabExpansion Script-Migration @{
-    From = { param ($context) GetMigrations $context.Context $context.Project }
-    To = { param ($context) GetMigrations $context.Context $context.Project }
-    Context = { param ($context) GetContextTypes $context.Project }
+    From = { param ($tabExpansionContext) GetMigrations $tabExpansionContext.Context $tabExpansionContext.Project }
+    To = { param ($tabExpansionContext) GetMigrations $tabExpansionContext.Context $tabExpansionContext.Project }
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -194,7 +194,7 @@ Register-TabExpansion Script-Migration @{
 .PARAMETER Project
 	Specifies the project to use. If omitted, the default project is used.
 
-.PARAMETER $StartupProject
+.PARAMETER StartupProject
 	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Script-Migration {
@@ -239,7 +239,7 @@ function Script-Migration {
 #
 
 Register-TabExpansion Remove-Migration @{
-    Context = { param ($context) GetContextTypes $context.Project }
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -257,7 +257,7 @@ Register-TabExpansion Remove-Migration @{
 .PARAMETER Project
 	Specifies the project to use. If omitted, the default project is used.
 
-.PARAMETER $StartupProject
+.PARAMETER StartupProject
 	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Remove-Migration {
@@ -283,15 +283,7 @@ function Remove-Migration {
 Register-TabExpansion Reverse-Engineer @{
     Project = { GetProjects }
     StartupProject = { GetProjects }
-    Provider = {
-        param ($context)
-
-        $projectName = $context.Project
-        if (!($projectName)) {
-            $projectName = (Get-Project).ProjectName
-        }
-        return Get-Package -ProjectName $projectName | select -ExpandProperty Id
-    }
+    Provider = { param ($tabExpansionContext) GetProviders $tabExpansionContext.Project }
 }
 
 <#
@@ -310,12 +302,12 @@ Register-TabExpansion Reverse-Engineer @{
 .PARAMETER Project
 	Specifies the project to use. If omitted, the default project is used.
 
-.PARAMETER $StartupProject
+.PARAMETER StartupProject
 	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Reverse-Engineer {
     [CmdletBinding()]
-    param ([string] $ConnectionString, [string] $Provider, [string] $Project, [string] $StartupProject)
+    param ([Parameter(Mandatory = $true)] [string] $ConnectionString, [Parameter(Mandatory = $true)] [string] $Provider, [string] $Project, [string] $StartupProject)
 
     $values = ProcessCommonParameters -projectName $Project -startupProjectName $StartupProject
     $dteProject = $values.Project
@@ -323,6 +315,49 @@ function Reverse-Engineer {
 
     $artifacts = InvokeOperation $dteProject ReverseEngineer @{
         connectionString = $ConnectionString
+        provider = $Provider
+    } -startupProject $dteStartupProject
+
+    $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
+    $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
+    ShowConsole
+}
+
+#
+# Customize-ReverseEngineer
+#
+
+Register-TabExpansion Customize-ReverseEngineer @{
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+    Provider = { param ($tabExpansionContext) GetProviders $tabExpansionContext.Project }
+}
+
+<#
+.SYNOPSIS
+	Outputs templates which can then be customized.
+
+.DESCRIPTION
+	Outputs templates which can then be customized by the user to control how to reverse engineer code from a database.
+
+.PARAMETER Provider
+	Specifies the name of the provider for which to output the templates, for example EntityFramework7.SqlServer
+
+.PARAMETER Project
+	Specifies the project to use. If omitted, the default project is used.
+
+.PARAMETER StartupProject
+	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
+#>
+function Customize-ReverseEngineer {
+    [CmdletBinding()]
+    param ([Parameter(Mandatory = $true)] [string] $Provider, [string] $Project, [string] $StartupProject)
+
+    $values = ProcessCommonParameters -projectName $Project -startupProjectName $StartupProject
+    $dteProject = $values.Project
+    $dteStartupProject = $values.StartupProject
+
+    $artifacts = InvokeOperation $dteProject CustomizeReverseEngineer @{
         provider = $Provider
     } -startupProject $dteStartupProject
 
@@ -650,3 +685,12 @@ function GetSolutionProjects() {
         }
     }
 }
+
+function GetProviders($projectName) {
+    if (!($projectName)) {
+        $projectName = (Get-Project).ProjectName
+    }
+
+    return Get-Package -ProjectName $projectName | select -ExpandProperty Id
+}
+

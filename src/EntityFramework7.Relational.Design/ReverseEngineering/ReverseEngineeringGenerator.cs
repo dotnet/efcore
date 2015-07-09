@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -20,6 +21,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class ReverseEngineeringGenerator
     {
+        public const string DbContextTemplateFileName = "DbContextTemplate.cshtml";
+        public const string EntityTypeTemplateFileName = "EntityTypeTemplate.cshtml";
         private const string DefaultFileExtension = ".cs";
         private readonly IServiceProvider _serviceProvider;
 
@@ -74,7 +77,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             CheckOutputFiles(configuration.OutputPath, dbContextClassName, metadataModel);
 
             var templating = _serviceProvider.GetRequiredService<ITemplating>();
-            var dbContextTemplate = provider.DbContextTemplate;
+            var dbContextTemplate = LoadTemplate(configuration.CustomTemplatePath,
+                    GetDbContextTemplateFileName(provider), () => provider.DbContextTemplate);
             var templateResult = await templating.RunTemplateAsync(
                 dbContextTemplate, dbContextGeneratorModel, provider, cancellationToken);
             if (templateResult.ProcessingException != null)
@@ -89,7 +93,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 configuration.OutputPath, dbContextFileName, templateResult.GeneratedText);
             resultingFiles.Add(dbContextFileFullPath);
 
-            var entityTypeTemplate = provider.EntityTypeTemplate;
+            var entityTypeTemplate = LoadTemplate(configuration.CustomTemplatePath,
+                GetEntityTypeTemplateFileName(provider), () => provider.EntityTypeTemplate);
             foreach (var entityType in metadataModel.EntityTypes)
             {
                 var entityTypeGeneratorModel = new EntityTypeGeneratorModel
@@ -116,6 +121,21 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     configuration.OutputPath, entityTypeFileName, templateResult.GeneratedText);
                 resultingFiles.Add(entityTypeFileFullPath);
             }
+
+            return resultingFiles;
+        }
+
+        public virtual IReadOnlyList<string> Customize(
+            [NotNull] IDatabaseMetadataModelProvider provider, [NotNull] string projectDir)
+        {
+            var dbContextTemplate = provider.DbContextTemplate;
+            var entityTypeTemplate = provider.EntityTypeTemplate;
+
+            var resultingFiles = new List<string>();
+            resultingFiles.Add(
+                FileService.OutputFile(projectDir, GetDbContextTemplateFileName(provider), dbContextTemplate));
+            resultingFiles.Add(
+                FileService.OutputFile(projectDir, GetEntityTypeTemplateFileName(provider), entityTypeTemplate));
 
             return resultingFiles;
         }
@@ -178,6 +198,20 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
+        public virtual string GetDbContextTemplateFileName([NotNull] IDatabaseMetadataModelProvider provider)
+        {
+            Check.NotNull(provider, nameof(provider));
+
+            return provider.GetType().GetTypeInfo().Assembly.GetName().Name + "." + DbContextTemplateFileName;
+        }
+
+        public virtual string GetEntityTypeTemplateFileName([NotNull] IDatabaseMetadataModelProvider provider)
+        {
+            Check.NotNull(provider, nameof(provider));
+
+            return provider.GetType().GetTypeInfo().Assembly.GetName().Name + "." + EntityTypeTemplateFileName;
+        }
+
         private static void CheckConfiguration(ReverseEngineeringConfiguration configuration)
         {
             if (configuration.Provider == null)
@@ -199,6 +233,18 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             {
                 throw new ArgumentException(Strings.NamespaceRequired);
             }
+        }
+
+        private string LoadTemplate(string searchPath, string fileName, Func<string> providerTemplateFunc)
+        {
+            if (!string.IsNullOrEmpty(searchPath)
+                && FileService.FileExists(searchPath, fileName))
+            {
+                Logger.LogInformation(Strings.UsingCustomTemplate(Path.Combine(searchPath,fileName)));
+                return FileService.RetrieveFileContents(searchPath, fileName);
+            }
+
+            return providerTemplateFunc.Invoke();
         }
     }
 }

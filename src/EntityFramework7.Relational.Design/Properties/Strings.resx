@@ -151,6 +151,9 @@
     <value>Template Processing Failed: {errorMessages}</value>
   </data>
   <data name="UnableToCreateMetadataReference" xml:space="preserve">
-    <value>Unable to create metadata reference from name {0}.</value>
+    <value>Unable to create metadata reference from name {metadataReferenceName}.</value>
+  </data>
+  <data name="UsingCustomTemplate" xml:space="preserve">
+    <value>Using custom template {customTemplateFilePath}</value>
   </data>
 </root>

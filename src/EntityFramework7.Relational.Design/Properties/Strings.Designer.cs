@@ -101,11 +101,19 @@ namespace Microsoft.Data.Entity.Relational.Design
         }
 
         /// <summary>
-        /// Unable to create metadata reference from name {0}.
+        /// Unable to create metadata reference from name {metadataReferenceName}.
         /// </summary>
-        public static string UnableToCreateMetadataReference([CanBeNull] object p0)
+        public static string UnableToCreateMetadataReference([CanBeNull] object metadataReferenceName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToCreateMetadataReference"), p0);
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToCreateMetadataReference", "metadataReferenceName"), metadataReferenceName);
+        }
+
+        /// <summary>
+        /// Using custom template {customTemplateFilePath}
+        /// </summary>
+        public static string UsingCustomTemplate([CanBeNull] object customTemplateFilePath)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UsingCustomTemplate", "customTemplateFilePath"), customTemplateFilePath);
         }
 
         private static string GetString(string name, params string[] formatterNames)
