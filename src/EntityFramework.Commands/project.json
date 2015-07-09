@@ -36,6 +36,9 @@
     "netcore50": {
       "bin": {
         "assembly": "lib\\netcore50\\_._"
+      },
+      "dependencies": {
+        "EntityFramework.Relational": "7.0.0-*"
       }
     }
   },
