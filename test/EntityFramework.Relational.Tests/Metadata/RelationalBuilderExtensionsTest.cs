@@ -304,7 +304,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
-            Assert.Equal(Sequence.DefaultIncrement, sequence.IncrementBy);
+            Assert.Equal(1, sequence.IncrementBy);
             Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
@@ -327,7 +327,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Equal("Tasty", sequence.Schema);
-            Assert.Equal(Sequence.DefaultIncrement, sequence.IncrementBy);
+            Assert.Equal(1, sequence.IncrementBy);
             Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);

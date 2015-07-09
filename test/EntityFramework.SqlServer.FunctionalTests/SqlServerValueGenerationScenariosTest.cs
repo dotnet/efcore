@@ -91,11 +91,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
-                    // TODO: Change default increment for explicit sequence to 1
                     modelBuilder
                         .Sequence("MySequence")
-                        .Start(77)
-                        .IncrementBy(1);
+                        .Start(77);
 
                     modelBuilder
                         .Entity<Blog>()
@@ -130,11 +128,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
-                    // TODO: Change default increment for explicit sequence to 1
                     modelBuilder
                         .Sequence("MySequence")
-                        .Start(77)
-                        .IncrementBy(1);
+                        .Start(77);
 
                     // TODO: Nested closure for Metadata
                     modelBuilder
