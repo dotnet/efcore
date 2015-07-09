@@ -13,6 +13,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     {
         bool DirectoryExists([NotNull] string directoryName);
 
+        bool FileExists([NotNull] string directoryName, [NotNull] string fileName);
+
         /// <summary>
         ///     Checks whether 'file' is read-only. Absence of the 'file' is interpreted as readable.
         /// </summary>

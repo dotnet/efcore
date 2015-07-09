@@ -231,6 +231,20 @@ namespace Microsoft.Data.Entity.Commands
                                 connectionString.Value,
                                 providerAssemblyName.Value,
                                 _applicationShutdown.ShutdownRequested));
+
+                    revEng.Command(
+                        "customize",
+                        customize =>
+                        {
+                            customize.Description = "Outputs the default reverse engineer templates allowing the user to customize them";
+                            var providerAssemblyNameForTemplates = customize.Argument(
+                                    "[provider]",
+                                    "The assembly name of the provider");
+                            customize.HelpOption("-h|--help");
+
+                            customize.OnExecute(() => CustomizeReverseEngineer(
+                                providerAssemblyNameForTemplates.Value));
+                        });
                 });
             _app.Command(
                 "help",
@@ -374,6 +388,17 @@ namespace Microsoft.Data.Entity.Commands
         {
             await _databaseTool.ReverseEngineerAsync(
                 providerAssemblyName, connectionString, _rootNamespace, _projectDir);
+
+            _logger.LogInformation("Done.");
+
+            return 0;
+        }
+
+        public virtual int CustomizeReverseEngineer([NotNull] string providerAssemblyName)
+        {
+            _logger.LogVerbose("Writing Reverse Engineering templates to '{0}'.", _projectDir);
+
+            _databaseTool.CustomizeReverseEngineer(providerAssemblyName, _projectDir);
 
             _logger.LogInformation("Done.");
 

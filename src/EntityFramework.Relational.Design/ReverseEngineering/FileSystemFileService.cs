@@ -13,6 +13,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return Directory.Exists(directoryName);
         }
 
+        public virtual bool FileExists([NotNull] string directoryName, [NotNull] string fileName)
+        {
+            return File.Exists(Path.Combine(directoryName, fileName));
+        }
+
         public virtual bool IsFileReadOnly([NotNull] string directoryName, [NotNull] string fileName)
         {
             var fullFileName = Path.Combine(directoryName, fileName);

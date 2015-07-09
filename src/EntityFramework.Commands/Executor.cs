@@ -263,6 +263,25 @@ namespace Microsoft.Data.Entity.Commands
                 providerAssemblyName, connectionString, _rootNamespace, _projectDir, cancellationToken);
         }
 
+        public class CustomizeReverseEngineer : OperationBase
+        {
+            public CustomizeReverseEngineer([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+                : base(resultHandler)
+            {
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
+
+                var providerAssemblyName = (string)args["provider"];
+
+                Execute(() => executor.CustomizeReverseEngineerImpl(providerAssemblyName));
+            }
+        }
+
+        public virtual IReadOnlyList<string> CustomizeReverseEngineerImpl([NotNull] string providerAssemblyName)
+        {
+            return _databaseTool.CustomizeReverseEngineer(providerAssemblyName, _projectDir);
+        }
+
         public abstract class OperationBase : MarshalByRefObject
         {
             private readonly IResultHandler _resultHandler;
