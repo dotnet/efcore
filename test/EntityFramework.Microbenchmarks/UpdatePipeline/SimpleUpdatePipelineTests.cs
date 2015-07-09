@@ -10,19 +10,13 @@ using Xunit;
 
 namespace EntityFramework.Microbenchmarks.UpdatePipeline
 {
-    public class SimpleUpdatePipelineTests
+    public class SimpleUpdatePipelineTests : IClassFixture<SimpleUpdatePipelineTests.SimpleUpdatePipelineFixture>
     {
-        private static readonly string _connectionString 
-            = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=Perf_UpdatePipeline_Simple;Integrated Security=True;MultipleActiveResultSets=true;";
+        private readonly SimpleUpdatePipelineFixture _fixture;
 
-        public SimpleUpdatePipelineTests()
+        public SimpleUpdatePipelineTests(SimpleUpdatePipelineFixture fixture)
         {
-            new OrdersSeedData().EnsureCreated(
-                _connectionString,
-                productCount: 0,
-                customerCount: 1000,
-                ordersPerCustomer: 0,
-                linesPerOrder: 0);
+            _fixture = fixture;
         }
 
         [Benchmark(Iterations = 10, WarmupIterations = 5)]
@@ -30,7 +24,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         [BenchmarkVariation("Batching On", false)]
         public void Insert(MetricCollector collector, bool disableBatching)
         {
-            using (var context = new OrdersContext(_connectionString, disableBatching))
+            using (var context = _fixture.CreateContext(disableBatching))
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -53,7 +47,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         [BenchmarkVariation("Batching On", false)]
         public void Update(MetricCollector collector, bool disableBatching)
         {
-            using (var context = new OrdersContext(_connectionString, disableBatching))
+            using (var context = _fixture.CreateContext(disableBatching))
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -76,7 +70,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         [BenchmarkVariation("Batching On", false)]
         public void Delete(MetricCollector collector, bool disableBatching)
         {
-            using (var context = new OrdersContext(_connectionString, disableBatching))
+            using (var context = _fixture.CreateContext(disableBatching))
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -99,7 +93,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         [BenchmarkVariation("Batching On", false)]
         public void Mixed(MetricCollector collector, bool disableBatching)
         {
-            using (var context = new OrdersContext(_connectionString, disableBatching))
+            using (var context = _fixture.CreateContext(disableBatching))
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -127,6 +121,13 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
                     Assert.Equal(1000, records);
                 }
             }
+        }
+
+        public class SimpleUpdatePipelineFixture : OrdersFixture
+        {
+            public SimpleUpdatePipelineFixture()
+                : base("Perf_UpdatePipeline_Simple", 0, 1000, 0, 0)
+            { }
         }
     }
 }

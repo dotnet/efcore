@@ -9,28 +9,21 @@ using Xunit;
 
 namespace EntityFramework.Microbenchmarks.Query
 {
-    public class FuncletizationTests
+    public class FuncletizationTests : IClassFixture<FuncletizationTests.FuncletizationFixture>
     {
-        private static readonly string _connectionString
-            = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=Perf_Query_Funcletization;Integrated Security=True;MultipleActiveResultSets=true;";
-
+        private readonly FuncletizationFixture _fixture;
         private static readonly int _funcletizationIterationCount = 100;
 
-        public FuncletizationTests()
+        public FuncletizationTests(FuncletizationFixture fixture)
         {
-            new OrdersSeedData().EnsureCreated(
-                _connectionString,
-                productCount: 100,
-                customerCount: 0,
-                ordersPerCustomer: 0,
-                linesPerOrder: 0);
+            _fixture = fixture;
         }
 
         [Benchmark(Iterations = 50, WarmupIterations = 5)]
         public void NewQueryInstance(MetricCollector collector)
         {
 
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 using (collector.StartCollection())
                 {
@@ -48,7 +41,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark(Iterations = 50, WarmupIterations = 5)]
         public void SameQueryInstance(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 using (collector.StartCollection())
                 {
@@ -68,7 +61,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark(Iterations = 50, WarmupIterations = 5)]
         public void ValueFromObject(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 using (collector.StartCollection())
                 {
@@ -91,6 +84,13 @@ namespace EntityFramework.Microbenchmarks.Query
             {
                 get { return FirstLevelProperty; }
             }
+        }
+
+        public class FuncletizationFixture : OrdersFixture
+        {
+            public FuncletizationFixture()
+                : base("Perf_Query_Funcletization", 100, 0, 0, 0)
+            { }
         }
     }
 }

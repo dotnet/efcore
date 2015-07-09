@@ -10,25 +10,19 @@ using Xunit;
 
 namespace EntityFramework.Microbenchmarks.Query
 {
-    public class SimpleQueryTests
+    public class SimpleQueryTests : IClassFixture<SimpleQueryTests.SimpleQueryFixture>
     {
-        private static readonly string _connectionString
-            = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=Perf_Query_Simple;Integrated Security=True;MultipleActiveResultSets=true;";
+        private readonly SimpleQueryFixture _fixture;
 
-        public SimpleQueryTests()
+        public SimpleQueryTests(SimpleQueryFixture fixture)
         {
-            new OrdersSeedData().EnsureCreated(
-                _connectionString,
-                productCount: 1000,
-                customerCount: 1000,
-                ordersPerCustomer: 2,
-                linesPerOrder: 2);
+            _fixture = fixture;
         }
 
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void LoadAll(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 collector.StartCollection();
                 var result = context.Products.ToList();
@@ -40,7 +34,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void Where(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 collector.StartCollection();
                 var result = context.Products.Where(p => p.Retail < 15).ToList();
@@ -52,7 +46,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void OrderBy(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 collector.StartCollection();
                 var result = context.Products.OrderBy(p => p.Retail).ToList();
@@ -64,7 +58,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void Count(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 collector.StartCollection();
                 var result = context.Products.Count();
@@ -76,7 +70,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void SkipTake(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 collector.StartCollection();
                 var result = context.Products
@@ -92,7 +86,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void GroupBy(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 collector.StartCollection();
                 var result = context.Products
@@ -113,7 +107,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark(Iterations = 2, WarmupIterations = 1)]
         public void Include(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 collector.StartCollection();
                 var result = context.Customers.Include(c => c.Orders).ToList();
@@ -126,7 +120,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void Projection(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 collector.StartCollection();
                 var result = context.Products.Select(p => new { p.Name, p.Retail }).ToList();
@@ -138,7 +132,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void ProjectionAcrossNavigation(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 collector.StartCollection();
                 // TODO Use navigation for projection when supported (#325)
@@ -157,13 +151,20 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void NoTracking(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 collector.StartCollection();
                 var result = context.Products.AsNoTracking().ToList();
                 collector.StopCollection();
                 Assert.Equal(1000, result.Count);
             }
+        }
+
+        public class SimpleQueryFixture : OrdersFixture
+        {
+            public SimpleQueryFixture()
+                : base("Perf_Query_Simple", 1000, 1000, 2, 2)
+            { }
         }
     }
 }

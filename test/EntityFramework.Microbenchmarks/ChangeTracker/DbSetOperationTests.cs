@@ -9,25 +9,19 @@ using Xunit;
 
 namespace EntityFramework.Microbenchmarks.ChangeTracker
 {
-    public class DbSetOperationTests
+    public class DbSetOperationTests : IClassFixture<DbSetOperationTests.DbSetOperationFixture>
     {
-        private static readonly string _connectionString
-            = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=Perf_ChangeTracker_DbSetOperation;Integrated Security=True;MultipleActiveResultSets=true;";
+        private readonly DbSetOperationFixture _fixture;
 
-        public DbSetOperationTests()
+        public DbSetOperationTests(DbSetOperationFixture fixture)
         {
-            new OrdersSeedData().EnsureCreated(
-                _connectionString,
-                productCount: 0,
-                customerCount: 1000,
-                ordersPerCustomer: 0,
-                linesPerOrder: 0);
+            _fixture = fixture;
         }
 
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void Add(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 var customers = new Customer[1000];
                 for (var i = 0; i < customers.Length; i++)
@@ -48,7 +42,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void AddCollection(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 var customers = new Customer[1000];
                 for (var i = 0; i < customers.Length; i++)
@@ -67,7 +61,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void Attach(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 var customers = GetAllCustomersFromDatabase();
                 Assert.Equal(1000, customers.Length);
@@ -86,7 +80,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void AttachCollection(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 var customers = GetAllCustomersFromDatabase();
                 Assert.Equal(1000, customers.Length);
@@ -101,7 +95,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void Remove(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 var customers = context.Customers.ToArray();
                 Assert.Equal(1000, customers.Length);
@@ -119,7 +113,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void RemoveCollection(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 var customers = context.Customers.ToArray();
                 Assert.Equal(1000, customers.Length);
@@ -134,7 +128,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void Update(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 var customers = GetAllCustomersFromDatabase();
                 Assert.Equal(1000, customers.Length);
@@ -152,7 +146,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void UpdateCollection(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 var customers = GetAllCustomersFromDatabase();
                 Assert.Equal(1000, customers.Length);
@@ -164,12 +158,19 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             }
         }
 
-        private static Customer[] GetAllCustomersFromDatabase()
+        private Customer[] GetAllCustomersFromDatabase()
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 return context.Customers.ToArray();
             }
+        }
+
+        public class DbSetOperationFixture : OrdersFixture
+        {
+            public DbSetOperationFixture()
+                : base("Perf_ChangeTracker_DbSetOperation", 0, 1000, 0, 0)
+            { }
         }
     }
 }

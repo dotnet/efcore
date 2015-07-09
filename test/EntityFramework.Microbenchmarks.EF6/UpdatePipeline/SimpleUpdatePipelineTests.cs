@@ -9,25 +9,19 @@ using Xunit;
 
 namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
 {
-    public class SimpleUpdatePipelineTests
+    public class SimpleUpdatePipelineTests : IClassFixture<SimpleUpdatePipelineTests.SimpleUpdatePipelineFixture>
     {
-        private static readonly string _connectionString
-            = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=Perf_UpdatePipeline_Simple_EF6;Integrated Security=True;MultipleActiveResultSets=true;";
+        private readonly SimpleUpdatePipelineFixture _fixture;
 
-        public SimpleUpdatePipelineTests()
+        public SimpleUpdatePipelineTests(SimpleUpdatePipelineFixture fixture)
         {
-            new OrdersSeedData().EnsureCreated(
-                _connectionString,
-                productCount: 0,
-                customerCount: 1000,
-                ordersPerCustomer: 0,
-                linesPerOrder: 0);
+            _fixture = fixture;
         }
 
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void Insert(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -48,7 +42,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void Update(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -69,7 +63,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void Delete(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -90,7 +84,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
         public void Mixed(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -118,6 +112,13 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                     Assert.Equal(1000, records);
                 }
             }
+        }
+
+        public class SimpleUpdatePipelineFixture : OrdersFixture
+        {
+            public SimpleUpdatePipelineFixture()
+                : base("Perf_UpdatePipeline_Simple_EF6", 0, 1000, 0, 0)
+            { }
         }
     }
 }

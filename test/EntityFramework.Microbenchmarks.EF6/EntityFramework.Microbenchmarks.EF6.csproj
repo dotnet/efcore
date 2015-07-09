@@ -37,6 +37,7 @@
     <Compile Include="ChangeTracker\DbSetOperationTests.cs" />
     <Compile Include="ChangeTracker\FixupTests.cs" />
     <Compile Include="Models\Orders\OrdersContext.cs" />
+    <Compile Include="Models\Orders\OrdersFixture.cs" />
     <Compile Include="Models\Orders\OrdersSeedData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\FuncletizationTests.cs" />

@@ -10,25 +10,19 @@ using Xunit;
 
 namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
 {
-    public class FixupTests
+    public class FixupTests : IClassFixture<FixupTests.FixupFixture>
     {
-        private static readonly string _connectionString
-            = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=Perf_ChangeTracker_Fixup_EF6;Integrated Security=True;MultipleActiveResultSets=true;";
+        private readonly FixupFixture _fixture;
 
-        public FixupTests()
+        public FixupTests(FixupFixture fixture)
         {
-            new OrdersSeedData().EnsureCreated(
-                _connectionString,
-                productCount: 100,
-                customerCount: 100,
-                ordersPerCustomer: 1,
-                linesPerOrder: 1);
+            _fixture = fixture;
         }
 
         [Benchmark(Iterations = 10, WarmupIterations = 5)]
         public void AddChildren(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 var customers = context.Customers.ToList();
                 Assert.Equal(100, customers.Count);
@@ -54,12 +48,12 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         public void AttachChildren(MetricCollector collector)
         {
             List<Order> orders;
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 orders = context.Orders.ToList();
             }
 
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 var customers = context.Customers.ToList();
                 Assert.Equal(100, orders.Count);
@@ -81,12 +75,12 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         public void AttachParents(MetricCollector collector)
         {
             List<Customer> customers;
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 customers = context.Customers.ToList();
             }
 
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 var orders = context.Orders.ToList();
                 Assert.Equal(100, orders.Count);
@@ -107,7 +101,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         [Benchmark(Iterations = 10, WarmupIterations = 5)]
         public void QueryChildren(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 context.Customers.ToList();
 
@@ -124,7 +118,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         [Benchmark(Iterations = 10, WarmupIterations = 5)]
         public void QueryParents(MetricCollector collector)
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = _fixture.CreateContext())
             {
                 context.Orders.ToList();
 
@@ -136,6 +130,13 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 Assert.Equal(100, context.ChangeTracker.Entries<Order>().Count());
                 Assert.All(customers, c => Assert.Equal(1, c.Orders.Count));
             }
+        }
+
+        public class FixupFixture : OrdersFixture
+        {
+            public FixupFixture()
+                : base("Perf_ChangeTracker_Fixup_EF6", 100, 100, 1, 1)
+            { }
         }
     }
 }
