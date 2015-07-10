@@ -49,11 +49,11 @@ k-standard-goals
             "packages");
 }
 
-var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configuration")}/x86'
-#copy-sqlite target='initialize' if='!IsMono && !IsTeamCity && !File.Exists(sqliteTestDir + "/sqlite3.dll")'
-    var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.Sqlite/*").OrderByDescending(d => d).First() + "/runtimes/win-x86/native"}'
+var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configuration")}'
+#copy-sqlite target='initialize' if='!IsMono && !IsTeamCity && !File.Exists(sqliteTestDir + "/x86/sqlite3.dll")'
+    var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.Sqlite/*").OrderByDescending(d => d).First() + "/runtimes/win/native"}'
     copy outputDir='${sqliteTestDir}'
-    copy outputDir='test/EntityFramework.CrossStore.FunctionalTests/bin/${E("Configuration")}/x86'
+    copy outputDir='test/EntityFramework.CrossStore.FunctionalTests/bin/${E("Configuration")}'
 
 #nupkg-patch target='compile'
     @{
