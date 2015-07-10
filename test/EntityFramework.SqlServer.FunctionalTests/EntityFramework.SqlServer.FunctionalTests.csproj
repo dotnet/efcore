@@ -67,6 +67,7 @@
     <Compile Include="ComplexNavigationsQuerySqlServerFixture.cs" />
     <Compile Include="ComplexNavigationsQuerySqlServerTest.cs" />
     <Compile Include="F1SqlServerFixture.cs" />
+    <Compile Include="QueryNavigationsSqlServerTest.cs" />
     <Compile Include="SqlServerFixture.cs" />
     <Compile Include="GearsOfWarQuerySqlServerFixture.cs" />
     <Compile Include="GearsOfWarQuerySqlServerTest.cs" />

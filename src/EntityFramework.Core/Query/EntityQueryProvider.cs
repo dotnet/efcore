@@ -42,14 +42,14 @@ namespace Microsoft.Data.Entity.Query
             _queryContextFactory = queryContextFactory;
         }
 
-        public virtual IQueryable<TElement> CreateQuery<TElement>([NotNull] Expression expression)
+        public virtual IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
             return new EntityQueryable<TElement>(this, expression);
         }
 
-        public virtual IQueryable CreateQuery([NotNull] Expression expression)
+        public virtual IQueryable CreateQuery(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Query
                 .Invoke(this, new object[] { expression });
         }
 
-        public virtual TResult Execute<TResult>([NotNull] Expression expression)
+        public virtual TResult Execute<TResult>(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Query
             return _compiledQueryCache.Execute<TResult>(expression, _database, queryContext);
         }
 
-        public virtual object Execute([NotNull] Expression expression)
+        public virtual object Execute(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 

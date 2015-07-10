@@ -61,6 +61,7 @@
     <Compile Include="NorthwindQueryFixtureBase.cs" />
     <Compile Include="AsyncQueryTestBase.cs" />
     <Compile Include="F1FixtureBase.cs" />
+    <Compile Include="QueryNavigationsTestBase.cs" />
     <Compile Include="QueryTestBase.cs" />
     <Compile Include="OptimisticConcurrencyTestBase.cs" />
     <Compile Include="StoreGeneratedTestBase.cs" />

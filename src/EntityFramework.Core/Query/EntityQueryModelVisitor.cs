@@ -158,11 +158,15 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
+            new QueryOptimizer(QueryCompilationContext.QueryAnnotations).VisitQueryModel(queryModel);
+
+            var navigationRewritingExpressionTreeVisitor = new NavigationRewritingExpressionVisitor(this);
+
+            navigationRewritingExpressionTreeVisitor.Rewrite(queryModel);
+
             var subQueryMemberPushDownExpressionVisitor = new SubQueryMemberPushDownExpressionVisitor();
 
             queryModel.TransformExpressions(subQueryMemberPushDownExpressionVisitor.Visit);
-
-            new QueryOptimizer(QueryCompilationContext.QueryAnnotations).VisitQueryModel(queryModel);
 
             QueryCompilationContext.Logger.LogInformation(queryModel, Strings.LogOptimizedQueryModel);
         }
@@ -220,7 +224,22 @@ namespace Microsoft.Data.Entity.Query
                             var navigationPath
                                 = BindNavigationPathMemberExpression(
                                     (MemberExpression)annotation.NavigationPropertyPath,
-                                    (ns, _) => BindChainedNavigations(ns, annotation.ChainedNavigationProperties).ToArray());
+                                    (ps, _) =>
+                                    {
+                                        var properties = ps.ToArray();
+                                        var navigations = properties.OfType<INavigation>().ToArray();
+
+                                        if (properties.Length != navigations.Length)
+                                        {
+                                            throw new InvalidOperationException(
+                                                Strings.IncludeNonBindableExpression(annotation.NavigationPropertyPath));
+                                        }
+
+                                        return BindChainedNavigations(
+                                            navigations,
+                                            annotation.ChainedNavigationProperties)
+                                            .ToArray();
+                                    });
 
                             if (navigationPath == null)
                             {
@@ -923,6 +942,7 @@ namespace Microsoft.Data.Entity.Query
 
             return BindMemberExpression(
                 memberExpression,
+                null,
                 (property, querySource)
                     => BindReadValueMethod(memberExpression.Type, expression, property.Index));
         }
@@ -939,35 +959,14 @@ namespace Microsoft.Data.Entity.Query
                 .CreateReadValueExpression(expression, memberType, index);
         }
 
-        public virtual TResult BindNavigationMemberExpression<TResult>(
-            [NotNull] MemberExpression memberExpression,
-            [NotNull] Func<INavigation, IQuerySource, TResult> memberBinder)
-        {
-            Check.NotNull(memberExpression, nameof(memberExpression));
-            Check.NotNull(memberBinder, nameof(memberBinder));
-
-            return BindMemberExpressionCore(memberExpression, null,
-                (ps, qs) =>
-                    {
-                        var navigation = ps.Single() as INavigation;
-
-                        return navigation != null
-                            ? memberBinder(navigation, qs)
-                            : default(TResult);
-                    });
-        }
-
         public virtual TResult BindNavigationPathMemberExpression<TResult>(
             [NotNull] MemberExpression memberExpression,
-            [NotNull] Func<IEnumerable<INavigation>, IQuerySource, TResult> memberBinder)
+            [NotNull] Func<IEnumerable<IPropertyBase>, IQuerySource, TResult> memberBinder)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
             Check.NotNull(memberBinder, nameof(memberBinder));
 
-            return BindMemberExpressionCore(
-                memberExpression,
-                null,
-                (ps, qs) => memberBinder(ps.Cast<INavigation>(), qs));
+            return BindMemberExpressionCore(memberExpression, null, memberBinder);
         }
 
         public virtual void BindMemberExpression(
@@ -984,16 +983,6 @@ namespace Microsoft.Data.Entity.Query
 
                         return default(object);
                     });
-        }
-
-        public virtual TResult BindMemberExpression<TResult>(
-            [NotNull] MemberExpression memberExpression,
-            [NotNull] Func<IProperty, IQuerySource, TResult> memberBinder)
-        {
-            Check.NotNull(memberExpression, nameof(memberExpression));
-            Check.NotNull(memberBinder, nameof(memberBinder));
-
-            return BindMemberExpression(memberExpression, null, memberBinder);
         }
 
         public virtual TResult BindMemberExpression<TResult>(

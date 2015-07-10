@@ -61,6 +61,7 @@ namespace Microsoft.Data.Entity.Storage
             EntityKeyFactorySource = entityKeyFactorySource;
             EntityMaterializerSource = entityMaterializerSource;
             ClrPropertyGetterSource = clrPropertyGetterSource;
+
             _batchPreparer = batchPreparer;
             _batchExecutor = batchExecutor;
             _connection = connection;

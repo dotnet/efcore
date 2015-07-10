@@ -18,6 +18,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private readonly Dictionary<IQuerySource, int> _querySources = new Dictionary<IQuerySource, int>();
 
         private QueryModel _queryModel;
+        private Expression _parentSelector;
 
         public RequiresMaterializationExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
         {
@@ -31,6 +32,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             Check.NotNull(queryModel, nameof(queryModel));
 
             _queryModel = queryModel;
+            _parentSelector = queryModel.SelectClause.Selector;
 
             _queryModel.TransformExpressions(Visit);
 
@@ -105,10 +107,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
+            var oldParentSelector = _parentSelector;
+
             var leftSubQueryExpression = binaryExpression.Left as SubQueryExpression;
 
             if (leftSubQueryExpression != null)
             {
+                _parentSelector = leftSubQueryExpression.QueryModel.SelectClause.Selector;
+
                 leftSubQueryExpression.QueryModel.TransformExpressions(Visit);
             }
             else
@@ -120,12 +126,16 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             if (rightSubQueryExpression != null)
             {
+                _parentSelector = rightSubQueryExpression.QueryModel.SelectClause.Selector;
+
                 rightSubQueryExpression.QueryModel.TransformExpressions(Visit);
             }
             else
             {
                 Visit(binaryExpression.Right);
             }
+
+            _parentSelector = oldParentSelector;
 
             return binaryExpression;
         }
@@ -147,7 +157,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 var resultQuerySource
                     = querySourceTracingExpressionVisitor
                         .FindResultQuerySourceReferenceExpression(
-                            _queryModel.SelectClause.Selector,
+                            _parentSelector,
                             querySourceReferenceExpression.ReferencedQuerySource);
 
                 if (resultQuerySource == null)

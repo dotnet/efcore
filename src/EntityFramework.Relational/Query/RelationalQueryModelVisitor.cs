@@ -579,7 +579,9 @@ namespace Microsoft.Data.Entity.Query
 
                         return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex);
                     },
-                bindSubQueries: true);
+                bindSubQueries: true)
+                   ?? ParentQueryModelVisitor?
+                       .BindMethodCallToValueBuffer(methodCallExpression, expression); 
         }
 
         public virtual TResult BindMemberExpression<TResult>(

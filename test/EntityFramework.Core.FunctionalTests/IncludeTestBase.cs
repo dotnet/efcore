@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Internal;
@@ -21,6 +22,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();
+        }
+
+        [Fact]
+        public virtual void Include_reference_invalid()
+        {
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                {
+                    using (var context = CreateContext())
+                    {
+                        return context.Set<Order>()
+                            .Include(o => o.Customer.CustomerID)
+                            .ToList();
+                    }
+                });
         }
 
         [Fact]

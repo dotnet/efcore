@@ -25,6 +25,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Ignore(em => em.PostalCode);
                     e.Ignore(em => em.Region);
                     e.Ignore(em => em.TitleOfCourtesy);
+
+                    e.Reference(e1 => e1.Manager).InverseCollection().ForeignKey(e1 => e1.ReportsTo);
                 });
 
             modelBuilder.Entity<Product>(e =>

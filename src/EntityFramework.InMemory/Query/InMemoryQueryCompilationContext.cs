@@ -28,7 +28,6 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
                 Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource)))
         {
-            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
         }
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor(EntityQueryModelVisitor parentEntityQueryModelVisitor)

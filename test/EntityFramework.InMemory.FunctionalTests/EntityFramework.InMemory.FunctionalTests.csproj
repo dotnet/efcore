@@ -43,6 +43,7 @@
     <Compile Include="NullKeysInMemoryTest.cs" />
     <Compile Include="GraphUpdatesInMemoryTestBase.cs" />
     <Compile Include="InheritanceInMemoryTest.cs" />
+    <Compile Include="QueryNavigationsInMemoryTest.cs" />
     <Compile Include="SentinelGraphUpdatesInMemoryTest.cs" />
     <Compile Include="InMemoryTestStore.cs" />
     <Compile Include="BuiltInDataTypesInMemoryFixture.cs" />

@@ -26,6 +26,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
         public int? ReportsTo { get; set; }
         public string PhotoPath { get; set; }
 
+        public Employee Manager { get; set; }
+
         protected bool Equals(Employee other)
         {
             return EmployeeID == other.EmployeeID;
