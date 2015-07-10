@@ -1,13 +1,13 @@
 {
-  "version": "7.0.0-*",
+  "version": "7.0.0-beta5",
   "description": "Shared Design-time Entity Framework components for relational data stores.",
   "compilationOptions": {
     "warningsAsErrors": true
   },
   "dependencies": {
-    "Microsoft.AspNet.Razor": "4.0.0-*",
-    "Microsoft.CodeAnalysis.CSharp": "1.0.0-*",
-    "EntityFramework.Relational": "7.0.0-*"
+    "Microsoft.AspNet.Razor": "4.0.0-beta5",
+    "Microsoft.CodeAnalysis.CSharp": "1.0.0-rc3",
+    "EntityFramework.Relational": "7.0.0-beta5"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
@@ -28,12 +28,12 @@
         "System.Threading.Tasks": "4.0.0.0"
       },
       "dependencies": {
-        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*"
+        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-beta5"
       }
     },
     "dnxcore50": {
       "dependencies": {
-        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*"
+        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-beta5"
       }
     },
     "netcore50": {

@@ -1,10 +1,10 @@
 {
   "dependencies": {
-    "EntityFramework.Commands": "7.0.0-*",
-    "EntityFramework.Relational.Design": "7.0.0-*",
-    "EntityFramework.SqlServer": "7.0.0-*",
+    "EntityFramework.Commands": "7.0.0-beta5",
+    "EntityFramework.Relational.Design": "7.0.0-beta5",
+    "EntityFramework.SqlServer": "7.0.0-beta5",
     "EntityFramework.SqlServer.FunctionalTests": "1.0.0",
-    "Microsoft.Framework.Runtime": "1.0.0-*"
+    "Microsoft.Framework.Runtime": "1.0.0-beta5"
   },
   "commands": {
     "test": "xunit.runner.aspnet"

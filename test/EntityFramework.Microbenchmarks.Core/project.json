@@ -1,7 +1,7 @@
 {
     "dependencies": {
-        "Microsoft.Framework.Configuration.Json": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "Microsoft.Framework.Configuration.Json": "1.0.0-beta5",
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta5"
     },
     "commands": {
         "test": "xunit.runner.aspnet"
@@ -9,8 +9,8 @@
     "frameworks": {
         "dnxcore50": {
             "dependencies": {
-                "System.ComponentModel.Annotations": "4.0.10-beta-*",
-                "System.Net.NetworkInformation":  "4.0.10-beta-*"
+                "System.ComponentModel.Annotations": "4.0.10-beta-23019",
+                "System.Net.NetworkInformation":  "4.0.10-beta-23019"
             }
         },
         "dnx451": {

@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "EntityFramework.Core.FunctionalTests": "7.0.0-*"
+        "EntityFramework.Core.FunctionalTests": "7.0.0-beta5"
     },
     "commands": {
         "test": "xunit.runner.aspnet"

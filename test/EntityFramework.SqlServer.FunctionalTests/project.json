@@ -1,7 +1,7 @@
 {
     "dependencies": {
-        "EntityFramework.Relational.FunctionalTests": "7.0.0-*",
-        "EntityFramework.SqlServer": "7.0.0-*"
+        "EntityFramework.Relational.FunctionalTests": "7.0.0-beta5",
+        "EntityFramework.SqlServer": "7.0.0-beta5"
     },
     "commands": {
         "test": "xunit.runner.aspnet"

@@ -1,19 +1,19 @@
 {
-  "version": "7.0.0-*",
+  "version": "7.0.0-beta5",
   "description": "SQLite data store for Entity Framework.",
   "compilationOptions": {
     "warningsAsErrors": true
   },
   "dependencies": {
-    "EntityFramework.Relational": "7.0.0-*",
-    "Microsoft.Data.Sqlite": "1.0.0-*"
+    "EntityFramework.Relational": "7.0.0-beta5",
+    "Microsoft.Data.Sqlite": "1.0.0-beta5"
   },
   "compile": "..\\Shared\\*.cs",
   "frameworks": {
     "net45": { },
     "dotnet": {
       "dependencies": {
-        "System.IO.FileSystem": "4.0.0-*"
+        "System.IO.FileSystem": "4.0.0-beta-23019"
       }
     }
   }

@@ -1,9 +1,9 @@
 {
     "dependencies": {
-        "EntityFramework.Core.FunctionalTests": "7.0.0-*",
-        "EntityFramework.InMemory": "7.0.0-*",
+        "EntityFramework.Core.FunctionalTests": "7.0.0-beta5",
+        "EntityFramework.InMemory": "7.0.0-beta5",
         "Moq": "4.2.1312.1622",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta5"
     },
     "commands": {
         "test": "xunit.runner.aspnet"

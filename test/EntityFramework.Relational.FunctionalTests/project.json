@@ -1,16 +1,16 @@
 {
-    "version": "7.0.0-*",
+    "version": "7.0.0-beta5",
     "description": "Reusable EntityFramework.Relational functional tests for provider writers.",
     "dependencies": {
-        "EntityFramework.Core.FunctionalTests": "7.0.0-*",
-        "EntityFramework.Relational": "7.0.0-*"
+        "EntityFramework.Core.FunctionalTests": "7.0.0-beta5",
+        "EntityFramework.Relational": "7.0.0-beta5"
     },
     "frameworks": {
         "net45": { },
         "dnx451": { },
         "dnxcore50": {
             "dependencies": {
-                "System.Threading": "4.0.10-beta-*"
+                "System.Threading": "4.0.10-beta-23019"
             }
         }
     }

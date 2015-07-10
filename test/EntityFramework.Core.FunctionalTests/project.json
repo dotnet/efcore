@@ -1,8 +1,8 @@
 {
-  "version": "7.0.0-*",
+  "version": "7.0.0-beta5",
   "description": "Reusable EntityFramework.Core functional tests for provider writers.",
   "dependencies": {
-    "EntityFramework.InMemory": "7.0.0-*"
+    "EntityFramework.InMemory": "7.0.0-beta5"
   },
   "commands": {
     "test": "xunit.runner.aspnet"
@@ -20,7 +20,7 @@
     },
     "dnx451": {
       "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta5"
       },
       "frameworkAssemblies": {
         "WindowsBase": "4.0.0.0"
@@ -28,8 +28,8 @@
     },
     "dnxcore50": {
       "dependencies": {
-        "Microsoft.CSharp": "4.0.0-beta-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "Microsoft.CSharp": "4.0.0-beta-23019",
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta5"
       }
     }
   }
