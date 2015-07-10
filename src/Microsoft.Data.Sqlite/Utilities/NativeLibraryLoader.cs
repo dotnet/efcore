@@ -69,6 +69,11 @@ namespace Microsoft.Framework.Internal
             {
                 dllName += ".dll";
             }
+            
+            if (File.Exists(Path.Combine(applicationBase, dllName)))
+            {
+                return true;
+            }
 
             var dllPath = Path.Combine(applicationBase, GetArchitecture(), dllName);
 
