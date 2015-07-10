@@ -90,7 +90,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=StateManagerBug;Trusted_Connection=True;MultipleActiveResultSets=true");
+            var builder = SqlServerTestConfig.Instance.ConnectionStringBuilder;
+            builder.MultipleActiveResultSets = true;
+            builder["Database"] = "StateManagerBug";
+            builder["Trusted_Connection"] = true;
+            
+            optionsBuilder.UseSqlServer(builder.ConnectionString);
         }
     }
 }

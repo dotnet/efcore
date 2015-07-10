@@ -8,6 +8,7 @@ using Microsoft.Framework.Logging;
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     // Watch the log in PS with: "tail -f $env:userprofile\.klog\data-test.log"
+    // Watch the log in bash with: "tail -f ~/.klog/data-test.log"
     public class TestFileLogger : ILogger
     {
         public static readonly ILoggerFactory Factory = new TestFileLoggerFactory();
@@ -33,7 +34,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected TestFileLogger(string fileName = "data-test.log")
         {
             var logDirectory
-                = Path.Combine(Environment.ExpandEnvironmentVariables("%USERPROFILE%"), ".klog");
+                = Path.Combine(Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME"), ".klog");
 
             if (!Directory.Exists(logDirectory))
             {

@@ -12,6 +12,7 @@ namespace EntityFramework.Microbenchmarks.Core
         {
             var config = new ConfigurationBuilder(".")
                 .AddJsonFile("config.json")
+                .AddJsonFile("config.test.json", optional: true)
                 .AddEnvironmentVariables()
                 .Build();
 
