@@ -34,20 +34,31 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return entityTypeBuilder;
         }
 
-        public virtual InternalPropertyBuilder OnPropertyAdded([NotNull] InternalPropertyBuilder propertyBuilder)
+        public virtual InternalRelationshipBuilder OnForeignKeyAdded([NotNull] InternalRelationshipBuilder relationshipBuilder)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
 
-            foreach (var propertyConvention in _conventionSet.PropertyAddedConventions)
+            foreach (var relationshipConvention in _conventionSet.ForeignKeyAddedConventions)
             {
-                propertyBuilder = propertyConvention.Apply(propertyBuilder);
-                if (propertyBuilder == null)
+                relationshipBuilder = relationshipConvention.Apply(relationshipBuilder);
+                if (relationshipBuilder == null)
                 {
                     break;
                 }
             }
 
-            return propertyBuilder;
+            return relationshipBuilder;
+        }
+
+        public virtual void OnForeignKeyRemoved([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] ForeignKey foreignKey)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotNull(foreignKey, nameof(foreignKey));
+
+            foreach (var foreignKeyConvention in _conventionSet.ForeignKeyRemovedConventions)
+            {
+                foreignKeyConvention.Apply(entityTypeBuilder, foreignKey);
+            }
         }
 
         public virtual InternalKeyBuilder OnKeyAdded([NotNull] InternalKeyBuilder keyBuilder)
@@ -66,31 +77,20 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return keyBuilder;
         }
 
-        public virtual void OnForeignKeyRemoved([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] ForeignKey foreignKey)
+        public virtual InternalModelBuilder OnModelBuilt([NotNull] InternalModelBuilder modelBuilder)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
 
-            foreach (var foreignKeyConvention in _conventionSet.ForeignKeyRemovedConventions)
+            foreach (var modelConvention in _conventionSet.ModelBuiltConventions)
             {
-                foreignKeyConvention.Apply(entityTypeBuilder, foreignKey);
-            }
-        }
-
-        public virtual InternalRelationshipBuilder OnForeignKeyAdded([NotNull] InternalRelationshipBuilder relationshipBuilder)
-        {
-            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
-
-            foreach (var relationshipConvention in _conventionSet.ForeignKeyAddedConventions)
-            {
-                relationshipBuilder = relationshipConvention.Apply(relationshipBuilder);
-                if (relationshipBuilder == null)
+                modelBuilder = modelConvention.Apply(modelBuilder);
+                if (modelBuilder == null)
                 {
                     break;
                 }
             }
 
-            return relationshipBuilder;
+            return modelBuilder;
         }
 
         public virtual InternalModelBuilder OnModelInitialized([NotNull] InternalModelBuilder modelBuilder)
@@ -109,20 +109,37 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return modelBuilder;
         }
 
-        public virtual InternalModelBuilder OnModelBuilt([NotNull] InternalModelBuilder modelBuilder)
+        public virtual InternalRelationshipBuilder OnNavigationAdded([NotNull] InternalRelationshipBuilder relationshipBuilder, [NotNull] Navigation navigation)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
+            Check.NotNull(navigation, nameof(navigation));
 
-            foreach (var modelConvention in _conventionSet.ModelBuiltConventions)
+            foreach (var navigationConvention in _conventionSet.NavigationAddedConventions)
             {
-                modelBuilder = modelConvention.Apply(modelBuilder);
-                if (modelBuilder == null)
+                relationshipBuilder = navigationConvention.Apply(relationshipBuilder, navigation);
+                if (relationshipBuilder == null)
                 {
                     break;
                 }
             }
 
-            return modelBuilder;
+            return relationshipBuilder;
+        }
+
+        public virtual InternalPropertyBuilder OnPropertyAdded([NotNull] InternalPropertyBuilder propertyBuilder)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+
+            foreach (var propertyConvention in _conventionSet.PropertyAddedConventions)
+            {
+                propertyBuilder = propertyConvention.Apply(propertyBuilder);
+                if (propertyBuilder == null)
+                {
+                    break;
+                }
+            }
+
+            return propertyBuilder;
         }
     }
 }

@@ -148,7 +148,10 @@
     <Compile Include="DbContextOptionsBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\Conventions\ConventionSet.cs" />
+    <Compile Include="Metadata\Conventions\Internal\INavigationConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\NotMappedPropertyAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\NavigationAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\RequiredNavigationAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\TimestampAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\StringLengthAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\MaxLengthAttributeConvention.cs" />

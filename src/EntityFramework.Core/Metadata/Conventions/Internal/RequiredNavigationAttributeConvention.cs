@@ -1,0 +1,21 @@
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System.ComponentModel.DataAnnotations;
+using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Utilities;
+
+namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
+{
+    public class RequiredNavigationAttributeConvention : NavigationAttributeConvention<RequiredAttribute>
+    {
+        public override InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation, RequiredAttribute attribute)
+        {
+            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
+            Check.NotNull(navigation, nameof(navigation));
+            Check.NotNull(attribute, nameof(attribute));
+
+            return relationshipBuilder.Required(true, ConfigurationSource.DataAnnotation) ?? relationshipBuilder;
+        }
+    }
+}
