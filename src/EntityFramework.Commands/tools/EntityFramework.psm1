@@ -283,7 +283,15 @@ function Remove-Migration {
 Register-TabExpansion Reverse-Engineer @{
     Project = { GetProjects }
     StartupProject = { GetProjects }
-    Provider = { Get-Package | select -ExpandProperty Id }
+    Provider = {
+        param ($context)
+
+        $projectName = $context.Project
+        if (!($projectName)) {
+            $projectName = (Get-Project).ProjectName
+        }
+        return Get-Package -ProjectName $projectName | select -ExpandProperty Id
+    }
 }
 
 <#
