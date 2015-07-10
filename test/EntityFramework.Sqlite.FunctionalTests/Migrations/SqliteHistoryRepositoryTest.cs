@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Sqlite.Migrations;
 using Microsoft.Framework.Logging;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Sqlite.Metadata
+namespace Microsoft.Data.Entity.Sqlite.FunctionalTests.Migrations
 {
     public class SqliteHistoryRepositoryTest
     {
