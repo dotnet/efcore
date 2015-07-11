@@ -47,14 +47,14 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             Assert.False(relationshipBuilder.Metadata.IsRequired);
         }
 
-        //[Fact]
-        //public void RequiredAttribute_sets_is_required_with_conventional_builder()
-        //{
-        //    var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
-        //    var entityTypeBuilder = modelBuilder.Entity<BlogDetails>();
+        [Fact]
+        public void RequiredAttribute_sets_is_required_with_conventional_builder()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<BlogDetails>();
 
-        //    Assert.True(entityTypeBuilder.Metadata.GetForeignKeys().ToList()[0].IsRequired);
-        //}
+            Assert.True(entityTypeBuilder.Metadata.GetForeignKeys().ToList()[0].IsRequired);
+        }
 
         #endregion
 

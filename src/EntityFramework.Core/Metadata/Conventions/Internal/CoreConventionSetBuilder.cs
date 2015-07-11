@@ -34,6 +34,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             conventionSet.ModelBuiltConventions.Add(keyAttributeConvention);
 
+            conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention());
+
             return conventionSet;
         }
     }

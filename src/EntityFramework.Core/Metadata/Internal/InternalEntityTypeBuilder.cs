@@ -256,7 +256,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                    && (canOverrideSameSource || configurationSource != currentConfigurationSource);
         }
 
-        public virtual bool Navigation(
+        public virtual ForeignKey Navigation(
             [CanBeNull] string navigationName,
             [NotNull] ForeignKey foreignKey,
             bool pointsToPrincipal,
@@ -270,7 +270,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 canOverrideSameSource: true);
         }
 
-        private bool Navigation(
+        private ForeignKey Navigation(
             [CanBeNull] string navigationName,
             [NotNull] ForeignKey foreignKey,
             bool pointsToPrincipal,
@@ -288,12 +288,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (navigationName == existingNavigation?.Name)
             {
                 fkOwner._relationshipBuilders.Value.UpdateConfigurationSource(foreignKey, configurationSource);
-                return true;
+                return foreignKey;
             }
 
             if (!CanSetNavigation(navigationName, foreignKey, configurationSource, canOverrideSameSource))
             {
-                return false;
+                return null;
             }
 
             var removedNavigation = existingNavigation?.DeclaringEntityType.RemoveNavigation(existingNavigation);
@@ -318,11 +318,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 fkOwner._relationshipBuilders.Value.UpdateConfigurationSource(foreignKey, configurationSource);
-                Metadata.AddNavigation(navigationName, foreignKey, pointsToPrincipal);
-                return true;
+                navigation = Metadata.AddNavigation(navigationName, foreignKey, pointsToPrincipal);
+                var builder = ModelBuilder.ConventionDispatcher.OnNavigationAdded(Relationship(foreignKey, true, configurationSource), navigation);
+                return builder.Metadata ?? foreignKey;
             }
 
-            return true;
+            return foreignKey;
         }
 
         private bool CanSetNavigation(
@@ -386,7 +387,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var navigation = Metadata.FindNavigation(propertyName);
             if (navigation != null)
             {
-                if (!Navigation(null, navigation.ForeignKey, navigation.PointsToPrincipal(), configurationSource, canOverrideSameSource: false))
+                if (Navigation(null, navigation.ForeignKey, navigation.PointsToPrincipal(), configurationSource, canOverrideSameSource: false) == null)
                 {
                     if (configurationSource == ConfigurationSource.Explicit)
                     {
@@ -909,13 +910,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var builder = Relationship(foreignKey, existingForeignKey, configurationSource);
             Debug.Assert(builder != null);
 
-            var navigationToPrincipalSet = dependentEntityTypeBuilder
-                .Navigation(navigationToPrincipalName, foreignKey, pointsToPrincipal: true, configurationSource: configurationSource);
-            Debug.Assert(navigationToPrincipalSet);
+            foreignKey = dependentEntityTypeBuilder
+                .Navigation(navigationToPrincipalName, foreignKey, pointsToPrincipal: true, configurationSource: configurationSource) ?? foreignKey;
+            Debug.Assert(foreignKey != null);
 
-            var navigationToDependentSet = principalEntityTypeBuilder
-                .Navigation(navigationToDependentName, foreignKey, pointsToPrincipal: false, configurationSource: configurationSource);
-            Debug.Assert(navigationToDependentSet);
+            foreignKey = principalEntityTypeBuilder
+                .Navigation(navigationToDependentName, foreignKey, pointsToPrincipal: false, configurationSource: configurationSource) ?? foreignKey;
+            Debug.Assert(foreignKey != null);
+
+            builder = dependentEntityTypeBuilder._relationshipBuilders.Value.TryGetValue(foreignKey, configurationSource);
+            Debug.Assert(builder != null);
 
             if (onRelationshipAdding != null)
             {
