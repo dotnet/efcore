@@ -52,17 +52,49 @@ namespace Microsoft.Data.Entity.Commands
             [NotNull] string projectDir,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(runtimeProviderAssemblyName, nameof(runtimeProviderAssemblyName));
+            Check.NotEmpty(runtimeProviderAssemblyName, nameof(runtimeProviderAssemblyName));
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
             Check.NotEmpty(projectDir, nameof(projectDir));
+
+            var designTimeProvider = GetDesignTimeProvider(runtimeProviderAssemblyName);
+
+            var configuration = new ReverseEngineeringConfiguration
+            {
+                Provider = designTimeProvider,
+                ConnectionString = connectionString,
+                Namespace = rootNamespace,
+                CustomTemplatePath = projectDir,
+                OutputPath = projectDir
+            };
+
+            var generator = new ReverseEngineeringGenerator(_serviceProvider);
+            return generator.GenerateAsync(configuration, cancellationToken);
+        }
+
+        public virtual IReadOnlyList<string> CustomizeReverseEngineer(
+            [NotNull] string runtimeProviderAssemblyName,
+            [NotNull] string projectDir)
+        {
+            Check.NotEmpty(runtimeProviderAssemblyName, nameof(runtimeProviderAssemblyName));
+            Check.NotEmpty(projectDir, nameof(projectDir));
+
+            var designTimeProvider = GetDesignTimeProvider(runtimeProviderAssemblyName);
+            var generator = new ReverseEngineeringGenerator(_serviceProvider);
+            return generator.Customize(designTimeProvider, projectDir);
+        }
+
+        public virtual IDatabaseMetadataModelProvider GetDesignTimeProvider(
+            [NotNull] string runtimeProviderAssemblyName)
+        {
+            Check.NotEmpty(runtimeProviderAssemblyName, nameof(runtimeProviderAssemblyName));
 
             Assembly runtimeProviderAssembly = null;
             try
             {
                 runtimeProviderAssembly = Assembly.Load(new AssemblyName(runtimeProviderAssemblyName));
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 throw new InvalidOperationException(
                     Strings.CannotFindRuntimeProviderAssembly(runtimeProviderAssemblyName), exception);
@@ -81,45 +113,25 @@ namespace Microsoft.Data.Entity.Commands
             var designTimeAssemblyName =
                 designTimeServicesTypeAttribute.AssemblyName ?? runtimeProviderAssemblyName;
 
-            var designTimeProvider = GetDesignTimeProvider(designTimeTypeName, designTimeAssemblyName);
-
-            var configuration = new ReverseEngineeringConfiguration
-            {
-                Provider = designTimeProvider,
-                ConnectionString = connectionString,
-                Namespace = rootNamespace,
-                OutputPath = projectDir
-            };
-
-            var generator = new ReverseEngineeringGenerator(_serviceProvider);
-            return generator.GenerateAsync(configuration, cancellationToken);
-        }
-
-        public virtual IDatabaseMetadataModelProvider GetDesignTimeProvider(
-            [NotNull] string providerTypeFullName, [NotNull] string providerAssemblyName)
-        {
-            Check.NotNull(providerTypeFullName, nameof(providerTypeFullName));
-            Check.NotNull(providerAssemblyName, nameof(providerAssemblyName));
-
             Assembly designTimeProviderAssembly = null;
             try
             {
-                designTimeProviderAssembly = Assembly.Load(new AssemblyName(providerAssemblyName));
+                designTimeProviderAssembly = Assembly.Load(new AssemblyName(designTimeAssemblyName));
             }
             catch (Exception exception)
             {
                 throw new InvalidOperationException(
-                    Strings.CannotFindDesignTimeProviderAssembly(providerAssemblyName), exception);
+                    Strings.CannotFindDesignTimeProviderAssembly(designTimeAssemblyName), exception);
             }
 
             var designTimeMetadataProviderFactoryType =
-                designTimeProviderAssembly.GetType(providerTypeFullName);
+                designTimeProviderAssembly.GetType(designTimeTypeName);
             if (designTimeMetadataProviderFactoryType == null)
             {
                 throw new InvalidOperationException(
                     Strings.DesignTimeAssemblyProviderDoesNotContainSpecifiedType(
                         designTimeProviderAssembly.FullName,
-                        providerTypeFullName));
+                        designTimeTypeName));
             }
 
             var designTimeMetadataProviderFactory =

@@ -19,6 +19,18 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             return _nameToContentMap.TryGetValue(directoryName, out filesMap);
         }
 
+        public virtual bool FileExists(string directoryName, string fileName)
+        {
+            Dictionary<string, string> filesMap;
+            if (!_nameToContentMap.TryGetValue(directoryName, out filesMap))
+            {
+                return false;
+            }
+
+            string _;
+            return filesMap.TryGetValue(fileName, out _);
+        }
+
         public virtual bool IsFileReadOnly(string outputDirectoryName, string outputFileName)
         {
             return false;
