@@ -1,8 +1,11 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
@@ -11,15 +14,87 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 {
     public class NavigationAttributeConventionTest
     {
+        #region NotMappedAttribute
+
+        [Fact]
+        public void NotMappedAttribute_overrides_configuration_from_convention_source()
+        {
+            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
+            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention);
+
+            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+                principalEntityTypeBuilder,
+                dependentEntityTypeBuilder,
+                "Blog",
+                "BlogDetails",
+                dependentEntityTypeBuilder.GetOrCreateProperties(new List<PropertyInfo> { BlogDetails.BlogIdProperty }, ConfigurationSource.Convention),
+                null,
+                ConfigurationSource.Convention,
+                isUnique: true);
+
+            var navigation = principalEntityTypeBuilder.Metadata.FindNavigation("BlogDetails");
+
+            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
+
+            new NotMappedNavigationAttributeConvention().Apply(relationshipBuilder, navigation);
+
+            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
+        }
+
+        [Fact]
+        public void NotMappedAttribute_does_not_override_configuration_from_explicit_source()
+        {
+            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
+            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention);
+
+            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+                principalEntityTypeBuilder,
+                dependentEntityTypeBuilder,
+                "Blog",
+                "BlogDetails",
+                dependentEntityTypeBuilder.GetOrCreateProperties(new List<PropertyInfo> { BlogDetails.BlogIdProperty }, ConfigurationSource.Convention),
+                null,
+                ConfigurationSource.Explicit,
+                isUnique: true);
+
+            var navigation = principalEntityTypeBuilder.Metadata.FindNavigation("BlogDetails");
+
+            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
+
+            new NotMappedNavigationAttributeConvention().Apply(relationshipBuilder, navigation);
+
+            Assert.Contains(principalEntityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
+        }
+
+        [Fact]
+        public void NotMappedAttribute_ignores_navigation_with_conventional_builder()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<Blog>();
+
+            Assert.DoesNotContain(entityTypeBuilder.Metadata.Navigations, nav => nav.Name == "BlogDetails");
+        }
+
+        #endregion
+
         #region RequiredAttribute
 
         [Fact]
         public void RequiredAttribute_overrides_configuration_from_convention_source()
         {
-            var entityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
+            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
 
-            var relationshipBuilder = entityTypeBuilder.ForeignKey(typeof(Blog), entityTypeBuilder.Metadata.ClrType.GetProperties().Where(p => p.Name == "BlogId").ToList(), ConfigurationSource.Convention);
-            var navigation = entityTypeBuilder.Metadata.FindNavigation("Blog");
+            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention),
+                dependentEntityTypeBuilder,
+                "Blog",
+                "BlogDetails",
+                dependentEntityTypeBuilder.GetOrCreateProperties(new List<PropertyInfo> { BlogDetails.BlogIdProperty }, ConfigurationSource.Convention),
+                null,
+                ConfigurationSource.Convention,
+                isUnique: true);
+
+            var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation("Blog");
 
             relationshipBuilder.Required(false, ConfigurationSource.Convention);
 
@@ -33,10 +108,19 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void RequiredAttribute_does_not_override_configuration_from_explicit_source()
         {
-            var entityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
+            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
 
-            var relationshipBuilder = entityTypeBuilder.ForeignKey(typeof(Blog), entityTypeBuilder.Metadata.ClrType.GetProperties().Where(p => p.Name == "BlogId").ToList(), ConfigurationSource.Convention);
-            var navigation = entityTypeBuilder.Metadata.FindNavigation("Blog");
+            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention),
+                dependentEntityTypeBuilder,
+                "Blog",
+                "BlogDetails",
+                dependentEntityTypeBuilder.GetOrCreateProperties(new List<PropertyInfo> { BlogDetails.BlogIdProperty }, ConfigurationSource.Convention),
+                null,
+                ConfigurationSource.Convention,
+                isUnique: true);
+
+            var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation("Blog");
 
             relationshipBuilder.Required(false, ConfigurationSource.Explicit);
 
@@ -53,7 +137,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             var entityTypeBuilder = modelBuilder.Entity<BlogDetails>();
 
-            Assert.True(entityTypeBuilder.Metadata.GetForeignKeys().ToList()[0].IsRequired);
+            Assert.True(entityTypeBuilder.Metadata.GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog)).IsRequired);
         }
 
         #endregion
@@ -63,7 +147,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var conventionSet = new ConventionSet();
             conventionSet.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention());
             conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention());
-            conventionSet.EntityTypeAddedConventions.Add(new RelationshipDiscoveryConvention());
 
             var modelBuilder = new InternalModelBuilder(new Model(), conventionSet);
 
@@ -74,11 +157,14 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         {
             public int Id { get; set; }
 
+            [NotMapped]
             public virtual BlogDetails BlogDetails { get; set; }
         }
 
         public class BlogDetails
         {
+            public static readonly PropertyInfo BlogIdProperty = typeof(BlogDetails).GetProperty("BlogId");
+
             public int Id { get; set; }
 
             public int? BlogId { get; set; }
