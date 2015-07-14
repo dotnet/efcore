@@ -156,14 +156,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
             relationshipBuilder = relationshipBuilder.Required(true, ConfigurationSource.Convention);
             Assert.NotNull(relationshipBuilder);
             Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
-            Assert.False(customerIdProperty.IsNullable.Value);
+            Assert.Null(customerIdProperty.IsNullable);
             Assert.False(customerUniqueProperty.IsNullable.Value);
 
             relationshipBuilder = relationshipBuilder.Required(false, ConfigurationSource.Explicit);
             Assert.NotNull(relationshipBuilder);
             fk = relationshipBuilder.Metadata;
             Assert.False(fk.IsRequired);
-            Assert.False(customerIdProperty.IsNullable.Value);
+            Assert.Null(customerIdProperty.IsNullable);
             Assert.False(customerUniqueProperty.IsNullable.Value);
             Assert.True(fk.Properties[0].IsNullable);
             Assert.True(fk.Properties[1].IsNullable);
