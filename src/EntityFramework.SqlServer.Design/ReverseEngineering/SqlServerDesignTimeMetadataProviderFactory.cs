@@ -1,20 +1,25 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
-    public class SqlServerDesignTimeMetadataProviderFactory : IDesignTimeMetadataProviderFactory
+    public class SqlServerDesignTimeMetadataProviderFactory : DesignTimeMetadataProviderFactory
     {
-        public virtual IDatabaseMetadataModelProvider Create([NotNull] IServiceProvider serviceProvider)
+        public override IDatabaseMetadataModelProvider Create([NotNull] ServiceCollection serviceCollection)
         {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
+            Check.NotNull(serviceCollection, nameof(serviceCollection));
 
-            return new SqlServerMetadataModelProvider(serviceProvider);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var logger = serviceProvider.GetRequiredService<ILogger>();
+            var modelUtilities = serviceProvider.GetRequiredService<ModelUtilities>();
+            return new SqlServerMetadataModelProvider(logger, modelUtilities);
         }
     }
 }

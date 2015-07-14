@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -9,16 +8,16 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.Data.Entity.Commands.Utilities;
-using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.Utilities;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
-using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
+using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
 using Xunit;
 using Xunit.Abstractions;
 #if DNX451 || DNXCORE50
+using System;
+using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Infrastructure;
 #endif
 
@@ -78,16 +77,24 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 #endif
-            var serviceProvider = SetupServiceProvider();
+#if DNX451 || DNXCORE50
+            // provides ILibraryManager etc services
+            var serviceCollection = SetupInitialServices(CallContextServiceLocator.Locator.ServiceProvider);
+#else
+            var serviceCollection = new ServiceCollection();
+#endif
+
             var logger = new InMemoryCommandLogger("E2ETest");
-            serviceProvider.AddService(typeof(ILogger), logger);
+            serviceCollection.AddTransient(typeof(ILogger), sp => logger);
             var fileService = new InMemoryFileService();
-            serviceProvider.AddService(typeof(IFileService), fileService);
+            serviceCollection.AddTransient(typeof(IFileService), sp => fileService);
 
             var designTimeAssembly = Assembly.Load(new AssemblyName("EntityFramework.SqlServer.Design"));
             var type = designTimeAssembly.GetExportedTypes()
                 .First(t => t.FullName == "Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.SqlServerMetadataModelProvider");
-            var provider = (IDatabaseMetadataModelProvider)Activator.CreateInstance(type, serviceProvider);
+            var designTimeMetadataProviderFactory = new SqlServerDesignTimeMetadataProviderFactory();
+            designTimeMetadataProviderFactory.AddMetadataProviderServices(serviceCollection);
+            var provider = designTimeMetadataProviderFactory.Create(serviceCollection);
 
             var configuration = new ReverseEngineeringConfiguration
             {
@@ -99,7 +106,8 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
 
             var expectedFileContents = InitializeExpectedFileContents();
 
-            var generator = new ReverseEngineeringGenerator(serviceProvider);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
             var filePaths = generator.GenerateAsync(configuration).Result;
 
             Assert.Equal(_E2ETestExpectedWarnings.Count, logger.WarningMessages.Count);
@@ -150,24 +158,22 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             }
         }
 
-        private ServiceProvider SetupServiceProvider()
-        {
 #if DNX451 || DNXCORE50
-            // provides ILibraryManager etc services
-            var serviceProvider = new ServiceProvider(
-                CallContextServiceLocator.Locator.ServiceProvider);
-#else
-            var serviceProvider = new ServiceProvider(null);
-#endif
-            serviceProvider.AddService(typeof(CSharpCodeGeneratorHelper), new CSharpCodeGeneratorHelper());
-            serviceProvider.AddService(typeof(ModelUtilities), new ModelUtilities());
-            var metadataReferencesProvider = new MetadataReferencesProvider(serviceProvider);
-            serviceProvider.AddService(typeof(MetadataReferencesProvider), metadataReferencesProvider);
-            var compilationService = new RoslynCompilationService();
-            serviceProvider.AddService(typeof(ITemplating), new RazorTemplating(compilationService, metadataReferencesProvider));
-
-            return serviceProvider;
+        private ServiceCollection SetupInitialServices(IServiceProvider serviceProvider)
+        {
+            var serviceCollection = new ServiceCollection();
+            var manifest = serviceProvider.GetRequiredService<IServiceManifest>();
+            if (manifest != null)
+            {
+                foreach (var service in manifest.Services)
+                {
+                    serviceCollection.AddTransient(
+                        service, sp => serviceProvider.GetService(service));
+                }
+            }
+            return serviceCollection;
         }
+#endif
 
         private Dictionary<string, string> InitializeExpectedFileContents()
         {

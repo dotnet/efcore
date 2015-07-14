@@ -8,22 +8,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.Templating;
-using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
-using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
+#if DNX451 || DNXCORE50
+using Microsoft.Framework.Runtime;
+#endif
 
 namespace Microsoft.Data.Entity.Commands
 {
     public class DatabaseTool
     {
         private readonly ServiceProvider _serviceProvider;
-        private readonly LazyRef<ILogger> _logger;
+        private readonly ILoggerProvider _loggerProvider;
 
         public DatabaseTool(
             [CanBeNull] IServiceProvider serviceProvider,
@@ -32,17 +31,7 @@ namespace Microsoft.Data.Entity.Commands
             Check.NotNull(loggerProvider, nameof(loggerProvider));
 
             _serviceProvider = new ServiceProvider(serviceProvider);
-            var loggerFactory = new LoggerFactory();
-            loggerFactory.AddProvider(loggerProvider);
-            _logger = new LazyRef<ILogger>(() => loggerFactory.CreateLogger<DatabaseTool>());
-            _serviceProvider.AddService(typeof(ILogger), _logger.Value);
-            _serviceProvider.AddService(typeof(IFileService), new FileSystemFileService());
-            _serviceProvider.AddService(typeof(CSharpCodeGeneratorHelper), new CSharpCodeGeneratorHelper());
-            _serviceProvider.AddService(typeof(ModelUtilities), new ModelUtilities());
-            var metadataReferencesProvider = new MetadataReferencesProvider(_serviceProvider);
-            _serviceProvider.AddService(typeof(MetadataReferencesProvider), metadataReferencesProvider);
-            var compilationService = new RoslynCompilationService();
-            _serviceProvider.AddService(typeof(ITemplating), new RazorTemplating(compilationService, metadataReferencesProvider));
+            _loggerProvider = loggerProvider;
         }
 
         public virtual Task<IReadOnlyList<string>> ReverseEngineerAsync(
@@ -81,7 +70,12 @@ namespace Microsoft.Data.Entity.Commands
             var designTimeAssemblyName =
                 designTimeServicesTypeAttribute.AssemblyName ?? runtimeProviderAssemblyName;
 
-            var designTimeProvider = GetDesignTimeProvider(designTimeTypeName, designTimeAssemblyName);
+            var designTimeMetadataProviderFactory =
+                GetDesignTimeMetadataProviderFactory(designTimeTypeName, designTimeAssemblyName);
+            var serviceCollection = SetupInitialServices();
+            designTimeMetadataProviderFactory.AddMetadataProviderServices(serviceCollection);
+            designTimeMetadataProviderFactory.Create(serviceCollection);
+            var designTimeProvider = designTimeMetadataProviderFactory.Create(serviceCollection);
 
             var configuration = new ReverseEngineeringConfiguration
             {
@@ -91,11 +85,11 @@ namespace Microsoft.Data.Entity.Commands
                 OutputPath = projectDir
             };
 
-            var generator = new ReverseEngineeringGenerator(_serviceProvider);
+            var generator = serviceCollection.BuildServiceProvider().GetRequiredService<ReverseEngineeringGenerator>();
             return generator.GenerateAsync(configuration, cancellationToken);
         }
 
-        public virtual IDatabaseMetadataModelProvider GetDesignTimeProvider(
+        public virtual IDesignTimeMetadataProviderFactory GetDesignTimeMetadataProviderFactory(
             [NotNull] string providerTypeFullName, [NotNull] string providerAssemblyName)
         {
             Check.NotNull(providerTypeFullName, nameof(providerTypeFullName));
@@ -122,10 +116,32 @@ namespace Microsoft.Data.Entity.Commands
                         providerTypeFullName));
             }
 
-            var designTimeMetadataProviderFactory =
-                (IDesignTimeMetadataProviderFactory)Activator
+            return (IDesignTimeMetadataProviderFactory)Activator
                     .CreateInstance(designTimeMetadataProviderFactoryType);
-            return designTimeMetadataProviderFactory.Create(_serviceProvider);
+        }
+
+        private ServiceCollection SetupInitialServices()
+        {
+            var serviceCollection = new ServiceCollection();
+#if DNX451 || DNXCORE50
+            var manifest = _serviceProvider.GetRequiredService<IServiceManifest>();
+            if (manifest != null)
+            {
+                foreach (var service in manifest.Services)
+                {
+                    serviceCollection.AddTransient(
+                        service, sp => _serviceProvider.GetService(service));
+                }
+            }
+#endif
+
+            var loggerFactory = new LoggerFactory();
+            loggerFactory.AddProvider(_loggerProvider);
+            var logger = loggerFactory.CreateLogger<DatabaseTool>();
+            serviceCollection.AddTransient(typeof(ILogger), sp => logger);
+            serviceCollection.AddTransient<IFileService, FileSystemFileService>();
+
+            return serviceCollection;
         }
     }
 }
