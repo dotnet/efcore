@@ -20,7 +20,8 @@ namespace EntityFramework.Microbenchmarks.Core
                 RunIterations = bool.Parse(config.Get("benchmarks:runIterations")),
                 ResultsDatabase = config.Get("benchmarks:resultsDatabase"),
                 BenchmarkDatabaseInstance = config.Get("benchmarks:benchmarkDatabaseInstance"),
-                ProductReportingVersion = config.Get("benchmarks:productReportingVersion")
+                ProductReportingVersion = config.Get("benchmarks:productReportingVersion"),
+                CustomData = config.Get("benchmarks:customData")
             };
         });
 
@@ -36,5 +37,6 @@ namespace EntityFramework.Microbenchmarks.Core
         public string ResultsDatabase { get; private set; }
         public string BenchmarkDatabaseInstance { get; private set; }
         public string ProductReportingVersion { get; private set; }
+        public string CustomData { get; private set; }
     }
 }

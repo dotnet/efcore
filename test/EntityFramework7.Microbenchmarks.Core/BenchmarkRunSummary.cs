@@ -20,7 +20,7 @@ namespace EntityFramework.Microbenchmarks.Core
         public string MachineName { get; set; }
         public string ProductReportingVersion { get; set; }
         public string Framework { get; set; }
-        public string ExtraInfo { get; set; }
+        public string CustomData { get; set; }
         public DateTime RunStarted { get; set; }
         public int WarmupIterations { get; set; }
         public int Iterations { get; set; }

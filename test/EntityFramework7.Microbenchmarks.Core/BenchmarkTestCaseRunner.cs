@@ -76,7 +76,8 @@ namespace EntityFramework.Microbenchmarks.Core
                 MachineName = _machineName.Value,
                 Framework = _framwork.Value,
                 WarmupIterations = TestCase.WarmupIterations,
-                Iterations = TestCase.Iterations
+                Iterations = TestCase.Iterations,
+                CustomData = BenchmarkConfig.Instance.CustomData
             };
 
             for (int i = 0; i < TestCase.WarmupIterations; i++)
