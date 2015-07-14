@@ -51,8 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 return exists;
             }
 
-            var command = (SqlCommand)_connection.DbConnection.CreateCommand();
-            command.CommandText = "SELECT OBJECT_ID(N'dbo." + MigrationHistoryTableName + "');";
+            var command = ExistsCommand();
 
             _connection.Open();
             try
@@ -76,8 +75,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 return exists;
             }
 
-            var command = (SqlCommand)_connection.DbConnection.CreateCommand();
-            command.CommandText = "SELECT OBJECT_ID(N'dbo." + MigrationHistoryTableName + "');";
+            var command = ExistsCommand();
 
             await _connection.OpenAsync();
             try
@@ -104,18 +102,43 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             _connection.Open();
             try
             {
-                var command = (SqlCommand)_connection.DbConnection.CreateCommand();
-                command.CommandText =
-                    @"SELECT [MigrationId], [ProductVersion]
-FROM [dbo].[" + MigrationHistoryTableName + @"]
-WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
-                command.Parameters.AddWithValue("@ContextKey", _contextType.FullName);
+                var command = GetAppliedMigrationsCommand();
 
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        rows.Add(new HistoryRow(reader.GetString(0), reader.GetString(1)));
+                        rows.Add(MapHistoryRow(reader));
+                    }
+                }
+            }
+            finally
+            {
+                _connection.Close();
+            }
+
+            return rows;
+        }
+
+        public async Task<IReadOnlyList<IHistoryRow>> GetAppliedMigrationsAsync()
+        {
+            var rows = new List<HistoryRow>();
+
+            if (!await ExistsAsync())
+            {
+                return rows;
+            }
+
+            await _connection.OpenAsync();
+            try
+            {
+                var command = GetAppliedMigrationsCommand();
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        rows.Add(MapHistoryRow(reader));
                     }
                 }
             }
@@ -150,41 +173,6 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
             builder.Append(");");
 
             return builder.ToString();
-        }
-
-        public async Task<IReadOnlyList<IHistoryRow>> GetAppliedMigrationsAsync()
-        {
-            var rows = new List<HistoryRow>();
-
-            if (!await ExistsAsync())
-            {
-                return rows;
-            }
-
-            await _connection.OpenAsync();
-            try
-            {
-                var command = (SqlCommand)_connection.DbConnection.CreateCommand();
-                command.CommandText =
-                    @"SELECT [MigrationId], [ProductVersion]
-FROM [dbo].[" + MigrationHistoryTableName + @"]
-WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
-                command.Parameters.AddWithValue("@ContextKey", _contextType.FullName);
-
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
-                    {
-                        rows.Add(new HistoryRow(reader.GetString(0), reader.GetString(1)));
-                    }
-                }
-            }
-            finally
-            {
-                _connection.Close();
-            }
-
-            return rows;
         }
 
         public virtual MigrationOperation GetDeleteOperation(string migrationId)
@@ -245,5 +233,25 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
         {
             return "END";
         }
+
+        protected virtual SqlCommand ExistsCommand()
+        {
+            var command = (SqlCommand)_connection.DbConnection.CreateCommand();
+            command.CommandText = "SELECT OBJECT_ID(N'dbo." + MigrationHistoryTableName + "');";
+            return command;
+        }
+
+        protected virtual SqlCommand GetAppliedMigrationsCommand()
+        {
+            var command = (SqlCommand)_connection.DbConnection.CreateCommand();
+            command.CommandText =
+                @"SELECT [MigrationId], [ProductVersion]
+FROM [dbo].[" + MigrationHistoryTableName + @"]
+WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
+            command.Parameters.AddWithValue("@ContextKey", _contextType.FullName);
+            return command;
+        }
+
+        protected virtual HistoryRow MapHistoryRow(SqlDataReader reader) => new HistoryRow(reader.GetString(0), reader.GetString(1));
     }
 }

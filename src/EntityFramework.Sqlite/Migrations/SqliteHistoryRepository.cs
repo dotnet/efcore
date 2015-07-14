@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
@@ -84,9 +85,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                 }
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"SELECT 1 FROM sqlite_master WHERE type = 'table'" +
-                                          $" AND tbl_name = '{_sql.EscapeLiteral(MigrationTableName)}'" +
-                                          $" AND rootpage IS NOT NULL;";
+                    PopulateExistsCommandText(command);
                     var result = await command.ExecuteScalarAsync();
                     return result != null && (long)result == 1;
                 }
@@ -103,9 +102,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                 }
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"SELECT 1 FROM sqlite_master WHERE type = 'table'" +
-                                          $" AND tbl_name = '{_sql.EscapeLiteral(MigrationTableName)}'" +
-                                          $" AND rootpage IS NOT NULL;";
+                    PopulateExistsCommandText(command);
                     var result = command.ExecuteScalar();
                     return result != null && (long)result == 1;
                 }
@@ -128,15 +125,13 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                     await connection.OpenAsync();
                 }
                 var command = connection.CreateCommand();
-                command.CommandText = $"SELECT MigrationId, ProductVersion FROM {_sql.DelimitIdentifier(MigrationTableName)} " +
-                                      $"WHERE ContextKey = '{_sql.EscapeLiteral(_contextKey)}' ORDER BY MigrationId;";
+                PopulateGetAppliedMigrationsCommandText(command);
 
                 using (var reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
-                        var row = new HistoryRow(reader.GetString(0), reader.GetString(1));
-                        migrations.Add(row);
+                        migrations.Add(MapHistoryRow(reader));
                     }
                 }
             }
@@ -160,15 +155,13 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                     connection.Open();
                 }
                 var command = connection.CreateCommand();
-                command.CommandText = $"SELECT MigrationId, ProductVersion FROM {_sql.DelimitIdentifier(MigrationTableName)} " +
-                                      $"WHERE ContextKey = '{_sql.EscapeLiteral(_contextKey)}' ORDER BY MigrationId;";
+                PopulateGetAppliedMigrationsCommandText(command);
 
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        var row = new HistoryRow(reader.GetString(0), reader.GetString(1));
-                        migrations.Add(row);
+                        migrations.Add(MapHistoryRow(reader));
                     }
                 }
             }
@@ -192,5 +185,20 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                 .Append(");")
                 .ToString()
         };
+
+        protected virtual void PopulateExistsCommandText(DbCommand command)
+        {
+            command.CommandText = $"SELECT 1 FROM sqlite_master WHERE type = 'table'" +
+                                  $" AND tbl_name = '{_sql.EscapeLiteral(MigrationTableName)}'" +
+                                  $" AND rootpage IS NOT NULL;";
+        }
+
+        protected virtual void PopulateGetAppliedMigrationsCommandText(DbCommand command)
+        {
+            command.CommandText = $"SELECT MigrationId, ProductVersion FROM {_sql.DelimitIdentifier(MigrationTableName)} " +
+                                  $"WHERE ContextKey = '{_sql.EscapeLiteral(_contextKey)}' ORDER BY MigrationId;";
+        }
+
+        protected virtual HistoryRow MapHistoryRow(DbDataReader reader) => new HistoryRow(reader.GetString(0), reader.GetString(1));
     }
 }

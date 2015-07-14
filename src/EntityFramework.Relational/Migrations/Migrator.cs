@@ -100,74 +100,16 @@ namespace Microsoft.Data.Entity.Migrations
             var connection = _connection.DbConnection;
             _logger.Value.LogVerbose(Strings.UsingConnection(connection.Database, connection.DataSource));
 
-            var migrations = _migrationAssembly.Migrations;
             var appliedMigrationEntries = await _historyRepository.GetAppliedMigrationsAsync();
+            var migrations = _migrationAssembly.Migrations;
+            var migrationToExecute = GetMigrationToExecute(targetMigration, migrations, appliedMigrationEntries);
 
-            var appliedMigrations = new List<Migration>();
-            var unappliedMigrations = new List<Migration>();
-            foreach (var migraion in migrations)
+            for (int index = 0; index < migrationToExecute.Count; index++)
             {
-                if (appliedMigrationEntries.Any(
-                    e => string.Equals(e.MigrationId, migraion.Id, StringComparison.OrdinalIgnoreCase)))
-                {
-                    appliedMigrations.Add(migraion);
-                }
-                else
-                {
-                    unappliedMigrations.Add(migraion);
-                }
-            }
+                var migration = migrationToExecute[index];
+                var batches = GetSqlBatches(migration, index, migrations);
 
-            IEnumerable<Migration> migrationsToApply;
-            IEnumerable<Migration> migrationsToRevert;
-            if (string.IsNullOrEmpty(targetMigration))
-            {
-                migrationsToApply = unappliedMigrations;
-                migrationsToRevert = Enumerable.Empty<Migration>();
-            }
-            else if (targetMigration == InitialDatabase)
-            {
-                migrationsToApply = Enumerable.Empty<Migration>();
-                migrationsToRevert = appliedMigrations;
-            }
-            else
-            {
-                targetMigration = _idGenerator.ResolveId(targetMigration, migrations);
-                migrationsToApply = unappliedMigrations
-                    .Where(m => string.Compare(m.Id, targetMigration, StringComparison.OrdinalIgnoreCase) <= 0);
-                migrationsToRevert = appliedMigrations
-                    .Where(m => string.Compare(m.Id, targetMigration, StringComparison.OrdinalIgnoreCase) > 0)
-                    .OrderByDescending(m => m.Id);
-            }
-
-            bool first;
-            var checkFirst = true;
-            foreach (var migration in migrationsToApply)
-            {
-                var batches = ApplyMigration(migration).ToList();
-
-                first = false;
-                if (checkFirst)
-                {
-                    first = migration == migrations[0];
-                    if (first && !_historyRepository.Exists())
-                    {
-                        batches.Insert(0, new SqlBatch(_historyRepository.Create(ifNotExists: false)));
-                    }
-
-                    checkFirst = false;
-                }
-
-                _logger.Value.LogInformation(Strings.ApplyingMigration(migration.Id));
-
-                await ExecuteAsync(batches, first);
-            }
-
-            foreach (var migration in migrationsToRevert)
-            {
-                _logger.Value.LogInformation(Strings.RevertingMigration(migration.Id));
-
-                await ExecuteAsync(RevertMigration(migration));
+                await ExecuteAsync(batches, migration.Migration == migrations[0]);
             }
         }
 
@@ -176,75 +118,16 @@ namespace Microsoft.Data.Entity.Migrations
             var connection = _connection.DbConnection;
             _logger.Value.LogVerbose(Strings.UsingConnection(connection.Database, connection.DataSource));
 
-            var migrations = _migrationAssembly.Migrations;
             var appliedMigrationEntries = _historyRepository.GetAppliedMigrations();
+            var migrations = _migrationAssembly.Migrations;
+            var migrationToExecute = GetMigrationToExecute(targetMigration, migrations, appliedMigrationEntries);
 
-            var appliedMigrations = new List<Migration>();
-            var unappliedMigrations = new List<Migration>();
-            foreach (var migraion in migrations)
+            for (int index = 0; index < migrationToExecute.Count; index++)
             {
-                if (appliedMigrationEntries.Any(
-                    e => string.Equals(e.MigrationId, migraion.Id, StringComparison.OrdinalIgnoreCase)))
-                {
-                    appliedMigrations.Add(migraion);
-                }
-                else
-                {
-                    unappliedMigrations.Add(migraion);
-                }
-            }
+                var migration = migrationToExecute[index];
+                var batches = GetSqlBatches(migration, index, migrations);
 
-            IEnumerable<Migration> migrationsToApply;
-            IEnumerable<Migration> migrationsToRevert;
-            if (string.IsNullOrEmpty(targetMigration))
-            {
-                migrationsToApply = unappliedMigrations;
-                migrationsToRevert = Enumerable.Empty<Migration>();
-            }
-            else if (targetMigration == InitialDatabase)
-            {
-                migrationsToApply = Enumerable.Empty<Migration>();
-                migrationsToRevert = appliedMigrations;
-            }
-            else
-            {
-                targetMigration = _idGenerator.ResolveId(targetMigration, migrations);
-                migrationsToApply = unappliedMigrations
-                    .Where(m => string.Compare(m.Id, targetMigration, StringComparison.OrdinalIgnoreCase) <= 0);
-                migrationsToRevert = appliedMigrations
-                    .Where(m => string.Compare(m.Id, targetMigration, StringComparison.OrdinalIgnoreCase) > 0)
-                    .OrderByDescending(m => m.Id);
-            }
-
-            bool first;
-            var checkFirst = true;
-            foreach (var migration in migrationsToApply)
-            {
-                var batches = ApplyMigration(migration).ToList();
-
-                first = false;
-                if (checkFirst)
-                {
-                    first = migration == migrations[0];
-                    if (first && !_historyRepository.Exists())
-                    {
-                        // TODO: Consider removing check above and always using "if not exists"
-                        batches.Insert(0, new SqlBatch(_historyRepository.Create(ifNotExists: false)));
-                    }
-
-                    checkFirst = false;
-                }
-
-                _logger.Value.LogInformation(Strings.ApplyingMigration(migration.Id));
-
-                Execute(batches, first);
-            }
-
-            foreach (var migration in migrationsToRevert)
-            {
-                _logger.Value.LogInformation(Strings.RevertingMigration(migration.Id));
-
-                Execute(RevertMigration(migration));
+                Execute(batches, migration.Migration == migrations[0]);
             }
         }
 
@@ -420,6 +303,103 @@ namespace Microsoft.Data.Entity.Migrations
                 _executor.ExecuteNonQuery(_connection, transaction.DbTransaction, sqlBatches);
                 transaction.Commit();
             }
+        }
+
+        protected virtual List<ExecutableMigration> GetMigrationToExecute(string targetMigration, IReadOnlyList<Migration> migrations, IReadOnlyList<IHistoryRow> appliedMigrationEntries)
+        {
+            var migrationToExecute = new List<ExecutableMigration>();
+
+            var appliedMigrations = new List<Migration>();
+            var unappliedMigrations = new List<Migration>();
+            foreach (var migraion in migrations)
+            {
+                if (appliedMigrationEntries.Any(
+                    e => string.Equals(e.MigrationId, migraion.Id, StringComparison.OrdinalIgnoreCase)))
+                {
+                    appliedMigrations.Add(migraion);
+                }
+                else
+                {
+                    unappliedMigrations.Add(migraion);
+                }
+            }
+
+            if (string.IsNullOrEmpty(targetMigration))
+            {
+                migrationToExecute = unappliedMigrations
+                    .Select(t => new ExecutableMigration
+                    {
+                        Migration = t,
+                        ShouldApply = true
+                    }).ToList();
+            }
+            else if (targetMigration == InitialDatabase)
+            {
+                migrationToExecute = appliedMigrations
+                    .Select(t => new ExecutableMigration
+                    {
+                        Migration = t,
+                        ShouldApply = false
+                    }).ToList();
+            }
+            else
+            {
+                targetMigration = _idGenerator.ResolveId(targetMigration, migrations);
+                migrationToExecute
+                    .AddRange(
+                        unappliedMigrations
+                            .Where(m => string.Compare(m.Id, targetMigration, StringComparison.OrdinalIgnoreCase) <= 0)
+                            .Select(t => new ExecutableMigration
+                            {
+                                Migration = t,
+                                ShouldApply = true
+                            }));
+
+                migrationToExecute
+                    .AddRange(
+                        appliedMigrations
+                            .Where(m => string.Compare(m.Id, targetMigration, StringComparison.OrdinalIgnoreCase) > 0)
+                            .OrderByDescending(m => m.Id)
+                            .Select(t => new ExecutableMigration
+                            {
+                                Migration = t,
+                                ShouldApply = false
+                            }));
+            }
+
+            return migrationToExecute;
+        }
+
+        protected virtual IList<SqlBatch> GetSqlBatches(ExecutableMigration migration, int index, IReadOnlyList<Migration> migrations)
+        {
+            IList<SqlBatch> batches;
+            if (migration.ShouldApply)
+            {
+                batches = ApplyMigration(migration.Migration).ToList();
+
+                if (index == 0)
+                {
+                    if (migration.Migration == migrations[0])
+                    {
+                        batches.Insert(0, new SqlBatch(_historyRepository.Create(ifNotExists: true)));
+                    }
+                }
+
+                _logger.Value.LogInformation(Strings.ApplyingMigration(migration.Migration.Id));
+            }
+            else
+            {
+                batches = RevertMigration(migration.Migration).ToList();
+                _logger.Value.LogInformation(Strings.RevertingMigration(migration.Migration.Id));
+            }
+
+            return batches;
+        }
+
+        protected class ExecutableMigration
+        {
+            public Migration Migration { get; set; }
+            public bool ShouldApply { get; set; }
         }
     }
 }
