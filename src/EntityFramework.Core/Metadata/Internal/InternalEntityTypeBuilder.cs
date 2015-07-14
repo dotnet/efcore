@@ -285,7 +285,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 ? this
                 : ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention);
 
-            var builder = fkOwner._relationshipBuilders.Value.TryGetValue(foreignKey, ConfigurationSource.Convention) ?? fkOwner.Relationship(foreignKey, true, ConfigurationSource.Convention);
+            var builder = fkOwner.Relationship(foreignKey, true, ConfigurationSource.Convention);
 
             if (navigationName == existingNavigation?.Name)
             {
@@ -314,19 +314,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             if (navigationName != null)
             {
-                if (_ignoredProperties.HasValue && _ignoredProperties.Value.ContainsKey(navigationName))
+                if (_ignoredProperties.HasValue)
                 {
-                    ConfigurationSource existingConfigurationSource;
-                    _ignoredProperties.Value.TryGetValue(navigationName, out existingConfigurationSource);
-                    if (!configurationSource.Overrides(existingConfigurationSource))
-                    {
-                        return builder;
-                    }
                     _ignoredProperties.Value.Remove(navigationName);
                 }
 
                 fkOwner._relationshipBuilders.Value.UpdateConfigurationSource(foreignKey, configurationSource);
-                navigation = Metadata.AddNavigation(navigationName, foreignKey, pointsToPrincipal);
+                var navigation = Metadata.AddNavigation(navigationName, foreignKey, pointsToPrincipal);
                 return ModelBuilder.ConventionDispatcher.OnNavigationAdded(builder, navigation);
             }
 
@@ -911,6 +905,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     Debug.Assert(requiredSet || !isRequired.Value);
                 }
 
+                Debug.Assert(foreignKey.IsRequired == isRequired);
                 Debug.Assert(((IForeignKey)foreignKey).IsRequired == isRequired);
             }
 
@@ -973,7 +968,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 return true;
             }
-            
+
             return CanSetRequired(foreignKey.Properties, isRequired, configurationSource);
         }
 
