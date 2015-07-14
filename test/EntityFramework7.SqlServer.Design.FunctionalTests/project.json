@@ -3,6 +3,7 @@
     "EntityFramework7.Commands": "7.0.0-*",
     "EntityFramework7.Relational.Design": "7.0.0-*",
     "EntityFramework7.SqlServer": "7.0.0-*",
+    "EntityFramework7.SqlServer.Design": "7.0.0-*",
     "EntityFramework7.SqlServer.FunctionalTests": "1.0.0",
     "Microsoft.Framework.Runtime": "1.0.0-*"
   },

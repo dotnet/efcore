@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -9,16 +8,16 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.Data.Entity.Commands.Utilities;
-using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.Utilities;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
-using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
+using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
 using Xunit;
 using Xunit.Abstractions;
 #if DNX451 || DNXCORE50
+using System;
+using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Infrastructure;
 #endif
 
@@ -75,8 +74,8 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
         private static readonly List<string> _CustomizedTemplatesTestExpectedInfos =
             new List<string>
             {
-                "Using custom template " + CustomizedTemplateDir + @"\" + ProviderDbContextTemplateName,
-                "Using custom template " + CustomizedTemplateDir + @"\" + ProviderEntityTypeTemplateName,
+                "Using custom template " + Path.Combine(CustomizedTemplateDir, ProviderDbContextTemplateName),
+                "Using custom template " + Path.Combine(CustomizedTemplateDir, ProviderEntityTypeTemplateName),
             };
 
         private readonly ITestOutputHelper _output;
@@ -91,13 +90,13 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
         {
             SetCurrentCulture();
 
-            var serviceProvider = SetupServiceProvider();
+            var serviceCollection = SetupInitialServices();
             var logger = new InMemoryCommandLogger("E2ETest");
-            serviceProvider.AddService(typeof(ILogger), logger);
+            serviceCollection.AddScoped(typeof(ILogger), sp => logger);
             var fileService = new InMemoryFileService();
-            serviceProvider.AddService(typeof(IFileService), fileService);
+            serviceCollection.AddScoped(typeof(IFileService), sp => fileService);
 
-            var provider = GetMetadataModelProvider(serviceProvider);
+            var provider = GetMetadataModelProvider(serviceCollection);
 
             var configuration = new ReverseEngineeringConfiguration
             {
@@ -110,7 +109,8 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
 
             var expectedFileContents = InitializeE2EExpectedFileContents();
 
-            var generator = new ReverseEngineeringGenerator(serviceProvider);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
             var filePaths = generator.GenerateAsync(configuration).Result;
 
             Assert.Equal(_E2ETestExpectedWarnings.Count, logger.WarningMessages.Count);
@@ -124,7 +124,7 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             Assert.Equal(0, logger.InformationMessages.Count);
             Assert.Equal(0, logger.VerboseMessages.Count);
 
-            var expectedFilePaths = _E2ETestExpectedFileNames.Select(name => TestOutputDir + @"\" + name);
+            var expectedFilePaths = _E2ETestExpectedFileNames.Select(name => Path.Combine(TestOutputDir, name));
             Assert.Equal(expectedFilePaths.Count(), filePaths.Count);
             i = 0;
             foreach(var expectedFilePath in expectedFilePaths)
@@ -166,14 +166,14 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
         {
             SetCurrentCulture();
 
-            var serviceProvider = SetupServiceProvider();
+            var serviceCollection = SetupInitialServices();
             var logger = new InMemoryCommandLogger("E2ETest");
-            serviceProvider.AddService(typeof(ILogger), logger);
+            serviceCollection.AddScoped(typeof(ILogger), sp => logger);
             var fileService = new InMemoryFileService();
-            serviceProvider.AddService(typeof(IFileService), fileService);
+            serviceCollection.AddScoped(typeof(IFileService), sp => fileService);
             InitializeCustomizedTemplates(fileService);
 
-            var provider = GetMetadataModelProvider(serviceProvider);
+            var provider = GetMetadataModelProvider(serviceCollection);
 
             var configuration = new ReverseEngineeringConfiguration
             {
@@ -184,7 +184,8 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
                 OutputPath = TestOutputDir
             };
 
-            var generator = new ReverseEngineeringGenerator(serviceProvider);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
             var filePaths = generator.GenerateAsync(configuration).Result;
 
             Assert.Equal(_E2ETestExpectedWarnings.Count, logger.WarningMessages.Count);
@@ -205,7 +206,7 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
 
             Assert.Equal(0, logger.VerboseMessages.Count);
 
-            var expectedFilePaths = _E2ETestExpectedFileNames.Select(name => TestOutputDir + @"\" + name);
+            var expectedFilePaths = _E2ETestExpectedFileNames.Select(name => Path.Combine(TestOutputDir, name));
             Assert.Equal(expectedFilePaths.Count(), filePaths.Count);
             i = 0;
             foreach (var expectedFilePath in expectedFilePaths)
@@ -231,27 +232,24 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
         [Fact]
         public void Can_output_templates_to_be_customized()
         {
-            var serviceProvider = SetupServiceProvider();
+            var serviceCollection = SetupInitialServices();
             var logger = new InMemoryCommandLogger("E2ETest");
-            serviceProvider.AddService(typeof(ILogger), logger);
+            serviceCollection.AddScoped(typeof(ILogger), sp => logger);
             var fileService = new InMemoryFileService();
-            serviceProvider.AddService(typeof(IFileService), fileService);
+            serviceCollection.AddScoped(typeof(IFileService), sp => fileService);
 
-            var designTimeAssembly = Assembly.Load(new AssemblyName(ProviderAssembyName));
-            var type = designTimeAssembly.GetExportedTypes()
-                .First(t => t.FullName == ProviderFullClassPath);
-            var provider = (IDatabaseMetadataModelProvider)
-                Activator.CreateInstance(type, serviceProvider);
+            var provider = GetMetadataModelProvider(serviceCollection);
 
-            var generator = new ReverseEngineeringGenerator(serviceProvider);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
             var filePaths = generator.Customize(provider, TestOutputDir);
 
             Assert.Equal(0, logger.WarningMessages.Count);
             Assert.Equal(0, logger.InformationMessages.Count);
             Assert.Equal(0, logger.VerboseMessages.Count);
             Assert.Equal(2, filePaths.Count);
-            Assert.Equal(TestOutputDir + @"\" + ProviderDbContextTemplateName, filePaths[0]);
-            Assert.Equal(TestOutputDir + @"\" + ProviderEntityTypeTemplateName, filePaths[1]);
+            Assert.Equal(Path.Combine(TestOutputDir, ProviderDbContextTemplateName), filePaths[0]);
+            Assert.Equal(Path.Combine(TestOutputDir, ProviderEntityTypeTemplateName), filePaths[1]);
 
             var dbContextTemplateContents = fileService.RetrieveFileContents(
                 TestOutputDir, ProviderDbContextTemplateName);
@@ -262,23 +260,22 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             Assert.Equal(provider.EntityTypeTemplate, entityTypeTemplateContents);
         }
 
-        private ServiceProvider SetupServiceProvider()
+        private ServiceCollection SetupInitialServices()
         {
+            var serviceCollection = new ServiceCollection();
 #if DNX451 || DNXCORE50
             // provides ILibraryManager etc services
-            var serviceProvider = new ServiceProvider(
-                CallContextServiceLocator.Locator.ServiceProvider);
-#else
-            var serviceProvider = new ServiceProvider(null);
+            var manifest = CallContextServiceLocator.Locator.ServiceProvider.GetRequiredService<IServiceManifest>();
+            if (manifest != null)
+            {
+                foreach (var service in manifest.Services)
+                {
+                    serviceCollection.AddTransient(
+                        service, serviceProvider => serviceProvider.GetService(service));
+                }
+            }
 #endif
-            serviceProvider.AddService(typeof(CSharpCodeGeneratorHelper), new CSharpCodeGeneratorHelper());
-            serviceProvider.AddService(typeof(ModelUtilities), new ModelUtilities());
-            var metadataReferencesProvider = new MetadataReferencesProvider(serviceProvider);
-            serviceProvider.AddService(typeof(MetadataReferencesProvider), metadataReferencesProvider);
-            var compilationService = new RoslynCompilationService();
-            serviceProvider.AddService(typeof(ITemplating), new RazorTemplating(compilationService, metadataReferencesProvider));
-
-            return serviceProvider;
+            return serviceCollection;
         }
 
         private Dictionary<string, string> InitializeE2EExpectedFileContents()
@@ -322,12 +319,13 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
 #endif
         }
 
-        private IDatabaseMetadataModelProvider GetMetadataModelProvider(IServiceProvider serviceProvider)
+        private IDatabaseMetadataModelProvider GetMetadataModelProvider(IServiceCollection serviceCollection)
         {
             var designTimeAssembly = Assembly.Load(new AssemblyName(ProviderAssembyName));
             var type = designTimeAssembly.GetType(ProviderFullClassPath);
-            return (IDatabaseMetadataModelProvider)
-                Activator.CreateInstance(type, serviceProvider);
+            var designTimeMetadataProviderFactory = new SqlServerDesignTimeMetadataProviderFactory();
+            designTimeMetadataProviderFactory.AddMetadataProviderServices(serviceCollection);
+            return serviceCollection.BuildServiceProvider().GetRequiredService<IDatabaseMetadataModelProvider>();
         }
 
         private void SetCurrentCulture()

@@ -19,7 +19,6 @@ using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model;
 using Microsoft.Data.Entity.SqlServer.Design.Utilities;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
@@ -74,12 +73,13 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         private readonly Dictionary<EntityType, Dictionary<string, List<Property>>> _relationalEntityTypeToForeignKeyConstraintsMap =
             new Dictionary<EntityType, Dictionary<string, List<Property>>>(); // string is ConstraintId
 
-        public SqlServerMetadataModelProvider([NotNull] IServiceProvider serviceProvider)
+        public SqlServerMetadataModelProvider([NotNull] ILogger logger, [NotNull] ModelUtilities modelUtilities)
         {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
+            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(modelUtilities, nameof(modelUtilities));
 
-            _logger = serviceProvider.GetRequiredService<ILogger>();
-            _modelUtilities = serviceProvider.GetRequiredService<ModelUtilities>();
+            _logger = logger;
+            _modelUtilities = modelUtilities;
             _sqlServerLiteralUtilities = new SqlServerLiteralUtilities(_logger);
         }
 
