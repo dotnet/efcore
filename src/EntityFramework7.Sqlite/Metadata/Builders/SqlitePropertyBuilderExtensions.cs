@@ -50,7 +50,8 @@ namespace Microsoft.Data.Entity
             Check.NotNull(builder, nameof(builder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            builder.Metadata.Sqlite().DefaultValueSql = sql;
+            builder.ValueGeneratedOnAdd();
+            builder.Metadata.Sqlite().GeneratedValueSql = sql;
 
             return builder;
         }

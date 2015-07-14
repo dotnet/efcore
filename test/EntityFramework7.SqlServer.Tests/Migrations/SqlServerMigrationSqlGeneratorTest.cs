@@ -22,12 +22,21 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                     Table = "People",
                     Name = "FullName",
                     Type = "nvarchar(30)",
-                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ColumnComputedExpression] =
-                        "FirstName + ' ' + LastName"
+                    ComputedColumnSql = "FirstName + ' ' + LastName"
                 });
 
             Assert.Equal(
                 "ALTER TABLE [People] ADD [FullName] AS FirstName + ' ' + LastName;" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public override void AddColumnOperation_with_computed_column_SQL()
+        {
+            base.AddColumnOperation_with_computed_column_SQL();
+
+            Assert.Equal(
+                "ALTER TABLE [People] ADD [Birthday] AS CURRENT_TIMESTAMP;" + EOL,
                 Sql);
         }
 

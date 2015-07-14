@@ -277,6 +277,46 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 });
         }
 
+        [Fact]
+        public void Add_column_with_computed_value()
+        {
+            Execute(
+                source => source.Entity(
+                    "Dragon",
+                    x =>
+                    {
+                        x.ToTable("Dragon", "dbo");
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                    }),
+                target => target.Entity(
+                    "Dragon",
+                    x =>
+                    {
+                        x.ToTable("Dragon", "dbo");
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name")
+                            .HasColumnType("nvarchar(30)")
+                            .Required()
+                            .DefaultValue("Draco")
+                            .ComputedColumnSql("CreateDragonName()");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddColumnOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Dragon", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                    Assert.Equal("nvarchar(30)", operation.Type);
+                    Assert.False(operation.IsNullable);
+                    Assert.Equal("Draco", operation.DefaultValue);
+                    Assert.Equal("CreateDragonName()", operation.ComputedColumnSql);
+                });
+        }
+
         [Theory]
         [InlineData(typeof(int), 0)]
         [InlineData(typeof(int?), 0)]
@@ -579,6 +619,51 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Liam", operation.DefaultValue);
                     Assert.Equal("CreateCatamountName()", operation.DefaultValueSql);
+                });
+        }
+
+        [Fact]
+        public void Alter_column_computed_expression()
+        {
+            Execute(
+                source => source.Entity(
+                    "MountainLion",
+                    x =>
+                    {
+                        x.ToTable("MountainLion", "dbo");
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name")
+                            .HasColumnType("nvarchar(30)")
+                            .Required()
+                            .DefaultValue("Liam")
+                            .ComputedColumnSql("CreateMountainLionName()");
+                    }),
+                target => target.Entity(
+                    "MountainLion",
+                    x =>
+                    {
+                        x.ToTable("MountainLion", "dbo");
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<string>("Name")
+                            .HasColumnType("nvarchar(30)")
+                            .Required()
+                            .DefaultValue("Liam")
+                            .ComputedColumnSql("CreateCatamountName()");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("MountainLion", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                    Assert.Equal("nvarchar(30)", operation.Type);
+                    Assert.False(operation.IsNullable);
+                    Assert.Equal("Liam", operation.DefaultValue);
+                    Assert.Equal("CreateCatamountName()", operation.ComputedColumnSql);
                 });
         }
 

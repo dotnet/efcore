@@ -2198,6 +2198,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 modelBuilder.Entity<Root>(b =>
                     {
+                        b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
+
                         b.Collection(e => e.RequiredChildren)
                             .InverseReference(e => e.Parent)
                             .ForeignKey(e => e.ParentId);
@@ -2269,35 +2271,80 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .InverseReference(e => e.Back)
                     .ForeignKey<RequiredNonPkSingle2>(e => e.BackId);
 
-                modelBuilder.Entity<RequiredAk1>()
-                    .Collection(e => e.Children)
-                    .InverseReference(e => e.Parent)
-                    .PrincipalKey(e => e.AlternateId)
-                    .ForeignKey(e => e.ParentId);
+                modelBuilder.Entity<RequiredAk1>(b =>
+                    {
+                        b.Property(e => e.AlternateId)
+                            .ValueGeneratedOnAdd();
 
-                modelBuilder.Entity<OptionalAk1>()
-                    .Collection(e => e.Children)
-                    .InverseReference(e => e.Parent)
-                    .PrincipalKey(e => e.AlternateId)
-                    .ForeignKey(e => e.ParentId);
+                        b.Collection(e => e.Children)
+                            .InverseReference(e => e.Parent)
+                            .PrincipalKey(e => e.AlternateId)
+                            .ForeignKey(e => e.ParentId);
+                    });
 
-                modelBuilder.Entity<RequiredSingleAk1>()
-                    .Reference(e => e.Single)
-                    .InverseReference(e => e.Back)
-                    .ForeignKey<RequiredSingleAk2>(e => e.AlternateId)
-                    .PrincipalKey<RequiredSingleAk1>(e => e.AlternateId);
+                modelBuilder.Entity<OptionalAk1>(b =>
+                    {
+                        b.Property(e => e.AlternateId)
+                            .ValueGeneratedOnAdd();
 
-                modelBuilder.Entity<OptionalSingleAk1>()
-                    .Reference(e => e.Single)
-                    .InverseReference(e => e.Back)
-                    .ForeignKey<OptionalSingleAk2>(e => e.BackId)
-                    .PrincipalKey<OptionalSingleAk1>(e => e.AlternateId);
+                        b.Collection(e => e.Children)
+                            .InverseReference(e => e.Parent)
+                            .PrincipalKey(e => e.AlternateId)
+                            .ForeignKey(e => e.ParentId);
+                    });
 
-                modelBuilder.Entity<RequiredNonPkSingleAk1>()
-                    .Reference(e => e.Single)
-                    .InverseReference(e => e.Back)
-                    .ForeignKey<RequiredNonPkSingleAk2>(e => e.BackId)
-                    .PrincipalKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
+                modelBuilder.Entity<RequiredSingleAk1>(b =>
+                    {
+                        b.Property(e => e.AlternateId)
+                            .ValueGeneratedOnAdd();
+
+                        b.Reference(e => e.Single)
+                            .InverseReference(e => e.Back)
+                            .ForeignKey<RequiredSingleAk2>(e => e.AlternateId)
+                            .PrincipalKey<RequiredSingleAk1>(e => e.AlternateId);
+                    });
+
+                modelBuilder.Entity<OptionalSingleAk1>(b =>
+                    {
+                        b.Property(e => e.AlternateId)
+                            .ValueGeneratedOnAdd();
+
+                        b.Reference(e => e.Single)
+                            .InverseReference(e => e.Back)
+                            .ForeignKey<OptionalSingleAk2>(e => e.BackId)
+                            .PrincipalKey<OptionalSingleAk1>(e => e.AlternateId);
+                    });
+
+                modelBuilder.Entity<RequiredNonPkSingleAk1>(b =>
+                    {
+                        b.Property(e => e.AlternateId)
+                            .ValueGeneratedOnAdd();
+
+                        b.Reference(e => e.Single)
+                            .InverseReference(e => e.Back)
+                            .ForeignKey<RequiredNonPkSingleAk2>(e => e.BackId)
+                            .PrincipalKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
+                    });
+
+                modelBuilder.Entity<RequiredAk2>()
+                    .Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
+
+                modelBuilder.Entity<OptionalAk2>()
+                    .Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
+
+                modelBuilder.Entity<RequiredSingleAk2>()
+                    .Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
+
+                modelBuilder.Entity<RequiredNonPkSingleAk2>()
+                    .Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
+
+                modelBuilder.Entity<OptionalSingleAk2>()
+                    .Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
             }
 
             public abstract int IntSentinel { get; }

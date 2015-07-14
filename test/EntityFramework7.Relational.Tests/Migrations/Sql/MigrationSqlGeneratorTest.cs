@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Migrations.Sql;
 using Moq;
 using Xunit;
 
@@ -14,7 +13,7 @@ namespace Microsoft.Data.Entity.Migrations.Sql
         {
             get
             {
-                var sqlGenerator = new Mock<UpdateSqlGenerator>() { CallBase = true };
+                var sqlGenerator = new Mock<UpdateSqlGenerator> { CallBase = true };
                 var migrationSqlGenerator = new Mock<MigrationSqlGenerator>(sqlGenerator.Object) { CallBase = true };
 
                 return migrationSqlGenerator.Object;
@@ -36,6 +35,16 @@ namespace Microsoft.Data.Entity.Migrations.Sql
 
             Assert.Equal(
                 "ALTER TABLE \"People\" ADD \"Birthday\" date DEFAULT (CURRENT_TIMESTAMP);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public override void AddColumnOperation_with_computed_column_SQL()
+        {
+            base.AddColumnOperation_with_computed_column_SQL();
+
+            Assert.Equal(
+                "ALTER TABLE \"People\" ADD \"Birthday\" date;" + EOL,
                 Sql);
         }
 

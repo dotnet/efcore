@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Metadata
         string Column { get; }
         int? ColumnOrder { get; }
         string ColumnType { get; }
-        string DefaultValueSql { get; }
+        string GeneratedValueSql { get; }
         object DefaultValue { get; }
     }
 }

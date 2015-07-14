@@ -53,9 +53,10 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
             Check.NotNull(entityType, nameof(entityType));
 
             return property.ClrType.UnwrapNullableType() == typeof(Guid)
-                ? (property.SqlServer().HasStoreDefault()
+                ? (property.ValueGenerated == ValueGenerated.Never
+                   || property.SqlServer().GeneratedValueSql != null)
                     ? _tempraryGuidFactory.Create(property)
-                    : _sequentialGuidFactory.Create(property))
+                    : _sequentialGuidFactory.Create(property)
                 : base.Create(property, entityType);
         }
     }

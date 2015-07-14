@@ -11,9 +11,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     {
         protected const string SqlServerNameAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName;
         protected const string SqlServerColumnTypeAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType;
-        protected const string SqlServerDefaultExpressionAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultExpression;
+        protected const string SqlServerGeneratedValueSqlAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.GeneratedValueSql;
         protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy;
-        protected const string SqlServerComputedExpressionAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ColumnComputedExpression;
         protected const string SqlServerHiLoSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceName;
         protected const string SqlServerHiLoSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceSchema;
         protected const string SqlServerHiLoSequencePoolSizeAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequencePoolSize;
@@ -33,9 +32,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             => Property[SqlServerColumnTypeAnnotation] as string
                ?? base.ColumnType;
 
-        public override string DefaultValueSql
-            => Property[SqlServerDefaultExpressionAnnotation] as string
-               ?? base.DefaultValueSql;
+        public override string GeneratedValueSql
+            => Property[SqlServerGeneratedValueSqlAnnotation] as string
+               ?? base.GeneratedValueSql;
 
         public override object DefaultValue
             => new TypedAnnotation(
@@ -43,16 +42,13 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 Property[SqlServerDefaultValueAnnotation] as string).Value
                ?? base.DefaultValue;
 
-        public virtual string ComputedExpression
-            => Property[SqlServerComputedExpressionAnnotation] as string;
-
         public virtual SqlServerIdentityStrategy? IdentityStrategy
         {
             get
             {
                 if (Property.ValueGenerated != ValueGenerated.OnAdd
                     || !Property.ClrType.UnwrapNullableType().IsInteger()
-                    || Property.SqlServer().HasStoreDefault())
+                    || Property.SqlServer().GeneratedValueSql != null)
                 {
                     return null;
                 }

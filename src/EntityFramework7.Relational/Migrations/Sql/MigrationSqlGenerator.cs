@@ -475,6 +475,7 @@ namespace Microsoft.Data.Entity.Migrations.Sql
                     operation.IsNullable,
                     operation.DefaultValue,
                     operation.DefaultValueSql,
+                    operation.ComputedColumnSql,
                     operation,
                     model,
                     builder);
@@ -486,7 +487,8 @@ namespace Microsoft.Data.Entity.Migrations.Sql
             [NotNull] string type,
             bool nullable,
             [CanBeNull] object defaultValue,
-            [CanBeNull] string defaultExpression,
+            [CanBeNull] string defaultValueSql,
+            [CanBeNull] string computedColumnSql,
             [NotNull] IAnnotatable annotatable,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder)
@@ -506,11 +508,11 @@ namespace Microsoft.Data.Entity.Migrations.Sql
                 builder.Append(" NOT NULL");
             }
 
-            if (defaultExpression != null)
+            if (defaultValueSql != null)
             {
                 builder
                     .Append(" DEFAULT (")
-                    .Append(defaultExpression)
+                    .Append(defaultValueSql)
                     .Append(")");
             }
             else if (defaultValue != null)

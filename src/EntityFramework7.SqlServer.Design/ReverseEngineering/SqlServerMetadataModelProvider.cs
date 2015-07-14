@@ -628,7 +628,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 if (defaultExpressionOrValue != null
                     && defaultExpressionOrValue.DefaultExpression != null)
                 {
-                    property.Relational().DefaultValueSql = defaultExpressionOrValue.DefaultExpression;
+                    property.Relational().GeneratedValueSql = defaultExpressionOrValue.DefaultExpression;
                 }
                 else if (defaultExpressionOrValue != null
                          && defaultExpressionOrValue.DefaultValue != null)

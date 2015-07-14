@@ -65,9 +65,22 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             base.Generate(operation, model, builder);
         }
 
-        public override void ColumnDefinition(string schema, string table, string name, string type, bool nullable, object defaultValue, string defaultExpression, IAnnotatable annotatable, IModel model, SqlBatchBuilder builder)
+        public override void ColumnDefinition(
+            string schema, 
+            string table, 
+            string name, 
+            string type, 
+            bool nullable, 
+            object defaultValue, 
+            string defaultValueSql,
+            string computedColumnSql, 
+            IAnnotatable annotatable, 
+            IModel model, 
+            SqlBatchBuilder builder)
         {
-            base.ColumnDefinition(schema, table, name, type, nullable, defaultValue, defaultExpression, annotatable, model, builder);
+            base.ColumnDefinition(
+                schema, table, name, type, nullable, 
+                defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
 
             var columnAnnotation = annotatable as Annotatable;
             var inlinePk = columnAnnotation?.FindAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.InlinePrimaryKey);

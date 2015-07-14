@@ -430,7 +430,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             var columnTypeChanged = sourceColumnType != targetColumnType;
             if (isNullableChanged
                 || columnTypeChanged
-                || sourceExtensions.DefaultValueSql != targetExtensions.DefaultValueSql
+                || sourceExtensions.GeneratedValueSql != targetExtensions.GeneratedValueSql
                 || sourceExtensions.DefaultValue != targetExtensions.DefaultValue
                 || HasDifferences(Annotations.For(source), targetAnnotations))
             {
@@ -446,7 +446,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Type = targetColumnType,
                     IsNullable = isTargetColumnNullable,
                     DefaultValue = targetExtensions.DefaultValue,
-                    DefaultValueSql = targetExtensions.DefaultValueSql,
+                    DefaultValueSql = target.ValueGenerated == ValueGenerated.OnAdd ? targetExtensions.GeneratedValueSql : null,
+                    ComputedColumnSql = target.ValueGenerated == ValueGenerated.OnAddOrUpdate ? targetExtensions.GeneratedValueSql : null,
                     IsDestructiveChange = isDestructiveChange
                 };
                 CopyAnnotations(targetAnnotations, alterColumnOperation);
@@ -471,7 +472,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     ?? (inline || target.IsColumnNullable()
                         ? null
                         : GetDefaultValue(target.ClrType)),
-                DefaultValueSql = targetExtensions.DefaultValueSql
+                DefaultValueSql = target.ValueGenerated == ValueGenerated.OnAdd ? targetExtensions.GeneratedValueSql : null,
+                ComputedColumnSql = target.ValueGenerated == ValueGenerated.OnAddOrUpdate ? targetExtensions.GeneratedValueSql : null,
             };
             CopyAnnotations(Annotations.For(target), operation);
 

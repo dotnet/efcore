@@ -69,7 +69,6 @@
     <Compile Include="Metadata\IRelationalMetadataExtensionProvider.cs" />
     <Compile Include="Metadata\RelationalEntityTypeExtensions.cs" />
     <Compile Include="Metadata\RelationalModelExtensions.cs" />
-    <Compile Include="Metadata\RelationalPropertyAnnotationsExtensions.cs" />
     <Compile Include="Metadata\RelationalPropertyExtensions.cs" />
     <Compile Include="Migrations\Infrastructure\ModelDifferContext.cs" />
     <Compile Include="RelationalReferenceReferenceBuilderExtensions.cs" />

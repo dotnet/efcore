@@ -47,15 +47,15 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public new virtual string DefaultValueSql
+        public new virtual string GeneratedValueSql
         {
-            get { return base.DefaultValueSql; }
+            get { return base.GeneratedValueSql; }
             [param: CanBeNull]
             set
             {
                 Check.NullButNotEmpty(value, nameof(value));
 
-                ((Property)Property)[DefaultExpressionAnnotation] = value;
+                ((Property)Property)[GeneratedValueSqlAnnotation] = value;
             }
         }
 

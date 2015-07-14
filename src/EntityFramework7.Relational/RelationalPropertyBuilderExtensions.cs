@@ -68,7 +68,8 @@ namespace Microsoft.Data.Entity
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            propertyBuilder.Metadata.Relational().DefaultValueSql = sql;
+            propertyBuilder.ValueGeneratedOnAdd();
+            propertyBuilder.Metadata.Relational().GeneratedValueSql = sql;
 
             return propertyBuilder;
         }
@@ -77,6 +78,24 @@ namespace Microsoft.Data.Entity
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] string sql)
             => (PropertyBuilder<TProperty>)DefaultValueSql((PropertyBuilder)propertyBuilder, sql);
+
+        public static PropertyBuilder ComputedColumnSql(
+            [NotNull] this PropertyBuilder propertyBuilder,
+            [CanBeNull] string sql)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+            Check.NullButNotEmpty(sql, nameof(sql));
+
+            propertyBuilder.ValueGeneratedOnAddOrUpdate();
+            propertyBuilder.Metadata.Relational().GeneratedValueSql = sql;
+
+            return propertyBuilder;
+        }
+
+        public static PropertyBuilder<TProperty> ComputedColumnSql<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string sql)
+            => (PropertyBuilder<TProperty>)ComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
 
         public static PropertyBuilder DefaultValue(
             [NotNull] this PropertyBuilder propertyBuilder,

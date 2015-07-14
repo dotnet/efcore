@@ -85,8 +85,15 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 {
                     builder
                         .AppendLine(",")
-                        .Append("defaultExpression: ")
+                        .Append("defaultValueSql: ")
                         .Append(_code.Literal(operation.DefaultValueSql));
+                }
+                else if (operation.ComputedColumnSql != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("computedColumnSql: ")
+                        .Append(_code.UnknownLiteral(operation.ComputedColumnSql));
                 }
                 else if (operation.DefaultValue != null)
                 {
@@ -290,8 +297,15 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 {
                     builder
                         .AppendLine(",")
-                        .Append("defaultExpression: ")
+                        .Append("defaultValueSql: ")
                         .Append(_code.Literal(operation.DefaultValueSql));
+                }
+                else if (operation.ComputedColumnSql != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("computedColumnSql: ")
+                        .Append(_code.UnknownLiteral(operation.ComputedColumnSql));
                 }
                 else if (operation.DefaultValue != null)
                 {
@@ -557,8 +571,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         if (column.DefaultValueSql != null)
                         {
                             builder
-                                .Append(", defaultExpression: ")
+                                .Append(", defaultValueSql: ")
                                 .Append(_code.Literal(column.DefaultValueSql));
+                        }
+                        else if (column.ComputedColumnSql != null)
+                        {
+                            builder
+                                .Append(", computedColumnSql: ")
+                                .Append(_code.Literal(column.ComputedColumnSql));
                         }
                         else if (column.DefaultValue != null)
                         {

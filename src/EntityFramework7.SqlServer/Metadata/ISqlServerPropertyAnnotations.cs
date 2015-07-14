@@ -8,7 +8,6 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     public interface ISqlServerPropertyAnnotations : IRelationalPropertyAnnotations
     {
         SqlServerIdentityStrategy? IdentityStrategy { get; }
-        string ComputedExpression { get; }
         string HiLoSequenceName { get; }
         string HiLoSequenceSchema { get; }
         int? HiLoSequencePoolSize { get; }

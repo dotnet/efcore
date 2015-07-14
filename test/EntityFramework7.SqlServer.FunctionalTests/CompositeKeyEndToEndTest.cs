@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -207,6 +206,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     {
                         b.Key(e => new { e.Id1, e.Id2, e.Id3 });
                         b.Property(e => e.Id1).UseSqlServerIdentityColumn();
+                        b.Property(e => e.Id3).ValueGeneratedOnAdd();
                     });
 
                 modelBuilder.Entity<EarthPony>(b =>

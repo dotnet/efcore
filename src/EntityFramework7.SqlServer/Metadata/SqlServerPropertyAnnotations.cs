@@ -41,15 +41,15 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         }
 
         [CanBeNull]
-        public new virtual string DefaultValueSql
+        public new virtual string GeneratedValueSql
         {
-            get { return base.DefaultValueSql; }
+            get { return base.GeneratedValueSql; }
             [param: CanBeNull]
             set
             {
                 Check.NullButNotEmpty(value, nameof(value));
 
-                ((Property)Property)[SqlServerDefaultExpressionAnnotation] = value;
+                ((Property)Property)[SqlServerGeneratedValueSqlAnnotation] = value;
             }
         }
 
@@ -63,19 +63,6 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
                 ((Property)Property)[SqlServerDefaultValueTypeAnnotation] = typedAnnotation.TypeString;
                 ((Property)Property)[SqlServerDefaultValueAnnotation] = typedAnnotation.ValueString;
-            }
-        }
-
-        [CanBeNull]
-        public new virtual string ComputedExpression
-        {
-            get { return base.ComputedExpression; }
-            [param: CanBeNull]
-            set
-            {
-                Check.NullButNotEmpty(value, nameof(value));
-
-                ((Property)Property)[SqlServerComputedExpressionAnnotation] = value;
             }
         }
 

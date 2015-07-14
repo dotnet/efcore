@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         }
 
         [Fact]
-        public void AddColumnOperation_DefaultExpression()
+        public void AddColumnOperation_DefaultValueSql()
         {
             Test(
                 new AddColumnOperation
@@ -87,13 +87,39 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    table: \"Post\"," + EOL +
                 "    type: \"int\"," + EOL +
                 "    nullable: false," + EOL +
-                "    defaultExpression: \"1\");" + EOL,
+                "    defaultValueSql: \"1\");" + EOL,
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal("int", o.Type);
                     Assert.Equal("1", o.DefaultValueSql);
+                });
+        }
+
+        [Fact]
+        public void AddColumnOperation_ComutedExpression()
+        {
+            Test(
+                new AddColumnOperation
+                {
+                    Name = "Id",
+                    Table = "Post",
+                    Type = "int",
+                    ComputedColumnSql = "1"
+                },
+                "mb.AddColumn(" + EOL +
+                "    name: \"Id\"," + EOL +
+                "    table: \"Post\"," + EOL +
+                "    type: \"int\"," + EOL +
+                "    nullable: false," + EOL +
+                "    computedColumnSql: \"1\");" + EOL,
+                o =>
+                {
+                    Assert.Equal("Id", o.Name);
+                    Assert.Equal("Post", o.Table);
+                    Assert.Equal("int", o.Type);
+                    Assert.Equal("1", o.ComputedColumnSql);
                 });
         }
 
@@ -382,7 +408,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         }
 
         [Fact]
-        public void AlterColumnOperation_DefaultExpression()
+        public void AlterColumnOperation_DefaultValueSql()
         {
             Test(
                 new AlterColumnOperation
@@ -397,12 +423,37 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    table: \"Post\"," + EOL +
                 "    type: \"int\"," + EOL +
                 "    nullable: false," + EOL +
-                "    defaultExpression: \"1\");" + EOL,
+                "    defaultValueSql: \"1\");" + EOL,
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal("1", o.DefaultValueSql);
+                });
+        }
+
+        [Fact]
+        public void AlterColumnOperation_computedColumnSql()
+        {
+            Test(
+                new AlterColumnOperation
+                {
+                    Name = "Id",
+                    Table = "Post",
+                    Type = "int",
+                    ComputedColumnSql = "1"
+                },
+                "mb.AlterColumn(" + EOL +
+                "    name: \"Id\"," + EOL +
+                "    table: \"Post\"," + EOL +
+                "    type: \"int\"," + EOL +
+                "    nullable: false," + EOL +
+                "    computedColumnSql: \"1\");" + EOL,
+                o =>
+                {
+                    Assert.Equal("Id", o.Name);
+                    Assert.Equal("Post", o.Table);
+                    Assert.Equal("1", o.ComputedColumnSql);
                 });
         }
 
@@ -659,7 +710,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         }
 
         [Fact]
-        public void CreateTableOperation_Columns_DefaultExpression()
+        public void CreateTableOperation_Columns_DefaultValueSql()
         {
             Test(
                 new CreateTableOperation
@@ -680,7 +731,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    name: \"Post\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        Id = table.Column(type: \"int\", nullable: false, defaultExpression: \"1\")" + EOL +
+                "        Id = table.Column(type: \"int\", nullable: false, defaultValueSql: \"1\")" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -693,6 +744,44 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     Assert.Equal("Post", o.Columns[0].Table);
                     Assert.Equal("int", o.Columns[0].Type);
                     Assert.Equal("1", o.Columns[0].DefaultValueSql);
+                });
+        }
+
+        [Fact]
+        public void CreateTableOperation_Columns_computedColumnSql()
+        {
+            Test(
+                new CreateTableOperation
+                {
+                    Name = "Post",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "Post",
+                            Type = "int",
+                            ComputedColumnSql = "1"
+                        }
+                    }
+                },
+                "mb.CreateTable(" + EOL +
+                "    name: \"Post\"," + EOL +
+                "    columns: table => new" + EOL +
+                "    {" + EOL +
+                "        Id = table.Column(type: \"int\", nullable: false, computedColumnSql: \"1\")" + EOL +
+                "    }," + EOL +
+                "    constraints: table =>" + EOL +
+                "    {" + EOL +
+                "    });" + EOL,
+                o =>
+                {
+                    Assert.Equal(1, o.Columns.Count);
+
+                    Assert.Equal("Id", o.Columns[0].Name);
+                    Assert.Equal("Post", o.Columns[0].Table);
+                    Assert.Equal("int", o.Columns[0].Type);
+                    Assert.Equal("1", o.Columns[0].ComputedColumnSql);
                 });
         }
 

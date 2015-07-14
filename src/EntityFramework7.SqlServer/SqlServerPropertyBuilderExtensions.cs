@@ -54,7 +54,8 @@ namespace Microsoft.Data.Entity
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            propertyBuilder.Metadata.SqlServer().DefaultValueSql = sql;
+            propertyBuilder.ValueGeneratedOnAdd();
+            propertyBuilder.Metadata.SqlServer().GeneratedValueSql = sql;
 
             return propertyBuilder;
         }
@@ -80,22 +81,23 @@ namespace Microsoft.Data.Entity
             [CanBeNull] object value)
             => (PropertyBuilder<TProperty>)SqlServerDefaultValue((PropertyBuilder)propertyBuilder, value);
 
-        public static PropertyBuilder SqlServerComputedExpression(
+        public static PropertyBuilder SqlServerComputedColumnSql(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string sql)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            propertyBuilder.Metadata.SqlServer().ComputedExpression = sql;
+            propertyBuilder.ValueGeneratedOnAddOrUpdate();
+            propertyBuilder.Metadata.SqlServer().GeneratedValueSql = sql;
 
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> SqlServerComputedExpression<TProperty>(
+        public static PropertyBuilder<TProperty> SqlServerComputedColumnSql<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] string sql)
-            => (PropertyBuilder<TProperty>)SqlServerComputedExpression((PropertyBuilder)propertyBuilder, sql);
+            => (PropertyBuilder<TProperty>)SqlServerComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
 
         public static PropertyBuilder UseSqlServerSequenceHiLo(
             [NotNull] this PropertyBuilder propertyBuilder,

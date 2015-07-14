@@ -276,14 +276,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (propertyConfiguration.Property.Relational().DefaultValueSql != null)
+            if (propertyConfiguration.Property.Relational().GeneratedValueSql != null)
             {
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture,
                             "DefaultValueSql({0})",
                             CSharpUtilities.Instance.DelimitString(
-                                propertyConfiguration.Property.Relational().DefaultValueSql))));
+                                propertyConfiguration.Property.Relational().GeneratedValueSql))));
             }
         }
     }

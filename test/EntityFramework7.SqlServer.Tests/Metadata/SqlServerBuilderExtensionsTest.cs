@@ -65,17 +65,44 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .DefaultValueSql("CherryCoke");
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
                 .SqlServerDefaultValueSql("VanillaCoke");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
-            Assert.Equal("CherryCoke", property.Relational().DefaultValueSql);
-            Assert.Equal("VanillaCoke", property.SqlServer().DefaultValueSql);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .DefaultValueSql("CherryCoke");
+
+            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
+            Assert.Equal("VanillaCoke", property.SqlServer().GeneratedValueSql);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Can_set_column_computed_expression()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .SqlServerComputedColumnSql("VanillaCoke");
+
+            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ComputedColumnSql("CherryCoke");
+
+            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
+            Assert.Equal("VanillaCoke", property.SqlServer().GeneratedValueSql);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
         }
 
         [Fact]
@@ -1038,7 +1065,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .SqlServerComputedExpression("Simon"));
+                    .SqlServerComputedColumnSql("Simon"));
 
             AssertIsGeneric(
                 modelBuilder
@@ -1075,7 +1102,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasSqlServerColumnName("Jay");
 
             modelBuilder
-                .Entity<Customer>()
+                .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
                 .HasSqlServerColumnType("Simon");
 
@@ -1085,7 +1112,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasSqlServerColumnType("Neil");
 
             modelBuilder
-                .Entity<Customer>()
+                .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
                 .SqlServerDefaultValueSql("Simon");
 
@@ -1095,7 +1122,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .SqlServerDefaultValueSql("Neil");
 
             modelBuilder
-                .Entity<Customer>()
+                .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
                 .SqlServerDefaultValue("Simon");
 
@@ -1105,14 +1132,29 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .SqlServerDefaultValue("Neil");
 
             modelBuilder
+                .Entity(typeof(Customer))
+                .Property(typeof(string), "Name")
+                .SqlServerComputedColumnSql("Simon");
+
+            modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .SqlServerComputedExpression("Simon");
+                .SqlServerComputedColumnSql("Neil");
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .Property(typeof(int), "Id")
+                .UseSqlServerSequenceHiLo();
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(int), "Id")
                 .UseSqlServerSequenceHiLo();
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .Property(typeof(int), "Id")
+                .UseSqlServerIdentityColumn();
 
             modelBuilder
                 .Entity<Customer>()

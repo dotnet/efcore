@@ -77,13 +77,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 modelBuilder.Entity<Entity>()
                     .Property(e => e.P4)
-                    .ValueGeneratedOnAddOrUpdate()
-                    .SqlServerComputedExpression("P1 + P2");
+                    .SqlServerComputedColumnSql("P1 + P2");
 
                 modelBuilder.Entity<Entity>()
                     .Property(e => e.P5)
-                    .ValueGeneratedOnAddOrUpdate()
-                    .SqlServerComputedExpression("P1 + P3");
+                    .SqlServerComputedColumnSql("P1 + P3");
             }
         }
 
@@ -134,8 +132,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 modelBuilder.Entity<EnumItem>()
                     .Property(entity => entity.CalculatedFlagEnum)
-                    .ValueGeneratedOnAddOrUpdate()
-                    .SqlServerComputedExpression("FlagEnum | OptionalFlagEnum");
+                    .SqlServerComputedColumnSql("FlagEnum | OptionalFlagEnum");
             }
         }
 

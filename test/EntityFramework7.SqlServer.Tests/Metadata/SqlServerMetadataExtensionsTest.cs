@@ -176,31 +176,31 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Null(property.Relational().DefaultValueSql);
-            Assert.Null(((IProperty)property).Relational().DefaultValueSql);
-            Assert.Null(property.SqlServer().DefaultValueSql);
-            Assert.Null(((IProperty)property).SqlServer().DefaultValueSql);
+            Assert.Null(property.Relational().GeneratedValueSql);
+            Assert.Null(((IProperty)property).Relational().GeneratedValueSql);
+            Assert.Null(property.SqlServer().GeneratedValueSql);
+            Assert.Null(((IProperty)property).SqlServer().GeneratedValueSql);
 
-            property.Relational().DefaultValueSql = "newsequentialid()";
+            property.Relational().GeneratedValueSql = "newsequentialid()";
 
-            Assert.Equal("newsequentialid()", property.Relational().DefaultValueSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).Relational().DefaultValueSql);
-            Assert.Equal("newsequentialid()", property.SqlServer().DefaultValueSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).SqlServer().DefaultValueSql);
+            Assert.Equal("newsequentialid()", property.Relational().GeneratedValueSql);
+            Assert.Equal("newsequentialid()", ((IProperty)property).Relational().GeneratedValueSql);
+            Assert.Equal("newsequentialid()", property.SqlServer().GeneratedValueSql);
+            Assert.Equal("newsequentialid()", ((IProperty)property).SqlServer().GeneratedValueSql);
 
-            property.SqlServer().DefaultValueSql = "expressyourself()";
+            property.SqlServer().GeneratedValueSql = "expressyourself()";
 
-            Assert.Equal("newsequentialid()", property.Relational().DefaultValueSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).Relational().DefaultValueSql);
-            Assert.Equal("expressyourself()", property.SqlServer().DefaultValueSql);
-            Assert.Equal("expressyourself()", ((IProperty)property).SqlServer().DefaultValueSql);
+            Assert.Equal("newsequentialid()", property.Relational().GeneratedValueSql);
+            Assert.Equal("newsequentialid()", ((IProperty)property).Relational().GeneratedValueSql);
+            Assert.Equal("expressyourself()", property.SqlServer().GeneratedValueSql);
+            Assert.Equal("expressyourself()", ((IProperty)property).SqlServer().GeneratedValueSql);
 
-            property.SqlServer().DefaultValueSql = null;
+            property.SqlServer().GeneratedValueSql = null;
 
-            Assert.Equal("newsequentialid()", property.Relational().DefaultValueSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).Relational().DefaultValueSql);
-            Assert.Equal("newsequentialid()", property.SqlServer().DefaultValueSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).SqlServer().DefaultValueSql);
+            Assert.Equal("newsequentialid()", property.Relational().GeneratedValueSql);
+            Assert.Equal("newsequentialid()", ((IProperty)property).Relational().GeneratedValueSql);
+            Assert.Equal("newsequentialid()", property.SqlServer().GeneratedValueSql);
+            Assert.Equal("newsequentialid()", ((IProperty)property).SqlServer().GeneratedValueSql);
         }
 
         [Fact]

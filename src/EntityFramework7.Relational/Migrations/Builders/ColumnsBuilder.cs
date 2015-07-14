@@ -23,7 +23,8 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             [CanBeNull] string name = null,
             bool nullable = false,
             [CanBeNull] object defaultValue = null,
-            [CanBeNull] string defaultExpression = null)
+            [CanBeNull] string defaultValueSql = null,
+            [CanBeNull] string computedColumnSql = null)
         {
             Check.NotEmpty(type, nameof(type));
 
@@ -35,7 +36,8 @@ namespace Microsoft.Data.Entity.Migrations.Builders
                 Type = type,
                 IsNullable = nullable,
                 DefaultValue = defaultValue,
-                DefaultValueSql = defaultExpression
+                DefaultValueSql = defaultValueSql,
+                ComputedColumnSql = computedColumnSql
             };
             _createTableOperation.Columns.Add(operation);
 

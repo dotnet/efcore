@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata
         public const string ColumnName = "ColumnName";
         public const string ColumnOrder = "ColumnOrder";
         public const string ColumnType = "ColumnType";
-        public const string ColumnDefaultExpression = "ColumnDefaultExpression";
+        public const string GeneratedValueSql = "GeneratedValueSql";
         public const string ColumnDefaultValue = "ColumnDefaultValue";
         public const string ColumnDefaultValueType = "ColumnDefaultValueType";
         public const string TableName = "TableName";

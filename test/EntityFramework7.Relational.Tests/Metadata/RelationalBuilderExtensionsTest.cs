@@ -71,7 +71,24 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
-            Assert.Equal("CherryCoke", property.Relational().DefaultValueSql);
+            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Can_set_column_computed_expression_with_convention_builder()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ComputedColumnSql("CherryCoke");
+
+            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+
+            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
         }
 
         [Fact]
@@ -438,6 +455,12 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
+                    .ComputedColumnSql("Simon"));
+
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property(e => e.Name)
                     .DefaultValue("Neil"));
         }
 
@@ -462,7 +485,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasColumnType("Simon");
 
             modelBuilder
-                .Entity<Customer>()
+                .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
                 .HasColumnType("Neil");
 
@@ -472,9 +495,19 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .DefaultValueSql("Simon");
 
             modelBuilder
-                .Entity<Customer>()
+                .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
                 .DefaultValueSql("Neil");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(typeof(string), "Name")
+                .ComputedColumnSql("Simon");
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .Property(typeof(string), "Name")
+                .ComputedColumnSql("Neil");
 
             modelBuilder
                 .Entity<Customer>()
@@ -482,7 +515,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .DefaultValue("Simon");
 
             modelBuilder
-                .Entity<Customer>()
+                .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
                 .DefaultValue("Neil");
         }

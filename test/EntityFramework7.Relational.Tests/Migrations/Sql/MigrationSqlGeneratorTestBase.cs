@@ -47,6 +47,20 @@ namespace Microsoft.Data.Entity.Migrations.Sql
         }
 
         [Fact]
+        public virtual void AddColumnOperation_with_computed_column_SQL()
+        {
+            Generate(
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Name = "Birthday",
+                    Type = "date",
+                    IsNullable = true,
+                    ComputedColumnSql = "CURRENT_TIMESTAMP"
+                });
+        }
+
+        [Fact]
         public virtual void AddForeignKeyOperation_with_name()
         {
             Generate(

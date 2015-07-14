@@ -22,7 +22,8 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             [CanBeNull] string schema = null,
             bool nullable = false,
             [CanBeNull] object defaultValue = null,
-            [CanBeNull] string defaultExpression = null)
+            [CanBeNull] string defaultValueSql = null,
+            [CanBeNull] string computedColumnSql = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -36,7 +37,8 @@ namespace Microsoft.Data.Entity.Migrations.Builders
                 Type = type,
                 IsNullable = nullable,
                 DefaultValue = defaultValue,
-                DefaultValueSql = defaultExpression
+                DefaultValueSql = defaultValueSql,
+                ComputedColumnSql = computedColumnSql
             };
             Operations.Add(operation);
 
@@ -170,7 +172,8 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             [CanBeNull] string schema = null,
             bool nullable = false,
             [CanBeNull] object defaultValue = null,
-            [CanBeNull] string defaultExpression = null)
+            [CanBeNull] string defaultValueSql = null,
+            [CanBeNull] string computedColumnSql = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -183,7 +186,8 @@ namespace Microsoft.Data.Entity.Migrations.Builders
                 Type = type,
                 IsNullable = nullable,
                 DefaultValue = defaultValue,
-                DefaultValueSql = defaultExpression
+                DefaultValueSql = defaultValueSql,
+                ComputedColumnSql = computedColumnSql
             };
             Operations.Add(operation);
 

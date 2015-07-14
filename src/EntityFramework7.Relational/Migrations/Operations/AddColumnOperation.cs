@@ -14,5 +14,6 @@ namespace Microsoft.Data.Entity.Migrations.Operations
         public virtual bool IsNullable { get; set; }
         public virtual object DefaultValue { get; [param: CanBeNull] set; }
         public virtual string DefaultValueSql { get; [param: CanBeNull] set; }
+        public virtual string ComputedColumnSql { get; [param: CanBeNull] set; }
     }
 }

@@ -117,6 +117,16 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
         }
 
         [Fact]
+        public override void AddColumnOperation_with_computed_column_SQL()
+        {
+            base.AddColumnOperation_with_computed_column_SQL();
+
+            Assert.Equal(
+                "ALTER TABLE \"People\" ADD \"Birthday\" date;" + EOL,
+                Sql);
+        }
+
+        [Fact]
         public void DropSchemaOperation_not_supported()
         {
             var ex = Assert.Throws<NotSupportedException>(() => Generate(new DropSchemaOperation()));

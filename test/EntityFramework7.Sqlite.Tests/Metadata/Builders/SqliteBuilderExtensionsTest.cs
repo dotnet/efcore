@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
                 .SqliteDefaultValueSql("VanillaCoke")
                 .Metadata;
 
-            Assert.Equal("VanillaCoke", property.Sqlite().DefaultValueSql);
+            Assert.Equal("VanillaCoke", property.Sqlite().GeneratedValueSql);
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
                 .SqliteDefaultValueSql("VanillaCoke")
                 .Metadata;
 
-            Assert.Equal("VanillaCoke", property.Sqlite().DefaultValueSql);
+            Assert.Equal("VanillaCoke", property.Sqlite().GeneratedValueSql);
         }
 
         [Fact]

@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.IsType<TemporaryNumberValueGenerator<ushort>>(selector.Select(entityType.GetProperty("NullableUShort"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<sbyte>>(selector.Select(entityType.GetProperty("NullableSByte"), entityType));
             Assert.IsType<TemporaryStringValueGenerator>(selector.Select(entityType.GetProperty("String"), entityType));
-            Assert.IsType<SequentialGuidValueGenerator>(selector.Select(entityType.GetProperty("Guid"), entityType));
+            Assert.IsType<TemporaryGuidValueGenerator>(selector.Select(entityType.GetProperty("Guid"), entityType));
             Assert.IsType<TemporaryBinaryValueGenerator>(selector.Select(entityType.GetProperty("Binary"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<int>>(selector.Select(entityType.GetProperty("AlwaysIdentity"), entityType));
             Assert.IsType<SqlServerSequenceValueGenerator<int>>(selector.Select(entityType.GetProperty("AlwaysSequence"), entityType));
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            entityType.GetProperty("Guid").SqlServer().DefaultValueSql = "newid()";
+            entityType.GetProperty("Guid").SqlServer().GeneratedValueSql = "newid()";
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 

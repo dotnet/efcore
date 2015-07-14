@@ -25,10 +25,10 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             [param: CanBeNull] set { Property[SqliteColumnTypeAnnotation] = value; }
         }
 
-        public new virtual string DefaultValueSql
+        public new virtual string GeneratedValueSql
         {
-            get { return base.DefaultValueSql; }
-            [param: CanBeNull] set { Property[SqliteDefaultExpressionAnnotation] = value; }
+            get { return base.GeneratedValueSql; }
+            [param: CanBeNull] set { Property[SqliteGeneratedValueSqlAnnotation] = value; }
         }
 
         protected new virtual Property Property => (Property)base.Property;

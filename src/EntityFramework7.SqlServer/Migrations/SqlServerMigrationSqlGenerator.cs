@@ -236,7 +236,8 @@ namespace Microsoft.Data.Entity.SqlServer
             string type,
             bool nullable,
             object defaultValue,
-            string defaultExpression,
+            string defaultValueSql,
+            string computedColumnSql,
             IAnnotatable annotatable,
             IModel model,
             SqlBatchBuilder builder)
@@ -246,14 +247,12 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(annotatable, nameof(annotatable));
             Check.NotNull(builder, nameof(builder));
 
-            var computedExpression = annotatable[SqlServerAnnotationNames.Prefix
-                                                 + SqlServerAnnotationNames.ColumnComputedExpression];
-            if (computedExpression != null)
+            if (computedColumnSql != null)
             {
                 builder
                     .Append(_sql.DelimitIdentifier(name))
                     .Append(" AS ")
-                    .Append(computedExpression);
+                    .Append(computedColumnSql);
 
                 return;
             }
@@ -265,12 +264,15 @@ namespace Microsoft.Data.Entity.SqlServer
                 type,
                 nullable,
                 defaultValue,
-                defaultExpression,
+                defaultValueSql,
+                computedColumnSql,
                 annotatable,
                 model,
                 builder);
 
-            var valueGeneration = (string)annotatable[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy];
+            var valueGeneration = (string)annotatable[
+                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy];
+
             if (valueGeneration == SqlServerIdentityStrategy.IdentityColumn.ToString())
             {
                 builder.Append(" IDENTITY");
@@ -335,6 +337,7 @@ namespace Microsoft.Data.Entity.SqlServer
                     operation.IsNullable,
                     operation.DefaultValue,
                     operation.DefaultValueSql,
+                    operation.ComputedColumnSql,
                     operation,
                     model,
                     builder);

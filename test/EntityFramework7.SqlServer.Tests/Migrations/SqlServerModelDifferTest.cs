@@ -212,7 +212,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                             x.ToTable("Sheep", "bah");
                             x.Property<int>("Id");
                             x.Key("Id");
-                            x.Property<int>("Now").SqlServerComputedExpression("CAST(CURRENT_TIMESTAMP AS int)");
+                            x.Property<int>("Now").SqlServerComputedColumnSql("CAST(CURRENT_TIMESTAMP AS int)");
                         }),
                 operations =>
                     {
@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                         Assert.Equal("bah", operation.Schema);
                         Assert.Equal("Sheep", operation.Table);
                         Assert.Equal("Now", operation.Name);
-                        Assert.Equal("CAST(CURRENT_TIMESTAMP AS int)", operation["SqlServer:ColumnComputedExpression"]);
+                        Assert.Equal("CAST(CURRENT_TIMESTAMP AS int)", operation.ComputedColumnSql);
                     });
         }
 

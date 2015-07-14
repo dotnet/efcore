@@ -21,13 +21,6 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
 
         public override IEnumerable<IAnnotation> For(IProperty property)
         {
-            var annotations = property.Annotations.Where(
-                a => a.Name == SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ColumnComputedExpression);
-            foreach (var annotation in annotations)
-            {
-                yield return annotation;
-            }
-
             if (property.SqlServer().IdentityStrategy == SqlServerIdentityStrategy.IdentityColumn)
             {
                 yield return new Annotation(

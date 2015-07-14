@@ -346,10 +346,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
-                    // TODO: Make DefaultValueSql on fluent API set Identity
                     modelBuilder.Entity<Blog>()
                         .Property(e => e.CreatedOn)
-                        .ValueGeneratedOnAdd()
                         .DefaultValueSql("getdate()")
                         .Metadata.IsReadOnlyBeforeSave = true;
                 }
@@ -388,11 +386,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
-                    // TODO: Change to DefaultColumnSql and make it set Computed
                     modelBuilder.Entity<FullNameBlog>()
                         .Property(e => e.FullName)
-                        .ValueGeneratedOnAddOrUpdate()
-                        .SqlServerComputedExpression("FirstName + ' ' + LastName");
+                        .ComputedColumnSql("FirstName + ' ' + LastName");
                 }
             }
         }
@@ -599,7 +595,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<Blog>()
                         .Property(e => e.CreatedOn)
-                        .ValueGeneratedOnAdd()
                         .DefaultValueSql("getdate()")
                         .Metadata.IsReadOnlyBeforeSave = true;
                 }
@@ -629,8 +624,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<FullNameBlog>()
                         .Property(e => e.FullName)
-                        .ValueGeneratedOnAddOrUpdate()
-                        .SqlServerComputedExpression("FirstName + ' ' + LastName");
+                        .ComputedColumnSql("FirstName + ' ' + LastName");
                 }
             }
         }
@@ -667,8 +661,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<FullNameBlog>()
                         .Property(e => e.FullName)
-                        .ValueGeneratedOnAddOrUpdate()
-                        .SqlServerComputedExpression("FirstName + ' ' + LastName");
+                        .ComputedColumnSql("FirstName + ' ' + LastName");
                 }
             }
         }
@@ -790,7 +783,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                var name = GetType().FullName.Substring((GetType().Namespace + nameof(SqlServerValueGenerationScenariosTest)).Length + 1);
+                var name = GetType().FullName.Substring((GetType().Namespace + nameof(SqlServerValueGenerationScenariosTest)).Length + 2);
                 optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(name));
             }
         }
