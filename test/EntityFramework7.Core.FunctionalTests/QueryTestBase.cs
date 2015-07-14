@@ -3694,6 +3694,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 IQueryable<Product> products = context.Products;
 
+                // ReSharper disable once RedundantAssignment
                 products = (IQueryable<Product>)products.Provider.CreateQuery(products.Expression);
             }
         }
@@ -3709,6 +3710,31 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     Expression.Call(
                         new LinqOperatorProvider().First.MakeGenericMethod(typeof(Product)),
                         products.Expression)));
+            }
+        }
+        
+        [Fact]
+        public virtual void Select_Where_Subquery_Deep()
+        {
+            using (var context = CreateContext())
+            {
+                var orderDetails
+                    = (from od in context.Set<OrderDetail>()
+                       where (
+                           from o in context.Set<Order>()
+                           where od.OrderID == o.OrderID
+                           select (
+                               from c in context.Set<Customer>()
+                               where o.CustomerID == c.CustomerID
+                               select c
+                               ).Single()
+                           ).Single()
+                           .City == "Seattle"
+                       select od)
+                        .Take(2)
+                        .ToList();
+
+                Assert.Equal(2, orderDetails.Count);
             }
         }
 

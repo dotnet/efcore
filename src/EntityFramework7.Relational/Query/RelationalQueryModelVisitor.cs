@@ -373,50 +373,6 @@ namespace Microsoft.Data.Entity.Query
             return LiftSubQuery(groupJoinClause.JoinClause, groupJoinClause.JoinClause.InnerSequence, queryModel, expression);
         }
 
-        public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
-        {
-            Check.NotNull(whereClause, nameof(whereClause));
-            Check.NotNull(queryModel, nameof(queryModel));
-
-            var selectExpression = TryGetQuery(queryModel.MainFromClause);
-            var requiresClientFilter = selectExpression == null;
-
-            if (!requiresClientFilter)
-            {
-                var sqlTranslatingExpressionVisitor
-                    = new SqlTranslatingExpressionVisitor(
-                        this, selectExpression, whereClause.Predicate, _bindParentQueries);
-
-                var sqlPredicateExpression = sqlTranslatingExpressionVisitor.Visit(whereClause.Predicate);
-
-                if (sqlPredicateExpression != null)
-                {
-                    selectExpression.Predicate
-                        = selectExpression.Predicate == null
-                            ? sqlPredicateExpression
-                            : Expression.AndAlso(selectExpression.Predicate, sqlPredicateExpression);
-                }
-                else
-                {
-                    requiresClientFilter = true;
-                }
-
-                if (sqlTranslatingExpressionVisitor.ClientEvalPredicate != null
-                    && selectExpression.Predicate != null)
-                {
-                    requiresClientFilter = true;
-                    whereClause = new WhereClause(sqlTranslatingExpressionVisitor.ClientEvalPredicate);
-                }
-            }
-
-            _requiresClientFilter |= requiresClientFilter;
-
-            if (RequiresClientFilter)
-            {
-                base.VisitWhereClause(whereClause, queryModel, index);
-            }
-        }
-
         private Expression LiftSubQuery(
             IQuerySource querySource, Expression itemsExpression, QueryModel queryModel, Expression expression)
         {
@@ -496,6 +452,50 @@ namespace Microsoft.Data.Entity.Query
             }
 
             return expression;
+        }
+
+        public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
+        {
+            Check.NotNull(whereClause, nameof(whereClause));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            var selectExpression = TryGetQuery(queryModel.MainFromClause);
+            var requiresClientFilter = selectExpression == null;
+
+            if (!requiresClientFilter)
+            {
+                var sqlTranslatingExpressionVisitor
+                    = new SqlTranslatingExpressionVisitor(
+                        this, selectExpression, whereClause.Predicate, _bindParentQueries);
+
+                var sqlPredicateExpression = sqlTranslatingExpressionVisitor.Visit(whereClause.Predicate);
+
+                if (sqlPredicateExpression != null)
+                {
+                    selectExpression.Predicate
+                        = selectExpression.Predicate == null
+                            ? sqlPredicateExpression
+                            : Expression.AndAlso(selectExpression.Predicate, sqlPredicateExpression);
+                }
+                else
+                {
+                    requiresClientFilter = true;
+                }
+
+                if (sqlTranslatingExpressionVisitor.ClientEvalPredicate != null
+                    && selectExpression.Predicate != null)
+                {
+                    requiresClientFilter = true;
+                    whereClause = new WhereClause(sqlTranslatingExpressionVisitor.ClientEvalPredicate);
+                }
+            }
+
+            _requiresClientFilter |= requiresClientFilter;
+
+            if (RequiresClientFilter)
+            {
+                base.VisitWhereClause(whereClause, queryModel, index);
+            }
         }
 
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
