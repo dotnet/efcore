@@ -140,6 +140,24 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             Assert.True(entityTypeBuilder.Metadata.GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog)).IsRequired);
         }
 
+        [Fact]
+        public void RequiredAttribute_does_not_set_is_required_with_conventional_builder_for_collection_navigation()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<Blog>();
+
+            Assert.Null(entityTypeBuilder.Metadata.GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Forum)).IsRequired);
+        }
+
+        [Fact]
+        public void RequiredAttribute_does_not_set_is_required_with_conventional_builder_for_navigation_to_dependent()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity<Blog>();
+
+            Assert.Null(entityTypeBuilder.Metadata.GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Post)).IsRequired);
+        }
+
         #endregion
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
@@ -153,21 +171,43 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
-        public class Blog
+        private class Blog
         {
             public int Id { get; set; }
 
             [NotMapped]
-            public virtual BlogDetails BlogDetails { get; set; }
+            public BlogDetails BlogDetails { get; set; }
+
+            public Forum Forum { get; set; }
+
+            public int PostId { get; set; }
+
+            public Post Post { get; set; }
         }
 
-        public class BlogDetails
+        private class BlogDetails
         {
             public static readonly PropertyInfo BlogIdProperty = typeof(BlogDetails).GetProperty("BlogId");
 
             public int Id { get; set; }
 
             public int? BlogId { get; set; }
+
+            [Required]
+            public Blog Blog { get; set; }
+        }
+
+        private class Forum
+        {
+            public int Id { get; set; }
+
+            [Required]
+            public ICollection<Blog> Blogs { get; set; }
+        }
+
+        private class Post
+        {
+            public int Id { get; set; }
 
             [Required]
             public Blog Blog { get; set; }
