@@ -51,11 +51,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 : newMethodCall;
         }
 
-        private bool IsQueryable(Expression expression)
+        private static bool IsQueryable(Expression expression)
         {
-            return expression == null
-                ? false
-                : typeof(IQueryable).GetTypeInfo().IsAssignableFrom(expression.Type.GetTypeInfo());
+            return expression != null
+                   && typeof(IQueryable).GetTypeInfo()
+                       .IsAssignableFrom(expression.Type.GetTypeInfo());
         }
 
         protected override Expression VisitMember(MemberExpression expression)
@@ -70,6 +70,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             var clonedModel = expression.QueryModel.Clone();
+
             clonedModel.TransformExpressions(Visit);
 
             return new SubQueryExpression(clonedModel);

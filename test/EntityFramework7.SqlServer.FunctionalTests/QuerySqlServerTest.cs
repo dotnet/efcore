@@ -66,6 +66,22 @@ WHERE ([e].[Title] = (
                  Sql);
         }
 
+        public override void Select_Where_Subquery_Deep()
+        {
+            base.Select_Where_Subquery_Deep();
+
+            Assert.StartsWith(
+                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+
+SELECT [o].[OrderID], [o].[CustomerID]
+FROM [Orders] AS [o]
+
+SELECT [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]",
+                 Sql);
+        }
+
         public override void Where_subquery_anon()
         {
             base.Where_subquery_anon();

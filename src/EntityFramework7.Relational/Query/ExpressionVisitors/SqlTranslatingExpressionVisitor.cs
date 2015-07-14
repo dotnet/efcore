@@ -443,7 +443,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 queryModelVisitor.VisitSubQueryModel(subQueryModel);
 
                 if (queryModelVisitor.Queries.Count == 1
-                    && !queryModelVisitor.RequiresClientFilter)
+                    && !queryModelVisitor.RequiresClientFilter
+                    && !queryModelVisitor.RequiresClientProjection)
                 {
                     var selectExpression = queryModelVisitor.Queries.First();
 

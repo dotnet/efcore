@@ -13,13 +13,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             var newExpression = Visit(memberExpression.Expression);
 
             var subQueryExpression = newExpression as SubQueryExpression;
-            var subSelector = subQueryExpression?.QueryModel.SelectClause.Selector as QuerySourceReferenceExpression;
+            var subSelector = subQueryExpression?.QueryModel.SelectClause.Selector;
 
-            if (subSelector != null)
+            if (subSelector is QuerySourceReferenceExpression
+                || subSelector is SubQueryExpression)
             {
                 var subQueryModel = subQueryExpression.QueryModel;
 
-                subQueryModel.SelectClause.Selector = memberExpression.Update(subSelector);
+                subQueryModel.SelectClause.Selector = VisitMember(memberExpression.Update(subSelector));
                 subQueryModel.ResultTypeOverride = subQueryModel.SelectClause.Selector.Type;
 
                 return new SubQueryExpression(subQueryModel);
