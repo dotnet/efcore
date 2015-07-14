@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void NotMappedAttribute_ignored_entityType()
+        public virtual void NotMappedAttribute_ignores_entityType()
         {
             using (var context = CreateContext())
             {
@@ -94,7 +94,44 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void RequiredAttribute_throws_while_inserting_null_value()
+        public virtual void NotMappedAttribute_ignores_navigation()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.False(context.Model.EntityTypes.Any(e => e.Name == typeof(UselessBookDetails).FullName));
+            }
+        }
+
+        [Fact]
+        public virtual void NotMappedAttribute_ignores_property()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Null(context.Model.EntityTypes.First(e => e.Name == typeof(One).FullName).FindProperty("IgnoredProperty"));
+            }
+        }
+
+        [Fact]
+        public virtual void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
+        {
+            using (var context = CreateContext())
+            {
+                context.BookDetails.Add(new BookDetail { BookId = "Book1" });
+
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                context.BookDetails.Add(new BookDetail());
+
+                Assert.Equal("An error occurred while updating the entries. See the inner exception for details.",
+                    Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void RequiredAttribute_for_property_throws_while_inserting_null_value()
         {
             using (var context = CreateContext())
             {

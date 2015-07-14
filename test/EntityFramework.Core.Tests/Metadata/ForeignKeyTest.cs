@@ -121,12 +121,12 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             var foreignKey = new ForeignKey(new[] { dependentProp }, entityType.GetPrimaryKey(), entityType);
 
-            Assert.Null(foreignKey.IsRequired);
+            Assert.True(foreignKey.IsRequired);
             Assert.True(((IForeignKey)foreignKey).IsRequired);
         }
 
         [Fact]
-        public void IsRequired_true_when_dependent_property_nullable()
+        public void IsRequired_false_when_dependent_property_nullable()
         {
             var entityType = new Model().AddEntityType("E");
             entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             var foreignKey = new ForeignKey(new[] { dependentProp }, entityType.GetPrimaryKey(), entityType);
 
-            Assert.Null(foreignKey.IsRequired);
+            Assert.False(foreignKey.IsRequired);
             Assert.False(((IForeignKey)foreignKey).IsRequired);
         }
 
@@ -204,12 +204,12 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             var foreignKey = new ForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.GetPrimaryKey(), entityType);
 
-            Assert.Null(foreignKey.IsRequired);
+            Assert.False(foreignKey.IsRequired);
             Assert.False(((IForeignKey)foreignKey).IsRequired);
 
             dependentProp2.IsNullable = false;
 
-            Assert.Null(foreignKey.IsRequired);
+            Assert.True(foreignKey.IsRequired);
             Assert.True(((IForeignKey)foreignKey).IsRequired);
         }
 

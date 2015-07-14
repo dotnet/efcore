@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                              Metadata.DependentToPrincipal?.Name != navigationToPrincipalName;
 
             return dependentEntityType
-                .Navigation(navigationToPrincipalName, Metadata, pointsToPrincipal: true, configurationSource: configurationSource)
+                .Navigation(navigationToPrincipalName, Metadata, pointsToPrincipal: true, configurationSource: configurationSource) != null
                 ? hasChanged ? ReplaceForeignKey(configurationSource) : this
                 : null;
         }
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                              Metadata.PrincipalToDependent?.Name != navigationToDependentName;
 
             return principalEntityType
-                .Navigation(navigationToDependentName, Metadata, pointsToPrincipal: false, configurationSource: configurationSource)
+                .Navigation(navigationToDependentName, Metadata, pointsToPrincipal: false, configurationSource: configurationSource) != null
                 ? hasChanged ? ReplaceForeignKey(configurationSource) : this
                 : null;
         }

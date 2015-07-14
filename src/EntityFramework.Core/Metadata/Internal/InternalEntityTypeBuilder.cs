@@ -256,7 +256,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                    && (canOverrideSameSource || configurationSource != currentConfigurationSource);
         }
 
-        public virtual bool Navigation(
+        public virtual InternalRelationshipBuilder Navigation(
             [CanBeNull] string navigationName,
             [NotNull] ForeignKey foreignKey,
             bool pointsToPrincipal,
@@ -270,7 +270,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 canOverrideSameSource: true);
         }
 
-        private bool Navigation(
+        private InternalRelationshipBuilder Navigation(
             [CanBeNull] string navigationName,
             [NotNull] ForeignKey foreignKey,
             bool pointsToPrincipal,
@@ -285,15 +285,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 ? this
                 : ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention);
 
+            var builder = fkOwner.Relationship(foreignKey, true, ConfigurationSource.Convention);
+
             if (navigationName == existingNavigation?.Name)
             {
                 fkOwner._relationshipBuilders.Value.UpdateConfigurationSource(foreignKey, configurationSource);
-                return true;
+                return builder;
             }
 
             if (!CanSetNavigation(navigationName, foreignKey, configurationSource, canOverrideSameSource))
             {
-                return false;
+                return null;
             }
 
             var removedNavigation = existingNavigation?.DeclaringEntityType.RemoveNavigation(existingNavigation);
@@ -318,11 +320,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 fkOwner._relationshipBuilders.Value.UpdateConfigurationSource(foreignKey, configurationSource);
-                Metadata.AddNavigation(navigationName, foreignKey, pointsToPrincipal);
-                return true;
+                var navigation = Metadata.AddNavigation(navigationName, foreignKey, pointsToPrincipal);
+                return ModelBuilder.ConventionDispatcher.OnNavigationAdded(builder, navigation);
             }
 
-            return true;
+            return builder;
         }
 
         private bool CanSetNavigation(
@@ -386,7 +388,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var navigation = Metadata.FindNavigation(propertyName);
             if (navigation != null)
             {
-                if (!Navigation(null, navigation.ForeignKey, navigation.PointsToPrincipal(), configurationSource, canOverrideSameSource: false))
+                if (Navigation(null, navigation.ForeignKey, navigation.PointsToPrincipal(), configurationSource, canOverrideSameSource: configurationSource != ConfigurationSource.Explicit) == null)
                 {
                     if (configurationSource == ConfigurationSource.Explicit)
                     {
@@ -903,19 +905,28 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     Debug.Assert(requiredSet || !isRequired.Value);
                 }
 
+                Debug.Assert(foreignKey.IsRequired == isRequired);
                 Debug.Assert(((IForeignKey)foreignKey).IsRequired == isRequired);
             }
 
             var builder = Relationship(foreignKey, existingForeignKey, configurationSource);
             Debug.Assert(builder != null);
 
-            var navigationToPrincipalSet = dependentEntityTypeBuilder
-                .Navigation(navigationToPrincipalName, foreignKey, pointsToPrincipal: true, configurationSource: configurationSource);
-            Debug.Assert(navigationToPrincipalSet);
+            builder = dependentEntityTypeBuilder
+                .Navigation(navigationToPrincipalName, builder.Metadata, pointsToPrincipal: true, configurationSource: configurationSource);
+            if (builder == null)
+            {
+                return null;
+            }
 
-            var navigationToDependentSet = principalEntityTypeBuilder
-                .Navigation(navigationToDependentName, foreignKey, pointsToPrincipal: false, configurationSource: configurationSource);
-            Debug.Assert(navigationToDependentSet);
+            builder = principalEntityTypeBuilder
+                .Navigation(navigationToDependentName, builder.Metadata, pointsToPrincipal: false, configurationSource: configurationSource);
+            if (builder == null)
+            {
+                return null;
+            }
+
+            Debug.Assert(builder != null);
 
             if (onRelationshipAdding != null)
             {
@@ -957,7 +968,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 return true;
             }
-            
+
             return CanSetRequired(foreignKey.Properties, isRequired, configurationSource);
         }
 

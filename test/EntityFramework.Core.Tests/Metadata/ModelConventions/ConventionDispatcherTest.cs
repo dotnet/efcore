@@ -96,20 +96,20 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         {
             var conventions = new ConventionSet();
 
-            InternalRelationshipBuilder relationsipBuilder = null;
+            InternalRelationshipBuilder relationshipBuilder = null;
             var convention = new Mock<IForeignKeyConvention>();
             convention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
                 {
                     Assert.NotNull(b);
-                    relationsipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder, null);
-                    return relationsipBuilder;
+                    relationshipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder, null);
+                    return relationshipBuilder;
                 });
             conventions.ForeignKeyAddedConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IForeignKeyConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
                 {
-                    Assert.Same(relationsipBuilder, b);
+                    Assert.Same(relationshipBuilder, b);
                     return null;
                 });
             conventions.ForeignKeyAddedConventions.Add(nullConvention.Object);
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
             Assert.Null(entityBuilder.Relationship(typeof(Order), typeof(Order), null, null, ConfigurationSource.Convention));
 
-            Assert.NotNull(relationsipBuilder);
+            Assert.NotNull(relationshipBuilder);
         }
 
         [Fact]
@@ -193,6 +193,46 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             conventionDispatcher.OnForeignKeyRemoved(entityBuilder, foreignKey);
 
             Assert.True(foreignKeyRemoved);
+        }
+
+        [Fact]
+        public void OnNavigationAdded_calls_apply_on_conventions_in_order()
+        {
+            var conventions = new ConventionSet();
+
+            InternalRelationshipBuilder relationshipBuilder = null;
+            var convention = new Mock<INavigationConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>(), It.IsAny<Navigation>())).Returns((InternalRelationshipBuilder b, Navigation n) =>
+            {
+                Assert.NotNull(b);
+                relationshipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder, ConfigurationSource.Convention);
+                return relationshipBuilder;
+            });
+            conventions.NavigationAddedConventions.Add(convention.Object);
+
+            var nullConvention = new Mock<INavigationConvention>();
+            nullConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>(), It.IsAny<Navigation>())).Returns((InternalRelationshipBuilder b, Navigation n) =>
+            {
+                Assert.Same(relationshipBuilder, b);
+                return null;
+            });
+            conventions.NavigationAddedConventions.Add(nullConvention.Object);
+
+            var extraConvention = new Mock<INavigationConvention>();
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>(), It.IsAny<Navigation>())).Returns((InternalRelationshipBuilder b, Navigation n) =>
+            {
+                Assert.False(true);
+                return null;
+            });
+            conventions.NavigationAddedConventions.Add(extraConvention.Object);
+
+            var builder = new InternalModelBuilder(new Model(), conventions);
+
+            var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
+            Assert.Null(entityBuilder.Relationship(typeof(Order), typeof(OrderDetails), "Order", "OrderDetails", ConfigurationSource.Convention));
+
+            Assert.NotNull(relationshipBuilder);
         }
 
         [Fact]
@@ -278,6 +318,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         private class Order
         {
             public int OrderId { get; set; }
+
+            public virtual OrderDetails OrderDetails { get; set; }
         }
+
+        private class OrderDetails
+        {
+            public int Id { get; set; }
+            public virtual Order Order { get; set; }
+        }
+
     }
 }
