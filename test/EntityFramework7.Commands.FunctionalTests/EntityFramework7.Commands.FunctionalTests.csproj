@@ -47,6 +47,7 @@
     <Compile Include="TestUtilities\CommandException.cs" />
     <Compile Include="TestUtilities\ExecutorWrapper.cs" />
     <Compile Include="TestUtilities\TempDirectory.cs" />
+    <None Include="App.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
