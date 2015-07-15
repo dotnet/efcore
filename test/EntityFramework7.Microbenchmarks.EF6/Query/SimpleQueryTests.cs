@@ -7,7 +7,7 @@ using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.EF6.Models.Orders;
 using Xunit;
 
-namespace EntityFramework.Microbenchmarks.Query
+namespace EntityFramework.Microbenchmarks.EF6.Query
 {
     public class SimpleQueryTests : IClassFixture<SimpleQueryTests.SimpleQueryFixture>
     {

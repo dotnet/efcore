@@ -1,6 +1,7 @@
 ﻿{
   "benchmarks": {
     "runIterations": false,
+    "resultsDatabase": "Server=(localdb)\\mssqllocaldb;Database=Benchmarks;Trusted_Connection=True;",
     "benchmarkDatabaseInstance": "(localdb)\\mssqllocaldb",
     "productReportingVersion":  "EF6"
   }
