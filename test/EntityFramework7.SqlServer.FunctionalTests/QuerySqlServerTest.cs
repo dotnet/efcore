@@ -2954,6 +2954,17 @@ WHERE (UPPER([c].[CustomerID]) = 'ALFKI')",
                 Sql);
         }
 
+        public override void Where_convert_to_int32()
+        {
+            base.Where_convert_to_int32();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(int, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
+                Sql);
+        }
+
         public override void Select_nested_collection()
         {
             base.Select_nested_collection();
