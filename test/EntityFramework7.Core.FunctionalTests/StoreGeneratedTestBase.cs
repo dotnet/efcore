@@ -207,6 +207,180 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Always_identity_property_on_Added_entity_with_temporary_value_gets_value_from_store()
+        {
+            int id;
+
+            using (var context = CreateContext())
+            {
+                var entry = context.Add(new Gumball { AlwaysIdentity = "Masami" });
+                entry.GetService().MarkAsTemporary(entry.Property(e => e.AlwaysIdentity).Metadata);
+
+                context.SaveChanges();
+                id = entry.Entity.Id;
+
+                Assert.Equal("Banana Joe", entry.Entity.AlwaysIdentity);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity);
+            }
+        }
+
+        [Fact]
+        public virtual void Always_identity_property_on_Added_entity_with_sentinel_value_gets_value_from_store()
+        {
+            int id;
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Add(new Gumball()).Entity;
+
+                context.SaveChanges();
+                id = entity.Id;
+
+                Assert.Equal("Banana Joe", entity.AlwaysIdentity);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity);
+            }
+        }
+
+        [Fact]
+        public virtual void Always_identity_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
+        {
+            using (var context = CreateContext())
+            {
+                context.Add(new Gumball { AlwaysIdentityReadOnlyBeforeSave = "Masami" });
+
+                Assert.Equal(
+                    Strings.PropertyReadOnlyBeforeSave("AlwaysIdentityReadOnlyBeforeSave", "Gumball"),
+                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Always_identity_property_on_Added_entity_gets_store_value_even_when_set_explicitly()
+        {
+            int id;
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Add(new Gumball { AlwaysIdentity = "Masami" }).Entity;
+
+                context.SaveChanges();
+                id = entity.Id;
+
+                Assert.Equal("Banana Joe", entity.AlwaysIdentity);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity);
+            }
+        }
+
+        [Fact]
+        public virtual void Always_identity_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
+        {
+            int id;
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Add(new Gumball()).Entity;
+
+                context.SaveChanges();
+                id = entity.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var gumball = context.Gumballs.Single(e => e.Id == id);
+
+                Assert.Equal("Anton", gumball.AlwaysIdentityReadOnlyAfterSave);
+
+                gumball.AlwaysIdentityReadOnlyAfterSave = "Masami";
+                gumball.NotStoreGenerated = "Larry Needlemeye";
+
+                Assert.Equal(
+                    Strings.PropertyReadOnlyAfterSave("AlwaysIdentityReadOnlyAfterSave", "Gumball"),
+                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Always_identity_property_on_Modified_entity_is_not_included_in_update_when_modified()
+        {
+            int id;
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Add(new Gumball()).Entity;
+
+                context.SaveChanges();
+                id = entity.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var gumball = context.Gumballs.Single(e => e.Id == id);
+
+                Assert.Equal("Banana Joe", gumball.AlwaysIdentity);
+
+                gumball.AlwaysIdentity = "Masami";
+                gumball.NotStoreGenerated = "Larry Needlemeye";
+
+                context.SaveChanges();
+
+                Assert.Equal("Masami", gumball.AlwaysIdentity);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Masami", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity);
+            }
+        }
+
+        [Fact]
+        public virtual void Always_identity_property_on_Modified_entity_is_not_included_in_the_update_when_not_modified()
+        {
+            int id;
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Add(new Gumball()).Entity;
+
+                context.SaveChanges();
+                id = entity.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var gumball = context.Gumballs.Single(e => e.Id == id);
+
+                Assert.Equal("Banana Joe", gumball.AlwaysIdentity);
+
+                gumball.AlwaysIdentity = "Masami";
+                gumball.NotStoreGenerated = "Larry Needlemeye";
+
+                context.Entry(gumball).Property(e => e.AlwaysIdentity).OriginalValue = "Masami";
+                context.Entry(gumball).Property(e => e.AlwaysIdentity).IsModified = false;
+
+                context.SaveChanges();
+
+                Assert.Equal("Masami", gumball.AlwaysIdentity);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Banana Joe", context.Gumballs.Single(e => e.Id == id).AlwaysIdentity);
+            }
+        }
+
+        [Fact]
         public virtual void Computed_property_on_Added_entity_with_temporary_value_gets_value_from_store()
         {
             int id;
@@ -380,6 +554,180 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual void Always_computed_property_on_Added_entity_with_temporary_value_gets_value_from_store()
+        {
+            int id;
+
+            using (var context = CreateContext())
+            {
+                var entry = context.Add(new Gumball { AlwaysComputed = "Masami" });
+                entry.GetService().MarkAsTemporary(entry.Property(e => e.AlwaysComputed).Metadata);
+
+                context.SaveChanges();
+                id = entry.Entity.Id;
+
+                Assert.Equal("Alan", entry.Entity.AlwaysComputed);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed);
+            }
+        }
+
+        [Fact]
+        public virtual void Always_computed_property_on_Added_entity_with_sentinel_value_gets_value_from_store()
+        {
+            int id;
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Add(new Gumball()).Entity;
+
+                context.SaveChanges();
+                id = entity.Id;
+
+                Assert.Equal("Alan", entity.AlwaysComputed);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed);
+            }
+        }
+
+        [Fact]
+        public virtual void Always_computed_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
+        {
+            using (var context = CreateContext())
+            {
+                context.Add(new Gumball { AlwaysComputedReadOnlyBeforeSave = "Masami" });
+
+                Assert.Equal(
+                    Strings.PropertyReadOnlyBeforeSave("AlwaysComputedReadOnlyBeforeSave", "Gumball"),
+                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Always_computed_property_on_Added_entity_cannot_have_value_set_explicitly()
+        {
+            int id;
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Add(new Gumball { AlwaysComputed = "Masami" }).Entity;
+
+                context.SaveChanges();
+                id = entity.Id;
+
+                Assert.Equal("Alan", entity.AlwaysComputed);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed);
+            }
+        }
+
+        [Fact]
+        public virtual void Always_computed_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
+        {
+            int id;
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Add(new Gumball()).Entity;
+
+                context.SaveChanges();
+                id = entity.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var gumball = context.Gumballs.Single(e => e.Id == id);
+
+                Assert.Equal("Tina Rex", gumball.AlwaysComputedReadOnlyAfterSave);
+
+                gumball.AlwaysComputedReadOnlyAfterSave = "Masami";
+                gumball.NotStoreGenerated = "Larry Needlemeye";
+
+                Assert.Equal(
+                    Strings.PropertyReadOnlyAfterSave("AlwaysComputedReadOnlyAfterSave", "Gumball"),
+                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Always_computed_property_on_Modified_entity_is_not_included_in_update_even_when_modified()
+        {
+            int id;
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Add(new Gumball()).Entity;
+
+                context.SaveChanges();
+                id = entity.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var gumball = context.Gumballs.Single(e => e.Id == id);
+
+                Assert.Equal("Alan", gumball.AlwaysComputed);
+
+                gumball.AlwaysComputed = "Masami";
+                gumball.NotStoreGenerated = "Larry Needlemeye";
+
+                context.SaveChanges();
+
+                Assert.Equal("Alan", gumball.AlwaysComputed);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed);
+            }
+        }
+
+        [Fact]
+        public virtual void Always_computed_property_on_Modified_entity_is_read_from_store_when_not_modified()
+        {
+            int id;
+
+            using (var context = CreateContext())
+            {
+                var entity = context.Add(new Gumball()).Entity;
+
+                context.SaveChanges();
+                id = entity.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var gumball = context.Gumballs.Single(e => e.Id == id);
+
+                Assert.Equal("Alan", gumball.AlwaysComputed);
+
+                gumball.AlwaysComputed = "Masami";
+                gumball.NotStoreGenerated = "Larry Needlemeye";
+
+                context.Entry(gumball).Property(e => e.AlwaysComputed).OriginalValue = "Masami";
+                context.Entry(gumball).Property(e => e.AlwaysComputed).IsModified = false;
+
+                context.SaveChanges();
+
+                Assert.Equal("Alan", gumball.AlwaysComputed);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal("Alan", context.Gumballs.Single(e => e.Id == id).AlwaysComputed);
+            }
+        }
+
         protected class Gumball
         {
             public int Id { get; set; }
@@ -389,9 +737,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public string IdentityReadOnlyBeforeSave { get; set; }
             public string IdentityReadOnlyAfterSave { get; set; }
 
+            public string AlwaysIdentity { get; set; }
+            public string AlwaysIdentityReadOnlyBeforeSave { get; set; }
+            public string AlwaysIdentityReadOnlyAfterSave { get; set; }
+
             public string Computed { get; set; }
             public string ComputedReadOnlyBeforeSave { get; set; }
             public string ComputedReadOnlyAfterSave { get; set; }
+
+            public string AlwaysComputed { get; set; }
+            public string AlwaysComputedReadOnlyBeforeSave { get; set; }
+            public string AlwaysComputedReadOnlyAfterSave { get; set; }
         }
 
         protected class StoreGeneratedContext : DbContext
@@ -444,6 +800,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         property.IsReadOnlyAfterSave = true;
                         property.IsReadOnlyBeforeSave = false;
 
+                        property = b.Property(e => e.AlwaysIdentity).ValueGeneratedOnAdd().Metadata;
+                        property.StoreGeneratedAlways = true;
+                        property.IsReadOnlyAfterSave = false;
+                        property.IsReadOnlyBeforeSave = false;
+
+                        property = b.Property(e => e.AlwaysIdentityReadOnlyBeforeSave).ValueGeneratedOnAdd().Metadata;
+                        property.StoreGeneratedAlways = true;
+                        property.IsReadOnlyAfterSave = false;
+                        property.IsReadOnlyBeforeSave = true;
+
+                        property = b.Property(e => e.AlwaysIdentityReadOnlyAfterSave).ValueGeneratedOnAdd().Metadata;
+                        property.StoreGeneratedAlways = true;
+                        property.IsReadOnlyAfterSave = true;
+                        property.IsReadOnlyBeforeSave = false;
+
                         property = b.Property(e => e.Computed).ValueGeneratedOnAddOrUpdate().Metadata;
                         property.IsReadOnlyAfterSave = false;
                         property.IsReadOnlyBeforeSave = false;
@@ -453,6 +824,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         property.IsReadOnlyBeforeSave = true;
 
                         property = b.Property(e => e.ComputedReadOnlyAfterSave).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.IsReadOnlyAfterSave = true;
+                        property.IsReadOnlyBeforeSave = false;
+
+                        property = b.Property(e => e.AlwaysComputed).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.StoreGeneratedAlways = true;
+                        property.IsReadOnlyAfterSave = false;
+                        property.IsReadOnlyBeforeSave = false;
+
+                        property = b.Property(e => e.AlwaysComputedReadOnlyBeforeSave).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.StoreGeneratedAlways = true;
+                        property.IsReadOnlyAfterSave = false;
+                        property.IsReadOnlyBeforeSave = true;
+
+                        property = b.Property(e => e.AlwaysComputedReadOnlyAfterSave).ValueGeneratedOnAddOrUpdate().Metadata;
+                        property.StoreGeneratedAlways = true;
                         property.IsReadOnlyAfterSave = true;
                         property.IsReadOnlyBeforeSave = false;
                     });

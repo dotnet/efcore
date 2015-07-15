@@ -72,6 +72,15 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                         b.Property(e => e.IdentityReadOnlyAfterSave)
                             .DefaultValue("Anton");
 
+                        b.Property(e => e.AlwaysIdentity)
+                            .DefaultValue("Banana Joe");
+
+                        b.Property(e => e.AlwaysIdentityReadOnlyBeforeSave)
+                            .DefaultValue("Doughnut Sheriff");
+
+                        b.Property(e => e.AlwaysIdentityReadOnlyAfterSave)
+                            .DefaultValue("Anton");
+
                         b.Property(e => e.Computed)
                             .DefaultValue("Alan");
 
@@ -79,6 +88,15 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                             .DefaultValue("Carmen");
 
                         b.Property(e => e.ComputedReadOnlyAfterSave)
+                            .DefaultValue("Tina Rex");
+
+                        b.Property(e => e.AlwaysComputed)
+                            .DefaultValue("Alan");
+
+                        b.Property(e => e.AlwaysComputedReadOnlyBeforeSave)
+                            .DefaultValue("Carmen");
+
+                        b.Property(e => e.AlwaysComputedReadOnlyAfterSave)
                             .DefaultValue("Tina Rex");
                     });
             }

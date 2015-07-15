@@ -471,9 +471,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual bool StoreMustGenerateValue([NotNull] IProperty property)
             => property.ValueGenerated != ValueGenerated.Never
-               && ((EntityState == EntityState.Added && IsTemporaryOrSentinel(property))
+               && ((EntityState == EntityState.Added
+                    && (property.StoreGeneratedAlways|| IsTemporaryOrSentinel(property)))
                    || (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
-                       && (EntityState == EntityState.Modified && !IsPropertyModified(property))));
+                       && (EntityState == EntityState.Modified
+                           && (property.StoreGeneratedAlways || !IsPropertyModified(property)))));
 
         private bool IsTemporaryOrSentinel(IProperty property) => HasTemporaryValue(property) || property.IsSentinelValue(this[property]);
 

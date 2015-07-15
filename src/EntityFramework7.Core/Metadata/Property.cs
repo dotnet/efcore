@@ -102,7 +102,9 @@ namespace Microsoft.Data.Entity.Metadata
             set { SetFlag(value, PropertyFlags.IsReadOnlyBeforeSave); }
         }
 
-        protected virtual bool DefaultIsReadOnlyBeforeSave => ValueGenerated == Metadata.ValueGenerated.OnAddOrUpdate;
+        protected virtual bool DefaultIsReadOnlyBeforeSave
+            => ValueGenerated == Metadata.ValueGenerated.OnAddOrUpdate
+               && !((IProperty)this).StoreGeneratedAlways;
 
         public virtual bool? IsReadOnlyAfterSave
         {
@@ -120,7 +122,8 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         protected virtual bool DefaultIsReadOnlyAfterSave
-            => ValueGenerated == Metadata.ValueGenerated.OnAddOrUpdate
+            => (ValueGenerated == Metadata.ValueGenerated.OnAddOrUpdate
+                && !((IProperty)this).StoreGeneratedAlways)
                || this.IsKey();
 
         public virtual bool? RequiresValueGenerator
@@ -162,6 +165,23 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         protected virtual bool DefaultIsConcurrencyToken => false;
+
+        public virtual bool? StoreGeneratedAlways
+        {
+            get { return GetFlag(PropertyFlags.StoreGeneratedAlways); }
+            set
+            {
+                if (StoreGeneratedAlways != value)
+                {
+                    SetFlag(value, PropertyFlags.StoreGeneratedAlways);
+
+                    DeclaringEntityType.PropertyMetadataChanged(this);
+                }
+            }
+        }
+
+        protected virtual bool DefaultStoreGeneratedAlways
+            => ValueGenerated == Metadata.ValueGenerated.OnAddOrUpdate && IsConcurrencyToken == true;
 
         public virtual int Index
         {
@@ -241,6 +261,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         bool IProperty.IsConcurrencyToken => IsConcurrencyToken ?? DefaultIsConcurrencyToken;
 
+        bool IProperty.StoreGeneratedAlways => StoreGeneratedAlways ?? DefaultStoreGeneratedAlways;
+
         object IProperty.SentinelValue => SentinelValue == null && !ClrType.IsNullableType() ? ClrType.GetDefaultValue() : SentinelValue;
 
         [Flags]
@@ -253,7 +275,8 @@ namespace Microsoft.Data.Entity.Metadata
             ValueGeneratedOnAdd = 16,
             ValueGeneratedOnAddOrUpdate = 32,
             RequiresValueGenerator = 64,
-            IsShadowProperty = 128
+            IsShadowProperty = 128,
+            StoreGeneratedAlways = 256
         }
     }
 }

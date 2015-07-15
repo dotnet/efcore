@@ -160,6 +160,50 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Can_mark_property_to_always_use_store_generated_values()
+        {
+            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(Entity)));
+
+            Assert.Null(property.StoreGeneratedAlways);
+            Assert.False(((IProperty)property).StoreGeneratedAlways);
+
+            property.StoreGeneratedAlways = true;
+            Assert.True(property.StoreGeneratedAlways.Value);
+            Assert.True(((IProperty)property).StoreGeneratedAlways);
+
+            property.StoreGeneratedAlways = false;
+            Assert.False(property.StoreGeneratedAlways.Value);
+            Assert.False(((IProperty)property).StoreGeneratedAlways);
+
+            property.StoreGeneratedAlways = null;
+            Assert.Null(property.StoreGeneratedAlways);
+            Assert.False(((IProperty)property).StoreGeneratedAlways);
+        }
+
+        [Fact]
+        public void Store_generated_concurrency_tokens_always_use_store_values_by_default()
+        {
+            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(Entity)));
+
+            Assert.False(((IProperty)property).StoreGeneratedAlways);
+
+            property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
+            Assert.False(((IProperty)property).StoreGeneratedAlways);
+
+            property.IsConcurrencyToken = true;
+            Assert.True(((IProperty)property).StoreGeneratedAlways);
+
+            property.ValueGenerated = ValueGenerated.OnAdd;
+            Assert.False(((IProperty)property).StoreGeneratedAlways);
+
+            property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
+            Assert.True(((IProperty)property).StoreGeneratedAlways);
+
+            property.StoreGeneratedAlways = false;
+            Assert.False(((IProperty)property).StoreGeneratedAlways);
+        }
+
+        [Fact]
         public void Property_is_read_write_by_default()
         {
             var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));

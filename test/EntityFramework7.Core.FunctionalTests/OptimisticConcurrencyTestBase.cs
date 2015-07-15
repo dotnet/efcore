@@ -21,14 +21,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             foreach (var value in values)
             {
-                var property = value.Key;
-
-                internalEntry[property] = value.Value;
-
-                if (property.IsReadOnlyAfterSave)
-                {
-                    internalEntry.SetPropertyModified(property, isModified: false);
-                }
+                internalEntry[value.Key] = value.Value;
             }
         }
 
@@ -38,16 +31,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             foreach (var value in values)
             {
-                var property = value.Key;
-
-                originalValues[property] = value.Value;
-
-                if (property.IsReadOnlyAfterSave)
-                {
-                    // Prevent DetectChanges from marking this property as Modified
-                    internalEntry[property] = value.Value;
-                    internalEntry.SetPropertyModified(property, isModified: false);
-                }
+                originalValues[value.Key] = value.Value;
             }
         }
 

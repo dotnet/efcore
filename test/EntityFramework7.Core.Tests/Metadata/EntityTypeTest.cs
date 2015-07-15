@@ -1411,6 +1411,33 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Store_always_computed_values_are_not_read_only_before_and_after_save_by_default()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
+
+            Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
+            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+
+            nameProperty.ValueGenerated = ValueGenerated.OnAddOrUpdate;
+            nameProperty.StoreGeneratedAlways = true;
+
+            Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
+            Assert.False(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+
+            nameProperty.IsReadOnlyBeforeSave = true;
+
+            Assert.False(((IProperty)nameProperty).IsReadOnlyAfterSave);
+            Assert.True(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+
+            nameProperty.IsReadOnlyAfterSave = true;
+
+            Assert.True(((IProperty)nameProperty).IsReadOnlyAfterSave);
+            Assert.True(((IProperty)nameProperty).IsReadOnlyBeforeSave);
+        }
+
+        [Fact]
         public void Can_add_a_foreign_key()
         {
             var model = new Model();

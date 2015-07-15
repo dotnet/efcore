@@ -82,6 +82,90 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             // In-memory store does not support store generation 
         }
 
+        [Fact]
+        public override void Always_computed_property_on_Added_entity_with_temporary_value_gets_value_from_store()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_computed_property_on_Added_entity_with_sentinel_value_gets_value_from_store()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_computed_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_computed_property_on_Added_entity_cannot_have_value_set_explicitly()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_computed_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_computed_property_on_Modified_entity_is_not_included_in_update_even_when_modified()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_computed_property_on_Modified_entity_is_read_from_store_when_not_modified()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_identity_property_on_Added_entity_with_temporary_value_gets_value_from_store()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_identity_property_on_Added_entity_with_sentinel_value_gets_value_from_store()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_identity_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_identity_property_on_Added_entity_gets_store_value_even_when_set_explicitly()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_identity_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_identity_property_on_Modified_entity_is_not_included_in_update_when_modified()
+        {
+            // In-memory store does not support store generation 
+        }
+
+        [Fact]
+        public override void Always_identity_property_on_Modified_entity_is_not_included_in_the_update_when_not_modified()
+        {
+            // In-memory store does not support store generation 
+        }
+
         public class StoreGeneratedInMemoryFixture : StoreGeneratedFixtureBase
         {
             private const string DatabaseName = "StoreGeneratedTest";

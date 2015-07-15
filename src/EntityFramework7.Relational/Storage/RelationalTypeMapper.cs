@@ -99,6 +99,7 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(defaultMapping, nameof(defaultMapping));
 
             if (property.IsConcurrencyToken
+                && property.ValueGenerated == ValueGenerated.OnAddOrUpdate
                 && rowVersionMapping != null)
             {
                 return rowVersionMapping;

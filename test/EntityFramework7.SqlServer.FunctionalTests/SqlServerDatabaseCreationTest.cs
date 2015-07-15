@@ -328,7 +328,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<Blog>(b =>
                     {
                         b.Key(e => new { e.Key1, e.Key2 });
-                        b.Property(e => e.AndRow).ConcurrencyToken();
+                        b.Property(e => e.AndRow).ConcurrencyToken().ValueGeneratedOnAddOrUpdate();
                     });
             }
 

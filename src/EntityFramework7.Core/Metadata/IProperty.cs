@@ -11,6 +11,7 @@ namespace Microsoft.Data.Entity.Metadata
         bool IsNullable { get; }
         bool IsReadOnlyBeforeSave { get; }
         bool IsReadOnlyAfterSave { get; }
+        bool StoreGeneratedAlways { get; }
         ValueGenerated ValueGenerated { get; }
         bool RequiresValueGenerator { get; }
         int Index { get; }

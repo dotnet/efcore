@@ -699,20 +699,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                             context.Entry(blog).Property(e => e.Name).OriginalValue = updatedBlog.Name;
                             context.Entry(blog).Property(e => e.Timestamp).OriginalValue = updatedBlog.Timestamp;
 
-                            // Calling SaveChanges will throw because "Timestamp is read-only" (Original and current values don't match)
-                            //context.SaveChanges();
-
-                            // Try to fix this by marking as not modified
-                            context.Entry(blog).Property(e => e.Timestamp).IsModified = false;
-
-                            // Still throws because DetectChanges marks as modified again
-                            // context.SaveChanges();
-
-                            // Try to fix this by making sure current and original values are same and marking as not modified
-                            context.Entry(blog).Property(e => e.Timestamp).CurrentValue = updatedBlog.Timestamp;
-                            context.Entry(blog).Property(e => e.Timestamp).IsModified = false;
-
-                            // Finally saves!
                             context.SaveChanges();
 
                             Assert.NotEqual(blog.Timestamp, currentTimestamp);

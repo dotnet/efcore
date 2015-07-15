@@ -351,6 +351,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]), shadowProperty: true);
             property.IsConcurrencyToken = true;
+            property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
             var typeMapping = (RelationalSizedTypeMapping)new SqlServerTypeMapper().MapPropertyType(property);
 
@@ -365,6 +366,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]), shadowProperty: true);
             property.IsConcurrencyToken = true;
+            property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
             property.IsNullable = false;
 
             var typeMapping = (RelationalSizedTypeMapping)new SqlServerTypeMapper().MapPropertyType(property);
@@ -373,6 +375,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal("rowversion", typeMapping.DefaultTypeName);
             Assert.Equal(8, typeMapping.Size);
             Assert.Equal(8, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[8]).Size);
+        }
+
+        [Fact]
+        public void Does_not_do_rowversion_mapping_for_non_computed_concurrency_tokens()
+        {
+            var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]), shadowProperty: true);
+            property.IsConcurrencyToken = true;
+
+            var typeMapping = (SqlServerMaxLengthMapping)new SqlServerTypeMapper().MapPropertyType(property);
+
+            Assert.Equal(DbType.Binary, typeMapping.StoreType);
+            Assert.Equal("varbinary(max)", typeMapping.DefaultTypeName);
         }
 
         private static RelationalTypeMapping GetTypeMapping(Type propertyType, bool? isNullable = null, int? maxLength = null)
