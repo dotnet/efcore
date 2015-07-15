@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Select(c => new { c }),
                 entryCount: 91);
         }
-        
+
         [Fact]
         public virtual void Queryable_simple_anonymous_projection_subquery()
         {
@@ -1679,7 +1679,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Employee>(
                 es =>
                     from e1 in es
-                    where e1.FirstName == 
+                    where e1.FirstName ==
                         (from e2 in es.OrderBy(e => e.EmployeeID)
                          select new { Foo = e2 })
                             .First().Foo.FirstName
@@ -1728,9 +1728,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs =>
                     from c1 in cs
-                    where c1.IsLondon == 
+                    where c1.IsLondon ==
                         cs.OrderBy(c => c.CustomerID)
-                          .Select(c => new { Foo = c})
+                          .Select(c => new { Foo = c })
                           .First().Foo.IsLondon
                     select c1,
                 entryCount: 85);
@@ -3366,6 +3366,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.CustomerID.ToLower() == "alfki"),
                 entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_convert_to_int32()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.Fax != null && Convert.ToInt32(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1),
+                entryCount: 69);
         }
 
         [Fact]
