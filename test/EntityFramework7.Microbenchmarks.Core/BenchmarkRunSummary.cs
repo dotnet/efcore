@@ -68,6 +68,15 @@ namespace EntityFramework.Microbenchmarks.Core
             MemoryDeltaStandardDeviation = StandardDeviation(memoryDeltas, MemoryDeltaAverage);
         }
 
+        public override string ToString()
+        {
+            return $@"{TestClass}.{TestMethod} (Variation={Variation})
+    Warmup Iterations: {WarmupIterations}
+    Collection Iterations: {Iterations}
+    Time Elapsed (95th Percentile): {TimeElapsedPercentile95}ms
+    Memory Delta (95th Percentile): {MemoryDeltaPercentile95}";
+        }
+
         private static long Percentile(IEnumerable<long> results, double percentile)
         {
             return results.OrderBy(r => r).ElementAt((int)(results.Count() * percentile));

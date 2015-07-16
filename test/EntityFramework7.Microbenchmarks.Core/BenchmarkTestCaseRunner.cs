@@ -5,39 +5,22 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 
-#if DNXCORE50
+#if DNXCORE50 || DNX451
 using Microsoft.Framework.Configuration;
+using Microsoft.Framework.Runtime;
+using Microsoft.Framework.Runtime.Infrastructure;
 #endif
 
 namespace EntityFramework.Microbenchmarks.Core
 {
     public class BenchmarkTestCaseRunner : XunitTestCaseRunner
     {
-#if DNXCORE50
-        private static Lazy<string> _machineName = new Lazy<string>(() =>
-        {
-            var config = new ConfigurationBuilder(".")
-                .AddEnvironmentVariables()
-                .Build();
-
-            return config.Get("computerName");
-        });
-#else
-        private static Lazy<string> _machineName = new Lazy<string>(() => Environment.MachineName);
-#endif
-
-#if DNX451 || DNXCORE50
-        private static Lazy<string> _framwork = new Lazy<string>(() => 
-        {
-            var services = Microsoft.Framework.Runtime.Infrastructure.CallContextServiceLocator.Locator.ServiceProvider; 
-            var env = (Microsoft.Framework.Runtime.IRuntimeEnvironment)services.GetService(typeof(Microsoft.Framework.Runtime.IRuntimeEnvironment)); 
-            return "DNX." + env.RuntimeType;
-        });
-#else
-        private static Lazy<string> _framwork = new Lazy<string>(() => ".NETFramework");
-#endif
+        private static string _machineName = GetMachineName();
+        private static string _framework = GetFramework();
+        private readonly IMessageSink _diagnosticMessageSink;
 
         public BenchmarkTestCaseRunner(
                 BenchmarkTestCase testCase,
@@ -47,7 +30,8 @@ namespace EntityFramework.Microbenchmarks.Core
                 object[] testMethodArguments,
                 IMessageBus messageBus,
                 ExceptionAggregator aggregator,
-                CancellationTokenSource cancellationTokenSource)
+                CancellationTokenSource cancellationTokenSource,
+                IMessageSink diagnosticMessageSink)
             : base(
                   testCase,
                   displayName,
@@ -59,6 +43,7 @@ namespace EntityFramework.Microbenchmarks.Core
                   cancellationTokenSource)
         {
             TestCase = testCase;
+            _diagnosticMessageSink = diagnosticMessageSink;
         }
 
         public new BenchmarkTestCase TestCase { get; private set; }
@@ -73,8 +58,8 @@ namespace EntityFramework.Microbenchmarks.Core
                 Variation = TestCase.Variation,
                 ProductReportingVersion = BenchmarkConfig.Instance.ProductReportingVersion,
                 RunStarted = DateTime.UtcNow,
-                MachineName = _machineName.Value,
-                Framework = _framwork.Value,
+                MachineName = _machineName,
+                Framework = _framework,
                 WarmupIterations = TestCase.WarmupIterations,
                 Iterations = TestCase.Iterations,
                 CustomData = BenchmarkConfig.Instance.CustomData
@@ -96,6 +81,8 @@ namespace EntityFramework.Microbenchmarks.Core
             }
 
             runSummary.PopulateMetrics();
+            _diagnosticMessageSink.OnMessage(new DiagnosticMessage(runSummary.ToString()));
+
             if (BenchmarkConfig.Instance.ResultsDatabase != null)
             {
                 new SqlServerBenchmarkResultProcessor(BenchmarkConfig.Instance.ResultsDatabase).SaveSummary(runSummary);
@@ -119,6 +106,30 @@ namespace EntityFramework.Microbenchmarks.Core
                 BeforeAfterAttributes,
                 Aggregator,
                 CancellationTokenSource);
+        }
+
+        private static string GetFramework()
+        {
+#if DNX451 || DNXCORE50
+            var services = CallContextServiceLocator.Locator.ServiceProvider; 
+            var env = (IRuntimeEnvironment)services.GetService(typeof(IRuntimeEnvironment)); 
+            return "DNX." + env.RuntimeType;
+#else
+            return ".NETFramework";
+#endif
+        }
+
+        private static string GetMachineName()
+        {
+#if DNXCORE50
+            var config = new ConfigurationBuilder(".")
+                .AddEnvironmentVariables()
+                .Build();
+
+            return config.Get("computerName");
+#else
+            return Environment.MachineName;
+#endif
         }
     }
 }

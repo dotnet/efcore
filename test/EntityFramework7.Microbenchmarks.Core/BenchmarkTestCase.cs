@@ -13,6 +13,8 @@ namespace EntityFramework.Microbenchmarks.Core
 {
     public class BenchmarkTestCase : XunitTestCase
     {
+        private readonly IMessageSink _diagnosticMessageSink;
+
         public BenchmarkTestCase(
                 int iterations,
                 int warmupIterations,
@@ -28,6 +30,7 @@ namespace EntityFramework.Microbenchmarks.Core
                 .First()
                 .GetNamedArgument<string>("DisplayName");
 
+            _diagnosticMessageSink = diagnosticMessageSink;
             DisplayName = suppliedDisplayName ?? BaseDisplayName;
             Variation = variation;
             Iterations = iterations;
@@ -62,7 +65,8 @@ namespace EntityFramework.Microbenchmarks.Core
                 TestMethodArguments, 
                 messageBus, 
                 aggregator,
-                cancellationTokenSource).RunAsync();
+                cancellationTokenSource,
+                _diagnosticMessageSink).RunAsync();
         }
     }
 
