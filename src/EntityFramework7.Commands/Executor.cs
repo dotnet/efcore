@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Commands
         private readonly string _projectDir;
         private readonly string _rootNamespace;
         private readonly string _startupAssemblyName;
-        private readonly DatabaseTool _databaseTool;
-        private readonly MigrationTool _migrationTool;
+        private readonly LoggerProvider _loggerProvider;
+        private readonly Assembly _migrationTargetAssembly;
 
         public Executor([NotNull] object logHandler, [NotNull] IDictionary args)
         {
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Commands
 
             var unwrappedLogHandler = logHandler as ILogHandler
                                       ?? new ForwardingProxy<ILogHandler>(logHandler).GetTransparentProxy();
-            var loggerProvider = new LoggerProvider(name => new CommandLoggerAdapter(name, unwrappedLogHandler));
+            _loggerProvider = new LoggerProvider(name => new CommandLoggerAdapter(name, unwrappedLogHandler));
 
             var targetPath = (string)args["targetPath"];
             var startupTargetPath = (string)args["startupTargetPath"];
@@ -42,9 +42,20 @@ namespace Microsoft.Data.Entity.Commands
             _startupAssemblyName = AssemblyName.GetAssemblyName(startupTargetPath).Name;
 
             var assemblyName = AssemblyName.GetAssemblyName(targetPath);
-            var assembly = Assembly.Load(assemblyName);
-            _migrationTool = new MigrationTool(loggerProvider, assembly);
-            _databaseTool = new DatabaseTool(null, loggerProvider);
+            _migrationTargetAssembly = Assembly.Load(assemblyName);
+        }
+
+        // Load MigrationTool and DatabaseTool lazily to avoid loading their dependencies
+        // when the other one is being run (this prevents problems loading Microsoft.AspNet.Razor
+        // which is not available on netcore50).
+        public virtual MigrationTool CreateMigrationTool()
+        {
+            return new MigrationTool(_loggerProvider, _migrationTargetAssembly);
+        }
+
+        public virtual DatabaseTool CreateDatabaseTool()
+        {
+            return new DatabaseTool(null, _loggerProvider);
         }
 
         public class GetContextType : OperationBase
@@ -62,7 +73,7 @@ namespace Microsoft.Data.Entity.Commands
         }
 
         public virtual string GetContextTypeImpl([CanBeNull] string name) =>
-            _migrationTool.GetContextType(name).AssemblyQualifiedName;
+            CreateMigrationTool().GetContextType(name).AssemblyQualifiedName;
 
         public class AddMigration : OperationBase
         {
@@ -85,7 +96,7 @@ namespace Microsoft.Data.Entity.Commands
         {
             Check.NotEmpty(migrationName, nameof(migrationName));
 
-            var files = _migrationTool.AddMigration(
+            var files = CreateMigrationTool().AddMigration(
                 migrationName,
                 contextTypeName,
                 _startupAssemblyName,
@@ -114,7 +125,7 @@ namespace Microsoft.Data.Entity.Commands
         }
 
         public virtual void ApplyMigrationImpl([CanBeNull] string migrationName, [CanBeNull] string contextTypeName) =>
-            _migrationTool.ApplyMigration(migrationName, contextTypeName, _startupAssemblyName);
+            CreateMigrationTool().ApplyMigration(migrationName, contextTypeName, _startupAssemblyName);
 
         public class ScriptMigration : OperationBase
         {
@@ -141,7 +152,7 @@ namespace Microsoft.Data.Entity.Commands
             [CanBeNull] string toMigrationName,
             bool idempotent,
             [CanBeNull] string contextTypeName)
-            => _migrationTool.ScriptMigration(
+            => CreateMigrationTool().ScriptMigration(
                 fromMigrationName,
                 toMigrationName,
                 idempotent,
@@ -167,7 +178,8 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual IEnumerable<string> RemoveMigrationImpl([CanBeNull] string contextTypeName)
         {
-            var files = _migrationTool.RemoveMigration(contextTypeName, _startupAssemblyName, _rootNamespace, _projectDir);
+            var files = CreateMigrationTool()
+                .RemoveMigration(contextTypeName, _startupAssemblyName, _rootNamespace, _projectDir);
 
             if (files.MigrationFile != null)
             {
@@ -199,7 +211,7 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual IEnumerable<IDictionary> GetContextTypesImpl()
         {
-            var contextTypes = _migrationTool.GetContextTypes().ToArray();
+            var contextTypes = CreateMigrationTool().GetContextTypes().ToArray();
             var nameGroups = contextTypes.GroupBy(t => t.Name).ToArray();
             var fullNameGroups = contextTypes.GroupBy(t => t.FullName).ToArray();
 
@@ -236,7 +248,7 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual IEnumerable<IDictionary> GetMigrationsImpl([CanBeNull] string contextTypeName) =>
             // TODO: Determine safe names (See #1774)
-            _migrationTool.GetMigrations(contextTypeName, _startupAssemblyName).Select(
+            CreateMigrationTool().GetMigrations(contextTypeName, _startupAssemblyName).Select(
                 m => new Hashtable { ["MigrationId"] = m.Id, ["MigrationName"] = m.Id, ["SafeName"] = m.Id });
 
         public class ReverseEngineer : OperationBase
@@ -259,7 +271,7 @@ namespace Microsoft.Data.Entity.Commands
             [NotNull] string connectionString,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _databaseTool.ReverseEngineerAsync(
+            return CreateDatabaseTool().ReverseEngineerAsync(
                 providerAssemblyName, connectionString, _rootNamespace, _projectDir, cancellationToken);
         }
 
@@ -279,7 +291,7 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual IReadOnlyList<string> CustomizeReverseEngineerImpl([NotNull] string providerAssemblyName)
         {
-            return _databaseTool.CustomizeReverseEngineer(providerAssemblyName, _projectDir);
+            return CreateDatabaseTool().CustomizeReverseEngineer(providerAssemblyName, _projectDir);
         }
 
         public abstract class OperationBase : MarshalByRefObject
