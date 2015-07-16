@@ -14,7 +14,6 @@ using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
@@ -24,17 +23,22 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public const string DbContextTemplateFileName = "DbContextTemplate.cshtml";
         public const string EntityTypeTemplateFileName = "EntityTypeTemplate.cshtml";
         private const string DefaultFileExtension = ".cs";
-        private readonly IServiceProvider _serviceProvider;
 
-        public ReverseEngineeringGenerator([NotNull] IServiceProvider serviceProvider)
+        public ReverseEngineeringGenerator([NotNull] ILogger logger, [NotNull] IFileService fileService,
+            [NotNull] CSharpCodeGeneratorHelper cSharpCodeGeneratorHelper,
+            [NotNull] ModelUtilities modelUtilities, [NotNull] ITemplating templating)
         {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
+            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(fileService, nameof(fileService));
+            Check.NotNull(cSharpCodeGeneratorHelper, nameof(cSharpCodeGeneratorHelper));
+            Check.NotNull(modelUtilities, nameof(modelUtilities));
+            Check.NotNull(templating, nameof(templating));
 
-            _serviceProvider = serviceProvider;
-            Logger = serviceProvider.GetRequiredService<ILogger>();
-            FileService = serviceProvider.GetRequiredService<IFileService>();
-            CSharpCodeGeneratorHelper = serviceProvider.GetRequiredService<CSharpCodeGeneratorHelper>();
-            ModelUtilities = serviceProvider.GetRequiredService<ModelUtilities>();
+            Logger = logger;
+            FileService = fileService;
+            CSharpCodeGeneratorHelper = cSharpCodeGeneratorHelper;
+            ModelUtilities = modelUtilities;
+            Templating = templating;
         }
 
         public virtual string FileExtension { get; [param: NotNull] set; } = DefaultFileExtension;
@@ -46,6 +50,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public virtual ILogger Logger { get; }
 
         public virtual IFileService FileService { get; }
+
+        public virtual ITemplating Templating { get; }
 
         public virtual async Task<IReadOnlyList<string>> GenerateAsync(
             [NotNull] ReverseEngineeringConfiguration configuration,
@@ -76,10 +82,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                                      ?? dbContextCodeGeneratorHelper.ClassName(configuration.ConnectionString);
             CheckOutputFiles(configuration.OutputPath, dbContextClassName, metadataModel);
 
-            var templating = _serviceProvider.GetRequiredService<ITemplating>();
             var dbContextTemplate = LoadTemplate(configuration.CustomTemplatePath,
                     GetDbContextTemplateFileName(provider), () => provider.DbContextTemplate);
-            var templateResult = await templating.RunTemplateAsync(
+            var templateResult = await Templating.RunTemplateAsync(
                 dbContextTemplate, dbContextGeneratorModel, provider, cancellationToken);
             if (templateResult.ProcessingException != null)
             {
@@ -107,7 +112,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 var entityTypeCodeGeneratorHelper = provider.EntityTypeCodeGeneratorHelper(entityTypeGeneratorModel);
                 entityTypeGeneratorModel.Helper = entityTypeCodeGeneratorHelper;
 
-                templateResult = await templating.RunTemplateAsync(
+                templateResult = await Templating.RunTemplateAsync(
                     entityTypeTemplate, entityTypeGeneratorModel, provider, cancellationToken);
                 if (templateResult.ProcessingException != null)
                 {

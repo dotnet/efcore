@@ -68,6 +68,7 @@
     <Compile Include="ReverseEngineering\Configuration\RelationshipConfiguration.cs" />
     <Compile Include="ReverseEngineering\DbContextCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\DbContextGeneratorModel.cs" />
+    <Compile Include="ReverseEngineering\DesignTimeMetadataProviderFactory.cs" />
     <Compile Include="ReverseEngineering\EntityTypeCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\EntityTypeGeneratorModel.cs" />
     <Compile Include="ReverseEngineering\FileSystemFileService.cs" />

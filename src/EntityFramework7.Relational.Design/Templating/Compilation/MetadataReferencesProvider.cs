@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -9,10 +8,12 @@ using Microsoft.CodeAnalysis;
 using Microsoft.Data.Entity.Utilities;
 
 #if DNX451 || DNXCORE50
+using System;
 using System.IO;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Compilation;
+using Microsoft.Framework.Runtime.Infrastructure;
 using Microsoft.Framework.Runtime.Roslyn;
 #endif
 
@@ -22,14 +23,6 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
     {
         private bool _isInitialized;
         private readonly List<MetadataReference> _references = new List<MetadataReference>();
-        private IServiceProvider _serviceProvider;
-
-        public MetadataReferencesProvider([NotNull] IServiceProvider serviceProvider)
-        {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
-
-            _serviceProvider = serviceProvider;
-        }
 
         public virtual List<MetadataReference> GetApplicationReferences()
         {
@@ -75,7 +68,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
             }
 
 #if DNX451 || DNXCORE50
-            var libraryManager = _serviceProvider.GetRequiredService<ILibraryManager>();
+            var libraryManager = CallContextServiceLocator.Locator.ServiceProvider.GetRequiredService<ILibraryManager>();
             var libraryExport = libraryManager.GetLibraryExport(name);
             if (libraryExport != null)
             {
