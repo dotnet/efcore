@@ -1,8 +1,0 @@
-﻿{
-    "Data": {
-        "DefaultDataSource": { 
-            "DataSource": "(localdb)\\MSSQLLocalDB"
-        },
-        "RunPerfTests": "false"
-    }
-}

@@ -86,9 +86,9 @@ namespace System
         public static Type GetSequenceType(this Type type)
         {
             var sequenceType = TryGetSequenceType(type);
-
             if (sequenceType == null)
             {
+                // TODO: Add exception message
                 throw new ArgumentException();
             }
 
