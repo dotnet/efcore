@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             Check.NotNull(expression, nameof(expression));
 
-            if (expression.Method.MethodIsClosedFormOf(RelationalQueryModelVisitor.CreateEntityMethodInfo)
+            if (expression.Method.MethodIsClosedFormOf(RelationalEntityQueryableExpressionVisitor.CreateEntityMethodInfo)
                 && ((ConstantExpression)expression.Arguments[0]).Value == _querySource)
             {
                 _foundCreateEntityForQuerySource = true;

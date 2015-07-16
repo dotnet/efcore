@@ -39,8 +39,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var newArguments = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCall");
 
-            if ((methodCallExpression.Method.MethodIsClosedFormOf(RelationalQueryModelVisitor.CreateEntityMethodInfo)
-                 || ReferenceEquals(methodCallExpression.Method, RelationalQueryModelVisitor.CreateValueBufferMethodInfo))
+            if ((methodCallExpression.Method.MethodIsClosedFormOf(RelationalEntityQueryableExpressionVisitor.CreateEntityMethodInfo)
+                 || ReferenceEquals(methodCallExpression.Method, RelationalEntityQueryableExpressionVisitor.CreateValueBufferMethodInfo))
                 && ((ConstantExpression)methodCallExpression.Arguments[0]).Value == _outerQuerySource)
             {
                 return methodCallExpression.Arguments[3]; // valueBuffer
