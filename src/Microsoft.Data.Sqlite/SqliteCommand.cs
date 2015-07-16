@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Interop;
+using static Microsoft.Data.Sqlite.Interop.Constants;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -69,7 +71,7 @@ namespace Microsoft.Data.Sqlite
 
         public new virtual SqliteParameterCollection Parameters => _parameters.Value;
         protected override DbParameterCollection DbParameterCollection => Parameters;
-        public override int CommandTimeout { get; set; }
+        public override int CommandTimeout { get; set; } = 30;
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
         public new virtual SqliteParameter CreateParameter() => new SqliteParameter();
@@ -104,6 +106,9 @@ namespace Microsoft.Data.Sqlite
                         : Strings.TransactionConnectionMismatch);
             }
 
+            //TODO not necessary to call every time a command is executed. Only on first command or when timeout changes
+            NativeMethods.sqlite3_busy_timeout(Connection.DbHandle, CommandTimeout * 1000);
+
             var hasChanges = false;
             var changes = 0;
             var stmts = new Queue<Tuple<Sqlite3StmtHandle, bool>>();
@@ -112,10 +117,10 @@ namespace Microsoft.Data.Sqlite
             {
                 Sqlite3StmtHandle stmt;
                 var rc = NativeMethods.sqlite3_prepare_v2(
-                    Connection.DbHandle,
-                    tail,
-                    out stmt,
-                    out tail);
+                        Connection.DbHandle,
+                        tail,
+                        out stmt,
+                        out tail);
                 MarshalEx.ThrowExceptionForRC(rc, Connection.DbHandle);
 
                 // Statement was empty, white space, or a comment
@@ -154,9 +159,9 @@ namespace Microsoft.Data.Sqlite
                     throw new InvalidOperationException(Strings.FormatMissingParameters(string.Join(", ", unboundParams)));
                 }
 
-                rc = NativeMethods.sqlite3_step(stmt);
                 try
                 {
+                    rc = NativeMethods.sqlite3_step_blocking(Connection.DbHandle, stmt, CommandTimeout*1000);
                     MarshalEx.ThrowExceptionForRC(rc, Connection.DbHandle);
                 }
                 catch
@@ -169,7 +174,7 @@ namespace Microsoft.Data.Sqlite
                 //     in unexpected corner cases, but it's the best we can do without re-parsing SQL
                 if (NativeMethods.sqlite3_stmt_readonly(stmt) != 0)
                 {
-                    stmts.Enqueue(Tuple.Create(stmt, rc != Constants.SQLITE_DONE));
+                    stmts.Enqueue(Tuple.Create(stmt, rc != SQLITE_DONE));
                 }
                 else
                 {

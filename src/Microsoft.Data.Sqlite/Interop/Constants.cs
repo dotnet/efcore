@@ -23,6 +23,10 @@ namespace Microsoft.Data.Sqlite.Interop
         public const int SQLITE_OPEN_READWRITE = 0x00000002;
         public const int SQLITE_OPEN_CREATE = 0x00000004;
 
+
+        public const int SQLITE_BUSY = 5;
+        public const int SQLITE_LOCKED = 6;
+        
         public static readonly IntPtr SQLITE_TRANSIENT = new IntPtr(-1);
     }
 }

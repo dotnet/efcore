@@ -347,7 +347,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// SQLite Error {errorCode}: '{message}'.
+        /// SQLite Error {errorCode}: '{message}'
         /// </summary>
         internal static string SqliteNativeError
         {
@@ -355,7 +355,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// SQLite Error {errorCode}: '{message}'.
+        /// SQLite Error {errorCode}: '{message}'
         /// </summary>
         internal static string FormatSqliteNativeError(object errorCode, object message)
         {

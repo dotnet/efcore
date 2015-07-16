@@ -4,6 +4,9 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
+using static Microsoft.Data.Sqlite.Interop.Constants;
+
 #if NET45 || DNX451 || DNXCORE50
 using Microsoft.Framework.Internal;
 
@@ -68,6 +71,12 @@ namespace Microsoft.Data.Sqlite.Interop
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
         private static extern int sqlite3_bind_parameter_index(Sqlite3StmtHandle pStmt, IntPtr zName);
 
+        [DllImport("sqlite3", EntryPoint = "sqlite3_bind_parameter_name", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr sqlite3_bind_parameter_name_raw(Sqlite3StmtHandle stmt, int i);
+
+        public static string sqlite3_bind_parameter_name(Sqlite3StmtHandle stmt, int i)
+            => MarshalEx.PtrToStringUTF8(sqlite3_bind_parameter_name_raw(stmt, i));
+
         public static int sqlite3_bind_parameter_index(Sqlite3StmtHandle pStmt, string zName)
         {
             var ptr = MarshalEx.StringToHGlobalUTF8(zName);
@@ -102,6 +111,9 @@ namespace Microsoft.Data.Sqlite.Interop
                 }
             }
         }
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int sqlite3_busy_timeout(Sqlite3Handle db, int ms);
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
         public static extern int sqlite3_changes(Sqlite3Handle db);
@@ -243,15 +255,32 @@ namespace Microsoft.Data.Sqlite.Interop
         }
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int sqlite3_reset(Sqlite3StmtHandle stmt);
+
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
         public static extern int sqlite3_step(Sqlite3StmtHandle stmt);
+
+        //TODO move to a utility class
+        public static int sqlite3_step_blocking(Sqlite3Handle db, Sqlite3StmtHandle stmt, int milliseconds)
+        {
+            var timer = new Stopwatch();
+            int rc;
+            timer.Start();
+            while (SQLITE_LOCKED == (rc = sqlite3_step(stmt)))
+            {
+                if (timer.ElapsedMilliseconds >= milliseconds)
+                {
+                    return rc;
+                }
+                sqlite3_reset(stmt);
+                Thread.Sleep(150);
+                // TODO add async code path that uses Task.Delay() instead
+            }
+            return rc;
+        }
 
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
         public static extern int sqlite3_stmt_readonly(Sqlite3StmtHandle pStmt);
 
-        [DllImport("sqlite3", EntryPoint = "sqlite3_bind_parameter_name", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr sqlite3_bind_parameter_name_raw(Sqlite3StmtHandle stmt, int i);
-
-        public static string sqlite3_bind_parameter_name(Sqlite3StmtHandle stmt, int i)
-            => MarshalEx.PtrToStringUTF8(sqlite3_bind_parameter_name_raw(stmt, i));
     }
 }
