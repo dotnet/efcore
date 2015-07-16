@@ -71,6 +71,16 @@
     <Compile Include="Migrations\CreateDatabaseOperation.cs" />
     <Compile Include="Migrations\DropDatabaseOperation.cs" />
     <Compile Include="Migrations\SqlServerHistoryRepository.cs" />
+    <Compile Include="Query\Methods\ConvertToStringTranslator.cs" />
+    <Compile Include="Query\Methods\ConvertToInt64Translator.cs" />
+    <Compile Include="Query\Methods\ConvertToInt16Translator.cs" />
+    <Compile Include="Query\Methods\ConvertToDoubleTranslator.cs" />
+    <Compile Include="Query\Methods\ConvertToDecimalTranslator.cs" />
+    <Compile Include="Query\Methods\ConvertToDateTimeTranslator.cs" />
+    <Compile Include="Query\Methods\ConvertToByteTranslator.cs" />
+    <Compile Include="Query\Methods\ConvertToBooleanTranslator.cs" />
+    <Compile Include="Query\Methods\ConvertToInt32Translator.cs" />
+    <Compile Include="Query\Methods\ConvertTranslator.cs" />
     <Compile Include="Query\Methods\DateTimeNowTranslator.cs" />
     <Compile Include="Query\Methods\MathAbsTranslator.cs" />
     <Compile Include="Query\Methods\MathCeilingTranslator.cs" />

@@ -3335,15 +3335,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Where(c => c.CustomerID.ToLower() == "alfki"),
                 entryCount: 1);
         }
-
-        [Fact]
-        public virtual void Where_convert_to_int32()
-        {
-            AssertQuery<Customer>(
-                cs => cs.Where(c => c.Fax != null && Convert.ToInt32(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1),
-                entryCount: 69);
-        }
-
+        
         [Fact]
         public virtual void Where_functions_nested()
         {

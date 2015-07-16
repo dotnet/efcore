@@ -53,5 +53,12 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 ? new SqlFunctionExpression(FunctionName, arguments, Type)
                 : this;
         }
+
+#if DEBUG
+        public override string ToString()
+        {
+            return $"{FunctionName}({string.Join(", ",Arguments)})";
+        }
+#endif
     }
 }
