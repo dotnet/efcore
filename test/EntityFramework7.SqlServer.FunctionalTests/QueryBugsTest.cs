@@ -383,6 +383,8 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         public void Execute1742(CustomerDetails_1742 details)
         {
+            CreateDatabase925();
+            
             var loggingFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
