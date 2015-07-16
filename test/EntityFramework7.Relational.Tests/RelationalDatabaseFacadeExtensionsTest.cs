@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Xunit;
@@ -29,20 +28,6 @@ namespace Microsoft.Data.Entity.Tests
                 new ServiceCollection().AddInstance(connectionMock.Object));
 
             Assert.Same(dbConnection, context.Database.GetDbConnection());
-        }
-
-        [Fact]
-        public void GetDbConnection_returns_the_current_transaction()
-        {
-            var dbTransaction = Mock.Of<DbTransaction>();
-
-            var connectionMock = new Mock<IRelationalConnection>();
-            connectionMock.SetupGet(m => m.DbTransaction).Returns(dbTransaction);
-
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddInstance(connectionMock.Object));
-
-            Assert.Same(dbTransaction, context.Database.GetDbTransaction());
         }
 
         [Fact]

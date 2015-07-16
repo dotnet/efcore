@@ -44,9 +44,6 @@ namespace Microsoft.Data.Entity
         public static void CloseConnection([NotNull] this DatabaseFacade databaseFacade)
             => GetRelationalConnection(databaseFacade).Close();
 
-        public static DbTransaction GetDbTransaction([NotNull] this DatabaseFacade databaseFacade)
-            => GetRelationalConnection(databaseFacade).DbTransaction;
-
         public static IRelationalTransaction BeginTransaction([NotNull] this DatabaseFacade databaseFacade)
             => GetRelationalConnection(databaseFacade).BeginTransaction();
 
