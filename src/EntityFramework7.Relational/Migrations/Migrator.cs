@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             var appliedMigrationEntries = await _historyRepository.GetAppliedMigrationsAsync();
             var migrations = _migrationAssembly.Migrations;
-            var migrationToExecute = GetMigrationToExecute(targetMigration, migrations, appliedMigrationEntries);
+            var migrationToExecute = GetMigrationsToExecute(targetMigration, migrations, appliedMigrationEntries);
 
             for (int index = 0; index < migrationToExecute.Count; index++)
             {
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             var appliedMigrationEntries = _historyRepository.GetAppliedMigrations();
             var migrations = _migrationAssembly.Migrations;
-            var migrationToExecute = GetMigrationToExecute(targetMigration, migrations, appliedMigrationEntries);
+            var migrationToExecute = GetMigrationsToExecute(targetMigration, migrations, appliedMigrationEntries);
 
             for (int index = 0; index < migrationToExecute.Count; index++)
             {
@@ -305,7 +305,7 @@ namespace Microsoft.Data.Entity.Migrations
             }
         }
 
-        protected virtual List<ExecutableMigration> GetMigrationToExecute(string targetMigration, IReadOnlyList<Migration> migrations, IReadOnlyList<IHistoryRow> appliedMigrationEntries)
+        protected virtual List<ExecutableMigration> GetMigrationsToExecute(string targetMigration, IReadOnlyList<Migration> migrations, IReadOnlyList<IHistoryRow> appliedMigrationEntries)
         {
             var migrationToExecute = new List<ExecutableMigration>();
 
