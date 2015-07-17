@@ -30,21 +30,6 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         }
 
         [Fact]
-        public void Can_set_column_order_with_convention_builder()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .HasColumnOrder(1);
-
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
-
-            Assert.Equal(1, property.Relational().ColumnOrder);
-        }
-
-        [Fact]
         public void Can_set_column_type_with_convention_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();

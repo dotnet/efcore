@@ -84,30 +84,6 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         }
 
         [Fact]
-        public void Can_get_and_set_column_order()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .Metadata;
-
-            Assert.Null(property.Relational().ColumnOrder);
-            Assert.Null(((IProperty)property).Relational().ColumnOrder);
-
-            property.Relational().ColumnOrder = 2;
-
-            Assert.Equal(2, property.Relational().ColumnOrder);
-            Assert.Equal(2, ((IProperty)property).Relational().ColumnOrder);
-
-            property.Relational().ColumnOrder = null;
-
-            Assert.Null(property.Relational().ColumnOrder);
-            Assert.Null(((IProperty)property).Relational().ColumnOrder);
-        }
-
-        [Fact]
         public void Can_get_and_set_column_type()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());

@@ -19,11 +19,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName, attribute.Name, ConfigurationSource.DataAnnotation);
             }
 
-            if (attribute.Order != -1)
-            {
-                propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnOrder, attribute.Order, ConfigurationSource.DataAnnotation);
-            }
-
             if (!string.IsNullOrWhiteSpace(attribute.TypeName))
             {
                 propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType, attribute.TypeName, ConfigurationSource.DataAnnotation);

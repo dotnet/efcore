@@ -20,14 +20,13 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Fact]
-        public void ColumnAttribute_sets_column_name_order_and_type_with_conventional_builder()
+        public void ColumnAttribute_sets_column_name_and_type_with_conventional_builder()
         {
             var modelBuilder = new ModelBuilder(new TestConventionalSetBuilder().AddConventions(new CoreConventionSetBuilder().CreateConventionSet()));
 
             var entityBuilder = modelBuilder.Entity<A>();
 
             Assert.Equal("Post Name", entityBuilder.Property(e => e.Name).Metadata.Relational().ColumnName);
-            Assert.Equal(1, entityBuilder.Property(e => e.Name).Metadata.Relational().ColumnOrder);
             Assert.Equal("DECIMAL", entityBuilder.Property(e => e.Name).Metadata.Relational().ColumnType);
         }
 
@@ -40,13 +39,11 @@ namespace Microsoft.Data.Entity.Metadata
             var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
 
             propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName, "ConventionalName", ConfigurationSource.Convention);
-            propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnOrder, 3, ConfigurationSource.Convention);
             propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Convention);
 
             new RelationalColumnAttributeConvention().Apply(propertyBuilder);
 
             Assert.Equal("Post Name", propertyBuilder.Metadata.Relational().ColumnName);
-            Assert.Equal(1, propertyBuilder.Metadata.Relational().ColumnOrder);
             Assert.Equal("DECIMAL", propertyBuilder.Metadata.Relational().ColumnType);
 
         }
@@ -59,13 +56,11 @@ namespace Microsoft.Data.Entity.Metadata
             var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
 
             propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName, "ExplicitName", ConfigurationSource.Explicit);
-            propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnOrder, 0, ConfigurationSource.Explicit);
             propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Explicit);
 
             new RelationalColumnAttributeConvention().Apply(propertyBuilder);
 
             Assert.Equal("ExplicitName", propertyBuilder.Metadata.Relational().ColumnName);
-            Assert.Equal(0, propertyBuilder.Metadata.Relational().ColumnOrder);
             Assert.Equal("BYTE", propertyBuilder.Metadata.Relational().ColumnType);
         }
 

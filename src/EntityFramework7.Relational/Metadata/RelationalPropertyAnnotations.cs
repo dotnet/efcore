@@ -25,16 +25,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public new virtual int? ColumnOrder
-        {
-            get { return base.ColumnOrder; }
-            [param: CanBeNull]
-            set
-            {
-                ((Property)Property)[ColumnOrderAnnotation] = value;
-            }
-        }
-
         public new virtual string ColumnType
         {
             get { return base.ColumnType; }

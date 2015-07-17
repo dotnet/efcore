@@ -9,7 +9,6 @@ namespace Microsoft.Data.Entity.Metadata
     public class ReadOnlyRelationalPropertyAnnotations : IRelationalPropertyAnnotations
     {
         protected const string NameAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName;
-        protected const string ColumnOrderAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnOrder;
         protected const string ColumnTypeAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType;
         protected const string GeneratedValueSqlAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.GeneratedValueSql;
         protected const string DefaultValueAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.DefaultValue;
@@ -25,7 +24,6 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual string ColumnName => _property[NameAnnotation] as string ?? _property.Name;
-        public virtual int? ColumnOrder => _property[ColumnOrderAnnotation] as int?;
         public virtual string ColumnType => _property[ColumnTypeAnnotation] as string;
         public virtual string GeneratedValueSql => _property[GeneratedValueSqlAnnotation] as string;
 
