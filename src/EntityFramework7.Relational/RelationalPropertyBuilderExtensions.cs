@@ -28,22 +28,6 @@ namespace Microsoft.Data.Entity
             [CanBeNull] string name)
             => (PropertyBuilder<TProperty>)HasColumnName((PropertyBuilder)propertyBuilder, name);
 
-        public static PropertyBuilder HasColumnOrder(
-            [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] int? columnOrder)
-        {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
-            propertyBuilder.Metadata.Relational().ColumnOrder = columnOrder;
-
-            return propertyBuilder;
-        }
-
-        public static PropertyBuilder<TProperty> HasColumnOrder<TProperty>(
-            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] int? columnOrder)
-            => (PropertyBuilder<TProperty>)HasColumnOrder((PropertyBuilder)propertyBuilder, columnOrder);
-
         public static PropertyBuilder HasColumnType(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string typeName)

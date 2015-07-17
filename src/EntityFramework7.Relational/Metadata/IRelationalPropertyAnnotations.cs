@@ -6,7 +6,6 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IRelationalPropertyAnnotations
     {
         string ColumnName { get; }
-        int? ColumnOrder { get; }
         string ColumnType { get; }
         string GeneratedValueSql { get; }
         object DefaultValue { get; }
