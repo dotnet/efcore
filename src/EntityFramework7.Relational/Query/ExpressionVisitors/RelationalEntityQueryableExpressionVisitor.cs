@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
@@ -97,7 +99,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             Check.NotNull(elementType, nameof(elementType));
 
-            var queryMethodInfo = RelationalQueryModelVisitor.CreateValueBufferMethodInfo;
+            var queryMethodInfo = CreateValueBufferMethodInfo;
             var relationalQueryCompilationContext = QueryModelVisitor.QueryCompilationContext;
             var entityType = relationalQueryCompilationContext.Model.GetEntityType(elementType);
             var selectExpression = new SelectExpression();
@@ -193,8 +195,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             _querySource);
 
                 queryMethodInfo
-                    = RelationalQueryModelVisitor.CreateEntityMethodInfo
-                        .MakeGenericMethod(elementType);
+                    = CreateEntityMethodInfo.MakeGenericMethod(elementType);
 
                 var keyProperties
                     = entityType.GetPrimaryKey().Properties;
@@ -238,6 +239,60 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 Expression.Lambda(
                     Expression.Call(queryMethodInfo, queryMethodArguments),
                     _valueBufferParameter));
+        }
+
+        public static readonly MethodInfo CreateValueBufferMethodInfo
+            = typeof(RelationalEntityQueryableExpressionVisitor).GetTypeInfo()
+                .GetDeclaredMethod(nameof(CreateValueBuffer));
+
+        [UsedImplicitly]
+        private static QueryResultScope<ValueBuffer> CreateValueBuffer(
+            IQuerySource querySource,
+            QueryContext queryContext,
+            QueryResultScope parentQueryResultScope,
+            ValueBuffer valueBuffer,
+            int valueBufferOffset)
+        {
+            return new QueryResultScope<ValueBuffer>(
+                querySource,
+                valueBuffer.WithOffset(valueBufferOffset),
+                parentQueryResultScope);
+        }
+
+        public static readonly MethodInfo CreateEntityMethodInfo
+            = typeof(RelationalEntityQueryableExpressionVisitor).GetTypeInfo()
+                .GetDeclaredMethod(nameof(CreateEntity));
+
+        [UsedImplicitly]
+        private static QueryResultScope<TEntity> CreateEntity<TEntity>(
+            IQuerySource querySource,
+            QueryContext queryContext,
+            QueryResultScope parentQueryResultScope,
+            ValueBuffer valueBuffer,
+            int valueBufferOffset,
+            IEntityType entityType,
+            bool queryStateManager,
+            EntityKeyFactory entityKeyFactory,
+            IReadOnlyList<IProperty> keyProperties,
+            Func<ValueBuffer, object> materializer)
+            where TEntity : class
+        {
+            valueBuffer = valueBuffer.WithOffset(valueBufferOffset);
+
+            var entityKey
+                = entityKeyFactory.Create(entityType.RootType(), keyProperties, valueBuffer);
+
+            return new QueryResultScope<TEntity>(
+                querySource,
+                (TEntity)queryContext.QueryBuffer
+                    .GetEntity(
+                        entityType,
+                        entityKey,
+                        new EntityLoadInfo(
+                            valueBuffer,
+                            materializer),
+                        queryStateManager),
+                parentQueryResultScope);
         }
     }
 }

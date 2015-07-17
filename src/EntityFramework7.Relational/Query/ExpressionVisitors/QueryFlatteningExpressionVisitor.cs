@@ -66,8 +66,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
             }
 
-            if (ReferenceEquals(newExpression.Method, RelationalQueryModelVisitor.CreateValueBufferMethodInfo)
-                || newExpression.Method.MethodIsClosedFormOf(RelationalQueryModelVisitor.CreateEntityMethodInfo))
+            if (ReferenceEquals(newExpression.Method, RelationalEntityQueryableExpressionVisitor.CreateValueBufferMethodInfo)
+                || newExpression.Method.MethodIsClosedFormOf(RelationalEntityQueryableExpressionVisitor.CreateEntityMethodInfo))
             {
                 var constantExpression = (ConstantExpression)newExpression.Arguments[0];
 
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             [2] = _outerShaperExpression
                         };
 
-                    if (newArguments.Count == RelationalQueryModelVisitor.CreateEntityMethodInfo.GetParameters().Length)
+                    if (newArguments.Count == RelationalEntityQueryableExpressionVisitor.CreateEntityMethodInfo.GetParameters().Length)
                     {
                         var oldBufferOffset = (int)((ConstantExpression)newArguments[4]).Value;
 

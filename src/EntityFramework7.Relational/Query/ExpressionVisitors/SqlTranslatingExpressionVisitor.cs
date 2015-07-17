@@ -409,11 +409,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return null;
         }
 
-        protected override Expression VisitSubQuery(SubQueryExpression expression)
+        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(subQueryExpression, nameof(subQueryExpression));
 
-            var subQueryModel = expression.QueryModel;
+            var subQueryModel = subQueryExpression.QueryModel;
 
             if (subQueryModel.IsIdentityQuery()
                 && subQueryModel.ResultOperators.Count == 1)
@@ -436,34 +436,42 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             }
             else if (!_inProjection)
             {
-                var queryModelVisitor
-                    = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
-                        .CreateQueryModelVisitor(_queryModelVisitor);
+                var querySourceReferenceExpression
+                    = subQueryModel.SelectClause.Selector as QuerySourceReferenceExpression;
 
-                queryModelVisitor.VisitSubQueryModel(subQueryModel);
-
-                if (queryModelVisitor.Queries.Count == 1
-                    && !queryModelVisitor.RequiresClientFilter
-                    && !queryModelVisitor.RequiresClientProjection)
+                if (querySourceReferenceExpression == null
+                    || !_queryModelVisitor.QueryCompilationContext
+                        .QuerySourceRequiresMaterialization(querySourceReferenceExpression.ReferencedQuerySource))
                 {
-                    var selectExpression = queryModelVisitor.Queries.First();
+                    var queryModelVisitor
+                        = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
+                            .CreateQueryModelVisitor(_queryModelVisitor);
 
-                    selectExpression.Alias = string.Empty; // anonymous
+                    queryModelVisitor.VisitSubQueryModel(subQueryModel);
 
-                    var containsResultOperator 
-                        = subQueryModel.ResultOperators.LastOrDefault() as ContainsResultOperator;
-
-                    if (containsResultOperator != null)
+                    if (queryModelVisitor.Queries.Count == 1
+                        && !queryModelVisitor.RequiresClientFilter
+                        && !queryModelVisitor.RequiresClientProjection)
                     {
-                        var itemExpression = Visit(containsResultOperator.Item) as AliasExpression;
+                        var selectExpression = queryModelVisitor.Queries.First();
 
-                        if (itemExpression != null)
+                        selectExpression.Alias = string.Empty; // anonymous
+
+                        var containsResultOperator
+                            = subQueryModel.ResultOperators.LastOrDefault() as ContainsResultOperator;
+
+                        if (containsResultOperator != null)
                         {
-                            return new InExpression(itemExpression, selectExpression);
-                        }
-                    }
+                            var itemExpression = Visit(containsResultOperator.Item) as AliasExpression;
 
-                    return selectExpression;
+                            if (itemExpression != null)
+                            {
+                                return new InExpression(itemExpression, selectExpression);
+                            }
+                        }
+
+                        return selectExpression;
+                    }
                 }
             }
 
