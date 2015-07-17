@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
             Assert.Equal("Name", property.Name);
-            Assert.Equal("Eman", property.Relational().Column);
+            Assert.Equal("Eman", property.Relational().ColumnName);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .DefaultValueSql("CherryCoke");
+                .HasDefaultValueSql("CherryCoke");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ComputedColumnSql("CherryCoke");
+                .HasComputedColumnSql("CherryCoke");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .DefaultValue(guid);
+                .HasDefaultValue(guid);
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Key(e => e.Id)
-                .KeyName("KeyLimePie");
+                .Name("KeyLimePie");
 
             var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
 
@@ -236,7 +236,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Index(e => e.Id)
-                .IndexName("Eeeendeeex");
+                .Name("Eeeendeeex");
 
             var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
 
@@ -255,7 +255,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
+            Assert.Equal("Customizer", entityType.Relational().TableName);
         }
 
         [Fact]
@@ -270,7 +270,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
+            Assert.Equal("Customizer", entityType.Relational().TableName);
         }
 
         [Fact]
@@ -285,7 +285,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
+            Assert.Equal("Customizer", entityType.Relational().TableName);
             Assert.Equal("db0", entityType.Relational().Schema);
         }
 
@@ -301,7 +301,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
+            Assert.Equal("Customizer", entityType.Relational().TableName);
             Assert.Equal("db0", entityType.Relational().Schema);
         }
 
@@ -325,7 +325,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.Type);
+            Assert.Same(Sequence.DefaultType, sequence.ClrType);
         }
 
         [Fact]
@@ -348,7 +348,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.Type);
+            Assert.Same(Sequence.DefaultType, sequence.ClrType);
         }
 
         [Fact]
@@ -358,10 +358,10 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Sequence("Snook")
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
+                .IncrementsBy(11)
+                .HasStart(1729)
+                .HasMin(111)
+                .HasMax(2222)
                 .Type<int>();
 
             var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
@@ -377,7 +377,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(111, sequence.MinValue);
             Assert.Equal(2222, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
+            Assert.Same(typeof(int), sequence.ClrType);
         }
 
         [Fact]
@@ -387,10 +387,10 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Sequence("Snook", "Tasty")
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
+                .IncrementsBy(11)
+                .HasStart(1729)
+                .HasMin(111)
+                .HasMax(2222)
                 .Type<int>();
 
             var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
@@ -449,19 +449,19 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .DefaultValueSql("Simon"));
+                    .HasDefaultValueSql("Simon"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .ComputedColumnSql("Simon"));
+                    .HasComputedColumnSql("Simon"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .DefaultValue("Neil"));
+                    .HasDefaultValue("Neil"));
         }
 
         [Fact]
@@ -492,32 +492,32 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .DefaultValueSql("Simon");
+                .HasDefaultValueSql("Simon");
 
             modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
-                .DefaultValueSql("Neil");
+                .HasDefaultValueSql("Neil");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .ComputedColumnSql("Simon");
+                .HasComputedColumnSql("Simon");
 
             modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
-                .ComputedColumnSql("Neil");
+                .HasComputedColumnSql("Neil");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .DefaultValue("Simon");
+                .HasDefaultValue("Simon");
 
             modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
-                .DefaultValue("Neil");
+                .HasDefaultValue("Neil");
         }
 
         [Fact]
@@ -598,7 +598,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(111, sequence.MinValue);
             Assert.Equal(2222, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
+            Assert.Same(typeof(int), sequence.ClrType);
         }
 
         private class Customer

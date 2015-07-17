@@ -52,16 +52,12 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>Extensions\LoggingExtensions.cs</Link>
     </Compile>
-    <Compile Include="Infrastructure\ISqlStatementExecutor.cs" />
-    <Compile Include="Infrastructure\IUpdateSqlGenerator.cs" />
     <Compile Include="Infrastructure\RelationalDbContextOptionsBuilder.cs" />
     <Compile Include="Infrastructure\RelationalEntityFrameworkServicesBuilderExtensions.cs" />
     <Compile Include="Infrastructure\RelationalLoggingEventIds.cs" />
     <Compile Include="Infrastructure\RelationalOptionsExtension.cs" />
     <Compile Include="Infrastructure\SqlBatch.cs" />
     <Compile Include="Infrastructure\SqlBatchBuilder.cs" />
-    <Compile Include="Infrastructure\SqlStatementExecutor.cs" />
-    <Compile Include="Infrastructure\UpdateSqlGenerator.cs" />
     <Compile Include="Internal\RelationalModelValidator.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationalColumnAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationalConventionSetBuilder.cs" />
@@ -168,6 +164,7 @@
     <Compile Include="Storage\IRelationalTypeMapper.cs" />
     <Compile Include="Storage\IRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\IRelationalValueBufferFactoryFactory.cs" />
+    <Compile Include="Storage\ISqlStatementExecutor.cs" />
     <Compile Include="Storage\ProviderDesignTimeServicesAttribute.cs" />
     <Compile Include="Storage\RelationalConnection.cs" />
     <Compile Include="Storage\RelationalDatabase.cs" />
@@ -179,6 +176,7 @@
     <Compile Include="Storage\RelationalTypeMapperExtensions.cs" />
     <Compile Include="Storage\RelationalTypeMapping.cs" />
     <Compile Include="Storage\RemappingUntypedRelationalValueBufferFactory.cs" />
+    <Compile Include="Storage\SqlStatementExecutor.cs" />
     <Compile Include="Storage\TypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\TypedValueBufferFactoryFactory.cs" />
     <Compile Include="Storage\UntypedRelationalValueBufferFactory.cs" />
@@ -262,6 +260,7 @@
     <Compile Include="Update\ICommandBatchPreparer.cs" />
     <Compile Include="Update\IModificationCommandBatchFactory.cs" />
     <Compile Include="Update\IParameterNameGeneratorFactory.cs" />
+    <Compile Include="Update\IUpdateSqlGenerator.cs" />
     <Compile Include="Update\ModificationCommand.cs" />
     <Compile Include="Update\ModificationCommandBatch.cs" />
     <Compile Include="Update\ReaderModificationCommandBatch.cs" />
@@ -285,6 +284,7 @@
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\MethodInfoExtensions.cs" />
+    <Compile Include="Update\UpdateSqlGenerator.cs" />
     <Compile Include="ValueGeneration\DiscriminatorValueGenerator.cs" />
     <Compile Include="ValueGeneration\RelationalValueGeneratorSelector.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">

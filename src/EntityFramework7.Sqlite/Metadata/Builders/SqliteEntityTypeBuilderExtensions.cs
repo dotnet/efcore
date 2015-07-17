@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(builder, nameof(builder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            builder.Metadata.Sqlite().Table = name;
+            builder.Metadata.Sqlite().TableName = name;
 
             return builder;
         }

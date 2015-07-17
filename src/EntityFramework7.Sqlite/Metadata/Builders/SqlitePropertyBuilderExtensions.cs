@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(builder, nameof(builder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            builder.Metadata.Sqlite().Column = name;
+            builder.Metadata.Sqlite().ColumnName = name;
 
             return builder;
         }
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity
             where TEntity : class
             => (PropertyBuilder<TEntity>)((PropertyBuilder)builder).HasSqliteColumnType(type);
 
-        public static PropertyBuilder SqliteDefaultValueSql(
+        public static PropertyBuilder HasSqliteDefaultValueSql(
             [NotNull] this PropertyBuilder builder,
             [CanBeNull] string sql)
         {
@@ -56,10 +56,10 @@ namespace Microsoft.Data.Entity
             return builder;
         }
 
-        public static PropertyBuilder<TEntity> SqliteDefaultValueSql<TEntity>(
+        public static PropertyBuilder<TEntity> HasSqliteDefaultValueSql<TEntity>(
             [NotNull] this PropertyBuilder<TEntity> builder,
             [CanBeNull] string sql)
             where TEntity : class
-            => (PropertyBuilder<TEntity>)((PropertyBuilder)builder).SqliteDefaultValueSql(sql);
+            => (PropertyBuilder<TEntity>)((PropertyBuilder)builder).HasSqliteDefaultValueSql(sql);
     }
 }

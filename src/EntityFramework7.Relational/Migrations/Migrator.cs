@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.Migrations.History;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Sql;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;

@@ -48,8 +48,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             modelBuilder.Entity<MappingQueryTestBase.MappedCustomer>(e =>
                 {
-                    e.Property(c => c.CompanyName2).Metadata.SqlServer().Column = "CompanyName";
-                    e.Metadata.SqlServer().Table = "Customers";
+                    e.Property(c => c.CompanyName2).Metadata.SqlServer().ColumnName = "CompanyName";
+                    e.Metadata.SqlServer().TableName = "Customers";
                     e.Metadata.SqlServer().Schema = "dbo";
                 });
         }

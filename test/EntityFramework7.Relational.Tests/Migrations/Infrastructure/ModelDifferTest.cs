@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.Key("Id").KeyName("PK_Dog");
+                        x.Key("Id").Name("PK_Dog");
                     }),
                 target => target.Entity(
                     "Doge",
@@ -232,7 +232,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     {
                         x.ToTable("Dog");
                         x.Property<int>("Id");
-                        x.Key("Id").KeyName("PK_Dog");
+                        x.Key("Id").Name("PK_Dog");
                     }),
                 operations => Assert.Empty(operations));
         }
@@ -259,8 +259,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .Required()
-                            .DefaultValue("Draco")
-                            .DefaultValueSql("CreateDragonName()");
+                            .HasDefaultValue("Draco")
+                            .HasDefaultValueSql("CreateDragonName()");
                     }),
                 operations =>
                 {
@@ -299,8 +299,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .Required()
-                            .DefaultValue("Draco")
-                            .ComputedColumnSql("CreateDragonName()");
+                            .HasDefaultValue("Draco")
+                            .HasComputedColumnSql("CreateDragonName()");
                     }),
                 operations =>
                 {
@@ -456,8 +456,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .Required(true)
-                            .DefaultValue("Buffy")
-                            .DefaultValueSql("CreateBisonName()");
+                            .HasDefaultValue("Buffy")
+                            .HasDefaultValueSql("CreateBisonName()");
                     }),
                 target => target.Entity(
                     "Bison",
@@ -469,8 +469,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .Required(false)
-                            .DefaultValue("Buffy")
-                            .DefaultValueSql("CreateBisonName()");
+                            .HasDefaultValue("Buffy")
+                            .HasDefaultValueSql("CreateBisonName()");
                     }),
                 operations =>
                 {
@@ -501,8 +501,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .Required()
-                            .DefaultValue("Puff")
-                            .DefaultValueSql("CreatePumaName()");
+                            .HasDefaultValue("Puff")
+                            .HasDefaultValueSql("CreatePumaName()");
                     }),
                 target => target.Entity(
                     "Puma",
@@ -514,8 +514,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(450)")
                             .Required()
-                            .DefaultValue("Puff")
-                            .DefaultValueSql("CreatePumaName()");
+                            .HasDefaultValue("Puff")
+                            .HasDefaultValueSql("CreatePumaName()");
                     }),
                 operations =>
                 {
@@ -546,8 +546,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .Required()
-                            .DefaultValue("Butch")
-                            .DefaultValueSql("CreateCougarName()");
+                            .HasDefaultValue("Butch")
+                            .HasDefaultValueSql("CreateCougarName()");
                     }),
                 target => target.Entity(
                     "Cougar",
@@ -559,8 +559,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .Required()
-                            .DefaultValue("Cosmo")
-                            .DefaultValueSql("CreateCougarName()");
+                            .HasDefaultValue("Cosmo")
+                            .HasDefaultValueSql("CreateCougarName()");
                     }),
                 operations =>
                 {
@@ -591,8 +591,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .Required()
-                            .DefaultValue("Liam")
-                            .DefaultValueSql("CreateMountainLionName()");
+                            .HasDefaultValue("Liam")
+                            .HasDefaultValueSql("CreateMountainLionName()");
                     }),
                 target => target.Entity(
                     "MountainLion",
@@ -604,8 +604,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .Required()
-                            .DefaultValue("Liam")
-                            .DefaultValueSql("CreateCatamountName()");
+                            .HasDefaultValue("Liam")
+                            .HasDefaultValueSql("CreateCatamountName()");
                     }),
                 operations =>
                 {
@@ -636,8 +636,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .Required()
-                            .DefaultValue("Liam")
-                            .ComputedColumnSql("CreateMountainLionName()");
+                            .HasDefaultValue("Liam")
+                            .HasComputedColumnSql("CreateMountainLionName()");
                     }),
                 target => target.Entity(
                     "MountainLion",
@@ -649,8 +649,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<string>("Name")
                             .HasColumnType("nvarchar(30)")
                             .Required()
-                            .DefaultValue("Liam")
-                            .ComputedColumnSql("CreateCatamountName()");
+                            .HasDefaultValue("Liam")
+                            .HasComputedColumnSql("CreateCatamountName()");
                     }),
                 operations =>
                 {
@@ -758,7 +758,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("AlternateId");
-                        x.AlternateKey("AlternateId").KeyName("AK_dbo.Pelican_AlternateId");
+                        x.AlternateKey("AlternateId").Name("AK_dbo.Pelican_AlternateId");
                     }),
                 operations =>
                 {
@@ -801,7 +801,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Key("Id");
                         x.Property<int>("AlternateId");
                         x.Property<int>("AlternateRookId");
-                        x.AlternateKey("AlternateRookId").KeyName("AK_Rook_AlternateId");
+                        x.AlternateKey("AlternateRookId").Name("AK_Rook_AlternateId");
                     }),
                 operations =>
                 {
@@ -838,7 +838,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     {
                         x.ToTable("Puffin", "dbo");
                         x.Property<int>("Id");
-                        x.Key("Id").KeyName("PK_dbo.Puffin");
+                        x.Key("Id").Name("PK_dbo.Puffin");
                     }),
                 operations =>
                 {
@@ -1232,7 +1232,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Property<int>("Id");
                         x.Key("Id");
                         x.Property<int>("Value");
-                        x.Index("Value").IndexName("IX_dbo.Donkey_Value");
+                        x.Index("Value").Name("IX_dbo.Donkey_Value");
                     }),
                 operations =>
                 {
@@ -1270,7 +1270,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         x.Key("Id");
                         x.Property<int>("Value");
                         x.Property<int>("MuleValue");
-                        x.Index("MuleValue").IndexName("IX_Muel_Value");
+                        x.Index("MuleValue").Name("IX_Muel_Value");
                     }),
                 operations =>
                 {
@@ -1337,11 +1337,11 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 _ => { },
                 modelBuilder => modelBuilder.Sequence("Tango", "dbo")
                     .Type<int>()
-                    .Start(2)
-                    .IncrementBy(3)
-                    .Min(1)
-                    .Max(4)
-                    .Cycle(),
+                    .HasStart(2)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic(),
                 operations =>
                 {
                     Assert.Equal(1, operations.Count);
@@ -1416,18 +1416,18 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Execute(
                 source => source.Sequence("Alpha", "dbo")
                     .Type<int>()
-                    .Start(2)
-                    .IncrementBy(3)
-                    .Min(1)
-                    .Max(4)
-                    .Cycle(),
+                    .HasStart(2)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic(),
                 source => source.Sequence("Alpha", "dbo")
                     .Type<int>()
-                    .Start(2)
-                    .IncrementBy(5)
-                    .Min(1)
-                    .Max(4)
-                    .Cycle(),
+                    .HasStart(2)
+                    .IncrementsBy(5)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic(),
                 operations =>
                 {
                     Assert.Equal(1, operations.Count);
@@ -1448,18 +1448,18 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Execute(
                 source => source.Sequence("Echo", "dbo")
                     .Type<int>()
-                    .Start(2)
-                    .IncrementBy(3)
-                    .Min(1)
-                    .Max(4)
-                    .Cycle(),
+                    .HasStart(2)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic(),
                 source => source.Sequence("Echo", "dbo")
                     .Type<int>()
-                    .Start(2)
-                    .IncrementBy(3)
-                    .Min(1)
-                    .Max(5)
-                    .Cycle(),
+                    .HasStart(2)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(5)
+                    .IsCyclic(),
                 operations =>
                 {
                     Assert.Equal(1, operations.Count);
@@ -1480,18 +1480,18 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Execute(
                 source => source.Sequence("Delta", "dbo")
                     .Type<int>()
-                    .Start(2)
-                    .IncrementBy(3)
-                    .Min(1)
-                    .Max(4)
-                    .Cycle(),
+                    .HasStart(2)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic(),
                 source => source.Sequence("Delta", "dbo")
                     .Type<int>()
-                    .Start(2)
-                    .IncrementBy(3)
-                    .Min(5)
-                    .Max(4)
-                    .Cycle(),
+                    .HasStart(2)
+                    .IncrementsBy(3)
+                    .HasMin(5)
+                    .HasMax(4)
+                    .IsCyclic(),
                 operations =>
                 {
                     Assert.Equal(1, operations.Count);
@@ -1512,18 +1512,18 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Execute(
                 source => source.Sequence("Foxtrot", "dbo")
                     .Type<int>()
-                    .Start(2)
-                    .IncrementBy(3)
-                    .Min(1)
-                    .Max(4)
-                    .Cycle(true),
+                    .HasStart(2)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic(true),
                 source => source.Sequence("Foxtrot", "dbo")
                     .Type<int>()
-                    .Start(2)
-                    .IncrementBy(3)
-                    .Min(1)
-                    .Max(4)
-                    .Cycle(false),
+                    .HasStart(2)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic(false),
                 operations =>
                 {
                     Assert.Equal(1, operations.Count);
@@ -1544,18 +1544,18 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Execute(
                 source => source.Sequence("Hotel", "dbo")
                     .Type<int>()
-                    .Start(2)
-                    .IncrementBy(3)
-                    .Min(1)
-                    .Max(4)
-                    .Cycle(),
+                    .HasStart(2)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic(),
                 source => source.Sequence("Hotel", "dbo")
                     .Type<long>()
-                    .Start(2)
-                    .IncrementBy(3)
-                    .Min(1)
-                    .Max(4)
-                    .Cycle(),
+                    .HasStart(2)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic(),
                 operations =>
                 {
                     Assert.Equal(2, operations.Count);
@@ -1582,18 +1582,18 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Execute(
                 source => source.Sequence("Golf", "dbo")
                     .Type<int>()
-                    .Start(2)
-                    .IncrementBy(3)
-                    .Min(1)
-                    .Max(4)
-                    .Cycle(),
+                    .HasStart(2)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic(),
                 source => source.Sequence("Golf", "dbo")
                     .Type<int>()
-                    .Start(5)
-                    .IncrementBy(3)
-                    .Min(1)
-                    .Max(4)
-                    .Cycle(),
+                    .HasStart(5)
+                    .IncrementsBy(3)
+                    .HasMin(1)
+                    .HasMax(4)
+                    .IsCyclic(),
                 operations => Assert.Empty(operations));
         }
 
@@ -2276,9 +2276,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.Key("Id").KeyName("PK_Grasshopper");
+                        x.Key("Id").Name("PK_Grasshopper");
                         x.Property<string>("Name");
-                        x.AlternateKey("Name").KeyName("AK_Grasshopper_Name");
+                        x.AlternateKey("Name").Name("AK_Grasshopper_Name");
                     }),
                 operations =>
                 {
@@ -2306,9 +2306,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.Key("Id").KeyName("PK_Cricket");
+                        x.Key("Id").Name("PK_Cricket");
                         x.Property<string>("Name");
-                        x.Index("Name").IndexName("IX_Cricket_Name");
+                        x.Index("Name").Name("IX_Cricket_Name");
                     }),
                 operations =>
                 {
@@ -2933,7 +2933,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         {
                             x.Metadata.BaseType = animal;
                             x.Property<string>("Name");
-                            x.Index("Name").IndexName("IX_Animal_Pike_Name");
+                            x.Index("Name").Name("IX_Animal_Pike_Name");
                             x.Metadata.Relational().DiscriminatorValue = "Pike";
                         });
                 },

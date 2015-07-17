@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IRelationalPropertyAnnotations
     {
-        string Column { get; }
+        string ColumnName { get; }
         int? ColumnOrder { get; }
         string ColumnType { get; }
         string GeneratedValueSql { get; }

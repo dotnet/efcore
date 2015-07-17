@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            entityTypeBuilder.Metadata.SqlServer().Table = name;
+            entityTypeBuilder.Metadata.SqlServer().TableName = name;
 
             return entityTypeBuilder;
         }
@@ -30,14 +30,14 @@ namespace Microsoft.Data.Entity
         public static EntityTypeBuilder ToSqlServerTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name,
-            [CanBeNull] string schemaName)
+            [CanBeNull] string schema)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schemaName, nameof(schemaName));
+            Check.NullButNotEmpty(schema, nameof(schema));
 
-            entityTypeBuilder.Metadata.SqlServer().Table = name;
-            entityTypeBuilder.Metadata.SqlServer().Schema = schemaName;
+            entityTypeBuilder.Metadata.SqlServer().TableName = name;
+            entityTypeBuilder.Metadata.SqlServer().Schema = schema;
 
             return entityTypeBuilder;
         }
@@ -45,8 +45,8 @@ namespace Microsoft.Data.Entity
         public static EntityTypeBuilder<TEntity> ToSqlServerTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name,
-            [CanBeNull] string schemaName)
+            [CanBeNull] string schema)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ToSqlServerTable((EntityTypeBuilder)entityTypeBuilder, name, schemaName);
+            => (EntityTypeBuilder<TEntity>)ToSqlServerTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
     }
 }

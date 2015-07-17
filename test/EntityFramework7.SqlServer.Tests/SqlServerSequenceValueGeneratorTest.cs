@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.SqlServer.ValueGeneration;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;

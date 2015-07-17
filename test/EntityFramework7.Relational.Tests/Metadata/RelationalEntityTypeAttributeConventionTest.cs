@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             var entityBuilder = modelBuilder.Entity<A>();
 
-            Assert.Equal("MyTable", entityBuilder.Metadata.Relational().Table);
+            Assert.Equal("MyTable", entityBuilder.Metadata.Relational().TableName);
             Assert.Equal("MySchema", entityBuilder.Metadata.Relational().Schema);
         }
 
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             new RelationalTableAttributeConvention().Apply(entityBuilder);
 
-            Assert.Equal("MyTable", entityBuilder.Metadata.Relational().Table);
+            Assert.Equal("MyTable", entityBuilder.Metadata.Relational().TableName);
             Assert.Equal("MySchema", entityBuilder.Metadata.Relational().Schema);
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             new RelationalTableAttributeConvention().Apply(entityBuilder);
 
-            Assert.Equal("ExplicitName", entityBuilder.Metadata.Relational().Table);
+            Assert.Equal("ExplicitName", entityBuilder.Metadata.Relational().TableName);
             Assert.Equal("ExplicitName", entityBuilder.Metadata.Relational().Schema);
         }
 

@@ -4,9 +4,8 @@
 using System;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Update;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.Data.Entity.Update
 {
     public interface IUpdateSqlGenerator
     {

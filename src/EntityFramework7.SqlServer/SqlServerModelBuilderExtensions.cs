@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity
 
             var sequence = 
                 model.SqlServer().TryGetSequence(name, schema) ?? 
-                modelBuilder.SqlServerSequence(name, schema).IncrementBy(10).Metadata;
+                modelBuilder.SqlServerSequence(name, schema).IncrementsBy(10).Metadata;
 
             model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             model.SqlServer().HiLoSequenceName = sequence.Name;

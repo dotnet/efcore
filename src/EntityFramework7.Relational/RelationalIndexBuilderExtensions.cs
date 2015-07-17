@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity
 {
     public static class RelationalIndexBuilderExtensions
     {
-        public static IndexBuilder IndexName([NotNull] this IndexBuilder indexBuilder, [CanBeNull] string name)
+        public static IndexBuilder Name([NotNull] this IndexBuilder indexBuilder, [CanBeNull] string name)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
             Check.NullButNotEmpty(name, nameof(name));

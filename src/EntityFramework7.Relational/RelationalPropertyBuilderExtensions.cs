@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            propertyBuilder.Metadata.Relational().Column = name;
+            propertyBuilder.Metadata.Relational().ColumnName = name;
 
             return propertyBuilder;
         }
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity
             [CanBeNull] string typeName)
             => (PropertyBuilder<TProperty>)HasColumnType((PropertyBuilder)propertyBuilder, typeName);
 
-        public static PropertyBuilder DefaultValueSql(
+        public static PropertyBuilder HasDefaultValueSql(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string sql)
         {
@@ -74,12 +74,12 @@ namespace Microsoft.Data.Entity
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> DefaultValueSql<TProperty>(
+        public static PropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] string sql)
-            => (PropertyBuilder<TProperty>)DefaultValueSql((PropertyBuilder)propertyBuilder, sql);
+            => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder, sql);
 
-        public static PropertyBuilder ComputedColumnSql(
+        public static PropertyBuilder HasComputedColumnSql(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string sql)
         {
@@ -92,12 +92,12 @@ namespace Microsoft.Data.Entity
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> ComputedColumnSql<TProperty>(
+        public static PropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] string sql)
-            => (PropertyBuilder<TProperty>)ComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
+            => (PropertyBuilder<TProperty>)HasComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
 
-        public static PropertyBuilder DefaultValue(
+        public static PropertyBuilder HasDefaultValue(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] object value)
         {
@@ -108,9 +108,9 @@ namespace Microsoft.Data.Entity
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> DefaultValue<TProperty>(
+        public static PropertyBuilder<TProperty> HasDefaultValue<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] object value)
-            => (PropertyBuilder<TProperty>)DefaultValue((PropertyBuilder)propertyBuilder, value);
+            => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value);
     }
 }

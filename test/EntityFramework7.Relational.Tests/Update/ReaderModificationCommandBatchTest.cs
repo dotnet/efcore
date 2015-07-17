@@ -148,9 +148,9 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             public override void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command)
             {
-                if (!string.IsNullOrEmpty(command.SchemaName))
+                if (!string.IsNullOrEmpty(command.Schema))
                 {
-                    commandStringBuilder.Append(command.SchemaName + ".");
+                    commandStringBuilder.Append(command.Schema + ".");
                 }
                 commandStringBuilder.Append(command.TableName);
             }
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 base.AppendBatchHeader(commandStringBuilder);
             }
 
-            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schemaName)
+            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema)
             {
             }
 
@@ -594,11 +594,11 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var key = entityType.GetOrAddProperty("Id", typeof(int));
             key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
-            key.Relational().Column = "Col1";
+            key.Relational().ColumnName = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
             var nonKey = entityType.GetOrAddProperty("Name", typeof(string));
-            nonKey.Relational().Column = "Col2";
+            nonKey.Relational().ColumnName = "Col2";
             nonKey.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
 
             return model;

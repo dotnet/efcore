@@ -106,7 +106,7 @@
     <Compile Include="SqliteEntityFrameworkServicesBuilderExtensions.cs" />
     <Compile Include="SqliteCompositeMethodCallTranslator.cs" />
     <Compile Include="SqliteModelSource.cs" />
-    <Compile Include="SqliteUpdateSqlGenerator.cs" />
+    <Compile Include="Update\SqliteUpdateSqlGenerator.cs" />
     <Compile Include="SqliteTypeMapper.cs" />
     <Compile Include="Update\SqliteModificationCommandBatchFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -127,16 +127,16 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 entityConfiguration.FacetConfigurations.Add(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture, "ToTable({0}, {1})",
-                            CSharpUtilities.Instance.DelimitString(entityType.Relational().Table),
+                            CSharpUtilities.Instance.DelimitString(entityType.Relational().TableName),
                             CSharpUtilities.Instance.DelimitString(entityType.Relational().Schema))));
             }
-            else if (entityType.Relational().Table != null
-                     && entityType.Relational().Table != entityType.DisplayName())
+            else if (entityType.Relational().TableName != null
+                     && entityType.Relational().TableName != entityType.DisplayName())
             {
                 entityConfiguration.FacetConfigurations.Add(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture, "ToTable({0})",
-                            CSharpUtilities.Instance.DelimitString(entityType.Relational().Table))));
+                            CSharpUtilities.Instance.DelimitString(entityType.Relational().TableName))));
             }
         }
 
@@ -227,15 +227,15 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (propertyConfiguration.Property.Relational().Column != null
-                && propertyConfiguration.Property.Relational().Column != propertyConfiguration.Property.Name)
+            if (propertyConfiguration.Property.Relational().ColumnName != null
+                && propertyConfiguration.Property.Relational().ColumnName != propertyConfiguration.Property.Name)
             {
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture,
                             "HasColumnName({0})",
                             CSharpUtilities.Instance.DelimitString(
-                                propertyConfiguration.Property.Relational().Column))));
+                                propertyConfiguration.Property.Relational().ColumnName))));
             }
         }
 
@@ -265,7 +265,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture,
-                            "DefaultValue({0})",
+                            "HasDefaultValue({0})",
                             CSharpUtilities.Instance.GenerateLiteral(
                                 (dynamic)propertyConfiguration.Property.Relational().DefaultValue))));
             }
@@ -281,7 +281,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture,
-                            "DefaultValueSql({0})",
+                            "HasDefaultValueSql({0})",
                             CSharpUtilities.Instance.DelimitString(
                                 propertyConfiguration.Property.Relational().GeneratedValueSql))));
             }

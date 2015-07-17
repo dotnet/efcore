@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<MappingQueryTestBase.MappedCustomer>(e =>
                 {
                     e.Key(c => c.CustomerID);
-                    e.Property(c => c.CompanyName2).Metadata.Relational().Column = "Broken";
-                    e.Metadata.Relational().Table = "Broken";
+                    e.Property(c => c.CompanyName2).Metadata.Relational().ColumnName = "Broken";
+                    e.Metadata.Relational().TableName = "Broken";
                     if (!string.IsNullOrEmpty(DatabaseSchema))
                     {
                         e.Metadata.Relational().Schema = "wrong";
@@ -29,16 +29,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<MappingQueryTestBase.MappedEmployee>(e =>
                 {
                     e.Key(em => em.EmployeeID);
-                    e.Property(em => em.City2).Metadata.Relational().Column = "City";
-                    e.Metadata.Relational().Table = "Employees";
+                    e.Property(em => em.City2).Metadata.Relational().ColumnName = "City";
+                    e.Metadata.Relational().TableName = "Employees";
                     e.Metadata.Relational().Schema = DatabaseSchema;
                 });
 
             modelBuilder.Entity<MappingQueryTestBase.MappedOrder>(e =>
                 {
                     e.Key(o => o.OrderID);
-                    e.Property(em => em.ShipVia2).Metadata.Relational().Column = "ShipVia";
-                    e.Metadata.Relational().Table = "Orders";
+                    e.Property(em => em.ShipVia2).Metadata.Relational().ColumnName = "ShipVia";
+                    e.Metadata.Relational().TableName = "Orders";
                     e.Metadata.Relational().Schema = DatabaseSchema;
                 });
 

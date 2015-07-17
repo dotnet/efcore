@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            entityTypeBuilder.Metadata.Relational().Table = name;
+            entityTypeBuilder.Metadata.Relational().TableName = name;
 
             return entityTypeBuilder;
         }
@@ -32,14 +32,14 @@ namespace Microsoft.Data.Entity
         public static EntityTypeBuilder ToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name,
-            [CanBeNull] string schemaName)
+            [CanBeNull] string schema)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schemaName, nameof(schemaName));
+            Check.NullButNotEmpty(schema, nameof(schema));
 
-            entityTypeBuilder.Metadata.Relational().Table = name;
-            entityTypeBuilder.Metadata.Relational().Schema = schemaName;
+            entityTypeBuilder.Metadata.Relational().TableName = name;
+            entityTypeBuilder.Metadata.Relational().Schema = schema;
 
             return entityTypeBuilder;
         }
@@ -47,8 +47,8 @@ namespace Microsoft.Data.Entity
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name,
-            [CanBeNull] string schemaName)
+            [CanBeNull] string schema)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, schemaName);
+            => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
     }
 }

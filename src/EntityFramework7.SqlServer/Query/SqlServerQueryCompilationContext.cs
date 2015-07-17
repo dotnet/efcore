@@ -50,12 +50,12 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             => new SqlServerQuerySqlGenerator(Check.NotNull(selectExpression, nameof(selectExpression)), TypeMapper);
 
         public override string GetTableName(IEntityType entityType)
-            => Check.NotNull(entityType, nameof(entityType)).SqlServer().Table;
+            => Check.NotNull(entityType, nameof(entityType)).SqlServer().TableName;
 
         public override string GetSchema(IEntityType entityType)
             => Check.NotNull(entityType, nameof(entityType)).SqlServer().Schema;
 
         public override string GetColumnName(IProperty property)
-            => Check.NotNull(property, nameof(property)).SqlServer().Column;
+            => Check.NotNull(property, nameof(property)).SqlServer().ColumnName;
     }
 }

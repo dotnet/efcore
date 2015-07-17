@@ -14,8 +14,8 @@ namespace Microsoft.Data.Entity.Tests
             var model = new Entity.Metadata.Model();
             var entityA = model.AddEntityType(typeof(A));
             var entityB = model.AddEntityType(typeof(B));
-            entityA.Relational().Table = "Table";
-            entityB.Relational().Table = "Table";
+            entityA.Relational().TableName = "Table";
+            entityB.Relational().TableName = "Table";
 
             VerifyError(Relational.Internal.Strings.DuplicateTableName("Table", null, entityB.DisplayName()), model);
         }
@@ -26,9 +26,9 @@ namespace Microsoft.Data.Entity.Tests
             var model = new Entity.Metadata.Model();
             var entityA = model.AddEntityType(typeof(A));
             var entityB = model.AddEntityType(typeof(B));
-            entityA.Relational().Table = "Table";
+            entityA.Relational().TableName = "Table";
             entityA.Relational().Schema = "Schema";
-            entityB.Relational().Table = "Table";
+            entityB.Relational().TableName = "Table";
             entityB.Relational().Schema = "Schema";
 
             VerifyError(Relational.Internal.Strings.DuplicateTableName("Table", "Schema", entityB.DisplayName()), model);
@@ -40,9 +40,9 @@ namespace Microsoft.Data.Entity.Tests
             var model = new Entity.Metadata.Model();
             var entityA = model.AddEntityType(typeof(A));
             var entityB = model.AddEntityType(typeof(B));
-            entityA.Relational().Table = "Table";
+            entityA.Relational().TableName = "Table";
             entityA.Relational().Schema = "SchemaA";
-            entityB.Relational().Table = "Table";
+            entityB.Relational().TableName = "Table";
             entityB.Relational().Schema = "SchemaB";
 
             CreateModelValidator().Validate(model);

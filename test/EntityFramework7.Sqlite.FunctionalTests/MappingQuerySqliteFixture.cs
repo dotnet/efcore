@@ -49,8 +49,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             modelBuilder.Entity<MappingQueryTestBase.MappedCustomer>(e =>
                 {
                     // TODO: Use .Sqlite() when available
-                    e.Property(c => c.CompanyName2).Metadata.Relational().Column = "CompanyName";
-                    e.Metadata.Relational().Table = "Customers";
+                    e.Property(c => c.CompanyName2).Metadata.Relational().ColumnName = "CompanyName";
+                    e.Metadata.Relational().TableName = "Customers";
                 });
         }
     }

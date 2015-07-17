@@ -6,6 +6,8 @@ using System.Globalization;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
 

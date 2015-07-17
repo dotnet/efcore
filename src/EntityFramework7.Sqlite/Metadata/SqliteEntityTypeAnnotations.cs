@@ -13,9 +13,9 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         {
         }
 
-        public new virtual string Table
+        public new virtual string TableName
         {
-            get { return base.Table; }
+            get { return base.TableName; }
             [param: CanBeNull] set { EntityType[SqliteTableAnnotation] = value; }
         }
 

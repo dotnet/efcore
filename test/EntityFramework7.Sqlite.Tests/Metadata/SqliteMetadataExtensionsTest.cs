@@ -20,23 +20,23 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Equal("Name", property.Sqlite().Column);
-            Assert.Equal("Name", ((IProperty)property).Sqlite().Column);
+            Assert.Equal("Name", property.Sqlite().ColumnName);
+            Assert.Equal("Name", ((IProperty)property).Sqlite().ColumnName);
 
-            property.Relational().Column = "Eman";
+            property.Relational().ColumnName = "Eman";
 
-            Assert.Equal("Eman", property.Sqlite().Column);
-            Assert.Equal("Eman", ((IProperty)property).Sqlite().Column);
+            Assert.Equal("Eman", property.Sqlite().ColumnName);
+            Assert.Equal("Eman", ((IProperty)property).Sqlite().ColumnName);
 
-            property.Sqlite().Column = "MyNameIs";
+            property.Sqlite().ColumnName = "MyNameIs";
 
-            Assert.Equal("MyNameIs", property.Sqlite().Column);
-            Assert.Equal("MyNameIs", ((IProperty)property).Sqlite().Column);
+            Assert.Equal("MyNameIs", property.Sqlite().ColumnName);
+            Assert.Equal("MyNameIs", ((IProperty)property).Sqlite().ColumnName);
 
-            property.Sqlite().Column = null;
+            property.Sqlite().ColumnName = null;
 
-            Assert.Equal("Eman", property.Sqlite().Column);
-            Assert.Equal("Eman", ((IProperty)property).Sqlite().Column);
+            Assert.Equal("Eman", property.Sqlite().ColumnName);
+            Assert.Equal("Eman", ((IProperty)property).Sqlite().ColumnName);
         }
 
         [Fact]
@@ -48,23 +48,23 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
                 .Entity<Customer>()
                 .Metadata;
 
-            Assert.Equal("Customer", entityType.Sqlite().Table);
-            Assert.Equal("Customer", ((IEntityType)entityType).Sqlite().Table);
+            Assert.Equal("Customer", entityType.Sqlite().TableName);
+            Assert.Equal("Customer", ((IEntityType)entityType).Sqlite().TableName);
 
-            entityType.Relational().Table = "Customizer";
+            entityType.Relational().TableName = "Customizer";
 
-            Assert.Equal("Customizer", entityType.Sqlite().Table);
-            Assert.Equal("Customizer", ((IEntityType)entityType).Sqlite().Table);
+            Assert.Equal("Customizer", entityType.Sqlite().TableName);
+            Assert.Equal("Customizer", ((IEntityType)entityType).Sqlite().TableName);
 
-            entityType.Sqlite().Table = "Custardizer";
+            entityType.Sqlite().TableName = "Custardizer";
 
-            Assert.Equal("Custardizer", entityType.Sqlite().Table);
-            Assert.Equal("Custardizer", ((IEntityType)entityType).Sqlite().Table);
+            Assert.Equal("Custardizer", entityType.Sqlite().TableName);
+            Assert.Equal("Custardizer", ((IEntityType)entityType).Sqlite().TableName);
 
-            entityType.Sqlite().Table = null;
+            entityType.Sqlite().TableName = null;
 
-            Assert.Equal("Customizer", entityType.Sqlite().Table);
-            Assert.Equal("Customizer", ((IEntityType)entityType).Sqlite().Table);
+            Assert.Equal("Customizer", entityType.Sqlite().TableName);
+            Assert.Equal("Customizer", ((IEntityType)entityType).Sqlite().TableName);
         }
 
         [Fact]

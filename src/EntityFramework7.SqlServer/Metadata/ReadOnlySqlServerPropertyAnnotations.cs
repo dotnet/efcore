@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         protected const string SqlServerHiLoSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceName;
         protected const string SqlServerHiLoSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceSchema;
         protected const string SqlServerHiLoSequencePoolSizeAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequencePoolSize;
-        protected const string SqlServerDefaultValueAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultValue;
+        protected const string SqlServerDefaultValueAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.DefaultValue;
         protected const string SqlServerDefaultValueTypeAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultValueType;
 
         public ReadOnlySqlServerPropertyAnnotations([NotNull] IProperty property)
@@ -24,9 +24,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
         }
 
-        public override string Column
+        public override string ColumnName
             => Property[SqlServerNameAnnotation] as string
-               ?? base.Column;
+               ?? base.ColumnName;
 
         public override string ColumnType
             => Property[SqlServerColumnTypeAnnotation] as string

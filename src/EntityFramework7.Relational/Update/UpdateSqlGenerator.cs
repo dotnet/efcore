@@ -7,10 +7,9 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.Data.Entity.Update
 {
     public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     {
@@ -20,23 +19,23 @@ namespace Microsoft.Data.Entity.Infrastructure
             Check.NotNull(command, nameof(command));
 
             var name = command.TableName;
-            var schemaName = command.SchemaName;
+            var schema = command.Schema;
             var operations = command.ColumnModifications;
 
             var writeOperations = operations.Where(o => o.IsWrite).ToArray();
             var readOperations = operations.Where(o => o.IsRead).ToArray();
 
-            AppendInsertCommand(commandStringBuilder, name, schemaName, writeOperations);
+            AppendInsertCommand(commandStringBuilder, name, schema, writeOperations);
 
             if (readOperations.Length > 0)
             {
                 var keyOperations = operations.Where(o => o.IsKey).ToArray();
 
-                AppendSelectAffectedCommand(commandStringBuilder, name, schemaName, readOperations, keyOperations);
+                AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations);
             }
             else
             {
-                AppendSelectAffectedCountCommand(commandStringBuilder, name, schemaName);
+                AppendSelectAffectedCountCommand(commandStringBuilder, name, schema);
             }
         }
 
@@ -46,24 +45,24 @@ namespace Microsoft.Data.Entity.Infrastructure
             Check.NotNull(command, nameof(command));
 
             var name = command.TableName;
-            var schemaName = command.SchemaName;
+            var schema = command.Schema;
             var operations = command.ColumnModifications;
 
             var writeOperations = operations.Where(o => o.IsWrite).ToArray();
             var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
             var readOperations = operations.Where(o => o.IsRead).ToArray();
 
-            AppendUpdateCommand(commandStringBuilder, name, schemaName, writeOperations, conditionOperations);
+            AppendUpdateCommand(commandStringBuilder, name, schema, writeOperations, conditionOperations);
 
             if (readOperations.Length > 0)
             {
                 var keyOperations = operations.Where(o => o.IsKey).ToArray();
 
-                AppendSelectAffectedCommand(commandStringBuilder, name, schemaName, readOperations, keyOperations);
+                AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations);
             }
             else
             {
-                AppendSelectAffectedCountCommand(commandStringBuilder, name, schemaName);
+                AppendSelectAffectedCountCommand(commandStringBuilder, name, schema);
             }
         }
 
@@ -73,25 +72,25 @@ namespace Microsoft.Data.Entity.Infrastructure
             Check.NotNull(command, nameof(command));
 
             var name = command.TableName;
-            var schemaName = command.SchemaName;
+            var schema = command.Schema;
             var conditionOperations = command.ColumnModifications.Where(o => o.IsCondition).ToArray();
 
-            AppendDeleteCommand(commandStringBuilder, name, schemaName, conditionOperations);
+            AppendDeleteCommand(commandStringBuilder, name, schema, conditionOperations);
 
-            AppendSelectAffectedCountCommand(commandStringBuilder, name, schemaName);
+            AppendSelectAffectedCountCommand(commandStringBuilder, name, schema);
         }
 
         public virtual void AppendInsertCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schemaName,
+            [CanBeNull] string schema,
             [NotNull] IReadOnlyList<ColumnModification> writeOperations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(writeOperations, nameof(writeOperations));
 
-            AppendInsertCommandHeader(commandStringBuilder, name, schemaName, writeOperations);
+            AppendInsertCommandHeader(commandStringBuilder, name, schema, writeOperations);
             AppendValuesHeader(commandStringBuilder, writeOperations);
             AppendValues(commandStringBuilder, writeOperations);
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
@@ -100,7 +99,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual void AppendUpdateCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schemaName,
+            [CanBeNull] string schema,
             [NotNull] IReadOnlyList<ColumnModification> writeOperations,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
@@ -109,7 +108,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             Check.NotNull(writeOperations, nameof(writeOperations));
             Check.NotNull(conditionOperations, nameof(conditionOperations));
 
-            AppendUpdateCommandHeader(commandStringBuilder, name, schemaName, writeOperations);
+            AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations);
             AppendWhereClause(commandStringBuilder, conditionOperations);
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
         }
@@ -117,14 +116,14 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual void AppendDeleteCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schemaName,
+            [CanBeNull] string schema,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(conditionOperations, nameof(conditionOperations));
 
-            AppendDeleteCommandHeader(commandStringBuilder, name, schemaName);
+            AppendDeleteCommandHeader(commandStringBuilder, name, schema);
             AppendWhereClause(commandStringBuilder, conditionOperations);
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
         }
@@ -132,14 +131,14 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual void AppendSelectAffectedCountCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schemaName)
+            [CanBeNull] string schema)
         {
         }
 
         public virtual void AppendSelectAffectedCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schemaName,
+            [CanBeNull] string schema,
             [NotNull] IReadOnlyList<ColumnModification> readOperations,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
@@ -149,7 +148,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             Check.NotNull(conditionOperations, nameof(conditionOperations));
 
             AppendSelectCommandHeader(commandStringBuilder, readOperations);
-            AppendFromClause(commandStringBuilder, name, schemaName);
+            AppendFromClause(commandStringBuilder, name, schema);
             // TODO: there is no notion of operator - currently all the where conditions check equality
             AppendWhereAffectedClause(commandStringBuilder, conditionOperations);
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
@@ -158,7 +157,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         protected virtual void AppendInsertCommandHeader(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schemaName,
+            [CanBeNull] string schema,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -167,7 +166,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             commandStringBuilder
                 .Append("INSERT INTO ")
-                .Append(DelimitIdentifier(name, schemaName));
+                .Append(DelimitIdentifier(name, schema));
 
             if (operations.Count > 0)
             {
@@ -181,20 +180,20 @@ namespace Microsoft.Data.Entity.Infrastructure
         protected virtual void AppendDeleteCommandHeader(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schemaName)
+            [CanBeNull] string schema)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));
 
             commandStringBuilder
                 .Append("DELETE FROM ")
-                .Append(DelimitIdentifier(name, schemaName));
+                .Append(DelimitIdentifier(name, schema));
         }
 
         protected virtual void AppendUpdateCommandHeader(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schemaName,
+            [CanBeNull] string schema,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -203,7 +202,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             commandStringBuilder
                 .Append("UPDATE ")
-                .Append(DelimitIdentifier(name, schemaName))
+                .Append(DelimitIdentifier(name, schema))
                 .Append(" SET ")
                 .AppendJoin(
                     operations,
@@ -225,7 +224,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         protected virtual void AppendFromClause(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schemaName)
+            [CanBeNull] string schema)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));
@@ -233,7 +232,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             commandStringBuilder
                 .AppendLine()
                 .Append("FROM ")
-                .Append(DelimitIdentifier(name, schemaName));
+                .Append(DelimitIdentifier(name, schema));
         }
 
         protected virtual void AppendValuesHeader(
