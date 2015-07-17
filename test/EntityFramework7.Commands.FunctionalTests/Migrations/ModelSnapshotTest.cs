@@ -36,6 +36,16 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             public string Id { get; set; }
         }
 
+        public class BaseEntity
+        {
+            public int Id { get; set; }
+        }
+
+        public class DerivedEntity : BaseEntity
+        {
+            public string Name { get; set; }
+        }
+
         #region Model
 
         [Fact]
@@ -115,6 +125,39 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
                     {
                         Assert.Equal(1, o.EntityTypes[0].Annotations.Count());
                         Assert.Equal("AnnotationValue", o.EntityTypes[0]["AnnotationName"]);
+                    });
+        }
+
+        [Fact]
+        public void BaseType_is_stored_in_snapshot()
+        {
+            Test(
+                builder => { builder.Entity<DerivedEntity>().BaseType<BaseEntity>(); },
+                @"
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseEntity"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Key(""Id"");
+    });
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+DerivedEntity"", b =>
+    {
+        b.Property<string>(""Name"");
+    });
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+DerivedEntity"")
+    .BaseType(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseEntity"");
+",
+                o =>
+                    {
+                        Assert.Equal(2, o.EntityTypes.Count());
+                        Assert.Collection(
+                            o.EntityTypes,
+                            t => Assert.Equal("Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseEntity", t.Name),
+                            t => Assert.Equal("Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+DerivedEntity", t.Name)
+                            );
                     });
         }
 
