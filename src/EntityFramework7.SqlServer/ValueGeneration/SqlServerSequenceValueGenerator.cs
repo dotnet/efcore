@@ -5,6 +5,7 @@ using System;
 using System.Globalization;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
 
@@ -15,20 +16,20 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
         private readonly ISqlStatementExecutor _executor;
         private readonly ISqlServerUpdateSqlGenerator _sqlGenerator;
         private readonly ISqlServerConnection _connection;
-        private readonly string _sequenceName;
+        private readonly ISequence _sequence;
 
         public SqlServerSequenceValueGenerator(
             [NotNull] ISqlStatementExecutor executor,
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator,
             [NotNull] SqlServerSequenceValueGeneratorState generatorState,
             [NotNull] ISqlServerConnection connection)
-            : base(Check.NotNull(generatorState, nameof(generatorState)))
+            : base(generatorState)
         {
             Check.NotNull(executor, nameof(executor));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
             Check.NotNull(connection, nameof(connection));
 
-            _sequenceName = generatorState.SequenceName;
+            _sequence = generatorState.Sequence;
             _executor = executor;
             _sqlGenerator = sqlGenerator;
             _connection = connection;
@@ -39,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
                 _executor.ExecuteScalar(
                     _connection,
                     _connection.DbTransaction,
-                    _sqlGenerator.GenerateNextSequenceValueOperation(_sequenceName)),
+                    _sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema)),
                 typeof(long),
                 CultureInfo.InvariantCulture);
 

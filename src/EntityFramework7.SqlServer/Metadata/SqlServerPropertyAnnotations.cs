@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value));
+                    throw new ArgumentOutOfRangeException(nameof(value), Internal.Strings.HiLoBadPoolSize);
                 }
 
                 ((Property)Property)[SqlServerHiLoSequencePoolSizeAnnotation] = value;

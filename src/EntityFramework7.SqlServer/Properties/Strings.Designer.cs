@@ -21,14 +21,6 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         /// <summary>
-        /// The increment value of '{increment}' for sequence '{sequenceName}' cannot be used for value generation. Sequences used for value generation must have positive increments.
-        /// </summary>
-        public static string SequenceBadBlockSize([CanBeNull] object increment, [CanBeNull] object sequenceName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("SequenceBadBlockSize", "increment", "sequenceName"), increment, sequenceName);
-        }
-
-        /// <summary>
         /// Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.
         /// </summary>
         public static string IdentityBadType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)

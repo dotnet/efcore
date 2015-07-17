@@ -1069,6 +1069,22 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// The block size used for Hi-Lo value generation must be positive. When the Hi-Lo generator is backed by a SQL sequence this means that the sequence increment must be positive.
+        /// </summary>
+        public static string HiLoBadBlockSize
+        {
+            get { return GetString("HiLoBadBlockSize"); }
+        }
+
+        /// <summary>
+        /// The pool size used for Hi-Lo value generators must be positive.
+        /// </summary>
+        public static string HiLoBadPoolSize
+        {
+            get { return GetString("HiLoBadPoolSize"); }
+        }
+
+        /// <summary>
         /// The property '{property}' is not a Byte array. TimestampAttribute can only be applied for Byte array properties.
         /// </summary>
         public static string TimestampAttributeOnNonBinary([CanBeNull] object property)

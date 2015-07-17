@@ -346,9 +346,9 @@ namespace Microsoft.Data.Entity.Infrastructure
         // TODO: Consider adding a base class for all SQL generators (DDL, DML),
         // to avoid duplicating the five methods below.
 
-        public virtual string DelimitIdentifier(string name, string schemaName)
-            => (!string.IsNullOrEmpty(schemaName)
-                ? DelimitIdentifier(schemaName) + "."
+        public virtual string DelimitIdentifier(string name, string schema)
+            => (!string.IsNullOrEmpty(schema)
+                ? DelimitIdentifier(schema) + "."
                 : string.Empty)
                + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
 
@@ -398,7 +398,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 ? string.Format(CultureInfo.InvariantCulture, "{0}", literal)
                 : "NULL";
 
-        public virtual string GenerateNextSequenceValueOperation(string sequenceName)
-            => "SELECT NEXT VALUE FOR " + DelimitIdentifier(Check.NotNull(sequenceName, nameof(sequenceName)));
+        public virtual string GenerateNextSequenceValueOperation(string name, string schema)
+            => "SELECT NEXT VALUE FOR " + DelimitIdentifier(Check.NotNull(name, nameof(name)), schema);
     }
 }

@@ -513,6 +513,12 @@
   <data name="EntityTypeModelMismatch" xml:space="preserve">
     <value>The entity types '{firstEntityType}' and '{secondEntityType}' do not belong to the same model.</value>
   </data>
+  <data name="HiLoBadBlockSize" xml:space="preserve">
+    <value>The block size used for Hi-Lo value generation must be positive. When the Hi-Lo generator is backed by a SQL sequence this means that the sequence increment must be positive.</value>
+  </data>
+  <data name="HiLoBadPoolSize" xml:space="preserve">
+    <value>The pool size used for Hi-Lo value generators must be positive.</value>
+  </data>
   <data name="TimestampAttributeOnNonBinary" xml:space="preserve">
     <value>The property '{property}' is not a Byte array. TimestampAttribute can only be applied for Byte array properties.</value>
   </data>

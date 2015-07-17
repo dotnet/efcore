@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
@@ -17,6 +18,16 @@ namespace Microsoft.Data.Entity.ValueGeneration
 
         public HiLoValueGeneratorState(int blockSize, int poolSize)
         {
+            if (blockSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(blockSize), Strings.HiLoBadBlockSize);
+            }
+
+            if (poolSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(poolSize), Strings.HiLoBadPoolSize);
+            }
+
             _blockSize = blockSize;
 
             _pool = new HiLoValue[poolSize];

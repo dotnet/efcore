@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         string BatchSeparator { get; }
 
         string DelimitIdentifier([NotNull] string identifier);
-        string DelimitIdentifier([NotNull] string name, [CanBeNull] string schemaName);
+        string DelimitIdentifier([NotNull] string name, [CanBeNull] string schema);
         string EscapeLiteral([NotNull] string literal);
         string GenerateLiteral([CanBeNull] object literal);
         string GenerateLiteral([NotNull] byte[] literal);
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         string GenerateLiteral(DateTime literal);
         string GenerateLiteral(DateTimeOffset literal);
         string GenerateLiteral<T>([CanBeNull] T? literal) where T : struct;
-        string GenerateNextSequenceValueOperation([NotNull] string sequenceName);
+        string GenerateNextSequenceValueOperation([NotNull] string name, [CanBeNull] string schema);
         void AppendBatchHeader([NotNull] StringBuilder commandStringBuilder);
         void AppendDeleteOperation([NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command);
         void AppendInsertOperation([NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command);

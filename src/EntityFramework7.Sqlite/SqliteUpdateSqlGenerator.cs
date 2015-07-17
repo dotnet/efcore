@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Sqlite
     public class SqliteUpdateSqlGenerator : UpdateSqlGenerator
     {
         // TODO throw a logger warning that this call was improperly made. The SQLite provider should never specify a schema
-        public override string DelimitIdentifier(string name, string schemaName) => base.DelimitIdentifier(name);
+        public override string DelimitIdentifier(string name, string schema) => base.DelimitIdentifier(name);
 
         protected override void AppendIdentityWhereCondition(StringBuilder builder, ColumnModification columnModification)
         {

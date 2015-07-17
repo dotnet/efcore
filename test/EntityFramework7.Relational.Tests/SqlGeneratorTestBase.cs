@@ -345,10 +345,20 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void GenerateNextSequenceValueOperation_returns_statement_with_sanatized_sequence()
         {
-            var statement = CreateSqlGenerator().GenerateNextSequenceValueOperation("sequence" + CloseDelimeter + "; --");
+            var statement = CreateSqlGenerator().GenerateNextSequenceValueOperation("sequence" + CloseDelimeter + "; --", null);
 
             Assert.Equal(
                 "SELECT NEXT VALUE FOR " + OpenDelimeter + "sequence" + CloseDelimeter + CloseDelimeter + "; --" + CloseDelimeter,
+                statement);
+        }
+
+        [Fact]
+        public virtual void GenerateNextSequenceValueOperation_correctly_handles_schemas()
+        {
+            var statement = CreateSqlGenerator().GenerateNextSequenceValueOperation("mysequence", "dbo");
+
+            Assert.Equal(
+                "SELECT NEXT VALUE FOR " + SchemaNamePrefix + OpenDelimeter + "mysequence" + CloseDelimeter,
                 statement);
         }
 

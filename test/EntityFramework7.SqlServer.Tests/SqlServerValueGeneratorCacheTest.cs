@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.ValueGeneration;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.ValueGeneration;
@@ -67,7 +68,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(10, cache.GetBlockSize(property));
+            Assert.Equal(10, cache.GetOrAddSequenceState(property).Sequence.IncrementBy);
         }
 
         [Fact]
@@ -81,7 +82,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(10, cache.GetBlockSize(property));
+            Assert.Equal(10, cache.GetOrAddSequenceState(property).Sequence.IncrementBy);
         }
 
         [Fact]
@@ -95,7 +96,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(10, cache.GetBlockSize(property));
+            Assert.Equal(10, cache.GetOrAddSequenceState(property).Sequence.IncrementBy);
         }
 
         [Fact]
@@ -109,7 +110,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(10, cache.GetBlockSize(property));
+            Assert.Equal(10, cache.GetOrAddSequenceState(property).Sequence.IncrementBy);
         }
 
         [Fact]
@@ -124,7 +125,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(11, cache.GetBlockSize(property));
+            Assert.Equal(11, cache.GetOrAddSequenceState(property).Sequence.IncrementBy);
         }
 
         [Fact]
@@ -139,9 +140,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(
-                Strings.SequenceBadBlockSize(-1, "DaneelOlivaw"),
-                Assert.Throws<NotSupportedException>(() => cache.GetBlockSize(property)).Message);
+            Assert.StartsWith(
+                Internal.Strings.HiLoBadBlockSize,
+                Assert.Throws<ArgumentOutOfRangeException>(() => cache.GetOrAddSequenceState(property).Sequence.IncrementBy).Message);
         }
 
         [Fact]
@@ -156,7 +157,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(11, cache.GetBlockSize(property));
+            Assert.Equal(11, cache.GetOrAddSequenceState(property).Sequence.IncrementBy);
         }
 
         [Fact]
@@ -170,7 +171,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DefaultSequence", cache.GetSequenceName(property));
+            Assert.Equal("DefaultSequence", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
 
         [Fact]
@@ -184,7 +185,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DaneelOlivaw", cache.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
 
         [Fact]
@@ -198,7 +199,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DefaultSequence", cache.GetSequenceName(property));
+            Assert.Equal("DefaultSequence", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
 
         [Fact]
@@ -212,7 +213,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DaneelOlivaw", cache.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
 
         [Fact]
@@ -227,7 +228,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DaneelOlivaw", cache.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
 
         [Fact]
@@ -242,7 +243,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DaneelOlivaw", cache.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
 
         [Fact]
@@ -256,7 +257,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("R.DaneelOlivaw", cache.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
+            Assert.Equal("R", cache.GetOrAddSequenceState(property).Sequence.Schema);
         }
 
         [Fact]
@@ -270,7 +272,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("R.DaneelOlivaw", cache.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
+            Assert.Equal("R", cache.GetOrAddSequenceState(property).Sequence.Schema);
         }
 
         [Fact]
@@ -285,7 +288,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("R.DaneelOlivaw", cache.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
+            Assert.Equal("R", cache.GetOrAddSequenceState(property).Sequence.Schema);
         }
 
         [Fact]
@@ -300,7 +304,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("R.DaneelOlivaw", cache.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
+            Assert.Equal("R", cache.GetOrAddSequenceState(property).Sequence.Schema);
         }
 
         [Fact]
@@ -334,6 +339,24 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var cache = new SqlServerValueGeneratorCache();
 
             Assert.Equal(10, cache.GetPoolSize(property));
+        }
+
+        [Fact]
+        public void Non_positive_pool_sizes_are_not_allowed()
+        {
+            var property = CreateConventionModelBuilder()
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .UseSqlServerSequenceHiLo()
+                .Metadata;
+
+            property[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequencePoolSize] = 0;
+
+            var cache = new SqlServerValueGeneratorCache();
+
+            Assert.StartsWith(
+                Internal.Strings.HiLoBadPoolSize,
+                Assert.Throws<ArgumentOutOfRangeException>(() => cache.GetOrAddSequenceState(property)).Message);
         }
 
         protected virtual ModelBuilder CreateConventionModelBuilder()
