@@ -16,15 +16,18 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Framework.DependencyInjection
 {
-    public static class SqlServerEntityServicesBuilderExtensions
+    public static class SqlServerEntityFrameworkServicesBuilderExtensions
     {
         public static EntityFrameworkServicesBuilder AddSqlServer([NotNull] this EntityFrameworkServicesBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
 
-            builder.AddRelational().GetService()
-                .AddSingleton<IDatabaseProvider, DatabaseProvider<SqlServerDatabaseProviderServices, SqlServerOptionsExtension>>()
-                .TryAdd(new ServiceCollection()
+            var service = builder.AddRelational().GetService();
+
+            service.TryAddEnumerable(ServiceDescriptor
+                .Singleton<IDatabaseProvider, DatabaseProvider<SqlServerDatabaseProviderServices, SqlServerOptionsExtension>>());
+
+            service.TryAdd(new ServiceCollection()
                     .AddSingleton<SqlServerConventionSetBuilder>()
                     .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                     .AddSingleton<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()

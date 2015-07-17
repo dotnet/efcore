@@ -71,6 +71,7 @@
     <Compile Include="PropertyEntrySqliteTest.cs" />
     <Compile Include="QuerySqliteTest.cs" />
     <Compile Include="SentinelGraphUpdatesSqliteTest.cs" />
+    <Compile Include="SqliteTestHelpers.cs" />
     <Compile Include="SqliteTestStore.cs" />
     <Compile Include="StoreGeneratedSqliteTest.cs" />
     <Compile Include="TestModels\SqliteNorthwindContext.cs" />

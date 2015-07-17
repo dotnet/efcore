@@ -48,7 +48,7 @@
     <Compile Include="SqlServerOptionsExtensionTest.cs" />
     <Compile Include="SqlServerConnectionTest.cs" />
     <Compile Include="SqlServerDatabaseSourceTest.cs" />
-    <Compile Include="SqlServerEntityServicesBuilderExtensionsTest.cs" />
+    <Compile Include="SqlServerEntityFrameworkServicesBuilderExtensionsTest.cs" />
     <Compile Include="SqlServerSequenceValueGeneratorTest.cs" />
     <Compile Include="SqlServerSqlGeneratorTest.cs" />
     <Compile Include="SqlServerTypeMapperTest.cs" />
@@ -79,6 +79,10 @@
     <ProjectReference Include="..\EntityFramework7.Core.Tests\EntityFramework7.Core.Tests.csproj">
       <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
       <Name>EntityFramework7.Core.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework7.Relational.FunctionalTests\EntityFramework7.Relational.FunctionalTests.csproj">
+      <Project>{82fad20c-28c6-4b48-b7e4-971ac821e27a}</Project>
+      <Name>EntityFramework7.Relational.FunctionalTests</Name>
     </ProjectReference>
     <ProjectReference Include="..\EntityFramework7.Relational.Tests\EntityFramework7.Relational.Tests.csproj">
       <Project>{001005b3-d16f-4399-9265-a67d619652bd}</Project>

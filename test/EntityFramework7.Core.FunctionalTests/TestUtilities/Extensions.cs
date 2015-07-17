@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     clonedEntityType.Value.BaseType = clonedEntityTypes[clonedEntityType.Key.BaseType];
                 }
             }
-            
+
             foreach (var clonedEntityType in clonedEntityTypes)
             {
                 CloneProperties(clonedEntityType.Key, clonedEntityType.Value);
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 CloneKeys(clonedEntityType.Key, clonedEntityType.Value);
             }
-            
+
             foreach (var clonedEntityType in clonedEntityTypes)
             {
                 CloneForeignKeys(clonedEntityType.Key, clonedEntityType.Value);
@@ -76,8 +76,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             return modelClone;
         }
-        
-        private static void CloneProperties(IEntityType sourceEntityType,EntityType targetEntityType)
+
+        private static void CloneProperties(IEntityType sourceEntityType, EntityType targetEntityType)
         {
             foreach (var property in sourceEntityType.GetDeclaredProperties())
             {
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        private static void CloneKeys(IEntityType sourceEntityType,EntityType targetEntityType)
+        private static void CloneKeys(IEntityType sourceEntityType, EntityType targetEntityType)
         {
             foreach (var key in sourceEntityType.GetKeys())
             {
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        private static void CloneIndexes(IEntityType sourceEntityType,EntityType targetEntityType)
+        private static void CloneIndexes(IEntityType sourceEntityType, EntityType targetEntityType)
         {
             foreach (var index in sourceEntityType.GetDeclaredIndexes())
             {

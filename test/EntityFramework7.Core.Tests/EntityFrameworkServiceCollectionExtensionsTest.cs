@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
@@ -21,8 +20,18 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class EntityFrameworkServiceCollectionExtensionsTest : IDisposable
+    public abstract class EntityFrameworkServiceCollectionExtensionsTest : IDisposable
     {
+        [Fact]
+        public virtual void Repeated_calls_to_add_do_not_modify_collection()
+        {
+            var expectedCollection = AddServices(new ServiceCollection());
+
+            var actualCollection = AddServices(AddServices(new ServiceCollection()));
+
+            Assert.Equal(expectedCollection.Count, actualCollection.Count);
+        }
+
         [Fact]
         public virtual void Services_wire_up_correctly()
         {
@@ -83,27 +92,22 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<IDatabaseProvider>(isExistingReplaced: true);
         }
 
+        private readonly TestHelpers _testHelpers;
         private readonly DbContext _firstContext;
         private readonly DbContext _secondContext;
 
-        public EntityFrameworkServiceCollectionExtensionsTest()
+        public EntityFrameworkServiceCollectionExtensionsTest(TestHelpers testHelpers)
         {
-            var serviceProvider = GetServices().BuildServiceProvider();
-            _firstContext = CreateContext(serviceProvider);
-            _secondContext = CreateContext(serviceProvider);
+            _testHelpers = testHelpers;
+
+            var serviceProvider = AddServices(new ServiceCollection()).BuildServiceProvider();
+            _firstContext = _testHelpers.CreateContext(serviceProvider);
+            _secondContext = _testHelpers.CreateContext(serviceProvider);
         }
 
-        protected virtual IServiceCollection GetServices(IServiceCollection services = null)
+        private IServiceCollection AddServices(IServiceCollection serviceCollection)
         {
-            return (services ?? new ServiceCollection())
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
-                .GetService();
-        }
-        
-        protected virtual DbContext CreateContext(IServiceProvider serviceProvider)
-        {
-            return TestHelpers.Instance.CreateContext(serviceProvider);
+            return _testHelpers.AddProviderServices(serviceCollection.AddEntityFramework()).GetService();
         }
 
         public void Dispose()
@@ -161,18 +165,21 @@ namespace Microsoft.Data.Entity.Tests
 
             if (typeof(TService) != typeof(IDbContextServices))
             {
-                var customServices = new ServiceCollection().AddSingleton(p => service);
+                var customServiceCollection = AddServices(new ServiceCollection().AddSingleton(p => service));
 
-                var serviceProviderWithCustomService = ((IAccessor<IServiceProvider>)CreateContext(GetServices(customServices).BuildServiceProvider())).Service;
-                if (isExistingReplaced)
+                using (var customContext = _testHelpers.CreateContext(customServiceCollection.BuildServiceProvider()))
                 {
-                    Assert.NotSame(service, serviceProviderWithCustomService.GetService<TService>());
-                    Assert.Equal(2, serviceProviderWithCustomService.GetRequiredServices<TService>().Count());
-                }
-                else
-                {
-                    Assert.Same(service, serviceProviderWithCustomService.GetService<TService>());
-                    Assert.Equal(1, serviceProviderWithCustomService.GetRequiredServices<TService>().Count());
+                    var serviceProviderWithCustomService = ((IAccessor<IServiceProvider>)customContext).Service;
+                    if (isExistingReplaced)
+                    {
+                        Assert.NotSame(service, serviceProviderWithCustomService.GetService<TService>());
+                        Assert.Equal(2, serviceProviderWithCustomService.GetRequiredServices<TService>().Count());
+                    }
+                    else
+                    {
+                        Assert.Same(service, serviceProviderWithCustomService.GetService<TService>());
+                        Assert.Equal(1, serviceProviderWithCustomService.GetRequiredServices<TService>().Count());
+                    }
                 }
             }
 

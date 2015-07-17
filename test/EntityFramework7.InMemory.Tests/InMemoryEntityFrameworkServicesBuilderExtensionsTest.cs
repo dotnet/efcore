@@ -1,16 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Data.Entity.InMemory.Query;
 using Microsoft.Data.Entity.Tests;
-using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
 {
-    public class InMemoryEntityServicesBuilderExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
+    public class InMemoryEntityFrameworkServicesBuilderExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
     {
-        [Fact]
         public override void Services_wire_up_correctly()
         {
             base.Services_wire_up_correctly();
@@ -28,9 +25,9 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             VerifyScoped<InMemoryDatabaseCreator>();
         }
 
-        protected override DbContext CreateContext(IServiceProvider serviceProvider)
+        public InMemoryEntityFrameworkServicesBuilderExtensionsTest()
+            :base(InMemoryTestHelpers.Instance)
         {
-            return InMemoryTestHelpers.Instance.CreateContext(serviceProvider);
         }
     }
 }

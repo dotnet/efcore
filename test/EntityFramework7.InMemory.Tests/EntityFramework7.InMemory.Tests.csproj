@@ -38,10 +38,9 @@
     <Compile Include="InMemoryDatabaseCreatorTest.cs" />
     <Compile Include="InMemoryDatabaseProviderTest.cs" />
     <Compile Include="InMemoryDatabaseTest.cs" />
-    <Compile Include="InMemoryEntityServicesBuilderExtensionsTest.cs" />
+    <Compile Include="InMemoryEntityFrameworkServicesBuilderExtensionsTest.cs" />
     <Compile Include="InMemoryValueGeneratorSelectorTest.cs" />
     <Compile Include="InMemoryIntegerValueGeneratorTest.cs" />
-    <Compile Include="InMemoryTestHelpers.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -60,6 +59,10 @@
     <ProjectReference Include="..\EntityFramework7.Core.Tests\EntityFramework7.Core.Tests.csproj">
       <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
       <Name>EntityFramework7.Core.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework7.InMemory.FunctionalTests\EntityFramework7.InMemory.FunctionalTests.csproj">
+      <Project>{7e1a1a1b-6d0b-4c66-8026-326efc0b4625}</Project>
+      <Name>EntityFramework7.InMemory.FunctionalTests</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

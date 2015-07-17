@@ -12,15 +12,18 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Framework.DependencyInjection
 {
-    public static class InMemoryEntityServicesBuilderExtensions
+    public static class InMemoryEntityFrameworkServicesBuilderExtensions
     {
         public static EntityFrameworkServicesBuilder AddInMemoryDatabase([NotNull] this EntityFrameworkServicesBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
 
-            builder.GetService()
-                .AddSingleton<IDatabaseProvider, DatabaseProvider<InMemoryDatabaseProviderServices, InMemoryOptionsExtension>>()
-                .TryAdd(new ServiceCollection()
+            var service = builder.GetService();
+
+            service.TryAddEnumerable(ServiceDescriptor
+                .Singleton<IDatabaseProvider, DatabaseProvider<InMemoryDatabaseProviderServices, InMemoryOptionsExtension>>());
+
+            service.TryAdd(new ServiceCollection()
                     .AddSingleton<InMemoryValueGeneratorCache>()
                     .AddSingleton<IInMemoryStore, InMemoryStore>()
                     .AddSingleton<InMemoryModelSource>()

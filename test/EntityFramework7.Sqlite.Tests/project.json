@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "EntityFramework7.Relational.Tests": "1.0.0",
-    "EntityFramework7.Sqlite": "7.0.0-*"
+    "EntityFramework7.Sqlite": "7.0.0-*",
+    "EntityFramework7.Sqlite.FunctionalTests": "7.0.0-*"
   },
   "commands": {
     "test": "xunit.runner.dnx"

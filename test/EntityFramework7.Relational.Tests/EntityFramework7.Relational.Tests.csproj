@@ -52,10 +52,9 @@
     <Compile Include="RelationalConnectionTest.cs" />
     <Compile Include="RelationalDatabaseFacadeExtensionsTest.cs" />
     <Compile Include="RelationalDatabaseTest.cs" />
-    <Compile Include="RelationalEntityServicesBuilderExtensionsTest.cs" />
+    <Compile Include="RelationalEntityFrameworkServicesBuilderExtensionsTest.cs" />
     <Compile Include="RelationalModelValidatorTest.cs" />
     <Compile Include="RelationalOptionsExtensionTest.cs" />
-    <Compile Include="RelationalTestHelpers.cs" />
     <Compile Include="SqlBatchBuilderTest.cs" />
     <Compile Include="SqlGeneratorTest.cs" />
     <Compile Include="SqlGeneratorTestBase.cs" />
@@ -90,6 +89,10 @@
     <ProjectReference Include="..\EntityFramework7.Core.Tests\EntityFramework7.Core.Tests.csproj">
       <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
       <Name>EntityFramework7.Core.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework7.Relational.FunctionalTests\EntityFramework7.Relational.FunctionalTests.csproj">
+      <Project>{82fad20c-28c6-4b48-b7e4-971ac821e27a}</Project>
+      <Name>EntityFramework7.Relational.FunctionalTests</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

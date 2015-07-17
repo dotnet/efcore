@@ -12,6 +12,8 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
+// ReSharper disable once CheckNamespace
+
 namespace Microsoft.Framework.DependencyInjection
 {
     public static class SqliteEntityFrameworkServicesBuilderExtensions
@@ -20,9 +22,12 @@ namespace Microsoft.Framework.DependencyInjection
         {
             Check.NotNull(services, nameof(services));
 
-            services.AddRelational().GetService()
-                .AddSingleton<IDatabaseProvider, DatabaseProvider<SqliteDatabaseProviderServices, SqliteOptionsExtension>>()
-                .TryAdd(new ServiceCollection()
+            var service = services.AddRelational().GetService();
+
+            service.TryAddEnumerable(ServiceDescriptor
+                .Singleton<IDatabaseProvider, DatabaseProvider<SqliteDatabaseProviderServices, SqliteOptionsExtension>>());
+
+            service.TryAdd(new ServiceCollection()
                     .AddSingleton<SqliteValueGeneratorCache>()
                     .AddSingleton<SqliteUpdateSqlGenerator>()
                     .AddSingleton<SqliteMetadataExtensionProvider>()

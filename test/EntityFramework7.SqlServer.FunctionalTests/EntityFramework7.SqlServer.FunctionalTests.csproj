@@ -122,10 +122,6 @@
       <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
       <Name>EntityFramework7.Core.FunctionalTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EntityFramework7.Core.Tests\EntityFramework7.Core.Tests.csproj">
-      <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
-      <Name>EntityFramework7.Core.Tests</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EntityFramework7.Relational.FunctionalTests\EntityFramework7.Relational.FunctionalTests.csproj">
       <Project>{82fad20c-28c6-4b48-b7e4-971ac821e27a}</Project>
       <Name>EntityFramework7.Relational.FunctionalTests</Name>

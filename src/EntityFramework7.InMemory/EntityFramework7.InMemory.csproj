@@ -58,7 +58,7 @@
     <Compile Include="Query\InMemoryQueryCompilationContext.cs" />
     <Compile Include="Query\InMemoryQueryContext.cs" />
     <Compile Include="Extensions\InMemoryDbContextOptionsExtensions.cs" />
-    <Compile Include="Extensions\InMemoryEntityServicesBuilderExtensions.cs" />
+    <Compile Include="InMemoryEntityFrameworkServicesBuilderExtensions.cs" />
     <Compile Include="InMemoryIntegerValueGenerator.cs" />
     <Compile Include="InMemoryValueGeneratorCache.cs" />
     <Compile Include="InMemoryValueGeneratorSelector.cs" />

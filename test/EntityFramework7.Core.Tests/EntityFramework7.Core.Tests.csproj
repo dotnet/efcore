@@ -68,7 +68,7 @@
     <Compile Include="DbContextOptionsTest.cs" />
     <Compile Include="EFTest.cs" />
     <Compile Include="EntitySetFinderTest.cs" />
-    <Compile Include="Extensions\EntityFrameworkServiceCollectionExtensionsTest.cs" />
+    <Compile Include="EntityFrameworkServiceCollectionExtensionsTest.cs" />
     <Compile Include="Extensions\PropertyExtensionsTest.cs" />
     <Compile Include="Extensions\ServiceProviderExtensionsTest.cs" />
     <Compile Include="Infrastructure\ModelValidatorTest.cs" />

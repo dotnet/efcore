@@ -58,13 +58,12 @@ namespace Microsoft.Framework.DependencyInjection
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
-            // TODO: Is this the appropriate way to register listeners?
-            serviceCollection
-                .AddScoped<IEntityStateListener>(p => p.GetService<INavigationFixer>())
-                .AddScoped<IForeignKeyListener>(p => p.GetService<INavigationFixer>())
-                .AddScoped<INavigationListener>(p => p.GetService<INavigationFixer>())
-                .AddScoped<IKeyListener>(p => p.GetService<INavigationFixer>())
-                .AddScoped<IPropertyListener>(p => p.GetService<IChangeDetector>());
+            serviceCollection.TryAddEnumerable(new ServiceCollection()
+                .AddScoped<IEntityStateListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
+                .AddScoped<IForeignKeyListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
+                .AddScoped<INavigationListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
+                .AddScoped<IKeyListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
+                .AddScoped<IPropertyListener, IChangeDetector>(p => p.GetService<IChangeDetector>()));
 
             serviceCollection.TryAdd(new ServiceCollection()
                 .AddSingleton<IDbSetFinder, DbSetFinder>()

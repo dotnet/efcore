@@ -50,6 +50,7 @@
     <Compile Include="GearsOfWarQueryRelationalFixture.cs" />
     <Compile Include="NorthwindQueryRelationalFixture.cs" />
     <Compile Include="FromSqlQueryTestBase.cs" />
+    <Compile Include="RelationalTestHelpers.cs" />
     <Compile Include="RelationalTestStore.cs" />
     <Compile Include="TestModels\NorthwindSproc\CustomerOrderHistory.cs" />
     <Compile Include="TestModels\NorthwindSproc\MostExpensiveProduct.cs" />
@@ -61,6 +62,10 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework7.InMemory\EntityFramework7.InMemory.csproj">
+      <Project>{ba3f5dbc-ec16-4d5a-8298-8226e6c5accc}</Project>
+      <Name>EntityFramework7.InMemory</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework7.Relational\EntityFramework7.Relational.csproj">
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>EntityFramework7.Relational</Name>

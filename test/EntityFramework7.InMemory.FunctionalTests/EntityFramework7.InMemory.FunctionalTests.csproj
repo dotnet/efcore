@@ -39,6 +39,7 @@
     <Compile Include="InMemoryFixture.cs" />
     <Compile Include="GraphUpdatesInMemoryTest.cs" />
     <Compile Include="InheritanceInMemoryFixture.cs" />
+    <Compile Include="InMemoryTestHelpers.cs" />
     <Compile Include="NullKeysInMemoryTest.cs" />
     <Compile Include="GraphUpdatesInMemoryTestBase.cs" />
     <Compile Include="InheritanceInMemoryTest.cs" />

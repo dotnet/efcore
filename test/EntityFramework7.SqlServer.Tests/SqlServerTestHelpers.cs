@@ -7,7 +7,7 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class SqlServerTestHelpers : TestHelpers
+    public class SqlServerTestHelpers : RelationalTestHelpers
     {
         protected SqlServerTestHelpers()
         {
@@ -15,14 +15,10 @@ namespace Microsoft.Data.Entity.Tests
 
         public new static SqlServerTestHelpers Instance { get; } = new SqlServerTestHelpers();
 
-        protected override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
-        {
-            return builder.AddSqlServer();
-        }
+        public override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
+            => builder.AddSqlServer();
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(new SqlConnection("Database=DummyDatabase"));
-        }
+            => optionsBuilder.UseSqlServer(new SqlConnection("Database=DummyDatabase"));
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Tests
@@ -15,10 +14,10 @@ namespace Microsoft.Data.Entity.Tests
 
         public new static RelationalTestHelpers Instance { get; } = new RelationalTestHelpers();
 
-        protected override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder) 
+        public override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
             => builder.AddInMemoryDatabase().AddRelational();
 
-        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder) 
+        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase();
     }
 }

@@ -294,7 +294,7 @@
     <Compile Include="ChangeTracking\EntityEntry`.cs" />
     <Compile Include="ChangeTracking\PropertyEntry.cs" />
     <Compile Include="ChangeTracking\PropertyEntry`.cs" />
-    <Compile Include="Extensions\EntityFrameworkServiceCollectionExtensions.cs" />
+    <Compile Include="EntityFrameworkServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\EntityFrameworkQueryableExtensions.cs" />
     <Compile Include="Infrastructure\DatabaseFacade.cs" />
     <Compile Include="Infrastructure\IDbContextOptionsExtension.cs" />

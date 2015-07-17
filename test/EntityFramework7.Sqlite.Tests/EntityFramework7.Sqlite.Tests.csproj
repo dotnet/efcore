@@ -41,6 +41,7 @@
     <Compile Include="Metadata\SqliteMetadataExtensionsTest.cs" />
     <Compile Include="Migrations\SqliteMigrationAnnotationProviderTest.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGeneratorTest.cs" />
+    <Compile Include="SqliteEntityFrameworkServicesBuilderExtensionsTest.cs" />
     <Compile Include="SqliteSqlGeneratorTest.cs" />
     <None Include="project.json" />
   </ItemGroup>
@@ -61,9 +62,17 @@
       <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
       <Name>EntityFramework7.Core.Tests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EntityFramework7.Relational.FunctionalTests\EntityFramework7.Relational.FunctionalTests.csproj">
+      <Project>{82fad20c-28c6-4b48-b7e4-971ac821e27a}</Project>
+      <Name>EntityFramework7.Relational.FunctionalTests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EntityFramework7.Relational.Tests\EntityFramework7.Relational.Tests.csproj">
       <Project>{001005b3-d16f-4399-9265-a67d619652bd}</Project>
       <Name>EntityFramework7.Relational.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework7.Sqlite.FunctionalTests\EntityFramework7.Sqlite.FunctionalTests.csproj">
+      <Project>{664b4d75-6cb7-4d90-a8e1-2a201500c859}</Project>
+      <Name>EntityFramework7.Sqlite.FunctionalTests</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
