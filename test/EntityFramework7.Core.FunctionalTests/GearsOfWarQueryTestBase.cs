@@ -127,6 +127,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_using_alternate_key()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Include(g => g.Weapons).Where(g => g.Nickname == "Marcus");
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+
+                var weapons = result.Single().Weapons.ToList();
+                Assert.Equal(2, weapons.Count);
+                Assert.Equal("Marcus' Lancer", weapons[0].Name);
+                Assert.Equal("Marcus' Gnasher", weapons[1].Name);
+            }
+        }
+
+        [Fact]
         public virtual void Include_multiple_include_then_include()
         {
             var gearAssignedCities = new Dictionary<string, string>();

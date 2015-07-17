@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                     using (var context = new GearsOfWarContext(_serviceProvider, optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
-
+                        context.Database.EnsureDeleted();
                         if (context.Database.EnsureCreated())
                         {
                             GearsOfWarModelInitializer.Seed(context);
