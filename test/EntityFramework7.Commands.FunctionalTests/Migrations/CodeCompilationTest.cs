@@ -7,7 +7,6 @@ using Microsoft.Data.Entity.Commands.TestUtilities;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -95,8 +94,10 @@ namespace MyNamespace
             {
                 References =
                 {
-                    BuildReference.ByName(typeof(CodeCompilationTest).Assembly.GetName().Name),
+                    BuildReference.ByName(typeof(CodeCompilationTest).GetTypeInfo().Assembly.GetName().Name),
+#if !DNXCORE50
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+#endif
                     BuildReference.ByName("EntityFramework7.Core"),
                     BuildReference.ByName("EntityFramework7.Relational")
                 },
@@ -105,9 +106,9 @@ namespace MyNamespace
 
             var assembly = build.BuildInMemory();
 
-            var migrationType = assembly.GetType("MyNamespace.MyMigration", throwOnError: true);
+            var migrationType = assembly.GetType("MyNamespace.MyMigration", throwOnError: true, ignoreCase: false);
 
-            var contextTypeAttribute = migrationType.GetCustomAttribute<ContextTypeAttribute>();
+            var contextTypeAttribute = migrationType.GetTypeInfo().GetCustomAttribute<ContextTypeAttribute>();
             Assert.NotNull(contextTypeAttribute);
             Assert.Equal(typeof(MyContext), contextTypeAttribute.ContextType);
 
@@ -162,8 +163,10 @@ namespace MyNamespace
             {
                 References =
                 {
-                    BuildReference.ByName(typeof(CodeCompilationTest).Assembly.GetName().Name),
+                    BuildReference.ByName(typeof(CodeCompilationTest).GetTypeInfo().Assembly.GetName().Name),
+#if !DNXCORE50
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+#endif
                     BuildReference.ByName("EntityFramework7.Core"),
                     BuildReference.ByName("EntityFramework7.Relational")
                 },
@@ -172,9 +175,9 @@ namespace MyNamespace
 
             var assembly = build.BuildInMemory();
 
-            var snapshotType = assembly.GetType("MyNamespace.MySnapshot", throwOnError: true);
+            var snapshotType = assembly.GetType("MyNamespace.MySnapshot", throwOnError: true, ignoreCase: false);
 
-            var contextTypeAttribute = snapshotType.GetCustomAttribute<ContextTypeAttribute>();
+            var contextTypeAttribute = snapshotType.GetTypeInfo().GetCustomAttribute<ContextTypeAttribute>();
             Assert.NotNull(contextTypeAttribute);
             Assert.Equal(typeof(MyContext), contextTypeAttribute.ContextType);
 

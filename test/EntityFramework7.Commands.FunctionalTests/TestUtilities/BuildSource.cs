@@ -17,8 +17,12 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
         { get; }
         = new List<BuildReference>
             {
-                BuildReference.ByName("mscorlib")
-            };
+#if !DNXCORE50
+            BuildReference.ByName("mscorlib")
+#else
+            BuildReference.ByName("System.Runtime")
+#endif
+        };
 
         public string TargetDir { get; set; }
         public ICollection<string> Sources { get; } = new List<string>();
@@ -90,7 +94,19 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                         $"Build failed. Diagnostics: {string.Join(Environment.NewLine, result.Diagnostics)}");
                 }
 
+#if !DNXCORE50
                 assembly = Assembly.Load(stream.ToArray());
+#else
+                assembly = (Assembly)typeof(Assembly).GetTypeInfo().GetDeclaredMethods("Load")
+                    .First(
+                        m =>
+                        {
+                            var parameters = m.GetParameters();
+
+                            return parameters.Length == 1 && parameters[0].ParameterType == typeof(byte[]);
+                        })
+                    .Invoke(null, new[] { stream.ToArray() });
+#endif
             }
 
             return assembly;

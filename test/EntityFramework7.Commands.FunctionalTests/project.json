@@ -3,7 +3,6 @@
     "EntityFramework7.Commands": "7.0.0-*",
     "EntityFramework7.Core.FunctionalTests": "7.0.0-*",
     "EntityFramework7.SqlServer": "7.0.0-*",
-    "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
     "xunit.assert": "2.1.0-*",
     "xunit.extensibility.execution": "2.1.0-*"
   },
@@ -15,6 +14,13 @@
     "net46": { },
     "dnx451": {
       "dependencies": {
+        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
+        "xunit.runner.dnx": "2.1.0-*"
+      }
+    },
+    "dnxcore50": {
+      "dependencies": {
+        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
         "xunit.runner.dnx": "2.1.0-*"
       }
     }

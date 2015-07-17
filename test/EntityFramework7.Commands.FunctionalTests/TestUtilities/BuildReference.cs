@@ -6,9 +6,11 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 
 #if DNX451 || DNXCORE50
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Runtime;
+using Microsoft.Framework.Runtime.Compilation;
 using Microsoft.Framework.Runtime.Infrastructure;
 using Microsoft.Framework.Runtime.Roslyn;
 #endif
@@ -32,6 +34,37 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 
         public static BuildReference ByName(string name, bool copyLocal = false)
         {
+#if DNX451 || DNXCORE50
+            var library = CallContextServiceLocator
+                .Locator
+                .ServiceProvider
+                .GetService<ILibraryManager>()
+                .GetLibraryExport(name);
+            if (library != null)
+            {
+                var metadataReference = library.MetadataReferences.Single();
+
+                var roslynMetadataReference = metadataReference as IRoslynMetadataReference;
+                if (roslynMetadataReference != null)
+                {
+                    if (copyLocal)
+                    {
+                        throw new InvalidOperationException(
+                            $"In-memory assembly '{name}' cannot be copied locally.");
+                    }
+
+                    return new BuildReference(roslynMetadataReference.MetadataReference);
+                }
+
+                var metadataFileReference = metadataReference as IMetadataFileReference;
+                Debug.Assert(
+                    metadataFileReference != null,
+                    "Unexpected metadata reference type: " + metadataReference.GetType().Name);
+
+                return ByPath(metadataFileReference.Path, copyLocal);
+            }
+#endif
+#if !DNXCORE50
             var assembly = Assembly.Load(name);
             if (!string.IsNullOrEmpty(assembly.Location))
             {
@@ -40,13 +73,10 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                     copyLocal,
                     new Uri(assembly.CodeBase).LocalPath);
             }
-            if (copyLocal)
-            {
-                throw new InvalidOperationException(
-                    $"In-memory assembly '{name}' cannot be copied locally.");
-            }
+#endif
 
-            return new BuildReference(ResolveReference(name));
+            throw new InvalidOperationException(
+                $"Assembly '{name}' not found.");
         }
 
         public static BuildReference ByPath(string path, bool copyLocal = false)
@@ -55,24 +85,6 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                 MetadataReference.CreateFromFile(path),
                 copyLocal,
                 path);
-        }
-
-        private static MetadataReference ResolveReference(string name)
-        {
-#if DNX451 || DNXCORE50
-            return CallContextServiceLocator
-                .Locator
-                .ServiceProvider
-                .GetService<ILibraryManager>()
-                .GetLibraryExport(name)
-                .MetadataReferences
-                .Cast<IRoslynMetadataReference>()
-                .Single()
-                .MetadataReference;
-#else
-            throw new InvalidOperationException(
-                $"In-memory assembly '{name}' cannot be referenced.");
-#endif
         }
     }
 }

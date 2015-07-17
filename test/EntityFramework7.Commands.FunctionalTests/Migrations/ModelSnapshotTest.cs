@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Data.Entity.Commands.TestUtilities;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Internal;
@@ -664,9 +665,11 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             {
                 References =
                 {
+#if !DNXCORE50
                     BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Linq.Expressions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+#endif
                     BuildReference.ByName("EntityFramework7.Core"),
                     BuildReference.ByName("EntityFramework7.Relational")
                 },
@@ -696,7 +699,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 
             var assembly = build.BuildInMemory();
             var factoryType = assembly.GetType("ModelSnapshot");
-            var property = factoryType.GetProperty("Model");
+            var property = factoryType.GetTypeInfo().GetDeclaredProperty("Model");
             var value = (IModel)property.GetValue(null);
 
             Assert.NotNull(value);

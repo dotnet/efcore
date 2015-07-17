@@ -3,12 +3,12 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Data.Entity.Commands.TestUtilities;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
@@ -1685,9 +1685,15 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             {
                 References =
                 {
+#if DNXCORE50
+                    BuildReference.ByName("System.Collections"),
+                    BuildReference.ByName("System.Linq.Expressions"),
+                    BuildReference.ByName("System.Reflection"),
+#else
                     BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Linq.Expressions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+#endif
                     BuildReference.ByName("EntityFramework7.Relational"),
                     BuildReference.ByName("EntityFramework7.Relational.Design")
                 },
@@ -1708,7 +1714,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
             var assembly = build.BuildInMemory();
             var factoryType = assembly.GetType("OperationsFactory");
-            var createMethod = factoryType.GetMethod("Create");
+            var createMethod = factoryType.GetTypeInfo().GetDeclaredMethod("Create");
             var mb = new MigrationBuilder();
             createMethod.Invoke(null, new[] { mb });
             var result = mb.Operations.Cast<T>().Single();
