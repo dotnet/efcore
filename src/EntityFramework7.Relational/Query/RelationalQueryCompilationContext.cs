@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.Relational().Table;
+            return entityType.Relational().TableName;
         }
 
         public virtual string GetSchema([NotNull] IEntityType entityType)
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(property, nameof(property));
 
-            return property.Relational().Column;
+            return property.Relational().ColumnName;
         }
     }
 }

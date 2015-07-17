@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Block_size_is_obtained_from_specified_sequence()
         {
             var property = CreateConventionModelBuilder()
-                .SqlServerSequence("DaneelOlivaw", b => b.IncrementBy(11))
+                .SqlServerSequence("DaneelOlivaw", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .UseSqlServerSequenceHiLo("DaneelOlivaw")
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Non_positive_block_sizes_are_not_allowed()
         {
             var property = CreateConventionModelBuilder()
-                .SqlServerSequence("DaneelOlivaw", b => b.IncrementBy(-1))
+                .SqlServerSequence("DaneelOlivaw", b => b.IncrementsBy(-1))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .UseSqlServerSequenceHiLo("DaneelOlivaw")
@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var property = CreateConventionModelBuilder()
                 .UseSqlServerSequenceHiLo("DaneelOlivaw")
-                .SqlServerSequence("DaneelOlivaw", b => b.IncrementBy(11))
+                .SqlServerSequence("DaneelOlivaw", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .Metadata;
@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Sequence_name_is_obtained_from_specified_sequence()
         {
             var property = CreateConventionModelBuilder()
-                .SqlServerSequence("DaneelOlivaw", b => b.IncrementBy(11))
+                .SqlServerSequence("DaneelOlivaw", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .UseSqlServerSequenceHiLo("DaneelOlivaw")
@@ -236,7 +236,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var property = CreateConventionModelBuilder()
                 .UseSqlServerSequenceHiLo("DaneelOlivaw")
-                .SqlServerSequence("DaneelOlivaw", b => b.IncrementBy(11))
+                .SqlServerSequence("DaneelOlivaw", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .Metadata;
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Schema_qualified_sequence_name_is_obtained_from_specified_sequence()
         {
             var property = CreateConventionModelBuilder()
-                .SqlServerSequence("DaneelOlivaw", "R", b => b.IncrementBy(11))
+                .SqlServerSequence("DaneelOlivaw", "R", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .UseSqlServerSequenceHiLo("DaneelOlivaw", "R")
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var property = CreateConventionModelBuilder()
                 .UseSqlServerSequenceHiLo("DaneelOlivaw", "R")
-                .SqlServerSequence("DaneelOlivaw", "R", b => b.IncrementBy(11))
+                .SqlServerSequence("DaneelOlivaw", "R", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .Metadata;
@@ -368,7 +368,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var entityType = new Model().AddEntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", typeof(string), shadowProperty: true);
-            entityType.SqlServer().Table = "MyTable";
+            entityType.SqlServer().TableName = "MyTable";
 
             return property;
         }

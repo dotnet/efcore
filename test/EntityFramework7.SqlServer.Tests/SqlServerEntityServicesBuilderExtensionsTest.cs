@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.ValueGeneration;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 

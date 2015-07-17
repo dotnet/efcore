@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Sequence Metadata => _sequence;
 
-        public virtual RelationalSequenceBuilder IncrementBy(int increment)
+        public virtual RelationalSequenceBuilder IncrementsBy(int increment)
         {
             _sequence = new Sequence(
                 _sequence.Name,
@@ -34,15 +34,15 @@ namespace Microsoft.Data.Entity.Metadata
                 increment,
                 _sequence.MinValue,
                 _sequence.MaxValue,
-                _sequence.Type,
-                _sequence.Cycle);
+                _sequence.ClrType,
+                _sequence.IsCyclic);
 
             _updateAction(_sequence);
 
             return this;
         }
 
-        public virtual RelationalSequenceBuilder Start(long startValue)
+        public virtual RelationalSequenceBuilder HasStart(long startValue)
         {
             _sequence = new Sequence(
                 _sequence.Name,
@@ -51,8 +51,8 @@ namespace Microsoft.Data.Entity.Metadata
                 _sequence.IncrementBy,
                 _sequence.MinValue,
                 _sequence.MaxValue,
-                _sequence.Type,
-                _sequence.Cycle);
+                _sequence.ClrType,
+                _sequence.IsCyclic);
 
             _updateAction(_sequence);
 
@@ -69,14 +69,14 @@ namespace Microsoft.Data.Entity.Metadata
                 _sequence.MinValue,
                 _sequence.MaxValue,
                 typeof(T),
-                _sequence.Cycle);
+                _sequence.IsCyclic);
 
             _updateAction(_sequence);
 
             return this;
         }
 
-        public virtual RelationalSequenceBuilder Max(long maximum)
+        public virtual RelationalSequenceBuilder HasMax(long maximum)
         {
             _sequence = new Sequence(
                 _sequence.Name,
@@ -85,15 +85,15 @@ namespace Microsoft.Data.Entity.Metadata
                 _sequence.IncrementBy,
                 _sequence.MinValue,
                 maximum,
-                _sequence.Type,
-                _sequence.Cycle);
+                _sequence.ClrType,
+                _sequence.IsCyclic);
 
             _updateAction(_sequence);
 
             return this;
         }
 
-        public virtual RelationalSequenceBuilder Min(long minimum)
+        public virtual RelationalSequenceBuilder HasMin(long minimum)
         {
             _sequence = new Sequence(
                 _sequence.Name,
@@ -102,18 +102,16 @@ namespace Microsoft.Data.Entity.Metadata
                 _sequence.IncrementBy,
                 minimum,
                 _sequence.MaxValue,
-                _sequence.Type,
-                _sequence.Cycle);
+                _sequence.ClrType,
+                _sequence.IsCyclic);
 
             _updateAction(_sequence);
 
             return this;
         }
 
-        public virtual RelationalSequenceBuilder Cycle(bool cycle = true)
+        public virtual RelationalSequenceBuilder IsCyclic(bool isCyclic = true)
         {
-            var model = (Model)_sequence.Model;
-
             _sequence = new Sequence(
                 _sequence.Name,
                 _sequence.Schema,
@@ -121,8 +119,8 @@ namespace Microsoft.Data.Entity.Metadata
                 _sequence.IncrementBy,
                 _sequence.MinValue,
                 _sequence.MaxValue,
-                _sequence.Type,
-                cycle);
+                _sequence.ClrType,
+                isCyclic);
 
             _updateAction(_sequence);
 

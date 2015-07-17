@@ -5,10 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.SqlServer;
 
-namespace Microsoft.Data.Entity.SqlServer
+namespace Microsoft.Data.Entity.Update
 {
     public interface ISqlServerUpdateSqlGenerator : IUpdateSqlGenerator
     {

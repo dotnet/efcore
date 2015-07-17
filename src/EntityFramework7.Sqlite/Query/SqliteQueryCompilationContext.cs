@@ -50,12 +50,12 @@ namespace Microsoft.Data.Entity.Sqlite.Query
             new SqliteQuerySqlGenerator(selectExpression, TypeMapper);
 
         public override string GetColumnName(IProperty property) =>
-            Check.NotNull(property, nameof(property)).Sqlite().Column;
+            Check.NotNull(property, nameof(property)).Sqlite().ColumnName;
 
         public override string GetSchema(IEntityType entityType) =>
             Check.NotNull(entityType, nameof(entityType)).Sqlite().Schema;
 
         public override string GetTableName(IEntityType entityType) =>
-            Check.NotNull(entityType, nameof(entityType)).Sqlite().Table;
+            Check.NotNull(entityType, nameof(entityType)).Sqlite().TableName;
     }
 }

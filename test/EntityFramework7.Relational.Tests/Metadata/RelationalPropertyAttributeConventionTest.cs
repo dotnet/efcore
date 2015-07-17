@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             var entityBuilder = modelBuilder.Entity<A>();
 
-            Assert.Equal("Post Name", entityBuilder.Property(e => e.Name).Metadata.Relational().Column);
+            Assert.Equal("Post Name", entityBuilder.Property(e => e.Name).Metadata.Relational().ColumnName);
             Assert.Equal(1, entityBuilder.Property(e => e.Name).Metadata.Relational().ColumnOrder);
             Assert.Equal("DECIMAL", entityBuilder.Property(e => e.Name).Metadata.Relational().ColumnType);
         }
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             new RelationalColumnAttributeConvention().Apply(propertyBuilder);
 
-            Assert.Equal("Post Name", propertyBuilder.Metadata.Relational().Column);
+            Assert.Equal("Post Name", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal(1, propertyBuilder.Metadata.Relational().ColumnOrder);
             Assert.Equal("DECIMAL", propertyBuilder.Metadata.Relational().ColumnType);
 
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             new RelationalColumnAttributeConvention().Apply(propertyBuilder);
 
-            Assert.Equal("ExplicitName", propertyBuilder.Metadata.Relational().Column);
+            Assert.Equal("ExplicitName", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal(0, propertyBuilder.Metadata.Relational().ColumnOrder);
             Assert.Equal("BYTE", propertyBuilder.Metadata.Relational().ColumnType);
         }

@@ -93,12 +93,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder
                         .Sequence("MySequence")
-                        .Start(77);
+                        .HasStart(77);
 
                     modelBuilder
                         .Entity<Blog>()
                         .Property(e => e.Id)
-                        .DefaultValueSql("next value for MySequence");
+                        .HasDefaultValueSql("next value for MySequence");
                 }
             }
         }
@@ -130,13 +130,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder
                         .Sequence("MySequence")
-                        .Start(77);
+                        .HasStart(77);
 
                     // TODO: Nested closure for Metadata
                     modelBuilder
                         .Entity<Blog>()
                         .Property(e => e.Id)
-                        .DefaultValueSql("next value for MySequence")
+                        .HasDefaultValueSql("next value for MySequence")
                         .Metadata.IsReadOnlyBeforeSave = true;
                 }
             }
@@ -295,7 +295,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     modelBuilder.Entity<Blog>()
                         .Property(e => e.CreatedOn)
                         .ValueGeneratedOnAdd()
-                        .DefaultValueSql("getdate()");
+                        .HasDefaultValueSql("getdate()");
                 }
             }
         }
@@ -348,7 +348,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<Blog>()
                         .Property(e => e.CreatedOn)
-                        .DefaultValueSql("getdate()")
+                        .HasDefaultValueSql("getdate()")
                         .Metadata.IsReadOnlyBeforeSave = true;
                 }
             }
@@ -388,7 +388,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<FullNameBlog>()
                         .Property(e => e.FullName)
-                        .ComputedColumnSql("FirstName + ' ' + LastName");
+                        .HasComputedColumnSql("FirstName + ' ' + LastName");
                 }
             }
         }
@@ -457,7 +457,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     modelBuilder
                         .Entity<GuidBlog>()
                         .Property(e => e.Id)
-                        .DefaultValueSql("newsequentialid()");
+                        .HasDefaultValueSql("newsequentialid()");
                 }
             }
         }
@@ -564,7 +564,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     modelBuilder
                         .Entity<Blog>()
                         .Property(e => e.Id)
-                        .DefaultValueSql("next value for MySequence")
+                        .HasDefaultValueSql("next value for MySequence")
                         .Metadata.IsReadOnlyBeforeSave = true;
                 }
             }
@@ -595,7 +595,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<Blog>()
                         .Property(e => e.CreatedOn)
-                        .DefaultValueSql("getdate()")
+                        .HasDefaultValueSql("getdate()")
                         .Metadata.IsReadOnlyBeforeSave = true;
                 }
             }
@@ -624,7 +624,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<FullNameBlog>()
                         .Property(e => e.FullName)
-                        .ComputedColumnSql("FirstName + ' ' + LastName");
+                        .HasComputedColumnSql("FirstName + ' ' + LastName");
                 }
             }
         }
@@ -661,7 +661,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder.Entity<FullNameBlog>()
                         .Property(e => e.FullName)
-                        .ComputedColumnSql("FirstName + ' ' + LastName");
+                        .HasComputedColumnSql("FirstName + ' ' + LastName");
                 }
             }
         }

@@ -27,10 +27,10 @@ namespace Microsoft.Data.Entity.Internal
             var tables = new HashSet<string>();
             foreach (var entityType in model.EntityTypes.Where(et => et.BaseType == null))
             {
-                var name = entityType.Relational().Schema + "." + entityType.Relational().Table;
+                var name = entityType.Relational().Schema + "." + entityType.Relational().TableName;
                 if (!tables.Add(name))
                 {
-                    ShowError(Relational.Internal.Strings.DuplicateTableName(entityType.Relational().Table, entityType.Relational().Schema, entityType.DisplayName()));
+                    ShowError(Relational.Internal.Strings.DuplicateTableName(entityType.Relational().TableName, entityType.Relational().Schema, entityType.DisplayName()));
                 }
             }
         }

@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
-            Assert.Null(command.SchemaName);
+            Assert.Null(command.Schema);
             Assert.Equal(EntityState.Added, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
-            Assert.Null(command.SchemaName);
+            Assert.Null(command.Schema);
             Assert.Equal(EntityState.Added, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
-            Assert.Null(command.SchemaName);
+            Assert.Null(command.Schema);
             Assert.Equal(EntityState.Added, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
-            Assert.Null(command.SchemaName);
+            Assert.Null(command.Schema);
             Assert.Equal(EntityState.Modified, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
-            Assert.Null(command.SchemaName);
+            Assert.Null(command.Schema);
             Assert.Equal(EntityState.Modified, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
-            Assert.Null(command.SchemaName);
+            Assert.Null(command.Schema);
             Assert.Equal(EntityState.Modified, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -229,7 +229,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
-            Assert.Null(command.SchemaName);
+            Assert.Null(command.Schema);
             Assert.Equal(EntityState.Deleted, command.EntityState);
             Assert.Equal(1, command.ColumnModifications.Count);
 
@@ -253,7 +253,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
-            Assert.Null(command.SchemaName);
+            Assert.Null(command.Schema);
             Assert.Equal(EntityState.Deleted, command.EntityState);
             Assert.Equal(2, command.ColumnModifications.Count);
 
@@ -373,13 +373,13 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var key = entityType.GetOrAddProperty("Id", typeof(int));
             key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
-            key.Relational().Column = "Col1";
+            key.Relational().ColumnName = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
             var nonKey = entityType.GetOrAddProperty("Name", typeof(string));
             nonKey.IsConcurrencyToken = computeNonKeyValue;
 
-            nonKey.Relational().Column = "Col2";
+            nonKey.Relational().ColumnName = "Col2";
             nonKey.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
 
             return model;

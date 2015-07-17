@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         protected const string RelationalTableAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.TableName;
         protected const string RelationalSchemaAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.Schema;
-        protected internal const string DiscriminatorPropertyAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.DiscriminatorProperty;
+        protected const string DiscriminatorPropertyAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.DiscriminatorProperty;
         protected const string DiscriminatorValueAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.DiscriminatorValue;
 
         private readonly IEntityType _entityType;
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
             _entityType = entityType;
         }
 
-        public virtual string Table
+        public virtual string TableName
             => _entityType.RootType()[RelationalTableAnnotation] as string
                ?? _entityType.RootType().DisplayName();
 
@@ -30,10 +30,13 @@ namespace Microsoft.Data.Entity.Metadata
             => _entityType.RootType()[RelationalSchemaAnnotation] as string;
 
         public virtual IProperty DiscriminatorProperty
-            => _entityType.RootType()
-                .GetProperty(
-                    (string)_entityType.RootType()
-                        .GetAnnotation(DiscriminatorPropertyAnnotation).Value);
+        {
+            get
+            {
+                var propertyName = (string)_entityType.RootType()[DiscriminatorPropertyAnnotation];
+                return propertyName == null ? null : _entityType.RootType().GetProperty(propertyName);
+            }
+        }
 
         public virtual object DiscriminatorValue
             => _entityType[DiscriminatorValueAnnotation]

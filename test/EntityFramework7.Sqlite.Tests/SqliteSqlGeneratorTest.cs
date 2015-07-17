@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.Sqlite
 {
@@ -11,6 +12,6 @@ namespace Microsoft.Data.Entity.Sqlite
         protected override IUpdateSqlGenerator CreateSqlGenerator() => new SqliteUpdateSqlGenerator();
         protected override string RowsAffected => "changes()";
         protected override string Identity => "last_insert_rowid()";
-        protected override string SchemaName => null;
+        protected override string Schema => null;
     }
 }

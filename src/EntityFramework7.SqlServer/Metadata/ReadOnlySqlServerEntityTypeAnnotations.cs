@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
         }
 
-        public override string Table
+        public override string TableName
             => EntityType[SqlServerTableAnnotation] as string
-               ?? base.Table;
+               ?? base.TableName;
 
         public override string Schema
             => EntityType[SqlServerSchemaAnnotation] as string

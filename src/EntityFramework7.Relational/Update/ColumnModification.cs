@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Update
 
             Entry = entry;
             Property = property;
-            ColumnName = propertyAnnotations.Column;
+            ColumnName = propertyAnnotations.ColumnName;
 
             _parameterName = isWrite
                 ? new LazyRef<string>(parameterNameGenerator.GenerateNext)

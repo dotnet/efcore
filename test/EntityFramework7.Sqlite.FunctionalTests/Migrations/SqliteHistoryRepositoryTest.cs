@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.History;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Sqlite.Migrations;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.Logging;
 using Xunit;
 

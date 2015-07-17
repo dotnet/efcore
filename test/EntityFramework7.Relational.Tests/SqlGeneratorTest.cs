@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Tests
                     .Append("provider_specific_identity()");
             }
 
-            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schemaName)
+            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema)
             {
                 commandStringBuilder
                     .Append("SELECT provider_specific_rowcount();" + Environment.NewLine);

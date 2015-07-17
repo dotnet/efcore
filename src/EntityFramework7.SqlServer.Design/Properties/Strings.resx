@@ -118,16 +118,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CannotFindForeignKeyMappingForConstraintId" xml:space="preserve">
-    <value>Could not find foreignKeyMapping for ConstraintId {constraintId} for FromColumn {fromColumnId}.</value>
+    <value>Could not find foreignKeyMapping for ConstraintId {constraintId} for FromColumnName {fromColumnNameId}.</value>
   </data>
   <data name="CannotFindRelationalPropertyForColumnId" xml:space="preserve">
-    <value>For foreign key ConstraintId {constraintId}, could not find relational property mapped to ToColumn with ColumnId {toColumnId}.</value>
+    <value>For foreign key ConstraintId {constraintId}, could not find relational property mapped to ToColumnName with ColumnNameId {toColumnNameId}.</value>
   </data>
   <data name="CannotFindTableForColumn" xml:space="preserve">
     <value>For columnId {columnId}. Could not find table with TableId {tableId}. Skipping column.</value>
   </data>
   <data name="CannotFindToColumnForConstraintId" xml:space="preserve">
-    <value>For foreign key ConstraintId {constraintId}. Could not find ToColumn with ColumnId {toColumnId}.</value>
+    <value>For foreign key ConstraintId {constraintId}. Could not find ToColumnName with ColumnNameId {toColumnNameId}.</value>
   </data>
   <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
     <value>For columnId {columnId}. Could not find type mapping for SQL Server type {sqlServerDataType}. Skipping column.</value>
