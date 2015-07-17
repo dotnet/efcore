@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 var navigationToPrincipal = string.IsNullOrEmpty(navigationToPrincipalName)
                     ? null
-                    : Metadata.DeclaringEntityType.FindNavigation(navigationToPrincipalName);
+                    : Metadata.DeclaringEntityType.FindDeclaredNavigation(navigationToPrincipalName);
 
                 if (navigationToPrincipal != null
                     && navigationToPrincipal.IsCompatible(
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 var navigationToDependent = navigationToDependentName == null
                     ? null
-                    : Metadata.PrincipalEntityType.FindNavigation(navigationToDependentName);
+                    : Metadata.PrincipalEntityType.FindDeclaredNavigation(navigationToDependentName);
 
                 if (navigationToDependent != null
                     && navigationToDependent.IsCompatible(

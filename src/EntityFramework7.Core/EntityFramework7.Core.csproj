@@ -73,6 +73,7 @@
     <Compile Include="Internal\ModelForeignKeyUndirectedGraphAdapter.cs" />
     <Compile Include="Internal\ModelNavigationsGraphAdapter.cs" />
     <Compile Include="Internal\Multigraph.cs" />
+    <Compile Include="Internal\PropertyListComparer.cs" />
     <Compile Include="Internal\ReferenceEnumerableEqualityComparer.cs" />
     <Compile Include="Internal\ReferenceEqualityComparer.cs" />
     <Compile Include="Internal\ThreadSafeDictionaryCache.cs" />

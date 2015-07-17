@@ -105,10 +105,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         private class AnnotationComparer : IComparer<IAnnotation>
         {
-            public int Compare(IAnnotation x, IAnnotation y)
-            {
-                return StringComparer.Ordinal.Compare(x.Name, y.Name);
-            }
+            public int Compare(IAnnotation x, IAnnotation y) => StringComparer.Ordinal.Compare(x.Name, y.Name);
         }
 
         IEnumerable<IAnnotation> IAnnotatable.Annotations => Annotations;

@@ -3,41 +3,68 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity.Tests
 {
     public abstract partial class ModelBuilderTest
     {
-        // TODO: add shadow entity type tests
         // TODO: add convention-less tests
 
         public abstract class ModelBuilderTestBase
         {
-            protected void AssertEqual(IReadOnlyList<string> expectedNames, IEnumerable<string> actualNames)
+            protected void AssertEqual(IEnumerable<string> expectedNames, IEnumerable<string> actualNames)
             {
                 Assert.Equal(
                     new SortedSet<string>(expectedNames, StringComparer.Ordinal),
-                    new SortedSet<string>(actualNames, StringComparer.Ordinal));
+                    new SortedSet<string>(actualNames, StringComparer.Ordinal),
+                    StringComparer.Ordinal);
             }
 
-            protected void AssertEqual(IReadOnlyList<Property> expectedProperties, IEnumerable<Property> actualProperties)
+            protected void AssertEqual(IEnumerable<IProperty> expectedProperties, IEnumerable<IProperty> actualProperties)
             {
                 Assert.Equal(
-                    new SortedSet<string>(expectedProperties.Select(p => p.Name), StringComparer.Ordinal),
-                    new SortedSet<string>(actualProperties.Select(p => p.Name), StringComparer.Ordinal));
+                    new SortedSet<IProperty>(expectedProperties, PropertyComparer.Instance),
+                    new SortedSet<IProperty>(actualProperties, PropertyComparer.Instance),
+                    PropertyComparer.Instance);
             }
 
-            protected void AssertEqual(IReadOnlyList<IProperty> expectedProperties, IEnumerable<IProperty> actualProperties)
+            protected void AssertEqual(IEnumerable<INavigation> expectedNavigations, IEnumerable<INavigation> actualNavigations)
             {
                 Assert.Equal(
-                    new SortedSet<string>(expectedProperties.Select(p => p.Name), StringComparer.Ordinal),
-                    new SortedSet<string>(actualProperties.Select(p => p.Name), StringComparer.Ordinal));
+                    new SortedSet<INavigation>(expectedNavigations, NavigationComparer.Instance),
+                    new SortedSet<INavigation>(actualNavigations, NavigationComparer.Instance),
+                    NavigationComparer.Instance);
+            }
+
+            protected void AssertEqual(IEnumerable<IKey> expectedKeys, IEnumerable<IKey> actualKeys)
+            {
+                Assert.Equal(
+                    new SortedSet<IKey>(expectedKeys, KeyComparer.Instance),
+                    new SortedSet<IKey>(actualKeys, KeyComparer.Instance),
+                    KeyComparer.Instance);
+            }
+
+            protected void AssertEqual(IEnumerable<IForeignKey> expectedForeignKeys, IEnumerable<IForeignKey> actualForeignKeys)
+            {
+                Assert.Equal(
+                    new SortedSet<IForeignKey>(expectedForeignKeys, ForeignKeyComparer.Instance),
+                    new SortedSet<IForeignKey>(actualForeignKeys, ForeignKeyComparer.Instance),
+                    ForeignKeyComparer.Instance);
+            }
+
+            protected void AssertEqual(IEnumerable<IIndex> expectedIndexes, IEnumerable<IIndex> actualIndexes)
+            {
+                Assert.Equal(
+                    new SortedSet<IIndex>(expectedIndexes, IndexComparer.Instance),
+                    new SortedSet<IIndex>(actualIndexes, IndexComparer.Instance),
+                    IndexComparer.Instance);
             }
 
             protected TestModelBuilder CreateModelBuilder()
@@ -88,6 +115,11 @@ namespace Microsoft.Data.Entity.Tests
         {
             public abstract EntityType Metadata { get; }
             public abstract TestEntityTypeBuilder<TEntity> Annotation(string annotation, object value);
+
+            public abstract TestEntityTypeBuilder<TEntity> BaseEntity<TBaseEntity>()
+                where TBaseEntity : class;
+
+            public abstract TestEntityTypeBuilder<TEntity> BaseEntity(string baseEntityTypeName);
             public abstract TestKeyBuilder Key(Expression<Func<TEntity, object>> keyExpression);
             public abstract TestKeyBuilder Key(params string[] propertyNames);
             public abstract TestKeyBuilder AlternateKey(Expression<Func<TEntity, object>> keyExpression);
