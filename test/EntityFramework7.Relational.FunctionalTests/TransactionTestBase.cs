@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         where TFixture : TransactionFixtureBase<TTestStore>, new()
     {
         [Fact]
-        public void SaveChanges_implicitly_starts_transaction()
+        public virtual void SaveChanges_implicitly_starts_transaction()
         {
             using (var context = CreateContext())
             {
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task SaveChangesAsync_implicitly_starts_transaction()
+        public virtual async Task SaveChangesAsync_implicitly_starts_transaction()
         {
             using (var context = CreateContext())
             {
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public void SaveChanges_uses_explicit_transaction_without_committing()
+        public virtual void SaveChanges_uses_explicit_transaction_without_committing()
         {
             using (var context = CreateContext())
             {
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public void SaveChanges_false_uses_explicit_transaction_without_committing_or_accepting_changes()
+        public virtual void SaveChanges_false_uses_explicit_transaction_without_committing_or_accepting_changes()
         {
             using (var context = CreateContext())
             {
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task SaveChangesAsync_uses_explicit_transaction_without_committing()
+        public virtual async Task SaveChangesAsync_uses_explicit_transaction_without_committing()
         {
             using (var context = CreateContext())
             {
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task SaveChangesAsync_false_uses_explicit_transaction_without_committing_or_accepting_changes()
+        public virtual async Task SaveChangesAsync_false_uses_explicit_transaction_without_committing_or_accepting_changes()
         {
             using (var context = CreateContext())
             {
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public void SaveChanges_uses_explicit_transaction_and_does_not_rollback_on_failure()
+        public virtual void SaveChanges_uses_explicit_transaction_and_does_not_rollback_on_failure()
         {
             using (var context = CreateContext())
             {
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task SaveChangesAsync_uses_explicit_transaction_and_does_not_rollback_on_failure()
+        public virtual async Task SaveChangesAsync_uses_explicit_transaction_and_does_not_rollback_on_failure()
         {
             using (var context = CreateContext())
             {
@@ -190,7 +190,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task RelationalTransaction_can_be_commited()
+        public virtual async Task RelationalTransaction_can_be_commited()
         {
             using (var context = CreateContext())
             {
@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task RelationalTransaction_can_be_commited_from_context()
+        public virtual async Task RelationalTransaction_can_be_commited_from_context()
         {
             using (var context = CreateContext())
             {
@@ -228,7 +228,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task RelationalTransaction_can_be_rolled_back()
+        public virtual async Task RelationalTransaction_can_be_rolled_back()
         {
             using (var context = CreateContext())
             {
@@ -244,7 +244,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task RelationalTransaction_can_be_rolled_back_from_context()
+        public virtual async Task RelationalTransaction_can_be_rolled_back_from_context()
         {
             using (var context = CreateContext())
             {
@@ -336,7 +336,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public async Task Can_use_open_connection_with_started_transaction()
+        public virtual async Task Can_use_open_connection_with_started_transaction()
         {
             using (var transaction = TestDatabase.Connection.BeginTransaction())
             {
@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public void UseTransaction_throws_if_mismatched_connection()
+        public virtual void UseTransaction_throws_if_mismatched_connection()
         {
             using (var transaction = TestDatabase.Connection.BeginTransaction())
             {
@@ -367,7 +367,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public void UseTransaction_throws_if_another_transaction_started()
+        public virtual void UseTransaction_throws_if_another_transaction_started()
         {
             using (var transaction = TestDatabase.Connection.BeginTransaction())
             {
@@ -384,7 +384,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public void UseTransaction_will_not_dispose_external_transaction()
+        public virtual void UseTransaction_will_not_dispose_external_transaction()
         {
             using (var transaction = TestDatabase.Connection.BeginTransaction())
             {
