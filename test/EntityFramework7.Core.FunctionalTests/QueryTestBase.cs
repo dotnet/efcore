@@ -1642,6 +1642,38 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_query_composition_is_null()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.SingleOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == null
+                    select e1,
+                entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_query_composition_is_not_null()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.SingleOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) != null
+                    select e1,
+                entryCount: 8);
+        }
+
+        [Fact]
+        public virtual void Where_query_composition_entity_equality()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.SingleOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
+                    select e1);
+        }
+
+        [Fact]
         public virtual void Where_query_composition2()
         {
             AssertQuery<Employee>(

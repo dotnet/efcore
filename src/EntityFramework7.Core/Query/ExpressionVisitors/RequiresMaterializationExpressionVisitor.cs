@@ -103,14 +103,41 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return newExpression;
         }
 
-        protected override Expression VisitSubQuery(SubQueryExpression expression)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            var leftSubQueryExpression = binaryExpression.Left as SubQueryExpression;
 
-            expression.QueryModel.TransformExpressions(Visit);
+            if (leftSubQueryExpression != null)
+            {
+                leftSubQueryExpression.QueryModel.TransformExpressions(Visit);
+            }
+            else
+            {
+                Visit(binaryExpression.Left);
+            }
+
+            var rightSubQueryExpression = binaryExpression.Right as SubQueryExpression;
+
+            if (rightSubQueryExpression != null)
+            {
+                rightSubQueryExpression.QueryModel.TransformExpressions(Visit);
+            }
+            else
+            {
+                Visit(binaryExpression.Right);
+            }
+
+            return binaryExpression;
+        }
+
+        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        {
+            Check.NotNull(subQueryExpression, nameof(subQueryExpression));
+
+            subQueryExpression.QueryModel.TransformExpressions(Visit);
 
             var querySourceReferenceExpression
-                = expression.QueryModel.SelectClause.Selector
+                = subQueryExpression.QueryModel.SelectClause.Selector
                     as QuerySourceReferenceExpression;
 
             if (querySourceReferenceExpression != null)
@@ -129,7 +156,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
             }
 
-            return expression;
+            return subQueryExpression;
         }
     }
 }
