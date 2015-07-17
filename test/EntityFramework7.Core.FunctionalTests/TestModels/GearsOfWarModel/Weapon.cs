@@ -14,8 +14,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
         public int? SynergyWithId { get; set; }
         public virtual Weapon SynergyWith { get; set; }
 
-        public string OwnerNickname { get; set; }
-        public int OwnerSquadId { get; set; }
+        public string OwnerFullName { get; set; }
         public Gear Owner { get; set; }
     }
 }

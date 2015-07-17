@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<Weapon>(b =>
                 {
                     b.Reference(w => w.SynergyWith).InverseReference().ForeignKey<Weapon>(w => w.SynergyWithId);
-                    b.Reference(w => w.Owner).InverseCollection(g => g.Weapons).ForeignKey(w => new { w.OwnerNickname, w.OwnerSquadId });
+                    b.Reference(w => w.Owner).InverseCollection(g => g.Weapons).ForeignKey(w => w.OwnerFullName).PrincipalKey(g => g.FullName);
                 });
         }
     }

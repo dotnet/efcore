@@ -140,10 +140,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     joinExpression.Predicate
                         = BuildJoinEqualityExpression(
                             navigation,
-                            (navigation.PointsToPrincipal()
-                                ? targetEntityType
-                                : navigation.DeclaringEntityType)
-                                .GetPrimaryKey().Properties,
                             navigation.PointsToPrincipal() ? targetTableExpression : joinExpression,
                             navigation.PointsToPrincipal() ? joinExpression : targetTableExpression,
                             querySource);
@@ -170,7 +166,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     var principalTable
                         = selectExpression.Tables.Last(t => t.QuerySource == querySource);
 
-                    foreach (var property in navigation.DeclaringEntityType.GetPrimaryKey().Properties)
+                    foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
                     {
                         selectExpression
                             .AddToOrderBy(
@@ -217,12 +213,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                     LiftOrderBy(innerJoinSelectExpression, targetSelectExpression, innerJoinExpression);
 
-                    var primaryKeyProperties = navigation.DeclaringEntityType.GetPrimaryKey().Properties;
-
                     innerJoinExpression.Predicate
                         = BuildJoinEqualityExpression(
                             navigation,
-                            primaryKeyProperties,
                             targetTableExpression,
                             innerJoinExpression,
                             querySource);
@@ -286,7 +279,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         private Expression BuildJoinEqualityExpression(
             INavigation navigation,
-            IReadOnlyList<IProperty> primaryKeyProperties,
             TableExpressionBase targetTableExpression,
             TableExpressionBase joinExpression,
             IQuerySource querySource)
@@ -298,14 +290,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             for (var i = 0; i < navigation.ForeignKey.Properties.Count; i++)
             {
-                var primaryKeyProperty = primaryKeyProperties[i];
+                var principalKeyProperty = navigation.ForeignKey.PrincipalKey.Properties[i];
                 var foreignKeyProperty = navigation.ForeignKey.Properties[i];
 
                 var foreignKeyColumnExpression
                     = BuildColumnExpression(targetTableProjections, targetTableExpression, foreignKeyProperty, querySource);
 
                 var primaryKeyColumnExpression
-                    = BuildColumnExpression(joinTableProjections, joinExpression, primaryKeyProperty, querySource);
+                    = BuildColumnExpression(joinTableProjections, joinExpression, principalKeyProperty, querySource);
 
                 var primaryKeyExpression = primaryKeyColumnExpression;
 
