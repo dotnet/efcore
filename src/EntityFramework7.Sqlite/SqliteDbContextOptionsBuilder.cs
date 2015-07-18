@@ -7,23 +7,17 @@ using Microsoft.Data.Entity.Sqlite;
 
 namespace Microsoft.Data.Entity
 {
-    public class SqliteDbContextOptionsBuilder : RelationalDbContextOptionsBuilder
+    public class SqliteDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>
     {
         public SqliteDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
             : base(optionsBuilder)
         {
         }
 
+        protected override SqliteOptionsExtension CloneExtension()
+            => new SqliteOptionsExtension(OptionsBuilder.Options.GetExtension<SqliteOptionsExtension>());
+
         public virtual SqliteDbContextOptionsBuilder SuppressForeignKeysEnforcement()
-        {
-            var extension = new SqliteOptionsExtension(OptionsBuilder.Options.GetExtension<SqliteOptionsExtension>())
-            {
-                ForeignKeys = false
-            };
-
-            ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
-
-            return this;
-        }
+            => SetOption(e => ((SqliteOptionsExtension)e).ForeignKeys = false);
     }
 }
