@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Update
                 .Append("last_insert_rowid()");
         }
 
-        public override void AppendSelectAffectedCountCommand(StringBuilder builder, string name, string schema)
+        protected override void AppendSelectAffectedCountCommand(StringBuilder builder, string name, string schema)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NotEmpty(name, nameof(name));

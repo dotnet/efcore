@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Update
                 .Append("OUTPUT ")
                 .AppendJoin(operations.Select(c => "INSERTED." + DelimitIdentifier(c.ColumnName)));
 
-        public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema)
+        protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("SELECT @@ROWCOUNT")
                 .Append(BatchCommandSeparator).AppendLine();
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.Update
         public override string DelimitIdentifier(string identifier)
             => "[" + EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier))) + "]";
 
-        public override string EscapeIdentifier(string identifier)
+        protected override string EscapeIdentifier(string identifier)
             => Check.NotEmpty(identifier, nameof(identifier)).Replace("]", "]]");
 
         public override string GenerateLiteral(byte[] literal)
