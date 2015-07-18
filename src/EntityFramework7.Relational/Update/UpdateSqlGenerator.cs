@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Update
             AppendSelectAffectedCountCommand(commandStringBuilder, name, schema);
         }
 
-        public virtual void AppendInsertCommand(
+        protected virtual void AppendInsertCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
             [CanBeNull] string schema,
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Update
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
         }
 
-        public virtual void AppendUpdateCommand(
+        protected virtual void AppendUpdateCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
             [CanBeNull] string schema,
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Update
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
         }
 
-        public virtual void AppendDeleteCommand(
+        protected virtual void AppendDeleteCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
             [CanBeNull] string schema,
@@ -128,14 +128,14 @@ namespace Microsoft.Data.Entity.Update
             commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
         }
 
-        public virtual void AppendSelectAffectedCountCommand(
+        protected virtual void AppendSelectAffectedCountCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
             [CanBeNull] string schema)
         {
         }
 
-        public virtual void AppendSelectAffectedCommand(
+        protected virtual void AppendSelectAffectedCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
             [CanBeNull] string schema,
@@ -354,7 +354,7 @@ namespace Microsoft.Data.Entity.Update
         public virtual string DelimitIdentifier(string identifier)
             => "\"" + EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier))) + "\"";
 
-        public virtual string EscapeIdentifier([NotNull] string identifier)
+        protected virtual string EscapeIdentifier([NotNull] string identifier)
             => Check.NotEmpty(identifier, nameof(identifier)).Replace("\"", "\"\"");
 
         public virtual string GenerateLiteral(string literal)

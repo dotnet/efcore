@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 base.AppendBatchHeader(commandStringBuilder);
             }
 
-            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema)
+            protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema)
             {
             }
 
