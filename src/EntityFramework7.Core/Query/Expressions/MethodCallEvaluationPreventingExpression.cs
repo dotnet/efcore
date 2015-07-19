@@ -25,16 +25,6 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public override Type Type => _methodCall.Type;
 
-        public override bool CanReduce
-        {
-            get { return true; }
-        }
-
-        public override Expression Reduce()
-        {
-            return MethodCall;
-        }
-
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var newObject = visitor.Visit(MethodCall.Object);
