@@ -18,9 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query.Methods
         private readonly string _convertMethodName;
         private readonly Dictionary<string, SqlDbType> _typeMapping = new Dictionary<string, SqlDbType>
         {
-            [nameof(Convert.ToBoolean)] = SqlDbType.Bit,
             [nameof(Convert.ToByte)] = SqlDbType.TinyInt,
-            [nameof(Convert.ToDateTime)] = SqlDbType.DateTime,
             [nameof(Convert.ToDecimal)] = SqlDbType.Decimal,
             [nameof(Convert.ToDouble)] = SqlDbType.Float,
             [nameof(Convert.ToInt16)] = SqlDbType.SmallInt,
