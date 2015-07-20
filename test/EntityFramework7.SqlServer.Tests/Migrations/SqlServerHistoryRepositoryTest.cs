@@ -5,6 +5,7 @@ using System;
 using Microsoft.Data.Entity.Migrations.History;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Update;
 using Moq;
 using Xunit;
 

@@ -231,7 +231,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 ? Diff(GetSchemas(source), GetSchemas(target))
                     .Concat(Diff(source.GetRootEntityTypes(), target.GetRootEntityTypes(), diffContext))
                     .Concat(
-                        Diff(MetadataExtensions.Extensions(source).Sequences, MetadataExtensions.Extensions(target).Sequences))
+                        Diff(MetadataExtensions.GetAnnotations(source).Sequences, MetadataExtensions.GetAnnotations(target).Sequences))
                     .Concat(
                         Diff(
                             source.EntityTypes.SelectMany(t => t.GetForeignKeys()),
@@ -246,12 +246,12 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IEnumerable<MigrationOperation> Add(IModel target, ModelDifferContext diffContext)
             => GetSchemas(target).SelectMany(Add)
                 .Concat(target.GetRootEntityTypes().SelectMany(t => Add(t, diffContext)))
-                .Concat(MetadataExtensions.Extensions(target).Sequences.SelectMany(Add))
+                .Concat(MetadataExtensions.GetAnnotations(target).Sequences.SelectMany(Add))
                 .Concat(target.EntityTypes.SelectMany(t => t.GetForeignKeys()).SelectMany(k => Add(k, diffContext)));
 
         protected virtual IEnumerable<MigrationOperation> Remove(IModel source, ModelDifferContext diffContext) =>
             source.GetRootEntityTypes().SelectMany(t => Remove(t, diffContext))
-                .Concat(MetadataExtensions.Extensions(source).Sequences.SelectMany(Remove));
+                .Concat(MetadataExtensions.GetAnnotations(source).Sequences.SelectMany(Remove));
 
         #endregion
 
@@ -289,16 +289,16 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 s => Remove(s, diffContext),
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
                 (s, t) => string.Equals(
-                    MetadataExtensions.Extensions(s).Schema,
-                    MetadataExtensions.Extensions(t).Schema,
+                    MetadataExtensions.GetAnnotations(s).Schema,
+                    MetadataExtensions.GetAnnotations(t).Schema,
                     StringComparison.OrdinalIgnoreCase)
                           && string.Equals(
-                              MetadataExtensions.Extensions(s).Table,
-                              MetadataExtensions.Extensions(t).Table,
+                              MetadataExtensions.GetAnnotations(s).TableName,
+                              MetadataExtensions.GetAnnotations(t).TableName,
                               StringComparison.OrdinalIgnoreCase),
                 (s, t) => string.Equals(
-                    MetadataExtensions.Extensions(s).Table,
-                    MetadataExtensions.Extensions(t).Table,
+                    MetadataExtensions.GetAnnotations(s).TableName,
+                    MetadataExtensions.GetAnnotations(t).TableName,
                     StringComparison.OrdinalIgnoreCase));
 
         protected virtual IEnumerable<MigrationOperation> Diff(
@@ -306,19 +306,19 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             IEntityType target,
             ModelDifferContext diffContext)
         {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
-            var targetExtensions = MetadataExtensions.Extensions(target);
+            var sourceExtensions = MetadataExtensions.GetAnnotations(source);
+            var targetExtensions = MetadataExtensions.GetAnnotations(target);
 
             var schemaChanged = sourceExtensions.Schema != targetExtensions.Schema;
-            var renamed = sourceExtensions.Table != targetExtensions.Table;
+            var renamed = sourceExtensions.TableName != targetExtensions.TableName;
             if (schemaChanged || renamed)
             {
                 yield return new RenameTableOperation
                 {
                     Schema = sourceExtensions.Schema,
-                    Name = sourceExtensions.Table,
+                    Name = sourceExtensions.TableName,
                     NewSchema = schemaChanged ? targetExtensions.Schema : null,
-                    NewName = renamed ? targetExtensions.Table : null
+                    NewName = renamed ? targetExtensions.TableName : null
                 };
             }
 
@@ -335,12 +335,12 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Add(IEntityType target, ModelDifferContext diffContext)
         {
-            var targetExtensions = MetadataExtensions.Extensions(target);
+            var targetExtensions = MetadataExtensions.GetAnnotations(target);
 
             var createTableOperation = new CreateTableOperation
             {
                 Schema = targetExtensions.Schema,
-                Name = targetExtensions.Table
+                Name = targetExtensions.TableName
             };
             CopyAnnotations(Annotations.For(target), createTableOperation);
 
@@ -362,12 +362,12 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Remove(IEntityType source, ModelDifferContext diffContext)
         {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
+            var sourceExtensions = MetadataExtensions.GetAnnotations(source);
 
             var operation = new DropTableOperation
             {
                 Schema = sourceExtensions.Schema,
-                Name = sourceExtensions.Table
+                Name = sourceExtensions.TableName
             };
             diffContext.AddDrop(source, operation);
 
@@ -395,24 +395,24 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 Remove,
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
                 (s, t) => string.Equals(
-                    MetadataExtensions.Extensions(s).Column,
-                    MetadataExtensions.Extensions(t).Column,
+                    MetadataExtensions.GetAnnotations(s).ColumnName,
+                    MetadataExtensions.GetAnnotations(t).ColumnName,
                     StringComparison.OrdinalIgnoreCase));
 
         protected virtual IEnumerable<MigrationOperation> Diff(IProperty source, IProperty target)
         {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
-            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.DeclaringEntityType.RootType());
-            var targetExtensions = MetadataExtensions.Extensions(target);
+            var sourceExtensions = MetadataExtensions.GetAnnotations(source);
+            var sourceEntityTypeExtensions = MetadataExtensions.GetAnnotations(source.DeclaringEntityType.RootType());
+            var targetExtensions = MetadataExtensions.GetAnnotations(target);
 
-            if (sourceExtensions.Column != targetExtensions.Column)
+            if (sourceExtensions.ColumnName != targetExtensions.ColumnName)
             {
                 yield return new RenameColumnOperation
                 {
                     Schema = sourceEntityTypeExtensions.Schema,
-                    Table = sourceEntityTypeExtensions.Table,
-                    Name = sourceExtensions.Column,
-                    NewName = targetExtensions.Column
+                    Table = sourceEntityTypeExtensions.TableName,
+                    Name = sourceExtensions.ColumnName,
+                    NewName = targetExtensions.ColumnName
                 };
             }
 
@@ -441,8 +441,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 var alterColumnOperation = new AlterColumnOperation
                 {
                     Schema = sourceEntityTypeExtensions.Schema,
-                    Table = sourceEntityTypeExtensions.Table,
-                    Name = sourceExtensions.Column,
+                    Table = sourceEntityTypeExtensions.TableName,
+                    Name = sourceExtensions.ColumnName,
                     Type = targetColumnType,
                     IsNullable = isTargetColumnNullable,
                     DefaultValue = targetExtensions.DefaultValue,
@@ -458,14 +458,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Add(IProperty target, bool inline = false)
         {
-            var targetExtensions = MetadataExtensions.Extensions(target);
-            var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.DeclaringEntityType.RootType());
+            var targetExtensions = MetadataExtensions.GetAnnotations(target);
+            var targetEntityTypeExtensions = MetadataExtensions.GetAnnotations(target.DeclaringEntityType.RootType());
 
             var operation = new AddColumnOperation
             {
                 Schema = targetEntityTypeExtensions.Schema,
-                Table = targetEntityTypeExtensions.Table,
-                Name = targetExtensions.Column,
+                Table = targetEntityTypeExtensions.TableName,
+                Name = targetExtensions.ColumnName,
                 Type = targetExtensions.ColumnType ?? TypeMapper.MapPropertyType(target).DefaultTypeName,
                 IsNullable = target.IsColumnNullable(),
                 DefaultValue = targetExtensions.DefaultValue
@@ -482,14 +482,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Remove(IProperty source)
         {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
-            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.DeclaringEntityType.RootType());
+            var sourceExtensions = MetadataExtensions.GetAnnotations(source);
+            var sourceEntityTypeExtensions = MetadataExtensions.GetAnnotations(source.DeclaringEntityType.RootType());
 
             yield return new DropColumnOperation
             {
                 Schema = sourceEntityTypeExtensions.Schema,
-                Table = sourceEntityTypeExtensions.Table,
-                Name = sourceExtensions.Column
+                Table = sourceEntityTypeExtensions.TableName,
+                Name = sourceExtensions.ColumnName
             };
         }
 
@@ -504,7 +504,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             => DiffCollection(
                 source, target,
                 Diff, Add, Remove,
-                (s, t) => MetadataExtensions.Extensions(s).Name == MetadataExtensions.Extensions(t).Name
+                (s, t) => MetadataExtensions.GetAnnotations(s).Name == MetadataExtensions.GetAnnotations(t).Name
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
                           && s.IsPrimaryKey() == t.IsPrimaryKey());
 
@@ -515,8 +515,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Add(IKey target)
         {
-            var targetExtensions = MetadataExtensions.Extensions(target);
-            var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.EntityType.RootType());
+            var targetExtensions = MetadataExtensions.GetAnnotations(target);
+            var targetEntityTypeExtensions = MetadataExtensions.GetAnnotations(target.EntityType.RootType());
 
             MigrationOperation operation;
             if (target.IsPrimaryKey())
@@ -524,7 +524,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 operation = new AddPrimaryKeyOperation
                 {
                     Schema = targetEntityTypeExtensions.Schema,
-                    Table = targetEntityTypeExtensions.Table,
+                    Table = targetEntityTypeExtensions.TableName,
                     Name = targetExtensions.Name,
                     Columns = GetColumnNames(target.Properties)
                 };
@@ -534,7 +534,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 operation = new AddUniqueConstraintOperation
                 {
                     Schema = targetEntityTypeExtensions.Schema,
-                    Table = targetEntityTypeExtensions.Table,
+                    Table = targetEntityTypeExtensions.TableName,
                     Name = targetExtensions.Name,
                     Columns = GetColumnNames(target.Properties)
                 };
@@ -546,15 +546,15 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Remove(IKey source)
         {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
-            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.EntityType.RootType());
+            var sourceExtensions = MetadataExtensions.GetAnnotations(source);
+            var sourceEntityTypeExtensions = MetadataExtensions.GetAnnotations(source.EntityType.RootType());
 
             if (source.IsPrimaryKey())
             {
                 yield return new DropPrimaryKeyOperation
                 {
                     Schema = sourceEntityTypeExtensions.Schema,
-                    Table = sourceEntityTypeExtensions.Table,
+                    Table = sourceEntityTypeExtensions.TableName,
                     Name = sourceExtensions.Name
                 };
             }
@@ -563,7 +563,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 yield return new DropUniqueConstraintOperation
                 {
                     Schema = sourceEntityTypeExtensions.Schema,
-                    Table = sourceEntityTypeExtensions.Table,
+                    Table = sourceEntityTypeExtensions.TableName,
                     Name = sourceExtensions.Name
                 };
             }
@@ -585,7 +585,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 s => Remove(s, diffContext),
                 (s, t) =>
                     {
-                        return MetadataExtensions.Extensions(s).Name == MetadataExtensions.Extensions(t).Name
+                        return MetadataExtensions.GetAnnotations(s).Name == MetadataExtensions.GetAnnotations(t).Name
                                && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
                                && diffContext.FindTarget(s.PrincipalEntityType.RootType()) == t.PrincipalEntityType.RootType()
                                && s.PrincipalKey.Properties.Select(diffContext.FindTarget).SequenceEqual(t.PrincipalKey.Properties);
@@ -598,20 +598,20 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Add(IForeignKey target, ModelDifferContext diffContext)
         {
-            var targetExtensions = MetadataExtensions.Extensions(target);
+            var targetExtensions = MetadataExtensions.GetAnnotations(target);
             var declaringRootEntityType = target.DeclaringEntityType.RootType();
-            var targetEntityTypeExtensions = MetadataExtensions.Extensions(declaringRootEntityType);
-            var targetPrincipalEntityTypeExtensions = MetadataExtensions.Extensions(target.PrincipalEntityType.RootType());
+            var targetEntityTypeExtensions = MetadataExtensions.GetAnnotations(declaringRootEntityType);
+            var targetPrincipalEntityTypeExtensions = MetadataExtensions.GetAnnotations(target.PrincipalEntityType.RootType());
 
             // TODO: Set OnDelete (See #1084)
             var operation = new AddForeignKeyOperation
             {
                 Schema = targetEntityTypeExtensions.Schema,
-                Table = targetEntityTypeExtensions.Table,
+                Table = targetEntityTypeExtensions.TableName,
                 Name = targetExtensions.Name,
                 Columns = GetColumnNames(target.Properties),
                 ReferencedSchema = targetPrincipalEntityTypeExtensions.Schema,
-                ReferencedTable = targetPrincipalEntityTypeExtensions.Table,
+                ReferencedTable = targetPrincipalEntityTypeExtensions.TableName,
                 ReferencedColumns = GetColumnNames(target.PrincipalKey.Properties)
             };
             CopyAnnotations(Annotations.For(target), operation);
@@ -629,9 +629,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Remove(IForeignKey source, ModelDifferContext diffContext)
         {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
+            var sourceExtensions = MetadataExtensions.GetAnnotations(source);
             var declaringRootEntityType = source.DeclaringEntityType.RootType();
-            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(declaringRootEntityType);
+            var sourceEntityTypeExtensions = MetadataExtensions.GetAnnotations(declaringRootEntityType);
 
             var dropTableOperation = diffContext.FindDrop(declaringRootEntityType);
             if (dropTableOperation == null)
@@ -639,7 +639,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 yield return new DropForeignKeyOperation
                 {
                     Schema = sourceEntityTypeExtensions.Schema,
-                    Table = sourceEntityTypeExtensions.Table,
+                    Table = sourceEntityTypeExtensions.TableName,
                     Name = sourceExtensions.Name
                 };
             }
@@ -657,24 +657,24 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 source, target,
                 Diff, Add, Remove,
                 (s, t) => string.Equals(
-                    MetadataExtensions.Extensions(s).Name,
-                    MetadataExtensions.Extensions(t).Name,
+                    MetadataExtensions.GetAnnotations(s).Name,
+                    MetadataExtensions.GetAnnotations(t).Name,
                     StringComparison.OrdinalIgnoreCase)
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties),
                 (s, t) => s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties));
 
         protected virtual IEnumerable<MigrationOperation> Diff(IIndex source, IIndex target)
         {
-            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.DeclaringEntityType.RootType());
-            var sourceName = MetadataExtensions.Extensions(source).Name;
-            var targetName = MetadataExtensions.Extensions(target).Name;
+            var sourceEntityTypeExtensions = MetadataExtensions.GetAnnotations(source.DeclaringEntityType.RootType());
+            var sourceName = MetadataExtensions.GetAnnotations(source).Name;
+            var targetName = MetadataExtensions.GetAnnotations(target).Name;
 
             if (sourceName != targetName)
             {
                 yield return new RenameIndexOperation
                 {
                     Schema = sourceEntityTypeExtensions.Schema,
-                    Table = sourceEntityTypeExtensions.Table,
+                    Table = sourceEntityTypeExtensions.TableName,
                     Name = sourceName,
                     NewName = targetName
                 };
@@ -693,14 +693,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Add(IIndex target)
         {
-            var targetExtensions = MetadataExtensions.Extensions(target);
-            var targetEntityTypeExtensions = MetadataExtensions.Extensions(target.DeclaringEntityType.RootType());
+            var targetExtensions = MetadataExtensions.GetAnnotations(target);
+            var targetEntityTypeExtensions = MetadataExtensions.GetAnnotations(target.DeclaringEntityType.RootType());
 
             var operation = new CreateIndexOperation
             {
                 Name = targetExtensions.Name,
                 Schema = targetEntityTypeExtensions.Schema,
-                Table = targetEntityTypeExtensions.Table,
+                Table = targetEntityTypeExtensions.TableName,
                 Columns = GetColumnNames(target.Properties),
                 IsUnique = target.IsUnique
             };
@@ -711,14 +711,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Remove(IIndex source)
         {
-            var sourceExtensions = MetadataExtensions.Extensions(source);
-            var sourceEntityTypeExtensions = MetadataExtensions.Extensions(source.DeclaringEntityType.RootType());
+            var sourceExtensions = MetadataExtensions.GetAnnotations(source);
+            var sourceEntityTypeExtensions = MetadataExtensions.GetAnnotations(source.DeclaringEntityType.RootType());
 
             yield return new DropIndexOperation
             {
                 Name = sourceExtensions.Name,
                 Schema = sourceEntityTypeExtensions.Schema,
-                Table = sourceEntityTypeExtensions.Table
+                Table = sourceEntityTypeExtensions.TableName
             };
         }
 
@@ -732,9 +732,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 Diff, Add, Remove,
                 (s, t) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
                           && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                          && s.Type == t.Type,
+                          && s.ClrType == t.ClrType,
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                          && s.Type == t.Type);
+                          && s.ClrType == t.ClrType);
 
         protected virtual IEnumerable<MigrationOperation> Diff(ISequence source, ISequence target)
         {
@@ -754,7 +754,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             if (source.IncrementBy != target.IncrementBy
                 || source.MaxValue != target.MaxValue
                 || source.MinValue != target.MinValue
-                || source.Cycle != target.Cycle)
+                || source.IsCyclic != target.IsCyclic)
             {
                 yield return new AlterSequenceOperation
                 {
@@ -763,7 +763,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     IncrementBy = target.IncrementBy,
                     MinValue = target.MinValue,
                     MaxValue = target.MaxValue,
-                    Cycle = target.Cycle
+                    Cycle = target.IsCyclic
                 };
             }
         }
@@ -774,12 +774,12 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             {
                 Schema = target.Schema,
                 Name = target.Name,
-                Type = TypeMapper.GetDefaultMapping(target.Type).DefaultTypeName,
+                Type = TypeMapper.GetDefaultMapping(target.ClrType).DefaultTypeName,
                 StartWith = target.StartValue,
                 IncrementBy = target.IncrementBy,
                 MinValue = target.MinValue,
                 MaxValue = target.MaxValue,
-                Cycle = target.Cycle
+                Cycle = target.IsCyclic
             };
         }
 
@@ -855,7 +855,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         }
 
         protected virtual string[] GetColumnNames(IEnumerable<IProperty> properties)
-            => properties.Select(p => MetadataExtensions.Extensions(p).Column).ToArray();
+            => properties.Select(p => MetadataExtensions.GetAnnotations(p).ColumnName).ToArray();
 
         protected virtual bool HasDifferences(IEnumerable<IAnnotation> source, IEnumerable<IAnnotation> target)
         {
@@ -884,7 +884,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         }
 
         protected virtual IEnumerable<string> GetSchemas(IModel model)
-            => model.GetRootEntityTypes().Select(t => MetadataExtensions.Extensions(t).Schema).Where(s => !string.IsNullOrEmpty(s))
+            => model.GetRootEntityTypes().Select(t => MetadataExtensions.GetAnnotations(t).Schema).Where(s => !string.IsNullOrEmpty(s))
                 .Distinct();
 
         protected virtual object GetDefaultValue(Type type)

@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
                 .HasSqliteColumnName("MyNameIs")
                 .Metadata;
 
-            Assert.Equal("MyNameIs", property.Sqlite().Column);
+            Assert.Equal("MyNameIs", property.Sqlite().ColumnName);
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
                 .HasSqliteColumnName("MyNameIs")
                 .Metadata;
 
-            Assert.Equal("MyNameIs", property.Sqlite().Column);
+            Assert.Equal("MyNameIs", property.Sqlite().ColumnName);
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .SqliteDefaultValueSql("VanillaCoke")
+                .HasSqliteDefaultValueSql("VanillaCoke")
                 .Metadata;
 
             Assert.Equal("VanillaCoke", property.Sqlite().GeneratedValueSql);
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property<string>("Name")
-                .SqliteDefaultValueSql("VanillaCoke")
+                .HasSqliteDefaultValueSql("VanillaCoke")
                 .Metadata;
 
             Assert.Equal("VanillaCoke", property.Sqlite().GeneratedValueSql);
@@ -210,7 +210,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
                 .ToSqliteTable("Custardizer")
                 .Metadata;
 
-            Assert.Equal("Custardizer", entityType.Sqlite().Table);
+            Assert.Equal("Custardizer", entityType.Sqlite().TableName);
         }
 
         [Fact]
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
                 .ToSqliteTable("Custardizer")
                 .Metadata;
 
-            Assert.Equal("Custardizer", entityType.Sqlite().Table);
+            Assert.Equal("Custardizer", entityType.Sqlite().TableName);
         }
 
         private class Customer

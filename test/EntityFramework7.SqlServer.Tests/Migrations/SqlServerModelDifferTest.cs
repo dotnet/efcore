@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                             x.Key("Id");
                             x.Property<int>("Value")
                                 .HasSqlServerColumnType("varchar(8000)")
-                                .DefaultValueSql("1 + 1");
+                                .HasDefaultValueSql("1 + 1");
                         }),
                 operations =>
                     {
@@ -212,7 +212,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                             x.ToTable("Sheep", "bah");
                             x.Property<int>("Id");
                             x.Key("Id");
-                            x.Property<int>("Now").SqlServerComputedColumnSql("CAST(CURRENT_TIMESTAMP AS int)");
+                            x.Property<int>("Now").HasSqlServerComputedColumnSql("CAST(CURRENT_TIMESTAMP AS int)");
                         }),
                 operations =>
                     {
@@ -680,7 +680,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         {
             Execute(
                 source => source.Sequence("Bravo"),
-                target => target.SqlServerSequence("Bravo").IncrementBy(2),
+                target => target.SqlServerSequence("Bravo").IncrementsBy(2),
                 operations =>
                     {
                         Assert.Equal(1, operations.Count);

@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Update
 
         public ModificationCommand(
             [NotNull] string name,
-            [CanBeNull] string schemaName,
+            [CanBeNull] string schema,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
             [NotNull] Func<IProperty, IRelationalPropertyAnnotations> getPropertyExtensions,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Update
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
             TableName = name;
-            SchemaName = schemaName;
+            Schema = schema;
             ParameterNameGenerator = parameterNameGenerator;
             _getPropertyExtensions = getPropertyExtensions;
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Update
 
         public virtual string TableName { get; }
 
-        public virtual string SchemaName { get; }
+        public virtual string Schema { get; }
 
         public virtual IReadOnlyList<InternalEntityEntry> Entries => _entries;
 

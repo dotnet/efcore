@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         {
         }
 
-        public override string Table => EntityType[SqliteTableAnnotation] as string ?? base.Table;
+        public override string TableName => EntityType[SqliteTableAnnotation] as string ?? base.TableName;
         public override string Schema => null;
     }
 }

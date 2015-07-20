@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 var codeGenEntityType = codeGenModel
                     .AddEntityType(nameMapper.EntityTypeToClassNameMap[relationalEntityType]);
                 _relationalEntityTypeToCodeGenEntityTypeMap[relationalEntityType] = codeGenEntityType;
-                codeGenEntityType.Relational().Table = _tables[relationalEntityType.Name].TableName;
+                codeGenEntityType.Relational().TableName = _tables[relationalEntityType.Name].TableName;
                 codeGenEntityType.Relational().Schema = _tables[relationalEntityType.Name].SchemaName;
 
                 // Loop over relational properties constructing a matching property in the 
@@ -561,7 +561,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
             if (property.Name != tableColumn.ColumnName)
             {
-                property.Relational().Column = tableColumn.ColumnName;
+                property.Relational().ColumnName = tableColumn.ColumnName;
             }
 
             string typeName = null;

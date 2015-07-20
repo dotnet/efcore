@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -20,19 +19,10 @@ namespace Microsoft.Data.Entity.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));
 
-            var propertyType = property.ClrType.UnwrapNullableType();
-
-            if (property.DeclaringEntityType.BaseType == null)
+            if (property.DeclaringEntityType.BaseType == null
+                && property.DeclaringEntityType.Relational().DiscriminatorProperty == property)
             {
-                var discriminatorPropertyName
-                    = property.DeclaringEntityType[ReadOnlyRelationalEntityTypeAnnotations.DiscriminatorPropertyAnnotation]
-                        as string;
-
-                if (discriminatorPropertyName != null
-                    && string.Equals(discriminatorPropertyName, property.Name, StringComparison.Ordinal))
-                {
-                    return new DiscriminatorValueGenerator(entityType.Relational().DiscriminatorValue);
-                }
+                return new DiscriminatorValueGenerator(entityType.Relational().DiscriminatorValue);
             }
 
             return base.Create(property, entityType);

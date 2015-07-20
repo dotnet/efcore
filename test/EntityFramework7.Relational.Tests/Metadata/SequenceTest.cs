@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.Type);
+            Assert.Same(typeof(long), sequence.ClrType);
         }
 
         [Fact]
@@ -34,16 +34,16 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
+            Assert.Same(typeof(int), sequence.ClrType);
         }
 
         [Fact]
         public void Can_only_be_created_for_byte_short_int_and_long()
         {
-            Assert.Same(typeof(byte), new Sequence("Foo", null, 11, 1729, null, null, typeof(byte)).Type);
-            Assert.Same(typeof(short), new Sequence("Foo", null, 11, 1729, null, null, typeof(short)).Type);
-            Assert.Same(typeof(int), new Sequence("Foo", null, 11, 1729, null, null, typeof(int)).Type);
-            Assert.Same(typeof(long), new Sequence("Foo", null, 11, 1729, null, null, typeof(long)).Type);
+            Assert.Same(typeof(byte), new Sequence("Foo", null, 11, 1729, null, null, typeof(byte)).ClrType);
+            Assert.Same(typeof(short), new Sequence("Foo", null, 11, 1729, null, null, typeof(short)).ClrType);
+            Assert.Same(typeof(int), new Sequence("Foo", null, 11, 1729, null, null, typeof(int)).ClrType);
+            Assert.Same(typeof(long), new Sequence("Foo", null, 11, 1729, null, null, typeof(long)).ClrType);
 
             Assert.Equal(
                 Strings.BadSequenceType,
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
+            Assert.Same(typeof(int), sequence.ClrType);
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.Type);
+            Assert.Same(typeof(long), sequence.ClrType);
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1729, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
+            Assert.Same(typeof(int), sequence.ClrType);
         }
 
         [Fact]

@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Text;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Sqlite
+namespace Microsoft.Data.Entity.Update
 {
     public class SqliteUpdateSqlGenerator : UpdateSqlGenerator
     {
@@ -24,7 +22,7 @@ namespace Microsoft.Data.Entity.Sqlite
                 .Append("last_insert_rowid()");
         }
 
-        public override void AppendSelectAffectedCountCommand(StringBuilder builder, string name, string schemaName)
+        public override void AppendSelectAffectedCountCommand(StringBuilder builder, string name, string schema)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NotEmpty(name, nameof(name));

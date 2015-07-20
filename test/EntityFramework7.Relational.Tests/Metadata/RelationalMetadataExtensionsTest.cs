@@ -19,20 +19,20 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Equal("Name", property.Relational().Column);
-            Assert.Equal("Name", ((IProperty)property).Relational().Column);
+            Assert.Equal("Name", property.Relational().ColumnName);
+            Assert.Equal("Name", ((IProperty)property).Relational().ColumnName);
 
-            property.Relational().Column = "Eman";
+            property.Relational().ColumnName = "Eman";
 
             Assert.Equal("Name", property.Name);
             Assert.Equal("Name", ((IProperty)property).Name);
-            Assert.Equal("Eman", property.Relational().Column);
-            Assert.Equal("Eman", ((IProperty)property).Relational().Column);
+            Assert.Equal("Eman", property.Relational().ColumnName);
+            Assert.Equal("Eman", ((IProperty)property).Relational().ColumnName);
 
-            property.Relational().Column = null;
+            property.Relational().ColumnName = null;
 
-            Assert.Equal("Name", property.Relational().Column);
-            Assert.Equal("Name", ((IProperty)property).Relational().Column);
+            Assert.Equal("Name", property.Relational().ColumnName);
+            Assert.Equal("Name", ((IProperty)property).Relational().ColumnName);
         }
 
         [Fact]
@@ -44,20 +44,20 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity<Customer>()
                 .Metadata;
 
-            Assert.Equal("Customer", entityType.Relational().Table);
-            Assert.Equal("Customer", ((IEntityType)entityType).Relational().Table);
+            Assert.Equal("Customer", entityType.Relational().TableName);
+            Assert.Equal("Customer", ((IEntityType)entityType).Relational().TableName);
 
-            entityType.Relational().Table = "Customizer";
+            entityType.Relational().TableName = "Customizer";
 
             Assert.Equal("Customer", entityType.DisplayName());
             Assert.Equal("Customer", ((IEntityType)entityType).DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("Customizer", ((IEntityType)entityType).Relational().Table);
+            Assert.Equal("Customizer", entityType.Relational().TableName);
+            Assert.Equal("Customizer", ((IEntityType)entityType).Relational().TableName);
 
-            entityType.Relational().Table = null;
+            entityType.Relational().TableName = null;
 
-            Assert.Equal("Customer", entityType.Relational().Table);
-            Assert.Equal("Customer", ((IEntityType)entityType).Relational().Table);
+            Assert.Equal("Customer", entityType.Relational().TableName);
+            Assert.Equal("Customer", ((IEntityType)entityType).Relational().TableName);
         }
 
         [Fact]
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.Type);
+            Assert.Same(typeof(long), sequence.ClrType);
 
             extensions.AddOrReplaceSequence(new Sequence("Foo", null, 1729, 11, 2001, 2010, typeof(int)));
 
@@ -292,7 +292,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
+            Assert.Same(typeof(int), sequence.ClrType);
         }
 
         [Fact]
@@ -316,7 +316,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.Type);
+            Assert.Same(typeof(long), sequence.ClrType);
 
             extensions.AddOrReplaceSequence(new Sequence("Foo", "Smoo", 1729, 11, 2001, 2010, typeof(int)));
 
@@ -328,7 +328,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
+            Assert.Same(typeof(int), sequence.ClrType);
         }
 
         [Fact]
@@ -351,7 +351,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.Type);
+            Assert.Same(typeof(long), sequence.ClrType);
 
             extensions.AddOrReplaceSequence(new Sequence("Foo", null, 1729, 11, 2001, 2010, typeof(int)));
 
@@ -363,7 +363,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
+            Assert.Same(typeof(int), sequence.ClrType);
         }
 
         [Fact]
@@ -386,7 +386,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.Type);
+            Assert.Same(typeof(long), sequence.ClrType);
 
             extensions.AddOrReplaceSequence(new Sequence("Foo", "Smoo", 1729, 11, 2001, 2010, typeof(int)));
 
@@ -398,7 +398,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
+            Assert.Same(typeof(int), sequence.ClrType);
         }
 
         [Fact]

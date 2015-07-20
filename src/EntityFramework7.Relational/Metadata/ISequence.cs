@@ -13,8 +13,8 @@ namespace Microsoft.Data.Entity.Metadata
         int IncrementBy { get; }
         long? MinValue { get; }
         long? MaxValue { get; }
-        Type Type { get; }
+        Type ClrType { get; }
         IModel Model { get; }
-        bool Cycle { get; }
+        bool IsCyclic { get; }
     }
 }

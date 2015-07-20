@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         {
         }
 
-        public override string Column => Property[SqliteNameAnnotation] as string ?? base.Column;
+        public override string ColumnName => Property[SqliteNameAnnotation] as string ?? base.ColumnName;
         public override string ColumnType => Property[SqliteColumnTypeAnnotation] as string ?? base.ColumnType;
 
         public override string GeneratedValueSql => Property[SqliteGeneratedValueSqlAnnotation] as string

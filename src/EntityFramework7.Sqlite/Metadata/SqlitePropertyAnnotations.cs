@@ -13,9 +13,9 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         {
         }
 
-        public new virtual string Column
+        public new virtual string ColumnName
         {
-            get { return base.Column; }
+            get { return base.ColumnName; }
             [param: CanBeNull] set { Property[SqliteNameAnnotation] = value; }
         }
 

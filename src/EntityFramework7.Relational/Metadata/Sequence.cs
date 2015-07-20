@@ -25,18 +25,18 @@ namespace Microsoft.Data.Entity.Metadata
             int incrementBy = 1,
             [CanBeNull] long? minValue = null,
             [CanBeNull] long? maxValue = null,
-            [CanBeNull] Type type = null,
-            bool cycle = false)
+            [CanBeNull] Type clrType = null,
+            bool isCyclic = false)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            type = type ?? DefaultType;
+            clrType = clrType ?? DefaultType;
 
-            if (type != typeof(byte)
-                && type != typeof(long)
-                && type != typeof(int)
-                && type != typeof(short))
+            if (clrType != typeof(byte)
+                && clrType != typeof(long)
+                && clrType != typeof(int)
+                && clrType != typeof(short))
             {
                 // See Issue #242 for supporting all types
                 throw new ArgumentException(Strings.BadSequenceType);
@@ -48,8 +48,8 @@ namespace Microsoft.Data.Entity.Metadata
             IncrementBy = incrementBy;
             MinValue = minValue;
             MaxValue = maxValue;
-            Type = type;
-            Cycle = cycle;
+            ClrType = clrType;
+            IsCyclic = isCyclic;
         }
 
         public virtual string Name { get; }
@@ -64,9 +64,9 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual long? MaxValue { get; }
 
-        public virtual Type Type { get; }
+        public virtual Type ClrType { get; }
 
-        public virtual bool Cycle { get; }
+        public virtual bool IsCyclic { get; }
 
         public virtual IModel Model
         {
@@ -96,9 +96,9 @@ namespace Microsoft.Data.Entity.Metadata
             builder.Append(", ");
             EscapeAndQuote(builder, MaxValue);
             builder.Append(", ");
-            EscapeAndQuote(builder, Type.Name);
+            EscapeAndQuote(builder, ClrType.Name);
             builder.Append(", ");
-            EscapeAndQuote(builder, Cycle);
+            EscapeAndQuote(builder, IsCyclic);
 
             return builder.ToString();
         }

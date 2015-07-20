@@ -14,9 +14,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
         }
 
-        public new virtual string Table
+        public new virtual string TableName
         {
-            get { return base.Table; }
+            get { return base.TableName; }
             [param: CanBeNull]
             set
             {

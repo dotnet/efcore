@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IRelationalEntityTypeAnnotations
     {
-        string Table { get; }
+        string TableName { get; }
         string Schema { get; }
         IProperty DiscriminatorProperty { get; }
         object DiscriminatorValue { get; }

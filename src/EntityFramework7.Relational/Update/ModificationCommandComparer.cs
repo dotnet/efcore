@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Update
                 return 1;
             }
 
-            result = StringComparer.Ordinal.Compare(x.SchemaName, y.SchemaName);
+            result = StringComparer.Ordinal.Compare(x.Schema, y.Schema);
             if (0 != result)
             {
                 return result;

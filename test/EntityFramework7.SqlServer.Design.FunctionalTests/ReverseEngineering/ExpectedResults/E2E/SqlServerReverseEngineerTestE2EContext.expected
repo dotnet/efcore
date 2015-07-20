@@ -108,19 +108,19 @@ namespace E2ETest.Namespace
                 entity.Property(e => e.WithDateDefaultExpression)
                     .Required()
                     .HasColumnType("datetime2(7)")
-                    .DefaultValueSql("getdate()");
+                    .HasDefaultValueSql("getdate()");
 
                 entity.Property(e => e.WithDefaultValue)
                     .Required()
-                    .DefaultValue(-1);
+                    .HasDefaultValue(-1);
 
                 entity.Property(e => e.WithGuidDefaultExpression)
                     .Required()
-                    .DefaultValueSql("newsequentialid()");
+                    .HasDefaultValueSql("newsequentialid()");
 
                 entity.Property(e => e.WithMoneyDefaultValue)
                     .Required()
-                    .DefaultValue(0.00m);
+                    .HasDefaultValue(0.00m);
             });
 
             modelBuilder.Entity<ReferredToByTableWithUnmappablePrimaryKeyColumn>(entity =>

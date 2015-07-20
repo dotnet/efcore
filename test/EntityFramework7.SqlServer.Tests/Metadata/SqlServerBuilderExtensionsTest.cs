@@ -32,8 +32,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
             Assert.Equal("Name", property.Name);
-            Assert.Equal("Eman", property.Relational().Column);
-            Assert.Equal("MyNameIs", property.SqlServer().Column);
+            Assert.Equal("Eman", property.Relational().ColumnName);
+            Assert.Equal("MyNameIs", property.SqlServer().ColumnName);
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .SqlServerDefaultValueSql("VanillaCoke");
+                .HasSqlServerDefaultValueSql("VanillaCoke");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .DefaultValueSql("CherryCoke");
+                .HasDefaultValueSql("CherryCoke");
 
             Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
             Assert.Equal("VanillaCoke", property.SqlServer().GeneratedValueSql);
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .SqlServerComputedColumnSql("VanillaCoke");
+                .HasSqlServerComputedColumnSql("VanillaCoke");
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .ComputedColumnSql("CherryCoke");
+                .HasComputedColumnSql("CherryCoke");
 
             Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
             Assert.Equal("VanillaCoke", property.SqlServer().GeneratedValueSql);
@@ -113,12 +113,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .DefaultValue(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)));
+                .HasDefaultValue(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)));
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .SqlServerDefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
+                .HasSqlServerDefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
 
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Key(e => e.Id)
-                .KeyName("KeyLimePie")
+                .Name("KeyLimePie")
                 .SqlServerKeyName("LemonSupreme");
 
             var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
@@ -272,7 +272,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity<Customer>()
                 .Index(e => e.Id)
-                .IndexName("Eeeendeeex")
+                .Name("Eeeendeeex")
                 .SqlServerIndexName("Dexter");
 
             var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
@@ -294,8 +294,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("Custardizer", entityType.SqlServer().Table);
+            Assert.Equal("Customizer", entityType.Relational().TableName);
+            Assert.Equal("Custardizer", entityType.SqlServer().TableName);
         }
 
         [Fact]
@@ -311,8 +311,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("Custardizer", entityType.SqlServer().Table);
+            Assert.Equal("Customizer", entityType.Relational().TableName);
+            Assert.Equal("Custardizer", entityType.SqlServer().TableName);
         }
 
         [Fact]
@@ -328,8 +328,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("Custardizer", entityType.SqlServer().Table);
+            Assert.Equal("Customizer", entityType.Relational().TableName);
+            Assert.Equal("Custardizer", entityType.SqlServer().TableName);
             Assert.Equal("db0", entityType.Relational().Schema);
             Assert.Equal("dbOh", entityType.SqlServer().Schema);
         }
@@ -347,8 +347,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.Relational().Table);
-            Assert.Equal("Custardizer", entityType.SqlServer().Table);
+            Assert.Equal("Customizer", entityType.Relational().TableName);
+            Assert.Equal("Custardizer", entityType.SqlServer().TableName);
             Assert.Equal("db0", entityType.Relational().Schema);
             Assert.Equal("dbOh", entityType.SqlServer().Schema);
         }
@@ -448,7 +448,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.Type);
+            Assert.Same(Sequence.DefaultType, sequence.ClrType);
         }
 
         [Fact]
@@ -476,7 +476,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.Type);
+            Assert.Same(Sequence.DefaultType, sequence.ClrType);
         }
 
         [Fact]
@@ -502,7 +502,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.Type);
+            Assert.Same(Sequence.DefaultType, sequence.ClrType);
         }
 
         [Fact]
@@ -512,10 +512,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Sequence("Snook", "Tasty")
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
+                .IncrementsBy(11)
+                .HasStart(1729)
+                .HasMin(111)
+                .HasMax(2222)
                 .Type<int>();
 
             modelBuilder.UseSqlServerSequenceHiLo("Snook", "Tasty");
@@ -538,10 +538,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .SqlServerSequence("Snook", "Tasty")
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
+                .IncrementsBy(11)
+                .HasStart(1729)
+                .HasMin(111)
+                .HasMax(2222)
                 .Type<int>();
 
             modelBuilder.UseSqlServerSequenceHiLo("Snook", "Tasty");
@@ -565,7 +565,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(111, sequence.MinValue);
             Assert.Equal(2222, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
+            Assert.Same(typeof(int), sequence.ClrType);
         }
 
         [Fact]
@@ -662,7 +662,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.Type);
+            Assert.Same(Sequence.DefaultType, sequence.ClrType);
         }
 
         [Fact]
@@ -693,7 +693,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.Type);
+            Assert.Same(Sequence.DefaultType, sequence.ClrType);
         }
 
         [Fact]
@@ -723,7 +723,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.Type);
+            Assert.Same(Sequence.DefaultType, sequence.ClrType);
         }
 
         [Fact]
@@ -733,10 +733,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Sequence("Snook", "Tasty")
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
+                .IncrementsBy(11)
+                .HasStart(1729)
+                .HasMin(111)
+                .HasMax(2222)
                 .Type<int>();
 
             modelBuilder
@@ -762,7 +762,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence("Snook", "Tasty", b => b.IncrementBy(11).Start(1729).Min(111).Max(2222).Type<int>())
+                .Sequence("Snook", "Tasty", b => b.IncrementsBy(11).HasStart(1729).HasMin(111).HasMax(2222).Type<int>())
                 .Entity<Customer>()
                 .Property(e => e.Id)
                 .UseSqlServerSequenceHiLo("Snook", "Tasty");
@@ -786,10 +786,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .SqlServerSequence("Snook", "Tasty")
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
+                .IncrementsBy(11)
+                .HasStart(1729)
+                .HasMin(111)
+                .HasMax(2222)
                 .Type<int>();
 
             modelBuilder
@@ -817,10 +817,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .SqlServerSequence("Snook", "Tasty", b =>
                     {
-                        b.IncrementBy(11)
-                            .Start(1729)
-                            .Min(111)
-                            .Max(2222)
+                        b.IncrementsBy(11)
+                            .HasStart(1729)
+                            .HasMin(111)
+                            .HasMax(2222)
                             .Type<int>();
                     })
                 .Entity<Customer>()
@@ -899,7 +899,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.Type);
+            Assert.Same(Sequence.DefaultType, sequence.ClrType);
         }
 
         [Fact]
@@ -918,7 +918,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.Type);
+            Assert.Same(Sequence.DefaultType, sequence.ClrType);
         }
 
         [Fact]
@@ -928,10 +928,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .SqlServerSequence("Snook")
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
+                .IncrementsBy(11)
+                .HasStart(1729)
+                .HasMin(111)
+                .HasMax(2222)
                 .Type<int>();
 
             Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
@@ -948,10 +948,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .SqlServerSequence("Snook", b =>
                     {
-                        b.IncrementBy(11)
-                            .Start(1729)
-                            .Min(111)
-                            .Max(2222)
+                        b.IncrementsBy(11)
+                            .HasStart(1729)
+                            .HasMin(111)
+                            .HasMax(2222)
                             .Type<int>();
                     });
 
@@ -969,7 +969,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(111, sequence.MinValue);
             Assert.Equal(2222, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
+            Assert.Same(typeof(int), sequence.ClrType);
         }
 
         [Fact]
@@ -979,10 +979,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .SqlServerSequence("Snook", "Tasty")
-                .IncrementBy(11)
-                .Start(1729)
-                .Min(111)
-                .Max(2222)
+                .IncrementsBy(11)
+                .HasStart(1729)
+                .HasMin(111)
+                .HasMax(2222)
                 .Type<int>();
 
             Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
@@ -999,7 +999,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .SqlServerSequence("Snook", "Tasty", b =>
                     {
-                        b.IncrementBy(11).Start(1729).Min(111).Max(2222).Type<int>();
+                        b.IncrementsBy(11).HasStart(1729).HasMin(111).HasMax(2222).Type<int>();
                     });
 
             Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
@@ -1059,19 +1059,19 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .SqlServerDefaultValueSql("Simon"));
+                    .HasSqlServerDefaultValueSql("Simon"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .SqlServerComputedColumnSql("Simon"));
+                    .HasSqlServerComputedColumnSql("Simon"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Customer>()
                     .Property(e => e.Name)
-                    .SqlServerDefaultValue("Neil"));
+                    .HasSqlServerDefaultValue("Neil"));
 
             AssertIsGeneric(
                 modelBuilder
@@ -1114,32 +1114,32 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
-                .SqlServerDefaultValueSql("Simon");
+                .HasSqlServerDefaultValueSql("Simon");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .SqlServerDefaultValueSql("Neil");
+                .HasSqlServerDefaultValueSql("Neil");
 
             modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
-                .SqlServerDefaultValue("Simon");
+                .HasSqlServerDefaultValue("Simon");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .SqlServerDefaultValue("Neil");
+                .HasSqlServerDefaultValue("Neil");
 
             modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Name")
-                .SqlServerComputedColumnSql("Simon");
+                .HasSqlServerComputedColumnSql("Simon");
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(typeof(string), "Name")
-                .SqlServerComputedColumnSql("Neil");
+                .HasSqlServerComputedColumnSql("Neil");
 
             modelBuilder
                 .Entity(typeof(Customer))
