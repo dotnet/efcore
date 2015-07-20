@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -18,7 +19,9 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
         {
             Check.NotNull(property, nameof(property));
 
-            var sequence = property.SqlServer().TryGetHiLoSequence();
+            var sequence = property.SqlServer().FindHiLoSequence();
+
+            Debug.Assert(sequence != null);
 
             return _sequenceGeneratorCache.GetOrAdd(
                 GetSequenceName(sequence),

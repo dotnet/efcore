@@ -33,15 +33,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.Conventions
             Assert.Equal(3, annotations.Count());
 
             Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceName, annotations.ElementAt(0).Name);
-            Assert.Equal(Sequence.DefaultName, annotations.ElementAt(0).Value);
+            Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, annotations.ElementAt(0).Value);
 
             Assert.Equal(
                 SqlServerAnnotationNames.Prefix +
                 RelationalAnnotationNames.Sequence +
                 "." +
-                Sequence.DefaultName,
+                SqlServerAnnotationNames.DefaultHiLoSequenceName,
                 annotations.ElementAt(1).Name);
-            Assert.Equal(new Sequence(Sequence.DefaultName, null, 1, 10).Serialize(), annotations.ElementAt(1).Value);
+            Assert.NotNull(annotations.ElementAt(1).Value);
 
             Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy, annotations.ElementAt(2).Name);
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo.ToString(), annotations.ElementAt(2).Value);

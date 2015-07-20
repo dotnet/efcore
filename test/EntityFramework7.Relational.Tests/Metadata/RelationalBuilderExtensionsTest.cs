@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Tests;
 using Xunit;
@@ -297,20 +296,20 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder.Sequence("Snook");
 
-            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
+            var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
 
             ValidateNamedSequence(sequence);
         }
 
-        private static void ValidateNamedSequence(Sequence sequence)
+        private static void ValidateNamedSequence(ISequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
             Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.ClrType);
+            Assert.Same(typeof(long), sequence.ClrType);
         }
 
         [Fact]
@@ -320,20 +319,20 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder.Sequence("Snook", "Tasty");
 
-            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
+            var sequence = modelBuilder.Model.Relational().FindSequence("Snook", "Tasty");
 
             ValidateSchemaNamedSequence(sequence);
         }
 
-        private static void ValidateSchemaNamedSequence(Sequence sequence)
+        private static void ValidateSchemaNamedSequence(ISequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Equal("Tasty", sequence.Schema);
             Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.ClrType);
+            Assert.Same(typeof(long), sequence.ClrType);
         }
 
         [Fact]
@@ -342,19 +341,73 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence("Snook")
+                .Sequence<int>("Snook")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
-                .HasMax(2222)
-                .Type<int>();
+                .HasMax(2222);
 
-            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
+            var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
 
             ValidateNamedSpecificSequence(sequence);
         }
 
-        private static void ValidateNamedSpecificSequence(Sequence sequence)
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_with_convention_builder_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Sequence(typeof(int), "Snook")
+                .IncrementsBy(11)
+                .StartsAt(1729)
+                .HasMin(111)
+                .HasMax(2222);
+
+            var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_using_nested_closure()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Sequence<int>("Snook", b =>
+                {
+                    b.IncrementsBy(11)
+                        .StartsAt(1729)
+                        .HasMin(111)
+                        .HasMax(2222);
+                });
+
+            var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_using_nested_closure_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Sequence(typeof(int), "Snook", b =>
+                {
+                    b.IncrementsBy(11)
+                        .StartsAt(1729)
+                        .HasMin(111)
+                        .HasMax(2222);
+                });
+
+            var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        private static void ValidateNamedSpecificSequence(ISequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -371,14 +424,62 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence("Snook", "Tasty")
+                .Sequence<int>("Snook", "Tasty")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
-                .HasMax(2222)
-                .Type<int>();
+                .HasMax(2222);
 
-            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
+            var sequence = modelBuilder.Model.Relational().FindSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_with_convention_builder_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Sequence(typeof(int), "Snook", "Tasty")
+                .IncrementsBy(11)
+                .StartsAt(1729)
+                .HasMin(111)
+                .HasMax(2222);
+
+            var sequence = modelBuilder.Model.Relational().FindSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_using_nested_closure()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Sequence<int>("Snook", "Tasty", b =>
+                {
+                    b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222);
+                });
+
+            var sequence = modelBuilder.Model.Relational().FindSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_using_nested_closure_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Sequence(typeof(int), "Snook", "Tasty", b =>
+                {
+                    b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222);
+                });
+
+            var sequence = modelBuilder.Model.Relational().FindSequence("Snook", "Tasty");
 
             ValidateSchemaNamedSpecificSequence(sequence);
         }
@@ -575,7 +676,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             return RelationalTestHelpers.Instance.CreateConventionBuilder();
         }
 
-        private static void ValidateSchemaNamedSpecificSequence(Sequence sequence)
+        private static void ValidateSchemaNamedSpecificSequence(ISequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Equal("Tasty", sequence.Schema);

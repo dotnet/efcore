@@ -3,7 +3,6 @@
 
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Sqlite.Metadata
@@ -242,24 +241,21 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
 
-            Assert.Null(model.Sqlite().TryGetSequence("Foo"));
-            Assert.Null(((IModel)model).Sqlite().TryGetSequence("Foo"));
+            Assert.Null(model.Sqlite().FindSequence("Foo"));
+            Assert.Null(((IModel)model).Sqlite().FindSequence("Foo"));
 
             var sequence = model.Relational().GetOrAddSequence("Foo");
 
-            Assert.Null(model.Sqlite().TryGetSequence("Foo"));
-            Assert.Null(((IModel)model).Sqlite().TryGetSequence("Foo"));
+            Assert.Null(model.Sqlite().FindSequence("Foo"));
+            Assert.Null(((IModel)model).Sqlite().FindSequence("Foo"));
         }
 
         [Fact]
         public void Cant_get_multiple_sequences()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
-            var model = modelBuilder.Model;
 
-            model.Relational().AddOrReplaceSequence(new Sequence("Fibonacci"));
-
-            Assert.Empty(model.Sqlite().Sequences);
+            Assert.Empty(modelBuilder.Model.Sqlite().Sequences);
         }
 
         private class Customer

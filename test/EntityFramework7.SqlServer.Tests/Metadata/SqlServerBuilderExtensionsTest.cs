@@ -394,11 +394,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
-            Assert.Same(Sequence.DefaultName, sqlServerExtensions.HiLoSequenceName);
+            Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
 
-            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
-            Assert.NotNull(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.Null(relationalExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
+            Assert.NotNull(sqlServerExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
 
             Assert.Null(sqlServerExtensions.HiLoSequencePoolSize);
         }
@@ -414,11 +414,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
-            Assert.Same(Sequence.DefaultName, sqlServerExtensions.HiLoSequenceName);
+            Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
 
-            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
-            Assert.NotNull(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.Null(relationalExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
+            Assert.NotNull(sqlServerExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
 
             Assert.Equal(7, sqlServerExtensions.HiLoSequencePoolSize);
         }
@@ -438,17 +438,17 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
             Assert.Null(sqlServerExtensions.HiLoSequencePoolSize);
 
-            Assert.Null(relationalExtensions.TryGetSequence("Snook"));
+            Assert.Null(relationalExtensions.FindSequence("Snook"));
 
-            var sequence = sqlServerExtensions.TryGetSequence("Snook");
+            var sequence = sqlServerExtensions.FindSequence("Snook");
 
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
             Assert.Equal(10, sequence.IncrementBy);
-            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.ClrType);
+            Assert.Same(typeof(long), sequence.ClrType);
         }
 
         [Fact]
@@ -466,17 +466,17 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
             Assert.Equal(7, sqlServerExtensions.HiLoSequencePoolSize);
 
-            Assert.Null(relationalExtensions.TryGetSequence("Snook"));
+            Assert.Null(relationalExtensions.FindSequence("Snook"));
 
-            var sequence = sqlServerExtensions.TryGetSequence("Snook");
+            var sequence = sqlServerExtensions.FindSequence("Snook");
 
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
             Assert.Equal(10, sequence.IncrementBy);
-            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.ClrType);
+            Assert.Same(typeof(long), sequence.ClrType);
         }
 
         [Fact]
@@ -493,16 +493,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
             Assert.Equal("Tasty", sqlServerExtensions.HiLoSequenceSchema);
 
-            Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            Assert.Null(relationalExtensions.FindSequence("Snook", "Tasty"));
 
-            var sequence = sqlServerExtensions.TryGetSequence("Snook", "Tasty");
+            var sequence = sqlServerExtensions.FindSequence("Snook", "Tasty");
             Assert.Equal("Snook", sequence.Name);
             Assert.Equal("Tasty", sequence.Schema);
             Assert.Equal(10, sequence.IncrementBy);
-            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.ClrType);
+            Assert.Same(typeof(long), sequence.ClrType);
         }
 
         [Fact]
@@ -511,12 +511,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence("Snook", "Tasty")
+                .Sequence<int>("Snook", "Tasty")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
-                .HasMax(2222)
-                .Type<int>();
+                .HasMax(2222);
 
             modelBuilder.UseSqlServerSequenceHiLo("Snook", "Tasty");
 
@@ -527,8 +526,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
             Assert.Equal("Tasty", sqlServerExtensions.HiLoSequenceSchema);
 
-            ValidateSchemaNamedSpecificSequence(relationalExtensions.TryGetSequence("Snook", "Tasty"));
-            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(relationalExtensions.FindSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
         }
 
         [Fact]
@@ -537,12 +536,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .SqlServerSequence("Snook", "Tasty")
+                .SqlServerSequence<int>("Snook", "Tasty")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
-                .HasMax(2222)
-                .Type<int>();
+                .HasMax(2222);
 
             modelBuilder.UseSqlServerSequenceHiLo("Snook", "Tasty");
 
@@ -553,11 +551,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
             Assert.Equal("Tasty", sqlServerExtensions.HiLoSequenceSchema);
 
-            Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
-            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+            Assert.Null(relationalExtensions.FindSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
         }
 
-        private static void ValidateSchemaNamedSpecificSequence(Sequence sequence)
+        private static void ValidateSchemaNamedSpecificSequence(ISequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Equal("Tasty", sequence.Schema);
@@ -583,8 +581,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
             Assert.Null(sqlServerExtensions.HiLoSequencePoolSize);
 
-            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
-            Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.Null(relationalExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
+            Assert.Null(sqlServerExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
         }
 
         [Fact]
@@ -602,10 +600,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Same(Sequence.DefaultName, property.SqlServer().HiLoSequenceName);
+            Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, property.SqlServer().HiLoSequenceName);
 
-            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
-            Assert.NotNull(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+            Assert.Null(model.Relational().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
+            Assert.NotNull(model.SqlServer().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
 
             Assert.Null(property.SqlServer().HiLoSequencePoolSize);
         }
@@ -625,10 +623,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Same(Sequence.DefaultName, property.SqlServer().HiLoSequenceName);
+            Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, property.SqlServer().HiLoSequenceName);
 
-            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
-            Assert.NotNull(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+            Assert.Null(model.Relational().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
+            Assert.NotNull(model.SqlServer().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
 
             Assert.Equal(3, property.SqlServer().HiLoSequencePoolSize);
         }
@@ -652,17 +650,17 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Null(property.SqlServer().HiLoSequenceSchema);
             Assert.Null(property.SqlServer().HiLoSequencePoolSize);
 
-            Assert.Null(model.Relational().TryGetSequence("Snook"));
+            Assert.Null(model.Relational().FindSequence("Snook"));
 
-            var sequence = model.SqlServer().TryGetSequence("Snook");
+            var sequence = model.SqlServer().FindSequence("Snook");
 
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
             Assert.Equal(10, sequence.IncrementBy);
-            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.ClrType);
+            Assert.Same(typeof(long), sequence.ClrType);
         }
 
         [Fact]
@@ -684,16 +682,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Null(property.SqlServer().HiLoSequenceSchema);
             Assert.Equal(3, property.SqlServer().HiLoSequencePoolSize);
 
-            Assert.Null(model.Relational().TryGetSequence("Snook"));
+            Assert.Null(model.Relational().FindSequence("Snook"));
 
-            var sequence = model.SqlServer().TryGetSequence("Snook");
+            var sequence = model.SqlServer().FindSequence("Snook");
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
             Assert.Equal(10, sequence.IncrementBy);
-            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.ClrType);
+            Assert.Same(typeof(long), sequence.ClrType);
         }
 
         [Fact]
@@ -714,16 +712,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
 
-            Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
+            Assert.Null(model.Relational().FindSequence("Snook", "Tasty"));
 
-            var sequence = model.SqlServer().TryGetSequence("Snook", "Tasty");
+            var sequence = model.SqlServer().FindSequence("Snook", "Tasty");
             Assert.Equal("Snook", sequence.Name);
             Assert.Equal("Tasty", sequence.Schema);
             Assert.Equal(10, sequence.IncrementBy);
-            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.ClrType);
+            Assert.Same(typeof(long), sequence.ClrType);
         }
 
         [Fact]
@@ -732,12 +730,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence("Snook", "Tasty")
+                .Sequence<int>("Snook", "Tasty")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
-                .HasMax(2222)
-                .Type<int>();
+                .HasMax(2222);
 
             modelBuilder
                 .Entity<Customer>()
@@ -752,8 +749,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
 
-            ValidateSchemaNamedSpecificSequence(model.Relational().TryGetSequence("Snook", "Tasty"));
-            ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.Relational().FindSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.SqlServer().FindSequence("Snook", "Tasty"));
         }
 
         [Fact]
@@ -762,7 +759,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222).Type<int>())
+                .Sequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222))
                 .Entity<Customer>()
                 .Property(e => e.Id)
                 .UseSqlServerSequenceHiLo("Snook", "Tasty");
@@ -775,8 +772,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
 
-            ValidateSchemaNamedSpecificSequence(model.Relational().TryGetSequence("Snook", "Tasty"));
-            ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.Relational().FindSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.SqlServer().FindSequence("Snook", "Tasty"));
         }
 
         [Fact]
@@ -785,12 +782,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .SqlServerSequence("Snook", "Tasty")
+                .SqlServerSequence<int>("Snook", "Tasty")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
-                .HasMax(2222)
-                .Type<int>();
+                .HasMax(2222);
 
             modelBuilder
                 .Entity<Customer>()
@@ -805,8 +801,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
 
-            Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
-            ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+            Assert.Null(model.Relational().FindSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.SqlServer().FindSequence("Snook", "Tasty"));
         }
 
         [Fact]
@@ -815,13 +811,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .SqlServerSequence("Snook", "Tasty", b =>
+                .SqlServerSequence<int>("Snook", "Tasty", b =>
                     {
                         b.IncrementsBy(11)
                             .StartsAt(1729)
                             .HasMin(111)
-                            .HasMax(2222)
-                            .Type<int>();
+                            .HasMax(2222);
                     })
                 .Entity<Customer>()
                 .Property(e => e.Id)
@@ -835,8 +830,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
 
-            Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
-            ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+            Assert.Null(model.Relational().FindSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.SqlServer().FindSequence("Snook", "Tasty"));
         }
 
         [Fact]
@@ -857,8 +852,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Null(property.SqlServer().HiLoSequenceName);
             Assert.Null(property.SqlServer().HiLoSequencePoolSize);
 
-            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
-            Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+            Assert.Null(model.Relational().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
+            Assert.Null(model.SqlServer().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
         }
 
         [Fact]
@@ -879,8 +874,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Null(property.SqlServer().HiLoSequenceName);
             Assert.Null(property.SqlServer().HiLoSequencePoolSize);
 
-            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
-            Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+            Assert.Null(model.Relational().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
+            Assert.Null(model.SqlServer().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
         }
 
         [Fact]
@@ -890,16 +885,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder.SqlServerSequence("Snook");
 
-            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
-            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
+            Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook");
 
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
             Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.ClrType);
+            Assert.Same(typeof(long), sequence.ClrType);
         }
 
         [Fact]
@@ -909,16 +904,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder.SqlServerSequence("Snook", "Tasty");
 
-            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
-            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
+            Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook", "Tasty");
 
             Assert.Equal("Snook", sequence.Name);
             Assert.Equal("Tasty", sequence.Schema);
             Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(Sequence.DefaultType, sequence.ClrType);
+            Assert.Same(typeof(long), sequence.ClrType);
         }
 
         [Fact]
@@ -927,15 +922,32 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .SqlServerSequence("Snook")
+                .SqlServerSequence<int>("Snook")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
-                .HasMax(2222)
-                .Type<int>();
+                .HasMax(2222);
 
-            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
-            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
+            Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .SqlServerSequence(typeof(int), "Snook")
+                .IncrementsBy(11)
+                .StartsAt(1729)
+                .HasMin(111)
+                .HasMax(2222);
+
+            Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook");
 
             ValidateNamedSpecificSequence(sequence);
         }
@@ -946,22 +958,41 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .SqlServerSequence("Snook", b =>
+                .SqlServerSequence<int>("Snook", b =>
                     {
                         b.IncrementsBy(11)
                             .StartsAt(1729)
                             .HasMin(111)
-                            .HasMax(2222)
-                            .Type<int>();
+                            .HasMax(2222);
                     });
 
-            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
-            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
+            Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook");
 
             ValidateNamedSpecificSequence(sequence);
         }
 
-        private static void ValidateNamedSpecificSequence(Sequence sequence)
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_using_nested_closure_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .SqlServerSequence(typeof(int), "Snook", b =>
+                {
+                    b.IncrementsBy(11)
+                        .StartsAt(1729)
+                        .HasMin(111)
+                        .HasMax(2222);
+                });
+
+            Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        private static void ValidateNamedSpecificSequence(ISequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -978,15 +1009,32 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .SqlServerSequence("Snook", "Tasty")
+                .SqlServerSequence<int>("Snook", "Tasty")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
-                .HasMax(2222)
-                .Type<int>();
+                .HasMax(2222);
 
-            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
-            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
+            Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .SqlServerSequence(typeof(int), "Snook", "Tasty")
+                .IncrementsBy(11)
+                .StartsAt(1729)
+                .HasMin(111)
+                .HasMax(2222);
+
+            Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook", "Tasty");
 
             ValidateSchemaNamedSpecificSequence(sequence);
         }
@@ -997,13 +1045,30 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .SqlServerSequence("Snook", "Tasty", b =>
+                .SqlServerSequence<int>("Snook", "Tasty", b =>
                     {
-                        b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222).Type<int>();
+                        b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222);
                     });
 
-            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
-            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
+            Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_using_nested_closure_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .SqlServerSequence(typeof(int), "Snook", "Tasty", b =>
+                {
+                    b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222);
+                });
+
+            Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook", "Tasty");
 
             ValidateSchemaNamedSpecificSequence(sequence);
         }
@@ -1226,7 +1291,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         private void AssertIsGeneric(ReferenceCollectionBuilder<Customer, Order> _)
         {
         }
-        
+
         private void AssertIsGeneric(ReferenceReferenceBuilder<Order, OrderDetails> _)
         {
         }

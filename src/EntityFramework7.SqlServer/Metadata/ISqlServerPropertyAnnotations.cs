@@ -11,6 +11,6 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         string HiLoSequenceName { get; }
         string HiLoSequenceSchema { get; }
         int? HiLoSequencePoolSize { get; }
-        Sequence TryGetHiLoSequence();
+        ISequence FindHiLoSequence();
     }
 }

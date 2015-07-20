@@ -65,47 +65,11 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 ((Model)Model)[SqlServerHiLoSequencePoolSizeAnnotation] = value;
             }
         }
-
-        public virtual Sequence AddOrReplaceSequence([NotNull] Sequence sequence)
-        {
-            Check.NotNull(sequence, nameof(sequence));
-
-            var model = (Model)Model;
-            sequence.Model = model;
-            model[SqlServerSequenceAnnotation + sequence.Schema + "." + sequence.Name] = sequence.Serialize();
-
-            return sequence;
-        }
-
-        public virtual Sequence GetOrAddSequence([CanBeNull] string name = null, [CanBeNull] string schema = null)
-        {
-            Check.NullButNotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            name = name ?? Sequence.DefaultName;
-
-            return ((Model)Model).SqlServer().TryGetSequence(name, schema)
-                   ?? AddOrReplaceSequence(new Sequence(name, schema));
-        }
-
-        public virtual void RemoveSequence([NotNull] Sequence sequence)
-        {
-            Check.NotNull(sequence, nameof(sequence));
-
-            var model = (Model)Model;
-            model[SqlServerSequenceAnnotation + sequence.Schema + "." + sequence.Name] = null;
-        }
-
-        public virtual void RemoveSequence([CanBeNull] string name = null, [CanBeNull] string schema = null)
-        {
-            Check.NullButNotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            name = name ?? HiLoSequenceName;
-            schema = schema ?? HiLoSequenceSchema;
-
-            var model = (Model)Model;
-            model[SqlServerSequenceAnnotation + schema + "." + name] = null;
-        }
+        public virtual Sequence GetOrAddSequence([CanBeNull] string name, [CanBeNull] string schema = null)
+            => new Sequence(
+                (Model)Model,
+                SqlServerAnnotationNames.Prefix,
+                Check.NotEmpty(name, nameof(name)),
+                Check.NullButNotEmpty(schema, nameof(schema)));
     }
 }

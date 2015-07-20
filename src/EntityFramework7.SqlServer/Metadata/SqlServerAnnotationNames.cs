@@ -11,5 +11,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public const string HiLoSequenceName = "HiLoSequenceName";
         public const string HiLoSequenceSchema = "HiLoSequenceSchema";
         public const string HiLoSequencePoolSize = "HiLoSequencePoolSize";
+
+        public const string DefaultHiLoSequenceName = "DefaultSequence";
     }
 }

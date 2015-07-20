@@ -13,26 +13,12 @@ namespace Microsoft.Data.Entity.Metadata
         {
         }
 
-        public virtual Sequence AddOrReplaceSequence([NotNull] Sequence sequence)
-        {
-            Check.NotNull(sequence, nameof(sequence));
+        public virtual Sequence GetOrAddSequence([CanBeNull] string name, [CanBeNull] string schema = null) 
+            => new Sequence(
+                (Model)Model, 
+                RelationalAnnotationNames.Prefix, 
+                Check.NotEmpty(name, nameof(name)), 
+                Check.NullButNotEmpty(schema, nameof(schema)));
 
-            var model = (Model)Model;
-            sequence.Model = model;
-            model[RelationalSequenceAnnotation + sequence.Schema + "." + sequence.Name] = sequence.Serialize();
-
-            return sequence;
-        }
-
-        public virtual Sequence GetOrAddSequence([CanBeNull] string name = null, [CanBeNull] string schema = null)
-        {
-            Check.NullButNotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            name = name ?? Sequence.DefaultName;
-
-            return ((Model)Model).Relational().TryGetSequence(name, schema)
-                   ?? AddOrReplaceSequence(new Sequence(name, schema));
-        }
     }
 }

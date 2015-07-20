@@ -8,8 +8,8 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IRelationalModelAnnotations
     {
-        Sequence TryGetSequence([NotNull] string name, [CanBeNull] string schema = null);
+        ISequence FindSequence([NotNull] string name, [CanBeNull] string schema = null);
 
-        IReadOnlyList<Sequence> Sequences { get; }
+        IReadOnlyList<ISequence> Sequences { get; }
     }
 }

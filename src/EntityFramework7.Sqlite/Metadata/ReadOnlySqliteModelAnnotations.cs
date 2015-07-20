@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         {
         }
 
-        public override Sequence TryGetSequence(string name, string schema = null) => null;
-        public override IReadOnlyList<Sequence> Sequences => new Sequence[0];
+        public override ISequence FindSequence(string name, string schema = null) => null;
+        public override IReadOnlyList<ISequence> Sequences => new Sequence[0];
     }
 }

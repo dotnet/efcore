@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
@@ -40,16 +39,12 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public virtual string HiLoSequenceSchema => Model[SqlServerHiLoSequenceSchemaAnnotation] as string;
         public virtual int? HiLoSequencePoolSize => Model[SqlServerHiLoSequencePoolSizeAnnotation] as int?;
 
-        public override IReadOnlyList<Sequence> Sequences
+        public override IReadOnlyList<ISequence> Sequences
         {
             get
             {
-                var sqlServerSequences = (
-                    from a in Model.Annotations
-                    where a.Name.StartsWith(SqlServerSequenceAnnotation)
-                    select Sequence.Deserialize((string)a.Value))
-                    .ToList();
-
+                var sqlServerSequences = Sequence.GetSequences(Model, SqlServerAnnotationNames.Prefix).ToList();
+                    
                 return base.Sequences
                     .Where(rs => !sqlServerSequences.Any(ss => ss.Name == rs.Name && ss.Schema == rs.Schema))
                     .Concat(sqlServerSequences)
@@ -57,13 +52,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             }
         }
 
-        public override Sequence TryGetSequence(string name, string schema = null)
-        {
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            return FindSequence(SqlServerSequenceAnnotation + schema + "." + name)
-                   ?? base.TryGetSequence(name, schema);
-        }
+        public override ISequence FindSequence(string name, string schema = null)
+            => Sequence.FindSequence(Model, SqlServerAnnotationNames.Prefix, name, schema)
+               ?? base.FindSequence(name, schema);
     }
 }

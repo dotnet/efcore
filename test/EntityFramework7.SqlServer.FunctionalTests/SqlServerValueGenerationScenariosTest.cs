@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        public class SequencehHiLo : TestBase<SequencehHiLo.BlogContext>
+        public class SequenceHiLo : TestBase<SequenceHiLo.BlogContext>
         {
             [Fact]
             public void Insert_with_sequence_HiLo()

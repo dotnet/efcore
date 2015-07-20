@@ -1335,8 +1335,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.Sequence("Tango", "dbo")
-                    .Type<int>()
+                modelBuilder => modelBuilder.Sequence<int>("Tango", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
@@ -1414,15 +1413,13 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         public void Alter_sequence_increment_by()
         {
             Execute(
-                source => source.Sequence("Alpha", "dbo")
-                    .Type<int>()
+                source => source.Sequence<int>("Alpha", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(),
-                source => source.Sequence("Alpha", "dbo")
-                    .Type<int>()
+                source => source.Sequence<int>("Alpha", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(5)
                     .HasMin(1)
@@ -1446,15 +1443,13 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         public void Alter_sequence_max_value()
         {
             Execute(
-                source => source.Sequence("Echo", "dbo")
-                    .Type<int>()
+                source => source.Sequence<int>("Echo", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(),
-                source => source.Sequence("Echo", "dbo")
-                    .Type<int>()
+                source => source.Sequence<int>("Echo", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
@@ -1478,15 +1473,13 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         public void Alter_sequence_min_value()
         {
             Execute(
-                source => source.Sequence("Delta", "dbo")
-                    .Type<int>()
+                source => source.Sequence<int>("Delta", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(),
-                source => source.Sequence("Delta", "dbo")
-                    .Type<int>()
+                source => source.Sequence<int>("Delta", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(5)
@@ -1510,15 +1503,13 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         public void Alter_sequence_cycle()
         {
             Execute(
-                source => source.Sequence("Foxtrot", "dbo")
-                    .Type<int>()
+                source => source.Sequence<int>("Foxtrot", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(true),
-                source => source.Sequence("Foxtrot", "dbo")
-                    .Type<int>()
+                source => source.Sequence<int>("Foxtrot", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
@@ -1542,15 +1533,13 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         public void Alter_sequence_type()
         {
             Execute(
-                source => source.Sequence("Hotel", "dbo")
-                    .Type<int>()
+                source => source.Sequence<int>("Hotel", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(),
-                source => source.Sequence("Hotel", "dbo")
-                    .Type<long>()
+                source => source.Sequence<long>("Hotel", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
@@ -1580,15 +1569,13 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         public void Alter_sequence_start()
         {
             Execute(
-                source => source.Sequence("Golf", "dbo")
-                    .Type<int>()
+                source => source.Sequence<int>("Golf", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(),
-                source => source.Sequence("Golf", "dbo")
-                    .Type<int>()
+                source => source.Sequence<int>("Golf", "dbo")
                     .StartsAt(5)
                     .IncrementsBy(3)
                     .HasMin(1)

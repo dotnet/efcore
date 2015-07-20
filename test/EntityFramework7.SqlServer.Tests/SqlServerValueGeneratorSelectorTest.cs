@@ -66,6 +66,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var model = BuildModel();
             model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
+            model.SqlServer().GetOrAddSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName);
             var entityType = model.GetEntityType(typeof(AnEntity));
 
             foreach (var property in entityType.Properties)
@@ -118,6 +119,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
             model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
+            model.SqlServer().GetOrAddSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName);
             var entityType = model.GetEntityType(typeof(AnEntity));
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
@@ -128,6 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         private static Model BuildModel(bool generateValues = true)
         {
             var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
+            model.SqlServer().GetOrAddSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName);
             var entityType = model.GetEntityType(typeof(AnEntity));
             entityType.AddProperty("Random", typeof(Random));
 

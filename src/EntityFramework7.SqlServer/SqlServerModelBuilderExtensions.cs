@@ -21,8 +21,7 @@ namespace Microsoft.Data.Entity
             Check.NullButNotEmpty(schema, nameof(schema));
 
             return new RelationalSequenceBuilder(
-                modelBuilder.Model.SqlServer().GetOrAddSequence(name, schema),
-                s => modelBuilder.Model.SqlServer().AddOrReplaceSequence(s));
+                modelBuilder.Model.SqlServer().GetOrAddSequence(name, schema));
         }
 
         public static ModelBuilder SqlServerSequence(
@@ -47,6 +46,85 @@ namespace Microsoft.Data.Entity
             return modelBuilder;
         }
 
+        public static RelationalSequenceBuilder SqlServerSequence<T>(
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] string name,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            var sequence = modelBuilder.Model.SqlServer().GetOrAddSequence(name, schema);
+            sequence.ClrType = typeof(T);
+
+            return new RelationalSequenceBuilder(sequence);
+        }
+
+        public static ModelBuilder SqlServerSequence<T>(
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] string name,
+            [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            => modelBuilder.SqlServerSequence<T>(name, null, builderAction);
+
+        public static ModelBuilder SqlServerSequence<T>(
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] string name,
+            [CanBeNull] string schema,
+            [NotNull] Action<RelationalSequenceBuilder> builderAction)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+            Check.NotNull(builderAction, nameof(builderAction));
+
+            builderAction(SqlServerSequence<T>(modelBuilder, name, schema));
+
+            return modelBuilder;
+        }
+
+        public static RelationalSequenceBuilder SqlServerSequence(
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] Type clrType,
+            [NotNull] string name,
+            [CanBeNull] string schema = null)
+        {
+            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            var sequence = modelBuilder.Model.SqlServer().GetOrAddSequence(name, schema);
+            sequence.ClrType = clrType;
+
+            return new RelationalSequenceBuilder(sequence);
+        }
+
+        public static ModelBuilder SqlServerSequence(
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] Type clrType,
+            [NotNull] string name,
+            [NotNull] Action<RelationalSequenceBuilder> builderAction)
+            => modelBuilder.SqlServerSequence(clrType, name, null, builderAction);
+
+        public static ModelBuilder SqlServerSequence(
+            [NotNull] this ModelBuilder modelBuilder,
+            [NotNull] Type clrType,
+            [NotNull] string name,
+            [CanBeNull] string schema,
+            [NotNull] Action<RelationalSequenceBuilder> builderAction)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(clrType, nameof(clrType));
+            Check.NotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+            Check.NotNull(builderAction, nameof(builderAction));
+
+            builderAction(SqlServerSequence(modelBuilder, clrType, name, schema));
+
+            return modelBuilder;
+        }
+
         public static ModelBuilder UseSqlServerSequenceHiLo(
             [NotNull] this ModelBuilder modelBuilder,
             [CanBeNull] string name = null,
@@ -58,10 +136,10 @@ namespace Microsoft.Data.Entity
 
             var model = modelBuilder.Model;
 
-            name = name ?? Sequence.DefaultName;
+            name = name ?? SqlServerAnnotationNames.DefaultHiLoSequenceName;
 
             var sequence = 
-                model.SqlServer().TryGetSequence(name, schema) ?? 
+                model.SqlServer().FindSequence(name, schema) ?? 
                 modelBuilder.SqlServerSequence(name, schema).IncrementsBy(10).Metadata;
 
             model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;

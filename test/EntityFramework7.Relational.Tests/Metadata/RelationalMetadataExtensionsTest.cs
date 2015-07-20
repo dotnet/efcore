@@ -242,13 +242,13 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var model = modelBuilder.Model;
             var extensions = model.Relational();
 
-            Assert.Null(extensions.TryGetSequence("Foo"));
-            Assert.Null(((IModel)model).Relational().TryGetSequence("Foo"));
+            Assert.Null(extensions.FindSequence("Foo"));
+            Assert.Null(((IModel)model).Relational().FindSequence("Foo"));
 
             var sequence = extensions.GetOrAddSequence("Foo");
 
-            Assert.Equal("Foo", extensions.TryGetSequence("Foo").Name);
-            Assert.Equal("Foo", ((IModel)model).Relational().TryGetSequence("Foo").Name);
+            Assert.Equal("Foo", extensions.FindSequence("Foo").Name);
+            Assert.Equal("Foo", ((IModel)model).Relational().FindSequence("Foo").Name);
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -258,9 +258,13 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Null(sequence.MaxValue);
             Assert.Same(typeof(long), sequence.ClrType);
 
-            extensions.AddOrReplaceSequence(new Sequence("Foo", null, 1729, 11, 2001, 2010, typeof(int)));
+            var sequence2 = extensions.GetOrAddSequence("Foo");
 
-            sequence = extensions.GetOrAddSequence("Foo");
+            sequence.StartValue = 1729;
+            sequence.IncrementBy = 11;
+            sequence.MinValue = 2001;
+            sequence.MaxValue = 2010;
+            sequence.ClrType = typeof(int);
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -269,6 +273,14 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
             Assert.Same(typeof(int), sequence.ClrType);
+
+            Assert.Equal(sequence2.Name, sequence.Name);
+            Assert.Equal(sequence2.Schema, sequence.Schema);
+            Assert.Equal(sequence2.IncrementBy, sequence.IncrementBy);
+            Assert.Equal(sequence2.StartValue, sequence.StartValue);
+            Assert.Equal(sequence2.MinValue, sequence.MinValue);
+            Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
+            Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
 
         [Fact]
@@ -278,13 +290,13 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var model = modelBuilder.Model;
             var extensions = model.Relational();
 
-            Assert.Null(extensions.TryGetSequence("Foo", "Smoo"));
-            Assert.Null(((IModel)model).Relational().TryGetSequence("Foo", "Smoo"));
+            Assert.Null(extensions.FindSequence("Foo", "Smoo"));
+            Assert.Null(((IModel)model).Relational().FindSequence("Foo", "Smoo"));
 
             var sequence = extensions.GetOrAddSequence("Foo", "Smoo");
 
-            Assert.Equal("Foo", extensions.TryGetSequence("Foo", "Smoo").Name);
-            Assert.Equal("Foo", ((IModel)model).Relational().TryGetSequence("Foo", "Smoo").Name);
+            Assert.Equal("Foo", extensions.FindSequence("Foo", "Smoo").Name);
+            Assert.Equal("Foo", ((IModel)model).Relational().FindSequence("Foo", "Smoo").Name);
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Equal("Smoo", sequence.Schema);
@@ -294,79 +306,13 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Null(sequence.MaxValue);
             Assert.Same(typeof(long), sequence.ClrType);
 
-            extensions.AddOrReplaceSequence(new Sequence("Foo", "Smoo", 1729, 11, 2001, 2010, typeof(int)));
+            var sequence2 = extensions.GetOrAddSequence("Foo", "Smoo");
 
-            sequence = extensions.GetOrAddSequence("Foo", "Smoo");
-
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Equal("Smoo", sequence.Schema);
-            Assert.Equal(11, sequence.IncrementBy);
-            Assert.Equal(1729, sequence.StartValue);
-            Assert.Equal(2001, sequence.MinValue);
-            Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
-        }
-
-        [Fact]
-        public void Can_add_and_replace_sequence()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-            var model = modelBuilder.Model;
-            var extensions = model.Relational();
-
-            extensions.AddOrReplaceSequence(new Sequence("Foo"));
-
-            Assert.Equal("Foo", extensions.TryGetSequence("Foo").Name);
-            Assert.Equal("Foo", ((IModel)model).Relational().TryGetSequence("Foo").Name);
-
-            var sequence = extensions.TryGetSequence("Foo");
-
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(1, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
-
-            extensions.AddOrReplaceSequence(new Sequence("Foo", null, 1729, 11, 2001, 2010, typeof(int)));
-
-            sequence = extensions.TryGetSequence("Foo");
-
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(11, sequence.IncrementBy);
-            Assert.Equal(1729, sequence.StartValue);
-            Assert.Equal(2001, sequence.MinValue);
-            Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
-        }
-
-        [Fact]
-        public void Can_add_and_replace_sequence_with_schema_name()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-            var model = modelBuilder.Model;
-            var extensions = model.Relational();
-
-            extensions.AddOrReplaceSequence(new Sequence("Foo", "Smoo"));
-
-            Assert.Equal("Foo", extensions.TryGetSequence("Foo", "Smoo").Name);
-            Assert.Equal("Foo", ((IModel)model).Relational().TryGetSequence("Foo", "Smoo").Name);
-
-            var sequence = extensions.TryGetSequence("Foo", "Smoo");
-
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Equal("Smoo", sequence.Schema);
-            Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(1, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
-
-            extensions.AddOrReplaceSequence(new Sequence("Foo", "Smoo", 1729, 11, 2001, 2010, typeof(int)));
-
-            sequence = extensions.TryGetSequence("Foo", "Smoo");
+            sequence.StartValue = 1729;
+            sequence.IncrementBy = 11;
+            sequence.MinValue = 2001;
+            sequence.MaxValue = 2010;
+            sequence.ClrType = typeof(int);
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Equal("Smoo", sequence.Schema);
@@ -375,7 +321,16 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
             Assert.Same(typeof(int), sequence.ClrType);
+
+            Assert.Equal(sequence2.Name, sequence.Name);
+            Assert.Equal(sequence2.Schema, sequence.Schema);
+            Assert.Equal(sequence2.IncrementBy, sequence.IncrementBy);
+            Assert.Equal(sequence2.StartValue, sequence.StartValue);
+            Assert.Equal(sequence2.MinValue, sequence.MinValue);
+            Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
+            Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
+
 
         [Fact]
         public void Can_get_multiple_sequences()
@@ -384,8 +339,8 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var model = modelBuilder.Model;
             var extensions = model.Relational();
 
-            extensions.AddOrReplaceSequence(new Sequence("Fibonacci"));
-            extensions.AddOrReplaceSequence(new Sequence("Golomb"));
+            extensions.GetOrAddSequence("Fibonacci");
+            extensions.GetOrAddSequence("Golomb");
 
             var sequences = model.Relational().Sequences;
 

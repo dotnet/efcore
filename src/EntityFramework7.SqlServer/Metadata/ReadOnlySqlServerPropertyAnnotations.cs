@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public virtual string HiLoSequenceSchema => Property[SqlServerHiLoSequenceSchemaAnnotation] as string;
         public virtual int? HiLoSequencePoolSize => Property[SqlServerHiLoSequencePoolSizeAnnotation] as int?;
 
-        public virtual Sequence TryGetHiLoSequence()
+        public virtual ISequence FindHiLoSequence()
         {
             var modelExtensions = Property.DeclaringEntityType.Model.SqlServer();
 
@@ -79,13 +79,12 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
             var sequenceName = HiLoSequenceName
                                ?? modelExtensions.HiLoSequenceName
-                               ?? Sequence.DefaultName;
+                               ?? SqlServerAnnotationNames.DefaultHiLoSequenceName;
 
             var sequenceSchema = HiLoSequenceSchema
                                  ?? modelExtensions.HiLoSequenceSchema;
 
-            return modelExtensions.TryGetSequence(sequenceName, sequenceSchema)
-                   ?? new Sequence(Sequence.DefaultName);
+            return modelExtensions.FindSequence(sequenceName, sequenceSchema);
         }
     }
 }

@@ -110,16 +110,13 @@ namespace Microsoft.Data.Entity
 
             var property = propertyBuilder.Metadata;
 
-            name = name ?? Sequence.DefaultName;
+            name = name ?? SqlServerAnnotationNames.DefaultHiLoSequenceName;
 
-            var sqlServerModel = property.DeclaringEntityType.Model.SqlServer();
+            var model = property.DeclaringEntityType.Model;
 
             var sequence =
-                sqlServerModel.TryGetSequence(name, schema) ??
-                new RelationalSequenceBuilder(
-                    sqlServerModel.GetOrAddSequence(name, schema),
-                    s => sqlServerModel.AddOrReplaceSequence(s))
-                    .IncrementsBy(10).Metadata;
+                model.SqlServer().FindSequence(name, schema) ??
+                new Sequence(model, SqlServerAnnotationNames.Prefix, name, schema) { IncrementBy = 10};
 
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             property.ValueGenerated = ValueGenerated.OnAdd;

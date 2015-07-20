@@ -75,7 +75,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             const int blockSize = 4;
             const int poolSize = 3;
 
-            var state = new SqlServerSequenceValueGeneratorState(new Sequence("Foo", null, 1, blockSize), poolSize);
+            var state = new SqlServerSequenceValueGeneratorState(
+                new Sequence(
+                    new Model(), RelationalAnnotationNames.Prefix, "Foo")
+                {
+                    IncrementBy = blockSize
+                },
+                poolSize);
+
+
             var generator = new SqlServerSequenceValueGenerator<TValue>(
                 new FakeSqlStatementExecutor(blockSize),
                 new SqlServerUpdateSqlGenerator(),
@@ -143,7 +151,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             const int blockSize = 10;
 
             var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
-            var state = new SqlServerSequenceValueGeneratorState(new Sequence("Foo", null, 1, blockSize), poolSize);
+
+            var state = new SqlServerSequenceValueGeneratorState(
+                new Sequence(
+                    new Model(), RelationalAnnotationNames.Prefix, "Foo")
+                {
+                    IncrementBy = blockSize
+                },
+                poolSize);
+
             var executor = new FakeSqlStatementExecutor(blockSize);
             var sqlGenerator = new SqlServerUpdateSqlGenerator();
 
@@ -173,7 +189,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Does_not_generate_temp_values()
         {
-            var state = new SqlServerSequenceValueGeneratorState(new Sequence("Foo", null, 1, 4), 3);
+            var state = new SqlServerSequenceValueGeneratorState(
+                new Sequence(
+                    new Model(), RelationalAnnotationNames.Prefix, "Foo")
+                {
+                    IncrementBy = 4
+                }, 3);
+
             var generator = new SqlServerSequenceValueGenerator<int>(
                 new FakeSqlStatementExecutor(4),
                 new SqlServerUpdateSqlGenerator(),
