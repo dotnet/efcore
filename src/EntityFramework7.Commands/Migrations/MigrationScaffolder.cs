@@ -169,7 +169,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
                 if (!_modelDiffer.HasDifferences(model, lastModel))
                 {
-                    if (_historyRepository.GetAppliedMigrations().Any(
+                    if (_historyRepository.GetAppliedMigrations(_model.GetContextKey()).Any(
                         e => e.MigrationId.Equals(migration.Id, StringComparison.OrdinalIgnoreCase)))
                     {
                         throw new InvalidOperationException(Strings.UnapplyMigration(migration.Id));

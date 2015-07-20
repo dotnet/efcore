@@ -17,31 +17,27 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
     public class SqliteHistoryRepository : IHistoryRepository
     {
         private readonly IRelationalConnection _connection;
-        private readonly string _contextKey;
         private readonly SqliteUpdateSqlGenerator _sql;
 
         protected string MigrationTableName { get; } = "__migrationHistory";
 
         public SqliteHistoryRepository(
             [NotNull] IRelationalConnection connection,
-            [NotNull] DbContext context,
             [NotNull] SqliteUpdateSqlGenerator sql)
         {
             Check.NotNull(connection, nameof(connection));
-            Check.NotNull(context, nameof(context));
             Check.NotNull(sql, nameof(sql));
 
             _connection = connection;
-            _contextKey = context.GetType().FullName;
             _sql = sql;
         }
 
-        public virtual string BeginIfExists(string migrationId)
+        public virtual string BeginIfExists(string migrationId, string contextKey)
         {
             throw new NotSupportedException(Strings.MigrationScriptGenerationNotSupported);
         }
 
-        public virtual string BeginIfNotExists(string migrationId)
+        public virtual string BeginIfNotExists(string migrationId, string contextKey)
         {
             throw new NotSupportedException(Strings.MigrationScriptGenerationNotSupported);
         }
@@ -93,9 +89,11 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             }
         }
 
-        public virtual IReadOnlyList<IHistoryRow> GetAppliedMigrations()
+        public virtual IReadOnlyList<HistoryRow> GetAppliedMigrations(string contextKey)
         {
-            var migrations = new List<IHistoryRow>();
+            Check.NotEmpty(contextKey, nameof(contextKey));
+
+            var migrations = new List<HistoryRow>();
 
             if (!Exists())
             {
@@ -110,13 +108,13 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                 }
                 var command = connection.CreateCommand();
                 command.CommandText = $"SELECT MigrationId, ProductVersion FROM {_sql.DelimitIdentifier(MigrationTableName)} " +
-                                      $"WHERE ContextKey = '{_sql.EscapeLiteral(_contextKey)}' ORDER BY MigrationId;";
+                                      $"WHERE ContextKey = '{_sql.EscapeLiteral(contextKey)}' ORDER BY MigrationId;";
 
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        var row = new HistoryRow(reader.GetString(0), reader.GetString(1));
+                        var row = new HistoryRow(reader.GetString(0), reader.GetString(1), contextKey);
                         migrations.Add(row);
                     }
                 }
@@ -125,18 +123,18 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             return migrations.AsReadOnly();
         }
 
-        public virtual MigrationOperation GetDeleteOperation(string migrationId) => new SqlOperation
+        public virtual MigrationOperation GetDeleteOperation(string migrationId, string contextKey) => new SqlOperation
         {
             Sql = $"DELETE FROM {_sql.DelimitIdentifier(MigrationTableName)} WHERE {_sql.DelimitIdentifier("MigrationId")} = '{_sql.EscapeLiteral(migrationId)}';"
         };
 
-        public virtual MigrationOperation GetInsertOperation(IHistoryRow row) => new SqlOperation
+        public virtual MigrationOperation GetInsertOperation(HistoryRow row) => new SqlOperation
         {
             Sql = new IndentedStringBuilder().Append("INSERT INTO ")
                 .Append(_sql.DelimitIdentifier(MigrationTableName))
                 .Append(" (\"MigrationId\", \"ContextKey\", \"ProductVersion\") VALUES (")
                 .Append($"'{_sql.EscapeLiteral(row.MigrationId)}', ")
-                .Append($"'{_sql.EscapeLiteral(_contextKey)}', ")
+                .Append($"'{_sql.EscapeLiteral(row.ContextKey)}', ")
                 .Append($"'{_sql.EscapeLiteral(row.ProductVersion)}'")
                 .Append(");")
                 .ToString()

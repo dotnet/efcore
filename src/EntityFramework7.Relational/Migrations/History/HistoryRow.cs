@@ -6,18 +6,21 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.History
 {
-    public class HistoryRow : IHistoryRow
+    public class HistoryRow
     {
-        public HistoryRow([NotNull] string migrationId, [NotNull] string productVersion)
+        public HistoryRow([NotNull] string migrationId, [NotNull] string productVersion, [NotNull] string contextKey)
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
             Check.NotEmpty(productVersion, nameof(productVersion));
+            Check.NotEmpty(contextKey, nameof(contextKey));
 
             MigrationId = migrationId;
             ProductVersion = productVersion;
+            ContextKey = contextKey;
         }
 
         public virtual string MigrationId { get; }
         public virtual string ProductVersion { get; }
+        public virtual string ContextKey { get; }
     }
 }

@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         [Fact]
         public void GetDeleteOperation_works()
         {
-            var sqlOperation = (SqlOperation)CreateHistoryRepository().GetDeleteOperation("Migration1");
+            var sqlOperation = (SqlOperation)CreateHistoryRepository().GetDeleteOperation("Migration1", typeof(Context).FullName);
 
             Assert.Equal(
                 "DELETE FROM [dbo].[__MigrationHistory]" + EOL +
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public void GetInsertOperation_works()
         {
             var sqlOperation = (SqlOperation)CreateHistoryRepository().GetInsertOperation(
-                new HistoryRow("Migration1", "7.0.0"));
+                new HistoryRow("Migration1", "7.0.0", typeof(Context).FullName));
 
             Assert.Equal(
                 "INSERT INTO [dbo].[__MigrationHistory] ([MigrationId], [ContextKey], [ProductVersion])" + EOL +
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         [Fact]
         public void BeginIfNotExists_works()
         {
-            var sql = CreateHistoryRepository().BeginIfNotExists("Migration1");
+            var sql = CreateHistoryRepository().BeginIfNotExists("Migration1", typeof(Context).FullName);
 
             Assert.Equal(
                 "IF NOT EXISTS(SELECT * FROM [dbo].[__MigrationHistory] WHERE [MigrationId] = 'Migration1' AND [ContextKey] = '" + typeof(Context).FullName + "')" + EOL +
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         [Fact]
         public void BeginIfExists_works()
         {
-            var sql = CreateHistoryRepository().BeginIfExists("Migration1");
+            var sql = CreateHistoryRepository().BeginIfExists("Migration1", typeof(Context).FullName);
 
             Assert.Equal(
                 "IF EXISTS(SELECT * FROM [dbo].[__MigrationHistory] WHERE [MigrationId] = 'Migration1' AND [ContextKey] = '" + typeof(Context).FullName + "')" + EOL +
@@ -104,7 +104,6 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             return new SqlServerHistoryRepository(
                 Mock.Of<ISqlServerConnection>(),
                 Mock.Of<IRelationalDatabaseCreator>(),
-                new Context(),
                 new SqlServerUpdateSqlGenerator());
         }
 
