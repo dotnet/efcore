@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder
                         .Sequence("MySequence")
-                        .HasStart(77);
+                        .StartsAt(77);
 
                     modelBuilder
                         .Entity<Blog>()
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     modelBuilder
                         .Sequence("MySequence")
-                        .HasStart(77);
+                        .StartsAt(77);
 
                     // TODO: Nested closure for Metadata
                     modelBuilder

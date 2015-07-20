@@ -344,7 +344,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             modelBuilder
                 .Sequence("Snook")
                 .IncrementsBy(11)
-                .HasStart(1729)
+                .StartsAt(1729)
                 .HasMin(111)
                 .HasMax(2222)
                 .Type<int>();
@@ -373,7 +373,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             modelBuilder
                 .Sequence("Snook", "Tasty")
                 .IncrementsBy(11)
-                .HasStart(1729)
+                .StartsAt(1729)
                 .HasMin(111)
                 .HasMax(2222)
                 .Type<int>();

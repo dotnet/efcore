@@ -513,7 +513,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Sequence("Snook", "Tasty")
                 .IncrementsBy(11)
-                .HasStart(1729)
+                .StartsAt(1729)
                 .HasMin(111)
                 .HasMax(2222)
                 .Type<int>();
@@ -539,7 +539,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .SqlServerSequence("Snook", "Tasty")
                 .IncrementsBy(11)
-                .HasStart(1729)
+                .StartsAt(1729)
                 .HasMin(111)
                 .HasMax(2222)
                 .Type<int>();
@@ -734,7 +734,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .Sequence("Snook", "Tasty")
                 .IncrementsBy(11)
-                .HasStart(1729)
+                .StartsAt(1729)
                 .HasMin(111)
                 .HasMax(2222)
                 .Type<int>();
@@ -762,7 +762,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence("Snook", "Tasty", b => b.IncrementsBy(11).HasStart(1729).HasMin(111).HasMax(2222).Type<int>())
+                .Sequence("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222).Type<int>())
                 .Entity<Customer>()
                 .Property(e => e.Id)
                 .UseSqlServerSequenceHiLo("Snook", "Tasty");
@@ -787,7 +787,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .SqlServerSequence("Snook", "Tasty")
                 .IncrementsBy(11)
-                .HasStart(1729)
+                .StartsAt(1729)
                 .HasMin(111)
                 .HasMax(2222)
                 .Type<int>();
@@ -818,7 +818,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .SqlServerSequence("Snook", "Tasty", b =>
                     {
                         b.IncrementsBy(11)
-                            .HasStart(1729)
+                            .StartsAt(1729)
                             .HasMin(111)
                             .HasMax(2222)
                             .Type<int>();
@@ -929,7 +929,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .SqlServerSequence("Snook")
                 .IncrementsBy(11)
-                .HasStart(1729)
+                .StartsAt(1729)
                 .HasMin(111)
                 .HasMax(2222)
                 .Type<int>();
@@ -949,7 +949,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .SqlServerSequence("Snook", b =>
                     {
                         b.IncrementsBy(11)
-                            .HasStart(1729)
+                            .StartsAt(1729)
                             .HasMin(111)
                             .HasMax(2222)
                             .Type<int>();
@@ -980,7 +980,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .SqlServerSequence("Snook", "Tasty")
                 .IncrementsBy(11)
-                .HasStart(1729)
+                .StartsAt(1729)
                 .HasMin(111)
                 .HasMax(2222)
                 .Type<int>();
@@ -999,7 +999,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             modelBuilder
                 .SqlServerSequence("Snook", "Tasty", b =>
                     {
-                        b.IncrementsBy(11).HasStart(1729).HasMin(111).HasMax(2222).Type<int>();
+                        b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222).Type<int>();
                     });
 
             Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));

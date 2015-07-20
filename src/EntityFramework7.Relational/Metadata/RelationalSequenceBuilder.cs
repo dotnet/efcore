@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Metadata
             return this;
         }
 
-        public virtual RelationalSequenceBuilder HasStart(long startValue)
+        public virtual RelationalSequenceBuilder StartsAt(long startValue)
         {
             _sequence = new Sequence(
                 _sequence.Name,
