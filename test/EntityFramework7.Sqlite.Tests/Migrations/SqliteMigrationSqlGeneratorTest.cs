@@ -14,6 +14,28 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
     {
         protected override IMigrationSqlGenerator SqlGenerator => new SqliteMigrationSqlGenerator(new SqliteUpdateSqlGenerator());
 
+        [Fact]
+        public virtual void DefaultValue_formats_literal_correctly()
+        {
+            Generate(new CreateTableOperation
+            {
+                Name = "History",
+                Columns =
+                {
+                    new AddColumnOperation
+                    {
+                        Name = "Event",
+                        Type = "TEXT",
+                        DefaultValue = new DateTime(2015, 4, 12, 17, 5, 0)
+                    }
+                }
+            });
+
+            Assert.Equal(@"CREATE TABLE ""History"" (
+    ""Event"" TEXT NOT NULL DEFAULT '2015-04-12 17:05:00'
+);" + EOL, Sql);
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]

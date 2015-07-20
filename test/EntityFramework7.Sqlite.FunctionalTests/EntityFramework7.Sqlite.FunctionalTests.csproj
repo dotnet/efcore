@@ -42,10 +42,13 @@
     <Compile Include="BuiltInDataTypesSqliteFixture.cs" />
     <Compile Include="BuiltInDataTypesSqliteTest.cs" />
     <Compile Include="ChangeTrackingSqliteTest.cs" />
+    <Compile Include="CommandConfigurationTest.cs" />
     <Compile Include="ComplexNavigationsQuerySqliteFixture.cs" />
     <Compile Include="ComplexNavigationsQuerySqliteTest.cs" />
+    <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="DataAnnotationSqliteFixture.cs" />
     <Compile Include="DataAnnotationSqliteTest.cs" />
+    <Compile Include="DefaultValuesTest.cs" />
     <Compile Include="F1SqliteFixture.cs" />
     <Compile Include="ForeignKeyTest.cs" />
     <Compile Include="FromSqlQuerySqliteTest.cs" />

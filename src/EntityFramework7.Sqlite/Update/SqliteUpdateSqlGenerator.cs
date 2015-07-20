@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Text;
+using Microsoft.Data.Entity.Sqlite;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Update
@@ -38,6 +40,14 @@ namespace Microsoft.Data.Entity.Update
             Check.NotNull(builder, nameof(builder));
 
             builder.Append("changes() = " + expectedRowsAffected);
+        }
+
+        public override string GenerateLiteral(DateTime literal) => "'" + literal.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF") + "'";
+        public override string GenerateLiteral(DateTimeOffset literal) => "'" + literal.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz") + "'";
+
+        public override string GenerateNextSequenceValueOperation(string name, string schema)
+        {
+            throw new NotSupportedException(Strings.SequencesNotSupported);
         }
     }
 }
