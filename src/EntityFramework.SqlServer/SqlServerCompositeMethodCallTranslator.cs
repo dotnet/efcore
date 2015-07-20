@@ -27,9 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer
             new StringToLowerTranslator(),
             new StringToUpperTranslator(),
             //Convert methods
-            //new ConvertToBooleanTranslator(),
             new ConvertToByteTranslator(),
-            //new ConvertToDateTimeTranslator(),
             new ConvertToDecimalTranslator(),
             new ConvertToDoubleTranslator(),
             new ConvertToInt16Translator(),

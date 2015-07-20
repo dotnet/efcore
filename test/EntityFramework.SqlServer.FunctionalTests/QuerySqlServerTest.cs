@@ -3010,23 +3010,7 @@ WHERE (UPPER([c].[CustomerID]) = 'ALFKI')",
         }
 
         #region Convert Methods
-
-        //TODO: Convert.ToBoolean test is not working properly yet
-        //[Fact]
-        //public void Where_convert_to_boolean()
-        //{
-        //    AssertQuery<Customer>(
-        //        cs => from c in cs
-        //              let boolean = (c.Fax != null ? (c.Fax.Substring(c.Fax.Length - 1, 1) == "0" ? "false" : "true") : "false")
-        //              where Convert.ToBoolean(boolean)
-        //              select c,
-        //        entryCount: 69);
-
-        //    Assert.Equal(
-        //        @"",
-        //        Sql);
-        //}
-
+        
         [Fact]
         public void Where_convert_to_byte()
         {
@@ -3042,26 +3026,7 @@ FROM [Customers] AS [c]
 WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(tinyint, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
                 Sql);
         }
-
-        //TODO: Convert.ToDateTime test is not working properly yet
-        //[Fact]
-        //public void Where_convert_to_datetime()
-        //{
-        //    AssertQuery<Customer>(
-        //        //es => from e in es
-        //        //      where e.BirthDate.HasValue && e.BirthDate == Convert.ToDateTime("12/8/1948 12:00:00 AM")
-        //        //      select e,
-        //        cs => from c in cs
-        //                  //where c.Fax != null && Convert.ToDateTime("200" + c.Fax.Substring(c.Fax.Length - 1, 1) + "-01-01 00:00:00") > new DateTime(1999, 1, 1)
-        //              where c.Fax != null && Convert.ToDateTime("2000-01-01 00:00:00") > new DateTime(1999, 1, 1) && ("0" + "0").Length > 0
-        //              select c,
-        //        entryCount: 69);
-
-        //    Assert.Equal(
-        //        @"",
-        //        Sql);
-        //}
-
+        
         [Fact]
         public void Where_convert_to_decimal()
         {
