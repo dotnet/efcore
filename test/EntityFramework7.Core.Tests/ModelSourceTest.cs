@@ -62,7 +62,17 @@ namespace Microsoft.Data.Entity.Tests
 
             var model = modelSource.GetModel(new Context1(), null, new LoggingModelValidator(new LoggerFactory()));
 
-            Assert.StartsWith("7.0.0", model[CoreAnnotationNames.ProductVersionAnnotation].ToString(), StringComparison.OrdinalIgnoreCase);
+            Assert.StartsWith("7.0.0", model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void CreateModel_sets_context_key()
+        {
+            var modelSource = CreateDefaultModelSource(new DbSetFinder());
+
+            var model = modelSource.GetModel(new Context1(), null, new LoggingModelValidator(new LoggerFactory()));
+
+            Assert.Equal(typeof(Context1).DisplayName(), model.GetContextKey());
         }
 
         private class Context1 : DbContext

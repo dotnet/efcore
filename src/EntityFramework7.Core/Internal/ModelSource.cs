@@ -46,7 +46,8 @@ namespace Microsoft.Data.Entity.Internal
 
             var productVersion = typeof(ModelSource).GetTypeInfo().Assembly
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-            model[CoreAnnotationNames.ProductVersionAnnotation] = productVersion;
+            model.SetProductVersion(productVersion);
+            model.SetContextKey(context.GetType().DisplayName());
 
             var modelBuilder = new ModelBuilder(conventionSet, model);
 

@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Migrations
 
         public virtual IReadOnlyList<Migration> GetUnappliedMigrations()
         {
-            var appliedMigrations = _historyRepository.GetAppliedMigrations();
+            var appliedMigrations = _historyRepository.GetAppliedMigrations(_model.GetContextKey());
 
             return _migrationAssembly.Migrations.Where(
                 m => !appliedMigrations.Any(
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Migrations
             _logger.Value.LogVerbose(Strings.UsingConnection(connection.Database, connection.DataSource));
 
             var migrations = _migrationAssembly.Migrations;
-            var appliedMigrationEntries = _historyRepository.GetAppliedMigrations();
+            var appliedMigrationEntries = _historyRepository.GetAppliedMigrations(_model.GetContextKey());
 
             var appliedMigrations = new List<Migration>();
             var unappliedMigrations = new List<Migration>();
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.Migrations
                     {
                         if (idempotent)
                         {
-                            builder.AppendLine(_historyRepository.BeginIfNotExists(migration.Id));
+                            builder.AppendLine(_historyRepository.BeginIfNotExists(migration.Id, _model.GetContextKey()));
                             using (builder.Indent())
                             {
                                 var lines = batch.Sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
@@ -262,7 +262,7 @@ namespace Microsoft.Data.Entity.Migrations
                     {
                         if (idempotent)
                         {
-                            builder.AppendLine(_historyRepository.BeginIfExists(migration.Id));
+                            builder.AppendLine(_historyRepository.BeginIfExists(migration.Id, _model.GetContextKey()));
                             using (builder.Indent())
                             {
                                 var lines = batch.Sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
@@ -295,7 +295,7 @@ namespace Microsoft.Data.Entity.Migrations
             migration.Up(migrationBuilder);
 
             var operations = migrationBuilder.Operations.ToList();
-            operations.Add(_historyRepository.GetInsertOperation(new HistoryRow(migration.Id, ProductVersion)));
+            operations.Add(_historyRepository.GetInsertOperation(new HistoryRow(migration.Id, ProductVersion, _model.GetContextKey())));
 
             var targetModel = _modelFactory.Create(migration.BuildTargetModel);
 
@@ -310,7 +310,7 @@ namespace Microsoft.Data.Entity.Migrations
             migration.Down(migrationBuilder);
             var operations = migrationBuilder.Operations.ToList();
 
-            operations.Add(_historyRepository.GetDeleteOperation(migration.Id));
+            operations.Add(_historyRepository.GetDeleteOperation(migration.Id, _model.GetContextKey()));
 
             // TODO: Pass source model?
             return _migrationSqlGenerator.Generate(operations);

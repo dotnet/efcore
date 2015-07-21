@@ -41,8 +41,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests.Migrations
             var hp = CreateSqliteHistoryRepo();
             var methods = new Action[]
             {
-                () => hp.BeginIfExists("any"),
-                () => hp.BeginIfNotExists("any"),
+                () => hp.BeginIfExists("any", typeof(TestContext).FullName),
+                () => hp.BeginIfNotExists("any", typeof(TestContext).FullName),
                 () => hp.EndIf()
             };
             foreach (var method in methods)
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests.Migrations
             {
                 Sql = "DELETE FROM \"__migrationHistory\" WHERE \"MigrationId\" = 'exodus';"
             };
-            var actual = hp.GetDeleteOperation("exodus") as SqlOperation;
+            var actual = hp.GetDeleteOperation("exodus", typeof(TestContext).FullName) as SqlOperation;
             Assert.Equal(expected.IsDestructiveChange, actual.IsDestructiveChange);
             Assert.Equal(expected.Sql, actual.Sql);
             Assert.Equal(expected.SuppressTransaction, actual.SuppressTransaction);
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests.Migrations
             {
                 Sql = $"INSERT INTO \"__migrationHistory\" (\"MigrationId\", \"ContextKey\", \"ProductVersion\") VALUES ('m5', '{typename}', '7');"
             };
-            var historyRow = new HistoryRow("m5", "7");
+            var historyRow = new HistoryRow("m5", "7", typename);
             var actual = hp.GetInsertOperation(historyRow) as SqlOperation;
             Assert.Equal(expected.IsDestructiveChange, actual.IsDestructiveChange);
             Assert.Equal(expected.Sql, actual.Sql);
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests.Migrations
                 cmd.ExecuteNonQuery();
             }
 
-            var hp = new SqliteHistoryRepository(connection, new TestContext(), new SqliteUpdateSqlGenerator());
+            var hp = new SqliteHistoryRepository(connection, new SqliteUpdateSqlGenerator());
 
             Assert.True(hp.Exists());
         }
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests.Migrations
         {
             var connection = SqliteTestConnection.CreateScratch();
 
-            var hp = new SqliteHistoryRepository(connection, new TestContext(), new SqliteUpdateSqlGenerator());
+            var hp = new SqliteHistoryRepository(connection, new SqliteUpdateSqlGenerator());
 
             Assert.False(hp.Exists());
         }
@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests.Migrations
                 command.ExecuteNonQuery();
             }
 
-            var row = new HistoryRow("Mig1", "7");
+            var row = new HistoryRow("Mig1", "7", typeof(TestContext).FullName);
             using (var command = testConnection.DbConnection.CreateCommand())
             {
                 var operation = CreateSqliteHistoryRepo()
@@ -134,9 +134,9 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests.Migrations
                 command.ExecuteNonQuery();
             }
 
-            var hp = new SqliteHistoryRepository(testConnection, new TestContext(), new SqliteUpdateSqlGenerator());
+            var hp = new SqliteHistoryRepository(testConnection, new SqliteUpdateSqlGenerator());
 
-            Assert.Collection(hp.GetAppliedMigrations(), p =>
+            Assert.Collection(hp.GetAppliedMigrations(typeof(TestContext).FullName), p =>
                 {
                     Assert.Equal(row.MigrationId, p.MigrationId);
                     Assert.Equal(row.ProductVersion, p.ProductVersion);
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests.Migrations
             }
         }
 
-        private static SqliteHistoryRepository CreateSqliteHistoryRepo() => new SqliteHistoryRepository(SqliteTestConnection.InMemory(), new TestContext(), new SqliteUpdateSqlGenerator());
+        private static SqliteHistoryRepository CreateSqliteHistoryRepo() => new SqliteHistoryRepository(SqliteTestConnection.InMemory(), new SqliteUpdateSqlGenerator());
 
         private class TestContext : DbContext
         {

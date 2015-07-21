@@ -11,12 +11,12 @@ namespace Microsoft.Data.Entity.Migrations.History
     public interface IHistoryRepository
     {
         bool Exists();
-        IReadOnlyList<IHistoryRow> GetAppliedMigrations();
+        IReadOnlyList<HistoryRow> GetAppliedMigrations([NotNull] string contextKey);
         string Create(bool ifNotExists);
-        MigrationOperation GetInsertOperation([NotNull] IHistoryRow row);
-        MigrationOperation GetDeleteOperation([NotNull] string migrationId);
-        string BeginIfNotExists([NotNull] string migrationId);
-        string BeginIfExists([NotNull] string migrationId);
+        MigrationOperation GetInsertOperation([NotNull] HistoryRow row);
+        MigrationOperation GetDeleteOperation([NotNull] string migrationId, [NotNull] string contextKey);
+        string BeginIfNotExists([NotNull] string migrationId, [NotNull] string contextKey);
+        string BeginIfExists([NotNull] string migrationId, [NotNull] string contextKey);
         string EndIf();
     }
 }

@@ -75,14 +75,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         private class MockHistoryRepository : IHistoryRepository
         {
-            public string BeginIfExists(string migrationId) => null;
-            public string BeginIfNotExists(string migrationId) => null;
+            public string BeginIfExists(string migrationId, string contextKey) => null;
+            public string BeginIfNotExists(string migrationId, string contextKey) => null;
             public string Create(bool ifNotExists) => null;
             public string EndIf() => null;
             public bool Exists() => false;
-            public IReadOnlyList<IHistoryRow> GetAppliedMigrations() => null;
-            public MigrationOperation GetDeleteOperation(string migrationId) => null;
-            public MigrationOperation GetInsertOperation(IHistoryRow row) => null;
+            public IReadOnlyList<HistoryRow> GetAppliedMigrations(string contextKey) => null;
+            public MigrationOperation GetDeleteOperation(string migrationId, string contextKey) => null;
+            public MigrationOperation GetInsertOperation(HistoryRow row) => null;
         }
 
         private class MockRelationalMetadataExtensionProvider : IRelationalMetadataExtensionProvider

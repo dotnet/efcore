@@ -22,23 +22,19 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
 
         private readonly ISqlServerConnection _connection;
         private readonly IRelationalDatabaseCreator _creator;
-        private readonly Type _contextType;
         private readonly ISqlServerUpdateSqlGenerator _sql;
 
         public SqlServerHistoryRepository(
             [NotNull] ISqlServerConnection connection,
             [NotNull] IRelationalDatabaseCreator creator,
-            [NotNull] DbContext context,
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(creator, nameof(creator));
-            Check.NotNull(context, nameof(context));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
             _connection = connection;
             _creator = creator;
-            _contextType = context.GetType();
             _sql = sqlGenerator;
         }
 
@@ -67,8 +63,10 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             return exists;
         }
 
-        public virtual IReadOnlyList<IHistoryRow> GetAppliedMigrations()
+        public virtual IReadOnlyList<HistoryRow> GetAppliedMigrations(string contextKey)
         {
+            Check.NotEmpty(contextKey, nameof(contextKey));
+
             var rows = new List<HistoryRow>();
 
             if (!Exists())
@@ -84,13 +82,13 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                     @"SELECT [MigrationId], [ProductVersion]
 FROM [dbo].[" + MigrationHistoryTableName + @"]
 WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
-                command.Parameters.AddWithValue("@ContextKey", _contextType.FullName);
+                command.Parameters.AddWithValue("@ContextKey", contextKey);
 
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        rows.Add(new HistoryRow(reader.GetString(0), reader.GetString(1)));
+                        rows.Add(new HistoryRow(reader.GetString(0), reader.GetString(1), contextKey));
                     }
                 }
             }
@@ -127,22 +125,23 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
             return builder.ToString();
         }
 
-        public virtual MigrationOperation GetDeleteOperation(string migrationId)
+        public virtual MigrationOperation GetDeleteOperation(string migrationId, string contextKey)
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
+            Check.NotEmpty(contextKey, nameof(contextKey));
 
             return new SqlOperation
             {
                 Sql = new StringBuilder()
                     .AppendLine("DELETE FROM [dbo].[" + MigrationHistoryTableName + "]")
                     .Append("WHERE [MigrationId] = '").Append(_sql.EscapeLiteral(migrationId))
-                    .Append("' AND [ContextKey] = '").Append(_sql.EscapeLiteral(_contextType.FullName))
+                    .Append("' AND [ContextKey] = '").Append(_sql.EscapeLiteral(contextKey))
                     .AppendLine("';")
                     .ToString()
             };
         }
 
-        public virtual MigrationOperation GetInsertOperation(IHistoryRow row)
+        public virtual MigrationOperation GetInsertOperation(HistoryRow row)
         {
             Check.NotNull(row, nameof(row));
 
@@ -151,32 +150,34 @@ WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
                 Sql = new StringBuilder()
                     .AppendLine("INSERT INTO [dbo].[" + MigrationHistoryTableName + "] ([MigrationId], [ContextKey], [ProductVersion])")
                     .Append("VALUES ('").Append(_sql.EscapeLiteral(row.MigrationId)).Append("', '")
-                    .Append(_sql.EscapeLiteral(_contextType.FullName)).Append("', '")
+                    .Append(_sql.EscapeLiteral(row.ContextKey)).Append("', '")
                     .Append(_sql.EscapeLiteral(row.ProductVersion)).AppendLine("');")
                     .ToString()
             };
         }
 
-        public virtual string BeginIfNotExists(string migrationId)
+        public virtual string BeginIfNotExists(string migrationId, string contextKey)
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
+            Check.NotEmpty(contextKey, nameof(contextKey));
 
             return new StringBuilder()
                 .Append("IF NOT EXISTS(SELECT * FROM [dbo].[" + MigrationHistoryTableName + "] WHERE [MigrationId] = '")
                 .Append(_sql.EscapeLiteral(migrationId)).Append("' AND [ContextKey] = '")
-                .Append(_sql.EscapeLiteral(_contextType.FullName)).AppendLine("')")
+                .Append(_sql.EscapeLiteral(contextKey)).AppendLine("')")
                 .Append("BEGIN")
                 .ToString();
         }
 
-        public virtual string BeginIfExists(string migrationId)
+        public virtual string BeginIfExists(string migrationId, string contextKey)
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
+            Check.NotEmpty(contextKey, nameof(contextKey));
 
             return new StringBuilder()
                 .Append("IF EXISTS(SELECT * FROM [dbo].[" + MigrationHistoryTableName + "] WHERE [MigrationId] = '")
                 .Append(_sql.EscapeLiteral(migrationId)).Append("' AND [ContextKey] = '")
-                .Append(_sql.EscapeLiteral(_contextType.FullName)).AppendLine("')")
+                .Append(_sql.EscapeLiteral(contextKey)).AppendLine("')")
                 .Append("BEGIN")
                 .ToString();
         }
