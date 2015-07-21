@@ -24,12 +24,23 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] string sql,
             CancellationToken cancellationToken = default(CancellationToken));
 
+        Task<DbDataReader> ExecuteReaderAsync(
+            [NotNull] IRelationalConnection connection,
+            [CanBeNull] DbTransaction transaction,
+            [NotNull] string sql,
+            CancellationToken cancellationToken = default(CancellationToken));
+
         void ExecuteNonQuery(
             [NotNull] IRelationalConnection connection,
             [CanBeNull] DbTransaction transaction,
             [NotNull] IEnumerable<SqlBatch> sqlBatches);
 
         object ExecuteScalar(
+            [NotNull] IRelationalConnection connection,
+            [CanBeNull] DbTransaction transaction,
+            [NotNull] string sql);
+
+        DbDataReader ExecuteReader(
             [NotNull] IRelationalConnection connection,
             [CanBeNull] DbTransaction transaction,
             [NotNull] string sql);

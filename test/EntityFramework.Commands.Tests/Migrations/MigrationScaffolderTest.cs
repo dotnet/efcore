@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.History;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.Logging;
@@ -46,7 +45,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     modelFactory),
                 new ModelDiffer(
                     new ConcreteTypeMapper(),
-                    new TestMetadataExtensionProvider(), 
+                    new TestMetadataExtensionProvider(),
                     new MigrationAnnotationProvider()),
                 new MigrationIdGenerator(),
                 new CSharpMigrationGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpModelGenerator(code)),
@@ -76,14 +75,15 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         private class MockHistoryRepository : IHistoryRepository
         {
-            public string BeginIfExists(string migrationId) => null;
-            public string BeginIfNotExists(string migrationId) => null;
-            public string Create(bool ifNotExists) => null;
-            public string EndIf() => null;
+            public string GetBeginIfExistsScript(string migrationId) => null;
+            public string GetBeginIfNotExistsScript(string migrationId) => null;
+            public string GetCreateScript() => null;
+            public string GetCreateIfNotExistsScript() => null;
+            public string GetEndIfScript() => null;
             public bool Exists() => false;
-            public IReadOnlyList<IHistoryRow> GetAppliedMigrations() => null;
-            public MigrationOperation GetDeleteOperation(string migrationId) => null;
-            public MigrationOperation GetInsertOperation(IHistoryRow row) => null;
+            public IReadOnlyList<HistoryRow> GetAppliedMigrations() => null;
+            public string GetDeleteScript(string migrationId) => null;
+            public string GetInsertScript(HistoryRow row) => null;
         }
 
         private class ConcreteTypeMapper : RelationalTypeMapper

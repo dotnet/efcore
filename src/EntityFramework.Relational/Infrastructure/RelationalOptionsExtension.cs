@@ -92,6 +92,9 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual string MigrationsAssembly { get; [param: CanBeNull] set; }
 
+        public virtual string MigrationsHistoryTableName { get;[param: CanBeNull] set; }
+        public virtual string MigrationsHistoryTableSchema { get;[param: CanBeNull] set; }
+
         public static RelationalOptionsExtension Extract([NotNull] IDbContextOptions options)
         {
             Check.NotNull(options, nameof(options));

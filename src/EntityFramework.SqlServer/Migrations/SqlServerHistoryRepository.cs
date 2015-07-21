@@ -2,188 +2,165 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations.History;
-using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Migrations
 {
-    // TODO: Log
-    public class SqlServerHistoryRepository : IHistoryRepository
+    public class SqlServerHistoryRepository : HistoryRepository
     {
-        public const string MigrationHistoryTableName = "__MigrationHistory";
-
-        private readonly ISqlServerConnection _connection;
-        private readonly IRelationalDatabaseCreator _creator;
-        private readonly Type _contextType;
         private readonly ISqlServerUpdateSqlGenerator _sql;
 
         public SqlServerHistoryRepository(
+            [NotNull] IDatabaseCreator databaseCreator,
+            [NotNull] ISqlStatementExecutor executor,
             [NotNull] ISqlServerConnection connection,
-            [NotNull] IRelationalDatabaseCreator creator,
-            [NotNull] DbContext context,
-            [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
+            [NotNull] IMigrationModelFactory modelFactory,
+            [NotNull] IDbContextOptions options,
+            [NotNull] IModelDiffer modelDiffer,
+            [NotNull] SqlServerMigrationSqlGenerator migrationSqlGenerator,
+            [NotNull] SqlServerMetadataExtensionProvider annotations,
+            [NotNull] ISqlServerUpdateSqlGenerator updateSqlGenerator,
+            [NotNull] IServiceProvider serviceProvider)
+            : base(
+                  databaseCreator,
+                  executor,
+                  connection,
+                  modelFactory,
+                  options,
+                  modelDiffer,
+                  migrationSqlGenerator,
+                  annotations,
+                  updateSqlGenerator,
+                  serviceProvider)
         {
-            Check.NotNull(connection, nameof(connection));
-            Check.NotNull(creator, nameof(creator));
-            Check.NotNull(context, nameof(context));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
 
-            _connection = connection;
-            _creator = creator;
-            _contextType = context.GetType();
-            _sql = sqlGenerator;
+            _sql = updateSqlGenerator;
         }
 
-        public virtual bool Exists()
+        protected override string ExistsSql
         {
-            var exists = false;
-
-            if (!_creator.Exists())
+            get
             {
-                return exists;
-            }
+                var builder = new StringBuilder();
 
-            var command = (SqlCommand)_connection.DbConnection.CreateCommand();
-            command.CommandText = "SELECT OBJECT_ID(N'dbo." + MigrationHistoryTableName + "');";
+                builder.Append("SELECT OBJECT_ID(N'");
 
-            _connection.Open();
-            try
-            {
-                exists = command.ExecuteScalar() != DBNull.Value;
-            }
-            finally
-            {
-                _connection.Close();
-            }
-
-            return exists;
-        }
-
-        public virtual IReadOnlyList<IHistoryRow> GetAppliedMigrations()
-        {
-            var rows = new List<HistoryRow>();
-
-            if (!Exists())
-            {
-                return rows;
-            }
-
-            _connection.Open();
-            try
-            {
-                var command = (SqlCommand)_connection.DbConnection.CreateCommand();
-                command.CommandText =
-                    @"SELECT [MigrationId], [ProductVersion]
-FROM [dbo].[" + MigrationHistoryTableName + @"]
-WHERE [ContextKey] = @ContextKey ORDER BY [MigrationId]";
-                command.Parameters.AddWithValue("@ContextKey", _contextType.FullName);
-
-                using (var reader = command.ExecuteReader())
+                if (TableSchema != null)
                 {
-                    while (reader.Read())
-                    {
-                        rows.Add(new HistoryRow(reader.GetString(0), reader.GetString(1)));
-                    }
+                    builder
+                        .Append(_sql.EscapeLiteral(TableSchema))
+                        .Append(".");
                 }
-            }
-            finally
-            {
-                _connection.Close();
-            }
 
-            return rows;
+                builder
+                    .Append(_sql.EscapeLiteral(TableName))
+                    .Append("');");
+
+                return builder.ToString();
+            }
         }
 
-        public virtual string Create(bool ifNotExists)
+        protected override bool Exists(object value) => value != DBNull.Value;
+
+        public override string GetInsertScript(HistoryRow row)
+        {
+            Check.NotNull(row, nameof(row));
+
+            return new StringBuilder().Append("INSERT INTO ")
+                .Append(_sql.DelimitIdentifier(TableName, TableSchema))
+                .Append(" (")
+                .Append(_sql.DelimitIdentifier(MigrationIdColumnName))
+                .Append(", ")
+                .Append(_sql.DelimitIdentifier(ProductVersionColumnName))
+                .AppendLine(")")
+                .Append("VALUES (N'")
+                .Append(_sql.EscapeLiteral(row.MigrationId))
+                .Append("', N'")
+                .Append(_sql.EscapeLiteral(row.ProductVersion))
+                .Append("');")
+                .ToString();
+        }
+
+        public override string GetDeleteScript(string migrationId)
+        {
+            Check.NotEmpty(migrationId, nameof(migrationId));
+
+            return new StringBuilder().Append("DELETE FROM ")
+                .AppendLine(_sql.DelimitIdentifier(TableName, TableSchema))
+                .Append("WHERE ")
+                .Append(_sql.DelimitIdentifier(MigrationIdColumnName))
+                .Append(" = N'")
+                .Append(_sql.EscapeLiteral(migrationId))
+                .Append("';")
+                .ToString();
+        }
+
+        public override string GetCreateIfNotExistsScript()
         {
             var builder = new IndentedStringBuilder();
 
-            if (ifNotExists)
+            builder.Append("IF OBJECT_ID(N'");
+
+            if (TableSchema != null)
             {
-                builder.AppendLine("IF OBJECT_ID(N'dbo." + MigrationHistoryTableName + "') IS NULL");
-                builder.IncrementIndent();
+                builder
+                    .Append(_sql.EscapeLiteral(TableSchema))
+                    .Append(".");
             }
 
             builder
-                .AppendLine("CREATE TABLE [dbo].[" + MigrationHistoryTableName + "] (");
+                .Append(_sql.EscapeLiteral(TableName))
+                .AppendLine("') IS NULL");
             using (builder.Indent())
             {
-                builder
-                    .AppendLine("[MigrationId] nvarchar(150) NOT NULL,")
-                    .AppendLine("[ContextKey] nvarchar(300) NOT NULL,")
-                    .AppendLine("[ProductVersion] nvarchar(32) NOT NULL,")
-                    .AppendLine("CONSTRAINT [PK_MigrationHistory] PRIMARY KEY ([MigrationId], [ContextKey])");
+                builder.AppendLines(GetCreateScript());
             }
-            builder.Append(");");
 
             return builder.ToString();
         }
 
-        public virtual MigrationOperation GetDeleteOperation(string migrationId)
-        {
-            Check.NotEmpty(migrationId, nameof(migrationId));
-
-            return new SqlOperation
-            {
-                Sql = new StringBuilder()
-                    .AppendLine("DELETE FROM [dbo].[" + MigrationHistoryTableName + "]")
-                    .Append("WHERE [MigrationId] = '").Append(_sql.EscapeLiteral(migrationId))
-                    .Append("' AND [ContextKey] = '").Append(_sql.EscapeLiteral(_contextType.FullName))
-                    .AppendLine("';")
-                    .ToString()
-            };
-        }
-
-        public virtual MigrationOperation GetInsertOperation(IHistoryRow row)
-        {
-            Check.NotNull(row, nameof(row));
-
-            return new SqlOperation
-            {
-                Sql = new StringBuilder()
-                    .AppendLine("INSERT INTO [dbo].[" + MigrationHistoryTableName + "] ([MigrationId], [ContextKey], [ProductVersion])")
-                    .Append("VALUES ('").Append(_sql.EscapeLiteral(row.MigrationId)).Append("', '")
-                    .Append(_sql.EscapeLiteral(_contextType.FullName)).Append("', '")
-                    .Append(_sql.EscapeLiteral(row.ProductVersion)).AppendLine("');")
-                    .ToString()
-            };
-        }
-
-        public virtual string BeginIfNotExists(string migrationId)
+        public override string GetBeginIfNotExistsScript(string migrationId)
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
 
             return new StringBuilder()
-                .Append("IF NOT EXISTS(SELECT * FROM [dbo].[" + MigrationHistoryTableName + "] WHERE [MigrationId] = '")
-                .Append(_sql.EscapeLiteral(migrationId)).Append("' AND [ContextKey] = '")
-                .Append(_sql.EscapeLiteral(_contextType.FullName)).AppendLine("')")
+                .Append("IF NOT EXISTS(SELECT * FROM ")
+                .Append(_sql.DelimitIdentifier(TableName, TableSchema))
+                .Append(" WHERE ")
+                .Append(_sql.DelimitIdentifier(MigrationIdColumnName))
+                .Append(" = N'")
+                .Append(_sql.EscapeLiteral(migrationId))
+                .AppendLine("')")
                 .Append("BEGIN")
                 .ToString();
         }
 
-        public virtual string BeginIfExists(string migrationId)
+        public override string GetBeginIfExistsScript(string migrationId)
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
 
             return new StringBuilder()
-                .Append("IF EXISTS(SELECT * FROM [dbo].[" + MigrationHistoryTableName + "] WHERE [MigrationId] = '")
-                .Append(_sql.EscapeLiteral(migrationId)).Append("' AND [ContextKey] = '")
-                .Append(_sql.EscapeLiteral(_contextType.FullName)).AppendLine("')")
+                .Append("IF EXISTS(SELECT * FROM ")
+                .Append(_sql.DelimitIdentifier(TableName, TableSchema))
+                .Append(" WHERE ")
+                .Append(_sql.DelimitIdentifier(MigrationIdColumnName))
+                .Append(" = N'")
+                .Append(_sql.EscapeLiteral(migrationId))
+                .AppendLine("')")
                 .Append("BEGIN")
                 .ToString();
         }
 
-        public virtual string EndIf()
-        {
-            return "END";
-        }
+        public override string GetEndIfScript() => "END";
     }
 }

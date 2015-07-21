@@ -2,144 +2,76 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Data;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.History;
-using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Sqlite.Migrations
 {
-    public class SqliteHistoryRepository : IHistoryRepository
+    public class SqliteHistoryRepository : HistoryRepository
     {
-        private readonly IRelationalConnection _connection;
-        private readonly string _contextKey;
         private readonly SqliteUpdateSqlGenerator _sql;
 
-        protected string MigrationTableName { get; } = "__migrationHistory";
-
         public SqliteHistoryRepository(
+            [NotNull] IDatabaseCreator databaseCreator,
+            [NotNull] ISqlStatementExecutor executor,
             [NotNull] IRelationalConnection connection,
-            [NotNull] DbContext context,
-            [NotNull] SqliteUpdateSqlGenerator sql)
+            [NotNull] IMigrationModelFactory modelFactory,
+            [NotNull] IDbContextOptions options,
+            [NotNull] IModelDiffer modelDiffer,
+            [NotNull] SqliteMigrationSqlGenerator migrationSqlGenerator,
+            [NotNull] SqliteMetadataExtensionProvider annotations,
+            [NotNull] SqliteUpdateSqlGenerator updateSqlGenerator,
+            [NotNull] IServiceProvider serviceProvider)
+            : base(
+                  databaseCreator,
+                  executor,
+                  connection,
+                  modelFactory,
+                  options,
+                  modelDiffer,
+                  migrationSqlGenerator,
+                  annotations,
+                  updateSqlGenerator,
+                  serviceProvider)
         {
-            Check.NotNull(connection, nameof(connection));
-            Check.NotNull(context, nameof(context));
-            Check.NotNull(sql, nameof(sql));
+            Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
 
-            _connection = connection;
-            _contextKey = context.GetType().FullName;
-            _sql = sql;
+            _sql = updateSqlGenerator;
         }
 
-        public virtual string BeginIfExists(string migrationId)
+        protected override string ExistsSql
+            => "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"name\" = '" +
+                _sql.EscapeLiteral(TableName) +
+                "' AND \"type\" = 'table';";
+
+        protected override bool Exists(object value) => (long)value != 0L;
+
+        public override string GetCreateIfNotExistsScript()
+        {
+            var script = GetCreateScript();
+
+            return script.Insert(script.IndexOf("CREATE TABLE") + 12, " IF NOT EXISTS");
+        }
+
+        public override string GetBeginIfNotExistsScript(string migrationId)
         {
             throw new NotSupportedException(Strings.MigrationScriptGenerationNotSupported);
         }
 
-        public virtual string BeginIfNotExists(string migrationId)
+        public override string GetBeginIfExistsScript(string migrationId)
         {
             throw new NotSupportedException(Strings.MigrationScriptGenerationNotSupported);
         }
 
-        public virtual string Create(bool ifNotExists)
-        {
-            var builder = new IndentedStringBuilder();
-
-            builder.Append("CREATE TABLE ");
-            if (ifNotExists)
-            {
-                builder.Append("IF NOT EXISTS ");
-            }
-            builder.Append(_sql.DelimitIdentifier(MigrationTableName))
-                .AppendLine(" (");
-            using (builder.Indent())
-            {
-                builder
-                    .AppendLine("MigrationId TEXT PRIMARY KEY,")
-                    .AppendLine("ContextKey TEXT NOT NULL,")
-                    .AppendLine("ProductVersion TEXT NOT NULL");
-            }
-            builder.Append(");");
-
-            return builder.ToString();
-        }
-
-        public virtual string EndIf()
+        public override string GetEndIfScript()
         {
             throw new NotSupportedException(Strings.MigrationScriptGenerationNotSupported);
         }
-
-        public virtual bool Exists()
-        {
-            using (var connection = _connection.DbConnection)
-            {
-                if (connection.State != ConnectionState.Open)
-                {
-                    connection.Open();
-                }
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = $"SELECT 1 FROM sqlite_master WHERE type = 'table'" +
-                                          $" AND tbl_name = '{_sql.EscapeLiteral(MigrationTableName)}'" +
-                                          $" AND rootpage IS NOT NULL;";
-                    var result = command.ExecuteScalar();
-                    return result != null && (long)result == 1;
-                }
-            }
-        }
-
-        public virtual IReadOnlyList<IHistoryRow> GetAppliedMigrations()
-        {
-            var migrations = new List<IHistoryRow>();
-
-            if (!Exists())
-            {
-                return migrations;
-            }
-
-            using (var connection = _connection.DbConnection)
-            {
-                if (connection.State != ConnectionState.Open)
-                {
-                    connection.Open();
-                }
-                var command = connection.CreateCommand();
-                command.CommandText = $"SELECT MigrationId, ProductVersion FROM {_sql.DelimitIdentifier(MigrationTableName)} " +
-                                      $"WHERE ContextKey = '{_sql.EscapeLiteral(_contextKey)}' ORDER BY MigrationId;";
-
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var row = new HistoryRow(reader.GetString(0), reader.GetString(1));
-                        migrations.Add(row);
-                    }
-                }
-            }
-
-            return migrations.AsReadOnly();
-        }
-
-        public virtual MigrationOperation GetDeleteOperation(string migrationId) => new SqlOperation
-        {
-            Sql = $"DELETE FROM {_sql.DelimitIdentifier(MigrationTableName)} WHERE {_sql.DelimitIdentifier("MigrationId")} = '{_sql.EscapeLiteral(migrationId)}';"
-        };
-
-        public virtual MigrationOperation GetInsertOperation(IHistoryRow row) => new SqlOperation
-        {
-            Sql = new IndentedStringBuilder().Append("INSERT INTO ")
-                .Append(_sql.DelimitIdentifier(MigrationTableName))
-                .Append(" (\"MigrationId\", \"ContextKey\", \"ProductVersion\") VALUES (")
-                .Append($"'{_sql.EscapeLiteral(row.MigrationId)}', ")
-                .Append($"'{_sql.EscapeLiteral(_contextKey)}', ")
-                .Append($"'{_sql.EscapeLiteral(row.ProductVersion)}'")
-                .Append(");")
-                .ToString()
-        };
     }
 }

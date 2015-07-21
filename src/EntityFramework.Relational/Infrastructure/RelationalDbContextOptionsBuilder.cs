@@ -31,6 +31,19 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual TBuilder MigrationsAssembly([NotNull] string assemblyName)
             => SetOption(e => e.MigrationsAssembly = Check.NullButNotEmpty(assemblyName, nameof(assemblyName)));
 
+        public virtual TBuilder MigrationsHistoryTable([NotNull] string tableName, [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            return SetOption(
+                e =>
+                {
+                    e.MigrationsHistoryTableName = tableName;
+                    e.MigrationsHistoryTableSchema = schema;
+                });
+        }
+
         public virtual TBuilder SuppressAmbientTransactionWarning()
             => SetOption(e => e.ThrowOnAmbientTransaction = false);
 

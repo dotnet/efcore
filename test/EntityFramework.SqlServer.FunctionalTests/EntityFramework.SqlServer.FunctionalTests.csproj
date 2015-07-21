@@ -44,6 +44,8 @@
     <Compile Include="FromSqlSprocQuerySqlServerTest.cs" />
     <Compile Include="GraphUpdatesWithIdentitySqlServerTest.cs" />
     <Compile Include="GraphUpdatesWithSequenceSqlServerTest.cs" />
+    <Compile Include="MigrationsSqlServerFixture.cs" />
+    <Compile Include="MigrationsSqlServerTest.cs" />
     <Compile Include="NorthwindSprocQuerySqlServerFixture.cs" />
     <Compile Include="FromSqlQuerySqlServerTest.cs" />
     <Compile Include="NavigationTest.cs" />

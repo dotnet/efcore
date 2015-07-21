@@ -73,9 +73,29 @@ namespace Microsoft.Data.Entity.Storage
                 cancellationToken);
         }
 
-        protected virtual async Task<object> ExecuteAsync(
+        public virtual Task<DbDataReader> ExecuteReaderAsync(
             IRelationalConnection connection,
-            Func<Task<object>> action,
+            DbTransaction transaction,
+            string sql,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(sql, nameof(sql));
+
+            return ExecuteAsync(
+                connection,
+                () =>
+                {
+                    var command = new SqlBatch(sql).CreateCommand(connection, transaction);
+                    Logger.LogCommand(command);
+
+                    return command.ExecuteReaderAsync(cancellationToken);
+                });
+        }
+
+        protected virtual async Task<T> ExecuteAsync<T>(
+            IRelationalConnection connection,
+            Func<Task<T>> action,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, nameof(connection));
@@ -111,7 +131,7 @@ namespace Microsoft.Data.Entity.Storage
 
                             command.ExecuteNonQuery();
                         }
-                        return null;
+                        return default(object);
                     });
         }
 
@@ -134,9 +154,28 @@ namespace Microsoft.Data.Entity.Storage
                     });
         }
 
-        protected virtual object Execute(
+        public virtual DbDataReader ExecuteReader(
             IRelationalConnection connection,
-            Func<object> action)
+            DbTransaction transaction,
+            string sql)
+        {
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(sql, nameof(sql));
+
+            return Execute(
+                connection,
+                () =>
+                {
+                    var command = new SqlBatch(sql).CreateCommand(connection, transaction);
+                    Logger.LogCommand(command);
+
+                    return command.ExecuteReader();
+                });
+        }
+
+        protected virtual T Execute<T>(
+            IRelationalConnection connection,
+            Func<T> action)
         {
             Check.NotNull(connection, nameof(connection));
 

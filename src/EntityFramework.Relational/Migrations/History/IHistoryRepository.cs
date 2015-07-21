@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Migrations.Operations;
 
 namespace Microsoft.Data.Entity.Migrations.History
 {
@@ -11,12 +10,13 @@ namespace Microsoft.Data.Entity.Migrations.History
     public interface IHistoryRepository
     {
         bool Exists();
-        IReadOnlyList<IHistoryRow> GetAppliedMigrations();
-        string Create(bool ifNotExists);
-        MigrationOperation GetInsertOperation([NotNull] IHistoryRow row);
-        MigrationOperation GetDeleteOperation([NotNull] string migrationId);
-        string BeginIfNotExists([NotNull] string migrationId);
-        string BeginIfExists([NotNull] string migrationId);
-        string EndIf();
+        IReadOnlyList<HistoryRow> GetAppliedMigrations();
+        string GetCreateScript();
+        string GetCreateIfNotExistsScript();
+        string GetInsertScript([NotNull] HistoryRow row);
+        string GetDeleteScript([NotNull] string migrationId);
+        string GetBeginIfNotExistsScript([NotNull] string migrationId);
+        string GetBeginIfExistsScript([NotNull] string migrationId);
+        string GetEndIfScript();
     }
 }

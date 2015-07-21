@@ -63,7 +63,8 @@
     <Compile Include="InheritanceSqliteTest.cs" />
     <Compile Include="MappingQuerySqliteFixture.cs" />
     <Compile Include="MappingQuerySqliteTest.cs" />
-    <Compile Include="Migrations\SqliteHistoryRepositoryTest.cs" />
+    <Compile Include="MigrationsSqliteFixture.cs" />
+    <Compile Include="MigrationsSqliteTest.cs" />
     <Compile Include="MonsterFixupSqliteTest.cs" />
     <Compile Include="NorthwindQuerySqliteFixture.cs" />
     <Compile Include="NullKeysSqliteTest.cs" />

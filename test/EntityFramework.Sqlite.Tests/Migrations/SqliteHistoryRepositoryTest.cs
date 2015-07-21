@@ -6,15 +6,15 @@ using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.History;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
-using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Migrations
+namespace Microsoft.Data.Entity.Sqlite.Migrations
 {
-    public class SqlServerHistoryRepositoryTest
+    public class SqliteHistoryRepositoryTest
     {
         private static string EOL => Environment.NewLine;
 
@@ -24,10 +24,9 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             var sql = CreateHistoryRepository().GetCreateScript();
 
             Assert.Equal(
-                "CREATE TABLE [__MigrationHistory] (" + EOL +
-                "    [MigrationId] nvarchar(150) NOT NULL," + EOL +
-                "    [ProductVersion] nvarchar(32)," + EOL +
-                "    CONSTRAINT [PK_HistoryRow] PRIMARY KEY ([MigrationId])" + EOL +
+                "CREATE TABLE \"__MigrationHistory\" (" + EOL +
+                "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK_HistoryRow\" PRIMARY KEY," + EOL +
+                "    \"ProductVersion\" TEXT" + EOL +
                 ");" + EOL,
                 sql);
         }
@@ -38,12 +37,10 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             var sql = CreateHistoryRepository().GetCreateIfNotExistsScript();
 
             Assert.Equal(
-                "IF OBJECT_ID(N'__MigrationHistory') IS NULL" + EOL +
-                "    CREATE TABLE [__MigrationHistory] (" + EOL +
-                "        [MigrationId] nvarchar(150) NOT NULL," + EOL +
-                "        [ProductVersion] nvarchar(32)," + EOL +
-                "        CONSTRAINT [PK_HistoryRow] PRIMARY KEY ([MigrationId])" + EOL +
-                "    );" + EOL,
+                "CREATE TABLE IF NOT EXISTS \"__MigrationHistory\" (" + EOL +
+                "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK_HistoryRow\" PRIMARY KEY," + EOL +
+                "    \"ProductVersion\" TEXT" + EOL +
+                ");" + EOL,
                 sql);
         }
 
@@ -53,8 +50,8 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             var sql = CreateHistoryRepository().GetDeleteScript("Migration1");
 
             Assert.Equal(
-                "DELETE FROM [__MigrationHistory]" + EOL +
-                "WHERE [MigrationId] = N'Migration1';",
+                "DELETE FROM \"__MigrationHistory\"" + EOL +
+                "WHERE \"MigrationId\" = 'Migration1';",
                 sql);
         }
 
@@ -65,61 +62,58 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 new HistoryRow("Migration1", "7.0.0"));
 
             Assert.Equal(
-                "INSERT INTO [__MigrationHistory] ([MigrationId], [ProductVersion])" + EOL +
-                "VALUES (N'Migration1', N'7.0.0');",
+                "INSERT INTO \"__MigrationHistory\" (\"MigrationId\", \"ProductVersion\")" + EOL +
+                "VALUES ('Migration1', '7.0.0');",
                 sql);
         }
 
         [Fact]
         public void GetBeginIfNotExistsScript_works()
         {
-            var sql = CreateHistoryRepository().GetBeginIfNotExistsScript("Migration1");
+            var repository = CreateHistoryRepository();
+            var ex = Assert.Throws<NotSupportedException>(() => repository.GetBeginIfNotExistsScript("Migration1"));
 
-            Assert.Equal(
-                "IF NOT EXISTS(SELECT * FROM [__MigrationHistory] WHERE [MigrationId] = N'Migration1')" + EOL +
-                "BEGIN",
-                sql);
+            Assert.Equal(Strings.MigrationScriptGenerationNotSupported, ex.Message);
         }
 
         [Fact]
         public void GetBeginIfExistsScript_works()
         {
-            var sql = CreateHistoryRepository().GetBeginIfExistsScript("Migration1");
+            var repository = CreateHistoryRepository();
+            var ex = Assert.Throws<NotSupportedException>(() => repository.GetBeginIfExistsScript("Migration1"));
 
-            Assert.Equal(
-                "IF EXISTS(SELECT * FROM [__MigrationHistory] WHERE [MigrationId] = N'Migration1')" + EOL +
-                "BEGIN",
-                sql);
+            Assert.Equal(Strings.MigrationScriptGenerationNotSupported, ex.Message);
         }
 
         [Fact]
         public void GetEndIfScript_works()
         {
-            var sql = CreateHistoryRepository().GetEndIfScript();
+            var repository = CreateHistoryRepository();
+            var ex = Assert.Throws<NotSupportedException>(() => repository.GetEndIfScript());
 
-            Assert.Equal("END", sql);
+            Assert.Equal(Strings.MigrationScriptGenerationNotSupported, ex.Message);
         }
 
         private static IHistoryRepository CreateHistoryRepository()
         {
-            var annotationsProvider = new SqlServerMetadataExtensionProvider();
-            var updateSqlGenerator = new SqlServerUpdateSqlGenerator();
+            var annotationsProvider = new SqliteMetadataExtensionProvider();
+            var updateSqlGenerator = new SqliteUpdateSqlGenerator();
 
-            return new SqlServerHistoryRepository(
+            return new SqliteHistoryRepository(
                 Mock.Of<IRelationalDatabaseCreator>(),
                 Mock.Of<ISqlStatementExecutor>(),
-                Mock.Of<ISqlServerConnection>(),
+                Mock.Of<IRelationalConnection>(),
                 new MigrationModelFactory(),
                 new DbContextOptions<DbContext>(
                     new Dictionary<Type, IDbContextOptionsExtension>
                     {
-                        { typeof(SqlServerOptionsExtension), new SqlServerOptionsExtension() }
+                        { typeof(SqliteOptionsExtension), new SqliteOptionsExtension() }
                     }),
                 new ModelDiffer(
-                    new SqlServerTypeMapper(),
+                    new SqliteTypeMapper(),
                     annotationsProvider,
-                    new SqlServerMigrationAnnotationProvider()),
-                new SqlServerMigrationSqlGenerator(
+                    new SqliteMigrationAnnotationProvider()),
+                new SqliteMigrationSqlGenerator(
                     updateSqlGenerator),
                 annotationsProvider,
                 updateSqlGenerator,

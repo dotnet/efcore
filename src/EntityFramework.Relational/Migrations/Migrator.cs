@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.History;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Migrations.Sql;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
@@ -23,7 +24,7 @@ namespace Microsoft.Data.Entity.Migrations
 {
     public class Migrator : IMigrator
     {
-        private const string InitialDatabase = "0";
+        public const string InitialDatabase = "0";
 
         private readonly IMigrationAssembly _migrationAssembly;
         private readonly IHistoryRepository _historyRepository;
@@ -128,7 +129,7 @@ namespace Microsoft.Data.Entity.Migrations
             else if (targetMigration == InitialDatabase)
             {
                 migrationsToApply = Enumerable.Empty<Migration>();
-                migrationsToRevert = appliedMigrations;
+                migrationsToRevert = appliedMigrations.OrderByDescending(m => m.Id);
             }
             else
             {
@@ -152,8 +153,8 @@ namespace Microsoft.Data.Entity.Migrations
                     first = migration == migrations[0];
                     if (first && !_historyRepository.Exists())
                     {
-                        // TODO: Consider removing check above and always using "if not exists"
-                        batches.Insert(0, new SqlBatch(_historyRepository.Create(ifNotExists: false)));
+                        // TODO: Prepend to first batch instead
+                        batches.Insert(0, new SqlBatch(_historyRepository.GetCreateScript()));
                     }
 
                     checkFirst = false;
@@ -212,7 +213,7 @@ namespace Microsoft.Data.Entity.Migrations
                     {
                         if (migration == migrations[0])
                         {
-                            builder.AppendLine(_historyRepository.Create(ifNotExists: true));
+                            builder.AppendLine(_historyRepository.GetCreateIfNotExistsScript());
                             builder.AppendLine(_sqlGenerator.BatchSeparator);
                             builder.AppendLine();
                         }
@@ -226,16 +227,12 @@ namespace Microsoft.Data.Entity.Migrations
                     {
                         if (idempotent)
                         {
-                            builder.AppendLine(_historyRepository.BeginIfNotExists(migration.Id));
+                            builder.AppendLine(_historyRepository.GetBeginIfNotExistsScript(migration.Id));
                             using (builder.Indent())
                             {
-                                var lines = batch.Sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-                                foreach (var line in lines)
-                                {
-                                    builder.AppendLine(line);
-                                }
+                                builder.AppendLines(batch.Sql);
                             }
-                            builder.AppendLine(_historyRepository.EndIf());
+                            builder.AppendLine(_historyRepository.GetEndIfScript());
                         }
                         else
                         {
@@ -262,16 +259,12 @@ namespace Microsoft.Data.Entity.Migrations
                     {
                         if (idempotent)
                         {
-                            builder.AppendLine(_historyRepository.BeginIfExists(migration.Id));
+                            builder.AppendLine(_historyRepository.GetBeginIfExistsScript(migration.Id));
                             using (builder.Indent())
                             {
-                                var lines = batch.Sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-                                foreach (var line in lines)
-                                {
-                                    builder.AppendLine(line);
-                                }
+                                builder.AppendLines(batch.Sql);
                             }
-                            builder.AppendLine(_historyRepository.EndIf());
+                            builder.AppendLine(_historyRepository.GetEndIfScript());
                         }
                         else
                         {
@@ -295,7 +288,9 @@ namespace Microsoft.Data.Entity.Migrations
             migration.Up(migrationBuilder);
 
             var operations = migrationBuilder.Operations.ToList();
-            operations.Add(_historyRepository.GetInsertOperation(new HistoryRow(migration.Id, ProductVersion)));
+            // TODO: Append to batch instead
+            operations.Add(
+                new SqlOperation { Sql = _historyRepository.GetInsertScript(new HistoryRow(migration.Id, ProductVersion)) });
 
             var targetModel = _modelFactory.Create(migration.BuildTargetModel);
 
@@ -310,7 +305,8 @@ namespace Microsoft.Data.Entity.Migrations
             migration.Down(migrationBuilder);
             var operations = migrationBuilder.Operations.ToList();
 
-            operations.Add(_historyRepository.GetDeleteOperation(migration.Id));
+            // TODO: Append to batch instead
+            operations.Add(new SqlOperation { Sql = _historyRepository.GetDeleteScript(migration.Id) });
 
             // TODO: Pass source model?
             return _migrationSqlGenerator.Generate(operations);

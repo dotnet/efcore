@@ -388,6 +388,14 @@ namespace Microsoft.Data.Entity.Relational.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateTableName", "table", "schema", "entityType"), table, schema, entityType);
         }
 
+        /// <summary>
+        /// GetCreateScript only handles operations in a single batch without transaction suppression. For more advanced scenarios, override HistoryRepository.GetCreateScript in your provider.
+        /// </summary>
+        public static string InvalidCreateScript
+        {
+            get { return GetString("InvalidCreateScript"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.History
 {
-    public class HistoryRow : IHistoryRow
+    public class HistoryRow
     {
         public HistoryRow([NotNull] string migrationId, [NotNull] string productVersion)
         {
