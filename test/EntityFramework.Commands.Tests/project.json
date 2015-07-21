@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
+    "EntityFramework.Commands": "7.0.0-*",
+    "EntityFramework.Relational.Tests": "1.0.0"
+  },
+  "compile": "..\\..\\src\\EntityFramework.Commands\\tools\\Handlers.cs",
+  "commands": {
+    "test": "xunit.runner.dnx"
+  },
+  "frameworks": {
+    "net46": { },
+    "dnx451": { }
+  }
+}

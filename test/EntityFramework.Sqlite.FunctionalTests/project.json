@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "EntityFramework.Relational.FunctionalTests": "7.0.0-*",
+    "EntityFramework.Sqlite": "7.0.0-*"
+  },
+  "commands": {
+    "test": "xunit.runner.dnx"
+  },
+  "frameworks": {
+    "net46": { },
+    "dnx451": { },
+    "dnxcore50": { }
+  }
+}

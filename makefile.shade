@@ -15,8 +15,8 @@ k-standard-goals
     var BUILD_DIR = Path.Combine(TARGET_DIR, "build");
     var Configuration = E("Configuration") ?? "Debug";
 
-    var projectFiles = Files.Include("test/EntityFramework7.Relational.FunctionalTests/project.json")
-        .Include("test/EntityFramework7.Core.FunctionalTests/project.json");
+    var projectFiles = Files.Include("test/EntityFramework.Relational.FunctionalTests/project.json")
+        .Include("test/EntityFramework.Core.FunctionalTests/project.json");
     if (ShouldRunInParallel)
     {
         Parallel.ForEach(projectFiles, projectFile => DnuPack(projectFile, BUILD_DIR, Configuration));
@@ -49,15 +49,15 @@ k-standard-goals
             "packages");
 }
 
-var sqliteTestDir='test/EntityFramework7.Sqlite.FunctionalTests/bin/${E("Configuration")}'
+var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configuration")}'
 #copy-sqlite target='initialize' if='!IsMono && !IsTeamCity && !File.Exists(sqliteTestDir + "/x86/sqlite3.dll")'
     var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.Sqlite/*").OrderByDescending(d => d).First() + "/runtimes/win/native"}'
     copy outputDir='${sqliteTestDir}'
-    copy outputDir='test/EntityFramework7.CrossStore.FunctionalTests/bin/${E("Configuration")}'
+    copy outputDir='test/EntityFramework.CrossStore.FunctionalTests/bin/${E("Configuration")}'
 
 #nupkg-patch target='compile'
     @{
-        var packagePaths = Files.Include("artifacts/build/**/EntityFramework7.Commands.*.nupkg")
+        var packagePaths = Files.Include("artifacts/build/**/EntityFramework.Commands.*.nupkg")
             .Exclude("**/*.symbols.nupkg");
         foreach (var packagePath in packagePaths)
         {
@@ -65,39 +65,39 @@ var sqliteTestDir='test/EntityFramework7.Sqlite.FunctionalTests/bin/${E("Configu
             {
                 CreatePartFromFile(
                     package,
-                    @"src/EntityFramework7.Commands/build/netcore50/EntityFramework7.Commands.targets",
-                    @"build/netcore50/EntityFramework7.Commands.targets");
+                    @"src/EntityFramework.Commands/build/netcore50/EntityFramework.Commands.targets",
+                    @"build/netcore50/EntityFramework.Commands.targets");
                 CreatePartFromFile(
                     package,
-                    @"src/EntityFramework7.Commands/lib/netcore50/_._",
+                    @"src/EntityFramework.Commands/lib/netcore50/_._",
                     @"lib/netcore50/_._");
                 CreatePartFromFile(
                     package,
-                    @"src/EntityFramework7.Commands/tools/about_EntityFramework.help.txt",
+                    @"src/EntityFramework.Commands/tools/about_EntityFramework.help.txt",
                     @"tools/about_EntityFramework.help.txt");
                 CreatePartFromFile(
                     package,
-                    @"src/EntityFramework7.Commands/tools/EntityFramework.psd1",
+                    @"src/EntityFramework.Commands/tools/EntityFramework.psd1",
                     @"tools/EntityFramework.psd1");
                 CreatePartFromFile(
                     package,
-                    @"src/EntityFramework7.Commands/tools/EntityFramework.psm1",
+                    @"src/EntityFramework.Commands/tools/EntityFramework.psm1",
                     @"tools/EntityFramework.psm1");
                 CreatePartFromFile(
                     package,
-                    @"src/EntityFramework7.Commands/tools/Handlers.cs",
+                    @"src/EntityFramework.Commands/tools/Handlers.cs",
                     @"tools/Handlers.cs");
                 CreatePartFromFile(
                     package,
-                    @"src/EntityFramework7.Commands/IHandlers.cs",
+                    @"src/EntityFramework.Commands/IHandlers.cs",
                     @"tools/IHandlers.cs");
                 CreatePartFromFile(
                     package,
-                    @"src/EntityFramework7.Commands/tools/init.ps1",
+                    @"src/EntityFramework.Commands/tools/init.ps1",
                     @"tools/init.ps1");
                 CreatePartFromFile(
                     package,
-                    @"src/EntityFramework7.Commands/tools/install.ps1",
+                    @"src/EntityFramework.Commands/tools/install.ps1",
                     @"tools/install.ps1");
             }
         }
