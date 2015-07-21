@@ -68,8 +68,8 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
             }
 
 #if DNX451 || DNXCORE50
-            var libraryManager = CallContextServiceLocator.Locator.ServiceProvider.GetRequiredService<ILibraryManager>();
-            var libraryExport = libraryManager.GetLibraryExport(name);
+            var libraryExporter = CallContextServiceLocator.Locator.ServiceProvider.GetRequiredService<ILibraryExporter>();
+            var libraryExport = libraryExporter.GetLibraryExport(name);
             if (libraryExport != null)
             {
                 foreach(var metadataReference in libraryExport.MetadataReferences)

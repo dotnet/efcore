@@ -265,7 +265,7 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             var serviceCollection = new ServiceCollection();
 #if DNX451 || DNXCORE50
             // provides ILibraryManager etc services
-            var manifest = CallContextServiceLocator.Locator.ServiceProvider.GetRequiredService<IServiceManifest>();
+            var manifest = CallContextServiceLocator.Locator.ServiceProvider.GetRequiredService<IRuntimeServices>();
             if (manifest != null)
             {
                 foreach (var service in manifest.Services)

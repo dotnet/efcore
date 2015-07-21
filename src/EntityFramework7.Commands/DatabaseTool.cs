@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Commands
         {
             var serviceCollection = new ServiceCollection();
 #if DNX451 || DNXCORE50
-            var manifest = _serviceProvider.GetRequiredService<IServiceManifest>();
+            var manifest = _serviceProvider.GetRequiredService<IRuntimeServices>();
             if (manifest != null)
             {
                 foreach (var service in manifest.Services)

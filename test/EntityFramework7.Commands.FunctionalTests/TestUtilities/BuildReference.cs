@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
             var library = CallContextServiceLocator
                 .Locator
                 .ServiceProvider
-                .GetService<ILibraryManager>()
+                .GetService<ILibraryExporter>()
                 .GetLibraryExport(name);
             if (library != null)
             {
