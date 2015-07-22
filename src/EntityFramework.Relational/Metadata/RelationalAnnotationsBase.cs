@@ -3,12 +3,17 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
     public abstract class RelationalAnnotationsBase
     {
+        private readonly ConfigurationSource _configurationSource;
+
+        private readonly InternalMetadataBuilder _internalBuilder;
+
         protected RelationalAnnotationsBase(
             [NotNull] IAnnotatable metadata,
             [CanBeNull] string providerPrefix)
@@ -17,6 +22,21 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NullButNotEmpty(providerPrefix, nameof(providerPrefix));
 
             Metadata = metadata;
+            _configurationSource = ConfigurationSource.Explicit;
+            ProviderPrefix = providerPrefix;
+        }
+
+        protected RelationalAnnotationsBase(
+            [NotNull] InternalMetadataBuilder internalBuilder,
+            ConfigurationSource configurationSource,
+            [CanBeNull] string providerPrefix)
+        {
+            Check.NotNull(internalBuilder, nameof(internalBuilder));
+            Check.NullButNotEmpty(providerPrefix, nameof(providerPrefix));
+
+            Metadata = internalBuilder.Metadata;
+            _internalBuilder = internalBuilder;
+            _configurationSource = configurationSource;
             ProviderPrefix = providerPrefix;
         }
 
@@ -36,7 +56,16 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(annotationName, nameof(annotationName));
 
-            ((Annotatable)Metadata)[(ProviderPrefix ?? RelationalAnnotationNames.Prefix) + annotationName] = value;
+            var fullName = (ProviderPrefix ?? RelationalAnnotationNames.Prefix) + annotationName;
+
+            if (_configurationSource != ConfigurationSource.Explicit)
+            {
+                _internalBuilder.Annotation(fullName, value, _configurationSource);
+            }
+            else
+            {
+                ((Annotatable)Metadata)[fullName] = value;
+            }
         }
 
         protected virtual object GetAnnotation([NotNull] IAnnotatable metadata, [NotNull] string annotationName)
@@ -46,14 +75,6 @@ namespace Microsoft.Data.Entity.Metadata
 
             return (ProviderPrefix == null ? null : metadata[ProviderPrefix + annotationName])
                    ?? metadata[RelationalAnnotationNames.Prefix + annotationName];
-        }
-
-        protected virtual void SetAnnotation([NotNull] IAnnotatable metadata, [NotNull] string annotationName, [CanBeNull] object value)
-        {
-            Check.NotNull(metadata, nameof(metadata));
-            Check.NotEmpty(annotationName, nameof(annotationName));
-
-            ((Annotatable)metadata)[(ProviderPrefix ?? RelationalAnnotationNames.Prefix) + annotationName] = value;
         }
     }
 }

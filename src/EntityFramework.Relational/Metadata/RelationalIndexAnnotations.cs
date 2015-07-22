@@ -3,6 +3,7 @@
 
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -11,6 +12,14 @@ namespace Microsoft.Data.Entity.Metadata
     {
         public RelationalIndexAnnotations([NotNull] IIndex key, [CanBeNull] string providerPrefix)
             : base(key, providerPrefix)
+        {
+        }
+
+        public RelationalIndexAnnotations(
+            [NotNull] InternalIndexBuilder internalBuilder,
+            ConfigurationSource configurationSource,
+            [CanBeNull] string providerPrefix)
+            : base(internalBuilder, configurationSource, providerPrefix)
         {
         }
 

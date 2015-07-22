@@ -16,12 +16,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             if (!string.IsNullOrWhiteSpace(attribute.Schema))
             {
-                entityTypeBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.Schema, attribute.Schema, ConfigurationSource.DataAnnotation);
+                entityTypeBuilder.Relational(ConfigurationSource.DataAnnotation).Schema = attribute.Schema;
             }
 
             if (!string.IsNullOrWhiteSpace(attribute.Name))
             {
-                entityTypeBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.TableName, attribute.Name, ConfigurationSource.DataAnnotation);
+                entityTypeBuilder.Relational(ConfigurationSource.DataAnnotation).TableName = attribute.Name;
             }
 
             return entityTypeBuilder;

@@ -180,6 +180,7 @@
     <Compile Include="Metadata\Conventions\Internal\RelationshipDiscoveryConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RequiredPropertyAttributeConvention.cs" />
     <Compile Include="Metadata\CoreAnnotationNames.cs" />
+    <Compile Include="Metadata\Internal\InternalMetadataBuilder`.cs" />
     <Compile Include="Metadata\Internal\MetadataHelper.cs" />
     <Compile Include="Metadata\ValueGenerated.cs" />
     <Compile Include="Infrastructure\CoreOptionsExtension.cs" />

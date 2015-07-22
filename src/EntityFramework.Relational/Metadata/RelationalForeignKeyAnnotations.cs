@@ -3,6 +3,7 @@
 
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -11,6 +12,14 @@ namespace Microsoft.Data.Entity.Metadata
     {
         public RelationalForeignKeyAnnotations([NotNull] IForeignKey foreignKey, [CanBeNull] string providerPrefix)
             : base(foreignKey, providerPrefix)
+        {
+        }
+
+        public RelationalForeignKeyAnnotations(
+            [NotNull] InternalRelationshipBuilder internalBuilder,
+            ConfigurationSource configurationSource,
+            [CanBeNull] string providerPrefix)
+            : base(internalBuilder, configurationSource, providerPrefix)
         {
         }
 

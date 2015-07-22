@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
@@ -10,6 +11,13 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     {
         public SqlServerKeyAnnotations([NotNull] IKey key)
             : base(key, SqlServerAnnotationNames.Prefix)
+        {
+        }
+
+        public SqlServerKeyAnnotations(
+            [NotNull] InternalKeyBuilder internalBuilder,
+            ConfigurationSource configurationSource)
+            : base(internalBuilder, configurationSource, SqlServerAnnotationNames.Prefix)
         {
         }
 

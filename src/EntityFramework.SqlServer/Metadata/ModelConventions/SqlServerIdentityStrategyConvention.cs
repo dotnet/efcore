@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.SqlServer.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
 {
@@ -10,10 +11,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
     {
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
-            modelBuilder.Annotation(
-                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy,
-                SqlServerIdentityStrategy.IdentityColumn,
-                ConfigurationSource.Convention);
+            modelBuilder.SqlServer(ConfigurationSource.Convention).IdentityStrategy
+                = SqlServerIdentityStrategy.IdentityColumn;
+
             return modelBuilder;
         }
     }

@@ -64,6 +64,7 @@
     <Compile Include="Metadata\Builders\SqliteIndexBuilderExtensions.cs" />
     <Compile Include="Metadata\Builders\SqliteKeyBuilderExtensions.cs" />
     <Compile Include="Metadata\Builders\SqlitePropertyBuilderExtensions.cs" />
+    <Compile Include="Metadata\Internal\SqliteInternalMetadataBuilderExtensions.cs" />
     <Compile Include="Metadata\SqliteAnnotationNames.cs" />
     <Compile Include="Metadata\SqliteMetadataExtensionProvider.cs" />
     <Compile Include="Metadata\SqliteMetadataExtensions.cs" />

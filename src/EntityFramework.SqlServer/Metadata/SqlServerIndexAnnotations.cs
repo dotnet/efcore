@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
@@ -10,6 +11,13 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     {
         public SqlServerIndexAnnotations([NotNull] IIndex index)
             : base(index, SqlServerAnnotationNames.Prefix)
+        {
+        }
+
+        public SqlServerIndexAnnotations(
+            [NotNull] InternalIndexBuilder internalBuilder,
+            ConfigurationSource configurationSource)
+            : base(internalBuilder, configurationSource, SqlServerAnnotationNames.Prefix)
         {
         }
 
