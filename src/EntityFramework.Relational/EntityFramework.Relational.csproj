@@ -63,6 +63,7 @@
     <Compile Include="Metadata\Conventions\Internal\RelationalConventionSetBuilder.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationalTableAttributeConvention.cs" />
     <Compile Include="Metadata\IRelationalMetadataExtensionProvider.cs" />
+    <Compile Include="Metadata\RelationalAnnotationsBase.cs" />
     <Compile Include="Metadata\RelationalEntityTypeExtensions.cs" />
     <Compile Include="Metadata\RelationalModelExtensions.cs" />
     <Compile Include="Metadata\RelationalPropertyExtensions.cs" />
@@ -95,12 +96,6 @@
     <Compile Include="Metadata\IRelationalModelAnnotations.cs" />
     <Compile Include="Metadata\IRelationalPropertyAnnotations.cs" />
     <Compile Include="Metadata\ISequence.cs" />
-    <Compile Include="Metadata\ReadOnlyRelationalEntityTypeAnnotations.cs" />
-    <Compile Include="Metadata\ReadOnlyRelationalForeignKeyAnnotations.cs" />
-    <Compile Include="Metadata\ReadOnlyRelationalIndexAnnotations.cs" />
-    <Compile Include="Metadata\ReadOnlyRelationalKeyAnnotations.cs" />
-    <Compile Include="Metadata\ReadOnlyRelationalModelAnnotations.cs" />
-    <Compile Include="Metadata\ReadOnlyRelationalPropertyAnnotations.cs" />
     <Compile Include="Metadata\RelationalAnnotationNames.cs" />
     <Compile Include="RelationalEntityTypeBuilderExtensions.cs" />
     <Compile Include="Metadata\RelationalEntityTypeAnnotations.cs" />

@@ -1,75 +1,41 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public class SqlServerModelAnnotations : ReadOnlySqlServerModelAnnotations
+    public class SqlServerModelAnnotations : RelationalModelAnnotations, ISqlServerModelAnnotations
     {
-        public SqlServerModelAnnotations([NotNull] Model model)
-            : base(model)
+        public SqlServerModelAnnotations([NotNull] IModel model)
+            : base(model, SqlServerAnnotationNames.Prefix)
         {
         }
 
-        [CanBeNull]
-        public new virtual SqlServerIdentityStrategy? IdentityStrategy
+        public virtual SqlServerIdentityStrategy? IdentityStrategy
         {
-            get { return base.IdentityStrategy; }
-            [param: CanBeNull]
-            set
-            {
-                // TODO: Issue #777: Non-string annotations
-                ((Model)Model)[SqlServerValueGenerationAnnotation] = value?.ToString();
-            }
+            get { return (SqlServerIdentityStrategy?)GetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy); }
+            [param: CanBeNull] set { SetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value); }
         }
 
-        public new virtual string HiLoSequenceName
+        public virtual string HiLoSequenceName
         {
-            get { return base.HiLoSequenceName; }
-            [param: CanBeNull]
-            set
-            {
-                Check.NullButNotEmpty(value, nameof(value));
-
-                ((Model)Model)[SqlServerHiLoSequenceNameAnnotation] = value;
-            }
+            get { return (string)GetAnnotation(SqlServerAnnotationNames.HiLoSequenceName); }
+            [param: CanBeNull] set { SetAnnotation(SqlServerAnnotationNames.HiLoSequenceName, Check.NullButNotEmpty(value, nameof(value))); }
         }
 
-        public new virtual string HiLoSequenceSchema
+        public virtual string HiLoSequenceSchema
         {
-            get { return base.HiLoSequenceSchema; }
-            [param: CanBeNull]
-            set
-            {
-                Check.NullButNotEmpty(value, nameof(value));
-
-                ((Model)Model)[SqlServerHiLoSequenceSchemaAnnotation] = value;
-            }
+            get { return (string)GetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema); }
+            [param: CanBeNull] set { SetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, Check.NullButNotEmpty(value, nameof(value))); }
         }
 
-        [CanBeNull]
-        public new virtual int? HiLoSequencePoolSize
+        public virtual int? HiLoSequencePoolSize
         {
-            get { return base.HiLoSequencePoolSize; }
-            [param: CanBeNull] set
-            {
-                if (value <= 0)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value), Internal.Strings.HiLoBadPoolSize);
-                }
-
-                ((Model)Model)[SqlServerHiLoSequencePoolSizeAnnotation] = value;
-            }
+            get { return (int?)GetAnnotation(SqlServerAnnotationNames.HiLoSequencePoolSize); }
+            [param: CanBeNull] set { SetAnnotation(SqlServerAnnotationNames.HiLoSequencePoolSize, value); }
         }
-        public virtual Sequence GetOrAddSequence([CanBeNull] string name, [CanBeNull] string schema = null)
-            => new Sequence(
-                (Model)Model,
-                SqlServerAnnotationNames.Prefix,
-                Check.NotEmpty(name, nameof(name)),
-                Check.NullButNotEmpty(schema, nameof(schema)));
     }
 }

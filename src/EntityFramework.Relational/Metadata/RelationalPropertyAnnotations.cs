@@ -6,59 +6,47 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class RelationalPropertyAnnotations : ReadOnlyRelationalPropertyAnnotations
+    public class RelationalPropertyAnnotations : RelationalAnnotationsBase, IRelationalPropertyAnnotations
     {
-        public RelationalPropertyAnnotations([NotNull] Property property)
-            : base(property)
+        public RelationalPropertyAnnotations([NotNull] IProperty property, [CanBeNull] string providerPrefix)
+            : base(property, providerPrefix)
         {
         }
 
-        public new virtual string ColumnName
+        protected virtual IProperty Property => (IProperty)Metadata;
+
+        public virtual string ColumnName
         {
-            get { return base.ColumnName; }
-            [param: CanBeNull]
-            set
+            get { return (string)GetAnnotation(RelationalAnnotationNames.ColumnName) ?? Property.Name; }
+            [param: CanBeNull] set { SetAnnotation(RelationalAnnotationNames.ColumnName, Check.NullButNotEmpty(value, nameof(value))); }
+        }
+
+        public virtual string ColumnType
+        {
+            get { return (string)GetAnnotation(RelationalAnnotationNames.ColumnType); }
+            [param: CanBeNull] set { SetAnnotation(RelationalAnnotationNames.ColumnType, Check.NullButNotEmpty(value, nameof(value))); }
+        }
+
+        public virtual string GeneratedValueSql
+        {
+            get { return (string)GetAnnotation(RelationalAnnotationNames.GeneratedValueSql); }
+            [param: CanBeNull] set { SetAnnotation(RelationalAnnotationNames.GeneratedValueSql, Check.NullButNotEmpty(value, nameof(value))); }
+        }
+
+        public virtual object DefaultValue
+        {
+            get
             {
-                Check.NullButNotEmpty(value, nameof(value));
-
-                ((Property)Property)[NameAnnotation] = value;
+                return new TypedAnnotation(
+                    (string)GetAnnotation(RelationalAnnotationNames.DefaultValueType),
+                    (string)GetAnnotation(RelationalAnnotationNames.DefaultValue)).Value;
             }
-        }
-
-        public new virtual string ColumnType
-        {
-            get { return base.ColumnType; }
-            [param: CanBeNull]
-            set
-            {
-                Check.NullButNotEmpty(value, nameof(value));
-
-                ((Property)Property)[ColumnTypeAnnotation] = value;
-            }
-        }
-
-        public new virtual string GeneratedValueSql
-        {
-            get { return base.GeneratedValueSql; }
-            [param: CanBeNull]
-            set
-            {
-                Check.NullButNotEmpty(value, nameof(value));
-
-                ((Property)Property)[GeneratedValueSqlAnnotation] = value;
-            }
-        }
-
-        public new virtual object DefaultValue
-        {
-            get { return base.DefaultValue; }
             [param: CanBeNull]
             set
             {
                 var typedAnnotation = new TypedAnnotation(value);
-
-                ((Property)Property)[DefaultValueTypeAnnotation] = typedAnnotation.TypeString;
-                ((Property)Property)[DefaultValueAnnotation] = typedAnnotation.ValueString;
+                SetAnnotation(RelationalAnnotationNames.DefaultValueType, typedAnnotation.TypeString);
+                SetAnnotation(RelationalAnnotationNames.DefaultValue, typedAnnotation.ValueString);
             }
         }
     }

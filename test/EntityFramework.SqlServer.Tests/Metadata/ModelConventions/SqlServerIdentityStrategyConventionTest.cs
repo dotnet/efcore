@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.Conventions
             Assert.Equal(1, model.Annotations.Count());
 
             Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy, model.Annotations.Single().Name);
-            Assert.Equal(SqlServerIdentityStrategy.IdentityColumn.ToString(), model.Annotations.Single().Value);
+            Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, model.Annotations.Single().Value);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.Conventions
             Assert.NotNull(annotations.ElementAt(1).Value);
 
             Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy, annotations.ElementAt(2).Name);
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo.ToString(), annotations.ElementAt(2).Value);
+            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, annotations.ElementAt(2).Value);
         }
     }
 }

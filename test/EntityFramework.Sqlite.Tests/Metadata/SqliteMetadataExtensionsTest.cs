@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         }
 
         [Fact]
-        public void Cant_get_schema_name()
+        public void Can_get_schema_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
@@ -80,8 +80,8 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
 
             entityType.Relational().Schema = "db0";
 
-            Assert.Null(entityType.Sqlite().Schema);
-            Assert.Null(((IEntityType)entityType).Sqlite().Schema);
+            Assert.Equal("db0", entityType.Sqlite().Schema);
+            Assert.Equal("db0", ((IEntityType)entityType).Sqlite().Schema);
         }
 
         [Fact]
@@ -236,26 +236,72 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         }
 
         [Fact]
-        public void Cant_get_sequence()
+        public void Can_get_and_set_sequence()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
 
+            Assert.Null(model.Relational().FindSequence("Foo"));
+            Assert.Null(((IModel)model).Relational().FindSequence("Foo"));
             Assert.Null(model.Sqlite().FindSequence("Foo"));
             Assert.Null(((IModel)model).Sqlite().FindSequence("Foo"));
 
-            var sequence = model.Relational().GetOrAddSequence("Foo");
+            var sequence = model.Sqlite().GetOrAddSequence("Foo");
 
-            Assert.Null(model.Sqlite().FindSequence("Foo"));
-            Assert.Null(((IModel)model).Sqlite().FindSequence("Foo"));
+            Assert.Null(model.Relational().FindSequence("Foo"));
+            Assert.Null(((IModel)model).Relational().FindSequence("Foo"));
+            Assert.Equal("Foo", model.Sqlite().FindSequence("Foo").Name);
+            Assert.Equal("Foo", ((IModel)model).Sqlite().FindSequence("Foo").Name);
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(1, sequence.IncrementBy);
+            Assert.Equal(1, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(typeof(long), sequence.ClrType);
+
+            Assert.Null(model.Relational().FindSequence("Foo"));
+
+            var sequence2 = model.Sqlite().FindSequence("Foo");
+
+            sequence.StartValue = 1729;
+            sequence.IncrementBy = 11;
+            sequence.MinValue = 2001;
+            sequence.MaxValue = 2010;
+            sequence.ClrType = typeof(int);
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(2001, sequence.MinValue);
+            Assert.Equal(2010, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.ClrType);
+
+            Assert.Equal(sequence2.Name, sequence.Name);
+            Assert.Equal(sequence2.Schema, sequence.Schema);
+            Assert.Equal(sequence2.IncrementBy, sequence.IncrementBy);
+            Assert.Equal(sequence2.StartValue, sequence.StartValue);
+            Assert.Equal(sequence2.MinValue, sequence.MinValue);
+            Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
+            Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
 
         [Fact]
-        public void Cant_get_multiple_sequences()
+        public void Can_get_multiple_sequences()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
 
-            Assert.Empty(modelBuilder.Model.Sqlite().Sequences);
+            model.Relational().GetOrAddSequence("Fibonacci");
+            model.Sqlite().GetOrAddSequence("Golomb");
+
+            var sequences = model.Sqlite().Sequences;
+
+            Assert.Equal(2, sequences.Count);
+            Assert.Contains(sequences, s => s.Name == "Fibonacci");
+            Assert.Contains(sequences, s => s.Name == "Golomb");
         }
 
         private class Customer

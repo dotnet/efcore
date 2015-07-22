@@ -863,7 +863,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             foreach (var annotation in source)
             {
-                var index = unmatched.FindIndex(a => a.Name == annotation.Name && a.Value == annotation.Value);
+                var index = unmatched.FindIndex(a => a.Name == annotation.Name && Equals(a.Value, annotation.Value));
                 if (index == -1)
                 {
                     return true;

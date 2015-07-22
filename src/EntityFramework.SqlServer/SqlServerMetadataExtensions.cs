@@ -13,39 +13,39 @@ namespace Microsoft.Data.Entity
     public static class SqlServerMetadataExtensions
     {
         public static SqlServerPropertyAnnotations SqlServer([NotNull] this Property property)
-            => new SqlServerPropertyAnnotations(Check.NotNull(property, nameof(property)));
+            => (SqlServerPropertyAnnotations)SqlServer((IProperty)property);
 
         public static ISqlServerPropertyAnnotations SqlServer([NotNull] this IProperty property)
-            => new ReadOnlySqlServerPropertyAnnotations(Check.NotNull(property, nameof(property)));
+            => new SqlServerPropertyAnnotations(Check.NotNull(property, nameof(property)));
 
-        public static SqlServerEntityTypeAnnotations SqlServer([NotNull] this EntityType entityType)
-            => new SqlServerEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)));
+        public static RelationalEntityTypeAnnotations SqlServer([NotNull] this EntityType entityType)
+            => (RelationalEntityTypeAnnotations)SqlServer((IEntityType)entityType);
 
-        public static ISqlServerEntityTypeAnnotations SqlServer([NotNull] this IEntityType entityType)
-            => new ReadOnlySqlServerEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)));
+        public static IRelationalEntityTypeAnnotations SqlServer([NotNull] this IEntityType entityType)
+            => new RelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)), SqlServerAnnotationNames.Prefix);
 
         public static SqlServerKeyAnnotations SqlServer([NotNull] this Key key)
-            => new SqlServerKeyAnnotations(Check.NotNull(key, nameof(key)));
+            => (SqlServerKeyAnnotations)SqlServer((IKey)key);
 
         public static ISqlServerKeyAnnotations SqlServer([NotNull] this IKey key)
-            => new ReadOnlySqlServerKeyAnnotations(Check.NotNull(key, nameof(key)));
+            => new SqlServerKeyAnnotations(Check.NotNull(key, nameof(key)));
 
         public static SqlServerIndexAnnotations SqlServer([NotNull] this Index index)
-            => new SqlServerIndexAnnotations(Check.NotNull(index, nameof(index)));
+            => (SqlServerIndexAnnotations)SqlServer((IIndex)index);
 
         public static ISqlServerIndexAnnotations SqlServer([NotNull] this IIndex index)
-            => new ReadOnlySqlServerIndexAnnotations(Check.NotNull(index, nameof(index)));
+            => new SqlServerIndexAnnotations(Check.NotNull(index, nameof(index)));
 
-        public static SqlServerForeignKeyAnnotations SqlServer([NotNull] this ForeignKey foreignKey)
-            => new SqlServerForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)));
+        public static IRelationalForeignKeyAnnotations SqlServer([NotNull] this IForeignKey foreignKey)
+            => new RelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)), SqlServerAnnotationNames.Prefix);
 
-        public static ISqlServerForeignKeyAnnotations SqlServer([NotNull] this IForeignKey foreignKey)
-            => new ReadOnlySqlServerForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)));
+        public static RelationalForeignKeyAnnotations SqlServer([NotNull] this ForeignKey foreignKey)
+            => (RelationalForeignKeyAnnotations)SqlServer((IForeignKey)foreignKey);
 
         public static SqlServerModelAnnotations SqlServer([NotNull] this Model model)
-            => new SqlServerModelAnnotations(Check.NotNull(model, nameof(model)));
+            => (SqlServerModelAnnotations)SqlServer((IModel)model);
 
         public static ISqlServerModelAnnotations SqlServer([NotNull] this IModel model)
-            => new ReadOnlySqlServerModelAnnotations(Check.NotNull(model, nameof(model)));
+            => new SqlServerModelAnnotations(Check.NotNull(model, nameof(model)));
     }
 }

@@ -12,39 +12,39 @@ namespace Microsoft.Data.Entity
     public static class RelationalMetadataExtensions
     {
         public static RelationalPropertyAnnotations Relational([NotNull] this Property property)
-            => new RelationalPropertyAnnotations(Check.NotNull(property, nameof(property)));
+            => (RelationalPropertyAnnotations)Relational((IProperty)property);
 
         public static IRelationalPropertyAnnotations Relational([NotNull] this IProperty property)
-            => new ReadOnlyRelationalPropertyAnnotations(Check.NotNull(property, nameof(property)));
+            => new RelationalPropertyAnnotations(Check.NotNull(property, nameof(property)), null);
 
         public static RelationalEntityTypeAnnotations Relational([NotNull] this EntityType entityType)
-            => new RelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)));
+            => (RelationalEntityTypeAnnotations)Relational((IEntityType)entityType);
 
         public static IRelationalEntityTypeAnnotations Relational([NotNull] this IEntityType entityType)
-            => new ReadOnlyRelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)));
+            => new RelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)), null);
 
         public static RelationalKeyAnnotations Relational([NotNull] this Key key)
-            => new RelationalKeyAnnotations(Check.NotNull(key, nameof(key)));
+            => (RelationalKeyAnnotations)Relational((IKey)key);
 
         public static IRelationalKeyAnnotations Relational([NotNull] this IKey key)
-            => new ReadOnlyRelationalKeyAnnotations(Check.NotNull(key, nameof(key)));
+            => new RelationalKeyAnnotations(Check.NotNull(key, nameof(key)), null);
 
         public static RelationalIndexAnnotations Relational([NotNull] this Index index)
-            => new RelationalIndexAnnotations(Check.NotNull(index, nameof(index)));
+            => (RelationalIndexAnnotations)Relational((IIndex)index);
 
         public static IRelationalIndexAnnotations Relational([NotNull] this IIndex index)
-            => new ReadOnlyRelationalIndexAnnotations(Check.NotNull(index, nameof(index)));
+            => new RelationalIndexAnnotations(Check.NotNull(index, nameof(index)), null);
 
         public static RelationalForeignKeyAnnotations Relational([NotNull] this ForeignKey foreignKey)
-            => new RelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)));
+            => (RelationalForeignKeyAnnotations)Relational((IForeignKey)foreignKey);
 
         public static IRelationalForeignKeyAnnotations Relational([NotNull] this IForeignKey foreignKey)
-            => new ReadOnlyRelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)));
+            => new RelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)), null);
 
         public static RelationalModelAnnotations Relational([NotNull] this Model model)
-            => new RelationalModelAnnotations(Check.NotNull(model, nameof(model)));
+            => (RelationalModelAnnotations)Relational((IModel)model);
 
         public static IRelationalModelAnnotations Relational([NotNull] this IModel model)
-            => new ReadOnlyRelationalModelAnnotations(Check.NotNull(model, nameof(model)));
+            => new RelationalModelAnnotations(Check.NotNull(model, nameof(model)), null);
     }
 }
