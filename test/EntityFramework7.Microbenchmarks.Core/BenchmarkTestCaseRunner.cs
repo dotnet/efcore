@@ -12,6 +12,9 @@ using Xunit.Sdk;
 using Microsoft.Framework.Configuration;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Infrastructure;
+using XunitDiagnosticMessage = Xunit.DiagnosticMessage;
+#else
+using XunitDiagnosticMessage = Xunit.Sdk.DiagnosticMessage;
 #endif
 
 namespace EntityFramework.Microbenchmarks.Core
@@ -81,7 +84,7 @@ namespace EntityFramework.Microbenchmarks.Core
             }
 
             runSummary.PopulateMetrics();
-            _diagnosticMessageSink.OnMessage(new DiagnosticMessage(runSummary.ToString()));
+            _diagnosticMessageSink.OnMessage(new XunitDiagnosticMessage(runSummary.ToString()));
 
             if (BenchmarkConfig.Instance.ResultsDatabase != null)
             {
