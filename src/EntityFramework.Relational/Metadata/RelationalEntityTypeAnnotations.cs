@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -12,6 +13,14 @@ namespace Microsoft.Data.Entity.Metadata
     {
         public RelationalEntityTypeAnnotations([NotNull] IEntityType entityType, [CanBeNull] string providerPrefix)
             : base(entityType, providerPrefix)
+        {
+        }
+
+        public RelationalEntityTypeAnnotations(
+            [NotNull] InternalEntityTypeBuilder internalBuilder,
+            ConfigurationSource configurationSource,
+            [CanBeNull] string providerPrefix)
+            : base(internalBuilder, configurationSource, providerPrefix)
         {
         }
 

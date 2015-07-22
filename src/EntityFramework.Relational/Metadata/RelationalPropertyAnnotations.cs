@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -10,6 +11,14 @@ namespace Microsoft.Data.Entity.Metadata
     {
         public RelationalPropertyAnnotations([NotNull] IProperty property, [CanBeNull] string providerPrefix)
             : base(property, providerPrefix)
+        {
+        }
+
+        public RelationalPropertyAnnotations(
+            [NotNull] InternalPropertyBuilder internalBuilder,
+            ConfigurationSource configurationSource,
+            [CanBeNull] string providerPrefix)
+            : base(internalBuilder, configurationSource, providerPrefix)
         {
         }
 

@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
@@ -12,6 +13,13 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     {
         public SqlServerPropertyAnnotations([NotNull] IProperty property)
             : base(property, SqlServerAnnotationNames.Prefix)
+        {
+        }
+
+        public SqlServerPropertyAnnotations(
+            [NotNull] InternalPropertyBuilder internalBuilder,
+            ConfigurationSource configurationSource)
+            : base(internalBuilder, configurationSource, SqlServerAnnotationNames.Prefix)
         {
         }
 
@@ -34,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value), Internal.Strings.HiLoBadPoolSize);
+                    throw new ArgumentOutOfRangeException(nameof(value), Entity.Internal.Strings.HiLoBadPoolSize);
                 }
 
                 SetAnnotation(SqlServerAnnotationNames.HiLoSequencePoolSize, value);

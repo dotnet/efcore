@@ -8,17 +8,14 @@ using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public abstract class InternalMetadataBuilder<TMetadata>
-        where TMetadata : Annotatable
+    public abstract class InternalMetadataBuilder
     {
-        private readonly TMetadata _metadata;
-
         private readonly LazyRef<Dictionary<string, ConfigurationSource>> _annotationSources =
             new LazyRef<Dictionary<string, ConfigurationSource>>(() => new Dictionary<string, ConfigurationSource>());
 
-        protected InternalMetadataBuilder([NotNull] TMetadata metadata)
+        protected InternalMetadataBuilder([NotNull] Annotatable metadata)
         {
-            _metadata = metadata;
+            Metadata = metadata;
         }
 
         public virtual bool Annotation(
@@ -45,18 +42,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (value != null)
             {
                 _annotationSources.Value[annotation] = configurationSource;
-                _metadata[annotation] = value;
+                Metadata[annotation] = value;
             }
             else
             {
                 _annotationSources.Value.Remove(annotation);
-                _metadata.RemoveAnnotation(new Annotation(annotation, "_"));
+                Metadata.RemoveAnnotation(new Annotation(annotation, "_"));
             }
 
             return true;
         }
 
-        public virtual TMetadata Metadata => _metadata;
+        public virtual Annotatable Metadata { get; }
 
         public abstract InternalModelBuilder ModelBuilder { get; }
     }

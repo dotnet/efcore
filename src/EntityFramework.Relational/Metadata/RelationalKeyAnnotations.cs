@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -12,6 +13,14 @@ namespace Microsoft.Data.Entity.Metadata
     {
         public RelationalKeyAnnotations([NotNull] IKey key, [CanBeNull] string providerPrefix)
             : base(key, providerPrefix)
+        {
+        }
+
+        public RelationalKeyAnnotations(
+            [NotNull] InternalKeyBuilder internalBuilder,
+            ConfigurationSource configurationSource,
+            [CanBeNull] string providerPrefix)
+            : base(internalBuilder, configurationSource, providerPrefix)
         {
         }
 

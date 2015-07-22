@@ -62,6 +62,7 @@
     <Compile Include="Metadata\Conventions\Internal\RelationalColumnAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationalConventionSetBuilder.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationalTableAttributeConvention.cs" />
+    <Compile Include="Metadata\Internal\RelationalInternalMetadataBuilderExtensions.cs" />
     <Compile Include="Metadata\IRelationalMetadataExtensionProvider.cs" />
     <Compile Include="Metadata\RelationalAnnotationsBase.cs" />
     <Compile Include="Metadata\RelationalEntityTypeExtensions.cs" />

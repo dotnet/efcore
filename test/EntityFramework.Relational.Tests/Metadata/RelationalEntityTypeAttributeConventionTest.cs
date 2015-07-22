@@ -30,7 +30,6 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal("MySchema", entityBuilder.Metadata.Relational().Schema);
         }
 
-
         [Fact]
         public void TableAttribute_overrides_configuration_from_convention_source()
         {
@@ -68,7 +67,6 @@ namespace Microsoft.Data.Entity.Metadata
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
-
 
         private class TestConventionalSetBuilder : RelationalConventionSetBuilder
         {

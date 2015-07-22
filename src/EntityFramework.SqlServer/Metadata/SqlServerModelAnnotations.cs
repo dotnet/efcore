@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
@@ -11,6 +12,13 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     {
         public SqlServerModelAnnotations([NotNull] IModel model)
             : base(model, SqlServerAnnotationNames.Prefix)
+        {
+        }
+
+        public SqlServerModelAnnotations(
+            [NotNull] InternalModelBuilder internalBuilder,
+            ConfigurationSource configurationSource)
+            : base(internalBuilder, configurationSource, SqlServerAnnotationNames.Prefix)
         {
         }
 
