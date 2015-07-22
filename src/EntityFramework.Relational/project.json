@@ -1,0 +1,33 @@
+{
+  "version": "7.0.0-*",
+  "description": "Shared Entity Framework components for relational data stores.",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aspnet/entityframework"
+  },
+  "compilationOptions": {
+    "warningsAsErrors": true
+  },
+  "dependencies": {
+    "EntityFramework.Core": "7.0.0-*"
+  },
+  "compile": "..\\Shared\\*.cs",
+  "namedResource": {
+    "EntityFramework.Relational.Strings": "Properties/Strings.resx"
+  },
+  "frameworks": {
+    "net45": {
+      "frameworkAssemblies": {
+        "System.Data": "4.0.0.0",
+        "System.Transactions": "4.0.0.0"
+      }
+    },
+    "dotnet": {
+      "dependencies": {
+        "System.Data.Common": "4.0.0-*",
+        "System.Text.RegularExpressions": "4.0.10-*",
+        "Microsoft.CSharp": "4.0.0-*"
+      }
+    }
+  }
+}

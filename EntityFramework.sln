@@ -7,59 +7,59 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{35BED7DE-CA6
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{547020C0-976F-4542-81CE-7FD465595614}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Core", "src\EntityFramework7.Core\EntityFramework7.Core.csproj", "{71415CEC-8111-4C73-8751-512D22F10602}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Core", "src\EntityFramework.Core\EntityFramework.Core.csproj", "{71415CEC-8111-4C73-8751-512D22F10602}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.InMemory", "src\EntityFramework7.InMemory\EntityFramework7.InMemory.csproj", "{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.InMemory", "src\EntityFramework.InMemory\EntityFramework.InMemory.csproj", "{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Relational", "src\EntityFramework7.Relational\EntityFramework7.Relational.csproj", "{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Relational", "src\EntityFramework.Relational\EntityFramework.Relational.csproj", "{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.SqlServer", "src\EntityFramework7.SqlServer\EntityFramework7.SqlServer.csproj", "{04E6620B-5B41-45FE-981A-F40EB7686B0E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SqlServer", "src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj", "{04E6620B-5B41-45FE-981A-F40EB7686B0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Core.Tests", "test\EntityFramework7.Core.Tests\EntityFramework7.Core.Tests.csproj", "{EF361118-7D0D-453E-ADA4-2F24FBEE196C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Core.Tests", "test\EntityFramework.Core.Tests\EntityFramework.Core.Tests.csproj", "{EF361118-7D0D-453E-ADA4-2F24FBEE196C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.SqlServer.Tests", "test\EntityFramework7.SqlServer.Tests\EntityFramework7.SqlServer.Tests.csproj", "{3159FABC-0C89-41FF-A279-48665CC068DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SqlServer.Tests", "test\EntityFramework.SqlServer.Tests\EntityFramework.SqlServer.Tests.csproj", "{3159FABC-0C89-41FF-A279-48665CC068DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Relational.Tests", "test\EntityFramework7.Relational.Tests\EntityFramework7.Relational.Tests.csproj", "{001005B3-D16F-4399-9265-A67D619652BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Relational.Tests", "test\EntityFramework.Relational.Tests\EntityFramework.Relational.Tests.csproj", "{001005B3-D16F-4399-9265-A67D619652BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.InMemory.Tests", "test\EntityFramework7.InMemory.Tests\EntityFramework7.InMemory.Tests.csproj", "{81EF720B-EC6D-456F-9FA6-71DA7D4ED3BF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.InMemory.Tests", "test\EntityFramework.InMemory.Tests\EntityFramework.InMemory.Tests.csproj", "{81EF720B-EC6D-456F-9FA6-71DA7D4ED3BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Core.FunctionalTests", "test\EntityFramework7.Core.FunctionalTests\EntityFramework7.Core.FunctionalTests.csproj", "{6AB933C7-DE2A-45F2-BDC6-E71A01EF7756}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Core.FunctionalTests", "test\EntityFramework.Core.FunctionalTests\EntityFramework.Core.FunctionalTests.csproj", "{6AB933C7-DE2A-45F2-BDC6-E71A01EF7756}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.SqlServer.FunctionalTests", "test\EntityFramework7.SqlServer.FunctionalTests\EntityFramework7.SqlServer.FunctionalTests.csproj", "{FA789ED6-2AAC-4BAA-A4FB-B600BE2DA956}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SqlServer.FunctionalTests", "test\EntityFramework.SqlServer.FunctionalTests\EntityFramework.SqlServer.FunctionalTests.csproj", "{FA789ED6-2AAC-4BAA-A4FB-B600BE2DA956}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.InMemory.FunctionalTests", "test\EntityFramework7.InMemory.FunctionalTests\EntityFramework7.InMemory.FunctionalTests.csproj", "{7E1A1A1B-6D0B-4C66-8026-326EFC0B4625}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.InMemory.FunctionalTests", "test\EntityFramework.InMemory.FunctionalTests\EntityFramework.InMemory.FunctionalTests.csproj", "{7E1A1A1B-6D0B-4C66-8026-326EFC0B4625}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Commands", "src\EntityFramework7.Commands\EntityFramework7.Commands.csproj", "{10CA97EB-E724-4F08-86AF-F301F2B0BFFF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Commands", "src\EntityFramework.Commands\EntityFramework.Commands.csproj", "{10CA97EB-E724-4F08-86AF-F301F2B0BFFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Commands.Tests", "test\EntityFramework7.Commands.Tests\EntityFramework7.Commands.Tests.csproj", "{38F9AD16-B3B4-48A5-B814-77660CF409AE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Commands.Tests", "test\EntityFramework.Commands.Tests\EntityFramework.Commands.Tests.csproj", "{38F9AD16-B3B4-48A5-B814-77660CF409AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Relational.FunctionalTests", "test\EntityFramework7.Relational.FunctionalTests\EntityFramework7.Relational.FunctionalTests.csproj", "{82FAD20C-28C6-4B48-B7E4-971AC821E27A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Relational.FunctionalTests", "test\EntityFramework.Relational.FunctionalTests\EntityFramework.Relational.FunctionalTests.csproj", "{82FAD20C-28C6-4B48-B7E4-971AC821E27A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Commands.FunctionalTests", "test\EntityFramework7.Commands.FunctionalTests\EntityFramework7.Commands.FunctionalTests.csproj", "{43FC8426-D120-44F7-B6D7-6F256D78B5BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Commands.FunctionalTests", "test\EntityFramework.Commands.FunctionalTests\EntityFramework.Commands.FunctionalTests.csproj", "{43FC8426-D120-44F7-B6D7-6F256D78B5BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.CrossStore.FunctionalTests", "test\EntityFramework7.CrossStore.FunctionalTests\EntityFramework7.CrossStore.FunctionalTests.csproj", "{A3DE8824-240C-4313-8C36-264BCCEF8B54}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.CrossStore.FunctionalTests", "test\EntityFramework.CrossStore.FunctionalTests\EntityFramework.CrossStore.FunctionalTests.csproj", "{A3DE8824-240C-4313-8C36-264BCCEF8B54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Microbenchmarks", "test\EntityFramework7.Microbenchmarks\EntityFramework7.Microbenchmarks.csproj", "{F44DC472-86A1-4A60-B5C4-98D76D7B34AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Microbenchmarks", "test\EntityFramework.Microbenchmarks\EntityFramework.Microbenchmarks.csproj", "{F44DC472-86A1-4A60-B5C4-98D76D7B34AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Microbenchmarks.EF6", "test\EntityFramework7.Microbenchmarks.EF6\EntityFramework7.Microbenchmarks.EF6.csproj", "{CF26777E-6ADA-4AA8-96BA-96E43E4933A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Microbenchmarks.EF6", "test\EntityFramework.Microbenchmarks.EF6\EntityFramework.Microbenchmarks.EF6.csproj", "{CF26777E-6ADA-4AA8-96BA-96E43E4933A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Microbenchmarks.Core", "test\EntityFramework7.Microbenchmarks.Core\EntityFramework7.Microbenchmarks.Core.csproj", "{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Microbenchmarks.Core", "test\EntityFramework.Microbenchmarks.Core\EntityFramework.Microbenchmarks.Core.csproj", "{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Relational.Design", "src\EntityFramework7.Relational.Design\EntityFramework7.Relational.Design.csproj", "{7028A7E3-0AD8-4606-A922-8189C8A704E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Relational.Design", "src\EntityFramework.Relational.Design\EntityFramework.Relational.Design.csproj", "{7028A7E3-0AD8-4606-A922-8189C8A704E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.SqlServer.Design", "src\EntityFramework7.SqlServer.Design\EntityFramework7.SqlServer.Design.csproj", "{9AFDF1FA-1710-48E3-9802-7AB9DAC91B35}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SqlServer.Design", "src\EntityFramework.SqlServer.Design\EntityFramework.SqlServer.Design.csproj", "{9AFDF1FA-1710-48E3-9802-7AB9DAC91B35}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Relational.Design.Tests", "test\EntityFramework7.Relational.Design.Tests\EntityFramework7.Relational.Design.Tests.csproj", "{A8B8291A-2E63-48DC-A19E-41AF9E50F22D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Relational.Design.Tests", "test\EntityFramework.Relational.Design.Tests\EntityFramework.Relational.Design.Tests.csproj", "{A8B8291A-2E63-48DC-A19E-41AF9E50F22D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.SqlServer.Design.Tests", "test\EntityFramework7.SqlServer.Design.Tests\EntityFramework7.SqlServer.Design.Tests.csproj", "{AC579BD1-6646-4A68-8C49-60E36EFF20A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SqlServer.Design.Tests", "test\EntityFramework.SqlServer.Design.Tests\EntityFramework.SqlServer.Design.Tests.csproj", "{AC579BD1-6646-4A68-8C49-60E36EFF20A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Sqlite", "src\EntityFramework7.Sqlite\EntityFramework7.Sqlite.csproj", "{E340807B-ECBB-41DF-A164-23FE833C76DE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Sqlite", "src\EntityFramework.Sqlite\EntityFramework.Sqlite.csproj", "{E340807B-ECBB-41DF-A164-23FE833C76DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Sqlite.Tests", "test\EntityFramework7.Sqlite.Tests\EntityFramework7.Sqlite.Tests.csproj", "{4E8D7833-A710-41A9-BD77-DF985D41857C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Sqlite.Tests", "test\EntityFramework.Sqlite.Tests\EntityFramework.Sqlite.Tests.csproj", "{4E8D7833-A710-41A9-BD77-DF985D41857C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.Sqlite.FunctionalTests", "test\EntityFramework7.Sqlite.FunctionalTests\EntityFramework7.Sqlite.FunctionalTests.csproj", "{664B4D75-6CB7-4D90-A8E1-2A201500C859}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Sqlite.FunctionalTests", "test\EntityFramework.Sqlite.FunctionalTests\EntityFramework.Sqlite.FunctionalTests.csproj", "{664B4D75-6CB7-4D90-A8E1-2A201500C859}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework7.SqlServer.Design.FunctionalTests", "test\EntityFramework7.SqlServer.Design.FunctionalTests\EntityFramework7.SqlServer.Design.FunctionalTests.csproj", "{6A05786F-C047-402E-A3A3-76898B644538}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SqlServer.Design.FunctionalTests", "test\EntityFramework.SqlServer.Design.FunctionalTests\EntityFramework.SqlServer.Design.FunctionalTests.csproj", "{6A05786F-C047-402E-A3A3-76898B644538}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
