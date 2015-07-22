@@ -28,8 +28,8 @@ Register-TabExpansion Use-DbContext @{
 	Specifies the project to use. If omitted, the default project is used.
 #>
 function Use-DbContext {
-    [CmdletBinding()]
-    param ([Parameter(Mandatory = $true)] [string] $Context, [string] $Project)
+    [CmdletBinding(PositionalBinding = $false)]
+    param ([Parameter(Position = 0, Mandatory = $true)] [string] $Context, [string] $Project)
 
     $dteProject = GetProject $Project
     $contextTypeName = InvokeOperation $dteProject GetContextType @{ name = $Context }
@@ -68,8 +68,8 @@ Register-TabExpansion Add-Migration @{
 	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Add-Migration {
-    [CmdletBinding()]
-    param ([Parameter(Mandatory = $true)] [string] $Name, [string] $Context, [string] $Project, [string] $StartupProject)
+    [CmdletBinding(PositionalBinding = $false)]
+    param ([Parameter(Position = 0, Mandatory = $true)] [string] $Name, [string] $Context, [string] $Project, [string] $StartupProject)
 
     $values = ProcessCommonParameters $Context $Project $StartupProject
     $dteProject = $values.Project
@@ -120,8 +120,8 @@ Register-TabExpansion Apply-Migration @{
 	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Apply-Migration {
-    [CmdletBinding()]
-    param ([string] $Migration, [string] $Context, [string] $Project, [string] $StartupProject)
+    [CmdletBinding(PositionalBinding = $false)]
+    param ([Parameter(Position = 0)] [string] $Migration, [string] $Context, [string] $Project, [string] $StartupProject)
 
     $values = ProcessCommonParameters $Context $Project $StartupProject
     $dteProject = $values.Project
@@ -152,12 +152,19 @@ Register-TabExpansion Update-Database @{
 }
 
 function Update-Database {
-    [CmdletBinding()]
-    param ([string] $Migration, [string] $Context, [string] $Project, [string] $StartupProject)
+    [CmdletBinding(PositionalBinding = $false)]
+    param ([Parameter(Position = 0)] [string] $Migration, [switch] $Script, [string] $Context, [string] $Project, [string] $StartupProject)
 
-    Write-Warning 'Update-Database is obsolete. Use Apply-Migration instead.'
+	if ($Script) {
+		Write-Warning 'Update-Database -Script is obsolete. Use Script-Migration instead.'
 
-    Apply-Migration $Migration -Context $Context -Project $Project -StartupProject $StartupProject
+		Script-Migration -To $Migration -Context $Context -Project $Project -StartupProject $StartupProject
+
+	} else {
+		Write-Warning 'Update-Database is obsolete. Use Apply-Migration instead.'
+
+		Apply-Migration $Migration -Context $Context -Project $Project -StartupProject $StartupProject
+	}
 }
 
 #
@@ -198,7 +205,7 @@ Register-TabExpansion Script-Migration @{
 	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Script-Migration {
-    [CmdletBinding()]
+    [CmdletBinding(PositionalBinding = $false)]
     param ([string] $From, [string] $To, [switch] $Idempotent, [string] $Context, [string] $Project, [string] $StartupProject)
 
     $values = ProcessCommonParameters $Context $Project $StartupProject
@@ -261,7 +268,7 @@ Register-TabExpansion Remove-Migration @{
 	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Remove-Migration {
-    [CmdletBinding()]
+    [CmdletBinding(PositionalBinding = $false)]
     param ([string] $Context, [string] $Project, [string] $StartupProject)
 
     $values = ProcessCommonParameters $Context $Project $StartupProject
@@ -306,8 +313,8 @@ Register-TabExpansion Reverse-Engineer @{
 	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Reverse-Engineer {
-    [CmdletBinding()]
-    param ([Parameter(Mandatory = $true)] [string] $ConnectionString, [Parameter(Mandatory = $true)] [string] $Provider, [string] $Project, [string] $StartupProject)
+    [CmdletBinding(PositionalBinding = $false)]
+    param ([Parameter(Position = 0, Mandatory = $true)] [string] $ConnectionString, [Parameter(Position = 1, Mandatory = $true)] [string] $Provider, [string] $Project, [string] $StartupProject)
 
     $values = ProcessCommonParameters -projectName $Project -startupProjectName $StartupProject
     $dteProject = $values.Project
@@ -350,8 +357,8 @@ Register-TabExpansion Customize-ReverseEngineer @{
 	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
 #>
 function Customize-ReverseEngineer {
-    [CmdletBinding()]
-    param ([Parameter(Mandatory = $true)] [string] $Provider, [string] $Project, [string] $StartupProject)
+    [CmdletBinding(PositionalBinding = $false)]
+    param ([Parameter(Position = 0, Mandatory = $true)] [string] $Provider, [string] $Project, [string] $StartupProject)
 
     $values = ProcessCommonParameters -projectName $Project -startupProjectName $StartupProject
     $dteProject = $values.Project
