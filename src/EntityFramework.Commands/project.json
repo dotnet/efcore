@@ -13,6 +13,10 @@
   "namedResource": {
     "EntityFramework.Commands.Strings": "Properties/Strings.resx"
   },
+  "dependencies": {
+    "EntityFramework.Relational": "7.0.0-*",
+    "Microsoft.CodeAnalysis.CSharp": "1.0.0"
+  },
   "frameworks": {
     "net45": {
       "dependencies": {
@@ -40,9 +44,6 @@
     "netcore50": {
       "bin": {
         "assembly": "lib\\netcore50\\_._"
-      },
-      "dependencies": {
-        "EntityFramework.Relational": "7.0.0-*"
       }
     }
   },
