@@ -25,7 +25,15 @@ namespace Microsoft.Data.Entity.SqlServer
             new MathTruncateTranslator(),
             new StringReplaceTranslator(),
             new StringToLowerTranslator(),
-            new StringToUpperTranslator()
+            new StringToUpperTranslator(),
+            //Convert methods
+            new ConvertToByteTranslator(),
+            new ConvertToDecimalTranslator(),
+            new ConvertToDoubleTranslator(),
+            new ConvertToInt16Translator(),
+            new ConvertToInt32Translator(),
+            new ConvertToInt64Translator(),
+            new ConvertToStringTranslator()
         };
 
         public SqlServerCompositeMethodCallTranslator([NotNull] ILoggerFactory loggerFactory)

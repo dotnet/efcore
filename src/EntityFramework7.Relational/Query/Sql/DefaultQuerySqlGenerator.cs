@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
@@ -912,6 +913,9 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         protected virtual string GenerateLiteral([NotNull] Enum value)
             => string.Format(CultureInfo.InvariantCulture, "{0:d}", value);
+
+        protected virtual string GenerateLiteral(SqlDbType value)
+            => value.ToString().ToLower();
 
         protected virtual string GenerateLiteral(int value)
             => value.ToString();

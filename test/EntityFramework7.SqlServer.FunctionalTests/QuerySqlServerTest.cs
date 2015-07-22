@@ -1747,7 +1747,7 @@ CROSS JOIN [Employees] AS [e3]",
             Assert.Equal(
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
-CROSS JOIN [Orders] AS [o]", 
+CROSS JOIN [Orders] AS [o]",
                 Sql);
         }
 
@@ -1758,7 +1758,7 @@ CROSS JOIN [Orders] AS [o]",
             Assert.Equal(
                 @"SELECT COUNT_BIG(*)
 FROM [Customers] AS [c]
-CROSS JOIN [Orders] AS [o]", 
+CROSS JOIN [Orders] AS [o]",
                 Sql);
         }
 
@@ -1775,7 +1775,7 @@ CROSS JOIN [Orders] AS [o]",
             CROSS JOIN [Orders] AS [o])
         )
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END", 
+END",
                 Sql);
         }
 
@@ -3008,6 +3008,120 @@ FROM [Customers] AS [c]
 WHERE (UPPER([c].[CustomerID]) = 'ALFKI')",
                 Sql);
         }
+
+        #region Convert Methods
+        
+        [Fact]
+        public void Where_convert_to_byte()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.Fax != null && Convert.ToByte(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1
+                      select c,
+                entryCount: 69);
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(tinyint, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
+                Sql);
+        }
+        
+        [Fact]
+        public void Where_convert_to_decimal()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.Fax != null && Convert.ToDecimal(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1
+                      select c,
+                entryCount: 69);
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(decimal, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
+                Sql);
+        }
+
+        [Fact]
+        public void Where_convert_to_double()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.Fax != null && Convert.ToDouble(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1
+                      select c,
+                entryCount: 69);
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(float, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1E0))",
+                Sql);
+        }
+
+        [Fact]
+        public void Where_convert_to_int16()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.Fax != null && Convert.ToInt16(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1
+                      select c,
+                entryCount: 69);
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(smallint, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
+                Sql);
+        }
+
+        [Fact]
+        public void Where_convert_to_int32()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.Fax != null && Convert.ToInt32(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1
+                      select c,
+                entryCount: 69);
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(int, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
+                Sql);
+        }
+
+        [Fact]
+        public void Where_convert_to_int64()
+        {
+            AssertQuery<Customer>(
+                cs => from c in cs
+                      where c.Fax != null && Convert.ToInt64(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1
+                      select c,
+                entryCount: 69);
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(bigint, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
+                Sql);
+        }
+
+        [Fact]
+        public void Where_convert_to_string()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.Fax != null && Convert.ToString(c.Fax).Length > 0),
+                entryCount: 69);
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[Fax] IS NOT NULL AND (LEN(CONVERT(nvarchar, [c].[Fax])) > 0))",
+                Sql);
+        }
+
+        #endregion
 
         public override void Select_nested_collection()
         {
