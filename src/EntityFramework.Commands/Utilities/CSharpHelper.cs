@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             return type.Name;
         }
 
-        public virtual string Identifier([NotNull] string name, [CanBeNull] ICollection<string> scope = null)
+        public virtual string Identifier([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -138,23 +138,12 @@ namespace Microsoft.Data.Entity.Commands.Utilities
                 builder.Append(name.Substring(partStart));
             }
 
-            if (!SyntaxFacts.IsIdentifierStartCharacter(builder[0]))
+            if (builder.Length == 0 || !SyntaxFacts.IsIdentifierStartCharacter(builder[0]))
             {
                 builder.Insert(0, "_");
             }
 
             var identifier = builder.ToString();
-            if (scope != null)
-            {
-                var uniqueIdentifier = identifier;
-                var qualifier = 0;
-                while (scope.Contains(uniqueIdentifier))
-                {
-                    uniqueIdentifier = identifier + qualifier++;
-                }
-                scope.Add(uniqueIdentifier);
-                identifier = uniqueIdentifier;
-            }
 
             if (SyntaxFacts.GetKeywordKind(identifier) != SyntaxKind.None
                 || SyntaxFacts.GetPreprocessorKeywordKind(identifier) != SyntaxKind.None
@@ -165,6 +154,25 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 
             return identifier;
         }
+
+        public virtual string Namespace([NotNull] params string[] name)
+        {
+            Check.NotNull(name, nameof(name));
+
+            var @namespace = new StringBuilder();
+            foreach (var piece in name.Where(p => !string.IsNullOrEmpty(p)).SelectMany(p => p.Split('.')))
+            {
+                var identifier = Identifier(piece);
+                if (!string.IsNullOrEmpty(identifier))
+                {
+                    @namespace.Append(identifier)
+                        .Append('.');
+                }
+
+            }
+            return (@namespace.Length > 0) ? @namespace.Remove(@namespace.Length - 1, 1).ToString() : "_";
+        }
+
 
         public virtual string Literal([NotNull] string value) =>
             value.Contains(Environment.NewLine)
