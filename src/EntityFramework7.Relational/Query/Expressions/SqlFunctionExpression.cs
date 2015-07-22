@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -12,6 +13,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query.Expressions
 {
+    [DebuggerDisplay("{this.FunctionName}({string.Join(\", \", this.Arguments)})")]
     public class SqlFunctionExpression : Expression
     {
         private readonly List<Expression> _arguments;
@@ -53,12 +55,5 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 ? new SqlFunctionExpression(FunctionName, arguments, Type)
                 : this;
         }
-
-#if DEBUG
-        public override string ToString()
-        {
-            return $"{FunctionName}({string.Join(", ",Arguments)})";
-        }
-#endif
     }
 }

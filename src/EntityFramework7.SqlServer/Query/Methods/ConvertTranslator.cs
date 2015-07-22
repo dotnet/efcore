@@ -10,6 +10,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.Methods;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Query.Methods
 {
@@ -29,6 +30,8 @@ namespace Microsoft.Data.Entity.SqlServer.Query.Methods
 
         public ConvertTranslator([NotNull] string convertMethodName)
         {
+            Check.NotEmpty(convertMethodName, nameof(convertMethodName));
+
             _convertMethodName = convertMethodName;
         }
 

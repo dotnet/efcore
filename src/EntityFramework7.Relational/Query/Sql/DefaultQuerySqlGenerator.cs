@@ -914,7 +914,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         protected virtual string GenerateLiteral([NotNull] Enum value)
             => string.Format(CultureInfo.InvariantCulture, "{0:d}", value);
 
-        protected virtual string GenerateLiteral([NotNull] SqlDbType value)
+        protected virtual string GenerateLiteral(SqlDbType value)
             => value.ToString().ToLower();
 
         protected virtual string GenerateLiteral(int value)
