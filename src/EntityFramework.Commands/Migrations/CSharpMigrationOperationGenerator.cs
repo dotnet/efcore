@@ -543,11 +543,10 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 var map = new Dictionary<string, string>();
                 using (builder.Indent())
                 {
-                    var scope = new List<string>();
                     for (var i = 0; i < operation.Columns.Count; i++)
                     {
                         var column = operation.Columns[i];
-                        var propertyName = _code.Identifier(column.Name, scope);
+                        var propertyName = _code.Identifier(column.Name);
                         map.Add(column.Name, propertyName);
 
                         builder
