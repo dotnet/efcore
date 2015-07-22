@@ -138,7 +138,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
                 builder.Append(name.Substring(partStart));
             }
 
-            if (!SyntaxFacts.IsIdentifierStartCharacter(builder[0]))
+            if (builder.Length == 0 || !SyntaxFacts.IsIdentifierStartCharacter(builder[0]))
             {
                 builder.Insert(0, "_");
             }
@@ -164,6 +164,23 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             }
 
             return identifier;
+        }
+
+        public virtual string Namespace([NotNull] params string[] name)
+        {
+            Check.NotNull(name, nameof(name));
+
+            var @namespace = new StringBuilder();
+            foreach (var piece in name.Where(p => !string.IsNullOrEmpty(p)).SelectMany(p => p.Split('.')))
+            {
+                var identifier = Identifier(piece);
+                if (!string.IsNullOrEmpty(identifier))
+                {
+                    @namespace.Append(identifier)
+                        .Append('.');
+                }
+            }
+            return (@namespace.Length > 0) ? @namespace.Remove(@namespace.Length - 1, 1).ToString() : "_";
         }
 
         public virtual string Literal([NotNull] string value) =>

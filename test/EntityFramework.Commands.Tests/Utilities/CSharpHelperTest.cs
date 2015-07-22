@@ -221,5 +221,32 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         {
             Default
         }
+
+        [Theory]
+        [InlineData("dash-er", "dasher")]
+        [InlineData("params", "@params")]
+        [InlineData("true", "@true")]
+        [InlineData("yield", "@yield")]
+        [InlineData("spac ed", "spaced")]
+        [InlineData("1nders", "_1nders")]
+        [InlineData("name.space", "@namespace")]
+        [InlineData("$", "_")]
+        public void Identifier_works(string input, string expected)
+        {
+            Assert.Equal(expected, new CSharpHelper().Identifier(input));
+        }
+
+        [Theory]
+        [InlineData(new[] { "WebApplication1", "Migration" }, "WebApplication1.Migration")]
+        [InlineData(new[] { "WebApplication1.Migration" }, "WebApplication1.Migration")]
+        [InlineData(new[] { "ef-xplat.namespace" }, "efxplat.@namespace")]
+        [InlineData(new[] { "#", "$" }, "_._")]
+        [InlineData(new[] { "" }, "_")]
+        [InlineData(new string[] { }, "_")]
+        [InlineData(new string[] { null }, "_")]
+        public void Namespace_works(string[] input, string excepted)
+        {
+            Assert.Equal(excepted, new CSharpHelper().Namespace(input));
+        }
     }
 }

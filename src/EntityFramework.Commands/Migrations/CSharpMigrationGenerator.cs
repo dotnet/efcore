@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .AppendLine("using Microsoft.Data.Entity.Migrations.Builders;")
                 .AppendLine("using Microsoft.Data.Entity.Migrations.Operations;")
                 .AppendLine()
-                .Append("namespace ").AppendLine(_code.Identifier(migrationNamespace))
+                .Append("namespace ").AppendLine(_code.Namespace(migrationNamespace))
                 .AppendLine("{");
             using (builder.Indent())
             {
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .AppendLine("using Microsoft.Data.Entity.Migrations.Infrastructure;")
                 .Append("using ").Append(contextType.Namespace).AppendLine(";")
                 .AppendLine()
-                .Append("namespace ").AppendLine(_code.Identifier(migrationNamespace))
+                .Append("namespace ").AppendLine(_code.Namespace(migrationNamespace))
                 .AppendLine("{");
             using (builder.Indent())
             {
@@ -173,7 +173,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .AppendLine("using Microsoft.Data.Entity.Migrations.Infrastructure;")
                 .Append("using ").Append(contextType.Namespace).AppendLine(";")
                 .AppendLine()
-                .Append("namespace ").AppendLine(_code.Identifier(modelSnapshotNamespace))
+                .Append("namespace ").AppendLine(_code.Namespace(modelSnapshotNamespace))
                 .AppendLine("{");
             using (builder.Indent())
             {
