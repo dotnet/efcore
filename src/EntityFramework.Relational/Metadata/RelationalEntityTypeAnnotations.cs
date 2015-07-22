@@ -8,40 +8,43 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class RelationalEntityTypeAnnotations : ReadOnlyRelationalEntityTypeAnnotations
+    public class RelationalEntityTypeAnnotations : RelationalAnnotationsBase, IRelationalEntityTypeAnnotations
     {
-        public RelationalEntityTypeAnnotations([NotNull] EntityType entityType)
-            : base(entityType)
+        public RelationalEntityTypeAnnotations([NotNull] IEntityType entityType, [CanBeNull] string providerPrefix)
+            : base(entityType, providerPrefix)
         {
         }
 
-        public new virtual string TableName
+        protected virtual IEntityType EntityType => (IEntityType)Metadata;
+
+        public virtual string TableName
         {
-            get { return base.TableName; }
-            [param: CanBeNull]
-            set
+            get
             {
-                Check.NullButNotEmpty(value, nameof(value));
+                var rootType = EntityType.RootType();
 
-                EntityType[RelationalTableAnnotation] = value;
+                return (string)GetAnnotation(rootType, RelationalAnnotationNames.TableName)
+                       ?? rootType.DisplayName();
             }
+            [param: CanBeNull] set { SetAnnotation(RelationalAnnotationNames.TableName, Check.NullButNotEmpty(value, nameof(value))); }
         }
 
-        public new virtual string Schema
+        public virtual string Schema
         {
-            get { return base.Schema; }
-            [param: CanBeNull]
-            set
+            get { return (string)GetAnnotation(EntityType.RootType(), RelationalAnnotationNames.Schema); }
+            [param: CanBeNull] set { SetAnnotation(RelationalAnnotationNames.Schema, Check.NullButNotEmpty(value, nameof(value))); }
+        }
+
+        public virtual IProperty DiscriminatorProperty
+        {
+            get
             {
-                Check.NullButNotEmpty(value, nameof(value));
+                var rootType = EntityType.RootType();
 
-                EntityType[RelationalSchemaAnnotation] = value;
+                var propertyName = (string)GetAnnotation(rootType, RelationalAnnotationNames.DiscriminatorProperty);
+
+                return propertyName == null ? null : rootType.GetProperty(propertyName);
             }
-        }
-
-        public new virtual IProperty DiscriminatorProperty
-        {
-            get { return base.DiscriminatorProperty; }
             [param: CanBeNull]
             set
             {
@@ -58,22 +61,20 @@ namespace Microsoft.Data.Entity.Metadata
                         throw new InvalidOperationException(
                             Strings.DiscriminatorPropertyNotFound(value, EntityType));
                     }
+                }
 
-                    EntityType[DiscriminatorPropertyAnnotation] = value.Name;
-                }
-                else
-                {
-                    EntityType[DiscriminatorPropertyAnnotation] = null;
-                }
+                SetAnnotation(RelationalAnnotationNames.DiscriminatorProperty, value?.Name);
             }
         }
 
-        public new virtual object DiscriminatorValue
+        public virtual object DiscriminatorValue
         {
-            get { return base.DiscriminatorValue; }
-            [param: CanBeNull] set { EntityType[DiscriminatorValueAnnotation] = value; }
+            get
+            {
+                return GetAnnotation(RelationalAnnotationNames.DiscriminatorValue)
+                       ?? EntityType.DisplayName();
+            }
+            [param: CanBeNull] set { SetAnnotation(RelationalAnnotationNames.DiscriminatorValue, value); }
         }
-
-        protected new virtual EntityType EntityType => (EntityType)base.EntityType;
     }
 }

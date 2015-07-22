@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             {
                 yield return new Annotation(
                     SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy,
-                    SqlServerIdentityStrategy.IdentityColumn.ToString());
+                    SqlServerIdentityStrategy.IdentityColumn);
             }
         }
     }

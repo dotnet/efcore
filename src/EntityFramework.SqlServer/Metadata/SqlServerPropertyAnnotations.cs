@@ -8,120 +8,58 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public class SqlServerPropertyAnnotations : ReadOnlySqlServerPropertyAnnotations
+    public class SqlServerPropertyAnnotations : RelationalPropertyAnnotations, ISqlServerPropertyAnnotations
     {
-        public SqlServerPropertyAnnotations([NotNull] Property property)
-            : base(property)
+        public SqlServerPropertyAnnotations([NotNull] IProperty property)
+            : base(property, SqlServerAnnotationNames.Prefix)
         {
         }
 
-        public new virtual string ColumnName
+        public virtual string HiLoSequenceName
         {
-            get { return base.ColumnName; }
-            [param: CanBeNull]
-            set
-            {
-                Check.NullButNotEmpty(value, nameof(value));
-
-                ((Property)Property)[SqlServerNameAnnotation] = value;
-            }
+            get { return (string)GetAnnotation(SqlServerAnnotationNames.HiLoSequenceName); }
+            [param: CanBeNull] set { SetAnnotation(SqlServerAnnotationNames.HiLoSequenceName, Check.NullButNotEmpty(value, nameof(value))); }
         }
 
-        [CanBeNull]
-        public new virtual string ColumnType
+        public virtual string HiLoSequenceSchema
         {
-            get { return base.ColumnType; }
-            [param: CanBeNull]
-            set
-            {
-                Check.NullButNotEmpty(value, nameof(value));
-
-                ((Property)Property)[SqlServerColumnTypeAnnotation] = value;
-            }
+            get { return (string)GetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema); }
+            [param: CanBeNull] set { SetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, Check.NullButNotEmpty(value, nameof(value))); }
         }
 
-        [CanBeNull]
-        public new virtual string GeneratedValueSql
+        public virtual int? HiLoSequencePoolSize
         {
-            get { return base.GeneratedValueSql; }
-            [param: CanBeNull]
-            set
-            {
-                Check.NullButNotEmpty(value, nameof(value));
-
-                ((Property)Property)[SqlServerGeneratedValueSqlAnnotation] = value;
-            }
-        }
-
-        public new virtual object DefaultValue
-        {
-            get { return base.DefaultValue; }
-            [param: CanBeNull]
-            set
-            {
-                var typedAnnotation = new TypedAnnotation(value);
-
-                ((Property)Property)[SqlServerDefaultValueTypeAnnotation] = typedAnnotation.TypeString;
-                ((Property)Property)[SqlServerDefaultValueAnnotation] = typedAnnotation.ValueString;
-            }
-        }
-
-        [CanBeNull]
-        public new virtual string HiLoSequenceName
-        {
-            get { return base.HiLoSequenceName; }
-            [param: CanBeNull]
-            set
-            {
-                Check.NullButNotEmpty(value, nameof(value));
-
-                ((Property)Property)[SqlServerHiLoSequenceNameAnnotation] = value;
-            }
-        }
-
-        [CanBeNull]
-        public new virtual string HiLoSequenceSchema
-        {
-            get { return base.HiLoSequenceSchema; }
-            [param: CanBeNull]
-            set
-            {
-                Check.NullButNotEmpty(value, nameof(value));
-
-                ((Property)Property)[SqlServerHiLoSequenceSchemaAnnotation] = value;
-            }
-        }
-
-        [CanBeNull]
-        public new virtual int? HiLoSequencePoolSize
-        {
-            get { return base.HiLoSequencePoolSize; }
-            [param: CanBeNull]
-            set
+            get { return (int?)GetAnnotation(SqlServerAnnotationNames.HiLoSequencePoolSize); }
+            [param: CanBeNull] set
             {
                 if (value <= 0)
                 {
                     throw new ArgumentOutOfRangeException(nameof(value), Internal.Strings.HiLoBadPoolSize);
                 }
 
-                ((Property)Property)[SqlServerHiLoSequencePoolSizeAnnotation] = value;
+                SetAnnotation(SqlServerAnnotationNames.HiLoSequencePoolSize, value);
             }
         }
 
-        [CanBeNull]
-        public new virtual SqlServerIdentityStrategy? IdentityStrategy
+        public virtual SqlServerIdentityStrategy? IdentityStrategy
         {
-            get { return base.IdentityStrategy; }
+            get
+            {
+                if (Property.ValueGenerated != ValueGenerated.OnAdd
+                    || !Property.ClrType.UnwrapNullableType().IsInteger()
+                    || Property.SqlServer().GeneratedValueSql != null)
+                {
+                    return null;
+                }
+
+                var value = (SqlServerIdentityStrategy?)GetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
+
+                return value ?? Property.DeclaringEntityType.Model.SqlServer().IdentityStrategy;
+            }
             [param: CanBeNull]
             set
             {
-                var property = ((Property)Property);
-
-                if (value == null)
-                {
-                    property[SqlServerValueGenerationAnnotation] = null;
-                }
-                else
+                if (value != null)
                 {
                     var propertyType = Property.ClrType;
 
@@ -140,11 +78,29 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                         throw new ArgumentException(Strings.SequenceBadType(
                             Property.Name, Property.DeclaringEntityType.Name, propertyType.Name));
                     }
-
-                    // TODO: Issue #777: Non-string annotations
-                    property[SqlServerValueGenerationAnnotation] = value.ToString();
                 }
+
+                SetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
             }
+        }
+
+        public virtual ISequence FindHiLoSequence()
+        {
+            var modelExtensions = Property.DeclaringEntityType.Model.SqlServer();
+
+            if (IdentityStrategy != SqlServerIdentityStrategy.SequenceHiLo)
+            {
+                return null;
+            }
+
+            var sequenceName = HiLoSequenceName
+                               ?? modelExtensions.HiLoSequenceName
+                               ?? SqlServerAnnotationNames.DefaultHiLoSequenceName;
+
+            var sequenceSchema = HiLoSequenceSchema
+                                 ?? modelExtensions.HiLoSequenceSchema;
+
+            return modelExtensions.FindSequence(sequenceName, sequenceSchema);
         }
     }
 }

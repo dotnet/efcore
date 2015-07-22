@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
         {
             modelBuilder.Annotation(
                 SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy,
-                SqlServerIdentityStrategy.IdentityColumn.ToString(),
+                SqlServerIdentityStrategy.IdentityColumn,
                 ConfigurationSource.Convention);
             return modelBuilder;
         }
