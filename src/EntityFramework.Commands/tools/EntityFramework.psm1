@@ -16,16 +16,19 @@ Register-TabExpansion Use-DbContext @{
 
 <#
 .SYNOPSIS
-	Sets the default DbContext to use.
+    Sets the default DbContext to use.
 
 .DESCRIPTION
-	Sets the default DbContext to use.
+    Sets the default DbContext to use.
 
 .PARAMETER Context
-	Specifies the default DbContext to use.
+    Specifies the DbContext to use.
 
 .PARAMETER Project
-	Specifies the project to use. If omitted, the default project is used.
+    Specifies the project to use. If omitted, the default project is used.
+
+.LINK
+    about_EntityFramework
 #>
 function Use-DbContext {
     [CmdletBinding(PositionalBinding = $false)]
@@ -50,26 +53,36 @@ Register-TabExpansion Add-Migration @{
 
 <#
 .SYNOPSIS
-	Adds a new migration.
+    Adds a new migration.
 
 .DESCRIPTION
-	Adds a new migration.
+    Adds a new migration.
 
 .PARAMETER Name
-	Specifies the name of the migration.
+    Specifies the name of the migration.
 
 .PARAMETER Context
-	Specifies the default DbContext to use. If omitted, the default DbContext is used.
+    Specifies the DbContext to use. If omitted, the default DbContext is used.
 
 .PARAMETER Project
-	Specifies the project to use. If omitted, the default project is used.
+    Specifies the project to use. If omitted, the default project is used.
 
 .PARAMETER StartupProject
-	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
+    Specifies the start-up project to use. If omitted, the solution's start-up project is used.
+
+.LINK
+    Remove-Migration
+    Update-Database
+    about_EntityFramework
 #>
 function Add-Migration {
     [CmdletBinding(PositionalBinding = $false)]
-    param ([Parameter(Position = 0, Mandatory = $true)] [string] $Name, [string] $Context, [string] $Project, [string] $StartupProject)
+    param (
+        [Parameter(Position = 0, Mandatory = $true)]
+        [string] $Name,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject)
 
     $values = ProcessCommonParameters $Context $Project $StartupProject
     $dteProject = $values.Project
@@ -85,41 +98,44 @@ function Add-Migration {
     $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
     ShowConsole
 
-	Write-Host 'To undo this action, use Remove-Migration.'
+    Write-Host 'To undo this action, use Remove-Migration.'
 }
 
 #
-# Apply-Migration
+# Update-Database
 #
 
-Register-TabExpansion Apply-Migration @{
+Register-TabExpansion Update-Database @{
     Migration = { param ($tabExpansionContext) GetMigrations $tabExpansionContext.Context $tabExpansionContext.Project }
     Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
 
-# TODO: WhatIf (See #1775)
 <#
 .SYNOPSIS
-	Applies migrations to the database.
+    Updates the database to a specified migration.
 
 .DESCRIPTION
-	Applies migrations to the database.
+    Updates the database to a specified migration.
 
 .PARAMETER Migration
-	Specifies the migration to apply. If '0', all migrations will be unapplied.
+    Specifies the target migration. If '0', all migrations will be reverted. If omitted, all pending migrations will be applied.
 
 .PARAMETER Context
-	Specifies the default DbContext to use. If omitted, the default DbContext is used.
+    Specifies the DbContext to use. If omitted, the default DbContext is used.
 
 .PARAMETER Project
-	Specifies the project to use. If omitted, the default project is used.
+    Specifies the project to use. If omitted, the default project is used.
 
 .PARAMETER StartupProject
-	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
+    Specifies the start-up project to use. If omitted, the solution's start-up project is used.
+
+.LINK
+    Script-Migration
+    about_EntityFramework
 #>
-function Apply-Migration {
+function Update-Database {
     [CmdletBinding(PositionalBinding = $false)]
     param ([Parameter(Position = 0)] [string] $Migration, [string] $Context, [string] $Project, [string] $StartupProject)
 
@@ -131,7 +147,7 @@ function Apply-Migration {
     $targetFrameworkMoniker = GetProperty $dteProject.Properties TargetFrameworkMoniker
     $frameworkName = New-Object System.Runtime.Versioning.FrameworkName $targetFrameworkMoniker
     if ($frameworkName.Identifier -eq '.NETCore') {
-        throw 'Apply-Migration should not be used with Universal Windows apps. Instead, call DbContext.Database.ApplyMigrations() at runtime.'
+        throw 'Update-Database should not be used with Universal Windows apps. Instead, call DbContext.Database.ApplyMigrations() at runtime.'
     }
 
     InvokeOperation $dteProject ApplyMigration @{
@@ -141,30 +157,12 @@ function Apply-Migration {
 }
 
 #
-# Update-Database (Obsolete)
+# Apply-Migration (Obsolete)
 #
 
-Register-TabExpansion Update-Database @{
-    Migration = { param ($tabExpansionContext) GetMigrations $tabExpansionContext.Context $tabExpansionContext.Project }
-    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project }
-    Project = { GetProjects }
-    StartupProject = { GetProjects }
-}
-
-function Update-Database {
-    [CmdletBinding(PositionalBinding = $false)]
-    param ([Parameter(Position = 0)] [string] $Migration, [switch] $Script, [string] $Context, [string] $Project, [string] $StartupProject)
-
-	if ($Script) {
-		Write-Warning 'Update-Database -Script is obsolete. Use Script-Migration instead.'
-
-		Script-Migration -To $Migration -Context $Context -Project $Project -StartupProject $StartupProject
-
-	} else {
-		Write-Warning 'Update-Database is obsolete. Use Apply-Migration instead.'
-
-		Apply-Migration $Migration -Context $Context -Project $Project -StartupProject $StartupProject
-	}
+function Apply-Migration {
+    # TODO: Remove before RTM
+    throw 'Apply-Migration has been removed. Use Update-Database instead.'
 }
 
 #
@@ -181,32 +179,45 @@ Register-TabExpansion Script-Migration @{
 
 <#
 .SYNOPSIS
-	Generates a SQL script from migrations.
+    Generates a SQL script from migrations.
 
 .DESCRIPTION
-	Generates a SQL script from migrations.
+    Generates a SQL script from migrations.
 
 .PARAMETER From
-	Specifies the starting migration.
+    Specifies the starting migration. If omitted, '0' (the initial database) is used.
 
 .PARAMETER To
-	Specifies the ending migration.
+    Specifies the ending migration. If omitted, the last migration is used.
 
 .PARAMETER Idempotent
-	Generates an idempotent script.
+    Generates an idempotent script that can used on a database at any migration.
 
 .PARAMETER Context
-	Specifies the default DbContext to use. If omitted, the default DbContext is used.
+    Specifies the DbContext to use. If omitted, the default DbContext is used.
 
 .PARAMETER Project
-	Specifies the project to use. If omitted, the default project is used.
+    Specifies the project to use. If omitted, the default project is used.
 
 .PARAMETER StartupProject
-	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
+    Specifies the start-up project to use. If omitted, the solution's start-up project is used.
+
+.LINK
+    Update-Database
+    about_EntityFramework
 #>
 function Script-Migration {
     [CmdletBinding(PositionalBinding = $false)]
-    param ([string] $From, [string] $To, [switch] $Idempotent, [string] $Context, [string] $Project, [string] $StartupProject)
+    param (
+        [Parameter(ParameterSetName = 'WithoutTo')]
+        [Parameter(ParameterSetName = 'WithTo', Mandatory = $true)]
+        [string] $From,
+        [Parameter(ParameterSetName = 'WithTo', Mandatory = $true)]
+        [string] $To,
+        [switch] $Idempotent,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject)
 
     $values = ProcessCommonParameters $Context $Project $StartupProject
     $dteProject = $values.Project
@@ -253,19 +264,23 @@ Register-TabExpansion Remove-Migration @{
 
 <#
 .SYNOPSIS
-	Removes the last migration.
+    Removes the last migration.
 
 .DESCRIPTION
-	Removes the last migration.
+    Removes the last migration.
 
 .PARAMETER Context
-	Specifies the default DbContext to use. If omitted, the default DbContext is used.
+    Specifies the DbContext to use. If omitted, the default DbContext is used.
 
 .PARAMETER Project
-	Specifies the project to use. If omitted, the default project is used.
+    Specifies the project to use. If omitted, the default project is used.
 
 .PARAMETER StartupProject
-	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
+    Specifies the start-up project to use. If omitted, the solution's start-up project is used.
+
+.LINK
+    Add-Migration
+    about_EntityFramework
 #>
 function Remove-Migration {
     [CmdletBinding(PositionalBinding = $false)]
@@ -284,46 +299,50 @@ function Remove-Migration {
 }
 
 #
-# Reverse-Engineer
+# Scaffold-DbContext
 #
 
-Register-TabExpansion Reverse-Engineer @{
-    Project = { GetProjects }
-    StartupProject = { GetProjects }
+Register-TabExpansion Scaffold-DbContext @{
     Provider = { param ($tabExpansionContext) GetProviders $tabExpansionContext.Project }
+    Project = { GetProjects }
 }
 
 <#
 .SYNOPSIS
-	Reverse engineers code from a database.
+    Scaffolds a DbContext and entity type classes for a specified database.
 
 .DESCRIPTION
-	Reverse engineers code from a database.
+    Scaffolds a DbContext and entity type classes for a specified database.
 
-.PARAMETER ConnectionString
-	Specifies the connection string of the database.
+.PARAMETER Connection
+    Specifies the connection string of the database.
 
 .PARAMETER Provider
-	Specifies the name of the provider to use, for example EntityFramework.SqlServer
+    Specifies the provider to use. For example, EntityFramework.SqlServer.
 
 .PARAMETER Project
-	Specifies the project to use. If omitted, the default project is used.
+    Specifies the project to use. If omitted, the default project is used.
 
-.PARAMETER StartupProject
-	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
+.LINK
+    Scaffold-DbContextTemplate
+    about_EntityFramework
 #>
-function Reverse-Engineer {
+function Scaffold-DbContext {
     [CmdletBinding(PositionalBinding = $false)]
-    param ([Parameter(Position = 0, Mandatory = $true)] [string] $ConnectionString, [Parameter(Position = 1, Mandatory = $true)] [string] $Provider, [string] $Project, [string] $StartupProject)
+    param (
+        [Parameter(Position = 0, Mandatory = $true)]
+        [string] $Connection,
+        [Parameter(Position = 1, Mandatory = $true)]
+        [string] $Provider,
+        [string] $Project)
 
-    $values = ProcessCommonParameters -projectName $Project -startupProjectName $StartupProject
+    $values = ProcessCommonParameters -projectName $Project
     $dteProject = $values.Project
-    $dteStartupProject = $values.StartupProject
 
     $artifacts = InvokeOperation $dteProject ReverseEngineer @{
-        connectionString = $ConnectionString
+        connectionString = $Connection
         provider = $Provider
-    } -startupProject $dteStartupProject
+    }
 
     $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
     $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
@@ -331,42 +350,41 @@ function Reverse-Engineer {
 }
 
 #
-# Customize-ReverseEngineer
+# Scaffold-DbContextTemplate
 #
 
-Register-TabExpansion Customize-ReverseEngineer @{
-    Project = { GetProjects }
-    StartupProject = { GetProjects }
+Register-TabExpansion Scaffold-DbContextTemplate @{
     Provider = { param ($tabExpansionContext) GetProviders $tabExpansionContext.Project }
+    Project = { GetProjects }
 }
 
 <#
 .SYNOPSIS
-	Outputs templates which can then be customized.
+    Scaffolds customizable DbContext and entity type templates to use during Scaffold-DbContext.
 
 .DESCRIPTION
-	Outputs templates which can then be customized by the user to control how to reverse engineer code from a database.
+    Scaffolds customizable DbContext and entity type templates to use during Scaffold-DbContext.
 
 .PARAMETER Provider
-	Specifies the name of the provider for which to output the templates, for example EntityFramework.SqlServer
+    Specifies the provider to use. For example, EntityFramework.SqlServer.
 
 .PARAMETER Project
-	Specifies the project to use. If omitted, the default project is used.
+    Specifies the project to use. If omitted, the default project is used.
 
-.PARAMETER StartupProject
-	Specifies the start-up project to use. If omitted, the solution's start-up project is used.
+.LINK
+    Scaffold-DbContext
+    about_EntityFramework
 #>
-function Customize-ReverseEngineer {
+function Scaffold-DbContextTemplate {
     [CmdletBinding(PositionalBinding = $false)]
-    param ([Parameter(Position = 0, Mandatory = $true)] [string] $Provider, [string] $Project, [string] $StartupProject)
+    param ([Parameter(Position = 0, Mandatory = $true)] [string] $Provider, [string] $Project)
 
-    $values = ProcessCommonParameters -projectName $Project -startupProjectName $StartupProject
+    $values = ProcessCommonParameters -projectName $Project
     $dteProject = $values.Project
-    $dteStartupProject = $values.StartupProject
 
     $artifacts = InvokeOperation $dteProject CustomizeReverseEngineer @{
         provider = $Provider
-    } -startupProject $dteStartupProject
+    }
 
     $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
     $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null

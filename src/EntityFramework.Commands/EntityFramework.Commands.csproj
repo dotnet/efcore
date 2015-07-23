@@ -50,6 +50,7 @@
     <Compile Include="DatabaseTool.cs" />
     <Compile Include="DesignTimeServices.cs" />
     <Compile Include="Executor.cs" />
+    <Compile Include="Extensions\CommandLineUtilsExtensions.cs" />
     <Compile Include="IHandlers.cs" />
     <Compile Include="MigrationTool.cs" />
     <Compile Include="Migrations\ScaffoldedMigration.cs" />
@@ -90,9 +91,11 @@
       <LastGenOutput>Resources.cs</LastGenOutput>
     </Content>
     <None Include="project.json" />
+    <None Include="tools\about_EntityFramework.help.txt" />
     <None Include="tools\EntityFramework.psd1" />
     <None Include="tools\EntityFramework.psm1" />
     <None Include="tools\init.ps1" />
+    <None Include="tools\install.ps1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EntityFramework.Relational.Design\EntityFramework.Relational.Design.csproj">

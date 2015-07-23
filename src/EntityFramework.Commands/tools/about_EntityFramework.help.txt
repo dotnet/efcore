@@ -10,24 +10,27 @@ LONG DESCRIPTION
 
     The following Entity Framework cmdlets are included.
 
-        Cmdlet              Description
-        -----------------   ---------------------------------------------------
-        Add-Migration       Adds a new migration.
+        Cmdlet                      Description
+        --------------------------  ---------------------------------------------------
+        Add-Migration		        Adds a new migration.
 
-        Apply-Migration     Applies any pending migrations to the database.
+        Remove-Migration	        Removes the last migration.
 
-        Remove-Migration    Removes the last migration.
+        Scaffold-DbContext	        Scaffolds a DbContext and entity type classes for a specified database.
 
-        Reverse-Engineer    Reverse engineers code from a database.
+        Scaffold-DbContextTemplate  Scaffolds customizable DbContext and entity type templates to use during Scaffold-DbContext.
 
-        Script-Migration    Generates a SQL script from migrations.
+        Script-Migration	        Generates a SQL script from migrations.
 
-        Use-DbContext       Sets the default DbContext to use.
+        Update-Database		        Updates the database to a specified migration.
+
+        Use-DbContext               Sets the default DbContext to use.
 
 SEE ALSO
-	Add-Migration
-	Apply-Migration
-	Remove-Migration
-	Reverse-Engineer
-	Script-Migration
-	Use-DbContext
+    Add-Migration
+    Remove-Migration
+    Scaffold-DbContext
+    Scaffold-DbContextTemplate
+    Script-Migration
+    Update-Database
+    Use-DbContext
