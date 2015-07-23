@@ -41,7 +41,8 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
             [NotNull] IMemberTranslator compositeMemberTranslator,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
             : base(model, loggerFactory)
         {
             Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
@@ -55,6 +56,7 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator));
             Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator));
             Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(relationalExtensions, nameof(relationalExtensions));
 
             EntityKeyFactorySource = entityKeyFactorySource;
             EntityMaterializerSource = entityMaterializerSource;
@@ -68,6 +70,7 @@ namespace Microsoft.Data.Entity.Storage
 
             TypeMapper = typeMapper;
             ValueBufferFactoryFactory = valueBufferFactoryFactory;
+            RelationalExtensions = relationalExtensions;
         }
 
         protected virtual IEntityKeyFactorySource EntityKeyFactorySource { get; }
@@ -77,6 +80,8 @@ namespace Microsoft.Data.Entity.Storage
         protected virtual IClrAccessorSource<IClrPropertyGetter> ClrPropertyGetterSource { get; }
 
         protected virtual IRelationalTypeMapper TypeMapper { get; }
+
+        protected virtual IRelationalMetadataExtensionProvider RelationalExtensions { get; }
 
         protected virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
 
@@ -120,24 +125,11 @@ namespace Microsoft.Data.Entity.Storage
                 .CreateAsyncQueryExecutor<TResult>(
                     Check.NotNull(queryModel, nameof(queryModel)));
 
-        protected virtual RelationalQueryCompilationContext CreateQueryCompilationContext(
+        protected abstract RelationalQueryCompilationContext CreateQueryCompilationContext(
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
-            [NotNull] IMemberTranslator compositeMemberTranslator)
-            => new RelationalQueryCompilationContext(
-                Model,
-                Logger,
-                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
-                Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
-                EntityMaterializerSource,
-                EntityKeyFactorySource,
-                ClrPropertyGetterSource,
-                Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
-                Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator)),
-                Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator)),
-                ValueBufferFactoryFactory,
-                TypeMapper);
+            [NotNull] IMemberTranslator compositeMemberTranslator);
     }
 }

@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     memberExpression,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
-                            QueryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                            QueryModelVisitor.QueryCompilationContext.RelationalExtensions.For(property).ColumnName,
                             property,
                             querySource),
                     bindSubQueries: true);
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     methodCallExpression,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
-                            QueryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                            QueryModelVisitor.QueryCompilationContext.RelationalExtensions.For(property).ColumnName,
                             property,
                             querySource),
                     bindSubQueries: true);
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             var relationalQueryCompilationContext = QueryModelVisitor.QueryCompilationContext;
             var entityType = relationalQueryCompilationContext.Model.GetEntityType(elementType);
             var selectExpression = new SelectExpression();
-            var name = relationalQueryCompilationContext.GetTableName(entityType);
+            var name = relationalQueryCompilationContext.RelationalExtensions.For(entityType).TableName;
 
             var tableAlias
                 = _querySource.HasGeneratedItemName()
@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 selectExpression.AddTable(
                     new TableExpression(
                         name,
-                        relationalQueryCompilationContext.GetSchema(entityType),
+                        relationalQueryCompilationContext.RelationalExtensions.For(entityType).Schema,
                         tableAlias,
                         _querySource));
             }
@@ -189,9 +189,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             selectExpression,
                             (p, se) =>
                                 se.AddToProjection(
-                                    relationalQueryCompilationContext.GetColumnName(p),
+                                    relationalQueryCompilationContext.RelationalExtensions.For(p).ColumnName,
                                     p,
                                     _querySource),
+                            QueryModelVisitor.QueryCompilationContext.RelationalExtensions,
                             _querySource);
 
                 queryMethodInfo

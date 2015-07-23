@@ -340,7 +340,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 && selectExpression != _targetSelectExpression)
             {
                 selectExpression?.AddToProjection(
-                    _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                    _queryModelVisitor.QueryCompilationContext.RelationalExtensions.For(property).ColumnName,
                     property,
                     querySource);
 
@@ -355,7 +355,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             return new AliasExpression(
                 new ColumnExpression(
-                    _queryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                    _queryModelVisitor.QueryCompilationContext.RelationalExtensions.For(property).ColumnName,
                     property,
                     selectExpression.GetTableForQuerySource(querySource)));
         }

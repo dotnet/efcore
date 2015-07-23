@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
@@ -22,6 +23,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             : base(generatorModel)
         {
         }
+
+        protected override IRelationalMetadataExtensionProvider RelationalExtensions => new SqlServerMetadataExtensionProvider();
 
         public override IEnumerable<IEntityType> OrderedEntityTypes()
         {

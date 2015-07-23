@@ -34,16 +34,6 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual ModelDiffer CreateModelDiffer()
             => new ModelDiffer(new ConcreteTypeMapper(), new TestMetadataExtensionProvider(), new MigrationAnnotationProvider());
 
-        private class TestMetadataExtensionProvider : IRelationalMetadataExtensionProvider
-        {
-            public IRelationalEntityTypeAnnotations GetAnnotations(IEntityType entityType) => entityType.Relational();
-            public IRelationalForeignKeyAnnotations GetAnnotations(IForeignKey foreignKey) => foreignKey.Relational();
-            public IRelationalIndexAnnotations GetAnnotations(IIndex index) => index.Relational();
-            public IRelationalKeyAnnotations GetAnnotations(IKey key) => key.Relational();
-            public IRelationalModelAnnotations GetAnnotations(IModel model) => model.Relational();
-            public IRelationalPropertyAnnotations GetAnnotations(IProperty property) => property.Relational();
-        }
-
         private class ConcreteTypeMapper : RelationalTypeMapper
         {
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
@@ -54,6 +44,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                         { typeof(string), new RelationalTypeMapping("nvarchar(4000)") },
                         { typeof(byte[]), new RelationalTypeMapping("varbinary(8000)") }
                     };
+
+            protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
             protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
                 = new Dictionary<string, RelationalTypeMapping>();

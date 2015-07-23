@@ -93,6 +93,8 @@ namespace Microsoft.Data.Entity.SqlServer
                 };
         }
 
+        protected override string GetColumnType(IProperty property) => property.SqlServer().ColumnType;
+
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings
             => _simpleMappings;
 

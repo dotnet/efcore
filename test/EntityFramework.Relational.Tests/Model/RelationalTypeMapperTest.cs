@@ -145,6 +145,8 @@ namespace Microsoft.Data.Entity.Tests.Model
             private static readonly RelationalTypeMapping _defaultIntMapping = new RelationalTypeMapping("default_int_mapping");
             private static readonly RelationalTypeMapping _someIntMapping = new RelationalTypeMapping("some_int_mapping");
 
+            protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
+
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
                 = new Dictionary<Type, RelationalTypeMapping>
                     {

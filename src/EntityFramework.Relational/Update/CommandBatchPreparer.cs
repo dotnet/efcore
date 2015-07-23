@@ -74,10 +74,10 @@ namespace Microsoft.Data.Entity.Update
             // TODO: Handle multiple state entries that update the same row
             return entries.Select(
                 e => new ModificationCommand(
-                    _metadataExtensionProvider.GetAnnotations(e.EntityType).TableName,
-                    _metadataExtensionProvider.GetAnnotations(e.EntityType).Schema,
+                    _metadataExtensionProvider.For(e.EntityType).TableName,
+                    _metadataExtensionProvider.For(e.EntityType).Schema,
                     parameterNameGenerator,
-                    _metadataExtensionProvider.GetAnnotations,
+                    _metadataExtensionProvider.For,
                     _valueBufferFactoryFactory)
                     .AddEntry(e));
         }

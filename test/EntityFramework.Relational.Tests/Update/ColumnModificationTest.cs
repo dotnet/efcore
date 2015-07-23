@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var columnModification = new ColumnModification(
                 internalEntryMock.Object,
                 property,
-                property.Relational(),
+                property.TestProvider(),
                 new ParameterNameGenerator(),
                 isRead: false,
                 isWrite: false,

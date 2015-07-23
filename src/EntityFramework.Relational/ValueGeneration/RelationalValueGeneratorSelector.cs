@@ -9,10 +9,17 @@ namespace Microsoft.Data.Entity.ValueGeneration
 {
     public class RelationalValueGeneratorSelector : ValueGeneratorSelector
     {
-        public RelationalValueGeneratorSelector([NotNull] IValueGeneratorCache cache)
+        public RelationalValueGeneratorSelector(
+            [NotNull] IValueGeneratorCache cache,
+            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
             : base(cache)
         {
+            Check.NotNull(relationalExtensions, nameof(relationalExtensions));
+
+            RelationalExtensions = relationalExtensions;
         }
+
+        protected virtual IRelationalMetadataExtensionProvider RelationalExtensions { get; }
 
         public override ValueGenerator Create(IProperty property, IEntityType entityType)
         {
@@ -20,9 +27,9 @@ namespace Microsoft.Data.Entity.ValueGeneration
             Check.NotNull(entityType, nameof(entityType));
 
             if (property.DeclaringEntityType.BaseType == null
-                && property.DeclaringEntityType.Relational().DiscriminatorProperty == property)
+                && RelationalExtensions.For(property.DeclaringEntityType).DiscriminatorProperty == property)
             {
-                return new DiscriminatorValueGenerator(entityType.Relational().DiscriminatorValue);
+                return new DiscriminatorValueGenerator(RelationalExtensions.For(entityType).DiscriminatorValue);
             }
 
             return base.Create(property, entityType);

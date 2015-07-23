@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Sqlite.Metadata
@@ -242,14 +243,12 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             var model = modelBuilder.Model;
 
             Assert.Null(model.Relational().FindSequence("Foo"));
-            Assert.Null(((IModel)model).Relational().FindSequence("Foo"));
             Assert.Null(model.Sqlite().FindSequence("Foo"));
             Assert.Null(((IModel)model).Sqlite().FindSequence("Foo"));
 
             var sequence = model.Sqlite().GetOrAddSequence("Foo");
 
             Assert.Null(model.Relational().FindSequence("Foo"));
-            Assert.Null(((IModel)model).Relational().FindSequence("Foo"));
             Assert.Equal("Foo", model.Sqlite().FindSequence("Foo").Name);
             Assert.Equal("Foo", ((IModel)model).Sqlite().FindSequence("Foo").Name);
 

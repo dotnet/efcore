@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             foreach (var navigation in navigationPath)
             {
                 var targetEntityType = navigation.GetTargetType();
-                var targetTableName = _queryCompilationContext.GetTableName(targetEntityType);
+                var targetTableName = _queryCompilationContext.RelationalExtensions.For(targetEntityType).TableName;
                 var targetTableAlias = targetTableName[0].ToString().ToLower();
 
                 if (!navigation.IsCollection())
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     var joinedTableExpression
                         = new TableExpression(
                             targetTableName,
-                            _queryCompilationContext.GetSchema(targetEntityType),
+                            _queryCompilationContext.RelationalExtensions.For(targetEntityType).Schema,
                             targetTableAlias,
                             querySource);
 
@@ -128,13 +128,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             .CreateMaterializer(
                                 targetEntityType,
                                 selectExpression,
-                                projectionAdder:
-                                    (p, se) => se.AddToProjection(
-                                        new AliasExpression(
-                                            new ColumnExpression(
-                                                _queryCompilationContext.GetColumnName(p),
-                                                p,
-                                                joinedTableExpression))) - valueBufferOffset,
+                                (p, se) => se.AddToProjection(
+                                    new AliasExpression(
+                                        new ColumnExpression(
+                                            _queryCompilationContext.RelationalExtensions.For(p).ColumnName,
+                                            p,
+                                            joinedTableExpression))) - valueBufferOffset,
+                                _queryCompilationContext.RelationalExtensions,
                                 querySource: null);
 
                     joinExpression.Predicate
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     {
                         selectExpression
                             .AddToOrderBy(
-                                _queryCompilationContext.GetColumnName(property),
+                                _queryCompilationContext.RelationalExtensions.For(property).ColumnName,
                                 property,
                                 principalTable,
                                 OrderingDirection.Asc);
@@ -181,7 +181,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     targetTableExpression
                         = new TableExpression(
                             targetTableName,
-                            _queryCompilationContext.GetSchema(targetEntityType),
+                            _queryCompilationContext.RelationalExtensions.For(targetEntityType).Schema,
                             targetTableAlias,
                             querySource);
 
@@ -194,9 +194,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                 targetEntityType,
                                 targetSelectExpression,
                                 (p, se) => se.AddToProjection(
-                                    _queryCompilationContext.GetColumnName(p),
+                                    _queryCompilationContext.RelationalExtensions.For(p).ColumnName,
                                     p,
                                     querySource),
+                                _queryCompilationContext.RelationalExtensions,
                                 querySource: null);
 
                     var innerJoinSelectExpression
@@ -340,7 +341,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             if (projections.Count == 0)
             {
                 return new ColumnExpression(
-                    _queryCompilationContext.GetColumnName(property),
+                    _queryCompilationContext.RelationalExtensions.For(property).ColumnName,
                     property,
                     tableExpression);
             }

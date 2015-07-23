@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -26,7 +25,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         [Fact]
         public void AddCommand_adds_command_if_possible()
         {
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -43,7 +42,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         [Fact]
         public void AddCommand_does_not_add_command_if_not_possible()
         {
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -59,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         [Fact]
         public void AddCommand_does_not_add_command_if_resulting_sql_is_invalid()
         {
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -77,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             var sqlGeneratorMock = new Mock<IUpdateSqlGenerator>();
@@ -95,7 +94,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             var sqlGeneratorMock = new Mock<IUpdateSqlGenerator>();
@@ -113,7 +112,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Deleted);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             var sqlGeneratorMock = new Mock<IUpdateSqlGenerator>();
@@ -131,7 +130,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             var fakeSqlGenerator = new FakeSqlGenerator();
@@ -180,7 +179,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         public async Task ExecuteAsync_executes_batch_commands_and_consumes_reader()
         {
             var entry = CreateEntry(EntityState.Added);
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             var mockReader = CreateDataReaderMock();
@@ -201,7 +200,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0]);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1" }, new List<object[]> { new object[] { 42 } }).Object);
@@ -222,7 +221,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
             entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0]);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1", "Col2" }, new List<object[]> { new object[] { 42, "FortyTwo" } }).Object);
@@ -242,7 +241,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var entry = CreateEntry(
                 EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } }).Object);
@@ -262,7 +261,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0]);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             var mockReader = CreateDataReaderMock(new[] { "Col1" }, new List<object[]>
@@ -285,7 +284,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1" }, new List<object[]> { new object[] { 42 } }).Object);
@@ -308,7 +307,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0]);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new TypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new TypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1" }, new List<object[]>()).Object);
@@ -337,7 +336,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 "T",
                 "S",
                 new ParameterNameGenerator(),
-                (Func<IProperty, IRelationalPropertyAnnotations>)(p => p.Relational()),
+                (Func<IProperty, IRelationalPropertyAnnotations>)(p => p.TestProvider()),
                 Mock.Of<IRelationalValueBufferFactoryFactory>());
 
             commandMock1.Setup(m => m.ColumnModifications).Returns(
@@ -346,7 +345,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.Relational(),
+                            property.TestProvider(),
                             new ParameterNameGenerator(),
                             false, true, false, false)
                     });
@@ -356,7 +355,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 "T",
                 "S",
                 new ParameterNameGenerator(),
-                (Func<IProperty, IRelationalPropertyAnnotations>)(p => p.Relational()),
+                (Func<IProperty, IRelationalPropertyAnnotations>)(p => p.TestProvider()),
                 Mock.Of<IRelationalValueBufferFactoryFactory>());
             commandMock2.Setup(m => m.ColumnModifications).Returns(
                 new List<ColumnModification>
@@ -364,7 +363,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                         new ColumnModification(
                             entry,
                             property,
-                            property.Relational(),
+                            property.TestProvider(),
                             new ParameterNameGenerator(),
                             false, true, false, false)
                     });
@@ -393,7 +392,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 new ColumnModification(
                     entry,
                     property,
-                    property.Relational(),
+                    property.TestProvider(),
                     new ParameterNameGenerator(),
                     false, true, false, false),
                 new ConcreteTypeMapper());
@@ -414,7 +413,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 new ColumnModification(
                     entry,
                     property,
-                    property.Relational(),
+                    property.TestProvider(),
                     new ParameterNameGenerator(),
                     false, false, false, true),
                 new ConcreteTypeMapper());
@@ -435,7 +434,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 new ColumnModification(
                     entry,
                     property,
-                    property.Relational(),
+                    property.TestProvider(),
                     new ParameterNameGenerator(),
                     false, true, false, true),
                 new ConcreteTypeMapper());
@@ -456,7 +455,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 new ColumnModification(
                     entry,
                     property,
-                    property.Relational(),
+                    property.TestProvider(),
                     new ParameterNameGenerator(),
                     true, false, false, false),
                 new ConcreteTypeMapper());
@@ -688,6 +687,8 @@ namespace Microsoft.Data.Entity.Tests.Update
 
         private class ConcreteTypeMapper : RelationalTypeMapper
         {
+            protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
+
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
                 = new Dictionary<Type, RelationalTypeMapping>
                     {

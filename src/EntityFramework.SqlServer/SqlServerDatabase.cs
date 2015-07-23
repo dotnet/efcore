@@ -31,7 +31,8 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
             [NotNull] IMemberTranslator compositeMemberTranslator,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
             : base(
                 model,
                 entityKeyFactorySource,
@@ -45,7 +46,8 @@ namespace Microsoft.Data.Entity.SqlServer
                 valueBufferFactoryFactory,
                 compositeMethodCallTranslator,
                 compositeMemberTranslator,
-                typeMapper)
+                typeMapper,
+                relationalExtensions)
         {
         }
 
@@ -74,7 +76,8 @@ namespace Microsoft.Data.Entity.SqlServer
                 compositeMethodCallTranslator,
                 compositeMemberTranslator,
                 ValueBufferFactoryFactory,
-                TypeMapper);
+                TypeMapper,
+                RelationalExtensions);
         }
     }
 }

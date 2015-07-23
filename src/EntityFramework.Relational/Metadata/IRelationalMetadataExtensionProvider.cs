@@ -7,11 +7,11 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IRelationalMetadataExtensionProvider
     {
-        IRelationalEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType);
-        IRelationalForeignKeyAnnotations GetAnnotations([NotNull] IForeignKey foreignKey);
-        IRelationalIndexAnnotations GetAnnotations([NotNull] IIndex index);
-        IRelationalKeyAnnotations GetAnnotations([NotNull] IKey key);
-        IRelationalModelAnnotations GetAnnotations([NotNull] IModel model);
-        IRelationalPropertyAnnotations GetAnnotations([NotNull] IProperty property);
+        IRelationalEntityTypeAnnotations For([NotNull] IEntityType entityType);
+        IRelationalForeignKeyAnnotations For([NotNull] IForeignKey foreignKey);
+        IRelationalIndexAnnotations For([NotNull] IIndex index);
+        IRelationalKeyAnnotations For([NotNull] IKey key);
+        IRelationalModelAnnotations For([NotNull] IModel model);
+        IRelationalPropertyAnnotations For([NotNull] IProperty property);
     }
 }

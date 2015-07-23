@@ -25,8 +25,9 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
         public SqlServerValueGeneratorSelector(
             [NotNull] ISqlServerValueGeneratorCache cache,
             [NotNull] ISqlServerSequenceValueGeneratorFactory sequenceFactory,
-            [NotNull] ISqlServerConnection connection)
-            : base(cache)
+            [NotNull] ISqlServerConnection connection,
+            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
+            : base(cache, relationalExtensions)
         {
             Check.NotNull(sequenceFactory, nameof(sequenceFactory));
             Check.NotNull(connection, nameof(connection));

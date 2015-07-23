@@ -8,7 +8,6 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.DependencyInjection;
@@ -360,16 +359,6 @@ namespace Microsoft.Data.Entity.Tests.Update
                       metadataExtensionProvider)
             {
             }
-        }
-
-        private class TestMetadataExtensionProvider : IRelationalMetadataExtensionProvider
-        {
-            public IRelationalEntityTypeAnnotations GetAnnotations(IEntityType entityType) => entityType.Relational();
-            public IRelationalForeignKeyAnnotations GetAnnotations(IForeignKey foreignKey) => foreignKey.Relational();
-            public IRelationalIndexAnnotations GetAnnotations(IIndex index) => index.Relational();
-            public IRelationalKeyAnnotations GetAnnotations(IKey key) => key.Relational();
-            public IRelationalModelAnnotations GetAnnotations(IModel model) => model.Relational();
-            public IRelationalPropertyAnnotations GetAnnotations(IProperty property) => property.Relational();
         }
 
         private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory

@@ -31,6 +31,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             [NotNull] IEntityType entityType,
             [NotNull] SelectExpression selectExpression,
             [NotNull] Func<IProperty, SelectExpression, int> projectionAdder,
+            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions,
             [CanBeNull] IQuerySource querySource)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -63,8 +64,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 return Expression.Lambda<Func<ValueBuffer, object>>(materializer, valueBufferParameter);
             }
 
-            var discriminatorProperty
-                = concreteEntityTypes[0].Relational().DiscriminatorProperty;
+            var discriminatorProperty = relationalExtensions.For(concreteEntityTypes[0]).DiscriminatorProperty;
 
             var discriminatorColumn
                 = selectExpression.Projection
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var firstDiscriminatorValue
                 = Expression.Constant(
-                    concreteEntityTypes[0].Relational().DiscriminatorValue);
+                    relationalExtensions.For(concreteEntityTypes[0]).DiscriminatorValue);
 
             var discriminatorPredicate
                 = Expression.Equal(discriminatorColumn, firstDiscriminatorValue);
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                 var discriminatorValue
                     = Expression.Constant(
-                        concreteEntityType.Relational().DiscriminatorValue);
+                        relationalExtensions.For(concreteEntityType).DiscriminatorValue);
 
                 materializer
                     = _entityMaterializerSource

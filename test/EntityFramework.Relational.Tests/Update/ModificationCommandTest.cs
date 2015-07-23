@@ -6,7 +6,6 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update;
 using Xunit;
 
@@ -20,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0]);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -55,7 +54,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0], isTemporary: false);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -89,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -123,7 +122,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -157,7 +156,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -191,7 +190,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -225,7 +224,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Deleted);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -249,7 +248,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Deleted, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -283,7 +282,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Unchanged);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
 
             Assert.Equal(
                 Strings.ModificationFunctionInvalidEntityState(EntityState.Unchanged),
@@ -295,7 +294,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Detached);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
 
             Assert.Equal(
                 Strings.ModificationFunctionInvalidEntityState(EntityState.Detached),
@@ -308,7 +307,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var entry = CreateEntry(
                 EntityState.Deleted, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -320,7 +319,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var entry = CreateEntry(
                 EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.True(command.RequiresResultPropagation);
@@ -331,7 +330,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -343,7 +342,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var entry = CreateEntry(
                 EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.True(command.RequiresResultPropagation);
@@ -354,7 +353,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.Relational(), new UntypedValueBufferFactoryFactory());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedValueBufferFactoryFactory());
             command.AddEntry(entry);
 
             Assert.False(command.RequiresResultPropagation);

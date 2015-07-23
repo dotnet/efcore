@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 "T",
                 "S",
                 new ParameterNameGenerator(),
-                (Func<IProperty, IRelationalPropertyAnnotations>)(p => p.Relational()),
+                (Func<IProperty, IRelationalPropertyAnnotations>)(p => p.TestProvider()),
                 Mock.Of<IRelationalValueBufferFactoryFactory>()).Object;
 
             factory.AddCommand(modificationCommandBatchMock.Object, mockModificationCommand);

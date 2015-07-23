@@ -29,7 +29,8 @@ namespace Microsoft.Data.Entity.SqlServer.Query
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
             [NotNull] IMemberTranslator compositeMemberTranslator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
             : base(
                 model,
                 logger,
@@ -42,20 +43,12 @@ namespace Microsoft.Data.Entity.SqlServer.Query
                 compositeMethodCallTranslator,
                 compositeMemberTranslator,
                 valueBufferFactoryFactory,
-                typeMapper)
+                typeMapper,
+                relationalExtensions)
         {
         }
 
         public override ISqlQueryGenerator CreateSqlQueryGenerator(SelectExpression selectExpression)
             => new SqlServerQuerySqlGenerator(Check.NotNull(selectExpression, nameof(selectExpression)), TypeMapper);
-
-        public override string GetTableName(IEntityType entityType)
-            => Check.NotNull(entityType, nameof(entityType)).SqlServer().TableName;
-
-        public override string GetSchema(IEntityType entityType)
-            => Check.NotNull(entityType, nameof(entityType)).SqlServer().Schema;
-
-        public override string GetColumnName(IProperty property)
-            => Check.NotNull(property, nameof(property)).SqlServer().ColumnName;
     }
 }

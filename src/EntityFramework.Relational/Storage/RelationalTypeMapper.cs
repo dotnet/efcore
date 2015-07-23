@@ -24,13 +24,16 @@ namespace Microsoft.Data.Entity.Storage
 
         protected abstract IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
 
+        // Not useing IRelationalMetadataExtensionProvider here because type mappers are Singletons
+        protected abstract string GetColumnType(IProperty property);
+
         public virtual RelationalTypeMapping MapPropertyType(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
             RelationalTypeMapping mapping = null;
 
-            var typeName = property.Relational().ColumnType;
+            var typeName = GetColumnType(property);
             if (typeName != null)
             {
                 var paren = typeName.IndexOf("(", StringComparison.Ordinal);

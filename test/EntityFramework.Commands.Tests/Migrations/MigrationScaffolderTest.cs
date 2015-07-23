@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Migrations.History;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.Logging;
 using Xunit;
 
@@ -45,7 +46,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     modelFactory),
                 new ModelDiffer(
                     new ConcreteTypeMapper(),
-                    new MockRelationalMetadataExtensionProvider(),
+                    new TestMetadataExtensionProvider(), 
                     new MigrationAnnotationProvider()),
                 new MigrationIdGenerator(),
                 new CSharpMigrationGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpModelGenerator(code)),
@@ -85,18 +86,10 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             public MigrationOperation GetInsertOperation(IHistoryRow row) => null;
         }
 
-        private class MockRelationalMetadataExtensionProvider : IRelationalMetadataExtensionProvider
-        {
-            public IRelationalIndexAnnotations GetAnnotations(IIndex index) => index.Relational();
-            public IRelationalModelAnnotations GetAnnotations(IModel model) => model.Relational();
-            public IRelationalPropertyAnnotations GetAnnotations(IProperty property) => property.Relational();
-            public IRelationalKeyAnnotations GetAnnotations(IKey key) => key.Relational();
-            public IRelationalForeignKeyAnnotations GetAnnotations(IForeignKey foreignKey) => foreignKey.Relational();
-            public IRelationalEntityTypeAnnotations GetAnnotations(IEntityType entityType) => entityType.Relational();
-        }
-
         private class ConcreteTypeMapper : RelationalTypeMapper
         {
+            protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
+
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
                 = new Dictionary<Type, RelationalTypeMapping>
                 {

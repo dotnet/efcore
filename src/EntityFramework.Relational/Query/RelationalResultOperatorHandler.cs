@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
@@ -316,8 +317,9 @@ namespace Microsoft.Data.Entity.Query
             if (concreteEntityTypes.Length != 1
                 || concreteEntityTypes[0].RootType() != concreteEntityTypes[0])
             {
-                var discriminatorProperty
-                    = concreteEntityTypes[0].Relational().DiscriminatorProperty;
+                var extensions = handlerContext.QueryModelVisitor.QueryCompilationContext.RelationalExtensions;
+
+                var discriminatorProperty = extensions.For(concreteEntityTypes[0]).DiscriminatorProperty;
 
                 var discriminatorColumn
                     = handlerContext.SelectExpression.Projection
@@ -329,7 +331,7 @@ namespace Microsoft.Data.Entity.Query
                         .Select(concreteEntityType =>
                             Expression.Equal(
                                 discriminatorColumn,
-                                Expression.Constant(concreteEntityType.Relational().DiscriminatorValue)))
+                                Expression.Constant(extensions.For(concreteEntityType).DiscriminatorValue)))
                         .Aggregate((current, next) => Expression.OrElse(next, current));
 
                 handlerContext.SelectExpression.Predicate

@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update;
@@ -92,6 +93,8 @@ namespace Microsoft.Data.Entity.Tests.Update
 
         private class ConcreteTypeMapper : RelationalTypeMapper
         {
+            protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
+
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
                 = new Dictionary<Type, RelationalTypeMapping>();
 

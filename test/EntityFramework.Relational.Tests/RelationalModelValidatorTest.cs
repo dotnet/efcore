@@ -1,8 +1,11 @@
-﻿
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Tests.Infrastructure;
 using Microsoft.Data.Entity.Tests.TestUtilities;
 using Xunit;
+using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Tests
 {
@@ -17,7 +20,7 @@ namespace Microsoft.Data.Entity.Tests
             entityA.Relational().TableName = "Table";
             entityB.Relational().TableName = "Table";
 
-            VerifyError(Relational.Internal.Strings.DuplicateTableName("Table", null, entityB.DisplayName()), model);
+            VerifyError(Strings.DuplicateTableName("Table", null, entityB.DisplayName()), model);
         }
 
         [Fact]
@@ -31,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests
             entityB.Relational().TableName = "Table";
             entityB.Relational().Schema = "Schema";
 
-            VerifyError(Relational.Internal.Strings.DuplicateTableName("Table", "Schema", entityB.DisplayName()), model);
+            VerifyError(Strings.DuplicateTableName("Table", "Schema", entityB.DisplayName()), model);
         }
 
         [Fact]
@@ -59,15 +62,13 @@ namespace Microsoft.Data.Entity.Tests
             CreateModelValidator().Validate(model);
         }
 
-
         public class C : A
         {
-
         }
 
         protected override ModelValidator CreateModelValidator()
-        {
-            return new RelationalModelValidator(new ListLoggerFactory(Log, l => l == typeof(ModelValidator).FullName));
-        }
+            => new RelationalModelValidator(
+                new ListLoggerFactory(Log, l => l == typeof(ModelValidator).FullName),
+                new TestMetadataExtensionProvider());
     }
 }

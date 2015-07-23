@@ -5,15 +5,23 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Internal
 {
     public class RelationalModelValidator : LoggingModelValidator
     {
-        public RelationalModelValidator([NotNull] ILoggerFactory loggerFactory)
+        private readonly IRelationalMetadataExtensionProvider _relationalExtensions;
+
+        public RelationalModelValidator(
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
             : base(loggerFactory)
         {
+            Check.NotNull(relationalExtensions, nameof(relationalExtensions));
+
+            _relationalExtensions = relationalExtensions;
         }
 
         public override void Validate(IModel model)
@@ -27,10 +35,13 @@ namespace Microsoft.Data.Entity.Internal
             var tables = new HashSet<string>();
             foreach (var entityType in model.EntityTypes.Where(et => et.BaseType == null))
             {
-                var name = entityType.Relational().Schema + "." + entityType.Relational().TableName;
+                var annotations = _relationalExtensions.For(entityType);
+
+                var name = annotations.Schema + "." + annotations.TableName;
+
                 if (!tables.Add(name))
                 {
-                    ShowError(Relational.Internal.Strings.DuplicateTableName(entityType.Relational().TableName, entityType.Relational().Schema, entityType.DisplayName()));
+                    ShowError(Relational.Internal.Strings.DuplicateTableName(annotations.TableName, annotations.Schema, entityType.DisplayName()));
                 }
             }
         }

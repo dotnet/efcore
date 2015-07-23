@@ -647,7 +647,7 @@ namespace Microsoft.Data.Entity.Query
 
                         selectExpression
                             .AddToProjection(
-                                QueryCompilationContext.GetColumnName(property),
+                                QueryCompilationContext.RelationalExtensions.For(property).ColumnName,
                                 property,
                                 querySource);
                     }
@@ -662,7 +662,7 @@ namespace Microsoft.Data.Entity.Query
                     = ParentQueryModelVisitor?.TryGetQuery(querySource);
 
                 selectExpression?.AddToProjection(
-                    QueryCompilationContext.GetColumnName(property),
+                    QueryCompilationContext.RelationalExtensions.For(property).ColumnName,
                     property,
                     querySource);
             }

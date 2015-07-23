@@ -17,12 +17,12 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class RelationalQueryCompilationContext : QueryCompilationContext
+    public abstract class RelationalQueryCompilationContext : QueryCompilationContext
     {
         private readonly List<RelationalQueryModelVisitor> _relationalQueryModelVisitors
             = new List<RelationalQueryModelVisitor>();
 
-        public RelationalQueryCompilationContext(
+        protected RelationalQueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
@@ -34,7 +34,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
             [NotNull] IMemberTranslator compositeMemberTranslator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
             : base(
                 model,
                 logger,
@@ -50,12 +51,14 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator));
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
             Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(relationalExtensions, nameof(relationalExtensions));
 
             QueryMethodProvider = queryMethodProvider;
             CompositeMethodCallTranslator = compositeMethodCallTranslator;
             CompositeMemberTranslator = compositeMemberTranslator;
             ValueBufferFactoryFactory = valueBufferFactoryFactory;
             TypeMapper = typeMapper;
+            RelationalExtensions = relationalExtensions;
         }
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor(
@@ -99,25 +102,6 @@ namespace Microsoft.Data.Entity.Query
             return new DefaultQuerySqlGenerator(selectExpression, TypeMapper);
         }
 
-        public virtual string GetTableName([NotNull] IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.Relational().TableName;
-        }
-
-        public virtual string GetSchema([NotNull] IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.Relational().Schema;
-        }
-
-        public virtual string GetColumnName([NotNull] IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return property.Relational().ColumnName;
-        }
+        public virtual IRelationalMetadataExtensionProvider RelationalExtensions { get; }
     }
 }

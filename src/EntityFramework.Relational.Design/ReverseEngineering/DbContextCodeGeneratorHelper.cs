@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -16,42 +15,30 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public abstract class DbContextCodeGeneratorHelper
     {
-        private const string _defaultDbContextName = "ModelContext";
+        private const string DefaultDbContextName = "ModelContext";
         private static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
 
-        public DbContextCodeGeneratorHelper([NotNull] DbContextGeneratorModel generatorModel)
+        protected DbContextCodeGeneratorHelper([NotNull] DbContextGeneratorModel generatorModel)
         {
             Check.NotNull(generatorModel, nameof(generatorModel));
 
             GeneratorModel = generatorModel;
         }
 
+        protected abstract IRelationalMetadataExtensionProvider RelationalExtensions { get; }
+
         public virtual DbContextGeneratorModel GeneratorModel { get; }
 
-        public virtual IEnumerable<IEntityType> OrderedEntityTypes()
-        {
-            // default ordering is by Name, which is what we want here
-            return GeneratorModel.MetadataModel.EntityTypes;
-        }
+        // default ordering is by Name, which is what we want here
+        public virtual IEnumerable<IEntityType> OrderedEntityTypes() => GeneratorModel.MetadataModel.EntityTypes;
 
         public virtual IEnumerable<IProperty> OrderedProperties([NotNull] IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return GeneratorModel.Generator.ModelUtilities.OrderedProperties(entityType);
-        }
+            => GeneratorModel.Generator.ModelUtilities.OrderedProperties(Check.NotNull(entityType, nameof(entityType)));
 
         public virtual string VerbatimStringLiteral([NotNull] string stringLiteral)
-        {
-            Check.NotNull(stringLiteral, nameof(stringLiteral));
+            => CSharpUtilities.Instance.GenerateVerbatimStringLiteral(Check.NotNull(stringLiteral, nameof(stringLiteral)));
 
-            return CSharpUtilities.Instance.GenerateVerbatimStringLiteral(stringLiteral);
-        }
-
-        public virtual string ClassName([CanBeNull] string connectionString)
-        {
-            return _defaultDbContextName;
-        }
+        public virtual string ClassName([CanBeNull] string connectionString) => DefaultDbContextName;
 
         public virtual IEnumerable<EntityConfiguration> EntityConfigurations
         {
@@ -121,22 +108,22 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
             var entityType = entityConfiguration.EntityType;
-            if (entityType.Relational().Schema != null
-                && entityType.Relational().Schema != "dbo")
+            if (RelationalExtensions.For(entityType).Schema != null
+                && RelationalExtensions.For(entityType).Schema != "dbo")
             {
                 entityConfiguration.FacetConfigurations.Add(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture, "ToTable({0}, {1})",
-                            CSharpUtilities.Instance.DelimitString(entityType.Relational().TableName),
-                            CSharpUtilities.Instance.DelimitString(entityType.Relational().Schema))));
+                            CSharpUtilities.Instance.DelimitString(RelationalExtensions.For(entityType).TableName),
+                            CSharpUtilities.Instance.DelimitString(RelationalExtensions.For(entityType).Schema))));
             }
-            else if (entityType.Relational().TableName != null
-                     && entityType.Relational().TableName != entityType.DisplayName())
+            else if (RelationalExtensions.For(entityType).TableName != null
+                     && RelationalExtensions.For(entityType).TableName != entityType.DisplayName())
             {
                 entityConfiguration.FacetConfigurations.Add(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture, "ToTable({0})",
-                            CSharpUtilities.Instance.DelimitString(entityType.Relational().TableName))));
+                            CSharpUtilities.Instance.DelimitString(RelationalExtensions.For(entityType).TableName))));
             }
         }
 
@@ -227,15 +214,15 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (propertyConfiguration.Property.Relational().ColumnName != null
-                && propertyConfiguration.Property.Relational().ColumnName != propertyConfiguration.Property.Name)
+            if (RelationalExtensions.For(propertyConfiguration.Property).ColumnName != null
+                && RelationalExtensions.For(propertyConfiguration.Property).ColumnName != propertyConfiguration.Property.Name)
             {
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture,
                             "HasColumnName({0})",
                             CSharpUtilities.Instance.DelimitString(
-                                propertyConfiguration.Property.Relational().ColumnName))));
+                                RelationalExtensions.For(propertyConfiguration.Property).ColumnName))));
             }
         }
 
@@ -244,14 +231,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (propertyConfiguration.Property.Relational().ColumnType != null)
+            if (RelationalExtensions.For(propertyConfiguration.Property).ColumnType != null)
             {
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture,
                             "HasColumnType({0})",
                             CSharpUtilities.Instance.DelimitString(
-                                propertyConfiguration.Property.Relational().ColumnType))));
+                                RelationalExtensions.For(propertyConfiguration.Property).ColumnType))));
             }
         }
 
@@ -260,14 +247,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (propertyConfiguration.Property.Relational().DefaultValue != null)
+            if (RelationalExtensions.For(propertyConfiguration.Property).DefaultValue != null)
             {
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture,
                             "HasDefaultValue({0})",
                             CSharpUtilities.Instance.GenerateLiteral(
-                                (dynamic)propertyConfiguration.Property.Relational().DefaultValue))));
+                                (dynamic)RelationalExtensions.For(propertyConfiguration.Property).DefaultValue))));
             }
         }
 
@@ -276,14 +263,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (propertyConfiguration.Property.Relational().GeneratedValueSql != null)
+            if (RelationalExtensions.For(propertyConfiguration.Property).GeneratedValueSql != null)
             {
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration(
                         string.Format(CultureInfo.InvariantCulture,
                             "HasDefaultValueSql({0})",
                             CSharpUtilities.Instance.DelimitString(
-                                propertyConfiguration.Property.Relational().GeneratedValueSql))));
+                                RelationalExtensions.For(propertyConfiguration.Property).GeneratedValueSql))));
             }
         }
     }

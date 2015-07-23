@@ -29,7 +29,6 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<UntypedValueBufferFactoryFactory>();
             VerifySingleton<TypedValueBufferFactoryFactory>();
             VerifySingleton<IMigrationModelFactory>();
-            VerifySingleton<RelationalModelValidator>();
 
             VerifyScoped<IMigrator>();
             VerifyScoped<IMigrationAssembly>();
@@ -40,6 +39,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<RelationalSqlExecutor>();
             VerifyScoped<SqlStatementExecutor>();
             VerifyScoped<CommandBatchPreparer>();
+            VerifyScoped<RelationalModelValidator>();
 
             VerifyScoped<ISqlStatementExecutor>();
             VerifyScoped<IMethodCallTranslator>();

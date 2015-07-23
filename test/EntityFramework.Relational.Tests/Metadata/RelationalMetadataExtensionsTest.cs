@@ -20,19 +20,16 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Metadata;
 
             Assert.Equal("Name", property.Relational().ColumnName);
-            Assert.Equal("Name", ((IProperty)property).Relational().ColumnName);
 
             property.Relational().ColumnName = "Eman";
 
             Assert.Equal("Name", property.Name);
             Assert.Equal("Name", ((IProperty)property).Name);
             Assert.Equal("Eman", property.Relational().ColumnName);
-            Assert.Equal("Eman", ((IProperty)property).Relational().ColumnName);
 
             property.Relational().ColumnName = null;
 
             Assert.Equal("Name", property.Relational().ColumnName);
-            Assert.Equal("Name", ((IProperty)property).Relational().ColumnName);
         }
 
         [Fact]
@@ -45,19 +42,16 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Metadata;
 
             Assert.Equal("Customer", entityType.Relational().TableName);
-            Assert.Equal("Customer", ((IEntityType)entityType).Relational().TableName);
 
             entityType.Relational().TableName = "Customizer";
 
             Assert.Equal("Customer", entityType.DisplayName());
             Assert.Equal("Customer", ((IEntityType)entityType).DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
-            Assert.Equal("Customizer", ((IEntityType)entityType).Relational().TableName);
 
             entityType.Relational().TableName = null;
 
             Assert.Equal("Customer", entityType.Relational().TableName);
-            Assert.Equal("Customer", ((IEntityType)entityType).Relational().TableName);
         }
 
         [Fact]
@@ -70,17 +64,14 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Metadata;
 
             Assert.Null(entityType.Relational().Schema);
-            Assert.Null(((IEntityType)entityType).Relational().Schema);
 
             entityType.Relational().Schema = "db0";
 
             Assert.Equal("db0", entityType.Relational().Schema);
-            Assert.Equal("db0", ((IEntityType)entityType).Relational().Schema);
 
             entityType.Relational().Schema = null;
 
             Assert.Null(entityType.Relational().Schema);
-            Assert.Null(((IEntityType)entityType).Relational().Schema);
         }
 
         [Fact]
@@ -94,17 +85,14 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Metadata;
 
             Assert.Null(property.Relational().ColumnType);
-            Assert.Null(((IProperty)property).Relational().ColumnType);
 
             property.Relational().ColumnType = "nvarchar(max)";
 
             Assert.Equal("nvarchar(max)", property.Relational().ColumnType);
-            Assert.Equal("nvarchar(max)", ((IProperty)property).Relational().ColumnType);
 
             property.Relational().ColumnType = null;
 
             Assert.Null(property.Relational().ColumnType);
-            Assert.Null(((IProperty)property).Relational().ColumnType);
         }
 
         [Fact]
@@ -118,17 +106,14 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Metadata;
 
             Assert.Null(property.Relational().GeneratedValueSql);
-            Assert.Null(((IProperty)property).Relational().GeneratedValueSql);
 
             property.Relational().GeneratedValueSql = "newsequentialid()";
 
             Assert.Equal("newsequentialid()", property.Relational().GeneratedValueSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).Relational().GeneratedValueSql);
 
             property.Relational().GeneratedValueSql = null;
 
             Assert.Null(property.Relational().GeneratedValueSql);
-            Assert.Null(((IProperty)property).Relational().GeneratedValueSql);
         }
 
         [Fact]
@@ -142,19 +127,16 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Metadata;
 
             Assert.Null(property.Relational().DefaultValue);
-            Assert.Null(((IProperty)property).Relational().DefaultValue);
 
             var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
 
             property.Relational().DefaultValue = guid;
 
             Assert.Equal(guid, property.Relational().DefaultValue);
-            Assert.Equal(guid, ((IProperty)property).Relational().DefaultValue);
 
             property.Relational().DefaultValue = null;
 
             Assert.Null(property.Relational().DefaultValue);
-            Assert.Null(((IProperty)property).Relational().DefaultValue);
         }
 
         [Fact]
@@ -168,17 +150,14 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Metadata;
 
             Assert.Equal("PK_Customer", key.Relational().Name);
-            Assert.Equal("PK_Customer", ((IKey)key).Relational().Name);
 
             key.Relational().Name = "PrimaryKey";
 
             Assert.Equal("PrimaryKey", key.Relational().Name);
-            Assert.Equal("PrimaryKey", ((IKey)key).Relational().Name);
 
             key.Relational().Name = null;
 
             Assert.Equal("PK_Customer", key.Relational().Name);
-            Assert.Equal("PK_Customer", ((IKey)key).Relational().Name);
         }
 
         [Fact]
@@ -198,17 +177,14 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Metadata;
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
-            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).Relational().Name);
 
             foreignKey.Relational().Name = "FK";
 
             Assert.Equal("FK", foreignKey.Relational().Name);
-            Assert.Equal("FK", ((IForeignKey)foreignKey).Relational().Name);
 
             foreignKey.Relational().Name = null;
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
-            Assert.Equal("FK_Order_Customer_CustomerId", ((IForeignKey)foreignKey).Relational().Name);
         }
 
         [Fact]
@@ -222,17 +198,14 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Metadata;
 
             Assert.Equal("IX_Customer_Id", index.Relational().Name);
-            Assert.Equal("IX_Customer_Id", ((IIndex)index).Relational().Name);
 
             index.Relational().Name = "MyIndex";
 
             Assert.Equal("MyIndex", index.Relational().Name);
-            Assert.Equal("MyIndex", ((IIndex)index).Relational().Name);
 
             index.Relational().Name = null;
 
             Assert.Equal("IX_Customer_Id", index.Relational().Name);
-            Assert.Equal("IX_Customer_Id", ((IIndex)index).Relational().Name);
         }
 
         [Fact]
@@ -243,12 +216,12 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var extensions = model.Relational();
 
             Assert.Null(extensions.FindSequence("Foo"));
-            Assert.Null(((IModel)model).Relational().FindSequence("Foo"));
+            Assert.Null(model.Relational().FindSequence("Foo"));
 
             var sequence = extensions.GetOrAddSequence("Foo");
 
             Assert.Equal("Foo", extensions.FindSequence("Foo").Name);
-            Assert.Equal("Foo", ((IModel)model).Relational().FindSequence("Foo").Name);
+            Assert.Equal("Foo", model.Relational().FindSequence("Foo").Name);
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -291,12 +264,12 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var extensions = model.Relational();
 
             Assert.Null(extensions.FindSequence("Foo", "Smoo"));
-            Assert.Null(((IModel)model).Relational().FindSequence("Foo", "Smoo"));
+            Assert.Null(model.Relational().FindSequence("Foo", "Smoo"));
 
             var sequence = extensions.GetOrAddSequence("Foo", "Smoo");
 
             Assert.Equal("Foo", extensions.FindSequence("Foo", "Smoo").Name);
-            Assert.Equal("Foo", ((IModel)model).Relational().FindSequence("Foo", "Smoo").Name);
+            Assert.Equal("Foo", model.Relational().FindSequence("Foo", "Smoo").Name);
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Equal("Smoo", sequence.Schema);
