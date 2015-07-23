@@ -8,5 +8,6 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         public const string Prefix = "Sqlite:";
         public const string Autoincrement = "Autoincrement";
         public const string InlinePrimaryKey = "InlinePrimaryKey";
+        public const string InlinePrimaryKeyName = "InlinePrimaryKeyName";
     }
 }

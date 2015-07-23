@@ -37,9 +37,9 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void CreateTableOperation_with_annotations(bool autoincrement)
+        [InlineData(true, null)]
+        [InlineData(false, "PK_Id")]
+        public void CreateTableOperation_with_annotations(bool autoincrement, string pkName)
         {
             var addIdColumn = new AddColumnOperation
             {
@@ -74,6 +74,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                      },
                      PrimaryKey = new AddPrimaryKeyOperation
                      {
+                         Name = pkName,
                          Columns = new[] { "Id" }
                      },
                      UniqueConstraints =
@@ -95,7 +96,9 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
 
             Assert.Equal(
                 "CREATE TABLE \"People\" (" + EOL +
-                "    \"Id\" INTEGER NOT NULL PRIMARY KEY" +
+                "    \"Id\" INTEGER NOT NULL" + 
+                (pkName != null ? $" CONSTRAINT \"{pkName}\"":"") 
+                + " PRIMARY KEY" +
                 (autoincrement ? " AUTOINCREMENT," : ",") + EOL +
                 "    \"EmployerId\" int," + EOL +
                 "    \"SSN\" char(11)," + EOL +

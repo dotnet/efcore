@@ -59,6 +59,10 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                 if (columnOp != null)
                 {
                     columnOp.AddAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.InlinePrimaryKey, true);
+                    if (!string.IsNullOrEmpty(operation.PrimaryKey.Name))
+                    {
+                        columnOp.AddAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.InlinePrimaryKeyName, operation.PrimaryKey.Name);
+                    }
                     operation.PrimaryKey = null;
                 }
             }
@@ -89,6 +93,13 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             if (inlinePk != null
                 && (bool)inlinePk.Value)
             {
+                var inlinePkName = columnAnnotation.FindAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.InlinePrimaryKeyName);
+                if (!string.IsNullOrEmpty(inlinePkName?.Value as string))
+                {
+                    builder
+                        .Append(" CONSTRAINT ")
+                        .Append(_sql.DelimitIdentifier((string)inlinePkName.Value));
+                }
                 builder.Append(" PRIMARY KEY");
                 var autoincrement = columnAnnotation.FindAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement);
                 if (autoincrement != null
